@@ -7,6 +7,7 @@
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
 	<$message('ブログを作成しました')>
+	<$ifcall(Form.load_design, '_sub/load_default_design', Form.id)>
 	<$jump('_sub/reload_message', v.get_blog_path(Form.id) . '?set/')>
 <$end>
 

@@ -50,7 +50,7 @@ if (0) {
 # CRLF check
 #------------------------------------------------------------------------------
 {
-	open(my $fh, 'grep -r "\r\n" skel/ lib/ info/ plugin/|');
+	open(my $fh, "grep -r '\r\n' skel/ lib/ info/ plugin/|");
 	my @ary = <$fh>;
 	close($fh);
 

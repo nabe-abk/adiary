@@ -53,7 +53,7 @@ sub new {
 sub find_table {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my ($table) = @_;
+	my $table = shift;
 	if ($table =~ /\W/) { return 0; }	# Not Found(error)
 
 	my $dir   = $ROBJ->get_filepath($self->{dir}) . $table . '/';

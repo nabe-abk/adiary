@@ -1,0 +1,10 @@
+*side_a=<<LIST
+des_information-ja
+des_taglist
+des_artlist
+LIST
+
+*side_b=<<LIST
+des_comlist
+des_system-info
+LIST

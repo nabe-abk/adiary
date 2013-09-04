@@ -30,7 +30,15 @@
 	<tbody>
 	<tr>
 	<th>ブログID</th><td><input type="text" size="10" name="id" id="blogid" value="<@Auth.id>" readonly>（変更不可）</td>
-	</tr><tr>
+	</tr>
+	<tr>
+	<th>デザイン</th>
+	<td>
+		<input type="hidden" name="checkbox.info" value="load_design">
+		<input type="checkbox" name="load_design" value="1"<@if(Form.load_design || Form.load_design eq '',' checked')>><label>デフォルトデザインをロードする</label>
+	</td>
+	</tr>
+	<tr>
 	<td colspan="2" class="button"><input type="submit" value="ブログを作成" id="submit"></td>
 	</tr>
 	</tbody>

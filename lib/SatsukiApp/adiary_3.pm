@@ -925,7 +925,9 @@ sub save_design {
 	push(@html, $ROBJ->chain_array( $ROBJ->fread_skeleton('_format/sidebar_footer') ));
 
 	# そのブログ専用のスケルトンとして保存
-	my $r = $ROBJ->fwrite_lines($self->{blog_dir} . 'skel/_sidebar.html', \@html);
+	my $dir = $self->{blog_dir} . 'skel/';
+	$ROBJ->mkdir($dir);
+	my $r = $ROBJ->fwrite_lines($dir . '_sidebar.html', \@html);
 	if ($r) {
 		$ROBJ->message('Design edit failed');
 	}

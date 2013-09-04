@@ -9,7 +9,7 @@ use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION = '2.91';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'pre-beta1';
+our $SUBVERSION = 'beta1';
 #-------------------------------------------------------------------------------
 our $ThemeSkeletonLevel = 3;
 
@@ -335,13 +335,14 @@ sub output_html {
 # ■ブログの存在確認と設定ロード
 ###############################################################################
 #------------------------------------------------------------------------------
-# ●ブログの存在確認	※キュッシュ仕様を変更したら blog_drop も変更すること!!
+# ●ブログの存在確認	※キュッシュ仕様を変更したら blog_create/blog_drop も変更すること!!
 #------------------------------------------------------------------------------
 sub find_blog {
 	my $self = shift;
 	my $blogid = shift;
+	if ($blogid =~ /\W/) { return ; }
 
-	if( exists $self->{_cache_find_blog}->{$blogid} ) {
+	if(exists $self->{_cache_find_blog}->{$blogid}) {
 		return $self->{_cache_find_blog}->{$blogid};
 	}
 	return ($self->{_cache_find_blog}->{$blogid} = $self->{DB}->find_table("${blogid}_art"));

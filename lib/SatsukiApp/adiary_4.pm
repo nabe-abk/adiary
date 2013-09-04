@@ -48,6 +48,8 @@ sub blog_create {
 		$ROBJ->mkdir( "$self->{data_dir}blog/" );
 		$ROBJ->mkdir( $self->blog_dir   ( $id ) );
 		$ROBJ->mkdir( $self->blogpub_dir( $id ) );
+		# キャッシュ除去
+		delete $self->{_cache_find_blog}->{$id};
 	}
 	return $r;
 }
