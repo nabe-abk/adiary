@@ -1,0 +1,27 @@
+<@6>
+<@local(x,s)>
+<$s=argv#0>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>メールタイトル</th>
+		<td><input type="text" class="w160" name="subject" value="<@esc(s.subject) || 'blog notify'>" maxlength="64"></td>
+	</tr>
+<@ifexec(v.system_email, begin, begin)>
+	<tr>
+		<th>送信元アドレス<span class="help" data-help="adiary.conf.cgiで固定されています。">?</span></th>
+		<td><input type="hidden" name="from" value="<@v.system_email>"><@v.system_email></td>
+	</tr>
+<$else>
+	<tr>
+		<th>送信元アドレス<span class="help" data-help="メールのFromを指定します。空でも構いません。サーバやシステムによっては強制的に異なるアドレスに書き換えられます。また指定するメールアドレスによっては受信側メールサーバにSPAMとして弾かれる可能性があります。">?</span></th>
+		<td><input type="text" class="w320" name="from" value="<@s.from>" maxlength="128"></td>
+	</tr>
+<$end>
+	<tr>
+		<th>送信先アドレス<span class="help" data-help="複数指定したい場合は「,」で区切ってください。">?</span></th>
+		<td><input type="text" class="w320" name="to" value="<@s.to>" maxlength="128"></td>
+	</tr>
+	</tbody>
+	</table>

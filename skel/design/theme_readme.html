@@ -1,0 +1,15 @@
+<@20>
+<$ifredirect(!Auth.ok, v.myself)>
+<$v.frame_skeleton=''>
+<$set_content_type('text/plain')>
+<$name = Query.name>
+<$ifbreak(! match(name, '^[\w\-]+/[\w\-]+$'))>
+
+<@ifexec(file_readable("<@v.theme_dir><@name>/README.txt"), begin)>
+	<@esc(join('', fread_lines("<@v.theme_dir><@name>/README.txt")))>
+<$end>
+
+<@ifexec(file_readable("<@v.theme_dir><@name>/README"), begin)>
+	<@esc(join('', fread_lines("<@v.theme_dir><@name>/README")))>
+<$end>
+

@@ -1,0 +1,19 @@
+<@6>
+
+<select class="dir" onchange="location.href = $(this).val()">
+<@ifexec(v.blog_admin, begin)>
+	<option value="<@v.myself>?set/"<@if(v.skel_dir eq 'set/', ' selected')>>基本設定</option>
+<$end>
+<@ifexec(v.allow_edit, begin)>
+	<option value="<@v.myself>?set2/"<@if(v.skel_dir eq 'set2/', ' selected')>>その他の設定</option>
+<$end>
+<@ifexec(v.blog_admin, begin)>
+	<option value="<@v.myself>?design/"<@if(v.skel_dir eq 'design/', ' selected')>>デザイン編集</option>
+	<option value="<@v.myself>?mainte/"<@if(v.skel_dir eq 'mainte/', ' selected')>>ブログの管理</option>
+<$end>
+	<option value="<@v.myself>?personal/"<@if(v.skel_dir eq 'personal/', ' selected')>>個人の設定</option>
+<@ifexec(Auth.isadmin, begin)>
+	<option value="<@v.myself>?user/"<@if(v.skel_dir eq 'user/', ' selected')>>ユーザー管理</option>
+	<option value="<@v.myself>?system/"<@if(v.skel_dir eq 'system/', ' selected')>>システム管理</option>
+<$end>
+</select>

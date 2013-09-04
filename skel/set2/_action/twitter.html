@@ -1,0 +1,37 @@
+<@20>
+<@local(tw,r,s,h)>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.blog_admin)>
+
+<$ifexec(Form.setting, begin)>
+	<$h = validator(begin_hash, Form)>
+		_order=0
+		tw_ping = flag
+		tw_ping_title = ツイート内容
+	<$end>
+	<$ifbreak(form_error())>
+
+	<$v.update_blogset(v.blog, h)>
+	<$message("設定を保存しました")>
+	<$url = v.myself .'?'. v.skeleton)>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+<$tw = call('_sub/load_twitter_info')>
+<$oauth = loadpm("Base::OAuth")>
+
+<$r = oauth.request_token(tw)>
+<$ifexec(!r, begin)>
+	<$message('twitterが認証エラーを返しました。')>
+	<$break()>
+<$end>
+
+<$s = v.blog>
+<$s.tw_oauth_token = r.oauth_token>
+<$s.tw_oauth_token_secret = r.oauth_token_secret>
+<$s.tw_access_token = "">
+<$s.tw_access_token_secret = "">
+<$v.update_blogset(s)>
+
+<$message('次の画面で認証コードを入力してください。')>
+<$jump_clear('_sub/reload_message', v.myself . "?<@v.skel_dir>twitter_oauth" )>

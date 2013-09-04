@@ -1,0 +1,13 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$(action_return, num) = v.edit_articles('delete', Form.delete_pkey_int_ary)>
+
+<@> 
+<@> POST成功時の処理
+<$ifexec(action_return eq '0' && num==1, begin)>
+	<$message("記事「<@Form.title>」を削除しました")>
+	<$jump('_sub/reload_message')>
+<$end>
+
+<$v.action_is_main=1>
+<$jump('_sub/errorr_message', '削除に失敗しました')>

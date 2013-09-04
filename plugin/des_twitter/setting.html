@@ -1,0 +1,124 @@
+<@6>
+<@local(x,s)>
+<$s=argv#0>
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>モジュールタイトル<span class="help" data-help="Twitterモジュールのタイトルです。">?</span></th>
+		<td><input type="text" class="w160" name="title" value="<@s.title || 'Twitter'>" maxlength="64"></td>
+	</tr>
+	<tr>
+		<th>タイトル表示</th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="title_none">
+			<input type="checkbox" name="title_none" value="1"<@if(s.title_none,' checked')>><label>非表示にする</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<p>先に<a href="https://twitter.com/settings/widgets" target="_blank">Twitterの設定画面</a>からウィジェットを作成しておく必要があります。</p>
+
+	<table>
+	<tbody>
+	<tr>
+		<th>自動挿入</th><td><button type="button" data-title="Twitter id/widget-idの自動設定" id="auto-setting" data-msg="TwitterウィジョットのHTMLコードを貼り付けてください" data-ok="設定" data-cancel="キャンセル">ウィジェットコードから自動設定する</button></td>
+	</tr>
+	<tr>
+		<th>Twitterのid</th><td><input type="text" class="w200" name="id" value="<@s.id>" id="tw-id"></td>
+	</tr>
+	<tr>
+		<th>data-widget-id</th><td><input type="text" class="w200" name="widget_id" value="<@s.widget_id>" id="widget-id"></td>
+	</tr>
+	</tbody>
+	</table>
+
+	<h3>表示設定</h3>
+
+	<table>
+	<tbody>
+	<tr>
+		<th>表示サイズ：横幅</th>
+		<td>
+		<input type="number" name="size_x" class="w80" value="<@s.size_x || 0>" min="0" max="9999"> 
+		0：のとき自動調整
+		</td>
+	</tr>
+	<tr>
+		<th>表示サイズ：高さ</th>
+		<td>
+		<input type="number" name="size_y" class="w80" value="<@s.size_y || 0>" min="0" max="9999"> 
+		0：デフォルト
+		</td>
+	</tr>
+	<tr><th>非表示設定</th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="noheader">
+			<input type="checkbox" name="noheader" value="1"<@if(s.noheader || s.noheader eq '', ' checked')>>
+			<label>ヘッダーを非表示</label><br>
+			<input type="hidden" name="checkbox.info" value="nofooter">
+			<input type="checkbox" name="nofooter" value="1"<@if(s.nofooter, ' checked')>>
+			<label>フッター（ツイートボックス）を非表示</label><br>
+			<input type="hidden" name="checkbox.info" value="noborders">
+			<input type="checkbox" name="noborders" value="1"<@if(s.noborders, ' checked')>>
+			<label>ボーダー（境界線）を非表示</label><br>
+			<input type="hidden" name="checkbox.info" value="noscrollbar">
+			<input type="checkbox" name="noscrollbar" value="1"<@if(s.noscrollbar, ' checked')>>
+			<label>スクロールバーを非表示</label><br>
+			<input type="hidden" name="checkbox.info" value="noactions">
+			<input type="checkbox" name="noactions" value="1"<@if(s.noactions || s.noactions eq '', ' checked')>>
+			<label>ツイートアクションを非表示</label><br>
+			<input type="hidden" name="checkbox.info" value="transparent">
+			<input type="checkbox" name="transparent" value="1"<@if(s.transparent, ' checked')>>
+			<label>背景を透明にする</label><br>
+		</td>
+	</tr>
+	<tr>
+		<th>ヘッダの背景色</th><td>
+		<input type="text" id="bg" name="bg" size="12" value="<@s.bg>" class="color-picker">
+		</td>
+	</tr>
+	<tr>
+		<th>ヘッダの文字色</th><td>
+		<input type="text" id="fc" name="fc" size="12" value="<@s.fc>" class="color-picker">
+		</td>
+	</tr>
+	<tr>
+		<th>ツイートの背景色</th><td>
+		<input type="text" id="twbg" name="twbg" size="12" value="<@s.twbg>" class="color-picker">
+		</td>
+	</tr>
+	<tr>
+		<th>ツイートの文字色</th><td>
+		<input type="text" id="twfc" name="twfc" size="12" value="<@s.twfc>" class="color-picker">
+		</td>
+	</tr>
+	<tr>
+		<th>境界線の色</th><td>
+		<input type="text" id="border" name="border" size="12" value="<@s.border>" class="color-picker">
+		</td>
+	</tr>
+	<tr>
+		<th>リンクの色</th><td>
+		<input type="text" id="twlinks" name="twlinks" size="12" value="<@s.twlinks>" class="color-picker">
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<p>※色を指定しない場合、配色はTwitterのデフォルトになります。</p>
+
+<script>
+$('#auto-setting').click(function(evt){
+	popup_textarea(evt.target, function(data){
+		var x;
+		if (x = data.match(/>\s*\@(\w+)/)) {
+			$('#tw-id').val( x[1] );
+		}
+		if (x = data.match(/ data-widget-id\s*=\s*"(\d+)/)) {
+			$('#widget-id').val( x[1] );
+		}
+	});
+
+});
+</script>

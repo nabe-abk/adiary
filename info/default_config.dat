@@ -1,0 +1,9 @@
+create_blog_only_admin=0
+reload_time=3
+*ping_servers_txt=<<__END_BLK_DATA
+# Google blog 検索
+http://blogsearch.google.co.jp/ping/RPC2#ex
+# adiary official
+http://ping.adiary.org/ping/#adiary
+__END_BLK_DATA
+http_timeout=3

@@ -1,0 +1,119 @@
+<@6>
+<@local(s,err,t)>
+<$err=FormError>
+
+<!--========================================================================-->
+<@> システムモード
+<$v.system_mode("システム設定")>
+
+<@> 階層ツリー、権限確認
+<@call("<@v.skel_dir>_dir_tree")>
+
+<$s = v.sys)>
+<$ifexec(POST, begin)>
+	<$s = Form>
+	<$tag_escape(s.ping_servers_txt, s.http_timeout, s.reload_time, s.clip_dots, s.default_wiki_priority)>
+<$end>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<form action="<@v.myself>?<@v.skeleton><@if(Query.blogid eq '*', '&blogid=*')>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>デフォルトブログ<span class="help" data-help="表示ブログIDが特に指定されてないときにデフォルトで表示するブログを指定します。">?</span></th>
+		<td<@err.c_default_blogid>>
+		<@ifexec(v.subdomain_mode, begin, begin)>
+			サブドメインモードでは設定できません。
+			<input type="hidden" name="default_blogid" value="">
+		<$else>
+		<select name="default_blogid">
+			<option value="">（指定しない）</option>
+			<@forexec(t, v.load_blog_list('id'), begin)>
+			<$ifnext(t.private)>
+			<option value="<@t.id>"<@if(s.default_blogid eq t.id,' selected')>><@t.id>: <@t.blog_name></option>
+			<$end>
+		</select>
+		<$end>
+		</td>
+	</tr>
+	<tr>
+		<th><a href="<@Myself>?blogs">ブログの一覧</a>の表示範囲</th>
+		<td>
+			<input type="radio" name="blogs_allow" value=""<@if(s.blogs_allow eq '', ' checked')>><label>誰でも</label>
+			<input type="radio" name="blogs_allow" value="users"<@if(s.blogs_allow eq 'users', ' checked')>><label>ユーザーのみ</label>
+			<input type="radio" name="blogs_allow" value="admin"<@if(s.blogs_allow eq 'admin', ' checked')>><label>管理者のみ</label>
+		</td>
+	</tr>
+	<tr>
+		<th>ブログの作成許可<span class="help" data-help="ユーザーに自分自身のブログを作成することを許可するか設定します。">?</span></th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="create_blog_only_admin">
+			<input type="checkbox" name="create_blog_only_admin" value="1"<@if( s.create_blog_only_admin, ' checked')>><label>管理者のみ</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+
+	<h3>詳細動作設定</h3>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>データVersion<span class="help" data-help="自動移行などで使用するシステム内データVersionです。通常は書き換えないでください。">?</span></th>
+		<td<@err.c_VERSION>>
+			Ver <input type="number" class="w40" name="VERSION" step="0.01" min="2.90" value="<@sprintf('%.2f', s.VERSION)>">
+			 <strong class="warning">※非常時以外書き換え禁止</strong>
+		</td>
+	</tr>
+
+	<tr>
+		<th>更新通知Pingサーバ</th>
+		<td>
+			先頭 # はコメント。#exは拡張Ping
+			<br><textarea name="ping_servers_txt" class="w400" cols="50" rows="6" wrap="soft"><@s.ping_servers_txt></textarea>
+		</td>
+	</tr>
+
+	<tr>
+		<th>更新通知/TBのタイムアウト<span class="help" data-help="更新通知Pingやトラックバック送信時の1サイトあたりのタイムアウト時間を設定します。">?</span></th>
+		<td<@err.c_http_timeout>>
+			<input type="number" name="http_timeout" min="1" max="60" class="w40" value="<@s.http_timeout || 3>">秒（標準3秒）
+		</td>
+	</tr>
+
+	<tr>
+		<th>リロードタイム<span class="help" data-help="設定保存時等のリロード画面の自動リロードまでの時間を設定します。">?</span></th>
+		<td<@err.c_reload_time>>
+			<input type="number" name="reload_time" min="0" max="60" class="w40" value="<@if(s.reload_time eq '', 3, s.reload_time)>">秒（0＝自動リロードしない）
+		</td>
+	</tr>
+	<tr>
+		<th>公開ディレクト付加文字列長<span class="help" data-help="プライベートモード設定時に、ブログ公開ディレクトリを推測されないようにするためのランダムな付加文字列の長さを指定します。">?</span></th>
+		<td<@err.c_dir_postfix_len>>
+			<input type="number" name="dir_postfix_len" min="2" max="32" class="w40" value="<@if(s.dir_postfix_len eq '', 8, s.dir_postfix_len)>">文字（2～32文字）
+		</td>
+	</tr>
+	<tr>
+		<th>文末省略時の付加文字列<span class="help" data-help="長い文章などが途中で省略された場合に付加する文字列を指定します。記事本文は対象になりません。">?</span></th>
+		<td<@err.c_clip_append>>
+			<input type="text" class="w200" name="clip_append" value="<@if(s.clip_append, s.clip_append, '...')>">（最大20文字）
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<input type=submit name="submit" value="この設定を保存する"><br>
+
+	</form>
+</div>
+</article>
+
+
+

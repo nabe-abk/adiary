@@ -1,0 +1,128 @@
+<@6>
+<@local(s,x,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("ブログの詳細設定")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<$s = set>
+<$ifexec(POST, begin)>
+	<$s = Form>
+	<$tag_escape(s.admin_users, s.edit_users, s.asid, s.gadid)>
+<$end>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<@ifexec(Query.blogid ne '*' && Auth.isadmin, begin, begin)>
+	<p><a href="<@v.myself>?<@v.skeleton>&amp;blogid=*">&gt;標準設定を変更する</a></p>
+	<$else>
+	<@if(v.blogid, #'<p><a href="<@v.myself>?<@v.skeleton>">&gt;ブログ固有の設定に戻る</a></p>')>
+	<$end>
+
+	<form action="<@v.myself>?<@v.skeleton><@if(Query.blogid eq '*', '&blogid=*')>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>ブログ<em>管理</em>権限を付与</th>
+		<td>ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="admin_users" class="w320" value="<@s.admin_users>"></td>
+	</tr>
+	<tr>
+		<th>ブログ<em>編集</em>権限を付与</th>
+		<td>ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="editors"  class="w320" value="<@s.editors>"><br>
+		<input type="hidden" name="checkbox.info" value="edit_by_author_only">
+		<input type="checkbox" name="edit_by_author_only" value="1"<@if(s.edit_by_author_only, ' checked')>><label>他人の記事は編集できないようにする。</label></td>
+	</tr>
+	<tr>
+		<th>ブログ<em>閲覧</em>権限を付与</th>
+		<td>
+		<@ifexec(v.blog.private, begin, begin)>
+		ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="viewers" class="w320" value="<@s.viewers>">
+		<$else>
+		<input type="text" name="viewers" class="w320" value="<@s.viewers>" disabled><br>
+		※プライベートモード時のみ設定できます
+		<$end>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<h3>RSSの設定</h3>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>RSSの配信件数</th>
+		<td>
+		<$x=s.rss_items_int>
+		<select name="rss_items_int" class="int">
+			<option value="1" <@if(x == 1, ' selected')>>1件</option>
+			<option value="2" <@if(x == 2, ' selected')>>2件</option>
+			<option value="3" <@if(x == 3, ' selected')>>3件</option>
+			<option value="4" <@if(x == 4, ' selected')>>4件</option>
+			<option value="5" <@if(x == 5, ' selected')>>5件</option>
+			<option value="6" <@if(x == 6, ' selected')>>6件</option>
+			<option value="7" <@if(x == 7, ' selected')>>7件</option>
+			<option value="8" <@if(x == 8, ' selected')>>8件</option>
+			<option value="9" <@if(x == 9, ' selected')>>9件</option>
+			<option value="10"<@if(x ==10, ' selected')>>10件</option>
+			<option value="11"<@if(x ==11, ' selected')>>11件</option>
+			<option value="12"<@if(x ==12, ' selected')>>12件</option>
+			<option value="13"<@if(x ==13, ' selected')>>13件</option>
+			<option value="14"<@if(x ==14, ' selected')>>14件</option>
+			<option value="15"<@if(x ==15, ' selected')>>15件</option>
+			<option value="16"<@if(x ==16, ' selected')>>16件</option>
+			<option value="17"<@if(x ==17, ' selected')>>17件</option>
+			<option value="18"<@if(x ==18, ' selected')>>18件</option>
+			<option value="19"<@if(x ==19, ' selected')>>19件</option>
+			<option value="20"<@if(x ==20, ' selected')>>20件</option>
+			<option value="25"<@if(x ==25, ' selected')>>25件</option>
+			<option value="30"<@if(x ==30, ' selected')>>30件</option>
+		</select>
+		</td>
+	</tr>
+	<tr><th>RSSにコメントを含めない</th>
+		<td>
+		<input type="hidden" name="checkbox.info" value="rss_no_comment">
+		<input type="checkbox" name="rss_no_comment" value="1"<@if(s.rss_no_comment, ' checked')>><label>コメントを含めない</label></td>
+		</td>
+	</tr>
+	<tr><th rowspan="3">2つ目のRSS配信</th>
+		<td>対象記事のタグ
+		<select name="rss2_tag" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json" data-default="<@s.rss2_tag>">
+			<option value="" class="special">【配信しない】</option>
+		</select>
+		</td>
+	</tr>
+	<tr>
+		<td>タイトル<span class="help" data-help="無記入の場合は「ブログ名」。RSSリーダーでのタイトルとなるのでブログ名もわかるようにしましょう。">?</span>
+		<input type="text" name="rss2_title" class="w240" value="<@s.rss2_title>">
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<input type="hidden" name="checkbox.info" value="rss2_no_comment">
+		<input type="checkbox" name="rss2_no_comment" value="1"<@if(s.rss2_no_comment, ' checked')>><label>コメントを含めない</label></td>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+
+	<input type=submit name="submit" value="この設定を保存する"><br>
+	</form>
+</div>
+</article>
+
+<script>$(function(){
+	load_taglist( '#tag-select' );
+});</script>
+
+

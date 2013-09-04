@@ -1,0 +1,20 @@
+<@40.is_function>
+<@local(tw,s)>
+<$s = v.blog>
+<$tw = new>
+
+<$tw.consumer_key    = 'fqBn4Wmq2x3KyZUjPWYeNA'>
+<$tw.consumer_secret = 'V4hXwwBL09ejgkfb3zxs7OQWmQR3PZIkQdkhjzLaXQ'>
+<$tw.callback_url    = "<@v.server_url><@v.myself>">
+<$tw.request_token_path = 'https://api.twitter.com/oauth/request_token'>
+<$tw.authorize_path     = 'https://api.twitter.com/oauth/authorize'>
+<$tw.access_token_path  = 'https://api.twitter.com/oauth/access_token'>
+
+<$tw.status_update_api = 'https://api.twitter.com/1.1/statuses/update.json'>
+
+<$tw.token        = s.tw_oauth_token>
+<$tw.token_secret = s.tw_oauth_token_secret>
+<$tw.access_token        = s.tw_access_token>
+<$tw.access_token_secret = s.tw_access_token_secret>
+
+<$return(tw)>

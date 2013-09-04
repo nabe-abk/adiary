@@ -1,0 +1,19 @@
+<@20>
+
+<$ifbreak(! Auth.isadmin)>
+<$ifbreak(csrf_check())>
+
+確認用チェックボックス
+<$ifexec(! Form.delete_check, begin)>
+	<$message('削除確認エラー')>
+	<$break()>
+<$end>
+
+<$action_return = Auth.user_delete(Form.delete_ary)>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("ユーザーを削除しました")>
+	<$url = Myself .'?'. v.query0>
+	<$jump('_sub/reload_message', url)>
+<$end>

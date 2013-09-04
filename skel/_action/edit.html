@@ -1,0 +1,62 @@
+<@20>
+<@local(art)>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.allow_edit)>
+
+<$ifexec(Form.edit_pkey_int && !v.check_editor(Form.edit_pkey_int), begin)>
+	<$message("他人の記事は編集できません")>
+	<$break()>
+<$end>
+
+値の準備
+<$ifset(Form.draft, Form.enable, 0)>
+<$ifexec(Form.wiki, begin, begin)>
+	<$ifset(Form.priority<1,  Form.priority, v.default_wiki_priority)>
+	<$ifset(Form.link_key eq '', Form.link_key, Form.title)>
+	<$Form.ctype = 'wiki'>
+<$else>
+	<$delete(Form.link_key)>
+	<$delete(Form.upnode)>
+	<$Form.priority = 0>
+	<$Form.ctype = ''>
+<$end>
+
+<$(action_return, art) = v.edit_article(Form)>
+<$ifbreak(action_return ne '0')>
+
+<@>---------------------------------------------
+<@> POST成功時の処理
+<@>---------------------------------------------
+<@local(s)>
+<$s = v.blog>
+<$ifexec(art.first_visible && Form.ping, begin)>
+	<@>更新通知ping
+	<$v.send_update_ping(v.blogid, art)>
+<$end>
+<$ifexec(art.first_visible && Form.tw_ping && s.tw_access_token, begin)>
+	<@>twitterへの通知ツイート
+	<@local(line,tw,res,t)>
+	<$line = s.tw_ping_title>
+	<$replace(line, '%t', art.title)>
+	<$replace(line, '%u', art.absolute_url)>
+	<@> ツイート処理
+	<$tw = call('_sub/load_twitter_info')>
+	<$oauth = loadpm("Base::OAuth")>
+	<$res = oauth.status_update(tw, tw.status_update_api, {status => line})>
+	<$ifexec(!res || res.errors, begin, begin)>
+		<$ifexec(res.errors, begin, begin)>
+			<@forexec(t, res.errors, begin)>
+				<$notice('Twitterへの通知に失敗しました : %s', "<@t.message> (<@t.code>)")>
+			<$end>
+		<$else>
+			<$notice('Twitterへの通知に失敗しました')>
+		<$end>
+	<$else>
+		<$notice('Twitterに通知しました : %s', line)>
+	<$end>
+</$>
+<$end>
+
+<$ifmessage_top(Form.edit_key_int, '記事を編集しました', '記事を書き込みました')>
+<$url = v.myself2 . art.elink_key . if(Form.parser_debug, '?parser_debug')>
+<$jump('_sub/reload_message', url)>

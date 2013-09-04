@@ -1,0 +1,23 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	_order=0
+	title = モジュールタイトル
+	title:min_chars =  1
+	title:max_chars = 48
+	title:filter0   = trim
+	title:filter1   = tag
+
+	node = 表示開始ノード
+	node:filter0 = normalize
+
+	depth = 深さ
+	depth:type = int
+	depth:min  =   1
+	depth:max  =  10
+
+	switch = flag
+<$end>
+
+<$ifbreak(form_error())>
+<$return(h)>

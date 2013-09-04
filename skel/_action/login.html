@@ -1,0 +1,16 @@
+<@20>
+<$action_return = Auth.login(Form.id, Form.pass)>
+
+<$ifexec(! Auth.ok, begin)>
+	<$message('ログインに失敗しました')>
+	<$break()>
+<$end>
+
+ログイン成功時
+<$h = new.hash>
+<$h.id  = Auth.id>
+<$h.sid = action_return>	セッションID
+<$expires = if(Form.keep_login, Auth.expires, undef)>
+
+<$set_cookie('session', h, expires)>
+<$redirect( v.thisurl . '?login_auth')>

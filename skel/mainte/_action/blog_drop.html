@@ -1,0 +1,15 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifexec(lc(Form.yes) ne 'yes', begin)>
+<$form_error('yes', '削除確認エラー')>
+<$break()>
+<$end>
+
+実際に処理を行う
+<$action_return = v.blog_drop()>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message('ブログを削除しました')>
+	<$jump('_sub/reload_message', Myself)>
+<$end>

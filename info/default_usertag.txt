@@ -1,0 +1,32 @@
+###############################################################################
+# デフォルトパーサー用 ユーザー独自タグ定義ファイル
+###############################################################################
+#　・先頭 '#' はコメント。空行は無視。
+#　・alias は ">linkname"。１階層しかたどれない。
+#　・url には「,」を含めない。
+# （参考）http://adiary.blog.abk.nu/066
+#-----------------------------------------------------------------------------
+# サンプル（定義済）
+#-----------------------------------------------------------------------------
+#google         = Google検索,          UTF-8, http://www.google.co.jp/search?lr=lang_ja&ie=utf-8&oe=utf-8&q=
+#google:image   = Googleイメージ検索,  UTF-8, http://images.google.co.jp/images?lr=lang_ja&ie=utf-8&oe=utf-8&q=
+#search:keyword = はてなキーワード検索,EUC-JP,    http://search.hatena.ne.jp/keyword?word=
+#hatena:id#2    = はてなダイアリー,    EUC-JP, 2, http://d.hatena.ne.jp/$1/$2
+#
+# エイリアス（別名）
+#g            = >google
+#g:img        = >google:image
+#
+# ブロック置換	「$0」はadiaryのディレクトリ（パス）になります。
+#tex   = mimeTeX, ASCII, 1, <img src="$0mimetex/mimetex.cgi?$1" alt="$1" class="tex">
+#
+# HTMLタグ置換
+#bf    = html:strong
+#pre   = html:span.pre
+#[pre:xxx] → <span class="pre">xxx</span>
+#-----------------------------------------------------------------------------
+
+
+
+
+

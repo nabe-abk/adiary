@@ -1,0 +1,61 @@
+<@6>
+<@local(t,err)>
+<$err=FormError>
+
+<!--========================================================================-->
+<@>権限確認
+<$ifredirect(! Auth.isadmin, Myself)>
+
+<@>CSRFチェック
+<$if_post_csrf_check()>
+
+<@> システムモード
+<$v.system_mode("ユーザーの編集")>
+
+<@> 階層ツリー
+<@call("<@v.skel_dir>_dir_tree", v.title)>
+
+<$t = Auth.get_userinfo(Query.id)>
+<$ifmessage(Query.id eq '', "IDが指定されていません")>
+<$ifmessage(Query.id ne '' && !defined t.id,  "ID「<@t.id>」がみつかりません")>
+
+<@> エラー表示
+<@call('_sub/error_message')>
+<$ifbreak(!defined t.id)>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<form method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<table>
+	<tr><th>ID</th>            <td><input type=hidden name="id" value="<@t.id>"><@t.id>（変更不可）</td></tr>
+	<tr><th>名前</th>          <td<@err.c_name>><input type=text name="name" size="16" class="w100" value="<@t.name>" required></td></tr>
+	<tr><th>パスワード</th>    <td<@err.c_pass>><input type=password name="pass" size="16" class="w120" value=""><@Auth.pass_min>文字</strong>以上。未指定なら変更なし。</td></tr>
+	<tr><th>パスワード確認</th><td<@err.c_pass>><input type=password name="pass2" size="16" class="w120" value="">←もう一度</td></tr>
+
+	<@ifexec(Auth.id eq t.id && Auth.isadmin, begin, begin)><@>rootの場合、管理者権限を剥奪できない
+	<tr><th>管理者</th><td>
+		<input type=hidden name="isadmin" value="1">自分の管理権限は剥奪できません
+	</td></tr>
+	<tr><th>無効化</th><td>
+		<input type=hidden name="disable" value="0">自分を無効にできません
+	</td></tr>
+	<$else>
+	<tr><th>管理者</th><td>
+		<input type="hidden" name="checkbox.info" value="isadmin">
+		<input type=checkbox name="isadmin" value="1"<@if(t.isadmin, " checked")>><label>このユーザーを管理者にする</label>
+	</td></tr>
+	<tr><th>無効化</th><td>
+		<input type="hidden" name="checkbox.info" value="disable">
+		<input type=checkbox name="disable" value="1"<@if(t.disable, " checked")>><label>このユーザーを無効にする</label>
+	</td></tr>
+	<$end>
+	</table>
+
+	<input type="submit" name="submit_edit" value="このユーザーを編集する"><br>
+	</form>
+</div> <!-- end of body -->
+</article>

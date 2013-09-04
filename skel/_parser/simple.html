@@ -1,0 +1,17 @@
+<@40.is_function>
+<@local(s,parser)>
+<$s = v.blog>
+<@>
+<@> シンプルパーサー（段落処理しない設定）
+<@>
+<$parser = loadpm('TextParser::Simple')>
+
+<$parser.seemore_msg     = s.seemore_msg || '続きを読む'>
+<$parser.indent          = ''>
+<$parser.br_mode         = 0>		改行を<br>に置換しない
+<$parser.ls_mode         = 0>		空行を処理しない
+<$parser.paragraph_mode  = 0>		段落処理をしない
+<$parser.paragraph_class = ''>	<p> のクラス
+<$parser.section         = 1>
+
+<$return(parser)>

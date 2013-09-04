@@ -1,0 +1,31 @@
+<@6>
+<@local(s,ps)>
+<$s=v.blog>
+
+<!--サイドバー==========================================================-->
+<aside id="sidebar">
+<div id="side-a">
+
+<@ifexec(Auth.ok && v.system_mode && !v.design_edit, begin)>
+<!--現在のブログ情報=====================================-->
+<div class="hatena-module" id="side-login-information">
+<div class="hatena-modulebody">
+<table><tbody>
+<tr>
+<td>UserID</td><td<@if(Auth.isadmin, ' title="あなたは管理者です"')>><@Auth.id><@if(Auth.isadmin, '(*)')></td>	
+</tr>
+<@ifexec(v.blogid, begin)>
+<tr>
+<td>BlogID</td><td><@v.blogid></td>
+</tr><tr>
+<td>記事  </td><td><@v.blog.arts || 0>件</td>
+</tr><tr>
+<td>コメント</td><td><@v.blog.coms || 0>件</td>
+</tr><tr>
+<td colspan="2">『<a href="<@v.myself>"><@s.blog_name></a>』</td>
+</tr>
+<$end>
+</tbody></table>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+<$end>

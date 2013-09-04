@@ -1,0 +1,32 @@
+<@6>
+<@local(x,s)>
+<$s=argv#0>
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>表示件数</th>
+		<td><$x=s.displays || 5>
+		<select name="displays" class="int">
+			<option value="1" <@if(x == 1, ' selected')>>1件</option>
+			<option value="2" <@if(x == 2, ' selected')>>2件</option>
+			<option value="3" <@if(x == 3, ' selected')>>3件</option>
+			<option value="4" <@if(x == 4, ' selected')>>4件</option>
+			<option value="5" <@if(x == 5, ' selected')>>5件</option>
+			<option value="6" <@if(x == 6, ' selected')>>6件</option>
+			<option value="7" <@if(x == 7, ' selected')>>7件</option>
+			<option value="8" <@if(x == 8, ' selected')>>8件</option>
+			<option value="9" <@if(x == 9, ' selected')>>9件</option>
+			<option value="10"<@if(x ==10, ' selected')>>10件</option>
+			<option value="11"<@if(x ==11, ' selected')>>11件</option>
+			<option value="12"<@if(x ==12, ' selected')>>12件</option>
+			<option value="13"<@if(x ==13, ' selected')>>13件</option>
+			<option value="14"<@if(x ==14, ' selected')>>14件</option>
+			<option value="15"<@if(x ==15, ' selected')>>15件</option>
+			<option value="16"<@if(x ==16, ' selected')>>16件</option>
+			<option value="17"<@if(x ==17, ' selected')>>17件</option>
+			<option value="18"<@if(x ==18, ' selected')>>18件</option>
+			<option value="19"<@if(x ==19, ' selected')>>19件</option>
+			<option value="20"<@if(x ==20, ' selected')>>20件</option>
+		</select></td>
+	</tr>
+	</tbody>
+	</table>

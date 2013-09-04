@@ -1,0 +1,118 @@
+<@6>
+<@local(x,t,ok,ng)>
+
+<@> システムモード
+<$v.system_mode("システム管理メニュー")>
+
+<@> 階層ツリー、権限確認
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system">
+<h2><@v.title></h2>
+<div class="body">
+
+<h3>システム環境</h3>
+
+<pre><$h = get_system_info()>
+Server  : <@ENV.SERVER_SOFTWARE> (<@if(Is_thread, 'worker', 'prefork')>)
+Perl    : <@h.perl_cmd> (Ver <@h.perl_version>)
+Runtime : <@CGI_mode>
+RDBMS   : <@DB._RDBMS>
+Version : <@v.VERSION> (<@v.OUTVERSION>-<@v.SUBVERSION>)
+Locale  : <@Locale> (<@Code_lib>)
+System-Coding : <@System_coding>
+</pre>
+
+<h3>ファイルシステムチェック</h3>
+
+<$fail = 0>
+<$ok = '<strong>OK</strong>'>
+<$ng = '<strong class="warning">NG</strong>'>
+<table class="mono">
+<thead>
+<tr>
+	<th>Directory type</th><th>path</th><th>write check</th>
+</tr>
+</thead><tbody>
+<@forexec_hash(t, call('_sub/load_writable_dirs'), begin)>
+<tr>
+	<td><@t.key></td>
+	<td><@t.val></td>
+	<td class="c"><@if(x = write_check( t.val ), ok, ng)><$ifset(!x, fail, 1)></td>
+</tr>
+<$end>
+</tbody>
+</table>
+<@ifexec(fail, begin)><p><strong class="error">エラーがあります。</strong>パーミッションなどを確認してください。</p><$end>
+
+<h3>ライブラリチェック</h3>
+
+<table class="mono">
+<thead>
+<tr>
+	<th>ライブラリ名</th><th>チェック</th><th>補足説明</th>
+</tr>
+</thead><tbody>
+<tr>
+	<td>Image::Magick</td><td class="c"><@if(lib_check('Image::Magick'), ok, ng)></td>
+	<td>存在すれば画像縮小可能</td>
+</tr><tr>
+	<td>Net::POP3</td><td class="c"><@if(lib_check('Net::POP3'), ok, ng)></td>
+	<td>POPによる「メール投稿」時は必須</td>
+</tr><tr>
+	<td>Net::SSLeay</td><td class="c"><@if(lib_check('Net::SSLeay'), ok, ng)></td>
+	<td>Twitterに更新ポストする際に必要</td>
+</tr><tr>
+<$mail = loadpm("Base::Mail")>
+	<td>sendmailコマンド</td><td class="c"><@if(mail.get_sendmail_cmd(), ok, ng)></td>
+	<td>「メール通知」「メール投稿」時は必須</td>
+</tr>
+</table>
+
+
+<h3>環境変数（システム情報）</h3>
+
+<p>バグ報告などでご利用ください。サーバの状況がわかりませんと対応しきれないことがありますので、必要に応じてこの情報を示して頂けると助かります。</p>
+<$env = copy(ENV)>
+<$delete(env.DOCUMENT_ROOT)>
+<$delete(env.SERVER_SIGNATURE)>
+<$delete(env.HTTP_ACCEPT)>
+<$delete(env.HTTP_COOKIE)>
+<$delete(env.REMOTE_ADDR)>
+<$delete(env.REMOTE_PORT)>
+<$delete(env.REMOTE_HOST)>
+<$delete(env.REMOTE_USER)>
+<$delete(env.AUTH_TYPE)>
+<$delete(env.SERVER_ADDR)>
+<$delete(env.SERVER_ADMIN)>
+<$delete(env.HTTP_ACCEPT_CHARSET)>
+<$delete(env.HTTP_ACCEPT_ENCODING)>
+<$delete(env.HTTP_ACCEPT_LANGUAGE)>
+<$delete(env.HTTP_CONNECTION)>
+<$delete(env.HTTP_KEEP_ALIVE)>
+<$delete(env.HTTP_CACHE_CONTROL)>
+<$delete(env.PATH)>
+<$delete(env.UNIQUE_ID)>
+<$delete(env.REDIRECT_PATH)>
+<$delete(env.REDIRECT_UNIQUE_ID)>
+<$delete(env.REQUEST_METHOD)>
+<$delete(env.HTTP_REFERER)>
+
+<textarea cols="74" rows="16" wrap="soft" readonly class="w100p" style="font-size:100%;">
+Basepath <@Basepath>
+Request_base <@Request_base>
+cgifile <@CGI_file>
+myself  <@Myself>
+myself2 <@Myself2>
+v.myself  <@v.myself>
+v.myself2 <@v.myself2>
+Server_url <@Server_url>
+mod_rewrite = <@int(Mod_rewrite)>
+
+<@dump_hash("%k=%v\n", env)>
+</textarea>
+<p>※COOKIEやアクセス元など不要な情報は消去済です。</p>
+
+</div>
+</article>

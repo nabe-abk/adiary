@@ -1,0 +1,12 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	_order=0
+	notag_title = タグなし記事のリンク名
+	notag_title:min_chars =  1
+	notag_title:max_chars = 32
+	notag_title:filter0 = tag
+<$end>
+
+<$ifbreak(form_error())>
+<$return(h)>

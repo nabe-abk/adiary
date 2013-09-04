@@ -1,0 +1,54 @@
+<@6>
+<@local(t,tags,name)>
+
+<@>権限チェック
+<$ifredirect( !v.allow_edit, v.myself )>
+
+<@> システムモード
+<$v.system_mode("使用可能なHTMLタグ一覧")>
+
+<$name = Query.n>
+<$replace(name, '\W', '')>
+<$tag = v.load_tag_escaper( name ))>
+
+<$ifjump(!tag.file_load, '_sub/error_message', "指定のファイルが見つかりません")>
+
+<!--========================================================================-->
+<article class="system">
+<h2><@v.title>（モード：<@name>）</h2>
+<div class="body">
+
+	<@ifexec(tag.allow_anytag, begin, begin)>
+	<ul>
+		<li><strong>すべてのタグが利用可能です。</strong></li>
+	<$else>
+		<p>タグ制限をなくしたい場合は、adiary.conf.cgi で trust_mode を設定してください。</p>
+		<$tags = tag.load_allowtags()>
+		<table>
+		<thead>
+		<tr>
+			<th>タグ</th><th>属性</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td>全て</td>
+			<td class="mono"><@tag.allow_base>&nbsp;</td>
+		</tr>
+		<@forexec(t, tags, begin)>
+		<tr class="mono">
+			<td><@t.tag></td>
+			<td><@t.attr>&nbsp;</td>
+		</tr>
+		<$end>
+		</tbody>
+		</table>
+	<ul>
+		<li>リンク可能なプロトコル : <@tag.allow_protocol>
+	<$end>
+		<li>相対パス→絶対パス: <@if(tag.force_absolute_path, '書き換える', '(none)')>
+		<li>相対URI→絶対URI : <@if(tag.force_absolute_uri, '書き換える', '(none)')>
+	</ul>
+</div>
+</article>
+

@@ -1,0 +1,10 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(! v.blog_admin)>
+
+<$action_return = v.save_theme(Form.theme)>
+
+<$ifmessage(action_return eq '0', 'テーマを保存しました')>
+<$ifmessage(action_return ne '0', 'テーマの保存に失敗しました')>
+
+<$jump('_sub/reload_message', v.myself . '?design/')>

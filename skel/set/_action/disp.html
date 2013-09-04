@@ -1,0 +1,58 @@
+<@20>
+<@local(h)>
+<$ifbreak(! v.blog_admin && ! Auth.isadmin)>
+<$ifbreak(csrf_check())>
+
+<$h = validator(begin_hash, Form)>
+	_order=0
+	disp_tmdate = flag
+	disp_author = flag
+	separate_blog = flag
+	erase_login_link = flag
+
+	load_items = ブログトップの記事表示件数
+	load_items:type = int
+	load_items:min  =  1
+	load_items:max  = 10
+
+	user_footer = フッタへの追加文字列
+	user_footer:max_chars = 128
+	user_footer:filter0     = trim
+	user_footer:filter1     = file:<@v.allow_tags_head>description<@v.allow_tags_ext>
+	user_footer:filter1_opt = <@v.trust_mode>
+
+	disp_hatena_btn = flag
+	disp_mixi_check = flag
+	disp_fb_btn = flag
+	disp_twitter_btn = flag
+	disp_hatena_bicon = flag
+
+	wiki_tm = コンテンツの時刻表示
+	wiki_tm:type = int
+	wiki_tm:min  = 0
+	wiki_tm:max  = 2
+
+	disp_twitter_id = ツイートに含めるID
+	disp_twitter_id:filter0 = reg_del:[^\w\-]
+
+	disp_twitter_follow = フォロー推奨ID
+	disp_twitter_follow:filter0 = reg_del:[^\w\-]
+
+	disp_twitter_hash = ツイートに含めるハッシュ
+	disp_twitter_hash:filter0 = tag_amp
+<$end>
+<$ifbreak(form_error())>
+
+<$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<@>RSS再生成 / wikiコンテンツの扱いを変更したときのために
+	<$v.generate_rss()>
+
+	<$message("設定を保存しました")>
+	<$url = v.myself .'?'. v.query0 . if(Query.blogid eq '*', '&amp;blogid=*')>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+

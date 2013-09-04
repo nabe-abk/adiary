@@ -1,0 +1,14 @@
+<@40.is_function>
+<@local(parser)>
+<@>
+<@> 標準パーサーロード用スケルトン
+<@>
+<@> モード：改行処理・段落処理なし
+<@>
+
+<$parser = call('_parser/default')>
+<$parser.br_mode         = 0>
+<$parser.paragraph_mode  = 0>
+<$parser.ls_mode         = 0>
+
+<$return(parser)>

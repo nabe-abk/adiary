@@ -1,0 +1,16 @@
+<@40.is_function>
+<@local(parser)>
+<@>
+<@> シンプルパーサー（単純改行設定）
+<@>
+<$parser = loadpm('TextParser::Simple')>
+
+<$parser.seemore_msg     = b.seemore_msg || '続きを読む'>
+<$parser.indent          = "\t\t">
+<$parser.br_mode         = 1>		改行を<br>に置換する
+<$parser.ls_mode         = 1>		空行を処理する
+<$parser.paragraph_mode  = 0>		段落処理しない
+<$parser.paragraph_class = 'ni'>	<p> のクラス / 'ni'=インデントなし<p>
+<$parser.section         = 1>
+
+<$return(parser)>

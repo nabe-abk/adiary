@@ -1,0 +1,38 @@
+<!--twitter=====================================-->
+<$ps = v.load_plgset('<@this>')>
+<div class="<@if(s.class eq '', 'hatena-module')>" data-title="<@ps.title>" data-module-name="<@this>">
+<@ifexec(!ps.title_none, begin)>
+<div class="hatena-moduletitle"><@if(ps.title ne '',ps.title ,'Twitter')></div>
+<$end>
+<div class="hatena-modulebody">
+<@ifexec(ps.widget_id ne '', begin, begin)>
+<@>
+<a class="twitter-timeline" href="https://twitter.com/<@ps.id>" data-widget-id="<@ps.widget_id>"
+	data-chrome=" <@\>
+	<@if(ps.noheader,   'noheader ')> <@\>
+	<@if(ps.nofooter,   'nofooter ')> <@\>
+	<@if(ps.noborders,  'noborders ')> <@\>
+	<@if(ps.noscrollbar,'noscrollbar ')> <@\>
+	<@if(ps.transparent,'transparent ')> <@\>
+	"
+	<@if(ps.size_y,  #'\theight="<@ps.size_y>"\n')>
+	<@if(ps.border,  #'\tdata-border-color="<@ps.border>"\n')>
+	<@if(ps.twlinks, #'\tdata-link-color="<@ps.twlinks>"\n')>
+>@<@ps.id> からのツイート</a>
+<script>$(function(){
+!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+<@> CSSの書き換え
+twitter_css_fix('\
+div.timeline { <@if(ps.bg, "background-color: <@ps.bg>; ")><@if(ps.fc, "color: <@ps.fc>;")> } \
+li.tweet { <@if(ps.twbg, "background-color: <@ps.twbg>; ")><@if(ps.twfc, "color: <@ps.twfc>;")> } \
+<@ifexec(ps.noactions, begin)>
+li.tweet div.footer { display: none; } \
+<$end>
+'<@if(ps.size_x, ", <@ps.tw_size_x>")>);
+});</script>
+<@>
+<$else>
+	<p class="ni">「data-widget-id」が設定されていません。</p>
+<$end>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->

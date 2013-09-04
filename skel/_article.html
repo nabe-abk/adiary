@@ -1,0 +1,182 @@
+<@6>
+<@local(ret,s,t,t2,c,permalink,x,node)>
+<$s = v.blog>
+
+<$(t,ret) = v.load_article_current_blog(if(v.pinfo ne '', v.pinfo, s.frontpage))>
+<$v.title = s.blog_name>
+<$art_year = ret.year>
+<$art_mon  = ret.mon>
+<$art_day  = ret.day>
+
+<@ifexec(!v.blogid, begin)>
+	<$ifmessage(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません")>
+	<$ifmessage(v.path_blogid && ! Auth.ok, "もしあなたが「ID:<@v.path_blogid>」ならばログインしてください。")>
+<$end>
+<$ifexec(v.blogid && !t, begin)>
+	<$message("該当する記事がありません")>
+<$end>
+<$ifjump_clear(!t || Message, "_sub/error_message_404")>
+
+<@>ソーシャルボタンの準備
+<$call('_sub/social_buttons')>
+
+<@><!--========================================================================-->
+<$node = if(t.ctype, v.load_content_node(t.pkey), v.load_art_node(t.pkey))>
+<@ifexec(node.prev || node.next || node.upnode, begin.page)>
+<nav class="page-head page-nav">
+<@page_nav = exec(begin.function)>
+<@ifexec(node.prev && node.prev != node.upnode, begin)>
+<a href="<@v.myself2><@if(node.prev.link_key, node.prev.elink_key, "0<@node.prev.pkey>")>" class="prev-page" rel="prev"><@node.prev.title></a>
+<$end>
+<@ifexec(node.upnode, begin)>
+<a href="<@v.myself2><@node.upnode.elink_key>" class="upnode-page"><@node.upnode.title></a>
+<$end>
+<@ifexec(node.next, begin)>
+<a href="<@v.myself2><@if(node.next.link_key, node.next.elink_key, "0<@node.next.pkey>")>" class="next-page" rel="next"><@node.next.title></a>
+<$end>
+<$end.function>
+</nav>
+<$end.page)>
+<!--========================================================================-->
+<$permalink = "<@v.myself2><@t.elink_key>">
+<$url=v.server_url . permalink>
+<$canonical_url = url>
+<$encode_uricom(url)>
+<@>
+<article class="article<@if(t.ctype ne '', " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
+<h2 id="art-<@t.pkey>"><@if(!t.wiki, #'<a class="date" href="<@permalink>"><@t.year>/<@t.mon>/<@t.day>(<@t.wday_name>)</a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
+<div class="body" id="s<@t.pkey>">
+	<div class="body-header">
+		<@ifexec(s.disp_hatena_bicon, begin)>
+		<a class="http-bookmark" href="http://b.hatena.ne.jp/entry/<@url>"><img src="http://b.st-hatena.com/entry/image/<@url>" alt="はてブ数"></a>
+		<$end>
+		<$x = if(t.wiki, s.wiki_tm, s.disp_tmdate)>
+		<@ifexec(x, begin)><span class="write-date"><@tm_printf('%Y/%m/%d %J:%M ', if(x==1, t.tm, t.update_tm))></span><$end>
+		<@ifexec(t.tags, begin)><span class="tags"><@v.make_taglinks(t.tags)></span><$end>
+		<@ifexec(s.disp_author, begin)><span class="author" title="<@t.id>"><@t.name></span><$end>
+		<@ifexec(v.check_editor(t), begin)><a href="<@v.myself2>0<@t.pkey>?edit" class="edit-article">（編集）</a><$end>
+	</div>
+<div class="body-main">
+	<@if( t.draft,  '<strong class="warning">【この記事は下書きです】</strong><br>' )>
+	<@if(!t.draft && !t.enable, '<strong class="warning">【この記事は非公開です】</strong><br>')>
+<@t.text>
+	<@ifexec(t.ctype eq 'link', begin)>
+	<$x=esc(t.link_key)><p class="link"><a href="<@x>"><@x></a></p>
+	<$end>
+<@>----------------------------------------------------
+<@>記事リスト・関連記事
+<@ifexec(node.children, begin)>
+<h3>記事リスト</h3>
+<ul class="art-list art-children">
+<@forexec(t2, node.children, begin)>
+	<li><a href="<@v.myself2><@t2.elink_key>"><@t2.title></li>
+<$end>
+</ul>
+<$end>
+<@ifexec(!node.children && node.family, begin)>
+<h3>関連記事</h3>
+<ul class="art-list art-family">
+<@forexec(t2, load_from_ary(node.family, 5), begin)>
+	<li><a href="<@v.myself2><@t2.elink_key>"><@t2.title></li>
+<$end>
+</ul>
+<$end>
+<@>----------------------------------------------------
+</div>
+	<$coms = if(v.allow_edit, t.coms_all, t.coms)>
+	<div class="body-footer">
+	<@ifexec(t.com_ok || coms, begin)>
+		<span class="element com-caption"><a href="<@v.myself2><@t.elink_key>#com"><span class="com-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span></a></span>
+	<$end>
+<@>ソーシャルボタンの呼び出し
+<@exec(social_func, url)>
+	</div>
+</div> <!-- body -->
+
+
+<@ifexec(t.com_ok || coms, begin)>
+<$view = if(Query.c ne 'all', s.disp_coms_int)>
+<$secure_id  = make_secure_id( v.blogid . t.pkey )>
+<$secure_ary = string2ordary( secure_id )>
+<aside class="comment" id="com">
+	<div class="caption js-switch" data-target="#c<@t.pkey>n-block"><span class="caption-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span></div>
+	<@ifexec(view && coms>view, begin)>
+	<p class="abbr-msg"><a href="<@permalink>?&amp;c=all#com">※古いメッセージが省略されています（すべて表示）</a></p>
+	<$end>
+	<div class="commentbody" id="c<@t.pkey>n-block">
+	<@ifexec(coms && v.allow_edit, begin)>
+	<form method="POST" action="<@permalink>" class="js-form-check" data-target="#com .pkey-ary">
+	<input type="hidden" name="action" value="comments_edit">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<p class="abbr-msg">
+	<input type="checkbox" name="view_ip_host_agent" class="js-switch" data-target="#com div.ip-host-agent"><label>投稿者情報の表示</label>&nbsp;
+	<input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary"><label>すべて選択（解除）</label></p>
+	<$end>
+	<@forexec(c, v.load_comments_current_blog(t, view), begin)>
+	<div class="comment-one<@if(!c.enable, ' hidden')>" id="c<@c.num>">
+		<div class="commentator">
+			<span class="canchor"><a href="#c<@c.num>"><@c.num></a>:</span>	<@\>
+			<@ifexec(v.allow_edit, begin)>	<@\>
+			<input class="pkey-ary" type="checkbox" name="pkey_int_ary" value="<@c.pkey>">	<@\>
+			<label>	<@\>
+			<$end>
+			<span class="commentator author<@if(c.id, " login-user")>"<@if(c.id, " title=<@c.id>")>><@ifexec(c.email && v.allow_edit, begin, begin)><a href="mailto:<@c.email>"><@c.name></a><$else><@c.name><$end></span>
+			<@ifexec(c.url, begin)><span class="comment-url"><a href="<@c.url>" rel="nofollow">URL</a></span><$end>
+			<span class="comment-date"><@tm_printf('%Y年%m月%d日(%a) %p%i時%M分', c.tm)></span>
+			<@ifexec(!c.enable, begin)>
+			<@if(c.hidden, '<strong class="comment-hidden">（非公開コメント）', '<strong class="comment-disable">（非表示）')></strong>
+			<$end>
+			<@if(v.allow_edit, '</label>')>
+		</div>
+	
+		<div class="comment-text<@if(!c.enable, if(c.hidden, ' comment-hidden', ' comment-disable'))>"><@c.text></div>
+		<@ifexec(v.allow_edit, begin)>
+		<div class="ip-host-agent"><@c.host> (<@c.ip>)<br><@c.agent></div>
+		<$end>
+		</div> <!-- comment-one -->
+	<$end>
+	<@ifexec(coms && v.allow_edit, begin)>
+	<@ifexec(t.enable, begin)>
+	<input type="submit" name="enable"  class="js-form-check" data-flag="" data-confirm="" value="表示に設定"><span class="help" data-help="非公開コメントを表示することはできません">?</span>
+	<input type="submit" name="disable" class="js-form-check" data-flag="" data-confirm="" value="非表示に設定">
+	<$end>
+	<input type="submit" name="delete"  class="js-form-check" value="削除" data-confirm="%c件のコメントを削除しますか？" data-flag="#del-check">
+	<input type="checkbox" name="del_check" value="1" id="del-check"><label>削除確認</label>
+	</form>
+	<@if(t.com_ok && v.allow_com, '<hr id="com-form-separator">')>
+	<$end>
+
+	<@ifexec(t.com_ok && v.allow_com, begin)>
+	<form method="POST" action="<@permalink>" class="comment" onsubmit="put_sid('sid<@t.pkey>',74, <@\>
+	<@forexec(c, secure_ary, begin)><@c ^ 93>,<@c>,<$end> <@\>
+	20); return true;">
+		<input type="hidden" name="action" value="comment_post">
+		<@if(Auth.ok, #'\t\t<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">\n')>
+		<input type="hidden" name="a_pkey" value="<@t.pkey>">
+		<input type="hidden" name="secure_id" value="" id="sid<@t.pkey>">
+		<span class="caption-name">名前</span><span class="separater">:</span>
+		<@ifexec(Auth.ok, begin, begin)><span class="comment-author"><@Auth.name></span><$else><input type="text" name="name" size="15" class="w160 comment-author" value="<@esc(Form.name)>" required><$end>
+		<@if(t.hcom_ok, '&nbsp;<input type="checkbox" name="hidden" value="1"><label>非公開コメント</label>')>
+		<input type="submit" name="post" id="post-comment" value="投稿"><br>
+		<textarea name="comment_txt" cols="60" rows="3" required><@esc(Form.comment_txt)></textarea>
+		<@ifexec(s.com_email, begin)>
+		<span class="caption-email">E-Mail(任意/非公開)</span><span class="separater">:</span><input class="w300" type="email" size="40" name="email" value="<@esc(Form.email)>"><br>
+		<$end>
+		<@ifexec(s.com_url, begin)>
+		<span class="caption-url">URL(任意)</span><span class="separater">:</span><input class="w300" type="url" size="45" name="url" value="<@esc(Form.url)>"><br>
+		<$end>
+	</form> <!-- comment form -->
+	<$end>
+	</div> <!-- commentbody -->
+</aside> <!-- comment -->
+<$end>
+</article>
+
+
+<@ifexec(page_nav, begin.page)>
+<nav class="page-foot page-nav">
+<@page_nav>
+</nav>
+<$end.page>
+
+<@exec(social_script_func)>

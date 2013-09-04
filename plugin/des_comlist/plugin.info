@@ -1,0 +1,56 @@
+######################################################################
+title=最近のコメント一覧
+version=1.00
+#					(C)2013 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.90
+
+module_type=sidebar
+module_class=hatena-module
+module_id=side-recent-comment
+
+load_module_html_in_edit=1
+
+*sample_html=<<HTML
+<div class="hatena-moduletitle">最近のコメント</div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+	<li><a href="#" title="2013-07-31">記事タイトル</a> <span class="author" title="2013/07/20 19:25">なまえ</span></li>
+	<li><a href="#" title="2013-07-15">記事タイトル</a> <span class="author" title="2013/07/20 19:25">なまえ</span></li>
+	<li><a href="#" title="2013-07-13">記事タイトル</a> <span class="author" title="2013/07/20 18:41">なまえ</span></li>
+	<li><a href="#" title="2013-07-01">記事タイトル</a> <span class="author" title="2013/07/20 18:41">なまえ</span></li>
+	<li><a href="#" title="2013-06-21">記事タイトル</a> <span class="author" title="2013/07/20 18:41">なまえ</span></li>
+</ul>
+</div>
+HTML
+
+*module_html=<<HTML
+<!--最近のコメント=======================================-->
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
+<div class="hatena-moduletitle">最近のコメント</div>
+<div class="hatena-modulebody">
+<@v.load_plgset('<@this>', 'html')>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+HTML
+
+
+*files=<<FILES
+func/<@this>.pm
+func/<@this>-uninstall.pm
+skel/_format/recent_comment.html
+FILES
+
+*events=<<EVENTS
+COMMENT_STATE_CHANGE=func/<@this>.pm
+INSTALL=func/<@this>.pm
+SETTING=func/<@this>.pm
+UNINSTALL=func/<@this>-uninstall.pm
+EVENTS
+
+

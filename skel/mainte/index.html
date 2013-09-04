@@ -1,0 +1,41 @@
+<@6>
+<@local(s,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("ブログの再構築")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<p>ブログの全記事データを再構築します。</p>
+
+	<p>記法の設定を変更した際などにご利用ください。環境と記事数によりますが、処理には時間がかかります。</p>
+
+	<table>
+	<tbody>
+	<tr><th>ブログID</th>  <td><@v.blogid></td></tr>
+	<tr><th>ブログ名</th>  <td><@v.blog.blog_name></td></tr>
+	<tr><th>ブログ紹介</th><td><@v.blog.description_txt></td></tr>
+	</tbody>
+	</table>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skel_dir>blog_rebuild">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	
+	<p><input type="checkbox" name="only_blog_info" value="1"><label>付加情報（タグ一覧等）やRSSのみ再生成する</label></p>
+	
+	<input type=submit name="submit" value="ブログを再構築する"><br>
+
+	</form>
+</div>
+</article>
+
+
+

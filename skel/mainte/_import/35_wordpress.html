@@ -1,0 +1,38 @@
+<@>
+<@> WordPress XML
+<@>
+<h3>WordPress XML形式</h3>
+<div>
+	<table>
+	<tr><th>固定ページのインポート</th>
+		<td><input type="checkbox" name="WPS:import_static"  value="1" checked class="js-disabled" data-target="#WPS-tags-for-static"><label>固定ページをインポートする</label></td>
+	</tr>
+	<tr><th>固定ページに付加するタグ</th>
+		<td>
+		<input type="text" name="WPS:tags_for_static" class="w160" id="WPS-tags-for-static">
+		</td>
+	</tr>
+	<tr><th>非承認コメント</th>
+		<td><input type="checkbox" name="WPS:no_auth"  value="1"><label>非承認コメントをインポートしない</label></td>
+	</tr>
+	<tr><th>日付変更時間の処理</th>
+		<td>午前 
+		<select name="WPS:change_hour_int">
+			<option value="0" selected>0</option>
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+		</select> 時<span class="help" data-help="「書き込み日時」→「記事の日付」生成処理で使用します。">?</span>
+		</td>
+	</tr>
+	</table>
+
+	<p>パスワード保護ページは非公開記事としてインポートされます。</p>
+
+	<button type="button" name="WordPressXML" data-class="WPS" class="import">WordPress XML形式でインポート</button>
+</div>

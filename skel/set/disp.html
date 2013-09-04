@@ -1,0 +1,147 @@
+<@6>
+<@local(s,x,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("ブログの表示設定")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<$s = set>
+<$ifexec(POST, begin)>
+	<$s = Form>
+	<$tag_escape_amp(s.disp_twitter_id, s.disp_twitter_follow, s.disp_twitter_hash)>
+<$end>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<@ifexec(Query.blogid ne '*' && Auth.isadmin, begin, begin)>
+	<p><a href="<@v.myself>?<@v.skeleton>&amp;blogid=*">&gt;標準設定を変更する</a></p>
+	<$else>
+	<@if(v.blogid, #'<p><a href="<@v.myself>?<@v.skeleton>">&gt;ブログ固有の設定に戻る</a></p>')>
+	<$end>
+
+	<form action="<@v.myself>?<@v.skeleton><@if(Query.blogid eq '*', '&blogid=*')>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>投稿日時の表示<span class="help" data-help="記事が最初に公開された日時を表示します">?</span></th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="disp_tmdate">
+			<input type="checkbox" name="disp_tmdate" value="1"<@if(s.disp_tmdate, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	<tr><th>投稿者の表示<span class="help" data-help="記事を最初に投稿した人を表示します">?</span></th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="disp_author">
+			<input type="checkbox" name="disp_author" value="1"<@if(s.disp_author, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	<tr><th>ブログトップの記事表示</th>
+		<td>
+		<$x=s.load_items || 5>
+		<select name="load_items" class="int">
+			<option value="1" <@if(x == 1, ' selected')>>1件</option>
+			<option value="2" <@if(x == 2, ' selected')>>2件</option>
+			<option value="3" <@if(x == 3, ' selected')>>3件</option>
+			<option value="4" <@if(x == 4, ' selected')>>4件</option>
+			<option value="5" <@if(x == 5, ' selected')>>5件</option>
+			<option value="6" <@if(x == 6, ' selected')>>6件</option>
+			<option value="7" <@if(x == 7, ' selected')>>7件</option>
+			<option value="8" <@if(x == 8, ' selected')>>8件</option>
+			<option value="9" <@if(x == 9, ' selected')>>9件</option>
+			<option value="10"<@if(x ==10, ' selected')>>10件</option>
+		</select>
+		</td>
+	</tr>
+	<tr><th>wikiコンテンツの扱い</th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="separate_blog">
+			<input type="checkbox" name="separate_blog" value="1"<@if(s.separate_blog, ' checked')>><label>ブログとwikiコンテンツ等を分離して扱う</label><span class="help" data-help="この設定を行うとコンテンツページは「最近の記事数件」「次の記事へのリンク」「ページ送り」「RSS」等で表示されなくなります。検索や記事一覧では表示されます。">?</span>
+
+		</td>
+	</tr>
+	<tr><th>コンテンツの日時表示</th>
+		<td>
+			<input type="radio" name="wiki_tm" value="1"<@if(s.wiki_tm==1, ' checked')>><label>投稿日時を表示</label>
+			<input type="radio" name="wiki_tm" value="2"<@if(s.wiki_tm==2, ' checked')>><label>更新日時を表示</label>
+			<input type="radio" name="wiki_tm" value="0"<@if(s.wiki_tm==0, ' checked')>><label>表示しない</label>
+		</td>
+	</tr>
+	<tr><th>ログイン表示の消去<span class="help" data-help="画面右上（等）に表示されるログインリンクを見えなくします。見えないだけ（空白文字になるだけ）でリンク自体は残ります。">?</span></th>
+		<td>
+		<input type="hidden" name="checkbox.info" value="erase_login_link">
+		<input type="checkbox" name="erase_login_link" value="1"<@if(s.erase_login_link, ' checked')>><label>「ログイン」を見えなくする</label>
+		</td>
+	</tr>
+	<tr>
+		<th>フッタへの追加文字列<span class="help" data-help="「adiary Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")>」の手前に行表示されます。">?</span><br>（改行無効）<br><a href="<@v.myself>?etc/allow_tags&amp;n=description" target="_blank">使用可能なHTMLタグ</a></th>
+		<td<@err.c_user_footer>>ページの作者表示などに使用してください。<br>
+		<textarea name="user_footer" class="w400" cols="50" rows="2" wrap="soft"><@s.user_footer></textarea>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+<h3>ソーシャルボタン</h3>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>はてなブックマーク</th>
+		<td colspan="2">
+			<input type="hidden" name="checkbox.info" value="disp_hatena_btn">
+			<input type="checkbox" name="disp_hatena_btn" value="1"<@if(s.disp_hatena_btn, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	<tr><th>mixiチェック</th>
+		<td colspan="2">
+			<input type="hidden" name="checkbox.info" value="disp_mixi_check">
+			<input type="checkbox" name="disp_mixi_check" value="1"<@if(s.disp_mixi_check, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	<tr><th>Facebook/いいね</th>
+		<td colspan="2">
+			<input type="hidden" name="checkbox.info" value="disp_fb_btn">
+			<input type="checkbox" name="disp_fb_btn" value="1"<@if(s.disp_fb_btn, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	<tr><th rowspan=4>twitter/ツイート</th>
+		<td colspan="2">
+			<input type="hidden" name="checkbox.info" value="disp_twitter_btn">
+			<input type="checkbox" name="disp_twitter_btn" value="1"<@if(s.disp_twitter_btn, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	<tr>
+		<td>リプライ先<span class="help" data-help="ツイート時に標準で含まれるリプライ先を指定します">?</span></td>
+		<td><em><span class="mono">＠</span></em><input type="text" class="w100" size="20" name="disp_twitter_id" value="<@s.disp_twitter_id>"></td>
+	</tr>
+	<tr>
+		<td>フォロー推奨ID<span class="help" data-help="ツイート後に特定のIDのフォローを推奨する画面を表示します">?</span></td>
+		<td><em><span class="mono">＠</span></em><input type="text" class="w100" size="20" name="disp_twitter_follow" value="<@s.disp_twitter_follow>"></td>
+	</tr>
+	<tr>
+		<td>ハッシュタグ<span class="help" data-help="ツイート時に標準で含まれるハッシュ(#)を指定します">?</span></td>
+		<td><em><span class="mono">＃</span></em><input type="text" class="w100" size="20" name="disp_twitter_hash" value="<@s.disp_twitter_hash>"></td>
+	</tr>
+	<tr><th>はてブ数を記事ヘッダに<span class="help" data-help="はてなブックマーク数（赤字数字アイコン）を記事ヘッダに表示します。ひとつもブックマークされてないときは何も表示されません。">?</span></th>
+		<td colspan="2">
+			<input type="hidden" name="checkbox.info" value="disp_hatena_bicon">
+			<input type="checkbox" name="disp_hatena_bicon" value="1"<@if(s.disp_hatena_bicon, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<input type=submit name="submit" value="この設定を保存する"><br>
+
+	</form>
+</div>
+</article>
+
+
+

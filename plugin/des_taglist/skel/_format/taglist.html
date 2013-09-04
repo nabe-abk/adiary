@@ -1,0 +1,42 @@
+<@6>
+<@local(ps,name,nclose)>
+<@>
+<$name = argv#0>
+<$ps = v.load_plgset(name)>
+<$nclose = if(ps.nclose ne '0', 1, 0)>
+<$notag_arts = argv#2>
+<@>
+<@>---------------------------------------------------------------------
+<@>再帰サブルーチン
+<@>---------------------------------------------------------------------
+<$sub = begin.function>
+<@local(t, tid, p, node, tree, depth, x)>
+<$node  = argv#0>
+<$tree  = node.children>
+<$depth = argv#1><@>prefix
+<$p = "\t" %x depth>
+<@p><ul id="sidetag-<@if(node.root,'root',node.pkey)>"<@if(node.root, ' class="hatena-section"')><@if(!node.root && nclose, ' style="display: none"')>>
+<@forexec(t, tree, begin.forexec)>
+<$ifnext(t.tstat & v.tstat_nomenu)>
+<@ifexec(t.children, begin, begin)>
+<$tid="sidetag-<@t.pkey>">
+<@p>	<li> <@\>
+	<span class="js-switch" data-save="1" data-target="#<@tid>"> <@\>
+	<a href="<@v.myself>?&amp;t=<@encode_uricom(x =t.name)>"><@t.sname></a></span> <span class="qt">(<span><@t.qtall></span>)</span>
+<@exec(sub, t, depth+1)>
+<@p>	</li>
+<$else>
+<@p>	<li> <@\>
+	<a href="<@v.myself>?&amp;t=<@encode_uricom(x =t.name)>"><@t.sname></a> <span class="qt">(<span><@t.qtall></span>)</span></li>
+<$end>
+<$end.forexec>
+	<@ifexec(node.root && notag_arts, begin)>
+	<li><a href="<@v.myself>?&amp;t="><@ps.notag_title || '(none)'></a> <span class="qt">(<span><@notag_arts></span>)</span></li>
+	<$end>
+<@p></ul>
+<$end.function>
+<@>---------------------------------------------------------------------
+<@>タグリスト
+<@>---------------------------------------------------------------------
+<@exec(sub, argv#1, 0)>
+<@tid>

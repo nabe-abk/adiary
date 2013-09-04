@@ -1,0 +1,176 @@
+<@6>
+<@local(s)>
+<$s=argv#0>
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>モジュールタイトル<span class="help" data-help="Informationモジュールのタイトルです。">?</span></th>
+		<td><input type="text" class="w160" name="title" value="<@s.title || 'Information'>" maxlength="64"></td>
+	</tr>
+	<tr>
+		<th>タイトル表示<span class="help" data-help="タイトルを「display: none;」します。使用テーマによっては最初から非表示になっています。（テーマ側で強制的に表示されることもあります）">?</span></th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="title_hidden">
+			<input type="checkbox" name="title_hidden" value="1"<@if(s.title_hidden,' checked')>><label>非表示にする</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+
+
+	<p>各要素は個別の「&lt;li&gt;～&lt;/li&gt;」の中に出力されます。
+	<table class="blog-setting">
+	<thead>
+	<tr>
+		<th>要素名</th>
+		<th>内容</th>
+		<th>削除</th>
+	</tr>
+	</thead>
+	<tbody id="information-elements">
+	</tbody>
+	</table>
+
+	<strong>要素の追加</strong>
+	<select name="append_element" id="append-element">
+		<option value="">（追加する要素を選択）</option>
+	</select>
+
+<!-- information内のモジュールデータ -->
+<div id="information-modules" style="display: none">
+
+<div id="current-elements">
+<@if(s.elements || s.title, s.elements, begin_string)>
+description
+artlist-link
+print-link
+<$end></div>
+
+<div data-module-name="description" title="ブログの説明">
+※<a href="<@v.myself>?set/" target="_blank">ここで設定</a>
+</div>
+
+<div data-module-name="artlist-link" title="記事一覧へのリンク">
+<a href="<@v.myself>?artlist" target="_blank">記事一覧</a>
+</div>
+
+<div data-module-name="comlist-link" title="コメント一覧へのリンク">
+<a href="<@v.myself>?comlist" target="_blank">コメント一覧</a>
+</div>
+
+<div data-module-name="artcomlist-link" title="記事・コメント一覧へのリンク">
+<a href="<@v.myself>?artlist" target="_blank">記事一覧</a> / 
+<a href="<@v.myself>?comlist" target="_blank">コメント一覧</a>
+</div>
+
+<div data-module-name="print-link" title="印刷用表示へのリンク">
+<a href="<@v.myself>?theme&n=satsuki2/_print" target="_blank">印刷用の表示</a>
+</div>
+
+<div data-module-name="bcounter" title="はてなブックマークカウンタ">
+	<input type="hidden" name="bcounter.default" value="de">
+	<input type="radio" name="bcounter" value="de"><label style="color: #1841CD">■</label>
+	<input type="radio" name="bcounter" value="dg"><label style="color: #6B6D7B">■</label>
+	<input type="radio" name="bcounter" value="gr"><label style="color: #4296A5">■</label>
+	<input type="radio" name="bcounter" value="pr"><label style="color: #6B3CA5">■</label>
+	<input type="radio" name="bcounter" value="br"><label style="color: #9C5D31">■</label>
+	<input type="radio" name="bcounter" value="rd"><label style="color: #CE2418">■</label>
+	<input type="radio" name="bcounter" value="sp"><label style="color: #B58135">■</label>
+	<input type="radio" name="bcounter" value="pk"><label style="color: #E98383">■</label><br>
+	<input type="radio" name="bcounter" value="te"><label style="color: #8DA475">■</label>
+	<input type="radio" name="bcounter" value="lg"><label style="color: #B9B8B4">■</label>
+	<input type="radio" name="bcounter" value="wh"><label style="color: #FFFFFF">■</label>
+	<input type="radio" name="bcounter" value="bl"><label style="color: #000000">■</label>
+	<input type="radio" name="bcounter" value="li"><label style="color: #43BA83">■</label>
+	<input type="radio" name="bcounter" value="or"><label style="color: #FC7819">■</label>
+	<input type="radio" name="bcounter" value="lb"><label style="color: #5587E7">■</label>
+</div>
+
+<div data-module-name="bicon" title="はてなブックマーク数" data-alt='はてなブックマーク数<span class="help" data-help="赤字でサイト全体のブックマーク数を表示します。1件もないときは非表示です。右はサンプルになります。">?</span>'>
+	<a class="http-bookmark" href="http://b.hatena.ne.jp/entry/http://adiary.org"><img src="http://b.st-hatena.com/entry/image/http://adiary.org" alt="はてブ数"></a>
+</div>
+
+<div data-module-name="rssicon" title="RSSアイコン">
+	<img class="rss-icon" alt="RSS" src="<@Basepath><@v.pubdist_dir>rss-icon.png">
+</div>
+
+<div data-module-name="free_txt" data-duplicate="1" title="フリーテキスト" data-alt='フリーテキスト<br><a target="_blank" href="<@v.myself>?etc/allow_tags&amp;n=usertext">使用可能タグ</a>'>
+	<textarea class="w300" rows="2" name="free_txt"></textarea>
+</div>
+
+<div data-module-name="freebr_txt" data-duplicate="1" title="フリーテキスト（改行有効）" data-alt='フリーテキスト<br>改行有効<br><a target="_blank" href="<@v.myself>?etc/allow_tags&amp;n=usertext">使用可能タグ</a>'>
+	<textarea class="w300" rows="2" name="freebr_txt"></textarea>
+</div>
+
+</div>
+<!-- JavaScript ==========================================================-->
+<script>{
+var sel  = $("#append-element");	// select box
+var form = $("#information-elements");
+var modules = [];
+var count = 0;
+form.sortable();
+
+$("#information-modules > div[data-module-name]").each(function(){
+	var obj  = $(this);
+	obj.remove();
+	var name = obj.data('module-name');
+	modules[ name ] = obj;
+	var opt = $('<option>');
+	opt.attr('value', name);
+	opt.text( obj.attr('title') );
+	sel.append( opt );
+});
+sel.change( function(){
+	var obj = $(this);
+	append_element( obj.val() );
+	obj.val('');
+});
+function append_element(name, val) {
+	if (name == '') return;
+	var mod= modules[ name ];
+	
+	var alt= mod.data('alt');
+	var tr = $('<tr>');
+	var th = $('<th>').addClass('nowrap').html( alt ? alt : mod.attr('title') );
+	var td = $('<td>').html( mod.html() );
+	var cl = $('<td>').addClass('c');
+	var span = $('<span>').addClass('ui-icon ui-icon-closethick ui-button');
+	span.click(function(){ tr.remove() });
+	var inp = $('<input>').attr({type: 'hidden', name: 'ele_ary' });
+	inp.attr('value', count + ',' + name );
+	td.find('*[name]').each(function(){
+		var obj = $(this);
+		var key = obj.attr('name');
+		// val設定
+		if (val && val != '' && name == 'bcounter' && obj.attr('type') == 'radio') {
+			if (val == obj.attr('value')) { obj.prop('checked', true); }
+		}
+		if (val && val != '' && (name == 'free_txt' || name == 'freebr_txt')
+		 && obj[0].tagName == 'TEXTAREA') {
+		 	if (name == 'freebr_txt') val = val.replace(/<br>/g, "\n");
+			obj.val( val );
+		}
+		obj.attr('name', count + ',' + key);
+	});
+	count++;
+	cl.append(inp, span);
+	tr.append(th, td, cl);
+	form.append(tr);
+}
+/// 初期化
+function init() {
+	var ele = $('#current-elements');
+	var list = ele.html().split("\n");
+	for (var i=0; i<list.length; i++) {
+		var x = list[i].split(",",2);
+		var name = x[0];
+		if (!name) continue;
+		append_element(name, x[1]);
+	}
+}
+init();
+///
+}</script>
+

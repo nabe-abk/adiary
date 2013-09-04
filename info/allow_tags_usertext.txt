@@ -1,0 +1,122 @@
+#-------------------------------------------------------------------------------
+# 許可タグリスト for ユーザーテキスト
+#-------------------------------------------------------------------------------
+# タグ制限を完全になくしたい場合は trust_mode を利用してください。
+_base		id, title, class, style, lang, data-
+_protocol	http, https, ftp, mailto, mms
+_comment
+
+### 基本 ########################
+a		href, name, target, rel
+p
+br
+span
+h3
+h4
+h5
+h6
+
+### ブロック要素 ###############
+div
+section
+header
+footer
+aside
+nav
+details
+
+blockquote	cite
+pre
+code
+
+### 修飾 ########################
+ins
+del
+strong
+em
+i
+s
+u
+sup
+sub
+ruby
+rt
+rp
+mark
+cite
+
+### list ########################
+ul		type
+ol		type
+li		value
+dt
+dl
+dd
+
+### テーブル ####################
+table		alt, summary
+caption
+thead
+tfoot
+tbody
+tr
+th		colspan, rowspan, nowrap
+td		colspan, rowspan, nowrap
+colgroup	span
+col		span
+
+### iframe ######################
+iframe		src, seamless, sandbox, width, height, frameborder, marginwidth, marginheight, scrolling, allowfullscreen
+
+### フォーム #################### ※inputの属性リストは一部略
+form		accept-charset, action, autocomplete, enctype, method, name, novalidate, target
+input		type, name, value, checked, size, maxlength, readonly, required, list, checked, min, max, autocomplete
+select		autofocus, disabled, form, name, size, multiple
+button		autofocus, disabled, name, type, value, form, formaction, fomenctype, formmethod, formnovalidate, formtarget
+option		value, selected
+textarea	autofocus, cols, disabled, form, maxlength, name, placeholder, readonly, required, rows, wrap
+keygen		autofocus, challenge, disabled form, keytype, name
+
+optgroup
+fieldset	disabled, form, name
+legend
+datalist
+
+output		for, form, name
+progress	value, max, form
+meter		value, min, max, low, height, optimum
+
+menu		type, label
+command		type, label, icon, disabled, checked, radiogroup, title
+
+### メディア ####################
+audio		src, controls, type
+video		src, controls, type
+source		src, type
+track		subtitles, label, src, srclang, default
+
+### 画像 ########################
+figure
+figcaption
+img		alt, src, width, height, usemap, ismap
+canvas		width, height
+map		name
+area		alt, cooords, shape, href, target, ping, rel, media, hreflang, type
+
+### その他 ######################
+address
+dfn
+samp
+kbd
+var
+abbr
+acronym
+bdi
+bdo
+wbr
+time	datetime, pubdate
+
+# style 指定子によるXSS対策
+_style_secure
+# 相対パスを絶対パスに書き換え
+_force_absolute_path

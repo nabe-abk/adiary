@@ -1,0 +1,43 @@
+######################################################################
+title=System info
+version=1.00
+#					(C)2013 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.90
+
+module_type=sidebar
+module_class=hatena-module
+module_id=side-system-info
+
+*sample_html=<<HTML
+<div class="hatena-moduletitle">System info</div>
+<div class="hatena-modulebody">
+Total time : 99.9 ms<br>
+DB time : 9.9 ms<br>
+Runtime : CGI-Perl<br>
+RDBMS : Text-DB<br>
+</div> <!-- hatena-modulebody -->
+HTML
+
+*module_html=<<HTML
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
+<div class="hatena-moduletitle">System info</div>
+<div class="hatena-modulebody">
+<@ifexec(Timer, begin)>
+Total time : <@int(Timer.check()*10000 + 0.5)/10> ms<br>
+DB time : <@int(Timer.check('db')*10000 + 0.5)/10> ms<br>
+<$end>
+Runtime : <@CGI_mode><br>
+RDBMS : <@DB._RDBMS><br>
+<@ifexec(Develop, begin)>
+HTTP Status: <@Status><br>
+<@if(AutoReload, "AutoReload : 1<br>")>
+<$end>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+HTML

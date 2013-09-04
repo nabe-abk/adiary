@@ -1,0 +1,64 @@
+<@6>
+<@local(s,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("コメント欄の設定")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<$s = set>
+<$ifexec(POST, begin)>
+	<$s = Form>
+	<$tag_escape(s.allow_com_users)>
+<$end>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<@ifexec(Query.blogid ne '*' && Auth.isadmin, begin, begin)>
+	<p><a href="<@v.myself>?<@v.skeleton>&amp;blogid=*">&gt;標準設定を変更する</a></p>
+	<$else>
+	<@if(v.blogid, #'<p><a href="<@v.myself>?<@v.skeleton>">&gt;ブログ固有の設定に戻る</a></p>')>
+	<$end>
+
+	<form action="<@v.myself>?<@v.skeleton><@if(Query.blogid eq '*', '&blogid=*')>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>コメント許可対象</th>
+		<td>
+		<input type="radio" class="js-disabled" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="*"<@if(s.allow_com_users eq '*', ' checked')>><label>誰でも</label>&nbsp;
+		<input type="radio" class="js-disabled" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="user*"<@if(s.allow_com_users eq 'user*', ' checked')>><label>ユーザーのみ</label><span class="help" data-help="ログインできる人のみに限定します">?</span>&nbsp;
+		<input type="radio" class="js-disabled" data-change="0" data-target="#allow-com-users" name="allow_com_sel" value=""<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', ' checked')>><label>ID指定（「,」区切り）</label><br>
+		<input type="text" name="allow_com_users" id="allow-com-users" size="54" class="w320"  value="<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', s.allow_com_users)>">
+		</td>
+	</tr>
+	<tr><th>コメント保留<span class="help" data-help="コメントを確認するまで表示させないSPAM対策機能です。">?</span></th>
+		<td>
+		<input type="radio" name="defer_com" value="1"<@if( s.defer_com == 1, ' checked')>><label>すべて保留する</label><span class="help" data-help="ブログ管理者（と編集権限のある人）のコメントは保留されません">?</span>&nbsp;
+		<input type="radio" name="defer_com" value="2"<@if( s.defer_com == 2, ' checked')>><label>ユーザー以外を保留</label><span class="help" data-help="ログインしてない人を保留します">?</span>&nbsp;
+		<input type="radio" name="defer_com" value="0"<@if(!s.defer_com     , ' checked')>><label>OFF</label>
+		</td>
+	</tr>
+	<tr><th>コメントフォーム</th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="com_email">
+			<input type="hidden" name="checkbox.info" value="com_url">
+			<input type="checkbox" name="com_email" value="1"<@if(s.com_email, ' checked')>><label>メール記入欄を表示する（任意記入）</label><br>
+			<input type="checkbox" name="com_url"   value="1"<@if(s.com_url,   ' checked')>><label>URL記入欄を表示する（任意記入）</label><br>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<input type=submit name="submit" value="この設定を保存する"><br>
+
+
+	</form>
+</div>
+</article>

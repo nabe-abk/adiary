@@ -1,0 +1,50 @@
+<@6>
+<@local(ps,name,root,sw,nclose,num,max_depth)>
+<@>
+<$name = argv#0>
+<$root = argv#1>
+<$ps = v.load_plgset(name)>
+<$num= v.plugin_num(name)>
+<$sw = ps.switch)>
+<$nclose = sw && ps.nclose>
+<$max_depth = (ps.depth || 3)-1>
+<@>
+<@>---------------------------------------------------------------------
+<@>再帰サブルーチン
+<@>---------------------------------------------------------------------
+<$sub = begin.function>
+<@local(t, p, node, tree, depth, x)>
+<$node  = argv#0>
+<$tree  = node.children>
+<$depth = argv#1><@>prefix
+<$p = "\t" %x depth>
+<@p><ul id="sidecon<@num>-<@if(node.root,'root',node.pkey)>"<@if(!depth, ' class="hatena-section"')><@if(depth && nclose, ' style="display: none"')>>
+<@forexec(t, tree, begin.forexec)>
+<$ifnext(t.tstat & v.tstat_nomenu)>
+<@ifexec(t.children && depth<max_depth, begin, begin)>
+<@p>	<li> <@\>
+	<@if(sw, #'<span class="js-switch" data-save="1" data-target="#sidecon<@num>-<@t.pkey>">')> <@\>
+	<a href="<@if(t.ctype eq 'link', t.elink_key, "<@v.myself2><@t.elink_key>")>"><@t.title></a></span><@if(sw, '</span>')>
+<@exec(sub, t, depth+1)>
+<@p>	</li>
+<$else>
+<@p>	<li> <@\>
+	<a href="<@if(t.ctype eq 'link', t.elink_key, "<@v.myself2><@t.elink_key>")>"><@t.title></a></span></li>
+<$end>
+<$end.forexec>
+<@p></ul>
+<$end.function>
+<@>---------------------------------------------------------------------
+<@>タグリスト
+<@>---------------------------------------------------------------------
+<$tree = argv#1>
+<@ifexec(root && root.pkey, begin, begin)>
+<div class="hatena-moduletitle"><a href="<@v.myself2><@root.elink_key>"><@root.title></a></div>
+<$else>
+<div class="hatena-moduletitle"><@ps.title || 'コンテンツ'></div>
+<$end>
+<div class="hatena-modulebody">
+<@ifexec(root, begin)>
+<@exec(sub, root, 0)>
+<$end>
+</div> <!-- hatena-modulebody -->

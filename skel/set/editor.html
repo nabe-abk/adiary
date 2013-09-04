@@ -1,0 +1,164 @@
+<@6>
+<@local(s,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("編集画面の設定")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<$s = set>
+<$ifexec(POST, begin)>
+	<$s = Form>
+	<$tag_escape( \
+		s.http_target, s.http_class, s.http_rel, \
+		s.image_target, s.image_class, s.image_rel, \
+		s.section_anchor, s.subsection_anchor)>
+<$end>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<@ifexec(Query.blogid ne '*' && Auth.isadmin, begin, begin)>
+	<p><a href="<@v.myself>?<@v.skeleton>&amp;blogid=*">&gt;標準設定を変更する</a></p>
+	<$else>
+	<@if(v.blogid, #'<p><a href="<@v.myself>?<@v.skeleton>">&gt;ブログ固有の設定に戻る</a></p>')>
+	<$end>
+
+	<form action="<@v.myself>?<@v.skeleton><@if(Query.blogid eq '*', '&blogid=*')>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<table class="blog-setting">
+	<thead>
+	<tr><th>編集画面のデフォルト</th><th>すべての記事</th></tr>
+	</thead>
+	<tbody>
+	<tr>
+		<td>
+			<input type="hidden" name="checkbox.info" value="enable">
+			<input type="checkbox" name="enable" value="1"<@if(s.enable, ' checked')>><label>記事を公開する</label>&nbsp;
+		</td>
+		<td>
+			<input type="hidden" name="checkbox.info" value="private">
+			<input type="checkbox" name="private" value="1"<@if(s.private, ' checked')>><label>強制OFF（プライベートモード）</label>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input type="hidden" name="checkbox.info" value="com_ok">
+			<input type="checkbox" name="com_ok" value="1"<@if(s.com_ok, ' checked')>><label>コメントの投稿を受け付ける</label>&nbsp;
+		</td>
+		<td>
+			<input type="checkbox" name="com_ok_force" value="0"<@if(s.com_ok_force eq '0', ' checked')>><label>強制OFF</label>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input type="hidden" name="checkbox.info" value="hcom_ok">
+			<input type="checkbox" name="hcom_ok" value="1"<@if( s.hcom_ok, ' checked')>><label>非公開コメントを許可する</label>&nbsp;
+		</td>
+		<td>
+			<input type="checkbox" name="hcom_ok_force" value="0"<@if(s.hcom_ok_force eq '0', ' checked')>><label>強制OFF</label>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<input type="hidden" name="checkbox.info" value="update_ping">
+			<input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label>
+		</td>
+	</tr>
+<@ifexec(s.tw_access_token ne '', begin)>
+	<tr>
+		<td colspan="2">
+			<input type="hidden" name="checkbox.info" value="tw_ping">
+			<input type="checkbox" name="tw_ping" value="1"<@if(s.tw_ping, ' checked')>><label>Twitterに通知する</label>
+		</td>
+	</tr>
+<$end>
+	<tr>
+		<td colspan="2">
+			<input type="hidden" name="checkbox.info" value="wiki">
+			<input type="checkbox" name="wiki" value="1"<@if(s.wiki, ' checked')>><label>wikiコンテンツ</label>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<input type="hidden" name="checkbox.info" value="post_detail">
+			<input type="checkbox" name="post_detail" value="1"<@if(s.post_detail, ' checked')>><label>投稿の詳細情報表示</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+
+<h3>パーサーの設定</h3>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>デフォルトのパーサー</th>
+		<td>
+		<select name="parser">
+			<@forexec_hash(ROBJ, v.parsers, begin)>
+			<option value="<@key>"<@if(s.parser eq key, ' selected')>><@val></option>
+			<$end>
+		</select>
+		</td>
+	</tr>
+	<tr><th>URLを自動リンク<span class="help" data-help="通常は [http://adiary.org/] と書いてリンクします">?</span></th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="autolink">
+			<input type="checkbox" name="autolink" value="1"<@if(s.autolink, ' checked')>><label>自動でリンクする</label>
+		</td>
+	</tr>
+	<tr><th>[記法]リンク<span class="help" data-help="記法を使ってリンクするときにデフォルトで設定される属性値を指定します。なお、targetの設定は非推奨です。">?</span></th>
+		<@> これらの設定値の安全性は入力した記事HTMLの安全性と同様に保証される。
+		<td>
+		class=<input type="text" name="http_class" size="12" class="w80" value="<@s.http_class>"> 
+		target=<input type="text" name="http_target" size="12" class="w80" value="<@s.http_target>"> 
+		rel=<input type="text" name="http_rel" size="12" class="w80" value="<@s.http_rel>">
+		</td>
+	</tr>
+	<tr><th>[記法]画像へのリンク<span class="help" data-help="記法を使って画像を表示するとき（さらにそれがリンクになるとき）のデフォルト属性値を指定します。なお、targetの設定は非推奨です。">?</span></th>
+		<td>
+		class=<input type="text" name="image_class" size="12" class="w80" value="<@s.image_class>"> 
+		target=<input type="text" name="image_target" size="12" class="w80" value="<@s.image_target>"> 
+		rel=<input type="text" name="image_rel" size="12" class="w80" value="<@s.image_rel>">
+		</td>
+	</tr>
+	<tr><th>セクションアンカー<span class="help" data-help="「見出し」の先頭に付くリンクマーク。%dでセクション番号。">?</span></th>
+		<td><input type="text" name="section_anchor" size="20" class="w120" value="<@tag_escape(s.section_anchor)>" id="sec-anchor">
+		<button type="button" id="set-sanchor-number">章番号を出力</button>
+		<span class="help" data-help="「1.」「2.1」「2.5」等の章番号を出力するよう設定します。記事先頭で [*section_number] と書いてその記事だけ切り替えることもできます。">?</span>
+		</td>
+	</tr>
+	<tr><th>サブセクションアンカー<span class="help" data-help="「小見出し」の先頭に付くリンクマーク。%dでセクション番号、%sでサブセクション番号。">?</span></th>
+		<td><input type="text" name="subsection_anchor" size="20" class="w120" value="<@tag_escape(s.subsection_anchor)>" id="subsec-anchor"></td>
+	</tr>
+	<tr>
+		<th>「続きを読む」の表記<span class="help" data-help="「====」表記により、一覧表示時に記事本文が省略された場合のメッセージ。">?</span></th>
+		<td<@err.c_seemore_msg>>
+			<input type="text" class="w300" name="seemore_msg" value="<@s.seemore_msg || '続きを読む'>">（最大40文字）
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<input type=submit name="submit" value="この設定を保存する"><br>
+
+
+	</form>
+</div>
+</article>
+
+<script>
+$('#set-sanchor-number').click(function(){
+	$('#sec-anchor').val('%n');
+	$('#subsec-anchor').val('%n.%s');
+});
+</script>
+
+

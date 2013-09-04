@@ -1,0 +1,61 @@
+<@6>
+<$ifbreak(!Develop && !Debug_mode || !v.allow_edit)>
+<@local(ret,s,t,t2,c,permalink)>
+
+<$(t,ret) = v.load_article_current_blog(v.pinfo, Query)>
+<$s = v.blog>
+<$v.title = s.blog_name>
+<$art_year = ret.year>
+<$art_mon  = ret.mon>
+<$art_day  = ret.day>
+
+<@ifexec(!v.blogid, begin)>
+	<$ifmessage(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません")>
+	<$ifmessage(v.path_blogid && ! Auth.ok, "もしあなたが「ID:<@v.path_blogid>」ならばログインしてください。")>
+<$end>
+<$ifexec(v.blogid && !t, begin)>
+	<$message("該当する記事がありません")>
+<$end>
+<$ifjump_clear(!t || Message, "_sub/error_message_404")>
+
+<!--========================================================================-->
+<$permalink = "<@v.myself2><@t.elink_key>">
+<$url=v.server_url . permalink>
+<$canonical_url = url>
+<$encode_uricom(url)>
+<@>
+<article class="article<@if(t.priority, ' wiki')>">
+<h2 id="art-<@t.pkey>"><@if(!t.wiki, #'<a class="date" href="<@permalink>"><@t.year>/<@t.mon>/<@t.day>(<@t.wday_name>)</a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
+<div class="body" id="s<@t.pkey>">
+	<div class="body-header">
+		<@ifexec(t.wiki && t.tm, begin)><span class="write-date"><@tm_printf('%Y/%m/%d %J:%M ', t.tm)></span><$end>
+		<@ifexec(t.tags, begin)><span class="tags"><@v.make_taglinks(t.tags)></span><$end>
+		<span class="author" title="<@t.id>"><@t.name></span>
+		<@ifexec(v.check_editor(t), begin)><a href="<@v.myself2>0<@t.pkey>?edit" class="edit-article">（編集）</a><$end>
+	</div>
+<div class="body-main">
+	<@if( t.draft,  '<strong class="warning">【この記事は下書きです】</strong><br>' )>
+	<@if(!t.draft && !t.enable, '<strong class="warning">【この記事は非公開です】</strong><br>')>
+<textarea rows="20" class="w100p" readonly><@t.text></textarea>
+<@ifexec(t.text_s,begin)>
+<h3>短い本文</h3>
+<textarea rows="20" class="w100p" readonly><@t.text_s></textarea>
+<$end>
+</div>
+	<$coms = if(v.allow_edit, t.coms_all, t.coms)>
+	<div class="body-footer">
+	<@ifexec(t.com_ok || coms, begin)>
+		<span class="element com-caption"><a href="<@v.myself2><@t.elink_key>#com"><span class="com-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span></a></span>
+	<$end>
+	</div>
+</div> <!-- body -->
+</article>
+
+
+<@ifexec(exists(ret.prev_page) || ret.next_page, begin.page)>
+<nav class="page-foot">
+<@if(exists(ret.prev_page), #'<a href="<@v.myself2><@ret.prev_page>" class="prev-page" rel="prev">前の記事</a>')>
+<@if(ret.next_page,         #'<a href="<@v.myself2><@ret.next_page>" class="next-page" rel="next">次の記事</a>')>
+</nav>
+<$end.page>
+

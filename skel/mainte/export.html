@@ -1,0 +1,66 @@
+<@6>
+<@local(s,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("記事のエクスポート")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<p>記事データをファイルに出力します。</p>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<input type="hidden" name="class" value="" id="form-class">
+
+	<ul class="none">
+		<li>出力記事の日付
+			<input type="text" class="int w120" name="year" value="">年<span class="help" data-help="YYYY/MM, YYYY-MM-DDなども記入できます。（例）2012/01 2012年1月">?</span>
+		</li>
+		<li>出力する記事のタグ
+			<select name="tag" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json">
+				<option value="">（指定しない）</option>
+			</select>
+		</li>
+		<li>出力記事の種類
+			<select name="article_type">
+				<option value="*all*" selected>すべて 
+				<option value="">blogのみ 
+				<option value="wiki">コンテンツ(wiki)のみ
+			</select> blogのみ、wikiのみ等
+		</li>
+		<li><input type="checkbox" name="enable_only" value="1"><label>非表示の記事を出力しない</label></li>
+		<li><input type="checkbox" name="no_comment"  value="1"><label>コメントを出力しない</label></li>
+		<li><input type="checkbox" name="enable_comment_only" value="1" checked><label>非表示コメントを出力しない</label><span class="help" data-help="adiary形式以外では、非表示属性のコメント等がインポート先で表示されてしまいます。">?</span></li>
+		<li><input type="checkbox" name="force_ymd"   value="1"><label>投稿日時を日付設定から生成する</label><span class="help" data-help="adiaryでは記事ごとに「日付」と「投稿日時」を別に保持していて、未来の日付の記事が書けるようになっています。他のブログシステムでは、投稿日時データしか持たないため、adiaryで管理していた「日付」と異なる日付（投稿日時）を基準として表示されます。この問題を回避するため「日付」データから投稿日時データを生成する場合はチェックを入れてください。">?</span></li>
+	</ul>
+
+
+	<div class="jqueryui-accordion">
+	<@call_dir("<@v.skel_dir>_export/")>
+	</div>
+	</form>
+
+
+</div>
+</article>
+
+
+
+
+<script>$(function(){
+	load_taglist( '#tag-select' );
+	$("button.export").click(function(evt){
+		var cls = $(evt.target).data('class');
+		if (!cls) return;
+		$('#form-class').val(cls);
+	});
+});</script>
+

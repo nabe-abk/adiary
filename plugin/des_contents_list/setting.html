@@ -1,0 +1,49 @@
+<@6>
+<@local(x,s)>
+<$s=argv#0>
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>モジュールタイトル<span class="help" data-help="表示ノードに「root」を指定した時に表示されるタイトルです。">?</span></th>
+		<td><input type="text" class="w160" name="title" value="<@s.title || 'コンテンツ'>" maxlength="64"></td>
+	</tr>
+	<tr>
+		<th>表示開始ノード<span class="help" data-help="指定したノードから下をリスト表示します。">?</span></th>
+		<td>
+			<select name="node" id="node-select" data-default="<@s.node>" data-url="<@Basepath><@v.blogpub_dir>contents.json">
+				<option value="0">*トップ(root)</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<th>表示階層<span class="help" data-help="指定したノードからどれくらい深くのノードまで表示するか指定します。">?</span></th>
+		<td>
+			<$x=s.depth || 3>
+			<select name="depth" class="int">
+				<option value="1" <@if(x == 1, ' selected')>>1</option>
+				<option value="2" <@if(x == 2, ' selected')>>2</option>
+				<option value="3" <@if(x == 3, ' selected')>>3</option>
+				<option value="4" <@if(x == 4, ' selected')>>4</option>
+				<option value="5" <@if(x == 5, ' selected')>>5</option>
+				<option value="6" <@if(x == 6, ' selected')>>6</option>
+				<option value="7" <@if(x == 7, ' selected')>>7</option>
+				<option value="8" <@if(x == 8, ' selected')>>8</option>
+				<option value="9" <@if(x == 9, ' selected')>>9</option>
+				<option value="10"<@if(x ==10, ' selected')>>10</option>
+			</select>階層まで表示
+		</td>
+	</tr>
+	<tr>
+		<th>スイッチ表示<span class="help" data-help="ノードを開いたり閉じたりするスイッチを表示するか指定します。">?</span></th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="switch">
+			<input type="checkbox" name="switch" value="1"<@if(s.switch, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+
+<script>
+load_contents_list('#node-select');
+</script>

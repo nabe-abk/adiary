@@ -1,0 +1,12 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(! Auth.isadmin)>
+
+<$action_return = v.blogs_info_rebuild()>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message('付加情報を再生成しました')>
+	<$url = v.myself .'?'. v.query0>
+	<$jump('_sub/reload_message', url)>
+<$end>

@@ -1,0 +1,9 @@
+blog_name=（ブログのタイトルを入力してください）
+enable=1
+com_ok=1
+hcom_ok=1
+update_ping=1
+parser=default
+rss_items_int=10
+allow_com_users=*
+wiki_tm=1

@@ -1,0 +1,13 @@
+<@20>
+<$v.title ="ログイン承認">
+
+ログイン cookie 確認処理
+<$ifexec(Auth.ok, begin)>
+<$url = if( v.path_blogid, v.thisurl, v.myself3 )>
+<$ifset(Auth.auto, url, Myself2 . '?user/add')>
+<$redirect( url )>
+<$end>
+
+失敗時
+<$jump('_sub/error_message', 'Cookieが有効になっているか確認してください')>
+

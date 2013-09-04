@@ -1,0 +1,149 @@
+<@6>
+<@local(s,tp,t)>
+<$s = v.blog>
+<$ifredirect(!v.blog_admin, v.myself)>
+<$v.frame_skeleton=''>
+<!--========================================================================-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="adiary <@v.VERSION><@v.SUBVERSION>">
+<!--[if lt IE 9]>
+<script src="<@Basepath><@v.script_dir>jquery-1.min.js"></script>
+<script src="<@Basepath><@v.script_dir>IE9-2.1b4.js"></script>
+<![endif]-->
+<!--[if gte IE 9]><!-->
+<script src="<@Basepath><@v.script_dir>jquery-2.min.js"></script>
+<!--<![endif]-->
+<script src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
+<script src="<@Basepath><@v.script_dir>adiary.js"></script>
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.notheme.css" id="jquery-ui-css">
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>satsuki2/base.css" id="base-css">
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>satsuki2/satsuki2/satsuki2.css" id="theme">
+
+
+	<title>テーマ選択 - <@s.blog_name></title>
+<!--========================================================================-->
+<style>
+* {
+	margin:		0;
+	padding:	0;
+}
+html, #body {
+	height:		99.5%;
+}
+#body {
+	background-color:	#008;
+	font-size:		11pt;
+}
+#back-link {
+	position:		absolute;
+	top:			0;
+	right:			0;
+	width:			auto;
+	text-align:		right;
+}
+#back-link a {
+	padding-right:		1em;
+	color:			#fff;
+}
+#form {
+	color:			#fff;
+	margin:			2px 4px;
+}
+select {
+	padding:		0px 1px;
+}
+#iframe {
+	width:			100%;
+	overflow-x:		hidden;
+	overflow-y:		scrollbar;
+	border:			none;
+	background-color:	#fff;
+}
+</style>
+</head>
+<body id="body">
+<!--========================================================================-->
+<form id="form" action="<@v.myself>?<@v.skeleton>" method="POST">
+<input type="hidden" name="action" value="<@v.skeleton>">
+<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+テーマ選択
+<select id="theme-select" name="theme">
+<@forexec(tp, v.load_templates(), begin)>
+<@forexec(t,  v.load_themes(tp), begin)>
+	<option value="<@tp><@t.name>" data-readme="<@t.readme>"><@tp><@t.name></option>
+<$end>
+<$end>
+</select>
+<input type="submit" name="submit" value="保存">
+<button type="button" id="readme-button" class="info" data-title="README" data-url="" data-class="pre" onclick>README表示</button>
+</form>
+<div id="back-link"><a href="<@v.myself>?<@v.skel_dir>">&gt;メニューに戻る</a></div>
+<iframe id="iframe"  seamless></iframe>
+
+<!--========================================================================-->
+<script>
+var Fx = (navigator.userAgent.indexOf('Gecko') != -1);
+$(function(){
+	var body = $('#body');
+	var form = $('#form');
+	var iframe = $('#iframe');
+	var readme = $('#readme-button');
+	
+	// bodyいっぱいに表示
+	iframe_resize();
+	$(window).resize( function(){ iframe_resize() } );
+
+	// テーマ変更
+	var sel = $('#theme-select');
+	sel.val('<@v.template>/<@v.theme>');	// default
+
+	// テーマ選択操作
+	sel.change(function(){
+		var theme = sel.val();
+		iframe.attr('src', '<@v.myself>?theme&n=' + theme ); 
+		var opt = sel.children(':selected');
+		if (opt.data('readme')) {
+			readme.data('url', '<@v.myself>?<@v.skel_dir>theme_readme&name=' + theme);
+			readme.removeAttr('disabled');
+		} else {
+			readme.attr('disabled', true);
+		}
+	});
+	sel.change();
+
+function iframe_resize() {
+	var h = body.height() - iframe.position().top;
+	if (Fx) h -= 8;	// Firefoxだけなぜかスクロールバーが出てしまう対策
+	iframe.css('height', h);
+}
+///
+});
+</script>
+
+<@ifexec(Develop && (@Error || @Debug || @Warning) || Debug_mode, begin.debug)>
+<!--追加フッタ==============================================================-->
+<p><strong>debug</strong></p>
+
+<@ifexec(@Error, begin)>
+<div class="debug">
+Error : <strong><@error_load_and_clear("<br>\n")></strong><br>
+</div>
+<$end>
+<@ifexec(@Debug, begin)>
+<div class="debug">
+Debug : <strong><@join("<br>\n", Debug)></strong><br>
+</div>
+<$end>
+<@ifexec(@Warning, begin)>
+<div class="debug">
+Warning : <strong><@join("<br>\n", Warning)></strong><br>
+</div>
+<$end>
+<$end.debug>
+
+</body>
+</html>

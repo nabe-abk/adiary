@@ -1,0 +1,11 @@
+<@20>
+<$ifexec(Auth.ok, begin)>ログアウト処理
+
+<$Auth.logout()>
+<$clear_cookie('session')>
+<$redirect( v.thisurl )>
+<$end>
+
+ログインしていない場合
+<$v.title='ログアウト'>
+<$jump('_sub/error_message_403', 'ログインしていません')>

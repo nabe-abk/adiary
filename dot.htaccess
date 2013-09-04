@@ -1,0 +1,11 @@
+# 使用メモリ量の制限
+# RLimitMem 268435456
+
+# ModRewite設定。可能な限り使用してください。
+# RewriteEngine	On
+# RewriteBase	/your-web-install-path/
+# RewriteCond	%{REQUEST_FILENAME}	!-f
+# RewriteRule	^(.*)$			adiary.cgi/$1	[L]
+
+# 常にタイマーを表示
+# SetENV timer 1

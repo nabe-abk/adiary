@@ -1,0 +1,15 @@
+<@20>
+<$ifredirect(!Auth.ok, v.myself)>
+<$v.frame_skeleton=''>
+<$name = Query.name>
+<$replace(name, '[^\w\-,]', '')>
+
+<@ifexec(v.blogid eq '', begin)>
+	<@"blog id not defined!">
+	<$break()>
+<$end>
+
+<$set = v.load_plgset(name)>
+<$n = v.split_number(name)>
+<@if(Develop, "module_name = <@name><br>")>
+<@_call("<@v.plugin_dir><@n>/setting.html", set)>

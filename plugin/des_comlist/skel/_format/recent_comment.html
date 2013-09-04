@@ -1,0 +1,10 @@
+<@6>
+<@local(t)>
+<@>
+<@> 書式設定用ファイル
+<@>
+<ul class="hatena-section">
+<@forexec(t, argv#1, begin)>
+	<li><a href="<@v.myself2><@t.a_elink_key>#c<@t.num>" title="<@t.year>-<@t.mon>-<@t.day>"><@t.a_title></a> <span class="author" title="<@tm_printf("%Y/%m/%d %J:%M", t.tm)>"><@t.name></span></li>
+<$end>
+</ul>

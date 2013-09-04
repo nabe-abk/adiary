@@ -1,0 +1,60 @@
+<@6>
+<@local(s)>
+<$s = v.blog>
+
+<@> システムモード
+<$v.system_mode("Twitter連携の設定")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<p>Twitterと連携すると、記事投稿時に自動的に記事URLをツイートすることができます。</p>
+
+<@ifexec(lib_check('Net::SSLeay'), begin, begin)>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+<@ifexec(s.tw_access_token eq '', begin, begin)>
+	<button>Twitterアカウントの認証</button><br>
+<$else>
+
+	<table>
+	<tbody>
+	<tr>
+		<th>認証状態</th>
+		<td>
+			Twitterアクセスは <strong><@s.tw_screen_name></strong> で認証されています。<button>再認証する</button>
+		</td>
+	</tr>
+	<tr>
+		<th>記事の通知</th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="tw_ping">
+			<input type="checkbox" name="tw_ping" value="1"<@if( s.tw_ping, ' checked')>>
+			<label>新着記事をTwitterに通知する</label>
+		</td>
+	</tr>
+	<tr>
+		<th>ツイート内容</th>
+		<td>
+			<input type="text" name="tw_ping_title" class="w400" value="<@esc(s.tw_ping_title)>"><br>
+			%t：記事タイトル、%u：記事URL
+		</td>
+	</tr>
+	</table>
+	<button name="setting" value="1">設定を保存する</button>
+<$end>
+	</form>
+
+<$else>
+	<p>この機能を使用するには「Net::SSLeay」ライブラリがサーバにインストールされている必要があります。</p>
+<$end>
+</div>
+</article>

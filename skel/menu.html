@@ -1,0 +1,70 @@
+<@6>
+<$ifjump_clear(! Auth.ok, '_sub/error_message_403', 0, 'ログインしていません')>
+<$ifredirect(v.exists_my_blog && v.blogid eq '', v.myself3 . '?menu')>
+
+<@> システムモード
+<$v.system_mode("管理メニュー")>
+
+<@> 階層ツリー
+<@call("<@v.skel_dir>_dir_tree")>
+<!--========================================================================-->
+<article class="system">
+<h2><@v.title></h2>
+<div class="body">
+	<@ifexec(v.blog.newcom_flag, begin)>
+	<strong class="notice">新着コメントがあります</strong> &gt;<a href="<@v.myself>?comlist">コメント一覧から確認</a><br>
+	<$end>
+
+	<@ifexec(!v.exists_my_blog && (!v.sys.create_blog_only_admin || Auth.isadmin), begin)>
+	<ul class="menu">
+		<li><a href="<@Myself>?etc/myblog_create">自分のブログを作成</a></li>
+	</ul>
+	<$end>
+	<@ifexec(v.others_blog && v.exists_my_blog, begin)>
+	<ul class="menu">
+		<li><a href="<@v.myself3>">自分のブログへ</a></li>
+	</ul>
+	<$end>
+
+	<ul class="menu">
+	<@ifexec(v.blog_admin, begin)>
+		<li><a href="<@v.myself>?set/">基本設定</a></li>
+	<$end>
+	<@ifexec(v.allow_edit, begin)>
+		<li><a href="<@v.myself>?set2/">その他の設定</a><span class="help" data-help="タグ、コンテンツツリー、記法タグ、ユーザーCSS、メール設定<@if(v.blog_admin,'、twitter設定、プラグイン設定')>">?</span></li>
+	<$end>
+	<@ifexec(v.blog_admin, begin)>
+		<li><a href="<@v.myself>?design/">デザイン編集</a><span class="help" data-help="テーマ選択、パーツの表示設定">?</span></li>
+		<li><a href="<@v.myself>?mainte/">ブログの管理</a><span class="help" data-help="ブログの再構築・削除、インポート、エクスポート">?</span></li>
+	<$end>
+		<li><a href="<@v.myself>?personal/">個人の設定</a><span class="help" data-help="ユーザー名の変更、パスワードの変更">?</span></li>
+	</ul>
+
+	<@ifexec(Auth.isadmin, begin)>
+	<ul class="menu">
+		<li><a href="<@v.myself>?user/">【管理者】ユーザー管理</a></li>
+		<li><a href="<@v.myself>?system/">【管理者】システム管理</a><span class="help" data-help="システム設定、任意のブログ作成、システムチェック">?</span></li>
+	</ul>
+	<$end>
+</div>
+</article>
+
+<@ifexec(Auth.isadmin && !Mod_rewrite && ENV.SERVER_SOFTWARE eq 'Apache' && 0<index(Myself2, '.cgi'), begin)>
+<article class="system adiary-hint">
+<h2>利用のヒント</h2>
+<div class="body">
+<p>URLに含まれる「<strong><@cgi = substr(CGI_file, rindex(CGI_file,'/')+1)></strong>」を消すことができます。</p>
+
+<p><a href="http://www.google.co.jp/search?lr=lang_ja&ie=utf-8&oe=utf-8&q=.htaccess">.htaccess</a> と <a href="http://www.google.co.jp/search?lr=lang_ja&ie=utf-8&oe=utf-8&q=mod_rewite">mod_rewite</a> が許可されていれば、以下の内容を「.htaccess」として「<@cgi>」と同じディレクトリに置いてください。</p>
+
+<pre class="mono">
+RewriteEngine	On
+RewriteBase	<@Basepath>
+RewriteCond	%{REQUEST_FILENAME}	!-f
+RewriteRule	^(.*)$			<@cgi>/$1	[L]
+</pre>
+<p>※設定変更後「システム管理」から<strong class="warning">「付加情報の再生成」を必ず実行してください。</strong></p>
+
+</div>
+</article>
+<$end>

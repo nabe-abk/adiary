@@ -1,0 +1,52 @@
+<@6>
+<@local(t,tags,name)>
+
+<@>権限チェック
+<$ifredirect( !v.allow_edit, v.myself )>
+
+<@> システムモード
+<$v.system_mode("記法タグの一覧")>
+
+<@> パーサーロード
+<$call( '_parser/default' )>
+
+<!--========================================================================-->
+<article class="system">
+<h2><@v.title></h2>
+<div class="body">
+	<p><a href="<@v.myself>?set2/usertag">ユーザー定義タグ</a>を含みます。<strong class="warning">※標準パーサーでのみ利用可能</strong></p>
+	<p>（使用例）<span class="mono"> [g:adiary:Googleでadiaryを検索] [wiki:ブログ] </span></p>
+	
+	<table>
+	<thead>
+	<tr>
+		<th>タグ名</th>
+		<th>alias</th>
+		<th>タイトル</th>
+		<th>option</th>
+		<th>検索 / リンク / タグ置換</th>
+	</tr>
+	</thead>
+	<tbody class="small">
+	<@forexec(t, v.parser.load_tags(0, 48), begin)>
+		<td class="mono"><@t.name></td>
+		<td class="mono"><@if(t.alias, join(' ', t.alias))></td>
+		<td><@t.title></td>
+		<td><@t.option></td>
+		<td><@if(t.url, t.url, '（関数実装）')></td>
+	</tr>
+	<$end>
+	</tbody>
+	</table>
+
+	<h3>HTMLタグの単純置換</h3>
+
+	<table class="mono">
+	<tr><th>タグ</th><th>HTMLタグ</th><th>class</th><th>追加の属性</th>
+	<@forexec(t, v.parser.load_htmltags(), begin)>
+	<tr><td><@t.name></td><td><@t.html></td><td><@t.class></td><td><@t.attribute></td>
+	<$end>
+	</table>
+
+</div>
+</article>

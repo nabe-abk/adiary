@@ -1,0 +1,64 @@
+<@6>
+<@local(t,isadmin,url)>
+
+<@>権限チェック
+<$ifsuperbreak(! v.allow_blogs() )>
+
+<@> システムモード
+<$v.system_mode("ブログの一覧")>
+
+<$isadmin = Auth.isadmin>
+<$url = v.myself . '?' . v.skeleton>
+<$list = v.load_blog_list(Query.sort)>
+
+<!--========================================================================-->
+<article class="system jqueryui-tabs">
+	<ul>
+		<li><a href="#list-view">新着ブログ記事</a></li>
+		<li><a href="#table-view">ブログの詳細情報</a></li>
+	</ul>
+<div class="body">
+<div id="list-view">
+	<ul>
+	<@forexec(t, list, begin)>
+		<li><@if(admin, #'【<a href="<@t.url>?menu">管理</a>】')>
+		<@if(t.art_tm, tm_printf('<span class="small">%Y/%m/%d %H:%M</span> ', t.art_tm))>
+		<@if(t.private, "【非公開】")><a href="<@t.url>"><@if(t.newest_title ne '', t.newest_title, '-no diary-')></a>
+		<span class="small">(<@t.id> / <@t.blog_name>)</span></li>
+	<$end>
+	</ul>
+</div>
+<div id="table-view">
+	<table>
+	<tr>
+		<th><a href="<@url>&amp;sort=id#table-view">ID</a></th>
+		<th><a href="<@url>&amp;sort=arts#table-view">記事数</a></th>
+		<th><a href="<@url>&amp;sort=art_tm#table-view">最新記事</a></th>
+		<th><a href="<@url>&amp;sort=coms#table-view">コメント数</a></th>
+		<th><a href="<@url>&amp;sort=com_tm#table-view">最新コメント</a></th>
+		<@if(isadmin, "<th>設定</th>")>
+	</tr>
+<@ifexec(Query.sort eq '', begin)>
+<$list = sort_str(list, 'id')>
+<$end>
+	<@forexec(t, list, begin)>
+	<tr>
+		<td><a href="<@t.url>"><@t.id></a><@if(t.private, "【非公開】")></td>
+		<td class="r"><span class="large"><@t.arts></span></td>
+		<td class="c"><@if(t.arts, tm_printf('%Y/%m/%d %H:%M', t.art_tm, 0), '-')></td>
+		<td class="r"><span class="large"><@t.coms></span></td>
+		<td class="c"><@if(t.coms, tm_printf('%Y/%m/%d %H:%M', t.com_tm, 0), '-')></td>
+		<@if(isadmin, #'<td><a href="<@t.url>?menu">管理</a>・<a href="<@t.url>?mainte/blog_drop">削除</a></td>')>
+	</tr>
+	<$end>
+	</table>
+</div>
+	Total <@##list+1> blogs.<br>
+
+	<@ifexec(Auth.isadmin && v.sys.default_blogid eq '', begin)>
+	<p class="adiary-hint">※<@if(v.query eq '', 'このページの代わりに')>特定のブログを<a href="<@v.myself>?system/setting">標準で表示させる設定（デフォルトブログ機能）</a>があります。</p>
+	<$end>
+</div>
+</article>
+
+

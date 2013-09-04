@@ -1,0 +1,45 @@
+<@20>
+<@local(h)>
+<$ifbreak(! v.blog_admin && ! Auth.isadmin)>
+<$ifbreak(csrf_check())>
+
+<$h = validator(begin_hash, Form)>
+	_order=0
+	blog_name = ブログ名
+	blog_name:min_chars =  1
+	blog_name:max_chars = 48
+	blog_name:filter0 = tag
+
+	description_txt = ブログ名の説明
+	description_txt:max_chars = 140
+	description_txt:filter0     = reg_rep:[\r?\n]
+	description_txt:filter0_opt = <br>
+	description_txt:filter1     = file:<@v.allow_tags_head>description<@v.allow_tags_ext>
+	description_txt:filter1_opt = <@v.trust_mode>
+
+	change_hour_int = 日付変更時間
+	change_hour_int:min = 0
+	change_hour_int:max = 8
+
+	autolink = flag
+	private = flag
+
+	gaid = Google Analytics ID
+	gaid:filter0 = reg_del:[^\w\-]
+
+	asid = AmazonアフィリエイトID
+	asid:filter0 = reg_del:[^\w\-]
+	asid:filter1 = trim
+<$end>
+<$ifbreak(form_error())>
+
+<$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("設定を保存しました")>
+	<$url = v.myself .'?'. v.query0 . if(Query.blogid eq '*', '&amp;blogid=*')>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+

@@ -1,0 +1,84 @@
+<@2>
+<@local(opt)>
+<@>
+<@> Movable Type形式
+<@>
+<$logs = argv#0>
+<$opt  = argv#1>
+<@ifexec(! logs, begin)>
+<h3 id="MT">Movable Type形式（MT）</h3>
+<div>
+	<ul class="none">
+		<li>出力文字コード <select name="MT:charset">
+			<option value="UTF-8">UTF-8（推奨）</option>
+			<option value="EUC-JP">EUC-JP</option>
+			<option value="Shift_JIS">Shift_JIS</option>
+		</select></li>
+		<li><input type="checkbox" name="MT:allow_pings" value="1" checked><label>出力記事のトラックバック受付情報を「許可」に設定する</label></li>
+	</ul>
+
+	<button name="type" value="10_movable_type" data-class="MT" class="export">Movable Type形式で保存</button>
+</div>
+<$break()>
+<$end>
+<@>-----------------------------------------------------------------------------
+<@> Movable Type形式 exporter
+<@>-----------------------------------------------------------------------------
+<$exporter = loadapp('adiary::ExportMT')>
+<$ifbreak(!exporter)>
+<$ifset(!opt.allow_pings, opt.allow_pings, 0)>
+
+<$ifprint(Debug_mode, "Content-Type: text/plain; charset=<@opt.charset>;\n\n")>
+<$set_header('Content-Disposition', "attachment; filename=<@opt.base_filename>_export_mt.txt")>
+<$print_http_headers('text/xml', opt.charset)>
+
+<$exporter.export( begin.day, logs, opt )>
+<@local(t,t2)>
+<$t = argv#0>
+AUTHOR: <@t.name>
+TITLE: <@t.title>
+STATUS: <@t.status>
+CONVERT BREAKS: <@t.convert_breaks>
+ALLOW COMMENTS: <@t.com_ok>
+ALLOW PINGS: <@opt.allow_pings>
+DATE: <@tm_printf("%m/%d/%Y %H:%M:%S", t.tm, 0)>
+<@forexec(t2, t.tags_ary, begin)>
+CATEGORY: <@t2>
+<$end>
+-----
+BODY:
+<@t.body>
+
+-----
+EXTENDED BODY:
+<@t.ex_body>
+
+-----
+EXCERPT:
+
+-----
+KEYWORDS:
+
+-----
+<@>
+<@> コメントの生成
+<@>
+<@ifexec(! opt.no_comment, begin.comment )>
+<@forexec(t2, v.load_comments_current_blog(t, flagq(link_stop)), begin)>
+COMMENT:
+AUTHOR: <@t2.name>
+EMAIL: <@t2.email>
+URL: <@t2.url>
+IP: <@t2.ip>
+DATE: <@tm_printf("%m/%d/%Y %H:%M:%S", t2.tm, 0)>
+<@@exporter.br2lf( t2.text )>
+
+-----
+<$end>
+<$end.comment>
+--------
+<$end.day>
+<@>
+<@> 終了
+<@>
+<$export_return = 0>

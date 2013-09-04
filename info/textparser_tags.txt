@@ -1,0 +1,225 @@
+# [LF]
+###############################################################################
+# Satsuki/TextParser/Satsuki.pm用 タグ定義ファイル
+###############################################################################
+# Last-Update : 2013/06/06
+#
+#（注意）
+#　・先頭 '#' はコメント。空行は無視。
+#　・alias は ">linkname"。１階層しかたどれない。
+#　・url には「,」を含めない。
+#  ・文字コード "ASCII" 指定はコード変換なし指定
+#  ・引数の数が限定されていれば、それ以上の表記は「:」で連結する。
+#------------------------------------------------------------------------------
+# ■サイト固有、タグ設定ファイルのロード
+#------------------------------------------------------------------------------
+load textparser_site_tags.txt
+
+#------------------------------------------------------------------------------
+# マクロ設定（空行で一区切り）
+#------------------------------------------------------------------------------
+*section_number
+::section_anchor=%n
+::subsection_anchor=%n.%s
+
+#------------------------------------------------------------------------------
+# http プラグイン
+#------------------------------------------------------------------------------
+# [http://], [ftp://], [mailto:], 
+# plugin http
+
+# サムネイル機能を使う場合は image プラグインが必要です（ロード順は問わない）
+http:image       = サムネイル（HeartRails Capture）, image, 1, http://capture.heartrails.com/120x90?http://$1
+http:image#small = サムネイル（HeartRails Capture）, image, 1, http://capture.heartrails.com/120x90?http://$1
+http:image#large = サムネイル（HeartRails Capture）, image, 1, http://capture.heartrails.com/300x225?http://$1
+http:image#link  = サムネイル（HeartRails Capture）, image, 1, http://$1
+
+#------------------------------------------------------------------------------
+# adiary用プラグイン, adiary設定
+#------------------------------------------------------------------------------
+# plugin adiary
+this = >adiary:this
+key  = >adiary:key
+id   = >adiary:id
+day  = >adiary:day
+adiary:key = 記事指定
+adiary:id  = ID指定
+adiary:day = 日付指定
+
+search      = 検索,         ASCII,    ${myself2}&search?all=1&word=
+title       = タイトル検索, ASCII,    ${myself2}&search?word=
+category    = カテゴリ表示, ASCII,    ${myself2}&category?cat=
+category##3 = カテゴリ表示, ASCII, 3, ${myself2}&category?cat=$1::$3
+category##4 = カテゴリ表示, ASCII, 3, ${myself2}&category?cat=$1::$3
+theme#2 = テーマ, ASCII, 2, ${myself2}?theme&n=$1/$2
+theme   = テーマ, ASCII,    ${myself2}?theme&n=satsuki2/
+
+#------------------------------------------------------------------------------
+# Google
+#------------------------------------------------------------------------------
+google       = Google検索,         UTF-8, http://www.google.co.jp/search?lr=lang_ja&ie=utf-8&oe=utf-8&q=
+google:all   = Google検索,         UTF-8, http://www.google.co.jp/search?ie=utf-8&oe=utf-8&q=
+google:image = Googleイメージ検索, UTF-8, http://images.google.co.jp/images?lr=lang_ja&ie=utf-8&oe=utf-8&q=
+google:news  = Googleニュース検索, UTF-8, http://news.google.co.jp/news?lr=lang_ja&ie=utf-8&oe=utf-8&q=
+google:transit = Googleトランジット, UTF-8, 2, http://www.google.co.jp/transit?saddr=$1&daddr=$2
+google:qr      = QRコード生成, image, http://chart.apis.google.com/chart?cht=qr&chs=92x92&chl=$$
+google:qr#link = QRコード生成, image, $$
+
+g   = >google
+ga  = >google:all
+gi  = >google:image
+gn  = >google:news
+gtr = >google:transit
+gq  = >google:qr
+qr  = >google:qr
+
+#------------------------------------------------------------------------------
+# Amazon プラグイン
+#------------------------------------------------------------------------------
+# [amazon:], [asin:]
+# plugin amazon
+amazon  = Amazon検索
+asin    = Amazon
+am      = >amazon
+isbn    = >asin
+
+#------------------------------------------------------------------------------
+# 色々
+#------------------------------------------------------------------------------
+wikipedia = Wikipedia, UTF-8, http://ja.wikipedia.org/wiki/
+w    = >wikipedia
+wiki = >wikipedia
+uc   = アンサイクロペディア, UTF-8, http://ja.uncyclopedia.info/wiki/
+ei   = 英辞郎, UTF-8, 1, http://eow.alc.co.jp/$1/UTF-8/
+e2j  = >ej
+
+#------------------------------------------------------------------------------
+# はてな記法互換のためのタグ
+# ※使用上およそ問題ありませんが、完全互換ではありません
+#------------------------------------------------------------------------------
+# [jan:-] [f:-]
+# plugin hatena
+jan         = はてなjanコード
+ean         = >jan
+hatena:f    = はてなフォトライフ
+hatena:f:id = >hatena:f
+graph       = はてなグラフ
+
+search:keyword  = はてなキーワード検索, EUC-JP, http://search.hatena.ne.jp/keyword?word=
+search:question = はてな質問検索,       EUC-JP, http://search.hatena.ne.jp/questsearch?word=
+search:asin     = はてなASIN,           EUC-JP, http://search.hatena.ne.jp/asinsearch?word=
+search:web      = はてなウェブ検索,     EUC-JP, http://search.hatena.ne.jp/websearch?word=
+
+hatena:id   = はてなダイアリー, EUC-JP, 1, http://d.hatena.ne.jp/$1/
+hatena:id#2 = はてなダイアリー, EUC-JP, 2, http://d.hatena.ne.jp/$1/$2
+hatena:id#3 = はてなダイアリー, EUC-JP, 3, http://d.hatena.ne.jp/$1/$2/$3
+hatena:d         = >hatena:id
+hatena:d:id      = >hatena:id
+hatena:d:keyword = >keyword
+
+# alias
+search:k  = >search:keyword
+search:q  = >search:question
+
+#------------------------------------------------------------------------------
+# mimeTeX
+#------------------------------------------------------------------------------
+# mimeTeX をインストールする必要があります。
+#	http://www.forkosh.com/mimetex.html
+#	$ mkdir tmp
+#	$ cd tmp
+#	$ wget http://www.forkosh.com/mimetex.zip
+#	$ unzip mimetex.zip
+#	$ gcc -O2 -o mimetex.cgi -lm -DAA mimetex.c gifsave.c
+#	$ cp mimetex.cgi ../
+tex  = mimeTeX, ASCII, 1, <img src="$0mimetex.cgi?$1" alt="#1" title="#1" class="tex">
+
+#------------------------------------------------------------------------------
+# 画像プラグイン／ファイルアップローダ
+#------------------------------------------------------------------------------
+# plugin image
+
+# ただの画像
+img        = 画像, image
+img#2      = 画像, image, 2, $1:$2
+img#2#link = 画像, image, 2, $1:$2
+
+# 標準アップローダ
+image       = 画像アルバム, image, 3,  ${image}$1/$2$3
+image#small = 画像アルバム, image, 3,  ${image}$1/$2.thumbnail/$3.jpg
+image#link  = 画像アルバム, image, 3,  ${image}$1/$2$3
+
+file        = ファイル,     ASCII, 4,  ${image}$2/$3$4
+file:mp3    = mp3ファイル,  ASCII, 4, <a class="mp3player" href="${image}$1/$2$3">#4</a><br><module name="mp3player" file="${image}$1/$2$3" sb="${bc}" lb="${bc}">
+
+#------------------------------------------------------------------------------
+# その他
+#------------------------------------------------------------------------------
+# inline comment
+comment = comment,, 1, <!--#1-->
+# inline class
+class = class, ASCII, 2, <span class="$1">#2</span>
+# 画像icon
+icon  = icon, ASCII, 1, <img class="icon" alt="$1" title="$1" src="${pubdist}icon/$1.gif">
+# twitter
+twitter = twitter, ASCII, http://twitter.com/
+tw      = >twitter
+
+# ルビ
+ruby = ルビ, ASCII, 2, <ruby>#1<rp>(</rp><rt>#2</rt><rp>)</rp></ruby>
+
+# CPAN
+cpan   = CPANモジュール, ASCII, 1, http://search.cpan.org/dist/$1/
+cpan#3 = CPANモジュール, ASCII, 3, http://search.cpan.org/dist/$1-$3/
+cpan#5 = CPANモジュール, ASCII, 5, http://search.cpan.org/dist/$1-$3-$5/
+
+# footer
+footer = <div style="text-align:right; right-margin:2em; font-size: 90%;">#1</div>
+
+# popup
+popup = popup, ASCII, 2, <module name="popup" class="popup" text="#1" popup="#2">
+
+#------------------------------------------------------------------------------
+# HTMLタグへの置換
+#------------------------------------------------------------------------------
+bf	= html:strong
+warn	= html:strong.warning
+s	= html:del
+del	= html:del
+pre	= html:span.pre
+em	= html:em
+h	= html:span.hidden
+hidden	= html:span.hidden
+u	= html:span.underline
+sup	= html:sup
+sub	= html:sub
+clear   = html:br.clear
+wbr     = html:wbr
+
+
+#------------------------------------------------------------------------------
+# テキスト色
+#------------------------------------------------------------------------------
+color = テキスト色, ASCII, 2, <span style="color:#1;">#2</span>
+
+name   = <span class="tan">#1たん</span>
+name+  = <span class="tan">#1たん<img class="icon" alt="heart" src="${pubdist}icon/heart.gif"></span>
+name++ = <span class="tan">#1たん<img class="icon" alt="heart" src="${pubdist}icon/heart.gif">ハァハァ</span>
+
+#------------------------------------------------------------------------------
+# 麻雀記法
+#------------------------------------------------------------------------------
+# plugin mahjong
+mj:img = 麻雀画像, ASCII, ${pubdist}/mahjong/
+
+#------------------------------------------------------------------------------
+# 文字サイズ
+#------------------------------------------------------------------------------
+xx-large = html:span.xx-large
+x-large  = html:span.x-large
+large    = html:span.large
+small    = html:span.small
+x-small  = html:span.x-small
+xx-small = html:span.xx-small
+
+

@@ -1,0 +1,63 @@
+<@6>
+<@local(err)>
+<$err=FormError>
+
+<!--========================================================================-->
+<@>権限確認
+<$ifredirect(! Auth.isadmin, Myself)>
+
+<@>CSRFチェック
+<$if_post_csrf_check()>
+
+<@> システムモード
+<$v.system_mode("ユーザーの追加")>
+
+<@> 階層ツリー
+<@call("<@v.skel_dir>_dir_tree")>
+
+<@> エラー表示
+<@call('_sub/error_message')>
+
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+<@call('_sub/writable_check')>
+<@ifexec(!ret, begin)>
+	<form method="POST" action="">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<@ifexec(! Auth.exists_admin, begin)>
+	<p><strong class="warning">最初に管理者ユーザを追加します。</strong></p>
+	<$end>
+
+	<table>
+	<tr><th>ID</th>        <td<@err.c_id>>先頭は英小文字。「a-z, 0-9, _」のみ使用可能。<br><input type="text" name="id" size="16" class="w100" value="<@esc(Form.id)>" required>
+		</td></tr>
+	<tr><th>名前</th>      <td<@err.c_name>><input type="text" name="name" size="16" class="w100" value="<@esc(Form.name)>" required></td></tr>
+	<tr><th>パスワード</th><td<@err.c_pass>><input type="password" name="pass" size="16" class="w120" value="" required>
+		<strong class="warning"><@Auth.pass_min>文字</strong>以上</td></tr>
+	<tr><th>パスワード確認</th><td<@err.c_pass>><input type="password" name="pass2" size="16" class="w120" value="" required>←もう一度</td></tr>
+	<tr><th>管理者</th>
+		<@ifexec(! Auth.exists_admin, begin, begin)><@>ユーザーなし自動承認モードなら無条件に管理者
+		<td><input type="hidden" name="isadmin" value="1">最初のユーザーは自動的に管理者になります</td></tr>
+		<$else>
+		<td>
+			<input type="hidden" name="checkbox.info" value="isadmin">
+			<input type="checkbox" name="isadmin" value="1"<@if(Form.isadmin, ' checked')>><label>このユーザーを管理者にする</label>
+		</td>
+		<$end>
+	</tr>
+	</table>
+
+	<@ifexec(!Auth.auto, begin)>
+	<p><input type="checkbox" name="add_continue" value="1"<@if(Form.add_continue, ' checked')>><label>連続で追加する（追加成功後この画面に戻る）</label></p>
+	<$end>
+
+	<input type="submit" name="submit_add" value="ユーザーを追加する"><br>
+	</form>
+<$end>
+</div> <!-- end of body -->
+</article>
+

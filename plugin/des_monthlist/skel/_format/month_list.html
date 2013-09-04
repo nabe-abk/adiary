@@ -1,0 +1,26 @@
+<@6>
+<@local(s,y,nclose,name)>
+<$name = argv#0>
+<$s = v.blog>
+<$nclose = if(v.load_plgset(name, 'nclose') ne '0', 1, 0)>
+<@>
+<@>---------------------------------------------------------------------
+<@>月別記事数リスト
+<@>---------------------------------------------------------------------
+<ul class="hatena-section">
+<$yc=new>  <@>年別の計算
+<$forexec(t, argv#1, begin)>
+	<$yc.(t.year) += t.count>
+<$end>
+<$y=0>
+<@forexec(t, argv#1, begin)>
+	<@ifexec(t.year != y, begin)>
+	<@if(y, "\t</ul>\n")>
+	<li><span class="month-list-year js-switch" data-save="1" data-target="#month-list-<@t.year>"><a href="<@v.myself2><@t.year>"><@t.year>年</a></span> <span class="qt">(<span><@yc.(t.year)></span>)</span>
+	<ul id="month-list-<@t.year>"<@if(y && nclose, ' style="display: none"')>>
+	<$end>
+		<li><a href="<@v.myself2><@t.yyyymm>"><@t.year>年<@t.mon>月</a> <span class="count">(<span><@t.count></span>)</span></li>
+	<$y=t.year>
+<$end>
+<@if(f, "\t</ul>\n")>
+</ul>

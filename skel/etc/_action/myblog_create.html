@@ -1,0 +1,11 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(v.sys.create_blog_only_admin && !Auth.isadmin)>
+
+<$action_return = v.blog_create( Auth.id )>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message('ブログを作成しました')>
+	<$jump('_sub/reload_message', v.myself3 . '?set/')>
+<$end>

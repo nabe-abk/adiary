@@ -1,0 +1,8 @@
+<@20> セッションファイルの中身をロード
+<$ifbreak(! v.blog_admin)>
+
+<$v.frame_skeleton=''>
+<$set_content_type('text/plain')>
+
+<$sfile = loadapp("adiary::session_file", v)>
+<@sfile.load()>

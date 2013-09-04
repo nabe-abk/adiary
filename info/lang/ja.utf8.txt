@@ -1,0 +1,237 @@
+###############################################################################
+# Base.pm
+###############################################################################
+# UTF-8のみ推奨（他は非推奨）
+System_coding=UTF-8
+Code_lib=Jcode
+Locale=ja
+#-----------------------------------------------------------
+# message
+#-----------------------------------------------------------
+Too large form data (max %dKB)=フォームデータが大きすぎます（最大 %dKB）
+This post may be CSRF attack=この POST は CSRF 攻撃の可能性があります
+Multipart form read error=マルチパートフォームの読み込みに失敗しました
+#-----------------------------------------------------------
+# error
+#-----------------------------------------------------------
+[executor] Can't execute string '%s'=文字列は実行できません : %s
+[executor] Too depth nested call (max %d)=call 文のネストが深すぎます (最大 %d)
+[executor] Too many jump (max %d)=jump 文が多すぎます (最大 %d)
+[call] failed - Can't read file '%s'=call に失敗しました。ファイルが読み込めません : %s
+[call_ation] call '%s' faild=action スクリプトの call に失敗しました : %s
+[jump] failed - File not found '%s'=jump に失敗しました。ファイルが見つかりません : %s
+File can't read '%s'=ファイルが読み込めません : %s
+File can't write '%s'=ファイルに書き込めません : %s
+File can't open (for %s) '%s'=ファイルを開けません(%s) : %s
+Failed mkdir '%s'=ディレクトリの作成に失敗しました : %s
+Can't write temporary dir '%s'=テンポラリディレクトリに書き込めません : %s
+Can't open temporary file '%s'=テンポラリファイルが開けません : %s
+Too long %s (max %d characters)=%sが長すぎます。最長で%d文字（日本語文字なら半分）までです
+%s is duplicate '%s'=%sが重複しています : %s
+Create symlink error '%s'=シンボリックリンクの作成に失敗しました : %s
+Skeleton dir is '' in regist_skeleton.(level=%d)=スケルトンディレクトに ""（空文字）は指定できません（level=%d）
+#-----------------------------------------------------------
+# validator
+#-----------------------------------------------------------
+'%s' is empty=「%s」が入力されていません。
+'%s' is too short. (minimum %d chars)=「%s」が短すぎます（最低%d文字）
+'%s' is too long. (maximum %d chars)=「%s」が長すぎます（最長%d文字）
+'%s' is too small. (minimum %s)=「%s」が小さすぎます（最小値:%s）
+'%s' is too large. (maximum %s)=「%s」が大きすぎます（最大値:%s）
+In '%s', '%s' is not permitted. Permit protocols are '%s'.=「%s」では「%s」は許可されていません（許可プロトコル「%s」）
+'%s' need protocol. Permit protocols are '%s'.=「%s」にはプロトコルが必要です（許可プロトコル「%s」）
+'%s' is null or illegal value.=「%s」が入力されていないか値が不正です
+# system error
+Unknown %s '%s'.=%sの指定が正しくありません「%s」
+Regular expression error '%s'.=正規表現が正しくありません「%s」
+'%s' is selected from '%s'.=「%s」は「%s」の中から選択してください
+Unknown or unused option '%s'.=不正もしくは使われないオプションがあります「%s」
+
+###############################################################################
+# 汎用メッセージ
+###############################################################################
+Not login=ログインしていません
+Operation not permitted=権限がありません
+Not selected file=ファイルが選択されていません
+Internal Error=内部エラー
+Internal Error(%s)=内部エラー（%s）
+Save failed=保存に失敗しました
+Can't support %s file=%s ファイルはサポートしていません
+Can't allow character used=使用できない文字が使われています
+Mail address format error (%s)=メールアドレスの形式が不正です（%s）
+'%s' alreday exists=%s は既に存在します
+
+###############################################################################
+# Base/Compiler.pm
+###############################################################################
+#-----------------------------------------------------------
+# error
+#-----------------------------------------------------------
+To complile array only=配列以外はコンパイルできません
+Source line allowed scalar only (contain reference)=ソースデータが不正です（リファレンスが含まれています）
+String error=文字列の対応が異常です
+Command not ended (must write in one line)=コマンドの終わりがありません（コマンドは１行で記述してください）
+Illigal expression=コマンド（式）が正しくありません
+Illigal expression (%d)=コマンド（式）が正しくありません (%d)
+Exists 'end' without 'begin' (%s)=end に対応する begin がありません (%s)
+Exists 'begin' without crresponded 'end' (%s)=begin ブロックが終わっていません (%s)
+Unknown begin type (%s)=未知のbegin型です (%s)
+
+#-----------------------------------------------------------
+# warning
+#-----------------------------------------------------------
+Dupulicate Hash key '%s'. (in %s)=ハッシュキー「%s」が重複しています（%s内）
+"break" variable referenced. Do you mean "break()" function?=「break」という変数を参照しています。本来は break() 関数の呼び出しではありませんか？
+
+###############################################################################
+# Base/HTTP.pm
+###############################################################################
+#-----------------------------------------------------------
+# error
+#-----------------------------------------------------------
+Can't find host '%s'=%s が見つかりません
+Can't open socket=socket が開けません
+Can't connect %s=%s に接続できません
+Connection closed by '%s'=通信が切断されました（%s）
+Connection timeout '%s' (timeout %d sec)=%s が応答しませんでした（Timeout %d秒）
+Error response from '%s' (status %d)=%s がエラーを返しました (Status : %d)
+URL format error '%s'=URLの書式が正しくありません : %s
+
+###############################################################################
+# Auth_2.pm
+###############################################################################
+#-----------------------------------------------------------
+# message
+#-----------------------------------------------------------
+Username or password incorrect=ユーザー名またはパスワードが正しくありません
+This account is disable=このアカウントは現在使用できません
+No exists user data. You should add new user before use this=ユーザーが登録されていません。ユーザーを追加してから使用してください
+Too many failed. Please retry in %d minutes=%d分以上経ってから再度試してください。
+#-----------------------------------------------------------
+# error
+#-----------------------------------------------------------
+[auth] Don't set user database file=ユーザー情報データベースが指定されていません
+
+###############################################################################
+# Auth_3.pm
+###############################################################################
+#-----------------------------------------------------------
+# message
+#-----------------------------------------------------------
+ID '%s' already exists=ID「%s」はすでに存在します
+Password is empty=パスワードを指定してください
+ID's character allowed "%s" only=IDには「%s」以外の文字を使用出来ません
+No assignment delete user=削除するユーザーが指定されていません
+No login=ログインしていません
+Can't execute with 'root*'=無条件承認(root*)では実行できません
+New password is empty=パスワードを指定してください
+Incorrect password=パスワードが違います
+Can't find ID=指定のIDが見つかりません
+ID is empty=IDが指定されていません
+Name is empty=名前を入力してください
+Name not allow ", ', <, > charcteor=ユーザー名には文字「" ' < >」を使用できません
+Don't use upper case in ID=ユーザーIDには英小文字と数字しか使用出来ません
+ID first character must be lower case between "a" to "z"=IDの最初の文字は英小文字（a-z）でなければいけません
+Too long ID (max %d)=ユーザーIDは最大 %d 文字までです
+Too long name (max %d)=ユーザー名は最大 %d 文字（全角なら半分）までです
+Not allow password is number only=数字のみのパスワードは使用できません
+Too short password (min %d)=パスワードが短すぎます（最低%d文字以上）
+Mismatch password and retype password=確認用パスワードと一致していません
+
+###############################################################################
+# DB_text
+###############################################################################
+#-----------------------------------------------------------
+# error
+#-----------------------------------------------------------
+Called create_table() with null table name=テーブル名が指定されていません
+To be a 'a-z' or '_' at the first character of a table name : '%s'=テーブル名の最初は英小文字「a〜z」またはアンダーバー「_」で始まっている必要があります : %s
+'%s' table already exists=テーブル「%s」はすでに存在しています
+Can't find '%s' table=テーブル「%s」がみつかりません
+On '%s' table, not exists '%s' column=「%s」テーブルに「%s」カラムは存在しません
+On '%s' table, '%s' column is constrained not null=「%s」テーブルの「%s」カラムにはnull値が許可されていません
+On '%s' table, duplicate key value violates unique constraint '%s'(value is '%s')=「%s」テーブルの「%s」カラムはUNIQUEな値を設定してください（値「%s」）
+
+###############################################################################
+# adiary
+###############################################################################
+Can not specify before 1980=1980年より前は指定できません
+Can not specify after 9999=9999年より後は指定できません
+Illegal month=日付（月）の指定が不正です
+Illegal day=日付（日）の指定が不正です
+
+###############################################################################
+# adiary汎用
+###############################################################################
+Blog not found=ブログがみつかりません
+Blog '%s' not found=ブログ「%s」がみつかりません
+Security error. Please repost.=セキュリティーエラー。再度投稿してください。
+Article '0%d' not found=記事番号「0%d」が見つかりません
+
+# プラグイン関連
+[plugin=%s] Load error=[plugin=%s] プラグインのロードに失敗しました
+[plugin=%s] Execute error : %s=[plugin=%s] プラグインの実行時エラー : %s
+[plugin=%s] Compile error : %s=[plugin=%s] プラグインのコンパイルエラー : %s
+[plugin=%s] Unknown method : %s=[plugin=%s] 未知のメソッドが指定されています : %s
+
+###############################################################################
+# adiary_2
+###############################################################################
+# &regist_article
+Article post failed=記事の投稿に失敗しました
+Article edit failed=記事の編集に失敗しました
+Can't find the article (key: %d)=編集する記事が見つかりません。key: %d
+Can not use character "%s" in content key=コンテンツkeyに次の文字は使えません : %s
+Content key is empty=コンテンツkeyが空です
+Content key is not allow "%s" as first character=コンテンツkeyは数字（%s）で始めることはできません
+Load parser '%s' failed=パーサーのロードに失敗しました : %s
+
+***Ping sending result***=■更新通知Ping送信結果■
+Error : Illegal response "%s". (Is it ping server?)=「%s」の応答が正しくありません（正しい更新通知サーバですか？）
+Error : %s (from %s)=エラー : %s（from %s）
+Ping sended : %s (from %s)=Ping送信 : %s（from %s）
+
+# &comment_post
+comment text is empty=コメント本文がありません
+name is empty=名前を入力してください
+
+###############################################################################
+# adiary_3
+###############################################################################
+Rename failed blog public directory (%s)=ブログ公開ディレクトリのリネームに失敗しました（%s）
+Design edit failed=デザインの保存に失敗しました
+
+# plugin
+[plugin:%s] Install success=[plugin:%s] インストールが成功しました
+[plugin:%s] Install failed=[plugin:%s] インストールが失敗しました
+[plugin:%s] Uninstall success=[plugin:%s] アンインストールが成功しました
+[plugin:%s] Uninstall failed=[plugin:%s] アンインストールが失敗しました
+[plugin:%s] Uninstall event failed=[plugin:%s] アンインストールのイベント処理に失敗しました
+[plugin:%s] Not allow directory name : %s=[plugin:%s] 許可されていないディレクトリ名です : %s
+[plugin:%s] Original file not exists : %s=[plugin:%s] インストール元のファイルが読み込めません : %s
+[plugin:%s] File already exists : %s=[plugin:%s] ファイルが既に存在します : %s
+[plugin:%s] File delete failed : %s=[plugin:%s] ファイルの削除に失敗しました : %s
+[plugin:%s] Module's html generate failed : %s=[plugin:%s] モジュールHTMLの生成に失敗しました : %s
+
+###############################################################################
+# adiary_4
+###############################################################################
+Blog `%s` already existed=ブログ「%s」はすでに存在します
+Blog create failed=ブログの作成に失敗しました
+Blog delete failed=ブログの削除に失敗しました
+
+# データインポート
+Data format error (%s)=%s形式のデータではありません
+Error exit(%d)=エラー終了しました(%d)
+'%s' is duplicate : %s=%s が重複しています : %s
+Save article failed(%d) : %s=記事の保存に失敗しました(%d) : %s
+Comment import failed(%d) : %s=コメントのインポートに失敗しました(%d) : %s
+Trackback import failed(%d) : %s=トラックバックのインポートに失敗しました(%d) : %s
+
+Import %d articles (find %d articles)=%d 件の記事をインポートしました（全 %d 件中）
+Import finish=インポート処理が終了しました
+Import time %.2f sec=インポート処理時間は %.2f 秒でした
+Total time %.2f sec=トータル処理時間は %.2f 秒でした
+
+# データエクスポート
+Not exists article=該当する記事がみつかりません

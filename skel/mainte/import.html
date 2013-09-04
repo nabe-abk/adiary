@@ -1,0 +1,66 @@
+<@6>
+<@local(s,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("記事のインポート")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<$v.regist_js('import.js')>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<p>ファイルから記事データをインポートします。</p>
+
+<@ifexec(Develop && !exists(Query.ajax), begin)>
+	<p><a href="<@v.myself>?<@v.skeleton>&amp;ajax=0">※Ajaxを使わない</a></p>
+<$end>
+<@ifexec(Query.ajax eq '0', begin)>
+	<p><strong class="warning">※Ajaxを使わないで処理を行います。</strong></p>
+<$end>
+
+	<ul>
+		<li>公開/非公開などのフラグが未設定の場合、現在の標準設定が引き継がれます。</li>
+		<li>トラックバックの情報は無視されます。</li>
+	</ul>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST" enctype="multipart/form-data" id="import-form">
+	<div id="form-common">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<input type="hidden" name="ajax" value="0" id="input-ajax">
+
+	<input type="file" name="file" id="file"><br>
+
+	<ul class="none">
+		<li>記事に付加するタグ: <input type="text" class="w160" name="append_tags" value="import">
+		<li>何も指定されてない時のデフォルトのタグ: <input type="text" class="w160" name="default_tags">
+		<li><input type="checkbox" name="force_tag"     value="1"><label>タグ（カテゴリ）を強制的に指定する</label>	</li>
+		<li><input type="checkbox" name="force_author"  value="1"><label>記事投稿者を自分にする</label></li>
+		<li><input type="checkbox" name="no_comment"    value="1"><label>コメントをインポートしない</label></li>
+		<li><input type="checkbox" name="tb_as_comment" value="1"><label>トラックバックをコメントとしてインポート</label><span class="help" data-help="通常、トラックバックは無視されます。">?</span></li>
+		<li><input type="checkbox" name="stop_transaction" value="1"><label>トランザクション処理をしない（通常チェックしない）</label><span class="help" data-help="処理の最後に「ROLLBACK」と表示されて一件もインポートできないときに、この指定を行うと正常な記事だけはインポートできます。処理は遅くなります。">?</span></li>
+	</ul>
+	</div>
+
+	<div id="progress"><span class="label"></span></div>
+	<textarea id="session-log" rows="10" class="w98p" style="display: none" data-url="<@v.myself>?etc/load_session" data-interval="300" readonly></textarea>
+
+	<div class="jqueryui-accordion">
+	<@call_dir("<@v.skel_dir>_import/")>
+	</div>
+	</form>
+
+</div>
+</article>
+
+<div style="display: none">
+<span id="js-no-file">ファイルが選択されていません。</span>
+
+</div>
+

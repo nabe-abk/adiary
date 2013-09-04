@@ -1,0 +1,41 @@
+<@6>
+<$v.title ="ログイン">
+
+<@> システムモード
+<$v.system_mode()>
+
+<@>すでにログインしている
+<$ifjump_clear(Auth.ok, '_sub/error_message', 'すでにログインしています')>
+
+<@> ロード時のカーソルを ID に合わせる
+<script><!--
+$(document).ready( function() { $("<@if(Query.id ne '', "#pass", "#id")>").focus(); } );
+//--></script>
+
+<@call('_sub/error_message')>
+
+<!--========================================================================-->
+<article class="system">
+<h2><@v.title></h2>
+<div class="body">
+	<form action="<@v.thisurl>?login" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<table class="login">
+	<tbody>
+	<tr>
+	<th>ID</th><td><input type="text" size="10" class="w80" name="id" id="id" value="<@esc(Query.id || Form.id)>" required></td>
+	</tr><tr>
+	<th>pass</th><td><input type="password" size="10" class="w80" id="pass" name="pass" value="<@if(Query.id eq 'test' || Query.id eq 'dummy', esc(Query.pass))>" required></td>
+	</tr><tr>
+	<td colspan="2" class="checkbox"><input type="checkbox" name="keep_login" value="1"<@if(Query.keep || Query.keep_login || Form.keep_login, ' checked')>><label>ログイン状態を保持する</label></td>
+	</tr><tr>
+	<td colspan="2" class="button"><input type="submit" value="ログイン" id="submit"></td>
+	</tr>
+	</tbody>
+	</table>
+	</form>
+</div>
+</article>
+
+
+

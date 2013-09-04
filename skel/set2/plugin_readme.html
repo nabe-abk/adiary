@@ -1,0 +1,8 @@
+<@20>
+<$ifredirect(!Auth.ok, v.myself)>
+<$v.frame_skeleton=''>
+<$set_content_type('text/plain')>
+<$name = Query.name>
+<$replace(name, '[^\w\-]', '')>
+
+<@esc(join('',fread_lines_no_error("<@v.plugin_dir><@name>/README.txt")))>

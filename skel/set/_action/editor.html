@@ -1,0 +1,71 @@
+<@20>
+<@local(h)>
+<$ifbreak(! v.blog_admin && ! Auth.isadmin)>
+<$ifbreak(csrf_check())>
+
+<$x = join(',', v.parsers._order)>
+<$h = validator(begin_hash, Form)>
+	_order=0
+
+	<@>編集画面デフォルト
+	enable = flag
+	private = flag
+	com_ok  = flag 
+	hcom_ok = flag
+	ping = flag
+	tw_ping = flag
+	wiki = flag
+	post_detail = flag
+
+	com_ok_force = コメント強制OFF
+	com_ok_force:default = 
+	com_ok_force:enum = ,0
+
+	hcom_ok_force = 非公開コメント強制OFF
+	hcom_ok_force:default = 
+	hcom_ok_force:enum = ,0
+
+	<@>パーサー関連
+	parser = デフォルトのパーサー
+	parser:enum = <@x>
+
+	autolink = flag
+
+	http_target = 記法リンク:target
+	http_class  = 記法リンク:class
+	http_rel    = 記法リンク:rel
+	http_target:filter0 = reg_del:[^\w\-]
+	http_class:filter0  = reg_del:[^\w\-]
+	http_rel:filter0    = reg_del:[^\w\-]
+
+	image_target = 画像へのリンク:target
+	image_class  = 画像へのリンク:class
+	image_rel    = 画像へのリンク:rel
+	image_target:filter0 = reg_del:[^\w\-]
+	image_class:filter0  = reg_del:[^\w\-]
+	image_rel:filter0    = reg_del:[^\w\-]
+
+	section_anchor = セクションアンカー
+	section_anchor:filter0 = tag
+
+	subsection_anchor = サブセクションアンカー
+	subsection_anchor:filter0 = tag
+
+	seemore_msg = 「続きを読む」のメッセージ
+	seemore_msg:default   = 続きを読む
+	seemore_msg:max_chars = 40
+	seemore_msg:filter0 = trim
+	seemore_msg:filter1 = tag
+<$end>
+<$ifbreak(form_error())>
+
+<$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("設定を保存しました")>
+	<$url = v.myself .'?'. v.query0 . if(Query.blogid eq '*', '&amp;blogid=*')>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+

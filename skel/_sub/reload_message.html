@@ -1,0 +1,48 @@
+<@6>
+<@local(url,rtime)>
+<@>
+<@> リロード処理
+<@>
+<$url = argv#0 || v.myself>
+
+<@> システムモード
+<$v.system_mode()>
+<$v.title = if(v.title, v.title, v.set.blog_name) || "reload">
+
+<@> アクションファイルから呼び出された場合、
+<@> このファイルをmain skeleton代わりにする
+<$v.action_is_main = 1>
+
+<$rtime = if(reload_stop, 0, v.sys.reload_time)>
+<@ifexec(rtime, begin)>
+<script><!--
+var reload_timer = setTimeout(
+	function() {
+		location.href = "<@url>";
+	}, <@rtime>000);
+function reload_stop() {
+	clearTimeout(reload_timer);
+	$('#reload-stop').css('display','none');
+	$('#reload-msg').html('クリックするとリロードします');
+}
+// --></script>
+<$end>
+
+<!--reload msg============================================================-->
+<article class="system message">
+<h2>処理結果<@if(Auth.isadmin && action_return != 0, "(<@action_return>)")></h2>
+<div class="body">
+	<div class="messages"><@join("\n", Message)></div>
+	<@ifexec(argv#1, begin)>
+	<div class="add-msg"><@argv#1></div>
+	<$end>
+
+<@ifexec(rtime, begin, begin)>
+	<p><a href="<@url>"><strong id="reload-msg"><@v.sys.reload_time>秒後にリロードします</strong></a> <a href="javascript:reload_stop()" id="reload-stop">(STOP)</a></p>
+<$else>
+	<p><a href="<@url>">クリックするとリロードします</a></p>
+<$end>
+
+</div> <!-- end of body -->
+</article>
+

@@ -1,0 +1,82 @@
+<@6>
+<@local(s,ps)>
+<$s=v.blog>
+
+<!--サイドバー==========================================================-->
+<aside id="sidebar">
+<div id="side-a">
+
+<@ifexec(Auth.ok && v.system_mode && !v.design_edit, begin)>
+<!--現在のブログ情報=====================================-->
+<div class="hatena-module" id="side-login-information">
+<div class="hatena-modulebody">
+<table><tbody>
+<tr>
+<td>UserID</td><td<@if(Auth.isadmin, ' title="あなたは管理者です"')>><@Auth.id><@if(Auth.isadmin, '(*)')></td>	
+</tr>
+<@ifexec(v.blogid, begin)>
+<tr>
+<td>BlogID</td><td><@v.blogid></td>
+</tr><tr>
+<td>記事  </td><td><@v.blog.arts || 0>件</td>
+</tr><tr>
+<td>コメント</td><td><@v.blog.coms || 0>件</td>
+</tr><tr>
+<td colspan="2">『<a href="<@v.myself>"><@s.blog_name></a>』</td>
+</tr>
+<$end>
+</tbody></table>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+<$end>
+
+<@ifexec(v.blogid, begin)>
+<!--Information=========================================-->
+<div class="hatena-module" id="side-information" data-module-name="des_information-ja">
+<div class="hatena-moduletitle">Information</div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+<@if(s.description_txt, #'<li class="description"><@s.description_txt></li>\n')>
+<li class="to-artlist"><a href="<@v.myself>?artlist" rel="nofollow">記事一覧</a></li>
+<li class="to-print"><a href="<@v.myself>?theme&amp;n=satsuki2/_print" rel="nofollow">印刷用の表示</a></li>
+</ul>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+<$end>
+</div> <!-- End of side-a -->
+
+<div id="side-b">
+<@ifexec(v.blogid, begin)>
+<!--検索====================================================-->
+<div class="hatena-module" id="side-search" data-module-name="des_searchbox">
+<div class="hatena-moduletitle">検索</div>
+<div class="hatena-modulebody">
+<form method="GET" action="<@v.myself>" id="side-search-form">
+<input type="search" class="w80" name="q" size="12" value="<@tag_escape(x = Query.q)>" id="side-search-text" required>
+<button type="submit" id="side-search-submit">検索</button><br>
+<input type="radio" name="all" value="0" <@if(!Query.all, "checked")>><label>タイトル</label>
+<input type="radio" name="all" value="1" <@if( Query.all, "checked")>><label>全文</label>
+</form>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+<$end>
+
+<!--システム情報============================================-->
+<div class="hatena-module" id="side-system-info" data-module-name="des_system-info">
+<div class="hatena-moduletitle">System info</div>
+<div class="hatena-modulebody">
+<@ifexec(Timer, begin)>
+Total time : <span id="system-info-total-time"><@int(Timer.check()*10000 + 0.5)/10></span> ms<br>
+DB time : <span id="system-info-db-time"><@int(Timer.check('db')*10000 + 0.5)/10></span> ms<br>
+<$end>
+Runtime : <@CGI_mode><br>
+RDBMS : <@DB._RDBMS><br>
+<@ifexec(Develop, begin)>
+HTTP Status: <@Status><br>
+<@if(AutoReload, "AutoReload : 1<br>")>
+<$end>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+
+</div> <!-- End of side-b -->
+</aside> <!-- End of sidebar -->

@@ -1,0 +1,32 @@
+#-------------------------------------------------------------------------------
+# 許可タグリスト for 記事の説明（概要）
+#-------------------------------------------------------------------------------
+_base		id, title, class
+_protocol	http, https, ftp, mailto
+
+### 基本 ########################
+a		href, name, target, rel
+p
+br
+span
+
+### 修飾 ########################
+ins
+del
+strong
+em
+i
+s
+u
+sup
+sub
+ruby
+rt
+rp
+mark
+
+# style 指定子によるXSS対策
+_style_secure
+# 相対パスを絶対パスに書き換え
+_force_absolute_path
+

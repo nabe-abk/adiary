@@ -1,0 +1,30 @@
+<@6>
+<@local(s,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("ユーザーCSSの設定")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<p>ここで設定するCSSはブログ記事等を表示するときのみ有効になります。管理画面では有効になりません。</a></p>
+	<textarea name="usercss_txt" rows="24" class="w98p usercss" id="editarea"><@tag_escape_amp(v.load_usercss())></textarea>
+
+	<input type=submit name="submit" value="この設定を保存する"><br>
+
+	</form>
+</div>
+</article>
+
+
+

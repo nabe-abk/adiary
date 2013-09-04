@@ -1,0 +1,22 @@
+<@20>
+<$ifbreak(csrf_check())>
+
+<$ifexec(Form.only_blog_info, begin, begin)>
+	付加情報の再生成
+	<$action_return = v.blogs_info_rebuild( v.blogid )>
+
+	POST成功時の処理
+	<$ifexec(action_return eq '0', begin)>
+		<$message('付加情報を再生成しました')>
+		<$jump('_sub/reload_message', v.myself . '?' . v.skeleton)>
+	<$end>
+<$else>
+	ブログの再構築
+	<$action_return = v.rebuild_blog()>
+
+	POST成功時の処理
+	<$ifexec(action_return eq '0', begin)>
+		<$message('全記事を再構築しました')>
+		<$jump('_sub/reload_message', v.myself . '?' . v.skeleton)>
+	<$end>
+<$end>

@@ -1,0 +1,287 @@
+@charset "UTF-8";
+/*****************************************************************************
+  Satsuki skeleton base CSS
+							(C)2013 nabe@abk
+*****************************************************************************/
+/*--------------------------------------------------------------------
+●ルール
+・このファイルは、タグ構造や記法が変更・拡張されたときの対応用です。
+---------------------------------------------------------------------*/
+/*--------------------------------------------------------------------
+■全体表示（システム関連）
+---------------------------------------------------------------------*/
+
+/* 不可視要素 */
+.display-none {
+	display:	none;
+}
+
+/* 新着表示マーク */
+#nav-header a.newcom:after {
+	content:		'!';
+}
+
+/* 不可視ログインリンク */
+#nav-header a.erase-login {
+	display:		inline-block;
+	width:			64px;
+}
+
+/* アイコン */
+li.icons {
+	display:		inline-block;
+}
+
+/* 条件指定などのひとつのブロック */
+div.element, form.element {
+	display:		inline-block;
+	margin-right:		1em;
+}
+
+/*--------------------------------------------------------------------
+●記法関連
+---------------------------------------------------------------------*/
+/* セクションアンカー */
+h3 span.sanchor, h4 span.sanchor {
+	margin-right:	0.3em;
+}
+
+/* アスキーアート記法 */
+div.ascii-art {
+/*	font-size:	12pt;	*/
+	line-height:	100%;
+	padding-top:	0px;
+	padding-bottom:	0px;
+	margin-top:	0px;
+	margin-bottom:	0px;
+	font-family: "Mona", "MS PGothic", "ＭＳ Ｐゴシック", "IPA MONAPGOTHIC", "IPA モナー Pゴシック", sans-serif;
+}
+
+/* 等幅 */
+.mono, .pre {
+	font-family:	monospace;
+}
+.l	{ text-align: left; }
+.c	{ text-align: center; }
+.r	{ text-align: right; }
+
+/* インデント */
+p, p.i, .indent p { text-indent: 1em; }
+p.ni, .noindent p { text-indent: 0; }
+ul li > p:first-child {
+	text-indent:	0;
+	margin:		0;
+}
+
+/* はてなブックマーク数の表示 */
+.http-bookmark img {
+	vertical-align: bottom;
+}
+/* Google-map の埋め込み */
+div.google-map {
+	line-height:	100%;
+}
+
+/* 非表示テキスト。背景色と表示色が同一 */
+article div.body .hidden,
+article div.body .hidden a,
+article div.body .hidden strong,
+article div.body .hidden em {
+	color:			#fff;
+	background-color:	#fff;
+}
+
+/* nowrap */
+.nowrap {
+	white-space:		nowrap;
+}
+
+ul.none, ol.none {
+	list-style:	none;
+}
+/* 目次 */
+ul.toc li span.sanchor {
+	margin-left:	-16px;
+	margin-right:	0.5em;
+}
+
+
+/*--------------------------------------------------------------------
+●フォーム関連
+---------------------------------------------------------------------*/
+input[type="number"] {
+	text-align:		right;
+}
+label, input[type="checkbox"], input[type="radio"] {
+	vertical-align:		middle;
+}
+td.checkbox, th.checkbox {
+	text-align:		center;
+}
+td.button, th.button {
+	text-align:		center;
+}
+textarea {
+	display:		block;
+}
+
+/* radioやcheckboxが複数並んだ場合 */
+label + input[type="radio"],
+label + input[type="checkbox"]
+{
+	margin-left:	1em;
+}
+
+/* ボタンが複数並んだ場合に間あける */
+input[type="submit"] + input[type="submit"],
+input[type="submit"] + input[type="button"],
+input[type="submit"] + button,
+input[type="botton"] + input[type="submit"],
+input[type="botton"] + input[type="button"],
+input[type="botton"] + button,
+button + input[type="submit"],
+button + input[type="button"],
+button + button
+{
+	margin-left:	1em;
+}
+
+/* 色選択ボックス */
+span.colorbox {
+	height:		1em;
+	width:		1em;
+	border:		1px solid #000;
+	display:	inline-block;
+
+	vertical-align: 	middle;
+	border-radius:		4px;
+	margin-right:		4px;
+}
+input.color-picker {
+	width:		100px;
+	vertical-align: middle;
+}
+.colorpicker {
+	z-index:	10000;
+}
+
+/*--------------------------------------------------------------------
+●フォームポップアップ
+---------------------------------------------------------------------*/
+.help {
+	font-weight:	bold;
+	margin:		0 4px;
+	cursor:		pointer;
+}
+.help:before {
+	content:	'[';
+}
+.help:after {
+	content:	']';
+}
+
+#popup-div, #popup-help, #popup-com {
+	display:	none;
+	position:	absolute;
+	z-index:	1000;
+}
+
+.ui-widget-overlay {
+	background-color: #000;
+	filter:		alpha(opacity=25);
+	opacity:	0.25;
+}
+
+#popup-textarea textarea {
+	font-size:	9pt;
+	line-height:	120%;
+}
+
+/*--------------------------------------------------------------------
+●リサイズ用の部品
+---------------------------------------------------------------------*/
+span.resize-parts {
+	width:		12px;		/* つかめる幅 */
+	position:	absolute;
+
+	cursor:		col-resize;
+	z-index:	9990050;	/* 下3桁がinput type="text"の最小サイズ */
+
+	/* display:	none;	*/	/* リサイズ機能を無効にする */
+	/* border:	1px solid red;	*/
+}
+
+/*--------------------------------------------------------------------
+●フォントサイズ／種類設定
+---------------------------------------------------------------------*/
+.xx-large		{ font-size: 200%; line-height: 130%; }
+.x-large,  .huge	{ font-size: 150%; line-height: 130%; }
+.large			{ font-size: 130%; line-height: 130%; }
+.midium, .normalsize	{ font-size: 100%; line-height: 135%; }
+.small			{ font-size: 90%;  line-height: 140%; }
+.x-small,  .tiny	{ font-size: 80%;  line-height: 140%; }
+.xx-small, .scriptsize	{ font-size: 50%;  line-height: 140%; }
+
+.it, .italic		{ font-style:  italic; }
+.bf, .bold		{ font-weight: bold;   }
+.u, .underline		{ text-decoration: underline; }
+.normal			{ font-weight: normal; text-decoration: none; }
+
+strong			{ font-weight: bold; }
+em			{ font-style: normal; text-decoration: underline; }
+
+/*--------------------------------------------------------------------
+●フォームサイズ指定部品
+---------------------------------------------------------------------*/
+.w20 { width: 20px; }
+.w30 { width: 30px; }
+.w40 { width: 40px; }
+.w50 { width: 50px; }
+.w60 { width: 60px; }
+.w70 { width: 70px; }
+.w80 { width: 80px; }
+.w90 { width: 90px; }
+.w100 { width: 100px; }
+.w120 { width: 120px; }
+.w140 { width: 140px; }
+.w160 { width: 160px; }
+.w200 { width: 200px; }
+.w240 { width: 240px; }
+.w280 { width: 280px; }
+.w300 { width: 300px; }
+.w320 { width: 320px; }
+.w360 { width: 360px; }
+.w400 { width: 400px; }
+.w440 { width: 440px; }
+.w480 { width: 480px; }
+.w500 { width: 500px; }
+.w512 { width: 512px; }
+.w520 { width: 520px; }
+.w560 { width: 560px; }
+.w600 { width: 600px; }
+.w640 { width: 640px; }
+.w100p{ width: 100%; }
+.w98p { width:  98%; }
+.w95p { width:  95%; }
+.w90p { width:  90%; }
+
+/*--------------------------------------------------------------------
+●検索とハイライト
+---------------------------------------------------------------------*/
+span.highlight	{ background-color: #0a0; font-weight: bold; text-decoration: inherit; }
+span.highlight0	{ background-color: #ff6; }
+span.highlight1	{ background-color: #aff; }
+span.highlight2	{ background-color: #9f9; }
+span.highlight3	{ background-color: #f99; }
+span.highlight4	{ background-color: #f6f; }
+
+/*--------------------------------------------------------------------
+●デバッグ
+---------------------------------------------------------------------*/
+div.debug {
+	margin: 1em 0;
+}
+
+pre#destroy-debug {
+	margin-left:	260px;
+}

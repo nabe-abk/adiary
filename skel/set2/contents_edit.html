@@ -1,0 +1,35 @@
+<@6>
+<@local(s,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("コンテンツの表示順設定")>
+
+<$v.regist_css("<@v.script_dir>dynatree/skin/ui.dynatree.css")>
+<$v.regist_js('dynatree/jquery.dynatree.min.js')>
+<$v.regist_js('contents-edit.js')>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<p class="error" id="load-error" style="display: none"><strong class="error">コンテンツが存在しないか情報をロードできません。</strong></p>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST" id="form">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<div id="div-in-form"></div>
+
+	<div id="tree" data-url="<@Basepath><@v.blogpub_dir>contents.json" data-base-url="<@v.myself2>"></div>
+
+	<button type="button" id="open">選択した記事を開く</button>
+	<button type="submit" id="submit">変更を保存する</button>
+	<button type="button" id="reset">リセット</button><br>
+	</form>
+
+</div>
+</article>

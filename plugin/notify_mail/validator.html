@@ -1,0 +1,19 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	_order=0
+	subject = メールタイトル
+	subject:min_chars =  1
+	subject:max_chars = 64
+	subject:filter0   = trim
+
+	from = 送信元メールアドレス
+	from:filter0 = email
+
+	to = 送信先メールアドレス
+	to:filter0 = emails
+	to:filter1 = notnull
+<$end>
+
+<$ifbreak(form_error())>
+<$return(h)>

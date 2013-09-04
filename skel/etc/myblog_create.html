@@ -1,0 +1,44 @@
+<@6>
+<$ifjump_clear(! Auth.ok, '_sub/error_message_403', 'ログインしていません')>
+<$ifjump_clear(v.exists_my_blog, '_sub/error_message', 'すでにブログが存在します')>
+<$ifjump_clear(v.sys.create_blog_only_admin && !Auth.isadmin, '_sub/error_message', 'ブログは管理者しか作れません')>
+
+<@> システムモード
+<$v.system_mode("ブログの作成")>
+
+<@>CSRFチェック
+<$if_post_csrf_check()>
+
+<!--========================================================================-->
+<@> 階層ツリー
+<@call("_dir_tree")>
+
+<!--========================================================================-->
+<@> エラー表示
+<@call('_sub/error_message')>
+
+<!--========================================================================-->
+<article class="system">
+<h2><@v.title></h2>
+<div class="body">
+<@call('_sub/writable_check')>
+<@ifexec(!ret, begin)>
+	<form action="<@Myself2>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<table class="blog-create">
+	<tbody>
+	<tr>
+	<th>ブログID</th><td><input type="text" size="10" name="id" id="blogid" value="<@Auth.id>" readonly>（変更不可）</td>
+	</tr><tr>
+	<td colspan="2" class="button"><input type="submit" value="ブログを作成" id="submit"></td>
+	</tr>
+	</tbody>
+	</table>
+	</form>
+<$end>
+</div>
+</article>
+
+
+

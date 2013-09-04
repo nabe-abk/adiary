@@ -1,0 +1,15 @@
+<@20>
+<$ifbreak(Auth.ok && csrf_check())>
+
+<$action_return = v.post_comment(Form)>
+
+<@>
+<@> POST成功時の処理
+<@>
+<$ifexec(action_return eq '0', begin)>
+	<$message('コメントを書き込みました')>
+	<$ifmessage( Form.hidden, 'このコメントは管理者にのみ表示されます')>
+	<$ifmessage(!Form.hidden && !Form.enable, 'このコメントは確認後表示されます')>
+	
+	<$jump('_sub/reload_message', v.thisurl)>
+<$end>

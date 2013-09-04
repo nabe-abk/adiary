@@ -1,0 +1,59 @@
+#--------------------------------------
+# development directory
+#--------------------------------------
+.*/
+
+#--------------------------------------
+# private data directory
+#--------------------------------------
+__cache/*.cache
+data/*
+!data/.htaccess
+!data/index.html
+
+#--------------------------------------
+# public data directory
+#--------------------------------------
+pub/*
+!pub/.gitkeep
+
+#--------------------------------------
+# local users directory
+#--------------------------------------
+skel.local/*
+!skel.local/.htaccess
+!skel.local/README.txt
+plugin/*
+!plugin/.htaccess
+!plugin/README.txt
+!plugin/des_artlist
+!plugin/des_bloken-clock
+!plugin/des_comlist
+!plugin/des_calendar-ja
+!plugin/des_contents_list
+!plugin/des_freetext
+!plugin/des_information-ja
+!plugin/des_linkbox
+!plugin/des_monthlist
+!plugin/des_searchbox
+!plugin/des_system-info
+!plugin/des_taglist
+!plugin/des_twitter
+!plugin/notify_mail
+
+#--------------------------------------
+# other files
+#--------------------------------------
+.htaccess
+adiary.env.cgi
+adiary.conf.cgi
+mimetex.cgi
+__tool/__*
+lib/SatsukiApp/form.pm
+lib/SatsukiApp/form_2.pm
+
+#--------------------------------------
+# sample files for develop
+#--------------------------------------
+js/jquery-ui-all.min.js
+theme/_jquery-ui/jquery-ui.css

@@ -1,0 +1,14 @@
+<@20>
+<$ifbreak(!v.allow_edit)>
+<$ifbreak(csrf_check())>
+
+<$action_return = v.contents_edit( Form )>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("コンテンツの表示設定を保存しました")>
+	<$url = v.myself .'?'. v.query0>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+

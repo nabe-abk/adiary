@@ -1,0 +1,52 @@
+<@6>
+<@local(x,t,ok,ng)>
+
+<@> システムモード
+<$v.system_mode("著作権表示")>
+
+<@> 階層ツリー、権限確認
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system copyright">
+<h2><@v.title></h2>
+<div class="body">
+
+<h3>adiary is blog and contents management system.</h3>
+
+<p>Copyright &copy;2006-2013 <a href="https://twitter.com/nabe_abk">nabe@abk</a> (<a id="mailto"></a>)</p>
+
+<blockquote>
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.</p>
+
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+</blockquote>
+
+<p>このソフトウェアは一部のライブラリ、テーマ、プラグイン、画像ファイル等を除き「GNU AGPLv3」でライセンスされています。</p>
+
+<p>最新版および最新情報は「<a href="http://adiary.org">adiary公式サイト</a>」より参照してください。</p>
+
+</div>
+</article>
+
+
+<script>
+$(function(){
+	var mail = $('#mailto');
+	var text1 = "nabe";
+	var x     = Math.floor(5*7/15);
+	var text2 = "abk.nu";
+	var text = text1 + x + decodeURIComponent('%40') + text2;
+	mail.text( text );
+	mail.attr('href', 'mailto:' + text);
+});
+</script>

@@ -1,0 +1,36 @@
+<!--カレンダー===========================================-->
+<$cal  = v.call_plugin_function('<@this>.pm')>
+<$year = if(art_year, art_year, v.now.year)>
+<$mon  = if(art_year, art_mon,  v.now.mon)>
+<$day  = if(art_year, art_day,  v.now.day)>
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
+<div class="hatena-moduletitle">カレンダー</div>
+<div class="hatena-modulebody">
+<table class="calendar">
+<thead>
+<tr class="calendar-month">
+<@ifexec(v.blog, begin, begin)>
+	<$yyyymm = year*100 + mon>
+	<td class="calendar-prev-month" colspan="2"><a href="<@v.myself2><@cal.prev_month(yyyymm)>" rel="nofollow">&lt;&lt;</a>
+	<td class="calendar-current-month" colspan="3"><a href="<@v.myself2><@yyyymm>" rel="nofollow"><@year>/<@mon></a></td>
+	<td class="calendar-next-month" colspan="2"><a href="<@v.myself2><@cal.next_month(yyyymm)>" rel="nofollow">&gt;&gt;</a></td>
+<$else>
+	<td class="calendar-prev-month" colspan="2">&lt;&lt;</td>
+	<td class="calendar-current-month" colspan="3"><@year>/<@mon></td>
+	<td class="calendar-next-month" colspan="2">&gt;&gt;</td>
+<$end>
+</tr>
+<tr>
+	<td class="calendar-sunday   w0">日</td>
+	<td class="calendar-weekday  w1">月</td>
+	<td class="calendar-weekday  w2">火</td>
+	<td class="calendar-weekday  w3">水</td>
+	<td class="calendar-weekday  w4">木</td>
+	<td class="calendar-weekday  w5">金</td>
+	<td class="calendar-saturday w6">土</td>
+</tr>
+</thead><tbody>
+<@cal.generate_calendar(year, mon, day)>
+</tbody></table>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->

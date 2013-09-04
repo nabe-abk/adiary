@@ -1,0 +1,10 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(! v.blog_admin)>
+
+<$action_return = v.save_design(Form)>
+
+<$ifmessage(action_return eq '0', 'デザインを保存しました')>
+<$ifmessage(action_return ne '0', 'デザインの保存に失敗しました')>
+
+<$jump('_sub/reload_message', v.myself . '?design/')>

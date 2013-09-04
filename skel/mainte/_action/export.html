@@ -1,0 +1,19 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(! v.blog_admin)>
+
+<@> exporter を呼び出し
+<$action_return = v.art_export( Form )>
+
+export失敗時の処理
+<$ifexec(action_return ne '0', begin)>
+	<$message('エクスポートに失敗しました')>
+	<$break()>
+<$end>
+
+export成功時の処理
+<$v.frame_skeleton=''>
+<$v.action_is_main=1>
+<$v.output_stop=1>
+
+

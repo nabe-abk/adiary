@@ -1,0 +1,41 @@
+<@6>
+<@local(s,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("ブログのクリア")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system">
+<h2><@v.title></h2>
+<div class="body">
+
+	<p>ブログに存在する全記事データ（コメント・下書き等含む）を削除します。</p>
+
+	<table>
+	<tbody>
+	<tr><th>ブログID</th>  <td><@v.blogid></td></tr>
+	<tr><th>ブログ名</th>  <td><@v.blog.blog_name></td></tr>
+	<tr><th>ブログ紹介</th><td><@v.blog.description_txt></td></tr>
+	</tbody>
+	</table>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<p><strong class="warning">設定以外の全記事データが削除されます。本当によろしいですか？</strong></p>
+	よい場合は 'Yes' と入力 → <input type="text" name="yes" class="w60<@FormError.e_yes>"><br>
+	<input type=submit name="submit" value="ブログをクリアする"><br>
+
+	</form>
+
+</div>
+</article>
+
+
+

@@ -1,0 +1,184 @@
+<@6>
+<@local(ret,logs,s,t,coms,q,url,x,page,page_offfset)>
+
+<$(logs,ret) = v.load_articles_current_blog(v.pinfo, Query)>
+<$s = v.blog>
+<$v.title = s.blog_name>
+<$art_year = ret.year>
+<$art_mon  = ret.mon>
+<$art_day  = ret.day>
+
+<@> dayモードで該当記事1件の時
+<$ifexec(##logs==0 && ret.mode eq 'day', begin)>
+	<$t=logs#0>
+	<$redirect( v.myself2 . t.elink_key )>
+<$end>
+
+<@ifexec(!v.blogid, begin, begin)>
+	<$set_status(404)>
+	<$ifmessage(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません")>
+	<$ifmessage(v.path_blogid && ! Auth.ok, "もしあなたが「ID:<@v.path_blogid>」ならばログインしてください。")>
+<$else>
+  <$ifexec(##logs==-1, begin)>
+	<$ifset_status(v.query ne '', 404)>
+	<$message("該当する記事がありません")>
+  <$end>
+<$end>
+
+<@><!--========================================================================-->
+<$page = ret.page)>
+<$url = v.myself>
+<@>
+<@ifexec(ret.mode eq 'search', begin.search)>
+<article class="system message search">
+<$url = if(ret.yyyymm, v.myself2 . ret.yyyymm, v.myself)>
+<$q .= if(ret.q, '&amp;q=' . ret.q, '')>
+<$q .= if(Query.all, '&amp;all=1')>
+<h2>検索条件</h2>
+<div class="body">
+	<form method="GET" action="<@url>" data-noymd-url="<@v.myself>" id="top-search-form">
+	<@>### フリーワード ###
+	<div class="freeword">
+	<select name="all">
+		<option value="0"<@if(!Query.all, ' selected')>>タイトル</option>
+		<option value="1"<@if( Query.all, ' selected')>>全文</option>
+	</select>から <input type="search" class="w300" name="q" value="<@ret.q>">
+	<button>絞リ込み</button>
+	</div>
+	
+	<@>### タグ ###
+	<@ifexec(ret.t, begin)>
+	<div class="taglist cond">
+	<span class="search-caption">検索タグ</span> <span class="tags"><@forexec(t, ret.t, begin)><span class="tag"> <@\>
+		<a href="<@v.myself>?&amp;t=<@t>"><@if(t eq '', '（タグのない記事）',t)></a> <@\>
+		<$q .= "&amp;t=<@t>"><input type="hidden" name="t" value="<@t>"> <@\>
+	</span><$end></span>
+	</div>
+	<$end>
+	
+	<@>### 年・年月指定 ###
+	<@ifexec(ret.yyyymm, begin)>
+	<div class="yyyymm cond">
+	<span class="search-caption">指定期間</span> <span class="yyyymm"><@ret.year>年<@if(ret.month, "<@ret.month>月")>の記事</span><br>
+	</div>
+	<$end>
+	</form>
+
+<$url .= "?<@q>">
+	<@>### タグ絞り込み ###
+	<@ifexec(ret.narrow_tags, begin)>
+	<div class="narrow narrow-tag">
+	<span class="search-caption">タグで絞り込み</span>
+	<@forexec_hash(t,ret.narrow_tags,begin)>
+		<a href="<@url>&amp;t=<@encode_uri(x = t.key)>"><@t.key>(<@t.val>)</a>
+	<$end>
+	</div>
+	<$end>
+
+	<@>### 日付絞り込み ###
+	<@ifexec(ret.narrow_ymd, begin)>
+	<div class="narrow narrow-ymd">
+	<span class="search-caption">日付で絞り込み</span>
+	<@forexec_hash(t,ret.narrow_ymd,begin)>
+		<a href="<@v.myself2><@t.key>?<@q>"><@if(t.key < 10000, "<@t.key>年", int(substr(t.key,4,2)) . '月')>(<@t.val>)</a>
+	<$end>
+	</div>
+	<$end>
+
+	<div class="hits">
+	<span class="hits">全<span><@ret.hits></span>件</span>
+	<span class="pages">(<@ret.page>/<@ret.pages>ページ)</span>
+	<input type="checkbox" class="js-switch" data-target="article.article div.body div.body-main" data-save="1" checked><label>記事本文を表示</label></div>
+</div>
+</article>
+<script>$(function(){ init_top_search('#top-search-form'); });</script>
+
+<$page_offfset = if(6<page, page-6, 0)>
+<$page_max     = page_offfset+10>
+<$ifset(ret.pages<page_max, page_max, ret.pages)>
+<$page_offset  = page_max - 10>
+<$ifset(page_offset<0, page_offset, 0)>
+<$end.search>
+
+<@><!--========================================================================-->
+<@ifexec(Message, begin)>
+<article class="system message">
+<h2>メッセージ</h2>
+<div class="body">
+	<div class="messages"><@join("\n", Message)></div>
+
+	<@if(Auth.ok && !v.blogid && v.path_blogid eq Auth.id && (!v.root_only_blog_create || Auth.isadmin), #'<p><a href="<@v.myself>?etc/myblog_create">このブログを作成する</a></p>')>
+</div>
+</article>
+<$end>
+
+
+<$ifbreak(##logs==-1)><@> 記事がなければ処理終了
+
+<@><!--========================================================================-->
+<@ifexec(ret.pagemode && (1<page || ret.next_page), begin.page)>
+<nav class="page-head page-nav">
+<@page_nav = exec(begin.function)>
+<@ifexec(ret.pages, begin, begin)>
+	<a<@if(1<page, #' href="<@url>' . if(2<page, '&amp;p=' . (page-1)) . '"')> class="prev-page" rel="prev">前のページ</a>
+	<@forexec_num(x, page_max-page_offset, begin)>
+		<$t = page_offset + x>
+		<@if(t!=ret.page, #'<a href="<@url>&amp;p=<@t>"><@t></a>', "<strong><@t></strong>")> 
+	<$end>
+	<a<@if(ret.next_page, #' href="<@url>&amp;p=' . (page+1) . '"')> class="next-page" rel="next">次のページ</a>
+<$else>
+	<a<@if(1<page, #' href="<@url>' . if(2<page, '?&amp;p=' . (page-1)) . '"')> class="prev-page" rel="prev">前のページ</a> <@\>
+	<a<@if(ret.next_page, #' href="<@url>?&amp;p=' . (page+1) . '"')> class="next-page" rel="next">次のページ</a>
+<$end>
+<$end.function>
+</nav>
+<$end.page)>
+
+<article id="articles">
+<@forexec(t, logs, begin)>
+<!--========================================================================-->
+<article class="article<@if(t.ctype ne '', " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
+<h2 id="art-<@t.pkey>"><@if(!t.wiki, #'<a class="date" href="<@v.myself2><@t.elink_key>"><@t.year>/<@t.mon>/<@t.day>(<@t.wday_name>)</a>')><a href="<@v.myself2><@t.elink_key>" class="title"><@t.title></a></h2>
+<div class="body" id="s<@t.pkey>">
+	<div class="body-header">
+		<@ifexec(s.disp_hatena_bicon, begin)>
+		<$url = v.server_url . v.myself2 . t.elink_key><$encode_uricom(url)>
+		<a class="http-bookmark" href="http://b.hatena.ne.jp/entry/<@url>"><img src="http://b.st-hatena.com/entry/image/<@url>" alt="はてブ数"></a>
+		<$end>
+		<@ifexec(x, begin)><span class="write-date"><@tm_printf('%Y/%m/%d %J:%M ', if(x==1, t.tm, t.update_tm))></span><$end>
+		<@ifexec(t.tags, begin)><span class="tags"><@v.make_taglinks(t.tags)></span><$end>
+		<@ifexec(s.disp_author, begin)><span class="author" title="<@t.id>"><@t.name></span><$end>
+		<@ifexec(v.check_editor(t), begin)><a href="<@v.myself2>0<@t.pkey>?edit" class="edit-article">（編集）</a><$end>
+	</div>
+<div class="body-main">
+	<@if(! t.enable, '<strong class="warning">【この記事は非公開です】</strong><br>')>
+<@if(t.text_s ne '', t.text_s, t.text)>
+</div>
+<$coms = if(v.allow_edit, t.coms_all, t.coms)>
+	<div class="body-footer">
+	<@ifexec(t.com_ok || coms, begin)>
+		<span class="element com-caption"><a href="<@v.myself2><@t.elink_key>#com"><span class="com-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span></a></span>
+	<$end>
+	</div>
+</div> <!-- end of body -->
+</article>
+<$end>
+</article>
+
+
+<@ifexec(page_nav, begin.page)>
+<nav class="page-foot page-nav">
+<@page_nav>
+</nav>
+<$end.page>
+
+
+<@>検索ワードハイライトのための処理。
+<@>直接スクリプト中に展開するとXSSの危険があるためDOMに展開する
+<@ifexec(ret.words, begin)>
+<!-- 検索語ハイライト -->
+<div id="search-words-list" style="display: none">
+<@forexec(t, ret.words, begin)><span><@t></span><$end>
+</div>
+<script>$(function(){ word_highlight('#search-words-list'); });</script>
+<$end>

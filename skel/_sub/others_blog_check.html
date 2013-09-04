@@ -1,0 +1,12 @@
+<@6>
+<@> 他人のブログであるかの確認メッセージ表示
+<@>
+<@ifexec(v.others_blog, begin)>
+<!--他人の記事確認メッセージ===============================================-->
+<article class="system notice">
+<h2>Notice</h2>
+<div class="body">
+	<p><strong>この 「<@v.blog.blog_name>」 は 「<@v.blogid>」さんのブログです</strong></p>
+</div>
+</article>
+<$end>

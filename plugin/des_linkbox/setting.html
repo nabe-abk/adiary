@@ -1,0 +1,120 @@
+<@6>
+<@local(s)>
+<$s=argv#0>
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>モジュールタイトル</th>
+		<td><input type="text" class="w160" name="title" value="<@s.title || 'リンク集'>" maxlength="64"></td>
+	</tr>
+	</tbody>
+	</table>
+
+	<p>各要素は個別の「&lt;li&gt;～&lt;/li&gt;」の中に出力されます。
+	<table class="blog-setting">
+	<thead>
+	<tr>
+		<th>リンク</th>
+		<th>削除</th>
+	</tr>
+	</thead>
+	<tbody id="link-elements">
+	</tbody>
+	</table>
+
+	<button type="button" id="link-append">リンクの追加</button>
+
+<div style="display: none" id="lkbox-form">
+リンク名<br>
+<input type="text" class="w200" id="lkbox-link-name"><br>
+リンクURL<br>
+<input type="text" class="w520" id="lkbox-link-url"><br>
+※http, https, mailto。もしくは / から始まるパスのみ使用可能。<br>
+※URLを省略した場合、ただのテキストが挿入されます。<br>
+※リンクを省略した場合、リンク名はURLと同じになります。<br>
+</div>
+
+<div style="display: none" id="lkbox-elemtns">
+<@s.elements>
+</div>
+
+<!-- JavaScript ==========================================================-->
+<script>!function(){
+var tbody = $('#link-elements');
+var btn   = $('#link-append');
+tbody.sortable();
+var div = $('#lkbox-form');
+div.remove();
+
+btn.click(function(){
+	$('#body').append(div);
+	var inp_url  = $('#lkbox-link-url');
+	var inp_text = $('#lkbox-link-name');
+	var buttons = {};
+	buttons['OK'] = function(){
+		append_element(inp_text.val(), inp_url.val());
+		div.dialog( 'close' );
+		div.remove();
+	};
+	buttons[ 'CANCEL' ] = function(){
+		div.dialog( 'close' );
+		div.remove();
+	};
+	inp_url.val('');
+	inp_text.val('');
+
+	// ダイアログの表示
+	div.dialog({
+		modal: true,
+		minWidth:  DialogWidth,
+		title:   btn.text(),
+		buttons: buttons
+	});
+});
+
+var num=0;
+function append_element(text, url) {
+	if (text == '') text=url;
+	var tr = $('<tr>');
+	var td = $('<td>');
+	// リンク
+	if (!url || url == '') {
+		td.text(text);
+	} else {
+		var a = $('<a>').attr('href', url).text(text);
+		td.append( a );
+	}
+	// 閉じるボタン
+	var cl = $('<td>').addClass('c');
+	var span = $('<span>').addClass('ui-icon ui-icon-closethick ui-button');
+	span.click(function(){ tr.remove() });
+	var inp0 = $('<input>').attr({
+		type: 'hidden',
+		name: 'url_ary',
+		value: num + ',' + url
+	});
+	var inp1 = $('<input>').attr({
+		type: 'hidden',
+		name: 'text_ary',
+		value: num + ',' + text
+	});
+	num++;
+
+	cl.append(inp0, inp1, span);
+	tr.append(td, cl);
+	tbody.append(tr);
+}
+/////////////////
+//初期化処理
+/////////////////
+var list = $('#lkbox-elemtns').text().split("\n");
+for(var i=0; i<list.length; i++) {
+	var x = list[i].indexOf("\t");
+	if (x<0) continue;
+	var text = list[i].substr(0,x);
+	var url  = list[i].substr(x+1);
+	append_element(text,url);
+}
+///
+}()</script>
+

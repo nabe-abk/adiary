@@ -1,0 +1,28 @@
+######################################################################
+title=リンク集
+version=1.00
+#					(C)2013 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.90
+
+module_type=sidebar
+module_class=hatena-module side-link-list
+module_setting=1
+
+load_module_html_in_edit=1
+
+*sample_html=<<HTML
+<div class="hatena-moduletitle">リンク</div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+<li><a href="http://adiary.org/">adiary公式サイト</a></li>
+<li><a href="https://adiary.blog.abk.nu/">adiary開発日誌</a></li>
+<li><a href="https://github.com/nabe-abk/adiary">GitHubリポジトリ</a></li>
+</ul>
+</div> <!-- hatena-modulebody -->
+HTML

@@ -1,0 +1,31 @@
+<@6>
+<@local(tw,err)>
+<$err=FormError>
+
+<$tw = call('_sub/load_twitter_info')>
+
+<@> システムモード
+<$v.system_mode("Twitterの認証コード入力")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<p>Twitterと連携すると、記事投稿時に自動的に記事URLをツイートすることができます。</p>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<p><a href="<@tw.authorize_path>?oauth_token=<@tw.token>" target=_blank>Twitterにアクセスして</a>得られた認証コードを入力してください。</p>
+
+	暗証番号 <input type="text" name="oauth_verifier" class="w100" value="">
+	<input type=submit name="submit" value="保存する">
+	</form>
+
+</div>
+</article>

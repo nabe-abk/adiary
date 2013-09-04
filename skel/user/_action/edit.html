@@ -1,0 +1,13 @@
+<@20>
+
+<$ifbreak(! Auth.isadmin)>
+<$ifbreak(csrf_check())>
+
+<$action_return = Auth.user_edit(Form)>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("ユーザー <@Form.id> を編集しました")>
+	<$url = Myself .'?'. v.skel_dir>
+	<$jump('_sub/reload_message', url)>
+<$end>

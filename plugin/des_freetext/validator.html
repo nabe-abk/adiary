@@ -1,0 +1,33 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	_order=0
+
+	title = タイトル
+	title:min_chars =  1
+	title:max_chars = 48
+	title:filter0   = trim
+	title:filter1   = tag
+
+	class = モジュールクラス
+	class:min_chars =   0
+	class:max_chars = 256
+	class:filter0   = trim
+	class:filter1   = reg_del:[^\w\- ]
+
+	title_none = flag
+	body_none  = flag
+	lf2br      = flag
+
+	free_txt = 入力テキスト
+	free_txt:filter0     = file:<@v.allow_tags_head>usertext<@v.allow_tags_ext>
+	free_txt:filter0_opt = <@v.trust_mode>
+<$end>
+
+<$ifbreak(form_error())>
+
+<$ifexec(h.lf2br, begin)>
+	<$replace(h.free_txt, '[\r\n]', '<br>')>
+<$end>
+
+<$return(h)>

@@ -1,0 +1,64 @@
+<@>
+<@> Movable Type形式
+<@>
+<h3>Movable Type形式（FC2形式を含む）</h3>
+<div>
+	<table>
+	<tr><th>改行設定のデフォルト</th>
+		<td>
+		<input type="radio" name="MT:lf2br" value="1" checked><label>改行を変換する</label> &nbsp;
+		<input type="radio" name="MT:lf2br" value="0"><label>変換なし</label> &nbsp;
+		<input type="checkbox" name="MT:lf2br_force" value="1"><label>強制指定</label><span class="help" data-help="CONVERT BREAKSの設定が狂ってるデータをインポートする際にのみご利用ください。">?</span>
+		</td>
+	</tr>
+	<tr><th>日付変更時間の処理</th>
+		<td>午前 
+		<select name="MT:change_hour_int">
+			<option value="0" selected>0</option>
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+		</select> 時<span class="help" data-help="「書き込み日時」→「記事の日付」生成処理で使用します。">?</span>
+		</td>
+	</tr>
+	<tr><th>入力データの時間帯</th>
+		<td>
+		<select name="MT:tz">
+			<option value="-11">UTC-11:00</option>
+			<option value="-10">UTC-10:00</option>
+			<option value="-9" >UTC-9:00</option>
+			<option value="-8" >UTC-8:00</option>
+			<option value="-7" >UTC-7:00</option>
+			<option value="-6" >UTC-6:00</option>
+			<option value="-5" >UTC-5:00</option>
+			<option value="-4" >UTC-4:00</option>
+			<option value="-3" >UTC-3:00</option>
+			<option value="-2" >UTC-2:00</option>
+			<option value="-1" >UTC-1:00</option>
+			<option value="0"  >UTC (GMT)</option>
+			<option value="1"  >UTC+1:00</option>
+			<option value="2"  >UTC+2:00</option>
+			<option value="3"  >UTC+3:00</option>
+			<option value="4"  >UTC+4:00</option>
+			<option value="5"  >UTC+5:00</option>
+			<option value="6"  >UTC+6:00</option>
+			<option value="7"  >UTC+7:00</option>
+			<option value="8"  >UTC+8:00</option>
+			<option value="9" selected>UTC+9:00 (JST)</option>
+			<option value="10" >UTC+10:00</option>
+			<option value="11" >UTC+11:00</option>
+			<option value="12" >UTC+12:00</option>
+			<option value="13" >UTC+13:00</option>
+			<option value="14" >UTC+14:00</option>
+		</select>
+		（通常は変更しない）</td>
+	</tr>
+	</table>
+
+	<button type="button" name="MT" class="import">Movable Type形式/FC2形式でインポート</button>
+</div>

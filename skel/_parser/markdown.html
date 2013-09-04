@@ -1,0 +1,26 @@
+<@40.is_function>
+<@local(s,parser)>
+<$s = v.blog>
+<@>
+<@> シンプルパーサー（段落処理しない設定）
+<@>
+<$parser = loadpm('TextParser::Markdown')>
+
+<$parser.h_start     = 3>	h3からスタート
+<$parser.tab_width   = 4>	タブの幅
+
+<$parser.lf_patch      = true>	日本語のpタグ中の改行を消す
+<$parser.md_in_htmlblk = true>	Markdown Inside HTML Blocksを許可する
+<$parser.sectioning    = true>	sectionタグを適時挿入する
+
+<$parser.satsuki_tags     = true>	satsuki記法のタグを有効にする
+<$parser.satsuki_syntax_h = true>	syntaxハイライトをsatsuki記法に準拠させる
+<$parser.satsuki_seemore  = true>	「続きを読む」記法を使用する
+<$parser.seemore_msg = s.seemore_msg || '続きを読む'>
+
+さつきパーサーのロード
+<$ifexec(parser.satsuki_tags, begin)>
+	<$parser.satsuki_obj = v.load_parser('default')>
+<$end>
+
+<$return(parser)>

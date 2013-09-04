@@ -1,0 +1,27 @@
+/*** 画像の横に文字を回り込ませる **************************/
+/* a.image { float: left; padding-right: 1em; } */
+
+/* サムネイルのみ回り込ませる */
+/* a.image.small { float: left; padding-right: 1em; } */
+
+/*** 字下げや段落間のスペース処理 **************************/
+/*
+div.body p {
+	text-indent:		1em;
+	margin:			1em 0 1em 0;
+}
+*/
+/*** ログインをサイドバー配置に ****************************/
+/*
+div.adminmenu  { display: none; }
+div#side-login { display: block; }
+*/
+
+/*** システム情報（System info）を見えなくする *************/
+/*
+div#side-system-info { display: none; }
+*/
+
+
+/*** 追加のスタイル ****************************************/
+

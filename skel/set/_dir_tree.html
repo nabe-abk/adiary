@@ -1,0 +1,38 @@
+<@6>
+<@local(addq)>
+<$ifset(Query.blogid eq '*', addq, '&amp;blogid=*')>
+<@>
+<nav class="tree">
+<a href="<@v.myself>?menu" class="dir">メニュー</a>
+ <span class="splitter">&gt;</span>
+<@call('_sub/menu_list')>
+ <span class="splitter">&gt;</span>
+ <span class="items">
+ <span class="item-start">[</span>
+  <@if(v.skel_name eq 'index',   '<span class="select">基本設定</span>', #'<a href="<@v.myself>?<@v.skel_dir>index<@addq>">基本設定</a>')>, 
+  <@if(v.skel_name eq 'disp',    '<span class="select">表示設定</span>', #'<a href="<@v.myself>?<@v.skel_dir>disp<@addq>">表示設定</a>')>, 
+  <@if(v.skel_name eq 'detail',  '<span class="select">詳細設定</span>', #'<a href="<@v.myself>?<@v.skel_dir>detail<@addq>">詳細設定</a>')>, 
+  <@if(v.skel_name eq 'comment', '<span class="select">コメント設定</span>', #'<a href="<@v.myself>?<@v.skel_dir>comment<@addq>">コメント設定</a>')>, 
+  <@if(v.skel_name eq 'editor',  '<span class="select">編集画面の設定</span>',  #'<a href="<@v.myself>?<@v.skel_dir>editor<@addq>">編集画面の設定</a>')>
+ <span class="item-end">]</span>
+ </span>
+</nav>
+
+<@>///////////////////////////////////////////////////////////////////////////
+<@> 権限チェック
+<@>///////////////////////////////////////////////////////////////////////////
+<$ifsuperjump_clear(! Auth.ok, '_sub/error_message_403', 'ログインしていません')>
+<@ifexec(addq, begin, begin)>
+	<$ifsuperjump_clear(! Auth.isadmin, '_sub/error_message_403', '権限がありません')>
+	<@call('_sub/message', "初期設定を編集します。この設定は新規ブログのデフォルトになります。", add)>
+	<$set = v.load_blogset('*')>
+<$else>
+	<$ifsuperjump_clear(! v.blog_admin, '_sub/error_message_403', 'ブログが存在しないか権限がありません')>
+	<$set = v.blog>
+<$end>
+
+<@> CSRFチェック
+<$if_post_csrf_check()>
+
+<@> エラー表示
+<@call('_sub/error_message')>

@@ -1,0 +1,50 @@
+<@6>
+<@local(logs, t, t2, s, url)>
+<$s = v.blog>
+<$opt = argv#0>
+<@>
+<@> RSS 2.0 スケルトン
+<@>		code is UTF-8 only
+<@> Reference(ja)
+<@>	http://hail2u.net/documents/rss20notes.html
+<@>
+<?xml version="1.0" encoding="utf-8" ?>
+<@> <?xml-stylesheet href="" type="text/xsl" media="screen"?>
+<rss version="2.0">
+<$(logs, h) = v.load_arts_for_rss( opt )>
+<channel>
+	<title><@ifdef(opt.title, opt.title, s.blog_name)></title>
+	<link><@v.server_url><@v.myself></link>
+	<language>ja</language>
+	<description><@esc_xml(s.description_txt)></description>
+	<copyright>Copyright <@Now.year></copyright>
+	<pubDate><@h.rfc_update></pubDate>
+	<lastBuildDate><@rfc_date(TM)></lastBuildDate>
+	<generator>http://adiary.org/#<@v.VERSION></generator>
+	<docs>http://blogs.law.harvard.edu/tech/rss</docs> 
+<@forexec(t, logs, begin)>
+	<$url = v.server_url . v.myself2 . t.elink_key>
+	<item>
+		<title><@t.title></title>
+		<link><@url>#rss-tm<@t.update_tm></link>
+		<guid><@url></guid>
+		<category><@t.tags></category>
+		<pubDate><@t.rfc_date></pubDate>
+		<author><@t.name></author>
+		<description><![CDATA[<@t.description>
+<@ifexec(!opt.no_comment && t.coms, begin.comment)>
+<hr>
+<h4><a href="<@url>#com">■コメント（<@t.coms>件）</a><@if(5 < t.coms, ' - 古いコメントが省略されています')></h4>
+<div style="margin-left: 1em;">
+<@forexec(t2, v.load_comments_current_blog(t, 5, flagq(link_stop, enable_only)), begin)>
+<$replace(t2.text, '<br>', ' ')>
+<$tag_delete(t2.text)>
+<@t2.name>『<@v.string_clip(t2.text, 64)>』(<@tm_printf('%Y/%m/%d %J:%M', t2.tm)>)</span><br>
+<$end>
+</div>
+<$end.comment>
+]]></description>
+	</item>
+<$end>
+</channel>
+</rss>

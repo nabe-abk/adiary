@@ -1,0 +1,9 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(! v.blog_admin)>
+
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+
+<$s = v.blog>
+<@v.load_and_call_module_html(Form.module_name)>

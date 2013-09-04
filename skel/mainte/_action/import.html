@@ -1,0 +1,26 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(! v.blog_admin)>
+<$v.action_is_main=1>
+
+普通のフォーム送信
+<$ifexec(!Form.ajax, begin)>
+	<$(action_return,arts) = v.art_import(Form)>
+	
+	<$ifmessage(action_return eq '0', "インポート処理が成功しました（<@arts>件インポート）")>
+	<$ifmessage(action_return ne '0', "インポートに失敗しました")>
+
+	<$sfile = loadapp("adiary::session_file", v)>
+	<$addmsg = join('', sfile.load())>
+	<$reload_stop=1>
+	<$jump('_sub/reload_message', "<@v.myself>?<@v.skeleton>", #'<textarea class="w98p" rows="10" readonly><@addmsg></textarea>')>
+<$end>
+
+<$v.frame_skeleton=''>
+<$set_content_type('text/plain')>
+
+<@"ret=" . v.art_import(Form) . "\n">
+<@"articles=" . int(v.import_arts) . "\n">
+
+<$ifbreak(! Message)>
+<@"msg=" . join("\n", Message)>

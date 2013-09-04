@@ -1,0 +1,108 @@
+<@6>
+<@local(s,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("ブログの基本設定")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<$s = set)>
+<$ifexec(POST, begin)>
+	<$s = Form>
+	<$tag_escape(s.blog_name, s.blog_image, s.blog_icon, s.gaid)>
+<$end>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<@ifexec(Query.blogid ne '*' && Auth.isadmin, begin, begin)>
+	<p><a href="<@v.myself>?<@v.skeleton>&amp;blogid=*">&gt;標準設定を変更する</a></p>
+	<$else>
+	<@if(v.blogid, #'<p><a href="<@v.myself>?<@v.skeleton>">&gt;ブログ固有の設定に戻る</a></p>')>
+	<$end>
+
+	<form action="<@v.myself>?<@v.skeleton><@if(Query.blogid eq '*', '&blogid=*')>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>ブログ名</th><td<@err.c_blog_name>><input type="text" name="blog_name" size="40" class="w280" value="<@s.blog_name>" required></td>
+	</tr>
+	<tr>
+		<th>ブログの紹介（説明）<br>（RSSにも出力）<br><a href="<@v.myself>?etc/allow_tags&amp;n=description" target="_blank">使用可能なHTMLタグ</a></th><td><textarea name="description_txt" class="description w400" cols="50" rows="3" wrap="soft"><@replace(x = s.description_txt, "<br>", "\n")></textarea>
+		改行有効。ブログの紹介以外は<a href="<@v.myself>?design/edit">デザイン編集</a>をご利用ください。</td>
+	</tr>
+	<tr>
+		<th>日付変更時間<span class="help" data-help="例えば「20日1時」を「19日深夜1時」として表示する機能です。元日と4/1は常に無効。">?</span><td>午前 
+		<select name="change_hour_int" class="int">
+			<option value="0"<@if(s.change_hour_int == 0, ' selected')>>0</option>
+			<option value="1"<@if(s.change_hour_int == 1, ' selected')>>1</option>
+			<option value="2"<@if(s.change_hour_int == 2, ' selected')>>2</option>
+			<option value="3"<@if(s.change_hour_int == 3, ' selected')>>3</option>
+			<option value="4"<@if(s.change_hour_int == 4, ' selected')>>4</option>
+			<option value="5"<@if(s.change_hour_int == 5, ' selected')>>5</option>
+			<option value="6"<@if(s.change_hour_int == 6, ' selected')>>6</option>
+			<option value="7"<@if(s.change_hour_int == 7, ' selected')>>7</option>
+			<option value="8"<@if(s.change_hour_int == 8, ' selected')>>8</option>
+		</select> 時</td>
+	</tr>
+	<tr><th>URLを自動リンク<span class="help" data-help="通常は [http://adiary.org/] と書いてリンクします">?</span></th>
+		<td>
+		<input type="hidden" name="checkbox.info" value="autolink">
+		<input type="checkbox" name="autolink" value="1"<@if(s.autolink, ' checked')>><label>自動でリンクする</label>
+		</td>
+	</tr>
+	<tr><th>プライベートモード<span class="help" data-help="ログインしているブログ所有者（＋書き込み権限保持者）以外にはブログ全体が非表示になるモードです。しかし、画像等はURLを直指定すれば表示されます。">?</span></th>
+		<td>
+		<input type="hidden" name="checkbox.info" value="private">
+		<input type="checkbox" name="private" value="1"<@if(s.private eq '1', ' checked')>><label>プライベートモードに設定する</label>
+		</td>
+	</tr>
+	<tr><th>Google Analytics ID<span class="help" data-help="Googleによるログ解析サービス。Google Analytics をご利用の方はトラッキングID（例：UA-012345-2）を設定してください。">?</span></th>
+		<td>
+		<input type="text" name="gaid" class="w160" value="<@tag_escape(s.gaid)>" id="gaid">
+		<button type="button" data-title="Google Analyticsの自動設定" id="gaid-setting" data-msg="Google Analyticsのトラッキングコードを貼り付けてください。" data-ok="設定" data-cancel="キャンセル">コードから自動設定する</button>
+		</td>
+	</tr>
+	<tr><th>AmazonアフィリエイトID<span class="help" data-help="Amazonアソシエイトを利用する方は、トラッキングIDを設定してください。ここで設定したIDは、記法で記事からAmazonの商品にリンクする際、自動的に挿入されます。">?</span></th>
+		<td>
+		<input type="text" name="asid" class="w160" value="<@s.asid>" id="asid">
+		<button type="button" data-title="AmazonアソシエイトIDの自動設定" id="asid-setting" data-msg="Amazonアソシエイトの<a href='https://widgets.amazon.co.jp/Widget-Source/' target='_blank'>ウィジェットコード</a>を貼り付けてください。" data-ok="設定" data-cancel="キャンセル">コードから自動設定する</button>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<input type=submit name="submit" value="この設定を保存する"><br>
+
+	</form>
+</div>
+</article>
+
+<script>
+$('#gaid-setting').click(function(evt){
+	popup_textarea(evt.target, function(data){
+		var x;
+		if (x = data.match(/['"](UA-\d+-\d+)/)) {
+			$('#gaid').val( x[1] );
+		}
+	});
+});
+$('#asid-setting').click(function(evt){
+	popup_textarea(evt.target, function(data){
+		var x;
+		if ((x = data.match(/&t=([\w-]+)/)) 
+		 || (x = data.match(/tag\s*=\s*['"]([\w-]+)/) )
+		) {
+			$('#asid').val( x[1] );
+		}
+	}, 1);
+
+});
+</script>
+

@@ -1,0 +1,29 @@
+######################################################################
+title=Information
+version=1.00
+#					(C)2013 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.90
+
+module_type=sidebar
+module_class=hatena-module
+module_id=side-information
+module_setting=1
+
+load_module_html_in_edit=1
+
+*sample_html=<<HTML
+<div class="hatena-moduletitle">Information</div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+<li class="description">このブログの説明</li>
+<li class="art-list"><a href="#?art_list" rel="nofollow">記事一覧</a></li>
+<li class="to-print"><a href="#?theme&amp;n=satsuki2/_print" rel="nofollow">印刷用の表示</a></li>
+</ul>
+</div> <!-- hatena-modulebody -->
+HTML

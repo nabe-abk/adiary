@@ -1,0 +1,14 @@
+<@6>
+<@>
+<@> メッセージ表示枠
+<@>
+<!--error msg============================================================-->
+<article class="system message">
+<h2>メッセージ</h2>
+<div class="body">
+	<div class="messages"><@argv#0></div>
+	<@ifexec(argv#1, begin)>
+	<div class="add-msg"><@argv#1></div>
+	<$end>
+</div>
+</article>

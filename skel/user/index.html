@@ -1,0 +1,61 @@
+<@6>
+<@local(t,h)>
+
+<!--========================================================================-->
+<@>権限確認
+<$ifredirect(! Auth.isadmin, Myself)>
+
+<@>CSRFチェック
+<$if_post_csrf_check()>
+
+<@> システムモード
+<$v.system_mode("ユーザーの一覧")>
+
+<@> 階層ツリー
+<@call("<@v.skel_dir>_dir_tree")>
+
+<@> エラー表示
+<@call('_sub/error_message')>
+
+<$ifset(POST, h, array2hash(Form.delete_ary))>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<form method="POST" action="<@v.myself>?<@v.skeleton>" class="js-form-check" data-target=".pkey-ary" data-flag="#delete-check" data-confirm="%c件のアカウントを削除しますか？">
+	<input type="hidden" name="action" value="<@v.skel_dir>delete">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<table>
+	<tr>
+		<th>削除</th><th>No</th><th>ID</th><th>名前</th><th>無効</th><th>管理者</th><th>操作</th><th>ブログ</th>
+	</tr>
+	<@forexec(t, Auth.load_userlist('pkey'), begin)>
+	<tr>
+		<@ifexec(t.pkey == Auth.pkey, begin, begin)>
+		<td class="c">&nbsp;</td>
+		<$else>
+		<td class="c"><input type="checkbox" class="pkey-ary" name="delete_ary" value="<@t.id>" id="chk-<@t.id>"<@if(h.(t.id), ' checked')>></td>
+		<$end>
+		<td class="num"><@t.pkey></td>
+		<td><label for="chk-<@t.id>"><@t.id></label></td>
+		<td><label for="chk-<@t.id>"><@t.name></label></td>
+<@>		<td><@t.email></td>
+		<td class="r"><@if(t.disable, "無効", "&nbsp;")></td>
+		<td class="r"><@if(t.isadmin, "管理者", "&nbsp;")></td>
+		<td><a href="<@Myself>?<@v.skel_dir>edit&amp;id=<@t.id>">編集する</a></td>
+		<td><@ifexec(v.find_blog(t.id), begin, begin))> <@\>
+		<a href="<@v.get_blog_path(t.id)>">ブログを開く</a>
+		<$else>&nbsp;<$end></td>
+	</tr>
+	<$end>
+	</table>
+	<p><input type="checkbox" name="delete_check" value="1" id="delete-check"><label>削除時は確認のためチェックを入れてください</label></p>
+	<input type="submit" name="delete" value="チェックしたユーザーを削除する"><br>
+	</form>
+</div> <!-- end of body -->
+</article>
+
+
+

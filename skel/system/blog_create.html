@@ -1,0 +1,37 @@
+<@6>
+
+<!--========================================================================-->
+<@> システムモード
+<$v.system_mode("任意のブログ作成")>
+
+<@> 階層ツリー、権限確認
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<form action="<@Myself2>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<table>
+	<tbody>
+	<tr>
+	<th>ブログID</th>
+	<td<@FormError.c_id>>
+		<input type="text" size="10" name="id" id="blogid" value="<@esc(Form.id) || Auth.id>" required>
+	</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<p>※先頭は「a-z」。2文目以降は「a-z, 0-9, _」のみ使用可能。
+
+	<input type="submit" name="submit" value="ブログを作成">
+	</form>
+
+</div>
+</article>
+
+
+

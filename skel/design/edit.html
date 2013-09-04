@@ -1,0 +1,75 @@
+<@6>
+<@local(mods, t)>
+<$ifsuperjump_clear(! Auth.ok,       '_sub/error_message_403', 'ログインしていません')>
+<$ifsuperjump_clear(! v.blog_admin,  '_sub/error_message_403', 'ブログが存在しないか権限がありません')>
+
+<@> システムモード
+<$v.system_mode("デザイン編集")>
+<$v.design_edit=1>
+
+<@> エラー表示
+<@call('_sub/error_message')>
+<$ifbreak(POST)>
+
+<@call('_main')>
+
+<!-- デザインモジュールの情報 =============================================-->
+<div id="design-modules-data" style="display: none">
+
+<$v.regist_js('design-edit.js')>
+<$mods = v.load_modules_info()>
+<$mods = sort_str(mods, 'title')>
+
+<@forexec(t, mods, begin)>
+<div class="<@t.module_class>" title="<@t.title>"
+ data-module-name="<@t.name>"
+ data-type="<@t.module_type>"
+ data-id="<@t.module_id>"
+ data-setting="<@t.module_setting>"
+ data-load-module-html="<@t.load_module_html_in_edit>"
+ data-readme="<@if(t.readme,1)>"
+ data-readme-url="<@Myself>?set2/plugin_readme&amp;name=<@t.name>"
+ data-readme-title="<@t.name>のREADME"
+>
+<@t.sample_html>
+</div>
+<$end>
+
+<!-- デザイン編集ボックス -->
+<div class="hatena-module location-fix" id="module-editbox" data-setting-url="<@v.myself>?set2/plugin_setting&amp;name=" data-load-module-url="<@v.myself>?<@v.skel_dir>load_module&amp;name=">
+<div class="hatena-moduletitle">モジュール編集</div>
+<div class="hatena-modulebody">
+<select name="modules" id="add-module">
+<option value="">（追加モジュール選択）</option>
+<@forexec(t, mods, begin)>
+<option value="<@t.name>"><@t.title></option>
+<$end>
+</select><br>
+<button class="save" id="js-save">保存</button>
+<button class="cancel" onclick="window.location = '<@v.myself>?design/'">メニューに戻る</button><br>
+</div>
+</div>
+
+<!-- フォーム -->
+<form action="<@v.myself>?<@v.skeleton>" method="POST" id="js-form">
+<input type="hidden" name="action" value="<@v.skeleton>">
+<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+</form>
+
+<!-- モジュール設定画面用フォーム -->
+<form action="<@v.myself>?<@v.skeleton>" method="POST" id="ajax-form">
+<input type="hidden" name="action" value="set2/plugin_setting">
+<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+<input type="hidden" name="module_name" id="js-form-module-name">
+<div class="body" id="js-form-body"></div>
+</form>
+
+<!-- モジュールHTMLロード用フォーム -->
+<form action="<@v.myself>?<@v.skeleton>" method="POST" id="load-module-html-form">
+<input type="hidden" name="action" value="design/load_module">
+<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+<input type="hidden" name="module_name" id="js-load-module-name">
+</form>
+</div>
+
+<@call('_sub/ajax_messages')>

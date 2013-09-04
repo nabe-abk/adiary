@@ -1,0 +1,58 @@
+######################################################################
+title=コンテンツリスト
+version=1.00
+#					(C)2013 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.90
+
+module_type=sidebar
+module_class=hatena-module side-contents-list
+
+load_module_html_in_edit=1
+
+*sample_html=<<HTML
+<div class="hatena-moduletitle">コンテンツ</div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+	<li><span class="js-switch" data-target="#sidetag-314"><a href="#">adiary</a> <span class="qt">(<span>414</span>)</span></span>
+	<ul data-id="sidetag-314">
+		<li><a href="#">雑記</a> <span class="qt">(<span>88</span>)</span></li>
+		<li><a href="#">snapshot</a> <span class="qt">(<span>48</span>)</span></li>
+		<li><a href="#">ToDo</a> <span class="qt">(<span>16</span>)</span></li>
+		<li><a href="#">仕様書</a> <span class="qt">(<span>8</span>)</span></li>
+		<li><a href="#">blogサービス</a> <span class="qt">(<span>8</span>)</span></li>
+	</ul>
+	</li>
+	<li><a href="#">プログラム</a> <span class="qt">(<span>76</span>)</span></li>
+	<li><a href="#">cgi</a> <span class="qt">(<span>12</span>)</span></li>
+	<li><a href="#">ネット</a> <span class="qt">(<span>24</span>)</span></li>
+</ul>
+</div>
+HTML
+
+*module_html=<<HTML
+<!--タグリスト=====================================-->
+<div class="hatena-module side-contents-list" data-module-name="<@this>">
+<@v.load_plgset('<@this>', 'html')>
+</div> <!-- hatena-module -->
+HTML
+
+*files=<<FILES
+func/<@this>.pm
+func/<@this>-uninstall.pm
+skel/_format/contents_list.html
+FILES
+
+*events=<<EVENTS
+CONTENT_STATE_CHANGE=func/<@this>.pm
+SETTING=func/<@this>.pm
+INSTALL=func/<@this>.pm
+UNINSTALL=func/<@this>-uninstall.pm
+EVENTS
+
+

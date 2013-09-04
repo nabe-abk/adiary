@@ -1,0 +1,14 @@
+<@20>
+<$ifbreak(!v.allow_edit)>
+<$ifbreak(csrf_check())>
+
+<$action_return = v.save_usertag( Form.usertag_txt )>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("記法タグの設定を保存しました")>
+	<$url = v.myself .'?'. v.query0>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+

@@ -1,0 +1,22 @@
+######################################################################
+title=メール通知
+version=1.00
+#					(C)2013 nabe@abk
+######################################################################
+description=新着コメントがあったときにメールで通知するプラグイン
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.90
+
+
+*files=<<FILES
+skel/_mail/notify_comment.html
+FILES
+
+*events=<<EVENTS
+COMMENT_NEW=skel/_mail/notify_comment.html
+EVENTS
+

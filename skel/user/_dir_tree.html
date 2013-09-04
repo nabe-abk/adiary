@@ -1,0 +1,17 @@
+<@6>
+<nav class="tree">
+<a href="<@v.myself>?menu" class="dir">メニュー</a>
+ <span class="splitter">&gt;</span>
+<@call('_sub/menu_list')>
+ <span class="splitter">&gt;</span>
+<@ifexec(argv#0, begin, begin)>
+ <span class="select"><@argv#0></span>
+<$else>
+ <span class="items">
+ <span class="item-start">[</span>
+  <@if(v.skel_name eq 'index', '<span class="select">ユーザーの一覧</span>', #'<a href="<@v.myself>?<@v.skel_dir>index">ユーザーの一覧</a>')>, 
+  <@if(v.skel_name eq 'add',   '<span class="select">ユーザーの追加</span>', #'<a href="<@v.myself>?<@v.skel_dir>add">ユーザーの追加</a>')>
+ <span class="item-end">]</span>
+ </span>
+<$end>
+</nav>

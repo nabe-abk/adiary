@@ -1,0 +1,138 @@
+<@6>
+<@local(t,pd,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("プラグインの設定")>
+
+<$v.regist_js('plugin-setting.js')>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<table class="plugins">
+	<thead><tr>
+		<th>タイトル</th>
+		<th>使用設定</th>
+		<th class="small">ライセンス</th>
+		<th>説明・概要</th>
+	</tr></thead>
+	<tbody>
+	<$pd = v.load_plugins_dat()>
+	<@forexec(t, v.load_plugins_info(), begin)>
+	<tr>
+		<td><span class="plg-title"><@t.title></span></td>
+		
+		<@ifexec(t.adiary_version <= v.VERSION, begin, begin)>
+		<td>
+			<input type="radio" name="<@t.name>" value="1"<@if( pd.(t.name),' checked')>><label>ON</label>
+			<input type="radio" name="<@t.name>" value="0"<@if(!pd.(t.name),' checked')>><label>OFF</label>
+		</td>
+		<$else>
+		<td class="c">
+			<strong class="warning">非対応</strong><span class="help" data-help="このプラグインは「adiary Version <@t.adiary_version>」以降で使用できます。">?</span
+		</td>
+		<$end>
+		<td class="c"><@t.license></td>
+		<td>
+		<span class="plg-name"><@t.name></span>
+		<span class="plg-version">Ver<@t.version></span>
+		<@ifexec(t.url, begin, begin)>
+		<span class="plg-author"><a href="<@encode_uri(x = t.url)>" target="_blank"><@t.author></a></span><br>
+		<$else>
+		<span class="plg-author"><@t.author></span><br>
+		<$end>
+		<@if(t.description, #'<@t.description><br>')>
+		<@ifexec(t.files, begin)>
+		<button type="button" class="info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</button>
+		<$end)>
+		<@ifexec(t.events, begin)>
+		<button type="button" class="info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events>">登録イベント</button>
+		<$end>
+		<@ifexec(t.readme, begin)>
+		<button type="button" class="info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>" onclick="">README</button>
+		<$end>
+		<@ifexec(t.module_setting, begin)>
+		<button type="button" class="setting" data-title="<@t.name>の設定" data-module-name="<@t.name>" data-url="<@v.myself>?<@v.skel_dir>plugin_setting&amp;name=<@t.name>">設定</button>
+		<$end>
+		</td>
+	</tr>
+	<$end>
+	</tbody>
+	</table>
+	<input type=submit name="submit" value="この設定を保存する"><br>
+
+	</form>
+</div>
+</article>
+
+
+<article id="design-modules" class="system setting">
+<h2>デザインモジュール</h2>
+<div class="body">
+
+	<p>使用設定は<a href="<@v.myself>?design/">デザイン編集</a>から行なってください。</p>
+
+	<table class="plugins">
+	<thead><tr>
+		<th>タイトル</th>
+		<th>使用</th>
+		<th>タイプ</th>
+		<th class="small">ライセンス</th>
+		<th>説明・概要</th>
+	</tr></thead>
+	<tbody>
+	<@forexec(t, v.load_plugins_info(1), begin)>
+	<tr>
+		<td><span class="plg-title"><@t.title></span></td>
+		<td class="c">
+		<@ifexec(t.adiary_version <= v.VERSION, begin, begin)>
+			OK
+		<$else>
+			<strong class="warning">NG</strong><span class="help" data-help="このプラグインは「adiary Version <@t.adiary_version>」以降で使用できます。">?</span
+		<$end>
+		</td>
+		<td><@t.module_type></td>
+		<td class="c"><@t.license></td>
+		<td>
+		<span class="plg-name"><@t.name></span>
+		<span class="plg-version">Ver<@t.version></span>
+		<@ifexec(t.url, begin, begin)>
+		<span class="plg-author"><a href="<@encode_uri(x = t.url)>" target="_blank"><@t.author></a></span>
+		<$else>
+		<span class="plg-author"><@t.author></span>
+		<$end>
+		<@if(t.description, #'<@t.description><br>')>
+		<@ifexec(t.files, begin)>
+		<button type="button" class="info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</button>
+		<$end)>
+		<@ifexec(t.events, begin)>
+		<button type="button" class="info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events>">登録イベント</button>
+		<$end>
+		<@ifexec(t.readme, begin)>
+		<button type="button" class="info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>" onclick="">README</button>
+		<$end>
+		</td>
+	</tr>
+	<$end>
+	</tbody>
+	</table>
+</article>
+
+
+<!-- モジュール設定画面用フォーム -->
+<form action="<@v.myself>?<@v.skeleton>" method="POST" id="ajax-form">
+<input type="hidden" name="action" value="<@v.skel_dir>plugin_setting">
+<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+</form>
+
+<@call('_sub/ajax_messages')>

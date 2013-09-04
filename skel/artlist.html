@@ -1,0 +1,131 @@
+<@6>
+<@local(logs,t,x,opt,s,loads,url,page_offset,tag_links)>
+<$ifbreak(!v.blogid)>
+
+<@> システムモード
+<$v.system_mode("記事一覧")>
+<$s = v.blog>
+
+<@>--------------------------------------------
+<@> 検索、条件指定ロジック
+<@>--------------------------------------------
+<$page  = int(Query.page)  || 1>
+<$loads = int(Query.loads) || 50>
+<#$ifset(loads < 5, loads, 5)>
+
+<$opt = {}>
+<$opt.loads = loads>
+<$opt.offset= loads*(page-1)>
+<$opt.require_hits = 1>
+<$opt.q = Query.q>
+
+<$(logs,hits) = v.load_arts_list(opt)>
+<@>--------------------------------------------
+<@> ページ送りロジック
+<@>--------------------------------------------
+<$pages = int((hits+loads-1)/loads)>
+<$page_offfset = if(6<page, page-6, 0)>
+<$page_max     = page_offfset+10>
+<$ifset(pages<page_max, page_max, pages)>
+<$page_offset  = page_max - 10>
+<$ifset(page_offset<0, page_offset, 0)>
+
+<$url = "<@v.myself>?sk=<@v.skeleton>&amp;loads=<@loads>&amp;q=" . encode_uricom(x = Query.q) . "&amp;">
+
+<$tag_links = begin>
+	<@local(tag)>
+	<@forexec(tag, split(',', argv#0), begin)> <@\>
+		<a href="<@v.myself>?sk=<@v.skeleton>&amp;q=<@tag>"><@tag></a> 
+	<$end>
+<$end>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<div class="serach-box">
+		<form action="<@v.myself>" id="search" method="GET" class="element">
+		<input type="hidden" name="sk" value="<@v.skeleton>">
+		<div class="element">表示
+		<select name="loads" onchange="$('#search').submit();">
+			<option value="20" <@if(loads== 20,' selected')>>20</option>
+			<option value="50" <@if(loads== 50,' selected')>>50</option>
+			<option value="100"<@if(loads==100,' selected')>>100</option>
+			<option value="200"<@if(loads==200,' selected')>>200</option>
+		</select> 件</div>
+
+		<div class="element">
+			<input type="search" class="w160" name="q" size="12" value="<@tag_escape(x = Query.q)>">
+			<button type="submit">検索</button>
+		</div>
+		</form>
+	</div>
+	<@ifexec(pages>1, begin)>
+	<div class="page-nav">
+		<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;</a>', '&lt;')> 
+		<@forexec_num(x, page_max-page_offset, begin)>
+			<$t = page_offset + x>
+			<@if(t!=page, #'<a href="<@url>page=<@t>"><@t></a>', "<strong><@t></strong>")> 
+		<$end>
+		<@if(page<pages, #'<a href="<@url>page=' . (page+1) . '">&gt;</a>', '&gt;')>
+	</div>
+	<$end>
+
+<@ifexec(v.allow_edit, begin)>
+	<form action="<@url>page=<@page>" method="POST" class="js-form-check" data-target="#artlist-table .pkey-ary">
+	<input type="hidden" name="action" value="articles_edit">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+<$end>
+	<table id="artlist-table" class="list-table">
+	<thead><tr>
+		<@ifexec(v.allow_edit, begin)>
+		<th><input type="checkbox" name="all_check" class="js-checked" data-target="#artlist-table .pkey-ary"></th>
+		<th>公開</th>
+		<$end>
+		<th>日付</th>
+		<th>タイトル</th>
+		<th>タグ</th>
+		<th>投稿者</th>
+		<th>コメ<br>ント</th>
+	</tr></thead>
+	<tbody class="small">
+	<@forexec(t, logs, begin)>
+	<tr>
+		<@ifexec(v.allow_edit, begin)>
+		<td class="c"><input type="checkbox" name="pkey_int_ary" value="<@t.pkey>" class="pkey-ary" id="art-<@t.pkey>"></td>
+		<td class="c"><label for="art-<@t.pkey>"><@if(t.enable, '公', '&nbsp;')></label></td>
+		<$end>
+		<td class="c"><label for="art-<@t.pkey>"><@v.format_ymd(t.yyyymmdd)></label></td>
+		<td><a href="<@v.myself2><@t.elink_key>"><@t.title></a></td>
+		<td class="c"><label for="art-<@t.pkey>"><@if(t.tags ne '', exec(tag_links, t.tags), '-')></label></td>
+		<td><@t.name></td>
+		<td class="r"><@if(v.allow_edit, t.coms_all, t.coms)></td>
+	</tr>
+	<$end>
+	</tbody>
+	</table>
+
+	<p>Total <@int(hits)> articles.</p>
+
+	<div class="page-nav">
+		<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;前のページ</a>')>
+		<@if(page<pages, #'<a href="<@url>page=' . (page+1) . '">次のページ&gt;</a>')>
+	</div>
+
+<@ifexec(v.allow_edit, begin)>
+	<input type="submit" name="enable"  class="js-form-check" data-flag="" data-confirm="" value="表示に設定"> <@\>
+	<@if(s.edit_by_author_only && !v.blog_admin, '<span class="help" data-help="他人の記事の状態は変更できません。">?</span>')>
+	<input type="submit" name="disable" class="js-form-check" data-flag="" data-confirm="" value="非表示に設定">
+	<input type="submit" name="delete"  class="js-form-check" value="削除" data-confirm="%c件の記事を削除しますか？" data-flag="#del-check">
+	<input type="checkbox" name="del_check" value="1" id="del-check"><label>削除確認</label>
+	</form>
+<$end>
+</div>
+</article>
+
+
+

@@ -1,0 +1,14 @@
+<@20>
+<$ifbreak(! Auth.ok)>
+<$ifbreak(csrf_check())>
+
+<$ifform_error(Form.now_pass eq '', 'now_pass', '現在のパスワードを入力してください。')>
+<$ifform_error(Form.pass eq '', 'pass', '新しいパスワードを入力してください。')>
+<$action_return = Auth.change_user_info(Form)>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("パスワードを変更しました")>
+	<$url =  v.myself .'?'. v.query0>
+	<$jump('_sub/reload_message', url)>
+<$end>

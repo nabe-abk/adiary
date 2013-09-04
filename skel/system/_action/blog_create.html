@@ -1,0 +1,14 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(! Auth.isadmin)>
+
+<$action_return = v.blog_create(Form.id)>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message('ブログを作成しました')>
+	<$jump('_sub/reload_message', v.get_blog_path(Form.id) . '?set/')>
+<$end>
+
+エラー時
+<$form_error('id')>

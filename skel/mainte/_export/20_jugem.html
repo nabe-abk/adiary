@@ -1,0 +1,77 @@
+<@2>
+<@local(opt)>
+<@>
+<@> JUGEM 形式
+<@>
+<$logs = argv#0>
+<$opt  = argv#1>
+<@ifexec(! logs, begin)>
+<h3 id="JUGEM">JUGEM</h3>
+<div>
+	<p><strong class="warning">非表示属性がないため、非公開の記事は出力されません。</strong></p>
+
+	<input type="hidden" name="JUGEM:enable_only" value="1">
+	<button class="export" name="type" value="20_jugem" data-class="JUGEM">JUGEM形式で保存</button>
+</div>
+<$break()>
+<$end>
+<@>-----------------------------------------------------------------------------
+<@> JUGEM形式 exporter
+<@>-----------------------------------------------------------------------------
+<$exporter = loadapp('adiary::ExportJUGEM')>
+<$ifbreak(!exporter)>
+<$ifset(!opt.allow_pings, opt.allow_pings, 0)>
+
+<$ifprint(Debug_mode, "Content-Type: text/plain; charset='UTF-8';\n\n")>
+<$set_header('Content-Disposition', "attachment; filename=<@opt.base_filename>_export_jugem.xml")>
+<$print_http_headers('text/xml', 'UTF-8')>
+
+<$opt.header = exec(begin) >
+<?xml version="1.0" encoding="utf-8" ?>
+<blog>
+<@>
+<@> blogに関する情報の出力
+<@>
+<name><@v.blog.blog_name></name>
+<description><![CDATA[<@exporter.cdata_escape(txt = v.blog.description_txt)>]]></description>
+<users><user><name><@Auth.name></name><full_name /><description /></user></users>
+<entries>
+<$end>
+<@>
+<@> 記事の出力
+<@>
+<$exporter.export( begin.day, logs, opt )>
+<@local(t,t2)>
+<$t = argv#0>
+<entry>
+<title><@esc_xml(t.title)></title>
+<author><@esc_xml(t.name)></author>
+<category><@esc_xml(t.tags_ary#0)></category>
+<date><@tm_printf("%Y/%m/%d %H:%M:%S", t.tm, 0)></date>
+<$exporter.cdata_escape(t.body, t.ex_body)>
+<description><![CDATA[<@t.body>]]></description>
+<sequel><![CDATA[<@t.ex_body>]]></sequel>
+<@>
+<@> コメントの生成
+<@>
+<@ifexec(! opt.no_comment, begin.comment )>
+<comments>
+<@forexec(t2, v.load_comments_current_blog(t, flagq(link_stop)), begin)>
+<comment>
+<title />
+<name><@esc_xml(t2.name)></name>
+<email><@esc_xml(t2.email)></email>
+<url><@esc_xml(t2.url)></url>
+<date><@tm_printf("%Y/%m/%d %H:%M:%S", t2.tm, 0)></date>
+<description><![CDATA[<@exporter.cdata_escape( t2.text )>]]></description>
+</comment>
+<$end>
+</comments>
+<$end.comment>
+</entry>
+<$end.day>
+<@>
+<@> 終了
+<@>
+<$print( "</entries></blog>\n" )>
+<$export_return = 0>

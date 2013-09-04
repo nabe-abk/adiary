@@ -1,0 +1,142 @@
+<@6>
+<@local(logs,t,c,x,opt,s,loads,url,page_offset)>
+<$ifbreak(!v.blogid)>
+
+<@> システムモード
+<$v.system_mode("コメント一覧")>
+<$s = v.blog>
+
+<@>--------------------------------------------
+<@> 検索、条件指定ロジック
+<@>--------------------------------------------
+<$page  = int(Query.page)  || 1>
+<$loads = int(Query.loads) || 50>
+<#$ifset(loads < 5, loads, 5)>
+
+<$opt = {}>
+<$opt.loads = loads>
+<$opt.offset= loads*(page-1)>
+<$opt.require_hits = 1>
+
+<$(logs,hits) = v.load_coms_list(opt)>
+<@>--------------------------------------------
+<@> ページ送りロジック
+<@>--------------------------------------------
+<$pages = int((hits+loads-1)/loads)>
+<$page_offfset = if(6<page, page-6, 0)>
+<$page_max     = page_offfset+10>
+<$ifset(pages<page_max, page_max, pages)>
+<$page_offset  = page_max - 10>
+<$ifset(page_offset<0, page_offset, 0)>
+
+<$url = "<@v.myself>?<@v.skeleton>&amp;loads=<@loads>&amp;">
+
+<@>--------------------------------------------
+<@> 新着コメントを消す
+<@>--------------------------------------------
+<$ifexec(v.allow_edit && v.blog.newcom_flag, begin)>
+	<$v.update_blogset(v.blog, 'newcom_flag', undef)>
+<$end>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<div class="serach-box">
+		<form action="<@v.myself>" id="search" method="GET" class="element">
+		<input type="hidden" name="sk" value="<@v.skeleton>">
+		表示
+		<select name="loads" onchange="$('#search').submit();">
+			<option value="20" <@if(loads== 20,' selected')>>20</option>
+			<option value="50" <@if(loads== 50,' selected')>>50</option>
+			<option value="100"<@if(loads==100,' selected')>>100</option>
+			<option value="200"<@if(loads==200,' selected')>>200</option>
+		</select> 件</form>
+		<@ifexec(pages>1, begin)>
+		<div class="page-nav element">
+			<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;</a>', '&lt;')> 
+			<@forexec_num(x, page_max-page_offset, begin)>
+				<$t = page_offset + x>
+				<@if(t!=page, #'<a href="<@url>page=<@t>"><@t></a>', "<strong><@t></strong>")> 
+			<$end>
+			<@if(page<pages, #'<a href="<@url>page=' . (page+1) . '">&gt;</a>', '&gt;')>
+		</div>
+		<$end>
+	</div>
+
+<@ifexec(v.allow_edit, begin)>
+	<form action="<@url>page=<@page>" method="POST" class="js-form-check" data-target="#comlist-table .pkey-ary">
+	<input type="hidden" name="action" value="comments_edit">
+	<input type="hidden" name="from_comlist" value="1">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+<$end>
+
+	<table id="comlist-table" class="list-table">
+	<thead><tr>
+		<@ifexec(v.allow_edit, begin)>
+		<th><input type="checkbox" name="all_check" class="js-checked" data-target="#comlist-table .pkey-ary"></th>
+		<th>公開</th>
+		<$end>
+		<th>投稿先</th>
+		<th>投稿者</th>
+		<th>投稿日</th>
+		<th>内容</th>
+	</tr></thead>
+	<tbody class="small">
+	<@forexec(t, logs, begin)>
+	<tr>
+		<@ifexec(v.allow_edit, begin)>
+		<td class="c"><input type="checkbox" name="pkey_int_ary" value="<@t.pkey>" class="pkey-ary" id="com-<@t.pkey>"></td>
+		<td class="c"><label for="com-<@t.pkey>"><@if(t.enable, '公', if(t.hidden, '非', '&nbsp;'))></label></td>
+		<$end>
+		<td><a href="<@v.myself2><@t.a_elink_key>" title="<@t.a_title>"><@v.string_clip(t.a_title,10)></a></td>
+		<td><a href="<@v.myself2><@t.a_elink_key>#c<@t.num>"<@if(v.allow_edit, #' data-reply="<@t.pkey>"')>><@t.name></a></td>
+		<td class="c"><label for="com-<@t.pkey>"><@tm_printf('%Y/%m/%d %J:%M', t.tm)></label></td>
+		<td><label for="com-<@t.pkey>"><@v.string_clip(t.text_nobr,20)></label></td>
+	</tr>
+	<$end>
+	</tbody>
+	</table>
+
+	<p>Total <@int(hits)> comments.</p>
+
+	<div class="page-nav">
+		<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;前のページ</a>')>
+		<@if(page<pages, #'<a href="<@url>page=' . (page+1) . '">次のページ&gt;</a>')>
+	</div>
+
+<@ifexec(v.allow_edit, begin)>
+	<input type="submit" name="enable"  class="js-form-check" data-flag="" data-confirm="" value="表示に設定"><span class="help" data-help="非公開コメントおよび記事が非公開の場合は表示することはできません">?</span>
+	<input type="submit" name="disable" class="js-form-check" data-flag="" data-confirm="" value="非表示に設定">
+	<input type="submit" name="delete"  class="js-form-check" value="削除" data-confirm="%c件のコメントを削除しますか？" data-flag="#del-check">
+	<input type="checkbox" name="del_check" value="1" id="del-check"><label>削除確認</label>
+	</form>
+<$end>
+</div>
+</article>
+
+<@ifexec(v.allow_edit, begin.block)>
+<!-- ポップアップ表示用のデータ -->
+<div style="display: none">
+<@forexec(c, logs, begin)>
+<div id="c<@c.pkey>">
+	<div class="commentator">
+		<span class="canchor"><a href="<@v.myself><@c.a_elink_key>#c<@c.num>"><@c.num></a>:</span>
+		<span class="commentator author<@if(c.id, " login-user")>"<@if(c.id, " title=<@c.id>")>><@ifexec(c.email, begin, begin)><a href="mailto:<@c.email>"><@c.name></a><$else><@c.name><$end></span>
+		<@ifexec(c.url, begin)><span class="comment-url"><a href="<@c.url>" rel="nofollow">URL</a></span><$end>
+		<span class="comment-date"><@tm_printf('%Y年%m月%d日(%a) %p%i時%M分', c.tm)></span>
+		<@ifexec(!c.enable, begin)>
+		<@if(c.hidden, '<strong class="comment-hidden">（非公開コメント）', '<strong class="comment-disable">（非表示）')></strong>
+		<$end>
+	</div>
+	<div class="comment-text"><@c.text></div>
+	<br>
+	<div class="ip-host-agent" style="display: block"><@c.host> (<@c.ip>)<br><@c.agent></div>
+</div>
+<$end>
+</div>
+<$end.block>

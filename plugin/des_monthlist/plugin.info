@@ -1,0 +1,70 @@
+######################################################################
+title=月別の記事リスト
+version=1.00
+#					(C)2013 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.90
+
+module_type=sidebar
+module_class=hatena-module
+module_id=side-month-list
+
+*sample_html=<<HTML
+<div class="hatena-moduletitle">過去ログ</div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+ 	<li><span class="month-list-year js-switch" data-target="#month-list-2013"><a href="#">2013年</a></span> <span class="qt">(<span>8</span>)</span>
+	<ul data-id="month-list-2013">
+		<li><a href="#">2013年08月</a> <span class="count">(<span>2</span>)</span></li>
+		<li><a href="#">2013年07月</a> <span class="count">(<span>1</span>)</span></li>
+		<li><a href="#">2013年06月</a> <span class="count">(<span>3</span>)</span></li>
+		<li><a href="#">2013年03月</a> <span class="count">(<span>1</span>)</span></li>
+		<li><a href="#">2013年01月</a> <span class="count">(<span>1</span>)</span></li>
+	</ul>
+	</li><li><span class="month-list-year js-switch" data-target="#month-list-2012"><a href="#">2012年</a></span> <span class="qt">(<span>8</span>)</span>
+	<ul data-id="month-list-2012" style="display: none">
+		<li><a href="#">2012年12月</a> <span class="count">(<span>1</span>)</span></li>
+		<li><a href="#">2012年11月</a> <span class="count">(<span>1</span>)</span></li>
+		<li><a href="#">2012年09月</a> <span class="count">(<span>1</span>)</span></li>
+		<li><a href="#">2012年08月</a> <span class="count">(<span>4</span>)</span></li>
+		<li><a href="#">2012年07月</a> <span class="count">(<span>1</span>)</span></li>
+	</ul>
+	</li><li><span class="month-list-year js-switch" data-target="#month-list-2011"><a href="#">2011年</a></span> <span class="qt">(<span>3</span>)</span>
+	<ul data-id="month-list-2011" style="display: none">
+		<li><a href="#">2011年08月</a> <span class="count">(<span>1</span>)</span></li>
+		<li><a href="#">2011年05月</a> <span class="count">(<span>1</span>)</span></li>
+		<li><a href="#">2011年02月</a> <span class="count">(<span>1</span>)</span></li>
+	</ul>
+</ul>
+</div>
+HTML
+
+*module_html=<<HTML
+<!--月別記事数リスト=====================================-->
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
+<div class="hatena-moduletitle">過去ログ</div>
+<div class="hatena-modulebody">
+<@v.load_plgset('<@this>', 'html')>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+HTML
+
+
+*files=<<FILES
+func/<@this>.pm
+func/<@this>-uninstall.pm
+skel/_format/month_list.html
+FILES
+
+*events=<<EVENTS
+ARTICLE_STATE_CHANGE=func/<@this>.pm
+INSTALL=func/<@this>.pm
+UNINSTALL=func/<@this>-uninstall.pm
+EVENTS
+
+

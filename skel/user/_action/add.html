@@ -1,0 +1,23 @@
+<@20>
+<@local(id)>
+
+<$ifbreak(! Auth.isadmin)>
+<$ifbreak(csrf_check())>
+
+<$id = Form.id>
+<$ifexec(id eq 'm' || id eq 'theme' || id eq 'pub', begin)>
+	<$form_error('id',"ID「<@id>」は使用できません")>
+	<$break()>
+<$end>
+
+<$action_return = Auth.user_add(Form)>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("ユーザー <@Form.id> を追加しました")>
+	<$url = Myself .'?'. if(Form.add_continue, v.query0, v.skel_dir)>
+	<$ifexec(Auth.auto, begin)>
+		<$message('今追加したアカウントでログインしてください')>
+	<$end>
+	<$jump('_sub/reload_message', if(Auth.auto, "<@Myself>?login&amp;id=<@id>", url))>
+<$end>

@@ -1,0 +1,24 @@
+######################################################################
+title=Twitterウィジェット
+version=1.00
+#					(C)2013 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.90
+
+module_type=sidebar
+module_class=hatena-module
+module_id=side-twitter-widget
+
+*sample_html=<<HTML
+<div class="hatena-moduletitle">Twitter</div>
+<div class="hatena-modulebody">
+ここにツイートが表示されます。<br>
+※設定が必要です。
+</div>
+HTML
+

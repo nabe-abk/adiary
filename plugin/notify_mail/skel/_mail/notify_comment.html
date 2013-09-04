@@ -1,0 +1,24 @@
+<@20>
+<@local(s,h,form,art)>
+<$s = v.load_plgset(argv#0)>
+<$form = argv#1>
+<$art  = argv#2>
+<$host = ENV.HTTP_HOST || ENV.SERVER_NAME>
+<$from = v.system_email || s.from || if(index(host,'.')>0, "noreply@<@host>", '')>
+<$ifbreak(s.to eq '')>
+<@>
+<@>新着コメントメール
+<@>
+<$h = new>
+<$h.to        = s.to>
+<$h.from      = from>
+<$ifset(from, h.reply_to, from)>
+<$h.from_name = Server_name>
+<$h.subject   = if(s.subject ne '', s.subject, 'blog notify')>
+<$h.text      = begin_string>
+『<@v.blog.blog_name>』に新着のコメントがあります。
+from <@form.name>
+<@form.comment_txt>
+<$end>
+<$m = loadpm('Base::Mail')>
+<$r = m.send_mail(h)>

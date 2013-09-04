@@ -1,0 +1,85 @@
+<@20>
+<@local(h,id)>
+<$ifbreak(csrf_check())>
+<$ifbreak(! Auth.isadmin)>
+
+<$h = validator(begin_hash, Form)>
+	_order=0
+
+	VERSION = データVersion
+	VERSION:type = num
+	VERSION:min = 2.90
+
+	ping_servers_txt = Pingサーバーの設定
+	ping_servers_txt:filter0 = tag
+	ping_servers_txt:filter1 = trim
+
+	http_timeout = 更新通知/TBのタイムアウト
+	http_timeout:type = int
+	http_timeout:default = 3
+	http_timeout:min = 1
+	http_timeout:max = 60
+
+	reload_time = リロードタイム
+	reload_time:type = int
+	reload_time:default = 3
+	reload_time:min = 0
+	reload_time:max = 60
+
+	blogs_allow = ブログ一覧の表示範囲
+	blogs_allow:enum = ,users,admin
+	create_blog_only_admin = flag
+
+	dir_postfix_len = 公開ディレクト付加文字列長
+	dir_postfix_len:type = int
+	dir_postfix_len:default = 6
+	dir_postfix_len:min = 2
+	dir_postfix_len:max = 32
+
+	clip_append = 文末省略時の付加文字列
+	clip_append:default   = ...
+	clip_append:max_chars = 20
+	clip_append:filter0 = trim
+	clip_append:filter1 = tag
+
+	phone_proxy = 携帯HTML変換サイト
+	phone_proxy:protocol = http, https
+	phone_proxy:filter0 = url
+	phone_sjis = flag
+<$end>
+<$id = if(v.subdomain_mode, '', Form.default_blogid)>
+<$ifform_error( id ne '' && !v.find_blog(id), 'default_blogid', "指定のブログが見つかりません" )>
+<$ifbreak(form_error())>
+
+<$h.default_blogid = id>
+
+<$old_d_blogid = v.sys.default_blogid>
+<$new_d_blogid = id>
+
+<@> 設定更新
+<$v.update_sysdat(h)>
+
+<@> デフォルトblogidの設定値が異なっていたら再構築
+<$ifexec(old_d_blogid ne new_d_blogid && !v.subdomain_mode, begin)>
+	<$blogid_bak = v.blogid>
+	<$ifexec(old_d_blogid ne '', begin)>
+		<$v.set_and_select_blog( old_d_blogid )>
+		<$v.rebuild_blog( )>
+	<$end>
+	<$ifexec(new_d_blogid ne '', begin)>
+		<$v.set_and_select_blog( new_d_blogid )>
+		<$v.rebuild_blog( )>
+	<$end>
+	<$v.set_and_select_blog( blogid_bak )>
+<$end>
+
+<$action_return = 0>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("設定を保存しました")>
+	<$url = v.myself .'?'. v.query0>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+

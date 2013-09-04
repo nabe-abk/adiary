@@ -1,0 +1,34 @@
+<@20>
+<@local(tw,r,s)>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.blog_admin)>
+
+<$verifier = Form.oauth_verifier>
+<$replace(verifier, '\W', '')>
+<$ifexec(verifier eq '', begin)>
+	<$message('暗証番号が入力されていません。')>
+	<$break()>
+<$end>
+
+<$tw = call('_sub/load_twitter_info')>
+<$oauth = loadpm("Base::OAuth")>
+<$tw.verifier = verifier>
+
+<$r = oauth.request_access_token(tw)>
+<$ifexec(!r || r.oauth_token eq '', begin)>
+	<$message('twitterが認証エラーを返しました。再度やり直してください。')>
+	<$jump_clear('_sub/reload_message', v.myself . "?<@v.skel_dir>twitter" )>
+<$end>
+
+<$s = v.blog>
+<$s.tw_oauth_token = undef>
+<$s.tw_oauth_token_secret = undef>
+<$s.tw_access_token = r.oauth_token>
+<$s.tw_access_token_secret = r.oauth_token_secret>
+<$s.tw_screen_name = r.screen_name>
+<$ifset(s.tw_ping_title eq '', s.tw_ping_title, 'ブログ更新「%t」 %u')>
+
+<$v.update_blogset(s)>
+
+<$message('認証と登録が完了しました。')>
+<$jump_clear('_sub/reload_message', v.myself . "?<@v.skel_dir>twitter" )>
