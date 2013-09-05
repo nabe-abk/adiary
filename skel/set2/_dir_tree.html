@@ -10,8 +10,6 @@
   <@if(v.skel_name eq 'tag_edit','<span class="select">タグの編集</span>', #'<a href="<@v.myself>?<@v.skel_dir>tag_edit">タグの編集</a>')>, 
   <@if(v.skel_name eq 'contents_edit','<span class="select">wikiツリー</span>', #'<a href="<@v.myself>?<@v.skel_dir>contents_edit">wikiツリー</a>')>, 
   <@if(v.skel_name eq 'usertag','<span class="select">記法タグ</span>', #'<a href="<@v.myself>?<@v.skel_dir>usertag">記法タグ</a>')>, 
-  <@if(v.skel_name eq 'usercss','<span class="select">ユーザーCSS</span>', #'<a href="<@v.myself>?<@v.skel_dir>usercss">ユーザーCSS</a>')>, 
-  <@if(v.skel_name eq 'mail',   '<span class="select">メール設定</span>', #'<a href="<@v.myself>?<@v.skel_dir>mail">メール設定</a>')><@if(v.blog_admin,', ')>
 <@ifexec(v.blog_admin, begin)>
   <@if(v.skel_name eq 'twitter','<span class="select">Twitter設定</span>',    #'<a href="<@v.myself>?<@v.skel_dir>twitter">Twitter設定</a>')>, 
   <@if(v.skel_name eq 'plugin' ,'<span class="select">プラグイン設定</span>', #'<a href="<@v.myself>?<@v.skel_dir>plugin">プラグイン設定</a>')>

@@ -12,7 +12,7 @@ $( function(){
 
 	var select_node;
 	var dels = [];
-	var tag_priority_step = 10;
+	var contents_priority_step = 10;
 
 	var isMac = /Mac/.test(navigator.platform);
 //////////////////////////////////////////////////////////////////////////////
@@ -135,13 +135,13 @@ form.submit(function(){
 	div.empty();
 
 	// treeと順序の情報
-	var cnt=0;
+	var cnt=contents_priority_step;
 	function search_nodes(node, upnode) {
 		var ch = node.getChildren();
 		for(var i=0; i<ch.length; i++) {
 			var data = ch[i].data;
 			var val = data.key + ',' + upnode + ',' + cnt + ',' + data.link_key;
-			cnt += tag_priority_step;
+			cnt += contents_priority_step;
 			var inp = $('<input>').attr({
 				type: 'hidden',
 				name: 'contents_ary',

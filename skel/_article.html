@@ -69,7 +69,7 @@
 <h3>記事リスト</h3>
 <ul class="art-list art-children">
 <@forexec(t2, node.children, begin)>
-	<li><a href="<@v.myself2><@t2.elink_key>"><@t2.title></li>
+	<li><a href="<@v.myself2><@t2.elink_key>"><@t2.title></a></li>
 <$end>
 </ul>
 <$end>
@@ -77,7 +77,7 @@
 <h3>関連記事</h3>
 <ul class="art-list art-family">
 <@forexec(t2, load_from_ary(node.family, 5), begin)>
-	<li><a href="<@v.myself2><@t2.elink_key>"><@t2.title></li>
+	<li><a href="<@v.myself2><@t2.elink_key>"><@t2.title></a></li>
 <$end>
 </ul>
 <$end>

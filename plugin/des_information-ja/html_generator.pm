@@ -41,7 +41,7 @@ HTML
 	<li class="to-artlist to-comlist"><a href="<@v.myself>?artlist" target="_blank">記事一覧</a> / <a href="<@v.myself>?comlist" target="_blank">コメント一覧</a></li>
 HTML
 	$modules{'print-link'} = <<'HTML';
-	<li class="to-print"><a href="<@v.myself>?theme&amp;n=satsuki2/_print" rel="nofollow">印刷用の表示</a></li>
+	<li class="to-print"><a href="<@v.myself2><@esc(v.pinfo)>?theme&amp;n=satsuki2/_print" rel="nofollow">印刷用の表示</a></li>
 HTML
 	$modules{bcounter} = <<'HTML';
 	<li class="bcounter icons"><a class="bcounter" href="http://b.hatena.ne.jp/entrylist?url=<@v.server_url><@v.myself>"><img alt="はてブカウンタ" src="http://b.hatena.ne.jp/bc/<#val>/<@v.server_url><@v.myself>" class="bcounter"></a></li>

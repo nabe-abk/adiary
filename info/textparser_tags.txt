@@ -145,12 +145,11 @@ img#2      = 画像, image, 2, $1:$2
 img#2#link = 画像, image, 2, $1:$2
 
 # 標準アップローダ
-image       = 画像アルバム, image, 3,  ${image}$1/$2$3
-image#small = 画像アルバム, image, 3,  ${image}$1/$2.thumbnail/$3.jpg
-image#link  = 画像アルバム, image, 3,  ${image}$1/$2$3
+image       = 画像アルバム, image, 3,  ${image}$2$3
+image#small = 画像アルバム, image, 3,  ${image}$2.thumbnail/$3.jpg
+image#link  = 画像アルバム, image, 3,  ${image}$2$3
+file        = ファイル,     ASCII, 4,  ${image}$3$4
 
-file        = ファイル,     ASCII, 4,  ${image}$2/$3$4
-file:mp3    = mp3ファイル,  ASCII, 4, <a class="mp3player" href="${image}$1/$2$3">#4</a><br><module name="mp3player" file="${image}$1/$2$3" sb="${bc}" lb="${bc}">
 
 #------------------------------------------------------------------------------
 # その他

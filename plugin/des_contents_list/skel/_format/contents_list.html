@@ -20,16 +20,17 @@
 <$p = "\t" %x depth>
 <@p><ul id="sidecon<@num>-<@if(node.root,'root',node.pkey)>"<@if(!depth, ' class="hatena-section"')><@if(depth && nclose, ' style="display: none"')>>
 <@forexec(t, tree, begin.forexec)>
+<$ifset(substr(t.elink_key,0,2) eq './', t.elink_key, substr(t.elink_key,2))>
 <$ifnext(t.tstat & v.tstat_nomenu)>
 <@ifexec(t.children && depth<max_depth, begin, begin)>
 <@p>	<li> <@\>
 	<@if(sw, #'<span class="js-switch" data-save="1" data-target="#sidecon<@num>-<@t.pkey>">')> <@\>
-	<a href="<@if(t.ctype eq 'link', t.elink_key, "<@v.myself2><@t.elink_key>")>"><@t.title></a></span><@if(sw, '</span>')>
+	<a href="<@if(t.ctype eq 'link', t.elink_key, "<@v.myself2><@t.elink_key>")>"><@t.title></a><@if(sw, '</span>')>
 <@exec(sub, t, depth+1)>
 <@p>	</li>
 <$else>
 <@p>	<li> <@\>
-	<a href="<@if(t.ctype eq 'link', t.elink_key, "<@v.myself2><@t.elink_key>")>"><@t.title></a></span></li>
+	<a href="<@if(t.ctype eq 'link', t.elink_key, "<@v.myself2><@t.elink_key>")>"><@t.title></a></li>
 <$end>
 <$end.forexec>
 <@p></ul>

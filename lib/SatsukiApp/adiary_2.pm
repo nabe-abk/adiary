@@ -334,6 +334,8 @@ sub regist_article {
 		# 特殊文字除去		※ここを変更したら contents_edit も変更すること
 		if ($link_key =~ /^["',]/) {
 			$ROBJ->form_error('link_key', 'Can not use character "%s" in content key', '"\',');
+		} elsif ($link_key =~ m!((?:^|/)\.+/)!) {
+			$ROBJ->form_error('link_key', 'Can not use string "%s" in content key', "$1");
 		} elsif ($link_key =~ /^\s*$/) {
 			$ROBJ->form_error('link_key', 'Content key is empty');
 		} elsif ($link_key =~ m|^[\d&]|) {

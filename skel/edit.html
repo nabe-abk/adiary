@@ -149,7 +149,7 @@
 		<li><input type="checkbox" name="tw_ping" value="1"<@if(art.tw_ping, ' checked')>><label>Twitterに通知する</label></li>
 		<$end>
 	<$end>
-		<li><input type="checkbox" name="wiki" value="1" data-target="#wiki-block" class="js-switch"<@if(art.ctype, ' checked')>><label>wikiコンテンツにする</label>
+		<li><input type="checkbox" name="wiki" value="1" data-target="#wiki-block" class="js-switch"<@if(art.ctype || art.wiki, ' checked')>><label>wikiコンテンツにする</label>
 		<input type="hidden" name="priority" value="<@art.priority>">
 		<ul id="wiki-block" style="display: none">
 			<li>親ノード：<select name="upnode" id="upnode-select" data-default="<@art.upnode>" data-this-pkey="<@edit_pkey>" data-url="<@Basepath><@v.blogpub_dir>contents.json">

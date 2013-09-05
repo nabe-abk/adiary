@@ -1,5 +1,5 @@
 <@6>
-<@local(t,tags,name)>
+<@local(t,tags,name,parser)>
 
 <@>権限チェック
 <$ifredirect( !v.allow_edit, v.myself )>
@@ -8,7 +8,7 @@
 <$v.system_mode("記法タグの一覧")>
 
 <@> パーサーロード
-<$call( '_parser/default' )>
+<$parser = call( '_parser/default' )>
 
 <!--========================================================================-->
 <article class="system">
@@ -28,7 +28,7 @@
 	</tr>
 	</thead>
 	<tbody class="small">
-	<@forexec(t, v.parser.load_tags(0, 48), begin)>
+	<@forexec(t, parser.load_tags(0, 48), begin)>
 		<td class="mono"><@t.name></td>
 		<td class="mono"><@if(t.alias, join(' ', t.alias))></td>
 		<td><@t.title></td>
@@ -43,7 +43,7 @@
 
 	<table class="mono">
 	<tr><th>タグ</th><th>HTMLタグ</th><th>class</th><th>追加の属性</th>
-	<@forexec(t, v.parser.load_htmltags(), begin)>
+	<@forexec(t, parser.load_htmltags(), begin)>
 	<tr><td><@t.name></td><td><@t.html></td><td><@t.class></td><td><@t.attribute></td>
 	<$end>
 	</table>

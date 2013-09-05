@@ -1308,7 +1308,7 @@ sub load_tag_postprocessor {
 sub load_art_node {
 	my ($self, $pkey) = @_;
 	my $con = $self->load_arts_cache( $pkey );
-	my %c = %{ $con->{$pkey} };
+	my %c = %{ $con->{$pkey} || {} };
 	$c{prev} = $con->{ $c{prev} };
 	$c{next} = $con->{ $c{next} };
 	return \%c;
@@ -1338,7 +1338,7 @@ sub load_arts_postprocessor {
 sub load_content_node {
 	my ($self, $pkey) = @_;
 	my $con = $self->load_contents_cache();
-	my %c = %{ $con->{$pkey} };
+	my %c = %{ $con->{$pkey} || {} };
 	$c{upnode} = $con->{ $c{upnode} };
 	$c{prev}   = $con->{ $c{prev} };
 	$c{next}   = $con->{ $c{next} };
@@ -1542,8 +1542,10 @@ sub allow_blogs {
 #------------------------------------------------------------------------------
 sub link_key_encode {
 	my $self = shift;
-	foreach(@_) {	# ここを修正したら adiary.js も修正のところ
+	foreach(@_) {	# ここを修正したら adiary.js、contents_list.html も修正のこと
 		$_ =~ s/([^\w!\(\)\*\-\.\~\/:;=&])/'%' . unpack('H2',$1)/eg;
+		$_ =~ s|^/|.//|;
+		# myself2が / のとき //link_key となって http://link_key と解釈されるのを防ぐ
 	}
 	return $_[0];
 }

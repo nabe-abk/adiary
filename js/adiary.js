@@ -849,7 +849,7 @@ function tag_decode(text) {
 // link_keyのエンコード :: adiary.pmと同一の処理
 //////////////////////////////////////////////////////////////////////////////
 function link_key_encode(text) {
-	return text.replace(/[^\w!\(\)\*\-\.\~\/:;=&]+/g, function(data) {
+	return text.replace(/^\//, './/').replace(/[^\w!\(\)\*\-\.\~\/:;=&]+/g, function(data) {
 		return decodeURI(data).replace("'", '%27');
 	});
 }

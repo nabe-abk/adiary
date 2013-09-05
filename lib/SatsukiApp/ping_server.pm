@@ -1,13 +1,12 @@
 use strict;
 #-------------------------------------------------------------------------------
 # 更新通知Ping Server / XML-RPC for adiary only
-#						(C)2006 nabe / ABK project
+#						(C)2013 nabe / ABK project
 #-------------------------------------------------------------------------------
 # [UTF-8]
 package SatsukiApp::ping_server;
 #-------------------------------------------------------------------------------
-our $VERSION = '1.20';
-our $DAYBOOKLIST_TABLE = '_daybooklist';
+our $VERSION = '2.00';
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -15,15 +14,10 @@ our $DAYBOOKLIST_TABLE = '_daybooklist';
 # ●【コンストラクタ】
 #------------------------------------------------------------------------------
 sub new {
-	my ($class, $ROBJ) = @_;
-	my $self = {};
-	bless($self, $class);	# $self をこのクラスと関連付ける
-	$self->{ROBJ} = $ROBJ;	# root object save
+	my $self = bless({}, shift);
+	$self->{ROBJ} = shift;
 
-	# 初期設定
 	$self->{post_max_size} = 8192;
-	$ROBJ->{System_coding} = 'UTF-8';
-
 	return $self;
 }
 
@@ -105,30 +99,22 @@ sub update_adiaryDB {
 	$out = $ROBJ->chain_array( $out );
 	if ($self->{outputDB_charset}) {
 		my $jcode = $ROBJ->load_codepm();
-		$jcode->init();
 		$jcode->from_to(\$out, $ROBJ->{System_coding}, $self->{outputDB_charset});
 	}
 
 	my $DB = $self->{outputDB};
-	my $art_id = $self->{outputDB_art_id};
-	my $table = "${art_id}_diary";
+	my $blogid = $self->{outputDB_blogid};
+	my $table = "${blogid}_art";
 	# ブログの確認
 	if (! $DB->find_table($table)) {
-		return "Daybook '$art_id' not found.";	# Error
+		return "Blog '$blogid' not found.";	# Error
 	}
 	# update
-	my %h = (text => $out, _text => $out, update_tm => $ROBJ->{tm});
-	my $r = $DB->update_match($table, \%h, 'pkey', $self->{outputDB_art_pkey} );
+	my %h = (text => $out, _text => $out, update_tm => $ROBJ->{TM});
+	my $r = $DB->update_match($table, \%h, 'pkey', $self->{outputDB_apkey} );
 	if (! $r) {
-		return "diary update fail.";
+		return "Article update fail.";
 	}
-	# ブログ管理テーブルの更新
-	my $updates = {};
-	$updates->{timestamp} = $ROBJ->{Timestamp};
-	$updates->{all_tm}    = $ROBJ->{TM};
-	$updates->{id}        = $art_id;
-	### 失敗しても無視する
-	$DB->update_match($DAYBOOKLIST_TABLE, $updates, 'id', $art_id);
 
 	return 0;
 }
@@ -148,7 +134,6 @@ sub post_action {
 	# 旧Verのバグ。強制的に EUC-JP で送信する
 	if (0<$self->{adiary_version} && $self->{adiary_version}<1.44) {
 		my $jcode = $ROBJ->load_codepm();
-		$jcode->init();
 		$self->{message} = $jcode->from_to($self->{message}, $ROBJ->{System_coding}, 'EUC-JP');
 	}
 	return $r;
@@ -275,10 +260,10 @@ sub load_ping_list {
 	# DBからロード
 	#---------------------------------------------------
 	my %h;
-	$h{flag}          = {enable => 1};	# 表示可能なもののみ
-	$h{sort}          = 'update_tm';
+	$h{flag}      = {enable => 1};	# 表示可能なもののみ
+	$h{sort}      = 'update_tm';
 	$h{sort_rev}  = 1;			# 新しい順
-	$h{limit}         = int($loads);
+	$h{limit}     = int($loads);
 	return $DB->select("blogs", \%h);
 }
 

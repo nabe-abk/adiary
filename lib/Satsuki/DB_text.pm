@@ -462,6 +462,7 @@ sub load_index {
 		$random = $self->{"$table.rand"} = shift(@$lines);
 	} else {		# last modofied で代用
 		$random = $ROBJ->get_lastmodified($index);
+		shift(@$lines);	# index only flagを読み捨て
 	}
 	# 3行目 = シリアル値
 	$self->{"$table.serial"} = int(shift(@$lines));
