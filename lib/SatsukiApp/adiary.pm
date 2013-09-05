@@ -1542,10 +1542,12 @@ sub allow_blogs {
 #------------------------------------------------------------------------------
 sub link_key_encode {
 	my $self = shift;
+	my $fp = $self->{blog}->{frontpage};
 	foreach(@_) {	# ここを修正したら adiary.js、contents_list.html も修正のこと
+		if ($_ eq $fp) { $_=''; next; }
 		$_ =~ s/([^\w!\(\)\*\-\.\~\/:;=&])/'%' . unpack('H2',$1)/eg;
 		$_ =~ s|^/|.//|;
-		# myself2が / のとき //link_key となって http://link_key と解釈されるのを防ぐ
+		# myself2が / のとき //lkey となって http://lkey と解釈されるのを防ぐ
 	}
 	return $_[0];
 }

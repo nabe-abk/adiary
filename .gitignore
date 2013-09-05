@@ -27,7 +27,7 @@ plugin/*
 !plugin/.htaccess
 !plugin/README.txt
 !plugin/des_artlist
-!plugin/des_bloken-clock
+!plugin/des_broken-clock
 !plugin/des_comlist
 !plugin/des_calendar-ja
 !plugin/des_contents_list

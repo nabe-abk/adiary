@@ -5,6 +5,7 @@ use strict;
 #-------------------------------------------------------------------------------
 # [UTF-8]
 package SatsukiApp::ping_server;
+use Encode;
 #-------------------------------------------------------------------------------
 our $VERSION = '2.00';
 ###############################################################################
@@ -81,9 +82,7 @@ sub update_html {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $out;
-	$out = $ROBJ->call( $self->{output_skelton} );
-	$out = $ROBJ->chain_array( $out );
+	my $out = $ROBJ->call_and_chain( $self->{output_skelton} );
 	$ROBJ->fwrite_lines( $self->{output_file}, $out );
 	return 0;
 }
@@ -95,8 +94,7 @@ sub update_adiaryDB {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $out = $ROBJ->call( $self->{output_skelton} );
-	$out = $ROBJ->chain_array( $out );
+	my $out = $ROBJ->call_and_chain( $self->{output_skelton} );
 	if ($self->{outputDB_charset}) {
 		my $jcode = $ROBJ->load_codepm();
 		$jcode->from_to(\$out, $ROBJ->{System_coding}, $self->{outputDB_charset});
@@ -183,10 +181,10 @@ sub _post_action {
 	my $max_len = $self->{max_param_length} || 64;
 	my $url = $params[1];
 	$url = substr($url, 0, 128);
+	my $jcode = $ROBJ->load_codepm();
 	foreach(@params) {
-		utf8::decode($_);
-		if (length($_) > $max_len) {
-			$_ = substr($_, 0, $max_len) . '...';
+		if ($jcode->jlength($_) > $max_len) {
+			$_ = $jcode->jsubstr($_, 0, $max_len) . '...';
 		}
 	}
 	# ホスト名逆引き
@@ -229,7 +227,7 @@ sub _post_action {
 		$blog{regist_tm} = $ROBJ->{TM};
 		$r = $DB->insert("blogs", \%blog);
 	}
-	if (!$r) { $self->{message} = 'サーバエラー(-2)'; return -2; }
+	if (!$r) { $self->{message} = "サーバエラー(-2)"; return -2; }
 
 	#---------------------------------------------------
 	# 成功メッセージ
