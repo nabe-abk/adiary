@@ -1584,6 +1584,7 @@ sub load_jscss {
 #------------------------------------------------------------------------------
 sub check_editor {
 	my $self  = shift;
+	if (!$self->{allow_edit}) { return 0; }
 	# 管理者か制限かかってなければ許可
 	if ($self->{blog_admin} || !$self->{blog}->{edit_by_author_only}) {
 		return 1;

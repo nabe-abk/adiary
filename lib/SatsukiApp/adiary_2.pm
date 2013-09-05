@@ -1121,10 +1121,20 @@ sub load_contents_tree {
 	$self->update_blogset($blogid, 'frontpage', $fp);
 
 	# 前後リンクの生成
+	my @cons;
+	$self->tree2list(\@cons, $tree{0}->{children});
 	$self->contents_next_prev_link(\@arts);
-	$self->contents_next_prev_link(\@contents);
+	$self->contents_next_prev_link(\@cons);
 
 	return wantarray ? ($tree{0}, \@arts, $pkey_max) : $tree{0};
+}
+
+sub tree2list {
+	my ($self,$ary,$tree) = @_;
+	foreach(@$tree) {
+		push(@$ary, $_);
+		if ($_->{children}) { $self->tree2list($ary, $_->{children}); }
+	}
 }
 
 sub contents_next_prev_link {
