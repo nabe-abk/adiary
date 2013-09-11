@@ -2,10 +2,12 @@
 # RLimitMem 268435456
 
 # ModRewite設定。可能な限り使用してください。
+# ※一部の細工されたレンタルサーバでは mod_rewrite が正しく動かないことがあります。
+
 # RewriteEngine	On
 # RewriteBase	/your-web-install-path/
 # RewriteCond	%{REQUEST_FILENAME}	!-f
 # RewriteRule	^(.*)$			adiary.cgi/$1	[L]
 
 # 常にタイマーを表示
-# SetENV timer 1
+# SetENV SatsukiTimer 1

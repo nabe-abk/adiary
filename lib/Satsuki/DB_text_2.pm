@@ -4,6 +4,7 @@ use strict;
 #-------------------------------------------------------------------------------
 package Satsuki::DB_text;
 use Satsuki::DB_text ();
+use Fcntl ();
 
 our $filename_format;
 our %index_cache;
@@ -474,7 +475,7 @@ sub commit {
 
 		# write block に変更可能ならば変更する
 		# Non blocking。Windowsでは失敗する。
-		$ROBJ->flock($self->{"$table.lock"}, Fcntl::LOCK_EX | Fcntl::LOCK_NB);
+		$ROBJ->write_lock_nb($self->{"$table.lock"});
 		$self->save_index($table);
 
 		# トランザクションlock を解く

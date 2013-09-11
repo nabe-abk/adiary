@@ -12,7 +12,6 @@ use strict;
 package Satsuki::DB_text;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
-use Fcntl ();
 
 our $VERSION = '1.20';
 our $filename_format = "%05d";
@@ -426,7 +425,7 @@ sub load_index {
 				return $self->{"$table.tbl"};
 			}
 			# トランザクションは bakupfile を write_lock する
-			my $fh = $ROBJ->file_lock($dir . $self->{index_backup_file}, Fcntl::LOCK_EX | Fcntl::LOCK_NB );
+			my $fh = $ROBJ->file_lock($dir . $self->{index_backup_file}, 'write_lock_nb' );
 			if (!$fh) {
 				# 別のトランザクションが既に lock していたらエラー終了
 				# ※「開放待ち」はデッドロックの可能性があるので終了する

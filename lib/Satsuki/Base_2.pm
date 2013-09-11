@@ -584,15 +584,16 @@ sub tmpwatch {
 # ●ファイルに対するロック
 #------------------------------------------------------------------------------
 sub file_lock {
-	my ($self, $file, $mode) = @_;
+	my ($self, $file, $type) = @_;
 	my $file = $self->get_filepath($file);
 
 	my $fh;	# READ
-	if ( !sysopen($fh, $file, 0) ) {
+	if ( !sysopen($fh, $file, O_RDONLY) ) {
 		$self->error("File can't open (for %s) '%s'", 'lock', $file);
 		return undef;
 	}
-	my $r = $mode ? $self->flock($fh, $mode) : $self->write_lock($fh);
+	$type ||= 'write_lock';
+	my $r = $self->$type($fh);
 	if (!$r) { return $r; }
 	return $fh;
 }

@@ -105,6 +105,7 @@ hatena:f    = はてなフォトライフ
 hatena:f:id = >hatena:f
 graph       = はてなグラフ
 
+keyword         = はてなキーワード,     EUC-JP, http://d.hatena.ne.jp/keyword/
 search:keyword  = はてなキーワード検索, EUC-JP, http://search.hatena.ne.jp/keyword?word=
 search:question = はてな質問検索,       EUC-JP, http://search.hatena.ne.jp/questsearch?word=
 search:asin     = はてなASIN,           EUC-JP, http://search.hatena.ne.jp/asinsearch?word=

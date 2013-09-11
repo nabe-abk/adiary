@@ -30,6 +30,7 @@
 <$url = v.myself>
 <@>
 <@ifexec(ret.mode eq 'search', begin.search)>
+<$v.no_robots=1>
 <article class="system message search">
 <$url = if(ret.yyyymm, v.myself2 . ret.yyyymm, v.myself)>
 <$q .= if(ret.q, '&amp;q=' . ret.q, '')>

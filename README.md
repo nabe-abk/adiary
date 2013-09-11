@@ -38,22 +38,17 @@ WTFPL（PDS扱い）だと助かります。
 
 # 利用著作物
 
-  * pub-dist/editor-icon 以下の記法ヘルパーアイコンはせりか氏の著作物です。
-  * pub-dist/icon/ 以下にあるアイコンの一部はせりか氏の著作物です。
-
-せりか氏著作物のライセンスは、adiaryのライセンスの準じます。
-
-## JavaScript
+## JavaScript（及び画像）
 
 以下の公開ライブラリをライセンスに基づき使用しています。
 
-  * jQuery
-    * jQuery UI
-    * dynatree
-    * Color Picker
-  * SyntaxHighlighter
-  * respond.js
-  * IE9.js
+  * jQuery (MIT)
+    * jQuery UI (MIT / GPLv2)
+    * dynatree  (MIT)
+    * Color Picker (MIT / GPL)
+  * SyntaxHighlighter (LGPL3)
+  * respond.js (MIT / GPL2)
+  * IE9.js (MIT)
 
 ## プラグインとテーマ
 
@@ -64,12 +59,11 @@ WTFPL（PDS扱い）だと助かります。
 
 ## 画像アイコン
 
-pub-dist/icon/tp*.gif に該当するファイルはライセンスに基づき同梱再配布しています。
+  * pub-dist/editor-icon 以下の記法ヘルパーアイコンはせりか氏の著作物です。
+  * pub-dist/icon/ 以下にあるアイコンの一部はせりか氏の著作物です。
+  * pub-dist/icon/tp*.gif に該当するファイルはSix Apartの著作物です。
+    > TypePad 絵文字アイコン画像 by Six Apart Ltd is licensed under a Creative Commons 表示 2.1 日本 License.
+    > Permissions beyond the scope of this license may be available at http://start.typepad.jp/typecast/.
+  * pub-dist/mahjong/ 以下のファイルは「まつセン　牌画」を利用自由のライセンスに基づき同梱しています。
 
-【著作権表示】
-TypePad 絵文字アイコン画像 by Six Apart Ltd is licensed under a Creative Commons 表示 2.1 日本 License.
-Permissions beyond the scope of this license may be available at http://start.typepad.jp/typecast/.
-
-## 麻雀記法アイコン
-
-pub-dist/mahjong/ 以下のファイルは「まつセン　牌画」をライセンスに基づき同梱再配布しています。
+せりか氏著作物のライセンスは、adiaryのライセンスの準じます。

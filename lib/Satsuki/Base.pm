@@ -1040,15 +1040,19 @@ sub parse_hash {
 #------------------------------------------------------------------------------
 sub read_lock {
 	my ($self, $fh) = @_;
-	$self->flock($fh, Fcntl::LOCK_SH);
+	$self->flock($fh, Fcntl::LOCK_SH() );
 }
 sub write_lock {
 	my ($self, $fh) = @_;
-	$self->flock($fh, Fcntl::LOCK_EX);
+	$self->flock($fh, Fcntl::LOCK_EX() );
+}
+sub write_lock_nb {
+	my ($self, $fh) = @_;
+	$self->flock($fh, Fcntl::LOCK_EX() || Fcntl::LOCK_NB() );
 }
 sub unlock {
 	my ($self, $fh) = @_;
-	$self->flock($fh, Fcntl::LOCK_UN);
+	$self->flock($fh, Fcntl::LOCK_UN() );
 }
 sub flock {
 	my ($self, $fh, $mode) = @_;

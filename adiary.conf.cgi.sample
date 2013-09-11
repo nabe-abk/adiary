@@ -59,7 +59,7 @@
 # すべてのユーザーで trust_mode にする
 #<$v.trust_mode = 1>
 # 管理者権限を持つユーザーのみ trust_mode にする（上は有効にしないこと）
-#<$v.admin_trust_mode = 1>
+<$v.admin_trust_mode = 1>
 
 # ●サブドメインモードに設定し、ドメイン部を指定
 #<$v.subdomain_mode   = 'blog.abk.nu'>
@@ -157,9 +157,10 @@
 <$v.system_config_file  = "<@data_dir>system_config.dat">
 <$v.default_config_file = "<@info_dir>default_config.dat">
 
-<$v.default_usercss_file    = "<@info_dir>default_usercss.css">
-<$v.default_usertag_file    = "<@info_dir>default_usertag.txt">
-<$v.default_setting_file    = "<@info_dir>default_setting.dat">
+<$v.default_usercss_file = "<@info_dir>default_usercss.css">
+<$v.default_usertag_file = "<@info_dir>default_usertag.txt">
+<$v.default_setting_file = "<@info_dir>default_setting.dat">
+<$v.default_design_file  = "<@info_dir>default_design.dat">
 <$v.my_default_setting_file = "<@data_dir>default_setting.dat">
 
 #----------------------------------------------------------
