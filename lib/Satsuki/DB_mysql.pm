@@ -208,7 +208,10 @@ sub generate_select_where {
 		# 値が配列のとき
 		my $w = '?,' x ($#$v+1);
 		chop($w);
-		if ($w eq '') { next; }
+		if ($w eq '') { 
+			$where .= " AND false";
+			next;
+		}
 		$where .= " AND $k in ($w)";
 		push(@ary, @$v);
 	}

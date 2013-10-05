@@ -12,5 +12,6 @@
 <$h.sid = action_return>	セッションID
 <$expires = if(Form.keep_login, Auth.expires, undef)>
 
+<$clear_cookie('session')>
 <$set_cookie('session', h, expires)>
 <$redirect( v.thisurl . '?login_auth')>

@@ -1,8 +1,8 @@
 <@20> セッションファイルの中身をロード
-<$ifbreak(! v.blog_admin)>
+<$ifbreak(! Auth.ok)>
 
 <$v.frame_skeleton=''>
 <$set_content_type('text/plain')>
 
-<$sfile = loadapp("adiary::session_file", v)>
+<$sfile = loadpm("Base::SessionFile", Cookie.session.sid, Query.snum)>
 <@sfile.load()>

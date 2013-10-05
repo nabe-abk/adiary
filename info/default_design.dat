@@ -6,5 +6,6 @@ LIST
 
 *side_b=<<LIST
 des_comlist
+des_searchbox
 des_system-info
 LIST

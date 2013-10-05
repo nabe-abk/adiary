@@ -1,0 +1,10 @@
+<@20> セッションファイルを初期化
+<$ifbreak(csrf_check())>
+<$ifbreak(! Auth.ok)>
+
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+<$set_content_type('text/plain')>
+
+<$sfile = loadpm("Base::SessionFile", Cookie.session.sid)>
+<@"snum=" . sfile.init()>

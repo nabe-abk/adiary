@@ -1023,10 +1023,14 @@ PrefixStorage.prototype.clear = function(key) {
 function Load_DOMStorage(is_session) {
 	var storage;
 	// LocalStorage
-	if (typeof(localStorage) != "object" && typeof(globalStorage) == "object") {
-		storage = globalStorage[location.host];
-	} else {
-		storage = localStorage;
+	try{
+		if (typeof(localStorage) != "object" && typeof(globalStorage) == "object") {
+			storage = globalStorage[location.host];
+		} else {
+			storage = localStorage;
+		}
+	} catch(e) {
+		// Cookieが無効のとき
 	}
 	// 未定義のとき DOM Storage もどきをロード
 	if (!storage) {

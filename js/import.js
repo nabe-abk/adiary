@@ -49,11 +49,7 @@ if (!ajax) {
 // ●インポートボタン
 //////////////////////////////////////////////////////////////////////////////
 $('button.import').click( function(evt){
-	var btn  = $(evt.target);
-
-	var fd = new FormData( form[0] );
-	fd.append('type', btn.attr('name'));
-	if (btn.data('class')) fd.append('class', btn.data('class'));
+	var btn = $(evt.target);
 
 	if(! file.val() ) 	// ファイルが選択されてない
 		return show_error('#js-no-file');
@@ -62,8 +58,27 @@ $('button.import').click( function(evt){
 	init_progressbar();
 	log.show(500);
 
+	// セッション初期化
+	$.post( log.data('url'), {
+			action: log.data('init-action'),
+			csrf_check_key: $('#csrf-key').val()
+		}, function(data) {
+			var reg = data.match(/snum=(\d+)/);
+			if (reg) {
+				do_import( reg[1] );
+			}
+		}, 'text'
+	)
+
+// 実際のインポート処理
+function do_import( snum ) {
+	var fd = new FormData( form[0] );
+	fd.append('snum', snum);
+	fd.append('type', btn.attr('name'));
+	if (btn.data('class')) fd.append('class', btn.data('class'));
+
 	// 開始処理
-	import_start();
+	import_start( snum );
 
 	var url = form.attr('action');
 	$.ajax(url, {
@@ -90,13 +105,14 @@ $('button.import').click( function(evt){
 			return XHR;
 		}
 	});
+}
 });
 //////////////////////////////////////////////////////////////////////////////
 // ●インポート開始処理、終了処理
 //////////////////////////////////////////////////////////////////////////////
-function import_start() {
+function import_start( snum ) {
 	$('button.import').prop('disabled', true);
-	log_start();
+	log_start( snum );
 }
 
 function import_end() {
@@ -132,7 +148,8 @@ function xhr_progress(e) {
 // ●ログの管理
 //////////////////////////////////////////////////////////////////////////////
 var log_timer;
-function log_start() {
+function log_start( snum ) {
+	log.data('snum', snum);
 	log_timer = setInterval(log_load, interval);
 }
 function log_stop() {
@@ -144,7 +161,7 @@ function log_stop() {
 // ●ログ表示
 //////////////////////////////////////////////////////////////////////////////
 function log_load() {
-	var url = log.data('url');
+	var url = log.data('url') + '&snum=' + log.data('snum');
 	log.load(url, function(data){
 		log.scrollTop( log.prop('scrollHeight') );
 	});

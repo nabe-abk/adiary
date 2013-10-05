@@ -32,7 +32,7 @@
 	<form action="<@v.myself>?<@v.skeleton>" method="POST" enctype="multipart/form-data" id="import-form">
 	<div id="form-common">
 	<input type="hidden" name="action" value="<@v.skeleton>">
-	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>" id="csrf-key">
 	<input type="hidden" name="ajax" value="0" id="input-ajax">
 
 	<input type="file" name="file" id="file"><br>
@@ -49,7 +49,7 @@
 	</div>
 
 	<div id="progress"><span class="label"></span></div>
-	<textarea id="session-log" rows="10" class="w98p" style="display: none" data-url="<@v.myself>?etc/load_session" data-interval="300" readonly></textarea>
+	<textarea id="session-log" rows="10" class="w98p" style="display: none" data-url="<@v.myself>?etc/load_session" data-init-action="etc/init_session" data-interval="300" readonly></textarea>
 
 	<div class="jqueryui-accordion">
 	<@call_dir("<@v.skel_dir>_import/")>

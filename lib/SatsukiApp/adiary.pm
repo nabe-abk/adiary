@@ -7,9 +7,9 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = '2.91';
+our $VERSION = '2.912';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'beta1.1';
+our $SUBVERSION = 'beta1.2';
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
@@ -789,7 +789,7 @@ sub load_articles {
 	#---------------------------------------------------------------
 	# ●データのロード
 	#---------------------------------------------------------------
-	my $logs;
+	my $logs = [];
 	my $page = 1;
 	my $limit = $q{limit};
 	my $next_page;
@@ -847,18 +847,20 @@ sub load_articles {
 		$ret{page}  = $page;
 		$ret{pages} = int(($hits+$limit-1)/$limit);
 		$ret{hits}  = $hits;
-
-		my @pkeys;
-		for(my $i=0; $i<$limit; $i++) {
-			my $pkey = $all->[$offset+$i]->{pkey} || next;
-			push(@pkeys, $pkey);
-		}
-		$logs = $DB->select("${blogid}_art", {
-			match => { pkey => \@pkeys },
-			sort     => $q{sort},
-			sort_rev => $q{sort_rev}
-		});
 		$ret{next_page} = ($ret{pages} > $page);
+
+		if ($hits) {
+			my @pkeys;
+			for(my $i=0; $i<$limit; $i++) {
+				my $pkey = $all->[$offset+$i]->{pkey} || next;
+				push(@pkeys, $pkey);
+			}
+			$logs = $DB->select("${blogid}_art", {
+				match => { pkey => \@pkeys },
+				sort     => $q{sort},
+				sort_rev => $q{sort_rev}
+			});
+		}
 
 	} else {
 		if ($opt->{pagemode} && $ret{pagemode}) {

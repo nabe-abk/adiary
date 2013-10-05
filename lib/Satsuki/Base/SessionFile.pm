@@ -3,8 +3,8 @@ use strict;
 # セッションファイル管理用モジュール
 #						(C)2013 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
-package SatsukiApp::adiary::session_file;
-our $VERSION = '1.00';
+package Satsuki::Base::SessionFile;
+our $VERSION = '1.10';
 #------------------------------------------------------------------------------
 use Fcntl;	# for sysopen
 ###############################################################################
@@ -15,9 +15,9 @@ use Fcntl;	# for sysopen
 #------------------------------------------------------------------------------
 sub new {
 	my $self = bless({}, shift);
-	$self->{ROBJ} = shift;
-	$self->{aobj} = shift;
-	if (!$self->{aobj}) { die "[session_file] few arguments"; }
+	my $ROBJ = $self->{ROBJ} = shift;
+	$self->{sid_base}   = shift or die "Invalid sid";
+	$self->{sid_number} = int(shift) || 0;
 	return $self;
 }
 
@@ -33,20 +33,37 @@ sub DESTROY {
 # ■メインルーチン
 ###############################################################################
 #------------------------------------------------------------------------------
+# ●sessionファイルの初期化
+#------------------------------------------------------------------------------
+sub init {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my ($fh, $i);
+	for($i=1; $i<10000; $i++) {
+		my $file = $self->get_filename($i);
+		sysopen($fh, $file, O_CREAT | O_WRONLY | O_EXCL) or next;
+		close($fh);
+		last;
+	}
+	if ($i>=10000) { return; }
+	return $i;	# 成功
+}
+
+#------------------------------------------------------------------------------
 # ●sessionファイル名の生成
 #------------------------------------------------------------------------------
 sub get_filename {
 	my $self = shift;
-	my $aobj = $self->{aobj};
+	my $num  = shift || $self->{sid_number};
 	my $ROBJ = $self->{ROBJ};
-	if (! $aobj->{blog_admin} ) { return ; }
 
-	my $sid  = $ROBJ->{Cookie}->{session}->{sid};
+	my $sid = $self->{sid_base};
 	if ($sid eq '') { return; }
-
 	$sid =~ s/\W/_/g;
+
 	my $dir = $ROBJ->get_tmpdir();
-	return "$dir$aobj->{blogid}-$sid.session";
+	return "$dir$sid-$num.session";
 }
 
 #------------------------------------------------------------------------------
@@ -56,7 +73,7 @@ sub open {
 	my $self = shift;
 	my $file = $self->get_filename() || return;
 	my $fh;
-	sysopen($fh, $file, Fcntl::O_CREAT | Fcntl::O_WRONLY | Fcntl::O_TRUNC);
+	sysopen($fh, $file, O_CREAT | O_WRONLY | O_TRUNC);
 	$self->{fh} = $fh;
 	return $fh;
 }
@@ -119,6 +136,6 @@ sub load {
 	my $self = shift;
 	my $file = $self->get_filename() || return;
 	my $ROBJ = $self->{ROBJ};
-	return $ROBJ->fread_lines($file);
+	return $ROBJ->fread_lines($file, {NoError => 1});
 }
 

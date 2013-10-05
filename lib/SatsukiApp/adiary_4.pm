@@ -136,6 +136,7 @@ sub rebuild_blog {
 		# パース準備
 		$self->post_process_link_key( $_ );
 		$parser->{thisurl}  = $self->get_blog_path( $blogid ) . $_->{elink_key};
+		$parser->{thispkey} = $_->{pkey};
 		my ($text, $text_s) = $parser->text_parser( $_->{_text} );
 		if ($text eq $text_s) { $text_s=""; }
 
@@ -380,7 +381,7 @@ sub art_import {
 	# セッション開始
 	#-------------------------------------------------------------
 	# セッションファイルのオープン
-	my $session = $ROBJ->loadapp("adiary::session_file", $self);
+	my $session = $ROBJ->loadpm("Base::SessionFile", $ROBJ->{Cookie}->{session}->{sid}, $form->{snum});
 	$session->open();
 	$session->autoflush();
 

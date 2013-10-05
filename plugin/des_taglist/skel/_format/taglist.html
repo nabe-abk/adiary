@@ -17,7 +17,7 @@
 <$p = "\t" %x depth>
 <@p><ul id="sidetag-<@if(node.root,'root',node.pkey)>"<@if(node.root, ' class="hatena-section"')><@if(!node.root && nclose, ' style="display: none"')>>
 <@forexec(t, tree, begin.forexec)>
-<$ifnext(t.tstat & v.tstat_nomenu)>
+<$ifnext(!ps.disp_noart_tag && !t.qtall)>
 <@ifexec(t.children, begin, begin)>
 <$tid="sidetag-<@t.pkey>">
 <@p>	<li> <@\>
