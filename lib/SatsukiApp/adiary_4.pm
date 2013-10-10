@@ -116,7 +116,7 @@ sub rebuild_blog {
 	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
 
 	my $blogid = $self->{blogid};
-	my $arts = $DB->select_match("${blogid}_art", '*cols', ['pkey', '_text', 'parser', 'yyyymmdd', 'tm']);
+	my $arts = $DB->select_match("${blogid}_art", '*cols', ['pkey', '_text', 'parser', 'yyyymmdd', 'tm', 'link_key']);
 
 	my $r=0;
 	my %update;
