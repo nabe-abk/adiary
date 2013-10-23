@@ -657,7 +657,7 @@ sub load_articles {
 			}
 			$ret{yyyymm} = $mode;
 			$ret{year} = $1;
-			$ret{month}= $2;
+			$ret{mon}  = $2;
 
 			if ($2) {
 				$q{min} = {yyyymmdd => "$1${2}01"};
