@@ -67,7 +67,7 @@ sub export {
 	#---------------------------------------------------------------------
 	# 静的出力向けスケルトンと初期化処理
 	#---------------------------------------------------------------------
-	$ROBJ->regist_skeleton($aobj->{theme_dir} . '_static/skel/', 999);
+	$ROBJ->regist_skeleton($aobj->{theme_dir} . '_static/_skel/', 999);
 	$ROBJ->call('_static_init', $session, $option);
 
 	# 記事データ加工のオプション
