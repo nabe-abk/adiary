@@ -20,6 +20,7 @@ pub/*
 #--------------------------------------
 # local users directory
 #--------------------------------------
+static/*
 skel.local/*
 !skel.local/.htaccess
 !skel.local/README.txt
