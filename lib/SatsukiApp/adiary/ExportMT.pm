@@ -1,7 +1,7 @@
 use strict;
 #------------------------------------------------------------------------------
 # データエクスポート for Movable Type
-#                                                   (C)2006 nabe / nabe@abk.nu
+#                                                   (C)2013 nabe / nabe@abk
 #------------------------------------------------------------------------------
 package SatsukiApp::adiary::ExportMT;
 use Time::Local;

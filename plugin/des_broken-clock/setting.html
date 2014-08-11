@@ -17,9 +17,9 @@
 	</td></tr>
 
 	<tr><td>表示するもの</td><td>
-		<input type="checkbox" name="hourhand" <@if(s.hourhand, 'checked="checked"')>> <label>時</label></br>
-		<input type="checkbox" name="minhand"  <@if(s.minhand,  'checked="checked"')>> <label>分</label></br>
-		<input type="checkbox" name="sechand"  <@if(s.sechand,  'checked="checked"')>> <label>秒</label></br>
+		<input type="checkbox" name="hourhand" <@if(s.hourhand || s.clocktype eq '', 'checked="checked"')>> <label>時</label></br>
+		<input type="checkbox" name="minhand"  <@if(s.minhand  || s.clocktype eq '', 'checked="checked"')>> <label>分</label></br>
+		<input type="checkbox" name="sechand"  <@if(s.sechand  || s.clocktype eq '', 'checked="checked"')>> <label>秒</label></br>
 	</td></tr>
 	</tbody>
 	</table>

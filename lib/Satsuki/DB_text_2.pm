@@ -475,7 +475,9 @@ sub commit {
 
 		# write block に変更可能ならば変更する
 		# Non blocking。Windowsでは失敗する。
-		$ROBJ->write_lock_nb($self->{"$table.lock"});
+		if (! $ROBJ->{Is_windows}) {
+			$ROBJ->write_lock($self->{"$table.lock"});
+		}
 		$self->save_index($table);
 
 		# トランザクションlock を解く

@@ -355,10 +355,16 @@ sub save_usercss {
 	my $auth = $ROBJ->{Auth};
 	if (! $self->{allow_edit}) { $ROBJ->message('Operation not permitted'); return 5; }
 
+	my $file = $self->{blogpub_dir} . 'usercss.css';
+	if ($css_txt =~ /^\s*$/) {
+		$ROBJ->file_delete( $file );
+		return 0;
+	}
+
 	# XSS対策チェック
 	if (! $self->{trust_mode}) { $css_txt = $self->css_escape( \$css_txt ); }
 
-	my $r = $ROBJ->fwrite_lines( $self->{blogpub_dir} . 'usercss.css', $css_txt );
+	my $r = $ROBJ->fwrite_lines( $file, $css_txt );
 	if ($r) {
 		$ROBJ->message('Save failed');
 		return 1;

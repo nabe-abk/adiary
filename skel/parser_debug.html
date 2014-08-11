@@ -16,7 +16,7 @@
 <$ifexec(v.blogid && !t, begin)>
 	<$message("該当する記事がありません")>
 <$end>
-<$ifjump_clear(!t || Message, "_sub/error_message_404")>
+<$ifjump_clear(!t || @Message, "_sub/error_message_404")>
 
 <!--========================================================================-->
 <$permalink = "<@v.myself2><@t.elink_key>">

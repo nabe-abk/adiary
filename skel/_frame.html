@@ -1,5 +1,6 @@
 <@6>
 <@local(s,ps,tm,bpath)>
+<$inframe = argv#0>
 <@>
 <$ifset(v.title eq '', v.title, 'adiary')>
 <$tm=get_lastmodified(v.script_dir)>
@@ -29,7 +30,7 @@
 <!-- JavaScript ============================================-->
 <!--[if lt IE 9]>
 <script src="<@Basepath><@v.script_dir>jquery-1.min.js"></script>
-<script src="<@Basepath><@v.script_dir>IE9-2.1b4.js"></script>
+<script src="<@Basepath><@v.script_dir>IE9.js"></script>
 <script src="<@Basepath><@v.script_dir>respond.min.js"></script>
 <![endif]-->
 <!--[if gte IE 9]><!-->
@@ -87,12 +88,12 @@
 <!--内容====================================================================-->
 <div class="main">
 
-<@v.inframe>
+<@inframe>
 
 <footer id="footer"><!--フッタ-->
 <@if(s.user_footer, "<@s.user_footer><br>")>
 <span class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></span>
-<!-- Blog system "adiary" Copyright (C)2006-2013 nabe@abk.
+<!-- Blog system "adiary" Copyright (C)2006-2014 nabe@abk.
      This system is licensed under AGPLv3 or later.-->
 </footer>
 </div> <!-- End of main -->

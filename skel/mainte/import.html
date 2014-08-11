@@ -49,7 +49,7 @@
 	</div>
 
 	<div id="progress"><span class="label"></span></div>
-	<textarea id="session-log" rows="10" class="w98p" style="display: none" data-url="<@v.myself>?etc/load_session" data-init-action="etc/init_session" data-interval="300" readonly></textarea>
+	<textarea id="session-log" rows="10" class="w98p" style="display: none" data-myself="<@v.myself>" data-interval="300" readonly></textarea>
 
 	<div class="jqueryui-accordion">
 	<@call_dir("<@v.skel_dir>_import/")>
@@ -61,6 +61,5 @@
 
 <div style="display: none">
 <span id="js-no-file">ファイルが選択されていません。</span>
-
 </div>
 

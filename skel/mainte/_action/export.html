@@ -5,11 +5,16 @@
 <@> exporter を呼び出し
 <$action_return = v.art_export( Form )>
 
+静的出力などの特殊出力
+<$ifbreak(ajax_return ne '')>
+
 export失敗時の処理
 <$ifexec(action_return ne '0', begin)>
 	<$message('エクスポートに失敗しました')>
 	<$break()>
 <$end>
+
+
 
 export成功時の処理
 <$v.frame_skeleton=''>

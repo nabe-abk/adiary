@@ -46,7 +46,7 @@
 <$end>
 
 <@> エラーなら表示して終了
-<$ifjump_clear(Message, '_sub/error_message', undef, 'ブラウザの戻るボタンで戻ってください')>
+<$ifjump_clear(@Message, '_sub/error_message', undef, 'ブラウザの戻るボタンで戻ってください')>
 
 <@> 他人のブログ？
 <#@call('_sub/others_blog_check')>

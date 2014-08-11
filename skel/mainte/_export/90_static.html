@@ -3,104 +3,50 @@
 <@> HTML形式
 <@>
 <$ifbreak(! v.static_output_dir)>
-<$logs   = argv#0>
-<$option = argv#1>
-<$s = v.blog>
+<$logs = argv#0>
+<$opt  = argv#1>
 <@ifexec(! logs, begin)>
 <h3 id="static">静的出力</h3>
 <div>
-	<strong class="error">これは古いままのソースです。まだ使用できません！！</strong>
-
-	<p><a href="<@v.static_output_dir>"><@v.static_output_dir></a> に<strong>HTML化して</strong>出力します。</p>
+	<p>コンテンツ記事を <a href="<@Basepath><@v.static_output_dir>"><@v.static_output_dir></a> に<strong>HTML化して</strong>出力します。</p>
 
 	<ul class="none">
-		<li><input type="checkbox" name="static_clear" value="1">出力ディレクトリ内のHTMLファイルをすべて消す</li>
-		<li><input type="checkbox" name="static_nodisp_com" value="1" checked>コメント欄を表示しない</li>
-		<li><input type="checkbox" name="static_nodisp_header" value="1" checked>ログインヘッダを表示しない</li>
-		<li><input type="checkbox" name="static_usercss" value="1">theme/user.css を呼び出すように埋め込む</li>
-		<@if(s.gaid, begin_array)>
-		<li><input type="checkbox" name="static_ga" value="1">Google Analyticsを埋め込む</li>
+		<li><input type="checkbox" name="static:clear" value="1"><label>出力ディレクトリ内を初期化する</label></li>
+		<li><input type="checkbox" name="static:nocom" value="1" checked><label>コメント欄を表示しない</label></li>
+		<li><input type="checkbox" name="static:usercss" value="1"><label>ユーザーCSSを使用する</label></li>
+		<@if(v.blog.gaid, begin_array)>
+		<li><input type="checkbox" name="static:gaid" value="1"><label>Google Analyticsを埋め込む</label></li>
 		<$end>
 	</ul>
 
-	<p>※ほぼ問題なく変換しますが、一部リンク書き換え等が完全ではありません。</p>
+	<p>※一部リンク書き換え等が完全ではありません。</p>
 
-	<button type="button" name="static" class="export">HYML化して出力</button>
+	<button type="button" name="type" value="90_static" data-class="static" id="static-export" class="export">HTML化して出力</button><br>
+
+	<textarea id="session-log" rows="10" class="w98p" style="display: none" data-myself="<@v.myself>" data-interval="300" readonly></textarea>
 </div>
+
+
+<div style="display:none"><script>
+adiary_ajax($('#static-export'), {
+	myself: $('#session-log').data('myself'),
+	load_formdata: function(btn) {
+		var fd = $('#export-form').serialize();
+		fd += '&' + $.param({
+			type: btn.val(),
+			article_type: 'wiki',
+			enable_only: 1,
+			class: btn.data('class')
+		});
+		return fd;
+	}
+});
+</script></div>
 <$break()>
 <$end>
 <@>-----------------------------------------------------------------------------
-<@> 静的HTML出力
+<@> 静的HTML出力 exporter
 <@>-----------------------------------------------------------------------------
-<$print_header( "Cache-Control", 'no-cache' )>
-<$print_content_type("text/html", System_coding)>
-
-<$output_array( exec(begin.print) )>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"<@if(!v.compatible_mode && !Is_IE, ' "http://www.w3.org/TR/html4/loose.dtd"')>>
-<$s = set = v.daybook_setting>
-<$ifset(v.title eq '', v.title, 'adiary')>
-<html lang="ja">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=<@System_coding>">
-<meta http-equiv="Content-Language" content="ja-jp">
-<meta http-equiv="Content-Style-Type" content="text/css">
-<meta name="generator" content="adiary <@v.VERSION>">
-<link type="text/css" rel="stylesheet" media="all" href="<@Basepath><@v.template_dir)><@v.theme>/<@v.theme>.css" id="theme" title="Default">
-<@ifexec(v.usercss && !v.system_mode, begin)>
-<link type="text/css" rel="stylesheet" media="all" href="<@v.usercss>" title="Default">
-<$end>
-<meta http-equiv="Content-Script-Type" content="text/javascript"> 
-<script type="text/javascript" src="<@Basepath><@v.theme_dir>adiary.js"></script>
-<@v.add_header>
-	<title><@v.header_title_add><@v.title></title>
-</head>
-<body<@v.onload> class="<@Agent_class><@if(v.system_mode, ' system')>">
-
-<!--ヘッダ部================================================================-->
-<div class="adminmenu" id="simple-header">
-	<span class="welcome"><a href="<@if(v.subdomain_mode , "http://<@v.subdomain_mode>/" ,Myself)>" class="welcome-prefix"><span class="welcome-prefix">ようこそ</span></a><span class="welcome-name"><a<@if(v.exsits_my_daybook, " href=<@v.myself3>", ' class="guest"')>><@Auth.name></a></span><span class="welcome-postfix">さん</span></span> 
-	<span class="admin-links">
-	<@ifexec(v.allow_edit, begin)>
-		<span class="adminmenu"><a class="diary-write" href="<@v.myself>?diary_edit" title="記事を書く"><span>記事を書く</span></a></span>
-	<$end>
-	<@ifexec(Auth.ok, begin, begin)>
-		<span class="adminmenu"><a class="diary-admin" href="<@v.myself>?menu" title="管理"><span>管理</span></a><@if(v.allow_edit && s.newcome_flag, #'<a href="<@v.myself>?menu#newcome" class="newcome-mark"><span>♪</span></a>')></span>
-		<span class="adminmenu"><a class="logout" href="<@Myself2><@v.path_info>?logout" title="ログアウト"><span>ログアウト</span></a></span>
-	<$else>
-		<span class="adminmenu"><a class="login" href="<@Myself2><@v.path_info>?login" title="ログイン"><span>ログイン</span></a></span>
-	<$end></span>
-</div> <!-- end of header -->
-
-<!--タイトル部==============================================================-->
-<div class="page-title">
-<@ifexec(v.diary_id, begin, begin)>
-<h1><@if(! v.system_mode && s.blog_image, #'<a href="<@v.myself>"><img src="<@s.blog_image>" alt="<@v.title>"></a>', #'<a href="<@v.myself>"><@v.title></a>')></h1>
-<$else>
-<h1><@if(v.title_h1, v.title_h1, v.title)></h1>
-<$end>
-</div>
-<!--Start of body ==========================================================-->
-<div class="hetane-body-top"></div>
-<div class="hatena-body">
-
-<p>出力dir : <span class="mono"><a href="<@Myself2><@v.static_output_dir>"><@v.static_output_dir></a></span></p>
-<$end.print>
-
-
-<@>-----------------------------------------------------------------------------
-<@> 静的HTML出力
-<@>-----------------------------------------------------------------------------
-<@>エラー対策
-<$v.action_is_main=1>
-<$v.frame_skelton="">
-<$No_httpheader=1>
-
-<$exporter = loadpm('Diary::Export_static_html')>
-<$ifbreak(error_flag)>
-
-<@>出力ルーチン実行
-<$print('<textarea cols="80" rows="20">')>
-<$exporter.output( v.static_output_dir, logs, option )>
-<$print('</textarea></body></html>')>
-
-
+<$exporter = loadapp('adiary::Export_static_html')>
+<$ifbreak(!exporter)>
+<$ajax_return = exporter.export( logs, opt )>

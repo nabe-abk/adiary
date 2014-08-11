@@ -9,7 +9,7 @@ use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION = '2.912';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'beta1.3';
+our $SUBVERSION = 'beta1.4';
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
@@ -134,7 +134,7 @@ sub main {
 	#-------------------------------------------------------------
 	my $action = $ROBJ->{Form}->{action};
 	if ($ROBJ->{POST} && (my ($dir,$file) = $self->parse_skel($action))) {
-		$self->{pwd} = $dir;
+		local($self->{skel_dir}) = $dir;
 		$self->{action_data} = $ROBJ->call( "${dir}_action/$file" );
 	}
 
@@ -317,9 +317,8 @@ sub output_html {
 	# mainフレームあり？
 	my $frame_name = $self->{frame_skeleton};
 	if ($frame_name ne '') {
-		$self->{inframe} = $out;
 		# 外フレームを処理する
-		$out = $ROBJ->call($frame_name);
+		$out = $ROBJ->call($frame_name, $out);
 	}
 
 	if (!$self->{output_stop}) {
@@ -523,12 +522,9 @@ sub system_mode {
 	if ($mode_class ne '') { $self->{mode_class} = ' ' . $mode_class; }
 
 	return ;
-	# my $file = $ROBJ->get_filepath($self->{template_dir}) . $self->{theme} . '/system_mode_yes';
-	# if (-e $file) { return ; }		# システムモード対応テーマ → 何もしない
 
 	# システムテーマのロード
 	$self->load_theme( $self->{system_theme} );
-
 	# theme templateをoff
 	$ROBJ->delete_skeleton( $self->{theme_skeleton_level} );
 }
@@ -1346,7 +1342,9 @@ sub load_content_node {
 	if ($c{upnode} && $c{upnode}->{children}) {
 		my @fam;
 		my @fam = map { $con->{$_} } split(",",$c{upnode}->{children});
-		if (@fam) { $c{family} = \@fam; }
+		if (@fam) {
+			$c{family} = [ grep {$_->{pkey} != $pkey} @fam ];
+		}
 	}
 	return \%c;
 }
@@ -1443,7 +1441,7 @@ sub load_theme {
 	$self->{theme_js} = -r "$dir$theme/$theme.js";
 
 	# スケルトンテンプレートの登録
-	if (-r "${dir}_skeleton") {
+	if (-r "${dir}_skel") {
 		$ROBJ->regist_skeleton($dir, $self->{theme_skeleton_level});
 	} else {
 		$ROBJ->delete_skeleton($self->{theme_skeleton_level});

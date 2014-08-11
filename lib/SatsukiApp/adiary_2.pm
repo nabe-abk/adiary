@@ -1762,4 +1762,18 @@ sub delete_ip_host_agent {
 	delete $h->{agent};
 }
 
+#------------------------------------------------------------------------------
+# ●セッションログのオープン
+#------------------------------------------------------------------------------
+sub open_session {
+	my ($self, $snum) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $session = $ROBJ->loadpm("Base::SessionFile", $ROBJ->{Cookie}->{session}->{sid}, $snum);
+	$session->open();
+	$session->autoflush();
+	return $session;
+}
+
+
+
 1;

@@ -2,11 +2,14 @@
 $(function(){
 	var side = $('#side-broken-clock div.hatena-modulebody');
 	var dclock = $('span',side);
-	var ct = side.data('ct');
-	var vt = side.data('vt');
+	var ct = side.data('ct') || 'random';
+	var vt = side.data('vt') || 'analog24';
 	var hh = side.data('hourhand');
 	var mh = side.data('minhand');
 	var sh = side.data('sechand');
+	hh = (hh === '') ? 1 : hh;
+	mh = (mh === '') ? 1 : mh;
+	sh = (sh === '') ? 1 : sh;
 	var cnvs;
 	var context;
 	var cnvs_x;

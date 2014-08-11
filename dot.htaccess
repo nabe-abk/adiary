@@ -1,3 +1,6 @@
+# Optionsが利用可能ならば以下の設定を推奨
+# Options +FollowSymLinks -Multiviews
+
 # 使用メモリ量の制限
 # RLimitMem 268435456
 

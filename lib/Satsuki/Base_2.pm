@@ -947,22 +947,28 @@ sub validator {
 		#----------------------------------------------
 		# 値チェック処理メイン
 		#----------------------------------------------
+		my $title = $check->{$_} || $_;
+		my $type = $check->{"$_:type"} || $title;
 		my $v = $form->{$_};
 		my $err;
+
+		# フラグ値（値が存在しなくても値を保存する）
+		if ($type eq 'flag') {
+			$v = $v ? 1 : 0;
+		}
 		# 値が存在しない
-		if (!exists $form->{$_} && !exists $check->{"$_:default"}) { next; }
+		if (!exists $form->{$_} && !exists $check->{"$_:default"}) {
+			if ($type ne 'flag') { next; }
+		}
 		# デフォルト値のロード
 		if ($v eq '') {
 			$ret{$_} = $check->{"$_:default"};
 			next;
 		}
-		my $title = $check->{$_} || $_;
 
-		my $type = $check->{"$_:type"} || $title;
 		if ($type ne '') {
-			if ($type eq 'flag') {	# 0 or 1 に
-				$v = $v ? 1 : 0;
-			} elsif ($type eq 'int') {
+			# $type eq 'flag' は先に処理
+			if ($type eq 'int') {
 				$v = int($v);
 			} elsif ($type eq 'num') {
 				$v = $v+0;

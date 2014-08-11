@@ -2,6 +2,8 @@
 <$ifbreak(!v.allow_edit)>
 <$ifbreak(csrf_check())>
 
+<$ifset(Form.reset, Form.usercss_txt, '')>
+
 <$action_return = v.save_usercss( Form.usercss_txt )>
 
 POST成功時の処理

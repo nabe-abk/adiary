@@ -9,7 +9,7 @@ var popup_offset_x = 30;
 var popup_offset_y = 20;
 var is_IE67=false;
 var is_IE8=false;
-var Blogpath;	// frame.html で設定される
+var Blogpath;	// _frame.html で設定される
 var Storage;
 $(function(){ if(Blogpath) Storage=load_PrefixStorage( Blogpath ); });
 //////////////////////////////////////////////////////////////////////////////
@@ -770,15 +770,18 @@ function twitter_css_fix(css_text, width){
 function css_fix(css_text, width) {
 	var iframes = $('iframe');
 	var iframe;
+	var ch;
 	for (var i=0; i<iframes.length; i++) {
-		if (iframes[i].id.substring(0, 15) != 'twitter-widget-') continue;
 		iframe = iframes[i];
+		if (iframe.id.substring(0, 15) != 'twitter-widget-') continue;
+		if (iframe.className.indexOf('twitter-timeline')<0) continue;
+		if (iframes[i].id.substring(0, 15) != 'twitter-widget-') continue;
+		var doc = iframe.contentDocument || iframe.document;
+		if (!doc || !doc.documentElement) continue;
+		var ch = doc.documentElement.children;
 		break;
 	}
-	if (!iframe) return -1;
-
-	var doc = iframe.contentDocument || iframe.document;
-	var ch = doc.documentElement.children;
+	if (!ch) return -1;
 	var head;
 	var body;
 	for (var i=0; i<ch.length; i++) {
@@ -866,7 +869,6 @@ function find_parent(obj, filter) {
 	}
 	return;
 }
-
 //////////////////////////////////////////////////////////////////////////////
 // ●エラーの表示
 //////////////////////////////////////////////////////////////////////////////
@@ -944,10 +946,95 @@ $(function(){
 }
 
 //############################################################################
+// adiary用 Ajaxセッションライブラリ
+//############################################################################
+function adiary_ajax(_btn, opt){
+  $(_btn).click( function(evt){
+	var btn = $(evt.target);
+	var myself = opt.myself || btn.data('myself');
+	var log = $(opt.log || btn.data('log-target') || '#session-log');
+
+	var load_session = myself + '?etc/load_session';
+	var interval = opt.interval || log.data('interval') || 300;
+	var snum;
+	log.show(500);
+
+	if (opt.init) opt.init(evt);
+
+	// セッション初期化
+	$.post( load_session, {
+			action: 'etc/init_session',
+			csrf_check_key: opt.csrf_key || $('#csrf-key').val(),
+		}, function(data) {
+			var reg = data.match(/snum=(\d+)/);
+			if (reg) {
+				snum = reg[1];
+				ajax_session();
+			}
+		}, 'text'
+	);
+
+	// Ajaxセッション開始
+	function ajax_session(){
+		log_start();
+		console.log('[adiary_ajax()] session start');
+		var fd;
+		if (opt.load_formdata) fd = opt.load_formdata(btn);
+				else   fd = new FormData( opt.form );
+		var ctype;
+		if (typeof(fd) == 'string') fd += '&snum=' + snum;
+		else {
+			fd.append('snum', snum);
+			ctype = false;
+		}
+		$.ajax(myself + '?etc/ajax_dummy', {
+			method: 'POST',
+			contentType: ctype,
+			processData: false,
+			data: fd,
+			dataType: opt.dataType || 'text',
+			error: function(data) {
+				if (opt.error) opt.error();
+				console.log('[adiary_ajax()] http post fail');
+				console.log(data);
+				log_stop();
+			},
+			success: function(data) {
+				if (opt.success) opt.success();
+				console.log('[adiary_ajax()] http post success');
+				console.log(data);
+				log_stop();
+			},
+			xhr: opt.xhr
+		});
+	}
+	
+	/// ログ表示タイマー
+	var log_timer;
+	function log_start( snum ) {
+		btn.prop('disabled', true);
+		log.data('snum', snum);
+		log_timer = setInterval(log_load, interval);
+	}
+	function log_stop() {
+		if (log_timer) clearInterval(log_timer);
+		log_timer = 0;
+		log_load();
+		btn.prop('disabled', false);
+	}
+	function log_load() {
+		var url = load_session + '&snum=' + snum;
+		log.load(url, function(data){
+			log.scrollTop( log.prop('scrollHeight') );
+		});
+	}
+  });
+};
+
+//############################################################################
 // Prefix付DOM Storageライブラリ
 //							(C)2010 nabe@abk
 //############################################################################
-//[TAB=4]
 // Under source is MIT License
 //
 // ・pathを適切に設定することで、同一ドメイン内で住み分けることができる。

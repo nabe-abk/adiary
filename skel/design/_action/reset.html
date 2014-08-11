@@ -8,5 +8,6 @@
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
 	<$message('デザインをリセットしました')>
+	<$ifcall(Form.load_design, '_sub/load_default_design', v.blogid)>
 	<$jump('_sub/reload_message', v.myself)>
 <$end>

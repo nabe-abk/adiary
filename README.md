@@ -66,8 +66,6 @@ WTFPL（PDS扱い）だと助かります。
   * pub-dist/editor-icon 以下の記法ヘルパーアイコンはせりか氏の著作物です。
   * pub-dist/icon/ 以下にあるアイコンの一部はせりか氏の著作物です。
   * pub-dist/icon/tp*.gif に該当するファイルはSix Apartの著作物です。
-      > TypePad 絵文字アイコン画像 by Six Apart Ltd is licensed under a Creative Commons 表示 2.1 日本 License.
-      > Permissions beyond the scope of this license may be available at http://start.typepad.jp/typecast/.
   * pub-dist/mahjong/ 以下のファイルは「まつセン　牌画」を利用自由のライセンスに基づき同梱しています。
 
 せりか氏著作物のライセンスは、adiaryのライセンスの準じます。

@@ -380,10 +380,7 @@ sub art_import {
 	#-------------------------------------------------------------
 	# セッション開始
 	#-------------------------------------------------------------
-	# セッションファイルのオープン
-	my $session = $ROBJ->loadpm("Base::SessionFile", $ROBJ->{Cookie}->{session}->{sid}, $form->{snum});
-	$session->open();
-	$session->autoflush();
+	my $session = $self->open_session( $form->{snum} );
 
 	# データ形式
 	my $type = $form->{type};
@@ -864,7 +861,7 @@ sub art_export {
 
 	# コンテンツタイプ
 	if ($opt{article_type} ne '*all*') {
-		$q{match}->{type} = $opt{article_type};
+		$q{match}->{ctype} = $opt{article_type};
 	}
 
 	#-------------------------------------------------------------

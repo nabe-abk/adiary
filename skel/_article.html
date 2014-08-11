@@ -2,11 +2,18 @@
 <@local(ret,s,t,t2,c,permalink,x,node)>
 <$s = v.blog>
 
-<$(t,ret) = v.load_article_current_blog(if(v.pinfo ne '', v.pinfo, s.frontpage))>
+<$ifexec(argv#0, begin, begin)>
+	<$t = argv#0>
+	<$art_year = t.year>
+	<$art_mon  = t.mon>
+	<$art_day  = t.day>
+<$else>
+	<$(t,ret) = v.load_article_current_blog(if(v.pinfo ne '', v.pinfo, s.frontpage))>
+	<$art_year = ret.year>
+	<$art_mon  = ret.mon>
+	<$art_day  = ret.day>
+<$end>
 <$v.title = s.blog_name>
-<$art_year = ret.year>
-<$art_mon  = ret.mon>
-<$art_day  = ret.day>
 
 <@ifexec(!v.blogid, begin)>
 	<$ifmessage(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません")>
@@ -15,7 +22,7 @@
 <$ifexec(v.blogid && !t, begin)>
 	<$message("該当する記事がありません")>
 <$end>
-<$ifjump_clear(!t || Message, "_sub/error_message_404")>
+<$ifjump_clear(!t || @Message, "_sub/error_message_404")>
 
 <@>ソーシャルボタンの準備
 <$call('_sub/social_buttons')>

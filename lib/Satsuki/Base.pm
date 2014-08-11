@@ -52,6 +52,7 @@ sub new {
 	$self->{UID}  = $<;
 	$self->{GID}  = $(;
 	$self->{PID}  = $$;
+	$self->{Is_windows} = ($^O eq 'MSWin32' || $^O eq 'MSWin64');
 
 	# 初期設定
 	$self->{Status}  = 200;		# HTTP status (200 = OK)
@@ -85,6 +86,7 @@ sub new {
 	$self->{Error}   = [];
 	$self->{Debug}   = [];
 	$self->{Warning} = [];
+	$self->{Message} = [];
 
 	# コンパイラの更新時間を保存
 	$self->{Compiler_tm} = $self->get_libfile_modtime( 'Satsuki/Base/Compiler.pm' );
@@ -1048,7 +1050,7 @@ sub write_lock {
 }
 sub write_lock_nb {
 	my ($self, $fh) = @_;
-	$self->flock($fh, Fcntl::LOCK_EX() || Fcntl::LOCK_NB() );
+	$self->flock($fh, Fcntl::LOCK_EX() | Fcntl::LOCK_NB() );
 }
 sub unlock {
 	my ($self, $fh) = @_;
@@ -1617,7 +1619,7 @@ sub _message {
 	my $class= shift;
 	my $msg  = $self->message_translate(@_);
 
-	my $ary = $self->{Message} ||= [];
+	my $ary = $self->{Message};
 	$self->tag_escape($class,$msg);
 	push(@$ary, "<div class=\"$class\">$msg</div>");
 	return $ary;

@@ -195,6 +195,7 @@ sup	= html:sup
 sub	= html:sub
 clear   = html:br.clear
 wbr     = html:wbr
+code	= html:code
 
 
 #------------------------------------------------------------------------------
