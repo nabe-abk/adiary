@@ -1,0 +1,114 @@
+<@6>
+<@local(s,ps,tm,bpath,option)>
+<$inframe = argv#0>
+<$option  = argv#1>
+<$s = v.blog>
+<@>
+<!DOCTYPE html> 
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- Meta tagst ============================================-->
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="adiary <@v.VERSION>">
+<meta name="author" content="<@v.blogid>">
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.notheme.css" id="jquery-ui-css">
+<@forexec(t, v.load_jscss(v.cssfiles), begin)>
+<link rel="stylesheet" media="all" href="<@Basepath><@t>">
+<$end>
+<@> テーマとユーザーCSSは最後に読み込む
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.css" id="theme-css">
+<@ifexec(option.usercss && file_readable("<@v.blogpub_dir>usercss.css"), begin)>
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>usercss.css" id="user-css">
+<$end>
+<!-- JavaScript ============================================-->
+<!--[if lt IE 9]>
+<script src="<@Basepath><@v.script_dir>jquery-1.min.js"></script>
+<script src="<@Basepath><@v.script_dir>IE9.js"></script>
+<script src="<@Basepath><@v.script_dir>respond.min.js"></script>
+<![endif]-->
+<!--[if gte IE 9]><!-->
+<script src="<@Basepath><@v.script_dir>jquery-2.min.js"></script>
+<!--<![endif]-->
+<script src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
+<script src="<@Basepath><@v.script_dir>adiary.js"></script>
+<@forexec(t, v.load_jscss(v.scripts), begin)>
+<script async src="<@Basepath><@v.script_dir><@t>"></script>
+<$end>
+<@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.js"></script>\n')>
+<@forexec(t, v.load_js_events(), begin)>
+<script async src="<@Basepath><@t>"></script>
+<$end>
+	<title><@v.header_title_add><@v.title></title>
+</head>
+<body id="body" class="<@if(v.blog_admin, 'blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system-mode')><@v.mode_class>">
+<@>bodyにブラウザ別クラスを設定するためのスクリプト呼び出し
+<script>set_browser_class_into_body();</script>
+<div id="adiary-body">
+
+<!--ヘッダ部================================================================-->
+<header>
+<nav id="nav-header">
+	<span class="admin-links">
+		<a class="adminmenu login erase-login" rel="nofollow">&nbsp;</a>
+	</span>
+</nav>
+
+<!--タイトル部==============================================================-->
+<div id="page-title">
+<@ifexec(v.blogid, begin, begin)>
+<h1><@if(! v.system_mode && v.blog.blog_image, #'<a href="<@v.myself2>index.html"><img src="<@v.blog.blog_image>" alt="<@v.title>"></a>', #'<a href="<@v.myself2>index.html"><@v.title></a>')></h1>
+<$else>
+<h1><a href="<@v.myself2>index.html"><@if(v.title_h1, v.title_h1, v.title)></a></h1>
+<$end>
+</div>
+</header>
+
+<!--Start of body ==========================================================-->
+<div id="hatena-body">
+
+<!--内容====================================================================-->
+<div class="main">
+
+<@inframe>
+
+<footer id="footer"><!--フッタ-->
+<@if(s.user_footer, "<@s.user_footer><br>")>
+<span class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></span>
+<!-- Blog system "adiary" Copyright (C)2006-2014 nabe@abk.
+     This system is licensed under AGPLv3 or later.-->
+</footer>
+</div> <!-- End of main -->
+
+
+<@>-----------------------------------------------------------------------------
+<@> sidebar
+<@>-----------------------------------------------------------------------------
+<!--sidebar=================================================================-->
+<@call( '_sidebar' )>
+
+<!--End of body ============================================================-->
+</div> <!-- End of #hatena-body -->
+</div> <!-- End of #adiary-body -->
+
+<script><!--
+var Blogpath='<@v.myself>';
+var ScriptDir='<@Basepath><@v.script_dir>';
+<@ifexec(Timer, begin)>
+$('#system-info-total-time').text('<@int(Timer.check()*10000 + 0.5)/10>');
+$('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');
+<$end>
+<@ifexec(!v.system_mode && s.gaid && option.gaid, begin)>
+// Google Analytics
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', '<@s.gaid>']);
+_gaq.push(['_trackPageview']);
+(function() {
+var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+<$end>
+--></script>
+</body>
+</html>

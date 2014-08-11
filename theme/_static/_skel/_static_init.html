@@ -1,0 +1,75 @@
+<@40.is_function>
+<@>
+<@> 静的出力用の初期化
+<@>
+<@local(dir, t, files, dirs, session, option)>
+<$session = argv#0>
+<$option  = argv#1>
+
+
+
+<@>////////////////////////////////////////////////////////////////////////////
+<@> JavaScriptのコピー
+<@>////////////////////////////////////////////////////////////////////////////
+<$dir = v.static_output_dir . v.static_theme_dir>
+<$session.msg("Javascript files copy to '<@dir>'")>
+<$mkdir(dir)>
+<$files = begin_array>
+	adiary.js
+	jquery-2.min.js
+	jquery-1.min.js
+	IE9.js
+	respond.min.js
+<$end>
+<$dirs = begin_array>
+	SyntaxHighlighter/
+<$end>
+<$forexec(t, files, begin)>
+	<$session.msg("\tcopy to '<@dir><@t>'")>
+	<$file_copy("<@v.script_dir><@t>", "<@dir><@t>")>
+<$end>
+<$forexec(t, dirs, begin)>
+	<$session.msg("\tcopy to '<@dir><@t>'")>
+	<$dir_copy("<@v.script_dir><@t>", "<@dir><@t>")>
+<$end>
+
+
+<@>////////////////////////////////////////////////////////////////////////////
+<@> Themeのコピー
+<@>////////////////////////////////////////////////////////////////////////////
+
+<$dir = v.static_output_dir . v.static_theme_dir>
+<$session.msg("Theme files copy to '<@dir>'")>
+
+	<$session.msg("\tmkdir <@dir><@v.template>")>
+	<$mkdir("<@dir><@v.template>")>
+
+	<@> テンプレート内ファイルのコピー
+	<$files = search_files("<@v.theme_dir><@v.template>/")>
+	<$forexec(t, files, begin)>
+		<$session.msg("\tcopy to '<@dir><@v.template>/<@t>'")>
+		<$file_copy("<@v.theme_dir><@v.template>/<@t>", "<@dir><@v.template>/<@t>")>
+	<$end>
+
+	<@> テーマディレクトリのコピー
+	<$session.msg("\tcopy to '<@dir><@v.template>/<@v.theme>/*'")>
+	<$dir_copy("<@v.theme_dir><@v.template>/<@v.theme>", "<@dir><@v.template>/<@v.theme>")>
+
+<$dirs = begin_array>
+	_jquery-ui/
+<$end>
+<$forexec(t, dirs, begin)>
+	<$session.msg("\tcopy to '<@dir><@t>'")>
+	<$dir_copy("<@v.theme_dir><@t>", "<@dir><@t>")>
+<$end>
+
+<@>ユーザーCSS
+<@ifexec(option.usercss && file_readable("<@v.blogpub_dir>usercss.css"), begin)>
+	<$session.msg("\tcopy to '<@dir>usercss.css'")>
+	<$file_copy("<@v.blogpub_dir>usercss.css", "<@dir>usercss.css")>
+<$end>
+
+
+
+
+
