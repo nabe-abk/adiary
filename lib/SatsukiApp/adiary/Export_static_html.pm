@@ -52,6 +52,7 @@ sub export {
 		$session->msg("'$dir' clear!");
 		my $files = $ROBJ->search_files($dir, {dir=>1});
 		foreach(@$files) {
+			if ($_ =~ /^\./) { next; }
 			my $f = "$dir$_";
 			if (-d $f) {
 				$session->msg("\tdelete dir: $_");
@@ -123,7 +124,7 @@ sub export {
 
 		# URL系の書き換え
 		my $file = $_->{link_key};
-		if ($file =~ m|^/|) { next; }
+		if ($file =~ m|^[/\.]|) { next; }
 		$file =~ s|/|-|g;
 		$file .= '.html';
 
@@ -150,7 +151,7 @@ sub export {
 		#-------------------------------------------------------------
 		# ファイルに書き出し
 		#-------------------------------------------------------------
-		$session->msg("\t$file : $_->{year}/$_->{mon}/$_->{day} $_->{title}");
+		$session->msg("\t$file : $_->{title}");
 		$ROBJ->fwrite_lines("$dir$file", $out);
 	}
 
