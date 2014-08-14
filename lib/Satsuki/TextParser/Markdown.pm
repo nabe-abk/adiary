@@ -1,13 +1,14 @@
 use strict;
 #------------------------------------------------------------------------------
 # markdown記法
-#                                                   (C)2013 nabe / nabe@abk.nu
+#                                                   (C)2014 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
 # コメント中に [M] とあるものは、Markdown.pl 準拠。
-#  [GitHub] とあるものは、GitHub Flavored Markdown 準拠。
+# [GitHub] とあるものは、GitHub Flavored Markdown 準拠。
+# [S] とあるものは、adiary拡張（Satsuki記法互換機能）
 #
 package Satsuki::TextParser::Markdown;
-our $VERSION = '0.99';
+our $VERSION = '0.999';
 #------------------------------------------------------------------------------
 ###############################################################################
 # ■基本処理
@@ -24,7 +25,10 @@ sub new {
 
 	$self->{lf_patch} = 1;		# 日本語のpタグ中の改行を消す
 	$self->{md_in_htmlblk} = 1;	# Markdown Inside HTML Blocksを許可する
-	$self->{sectioning} = 1;	# sectionタグを適時挿入する
+	$self->{sectioning}   = 1;	# sectionタグを適時挿入する
+
+	$self->{span_sanchor} = 0;	# 見出し先頭に span.sanchor を挿入する
+	$self->{section_link} = 0;	# 見出しタグにリンクを挿入する
 
 	$self->{satsuki_tags}     = 0;	# satsuki記法のタグを有効にする
 	$self->{satsuki_syntax_h} = 1;	# syntaxハイライトをsatsuki記法に準拠させる
@@ -61,7 +65,7 @@ sub text_parser {
 	# 行に分解
 	my $lines = [ split(/\n/, $text) ];
 	undef $text;
-	
+
 	# 内部変数初期化
 	$self->{links} = {};
 
@@ -85,7 +89,16 @@ sub text_parser {
 	while($lines->[$#$lines] eq '') { pop(@$lines); }
 	if ($sec) { push(@$lines, $sec); }
 
+	# [S] <toc>の後処理
 	my $all = join("\n", @$lines);
+	if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
+		my $sobj = $self->{satsuki_obj};
+		$sobj->{sections} = $self->{sections};
+		$sobj->{subsections} = $self->{subsections};
+		$sobj->post_process( \$all );
+	}
+
+	# [S] Moreの処理
 	my $short = '';
 	if ($all =~ /^((.*?)\n?<p class="seemore">.*)<!--%SeeMore%-->\x02?\n(.*)$/s ) {
 		$short = $1;
@@ -121,6 +134,13 @@ sub parse_special_block {
 	$sectioning = defined $sectioning ? $sectioning : $self->{sectioning};
 
 	my @ary;
+	#
+	# セクション情報
+	#
+	my @sections;
+	my @subsections;
+	$self->{sections} = \@sections;
+	$self->{subsections} = \@subsections;
 	#
 	# 連続する空行を1つの空行にする。特殊ブロックをブロックとして切り出す。
 	#
@@ -173,7 +193,46 @@ sub parse_special_block {
 				push(@ary, "<section>\x02");
 				$in_section=1;
 			}
-			push(@ary,"<h$n>$2</h$n>\x01");
+			# アンカー処理
+			my $text = $2;
+			if ($level==1) {	# [S] h3
+				my $anchor = $self->{section_anchor};
+				my $scount = $#sections+2;
+				my $name   = ($self->{anchor_name_base} || "$self->{unique_linkname}p") . $scount;
+				$anchor =~ s/%n/$scount/g;
+				push(@sections, {
+					name => $name,
+					title => $text,
+					anchor => $anchor,
+					section_count => $scount
+				});
+				if ($self->{span_sanchor}) {
+					$text = "<span class=\"sanchor\">$anchor</span>$text";
+				}
+				if ($self->{section_link}) {
+					$text = "<a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$text</a>";
+				}
+			} elsif ($level==2) {	# [S] h4
+				my $anchor = $self->{subsection_anchor};
+				my $scount = $#sections+1;
+				my $ss_ary = $subsections[$scount] ||= [];
+				my $sscount= $#$ss_ary +2;
+				my $name   = ($self->{anchor_name_base} || "$self->{unique_linkname}p") . "$scount.$sscount";
+				$anchor =~ s/%n/$scount/g;
+				$anchor =~ s/%s/$sscount/g;
+				push(@$ss_ary, {
+					name => $name,
+					title => $text,
+					anchor => $anchor,
+					section_count => $scount,
+					subsection_count => $sscount
+				});
+				$text = "<span class=\"sanchor\">$anchor</span>$text";
+				if ($self->{section_link}) {
+					$text = "<a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$text</a>";
+				}
+			}
+			push(@ary,"<h$n>$text</h$n>\x01");
 			push(@ary,'');
 			$newblock=1;
 			next;
@@ -216,8 +275,18 @@ sub parse_special_block {
 		}
 
 		# 文章行
-		push(@ary, $x);
 		$newblock=0;
+
+		# [S] Satsukiタグのマクロ展開
+		if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
+			if ($x =~ m!(.*?)\[\*toc(?:|:(.*?))\](.*)!) {
+				if ($1 ne '') { push(@ary,$1); }
+				push(@ary,'',"<toc>$2</toc>\x01");
+				if ($3 ne '') { push(@ary,$3); }
+				next;
+			}
+		}
+		push(@ary, $x);
 	}
 	# 文末空行の除去
 	while($ary[$#ary] eq '') { pop(@ary); }
@@ -225,7 +294,7 @@ sub parse_special_block {
 	# セクショニングを行う
 	if ($sectioning && grep { $_ =~ /[^\s]/ } @ary) {
 		unshift(@ary, "<section>\x02");
-		push(@ary,"</section>\x02");
+		push(@ary,'',"</section>\x02");
 	}
 	return \@ary;
 }
@@ -375,7 +444,7 @@ sub parse_block {
 			}
 			my $class='';
 			my $add='';
-			if ($self->{satsuki_syntax_h}) {
+			if ($self->{satsuki_syntax_h}) {	# [S] Satsuki記法準拠
 				if ($lang ne '') {
 					$class = ' ' . $self->{SyntaxHighlight_lang_class};
 					$class =~ s/%l/$lang/g;
@@ -541,7 +610,7 @@ sub parse_inline {
 			}
 		}eg;
 
-		# さつき記法のタグ処理
+		# [S] さつき記法のタグ処理
 		if ($satsuki_parser) {
 			$_ = $satsuki_parser->parse_tag( $_ );
 			$satsuki_parser->un_escape( $_ );

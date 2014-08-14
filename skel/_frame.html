@@ -103,7 +103,7 @@
 <@> sidebar
 <@>-----------------------------------------------------------------------------
 <!--sidebar=================================================================-->
-<@call( '_sidebar' )>
+<@call( if(v.sidebar, v.sidebar, '_sidebar') )>
 
 
 <@ifexec(Develop && (@Error || @Debug || @Warning) || Debug_mode, begin.debug)>

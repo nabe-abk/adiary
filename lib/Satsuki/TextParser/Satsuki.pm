@@ -361,7 +361,7 @@ sub text_parser {
 
 	# 初期設定
 	$self->{sections}       = [];	# 空のarray
-	$self->{subsections}    = {};	# hash / セクション番号ごとにデータ格納
+	$self->{subsections}    = [];	# セクション番号ごとにデータ格納
 	$self->{options}        = {};	# 空のhash
 	$self->{replace_data} ||= {};	# タグ置換用データ
 	$self->{section_count}     = int($opt->{section_count});	# section counter
@@ -857,7 +857,7 @@ sub blocks_and_section {
 	foreach(@{ $self->{sections} }) {
 		$_->{title} = $self->parse_tag( $_->{title} );	# タグ処理
 		$_->{title} =~ s/\(\(.*?\)\)//g;		# 注釈の削除
-		my $subs = $self->{subsections}->{ $_->{section_count} };
+		my $subs = $self->{subsections}->[ $_->{section_count} ];
 		if ($subs) {
 			foreach(@$subs) {
 				$_->{title} = $self->parse_tag( $_->{title} );	# タグ処理
@@ -968,9 +968,8 @@ sub section {
 
 	# 見出しの処理
 	$line = substr($line, 1);
-	my $anchor    = $self->{section_anchor};
-	my $name_base = $self->{anchor_name_base} || "$self->{unique_linkname}p";
-	my $name      = $name_base . $sec_count;
+	my $anchor =  $self->{section_anchor};
+	my $name   = ($self->{anchor_name_base} || "$self->{unique_linkname}p") . $sec_count;
 	if ($line =~ /^([\w\-\.\d]+)(:[^\*]+)?\*(.*)/s) {
 		$name = $1;
 		$line = $3;
@@ -1032,7 +1031,7 @@ sub subsection {
 		}
 	}
 	# セクション情報の保存
-	my $subsections = $self->{subsections}->{$sec_count} ||= [];
+	my $subsections = $self->{subsections}->[$sec_count] ||= [];
 	push(@$subsections, {name => $name, title => $line, anchor => $anchor, section_count => $sec_count, subsection_count => $subsec_count});
 
 	my $hnum = $self->{section_hnum} +1;
@@ -1626,6 +1625,9 @@ sub post_process {
 		my %h;
 		my $thisurl = $self->{thisurl};
 		map { $h{$_}=1; } split(':', $1);
+		if ($self->{section_anchor} =~ /%n/ && $self->{subsection_anchor} =~ /%s/) {
+			$h{anchor} = 1;
+		}
 		my $class="toc";
 		my $sec_format = sub { "<li><a href=\"$thisurl#$_->{name}\">$_->{title}</a>" };
 		if ($h{anchor}) {
@@ -1636,7 +1638,7 @@ sub post_process {
 		my @ary;
 		push(@ary, "<ul class=\"$class\">\n");
 		foreach(@{ $self->{sections} }) {
-			my $subs = $self->{subsections}->{ $_->{section_count} };
+			my $subs = $self->{subsections}->[ $_->{section_count} ];
 			if ($subs && @$subs) {
 				push(@ary, "\t" . &$sec_format() . "\n");
 				push(@ary, "\t<ul class=\"$class\">\n");

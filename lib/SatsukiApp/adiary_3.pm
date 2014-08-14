@@ -1,13 +1,111 @@
 use strict;
 #-------------------------------------------------------------------------------
-# adiary_3.pm (C)2011 nabe@abk
+# adiary_3.pm (C)2014 nabe@abk
 #-------------------------------------------------------------------------------
-# ・デザイン関連ルーチン
-# ・ブログの設定関連ルーチン
-# ・記事、コメントなどの削除関連ルーチン
+# ・画像管理
+# ・デザイン関連
+# ・ブログの設定
+# ・記事、コメントなどの削除関連
 use SatsukiApp::adiary ();
 use SatsukiApp::adiary_2 ();
 package SatsukiApp::adiary;
+###############################################################################
+# ■画像管理
+###############################################################################
+#------------------------------------------------------------------------------
+# ●画像dir関連の初期化
+#------------------------------------------------------------------------------
+sub init_image_dir {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	if ($self->{blogid} eq '') { return -1; }
+
+	my $dir = $self->blogimg_dir();
+	$ROBJ->mkdir($dir);
+	$ROBJ->mkdir($dir . '.trashbox/');	# ごみ箱フォルダ
+
+	# ファイルリストの生成
+	$self->genarete_imgae_dirtree();
+	
+	
+}
+
+#------------------------------------------------------------------------------
+# ●画像ディレクトリツリーの生成
+#------------------------------------------------------------------------------
+sub genarete_imgae_dirtree {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	if ($self->{blogid} eq '') { return -1; }
+
+	my $dir  = $self->blogimg_dir();
+	my $tree = $self->get_dir_tree("$dir", sub{
+		my ($dir, $dirs, $files) = @_;
+		$ROBJ->mkdir("${dir}.thumbnail");
+		foreach(@$files) {
+			# サムイネイル生成
+		}
+	});
+
+	my $json = $self->generate_dynatree_json($tree->{children}, 'name', ['size', 'date', 'count']);
+	$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'images.json', $json);
+
+	$self->debug("$tree->{count} files found!");
+
+
+}
+
+#------------------------------------------------------------------------------
+# ●ディレクトリ階層の全データ取得
+#------------------------------------------------------------------------------
+sub get_dir_tree {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $dir  = $ROBJ->get_filepath(shift);
+	my ($func) = @_;	# callback
+
+	my @ary;
+	my $cnt=0;	# ファイル数カウント
+	my $files = $ROBJ->search_files($dir, {dir=>1});
+	foreach(@$files) {
+		if (ord($_) == ord('.')) { next; }	# .file は無視
+		my @st = stat("$dir$_");
+		if (substr($_,-1) ne '/') {
+			# ただのファイル
+			push(@ary, {
+				name => $_,
+				size => $st[7],
+				date => $st[9]
+			});
+			$cnt++;
+			next;
+		}
+		# ディレクトリ
+		my $tree = $self->get_dir_tree("$dir$_", @_);
+		push(@ary, {
+			name  => $_,
+			count => $tree->{count},
+			date  => $st[9],
+			children => $tree->{children}
+		});
+		$cnt += $tree->{count};
+	}
+
+	if ($func) {	# callback
+		&$func($dir, \@ary);
+	}
+
+	return {children => \@ary, count => $cnt};
+}
+
+#------------------------------------------------------------------------------
+# ●画像dir関連の初期化
+#------------------------------------------------------------------------------
+sub blogimg_dir {
+	my $self = shift;
+	return $self->{blogpub_dir} . 'image/';
+}
+
 ###############################################################################
 # ■設定関連
 ###############################################################################
