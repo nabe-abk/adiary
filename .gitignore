@@ -58,3 +58,8 @@ lib/SatsukiApp/form_2.pm
 #--------------------------------------
 js/jquery-ui-all.min.js
 theme/_jquery-ui/jquery-ui.css
+
+#--------------------------------------
+# for Special Edition files
+#--------------------------------------
+theme/satsuki2/cocoa/

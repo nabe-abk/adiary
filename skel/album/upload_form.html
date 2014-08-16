@@ -10,10 +10,6 @@
 <meta name="generator" content="adiary <@v.VERSION>">
 <meta name="author" content="<@v.blogid>">
 <meta name="robots" content="noindex,nofollow">
-<@forexec(t, v.load_jscss(v.cssfiles), begin)>
-<link rel="stylesheet" media="all" href="<@Basepath><@t>">
-<$end>
-<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.css" id="theme-css">
 <$file = "<@v.blogpub_dir>usercss.css">
 <@if(!v.system_mode && file_readable(file), #'<link rel="stylesheet" media="all" href="<@Basepath><@file>" id="user-css">\n')>
 <title>upload form for iframe</title>

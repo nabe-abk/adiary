@@ -192,7 +192,7 @@ iframe.load(function(){
 // ●フォルダを開く
 //////////////////////////////////////////////////////////////////////////////
 function open_folder(node) {
-	if (if_msg) {
+	if (if_msg) {	// フォルダを移動したらアップロードメッセージを消す
 		if_msg.hide();
 		_iframe_height();
 	}

@@ -913,8 +913,11 @@ article.jqueryui-tabs div.body {
 /*--------------------------------------------------------------------
 ●設定ページナビゲーション
 ---------------------------------------------------------------------*/
-nav.tree {
+nav.tree, nav.tree select {
 	font-size:		9pt;
+}
+
+nav.tree {
 	line-height:		100%;
 	display:		block;
 
