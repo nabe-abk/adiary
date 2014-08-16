@@ -7,7 +7,7 @@ $(function(){
 //////////////////////////////////////////////////////////////////////////////
 // ●初期化処理
 //////////////////////////////////////////////////////////////////////////////
-	var form = $('#import-form')[0];
+	var form = $('#import-form');
 	var file = $('#file');
 	var prog = $('#progress');
 
@@ -50,7 +50,7 @@ adiary_ajax($('button.import'), {
 	myself: $('#session-log').data('myself'),
 
 	load_formdata: function(btn){
-		var fd = new FormData( form );
+		var fd = new FormData( form[0] );
 		fd.append('type', btn.attr('name'));
 		if (btn.data('class')) fd.append('class', btn.data('class'));
 		return fd;

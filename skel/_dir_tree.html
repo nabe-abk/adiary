@@ -3,6 +3,7 @@
 <$blogs = v.allow_blogs()>
 <$ifbreak_clear(!Auth.ok && !v.blogid && !blogs)>
 
+
 <nav class="tree">
 <@ifexec(Auth.ok, begin)>
 <a href="<@v.myself>?menu" class="dir">メニュー</a>
@@ -11,6 +12,9 @@
 <$end>
  <span class="item-start">[</span>
 <@ifexec(v.blogid, begin)>
+<@ifexec(v.allow_edit, begin)>
+  <@if(v.skeleton eq 'album/index',   '<span class="select">画像管理</span>',     #'<a href="<@v.myself>?album/">画像管理</a>')>, 
+<$end>
   <@if(v.skel_name eq 'artlist',  '<span class="select">記事一覧</span>',     #'<a href="<@v.myself>?artlist">記事一覧</a>')>, 
   <@if(v.skel_name eq 'comlist',  '<span class="select">コメント一覧</span>', #'<a href="<@v.myself>?comlist">コメント一覧</a>')><@if(blogs,',')> 
 <$end>

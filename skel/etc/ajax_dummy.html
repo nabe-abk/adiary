@@ -9,14 +9,4 @@ ret=<@ajax_return>
 <@ifexec(@Message, begin)>
 Message : <@tag_delete(join("\n", Message))>
 <$end>
-<@ifexec(Develop || Debug_mode, begin)>
-<@ifexec(@Error, begin)>
-Error : <@error_load_and_clear("\n")>
-<$end>
-<@ifexec(@Debug, begin)>
-Debug : <@join("\n", Debug)>
-<$end>
-<@ifexec(@Warning, begin)>
-Warning : <@join("\n", Warning)>
-<$end>
-<$end>
+<@ifcall(Develop || Debug_mode, '_sub/ajax_debug')>

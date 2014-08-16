@@ -113,7 +113,7 @@ sub main {
 	# pinfoとブログの選択
 	my $blogid = $self->blogid_and_pinfo();
 
-	# Query/Form処理
+	# Query/Form処理（ログイン処理より後にすること！）
 	$self->read_query_form();
 
 	# 表示スケルトン選択
@@ -161,7 +161,7 @@ sub authorization {
 		$auth->session_auth($session->{id}, $session->{sid});
 		$ROBJ->make_csrf_check_key($session->{sid});
 	}
-		# 管理者 trust mode 設定
+	# 管理者 trust mode 設定
 	if ($self->{admin_trust_mode} && $auth->{isadmin}) {
 		$self->{trust_mode} = 1;
 	}

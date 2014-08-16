@@ -26,8 +26,6 @@ sub init_image_dir {
 
 	# ファイルリストの生成
 	$self->genarete_imgae_dirtree();
-	
-	
 }
 
 #------------------------------------------------------------------------------
@@ -39,20 +37,14 @@ sub genarete_imgae_dirtree {
 	if ($self->{blogid} eq '') { return -1; }
 
 	my $dir  = $self->blogimg_dir();
-	my $tree = $self->get_dir_tree("$dir", sub{
-		my ($dir, $dirs, $files) = @_;
-		$ROBJ->mkdir("${dir}.thumbnail");
-		foreach(@$files) {
-			# サムイネイル生成
-		}
-	});
+	my $tree = $self->get_dir_tree($dir);
 
-	my $json = $self->generate_dynatree_json($tree->{children}, 'name', ['size', 'date', 'count']);
+	$tree->{name} = '/';
+	$tree->{key}  = '/';
+	my $json = $self->generate_dynatree_json([$tree], 'name', ['date', 'count']);
 	$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'images.json', $json);
 
-	$self->debug("$tree->{count} files found!");
-
-
+	return $tree->{count};
 }
 
 #------------------------------------------------------------------------------
@@ -62,49 +54,344 @@ sub get_dir_tree {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $dir  = $ROBJ->get_filepath(shift);
-	my ($func) = @_;	# callback
+	my $path = shift;
 
-	my @ary;
+	my @dirs;
+	my @files;
 	my $cnt=0;	# ファイル数カウント
-	my $files = $ROBJ->search_files($dir, {dir=>1});
-	foreach(@$files) {
+	my $list = $ROBJ->search_files($dir, {dir=>1});
+	foreach(@$list) {
 		if (ord($_) == ord('.')) { next; }	# .file は無視
-		my @st = stat("$dir$_");
 		if (substr($_,-1) ne '/') {
 			# ただのファイル
-			push(@ary, {
-				name => $_,
-				size => $st[7],
-				date => $st[9]
-			});
-			$cnt++;
+			push(@files, $_);
 			next;
 		}
 		# ディレクトリ
-		my $tree = $self->get_dir_tree("$dir$_", @_);
-		push(@ary, {
-			name  => $_,
-			count => $tree->{count},
-			date  => $st[9],
-			children => $tree->{children}
-		});
+		my $tree = $self->get_dir_tree("$dir$_", "$path$_");
+		$tree->{name} = $_;
+		push(@dirs, $tree);
 		$cnt += $tree->{count};
 	}
 
-	if ($func) {	# callback
-		&$func($dir, \@ary);
+	my $h = { key => $path, date => (stat($dir))[9], count => ($cnt + $#files+1) };
+	if (@dirs) {
+		$h->{children} = \@dirs;
 	}
-
-	return {children => \@ary, count => $cnt};
+	return $h;
 }
 
 #------------------------------------------------------------------------------
-# ●画像dir関連の初期化
+# ●ディレクトリ内のファイル一覧取得
 #------------------------------------------------------------------------------
+sub load_image_files {
+	my $self = shift;
+	my $dir  = $self->image_folder_to_dir( shift );	# 値check付
+	my $ROBJ = $self->{ROBJ};
+
+	my $files = $ROBJ->search_files( $dir );
+	my @ary;
+	foreach(@$files) {
+		my @st = stat("$dir$_");
+		push(@ary,{
+			name => $_,
+			size => $st[7],
+			date => $st[9]
+		});
+	}
+	# サムネイル生成
+	$self->make_thumbnail($dir, $files);
+
+	my $json = $self->generate_dynatree_json(\@ary, 'name', ['size', 'date']);
+	return (0, $json);
+}
+
+#------------------------------------------------------------------------------
+# ●サムネイル生成
+#------------------------------------------------------------------------------
+sub make_thumbnail {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $dir  = $ROBJ->get_filepath( shift );
+	my $files= shift || [];
+	my $opt  = shift || {};
+
+	$ROBJ->mkdir("${dir}.thumbnail/");
+	foreach(@$files) {
+		my $thumb = "${dir}.thumbnail/$_.jpg";
+		# すでに存在したら生成しない
+		if (!$opt->{force} && -r $thumb) { next; }
+
+		if ($self->is_image($_)) {
+			my $r = $self->make_thumbnail_for_image($dir, $_, $opt->{size});
+			if (!$r) { next; }
+		}
+		my $r = $self->make_thumbnail_for_notimage($dir, $_);
+		if (!$r) { next; }
+
+		# サムネイル生成に失敗したとき
+		$ROBJ->file_copy($self->{album_icons} . $self->{album_nothumb_image}, $thumb);
+	}
+}
+
+#------------------------------------------------
+# ○画像ファイル
+#------------------------------------------------
+sub make_thumbnail_for_image {
+	my $self = shift;
+	my $dir  = shift;	# 実パス
+	my $file = shift;
+	my $size = shift || $self->{album_thumb_size};
+	my $ROBJ = $self->{ROBJ};
+
+	my $img = $self->load_image_magick();
+	eval {
+		$img->Read( "$dir$file" );
+		$img = $img->[0];
+	};
+	if ($@) { return -1; }	# load 失敗
+
+	# リサイズ
+	if ($size < 16)  { $size=120; }
+	if (800 < $size) { $size=800; }
+
+	my ($w, $h) = $img->Get('width', 'height');
+	if ($w<=$size && $h<=$size) {
+		$size = 0;	# resize しない
+	} elsif ($w>$h) {
+		$h = int($h*($size/$w));
+		$w = $size;
+	} else {
+		$w = int($w*($size/$h));
+		$h = $size;
+	}
+	if ($size) {	# リサイズ
+		eval { $img->Thumbnail(width => $w, height => $h); };
+		if ($@) {
+			# ImageMagick-5.x.x以前の場合Thumbnailメソッドは使えない
+			eval { $img->Resize(width => $w, height => $h, blur => 0.7); };
+			if ($@) { return -2; }	# サムネイル作成失敗
+ 		}
+	}
+
+	# ファイルに書き出し
+	$img->Set( quality => ($self->{jpeg_quality} || 80) );
+	$img->Write("${dir}.thumbnail/$file.jpg");
+	return 0;
+}
+
+#------------------------------------------------
+# ○その他のファイル
+#------------------------------------------------
+sub make_thumbnail_for_notimage {
+	my $self = shift;
+	my $dir  = shift;	# 実パス
+	my $file = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	# サイズ処理
+	my $size  = $self->{album_thumb_size};
+	my $fsize = $self->{album_font_size};
+	if($size <120){ $size = 120; }
+	if($fsize<  6){ $fsize=   6; }
+	my $fpixel = int($fsize*0.9 + 0.9999);
+	my $f_height = $fpixel*3 +2;
+
+	# キャンパス生成
+	my $img = $self->load_image_magick();
+	$img->Set(size=>$size . 'x' . $size);
+	$img->ReadImage('xc:white');
+
+	# 拡張子アイコンの読み込み
+	my $icon_file = $self->{album_allow_ext}->{'.'};
+	if ($file =~ m/\.(\w+)$/ && $self->{album_allow_ext}->{$1}) {
+		$icon_file = $self->{album_allow_ext}->{$1};
+	}
+	my $icon = $self->load_image_magick();
+	eval {
+		$icon->Read( $self->{album_icons} . $icon_file );
+		$icon = $icon->[0];
+	};
+	if (!$@) {
+		my ($x, $y) = $icon->Get('width', 'height');
+		$x = ($size - $y) / 2;
+		$y = ($size - $f_height - $y -4) / 2;
+		if($x<0){ $x=0; }
+		if($y<0){ $y=0; }
+		$img->Composite(image=>$icon, compose=>'Over', x=>$x, y=>$y);
+	}
+
+	# 画像情報の書き込み
+	if ($self->{album_font} && -r $ROBJ->get_filepath($self->{album_font})) {
+		my @st = stat("$dir$file");
+		my $tm = $ROBJ->tm_printf("%Y/%m/%d %H:%M", $st[9]);
+		my $fs = $st[7];
+		if ($fs > 10485760) {
+			$fs = ($fs >> 20);
+			$fs =~ s/(\d{1,3})(?=(?:\d\d\d)+(?!\d))/$1,/g;
+			$fs = $fs . ' MByte';
+		} elsif ($fs > 1048576) {
+			$fs = sprintf("%.1f", $fs/1048576) . ' MByte';
+		} elsif ($fs > 10240) {
+			$fs = ($fs >> 10) . ' KByte';
+		} elsif ($fs > 1024) {
+			$fs = sprintf("%.1f", $fs/1024) .' KByte';
+		} else {
+			$fs .= ' Byte';
+		}
+		my $name = $file;
+		my $code = $ROBJ->{System_coding};
+		if ($code ne 'UTF-8') {
+			my $jcode = $ROBJ->load_codepm();
+			$name = $jcode->from_to($name, $code, 'UTF-8');
+		}
+		my $text = "$name\r\n$tm\r\n$fs";
+		$img->Annotate(
+			text => $text,
+			font => $self->{album_font},
+			x => 3,
+			y => ($size - $f_height),
+			pointsize => $fsize
+		);
+	}
+
+	# ファイルに書き出し
+	$img->Set( quality => 98 );
+	$img->Write("${dir}.thumbnail/$file.jpg");
+	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●画像のアップロード
+#------------------------------------------------------------------------------
+sub image_upload_form {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $size = $form->{size};	# サムネイルサイズ
+	my $dir  = $self->image_folder_to_dir( $form->{folder} ); # 値check付
+
+	# アップロード
+	my $count_s = 0;
+	my $count_f = 0;
+	foreach my $i (0..99) {
+		my $file_h = $form->{"file$i"};
+		my $fname  = $file_h->{file_name};
+		if ($fname eq '') { next; }
+		if ($self->do_upload( $dir, $file_h )){
+			# $ROBJ->message('Upload fail: %s', $fname);
+			$count_f++;
+			next;
+		}
+		$count_s++;
+		$ROBJ->message('Upload: %s', $fname);
+	}
+
+	# メッセージ
+	return wantarray ? ($count_s, $count_f) : $count_f;
+}
+
+#----------------------------------------------------------------------
+# ●アップロードの実処理
+#----------------------------------------------------------------------
+sub do_upload {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $dir  = $ROBJ->get_filepath( shift );
+	my $file_h = shift;
+
+	# ハッシュデータ（フォームデータの確認）
+	my $file_name = $file_h->{file_name};
+	my $file_size = $file_h->{file_size};
+	my $tmp_file  = $file_h->{tmp_file};		# 読み込んだファイルデータ(tmp file)
+	$file_name =~ s|^\.+|-|;			# 先頭 . の除去
+	$file_name =~ s|[\x00-\x1f/]|-|g;		# 制御コードや / を - に置き換え
+	if ($file_name eq '') {
+		$ROBJ->message("File name error : %s", $file_h->{file_name});
+		return 2;
+	}
+
+	# 拡張子チェック
+	if (! $self->album_check_ext($file_name)) { 
+		$ROBJ->message("File extension error : %s", $file_name);
+		return 3;
+	}
+
+	# ファイルの保存
+	my $save_file = $dir . $file_name;
+	if (-e $save_file) {	# 同じファイルが存在する
+		if ((-s $save_file) != $file_size) {	# ファイルサイズが同じならば、同一と見なす
+			$ROBJ->message('Save failed ("%s" already exists)', $file_name);
+			return 10;
+		}
+	} else {
+		my $fail;
+		if ($tmp_file) {
+			if (! rename($tmp_file, $save_file)) { $fail=21; }
+		} else {
+			if ($ROBJ->fwrite_lines($save_file, $file_h->{data})) { $fail=22; }
+		}
+		if ($fail) {	# 保存失敗
+			$ROBJ->message("File can't write '%s'", $file_name);
+			return $fail;
+		}
+	}
+	return 0;	# 成功
+}
+
+#------------------------------------------------------------------------------
+# ■アルバム関連サブルーチン
+#------------------------------------------------------------------------------
+sub load_image_magick {
+	require Image::Magick;
+	return Image::Magick->new;
+}
 sub blogimg_dir {
 	my $self = shift;
 	return $self->{blogpub_dir} . 'image/';
 }
+
+#------------------------------------------------------------------------------
+# ○画像フォルダ→実ディレクトリ
+#------------------------------------------------------------------------------
+sub image_folder_to_dir {
+	my ($self, $folder) = @_;
+	$folder =~ s#(^|/)\.+/#$1#g;
+	return $self->{ROBJ}->get_filepath( $self->blogimg_dir() . $folder );
+}
+
+#------------------------------------------------------------------------------
+# ○画像ファイルか拡張子判定
+#------------------------------------------------------------------------------
+sub is_image {
+	my ($self, $f) = @_;
+	return ($f =~ m/\.(\w+)$/ && $self->{album_image_ext}->{$1});
+}
+
+#------------------------------------------------------------------------------
+# ○許可拡張子か判定
+#------------------------------------------------------------------------------
+sub album_check_ext {
+	my ($self, $f) = @_;
+	if ($self->{trust_mode}) { return 1; }
+
+	while($f =~ /^(.*)\.([^\.]+)$/) {
+		$f = $1;
+		if (!$self->album_check_ext_one($2)) { return 0; }
+	}
+	return 1;
+}
+
+sub album_check_ext_one {
+	my ($self, $ext) = @_;
+	if ($self->{album_image_ext}->{$ext} || $self->{album_allow_ext}->{$ext}) { return 1; }
+	if (!$self->{album_allow_ver_ext}) { return 0; }
+
+	# adiary-3.00-beta1.3.tbz のようなファイルを許可
+	return ($ext =~ /-/ || $ext =~ /^\d/);
+}
+
 
 ###############################################################################
 # ■設定関連

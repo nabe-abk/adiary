@@ -1,11 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # default parser 構文解析コンパイラ
-#						(C)2006-2013 nabe@abk.nu
+#						(C)2006-2014 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.61';
+our $VERSION = '1.63';
 #(簡易履歴)
+# 2014/08 Ver1.63  begin_hashの順序保存を標準でoffに。
 # 2013/08 Ver1.62  サブルーチン展開関連bugfix。<$break>の警告。pragma行処理bugfix
 # 2013/08 Ver1.61  サブルーチンの展開位置を宣言場所に変更（クロージャ対応）
 # 2013/07 Ver1.60  サブルーチンをメイン関数内記述に変更
@@ -1623,7 +1624,7 @@ sub split_begin {
 				$order .= "$k,";
 			}
 			chop($order);
-			$order = ($hash{_order} eq '0') ? '' : "_order=>[$order],";
+			$order = ($hash{_order}) ? "_order=>[$order]," : '';
 			$ary = '{' . $order . join(',', @ary2) . '}';
 			$ary =~ s/[\x01-\x03]//g;
 

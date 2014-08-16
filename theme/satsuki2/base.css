@@ -283,6 +283,37 @@ span.highlight3	{ background-color: #f99; }
 span.highlight4	{ background-color: #f6f; }
 
 /*--------------------------------------------------------------------
+●画像アルバム
+---------------------------------------------------------------------*/
+#album-folder-tree > ul {
+	min-height:		200px;
+	margin-bottom:		2px;
+}
+#album-folder-tree ul a {
+	font-weight:		normal;
+}
+
+#album-folder-view {
+	margin-top:		4px;
+	min-height:		300px;
+}
+
+#album-folder-view img {
+	border:			2px solid transparent;
+	padding:		2px;
+	vertical-align:		middle;
+}
+#album-folder-view img.selected {
+	border-color:		#f88;
+	background-color:	#f88;
+}
+
+#iframe-upload-form {
+	width:			100%;
+	border:			none;
+}
+
+/*--------------------------------------------------------------------
 ●デバッグ
 ---------------------------------------------------------------------*/
 div.debug {

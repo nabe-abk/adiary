@@ -4,5 +4,5 @@
 <$v.frame_skeleton=''>
 <$set_content_type('text/plain')>
 
-<$sfile = loadpm("Base::SessionFile", Cookie.session.sid, Query.snum)>
+<$sfile = v.open_session_for_load(Query.snum)>
 <@sfile.load()>

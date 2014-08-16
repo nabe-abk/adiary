@@ -591,6 +591,7 @@ em {
 /*--------------------------------------------------------------------
 ●ボタンデザイン
 ---------------------------------------------------------------------*/
+input[type="reset"],
 input[type="submit"],
 input[type="button"],
 button
@@ -601,6 +602,7 @@ button
 	border-radius:		6px;
 	background-image:	linear-gradient(to bottom, #ddf, #aaf);
 }
+input[type="reset"]:hover,
 input[type="submit"]:hover,
 input[type="button"]:hover,
 button:hover
@@ -609,6 +611,7 @@ button:hover
 	background-image:	linear-gradient(to bottom, #ececff, #bbf);
 }
 
+input[type="reset"]:disabled,
 input[type="submit"]:disabled,
 input[type="button"]:disabled,
 button:disabled
@@ -808,7 +811,6 @@ article.edit span.tag:after {
 	line-height:		100%;
 	vertical-align:		middle;
 }
-
 
 #popup-help div.additional {
 	color:			#000;

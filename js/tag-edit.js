@@ -54,9 +54,13 @@ tree.dynatree({
 			$('#load-error').show();
 			return;
 		}
+		var rootNode = tree.dynatree("getRoot");
+		rootNode.visit(function(node){
+			node.expand(true);
+		});
+		rootNode.getChildren()[1].activate();
 		submit.prop('disabled', false);
 		reset.prop ('disabled', false);
-		tree.dynatree("getRoot").getChildren()[1].activate();
 	},
 	onActivate: function(node) {
 		select_node = node;
@@ -83,6 +87,7 @@ tree.dynatree({
 		}
 	}
 });
+
 //////////////////////////////////////////////////////////////////////////////
 // ●タグの名称編集
 //////////////////////////////////////////////////////////////////////////////
@@ -104,10 +109,10 @@ function editNode( node ) {
 	
 	// Focus <input> and bind keyboard handler
 	inp.focus();
+	inp.select();
 	inp.keydown(function(evt){
 		switch( evt.which ) {
 			case 27: // [esc]
-				node.setTitle(prev_title);
 				$(this).blur();
 				break;
 			case 13: // [enter]
@@ -119,6 +124,7 @@ function editNode( node ) {
 		}
 	});
 	inp.blur(function(evt){
+		node.setTitle(prev_title);
 		tree.$widget.bind();
 		node.focus();
 	});

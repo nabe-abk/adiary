@@ -956,10 +956,16 @@ sub generate_dynatree_json {
 	my $ext  = shift || [];	# 追加するカラム
 	my $tab  = shift || '';
 	my @ary;
+	my $encode = sub {
+		$_[0] =~ s/\\/&#92;/g;
+		$_[0] =~ s/"/&quot;/g;
+	};
 	foreach(@$data) {
 		my $title = $_->{$tkey};
-		$title =~ s/\\/&#92;/g;
-		my $json = "$tab\t{\"title\": \"$title\", \"key\": $_->{pkey}";
+		my $key  = ($_->{key} ne '') ? $_->{key} : $_->{pkey};
+		&$encode($title);
+		&$encode($key);
+		my $json = "$tab\t{\"title\": \"$title\"" . ($key ne '' ? ", \"key\": \"$key\"" : '');
 		foreach my $k (@$ext) {
 			my $v = $_->{$k};
 			if ($v =~ /^\d+$/) {
@@ -967,7 +973,7 @@ sub generate_dynatree_json {
 				next;
 			}
 			# 文字列
-			$v =~ s/\\/&#92;/g;
+			&$encode($v);
 			$json .= ", \"$k\": \"$v\"";
 		}
 		if (!$_->{children}) {
@@ -975,7 +981,7 @@ sub generate_dynatree_json {
 			next;
 		}
 		my $ch = $self->generate_dynatree_json( $_->{children}, $tkey, $ext, "\t$tab" );
-		push(@ary, $json . ", \"expand\": true, \"children\": $ch}");
+		push(@ary, $json . ", \"children\": $ch}");
 	}
 	return "[\n" . join(",\n", @ary) . "\n$tab]";
 }
@@ -1766,14 +1772,17 @@ sub delete_ip_host_agent {
 # ●セッションログのオープン
 #------------------------------------------------------------------------------
 sub open_session {
-	my ($self, $snum) = @_;
-	my $ROBJ = $self->{ROBJ};
-	my $session = $ROBJ->loadpm("Base::SessionFile", $ROBJ->{Cookie}->{session}->{sid}, $snum);
+	my $session = &open_session_for_load(@_);
 	$session->open();
 	$session->autoflush();
 	return $session;
 }
 
+sub open_session_for_load {
+	my ($self, $snum) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $session = $ROBJ->loadpm("Base::SessionFile", $ROBJ->{Cookie}->{session}->{sid}, int($snum));
+}
 
 
 1;

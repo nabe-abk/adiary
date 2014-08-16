@@ -27,9 +27,6 @@
 	<$end>
 
 	<ul class="menu">
-	<@ifexec(v.allow_edit, begin)>
-		<li><a href="<@v.myself>?album/">画像管理（ファイル管理）</a></li>
-	<$end>
 	<@ifexec(v.blog_admin, begin)>
 		<li><a href="<@v.myself>?set/">基本設定</a></li>
 	<$end>

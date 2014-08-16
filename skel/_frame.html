@@ -9,7 +9,7 @@
 <!DOCTYPE html> 
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
+<meta charset="<@System_coding>">
 <!-- Meta tagst ============================================-->
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="generator" content="adiary <@v.VERSION>">
@@ -19,14 +19,17 @@
 <@forexec(t, v.load_jscss(v.cssfiles), begin)>
 <link rel="stylesheet" media="all" href="<@Basepath><@t>">
 <$end>
-<@forexec(t, v.load_rss_files(), begin)>
-<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<@Basepath><@v.blogpub_dir><@t>" /> 
-<$end>
+<!--[if IE 8]> <@> for IE8 @import bug
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>satsuki2/base.css">
+<![endif]-->
 <@> テーマとユーザーCSSは最後に読み込む
 <link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.css" id="theme-css">
 <$file = "<@v.blogpub_dir>usercss.css">
 <@if(!v.system_mode && file_readable(file), #'<link rel="stylesheet" media="all" href="<@Basepath><@file>" id="user-css">\n')>
 <@if(canonical_url, #'<link rel="canonical" href="<@canonical_url>">\n')>
+<@forexec(t, v.load_rss_files(), begin)>
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<@Basepath><@v.blogpub_dir><@t>" /> 
+<$end>
 <!-- JavaScript ============================================-->
 <!--[if lt IE 9]>
 <script src="<@Basepath><@v.script_dir>jquery-1.min.js"></script>
@@ -39,7 +42,7 @@
 <script src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
 <script src="<@Basepath><@v.script_dir>adiary.js"></script>
 <@forexec(t, v.load_jscss(v.scripts), begin)>
-<script async src="<@Basepath><@v.script_dir><@t>?<@tm>"></script>
+<script src="<@Basepath><@v.script_dir><@t>?<@tm>"></script>
 <$end>
 <@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.js"></script>\n')>
 <@forexec(t, v.load_js_events(), begin)>

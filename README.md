@@ -48,6 +48,7 @@ WTFPL（PDS扱い）だと助かります。
 
   * jQuery (MIT)
     * jQuery UI (MIT / GPLv2)
+    * jquery-cookie (MIT)
     * dynatree  (MIT)
     * Color Picker (MIT / GPL)
   * SyntaxHighlighter (LGPL3)
@@ -61,9 +62,16 @@ WTFPL（PDS扱い）だと助かります。
 
 ライセンスについては、各ディレクトリ内の README 等を参照してください。
 
+## フォント
+
+VLゴシックフォント（pub-dist/VL-PGothic-Regular.ttf）をライセンスに基づき
+同梱しています。フォントのライセンスは pub-dist/VLGothic/ 以下を参照してください。
+
 ## 画像アイコン
 
-  * pub-dist/editor-icon 以下の記法ヘルパーアイコンはせりか氏の著作物です。
+  * pub-dist/album-icon  以下のアイコンはせりか氏の著作物です。
+  * pub-dist/album-icon/pdf.png は http://iconhoihoi.oops.jp/ の著作物です。
+  * pub-dist/editor-icon 以下のアイコンはせりか氏の著作物です。
   * pub-dist/icon/ 以下にあるアイコンの一部はせりか氏の著作物です。
   * pub-dist/icon/tp*.gif に該当するファイルはSix Apartの著作物です。
   * pub-dist/mahjong/ 以下のファイルは「まつセン　牌画」を利用自由のライセンスに基づき同梱しています。

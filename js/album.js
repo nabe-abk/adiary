@@ -5,7 +5,18 @@
 //[TAB=8]  require jQuery
 $( function(){
 	var form = $('#album-form');
-	var tree = $('#folder-tree-body');
+	var tree = $('#album-folder-tree');
+	var view = $('#album-folder-view');
+
+	var iframe = $('#iframe-upload-form');
+	var if_msg;
+	var if_dir;
+	var if_size;
+
+	var path = $('#image-path').text();
+	var folder = '';
+	var files;
+
 	var isMac = /Mac/.test(navigator.platform);
 //////////////////////////////////////////////////////////////////////////////
 // ●初期化処理
@@ -104,28 +115,121 @@ tree.dynatree({
 		}
 	}
 });
+//////////////////////////////////////////////////////////////////////////////
+// ●アップロードiframeフォーム初期化処理
+//////////////////////////////////////////////////////////////////////////////
+var _iframe_height;
+iframe.load(function(){
+	var upbody   = iframe.contents();
+	var div_body = upbody.find('#div-body');
+	var upform   = upbody.find('#form');
+	var filesdiv = upbody.find('#file-elements');
+	var inputs   = filesdiv.find('input');
+
+	// その他要素
+	if_msg  = upbody.find('#messages');
+	if_dir  = upbody.find('#folder');
+	if_size = upbody.find('#size');
+	if_dir.val( folder );
+
+	iframe_height();
+	inputs.change(input_change);
+
+	//-----------------------------------------------
+	// <input type=file> が変更された
+	//-----------------------------------------------
+	function input_change(){
+		var flag = true;
+		inputs.each(function(num, obj){
+			if ($(obj).val() == '') flag=false;
+		});
+		if (!flag) return;
+
+		// 新しい要素の追加
+		if (inputs.length > 99) return;
+		var inp = $('<input>', {
+			type: 'file',
+			name: 'file' + inputs.length
+		}).change(input_change);
+		filesdiv.append( inp );
+
+		// 要素リスト更新
+		inputs = filesdiv.find('input');
+		iframe_height();
+	}
+
+	//-----------------------------------------------
+	// iframeの高さ調整
+	//-----------------------------------------------
+	function iframe_height(){
+		iframe.height( div_body.height()+2 );
+	}
+	_iframe_height = iframe_height;	// export
+
+	//-----------------------------------------------
+	// submit時
+	//-----------------------------------------------
+	upform.submit(function(){
+		var flag = false;
+		inputs.each(function(num, obj){
+			if ($(obj).val() != '') flag=true;
+		});
+		if (!flag) return false;
+		return true;
+	});
+
+	//-----------------------------------------------
+	// resetクリック
+	//-----------------------------------------------
+	upbody.find('#reset').click(function(){
+		if_msg.hide();
+		iframe_height();
+		return true;
+	});
+});
 
 //////////////////////////////////////////////////////////////////////////////
 // ●フォルダを開く
 //////////////////////////////////////////////////////////////////////////////
 function open_folder(node) {
-  ajax_submit({
-  	data: {	path: node.data.key },
-	action: 'load_image_files',
-	success: function(data) {
-		var title = node.data.key;
-		if (node.data.key == '.trashbox/') title = $('#msg-trashbox').text();
-		$('#current-folder').text( title );
-		
-		
-		
-		
-		
-		
-		
-		
+	if (if_msg) {
+		if_msg.hide();
+		_iframe_height();
 	}
-  });
+
+	ajax_submit({
+  		data: {	path: node.data.key },
+		action: 'load_image_files',
+		success: function(data) {
+			// データsave
+			folder = (node.data.key == '/') ? '' : node.data.key;
+			files  = data;
+			if (if_dir) if_dir.val( folder );
+
+			var title = node.data.key;
+			if (node.data.key == '.trashbox/') title = $('#msg-trashbox').text();
+			$('#current-folder').text( title );
+
+			// viewの更新
+			update_view();
+		}
+	});
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●ビューのアップデート
+//////////////////////////////////////////////////////////////////////////////
+function update_view() {
+	view.empty();
+	for(var i in files) {
+		var file = files[i];
+		var span = $('<span>');
+		var img  = $('<img>', {
+			src: path + folder + '.thumbnail/' + file.title + '.jpg'
+		});
+		span.append(img);
+		view.append(span);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -149,10 +253,10 @@ function editNode( node ) {
 	
 	// Focus <input> and bind keyboard handler
 	inp.focus();
+	inp.select();
 	inp.keydown(function(evt){
 		switch( evt.which ) {
 			case 27: // [esc]
-				node.setTitle(prev_title);
 				$(this).blur();
 				break;
 			case 13: // [enter]
@@ -164,6 +268,7 @@ function editNode( node ) {
 		}
 	});
 	inp.blur(function(evt){
+		node.setTitle(prev_title);
 		tree.$widget.bind();
 		node.focus();
 	});
@@ -202,6 +307,21 @@ $('#album-reload').click( function(){
 	location.reload();
 });
 
+
+//////////////////////////////////////////////////////////////////////////////
+// ●フォルダ作成ボタン
+//////////////////////////////////////////////////////////////////////////////
+$('#album-new-folder').click( function(){
+	alert('まだ使えません m(__)m');
+});
+
+
+//////////////////////////////////////////////////////////////////////////////
+// ●ゴミ箱空ボタン
+//////////////////////////////////////////////////////////////////////////////
+$('#album-clear-trashbox').click( function(){
+	alert('まだ使えません m(__)m');
+});
 
 //############################################################################
 });
