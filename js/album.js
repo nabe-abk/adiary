@@ -304,7 +304,7 @@ function ajax_submit(opt) {
 // ●リロードボタン
 //////////////////////////////////////////////////////////////////////////////
 $('#album-reload').click( function(){
-	location.reload();
+	location.href = location.href;
 });
 
 
