@@ -1,0 +1,78 @@
+<@6>
+<@local(s,ps)>
+<$s=v.blog>
+
+<!--サイドバー==========================================================-->
+<aside id="sidebar">
+<div id="side-a">
+
+<@ifexec(Auth.ok && v.system_mode && !v.design_edit, begin)>
+<!--現在のブログ情報=====================================-->
+<div class="hatena-module" id="side-login-information">
+<div class="hatena-modulebody">
+<table><tbody>
+<tr>
+<td>UID</td><td<@if(Auth.isadmin, ' title="あなたは管理者です"')>><@Auth.id><@if(Auth.isadmin, '(*)')></td>	
+</tr>
+<@ifexec(v.blogid, begin)>
+<tr>
+<td>Blog</td><td>『<a href="<@v.myself>"><@s.blog_name></a>』id=<@v.blogid></td>
+</tr>
+<$end>
+</tbody></table>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+<$end>
+
+
+
+<!--アルバムフォルダtree=====================================-->
+<div class="hatena-module" id="folder-tree">
+<div class="hatena-moduletitle">フォルダ一覧</div>
+<div class="hatena-modulebody">
+<div id="album-folder-tree"  data-url="<@Basepath><@v.blogpub_dir>images.json" data-url-base="<@Basepath><@v.blogimg_dir()>"></div>
+<button type="button" id="album-new-folder">フォルダ作成</button>
+<button type="button" id="album-reload">リロード</button>
+<button type="button" id="album-clear-trashbox">ゴミ箱を空に</button>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+
+
+</div> <!-- End of side-a -->
+
+
+<div id="side-b">
+<@ifexec(v.blogid, begin)>
+<!--検索====================================================-->
+<div class="hatena-module" id="side-search" data-module-name="des_searchbox">
+<div class="hatena-moduletitle">検索</div>
+<div class="hatena-modulebody">
+<form method="GET" action="<@v.myself>" id="side-search-form">
+<input type="search" class="w80" name="q" size="12" value="<@tag_escape(x = Query.q)>" id="side-search-text" required>
+<button type="submit" id="side-search-submit">検索</button><br>
+<input type="radio" name="all" value="0" <@if(!Query.all, "checked")>><label>タイトル</label>
+<input type="radio" name="all" value="1" <@if( Query.all, "checked")>><label>全文</label>
+</form>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+<$end>
+
+<!--システム情報============================================-->
+<div class="hatena-module" id="side-system-info" data-module-name="des_system-info">
+<div class="hatena-moduletitle">System info</div>
+<div class="hatena-modulebody">
+<@ifexec(Timer, begin)>
+Total time : <span id="system-info-total-time"><@int(Timer.check()*10000 + 0.5)/10></span> ms<br>
+DB time : <span id="system-info-db-time"><@int(Timer.check('db')*10000 + 0.5)/10></span> ms<br>
+<$end>
+Runtime : <@CGI_mode><br>
+RDBMS : <@DB._RDBMS><br>
+<@ifexec(Develop, begin)>
+HTTP Status: <@Status><br>
+<@if(AutoReload, "AutoReload : 1<br>")>
+<$end>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+
+</div> <!-- End of side-b -->
+</aside> <!-- End of sidebar -->

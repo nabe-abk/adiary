@@ -1,0 +1,56 @@
+<@6>
+<$ifsuperjump_clear(! Auth.ok, '_sub/error_message_403', 'ログインしていません')>
+<$ifsuperjump_clear(! v.allow_edit, '_sub/error_message_403', 'ブログが存在しないか権限がありません')>
+
+<@> システムモード
+<$v.system_mode("画像管理")>
+
+<@> 階層ツリー
+<@call("_dir_tree")>
+
+<!--========================================================================-->
+<$v.sidebar = 'album/_sidebar'>
+<$v.init_image_dir()>
+
+<$v.regist_css("<@v.script_dir>dynatree/skin/ui.dynatree.css")>
+<$v.regist_js('jquery.cookie.js')>
+<$v.regist_js('dynatree/jquery.dynatree.min.js')>
+<$v.regist_js('album.js')>
+
+
+<article class="system album">
+<h2 class="dynatree-ico-ef"><span class="dynatree-icon"></span><span id="current-folder">(no load)</span></h2>
+<div class="body">
+	<div class="body-header">
+		<span class="option-item">
+		<select id="view-type" disabled>
+			<option value="icon">アイコン</option>
+			<option value="detail">詳細</option>
+		</select></span>
+		<span class="option-item">ソート：
+		<select id="sort-type" disabled>
+			<option value="name">名前</option>
+			<option value="date">日付</option>
+			<option value="size">サイズ</option>
+		</select></span>
+	</div>
+	<p class="error" id="load-error" style="display: none"><strong class="error">画像フォルダが存在しないか情報をロードできません。</strong></p>
+	<div id="album-folder-view"></div>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST" id="album-form" data-myself="<@v.myself>">
+	<input type="hidden" name="action" value="<@v.skel_dir>" id="action-base">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>" id="csrf-key">
+	</form>
+
+	<h4>アップロード</h4>
+	<iframe src="<@v.myself>?<@v.skel_dir>upload_form" id="iframe-upload-form" frameborder="0" allowTransparency="true"></iframe>
+
+	<p>ドラッグ＆ドロップしてもアップロードできるようになります（そのうちに）。</p>
+</div>
+</article>
+
+<div style="display:none">
+<span id="msg-trashbox">ゴミ箱</span>
+<span id="image-path"><@Basepath><@v.blogimg_dir()></span>
+<span id="icon-path"><@Basepath><@v.album_icons></span>
+</div>

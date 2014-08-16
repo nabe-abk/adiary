@@ -1,0 +1,9 @@
+<@ifexec(@Error, begin)>
+Error : <@error_load_and_clear("\n")>
+<$end>
+<@ifexec(@Debug, begin)>
+Debug : <@join("\n", Debug)>
+<$end>
+<@ifexec(@Warning, begin)>
+Warning : <@join("\n", Warning)>
+<$end>
