@@ -69,7 +69,13 @@
 	<$file_copy("<@v.blogpub_dir>usercss.css", "<@dir>usercss.css")>
 <$end>
 
+<@>////////////////////////////////////////////////////////////////////////////
+<@> アルバムデータのコピー
+<@>////////////////////////////////////////////////////////////////////////////
 
+<$dir = v.static_output_dir . v.static_files_dir>
+<$session.msg("Album files copy to '<@dir>'")>
+<$dir_copy(v.blogimg_dir(), dir)>
 
-
+<$dir_delete("<@dir>.trashbox/")>
 
