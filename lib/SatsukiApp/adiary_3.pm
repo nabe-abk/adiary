@@ -41,7 +41,7 @@ sub genarete_imgae_dirtree {
 
 	$tree->{name} = '/';
 	$tree->{key}  = '/';
-	my $json = $self->generate_dynatree_json([$tree], 'name', ['date', 'count']);
+	my $json = $self->generate_json([$tree], ['name', 'key', 'date', 'count'], {name=>'title'});
 	$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'images.json', $json);
 
 	return $tree->{count};
@@ -100,9 +100,11 @@ sub load_image_files {
 		});
 	}
 	# サムネイル生成
-	$self->make_thumbnail($dir, $files);
+	if (@ary) {
+		$self->make_thumbnail($dir, $files);
+	}
 
-	my $json = $self->generate_dynatree_json(\@ary, 'name', ['size', 'date']);
+	my $json = $self->generate_json(\@ary, ['name', 'size', 'date']);
 	return (0, $json);
 }
 

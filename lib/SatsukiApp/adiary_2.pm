@@ -870,7 +870,7 @@ sub update_taglist {
 	my $tree = $self->generate_tag_tree($blogid);
 
 	# JSONの生成
-	my $json = $self->generate_dynatree_json($tree->{children}, 'sname', ['qt']);
+	my $json = $self->generate_json($tree->{children}, ['sname', 'pkey', 'qt'], {sname=>'title', pkey=>'key'});
 	$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'taglist.json', $json);
 
 	# イベント処理
@@ -946,46 +946,6 @@ sub load_tag_tree {
 	return $tree{0};	# root node
 }
 
-#------------------------------------------------------------------------------
-# ●ハッシュツリーからdynatree用のjsonを生成する
-#------------------------------------------------------------------------------
-sub generate_dynatree_json {
-	my $self = shift;
-	my $data = shift;
-	my $tkey = shift;	# titleのhash key
-	my $ext  = shift || [];	# 追加するカラム
-	my $tab  = shift || '';
-	my @ary;
-	my $encode = sub {
-		$_[0] =~ s/\\/&#92;/g;
-		$_[0] =~ s/"/&quot;/g;
-	};
-	foreach(@$data) {
-		my $title = $_->{$tkey};
-		my $key  = ($_->{key} ne '') ? $_->{key} : $_->{pkey};
-		&$encode($title);
-		&$encode($key);
-		my $json = "$tab\t{\"title\": \"$title\"" . ($key ne '' ? ", \"key\": \"$key\"" : '');
-		foreach my $k (@$ext) {
-			my $v = $_->{$k};
-			if ($v =~ /^\d+$/) {
-				$json .= ", \"$k\": $v";
-				next;
-			}
-			# 文字列
-			&$encode($v);
-			$json .= ", \"$k\": \"$v\"";
-		}
-		if (!$_->{children}) {
-			push(@ary, $json . "}");
-			next;
-		}
-		my $ch = $self->generate_dynatree_json( $_->{children}, $tkey, $ext, "\t$tab" );
-		push(@ary, $json . ", \"children\": $ch}");
-	}
-	return "[\n" . join(",\n", @ary) . "\n$tab]";
-}
-
 ###############################################################################
 # ■コンテンツ関連
 ###############################################################################
@@ -1008,7 +968,7 @@ sub update_contents_list {
 	# コンテンツ情報JSON、キャッシュの生成
 	{
 		my $all = $tree->{_all};
-		my $json= $self->generate_dynatree_json($tree->{children}, 'title', ['upnode','link_key']);
+		my $json= $self->generate_json($tree->{children}, ['title', 'pkey', 'upnode','link_key'], {pkey=>'key'});
 		$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'contents.json', $json);
 
 		# upnode, children, titleのキャッシュ
@@ -1667,6 +1627,45 @@ sub update_plgset {
 ###############################################################################
 # ■サブルーチン
 ###############################################################################
+#------------------------------------------------------------------------------
+# ●hash/arrayツリーからjsonを生成する
+#------------------------------------------------------------------------------
+sub generate_json {
+	my $self = shift;
+	my $data = shift;
+	my $cols = shift || [];	# データカラム
+	my $ren  = shift || {};	# カラムのリネーム情報
+	my $tab  = shift || '';
+	my @ary;
+
+	my $is_hash = ref($data) eq 'HASH';
+	my $dat = $is_hash ? [$data] : $data;
+	foreach(@$dat) {
+		my @a;
+		foreach my $x (@$cols) {
+			my $v = $_->{$x};
+			my $k = exists($ren->{$x}) ? $ren->{$x} : $x;
+			if ($v =~ /^\d+$/) {
+				push(@a, "\"$k\": $v");
+				next;
+			}
+			# 文字列
+			$v =~ s/\\/&#92;/g;
+			$v =~ s/"/&quot;/g;
+			push(@a, "\"$k\": \"$v\"");
+		}
+		if ($_->{children}) {
+			my $ch = $self->generate_json( $_->{children}, $cols, $ren, "\t$tab" );
+			push(@a, "\"children\": $ch");
+		}
+		push(@ary, $is_hash
+			? "{\n$tab\t" . join(",\n$tab\t", @a) . "\n$tab}"
+			: "$tab\t{"   . join(", "       , @a) . "}"
+		);
+	}
+	return $is_hash ? $ary[0] : "[\n" . join(",\n", @ary) . "\n$tab]";
+}
+
 #------------------------------------------------------------------------------
 # ●タグのノーマライズ
 #------------------------------------------------------------------------------

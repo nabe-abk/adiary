@@ -223,12 +223,14 @@ function update_view() {
 	view.empty();
 	for(var i in files) {
 		var file = files[i];
-		var span = $('<span>');
-		var img  = $('<img>', {
-			src: path + folder + '.thumbnail/' + file.title + '.jpg'
+		var link = $('<a>', {
+			href: path + folder + file.name
 		});
-		span.append(img);
-		view.append(span);
+		var img  = $('<img>', {
+			src: path + folder + '.thumbnail/' + file.name + '.jpg'
+		});
+		link.append(img);
+		view.append(link);
 	}
 }
 

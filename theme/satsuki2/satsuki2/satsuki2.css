@@ -609,6 +609,7 @@ button:hover
 {
 	border-radius:		6px;
 	background-image:	linear-gradient(to bottom, #ececff, #bbf);
+	cursor:			pointer;
 }
 
 input[type="reset"]:disabled,
