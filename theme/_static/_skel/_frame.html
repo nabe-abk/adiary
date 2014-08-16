@@ -57,9 +57,9 @@
 <!--タイトル部==============================================================-->
 <div id="page-title">
 <@ifexec(v.blogid, begin, begin)>
-<h1><@if(! v.system_mode && v.blog.blog_image, #'<a href="<@v.myself2>index.html"><img src="<@v.blog.blog_image>" alt="<@v.title>"></a>', #'<a href="<@v.myself2>index.html"><@v.title></a>')></h1>
+<h1><@if(! v.system_mode && v.blog.blog_image, #'<a href="<@v.myself2>index"><img src="<@v.blog.blog_image>" alt="<@v.title>"></a>', #'<a href="<@v.myself2>index"><@v.title></a>')></h1>
 <$else>
-<h1><a href="<@v.myself2>index.html"><@if(v.title_h1, v.title_h1, v.title)></a></h1>
+<h1><a href="<@v.myself2>index"><@if(v.title_h1, v.title_h1, v.title)></a></h1>
 <$end>
 </div>
 </header>
