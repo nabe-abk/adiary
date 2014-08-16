@@ -199,7 +199,7 @@ sub make_thumbnail_for_notimage {
 
 	# キャンパス生成
 	my $img = $self->load_image_magick();
-	$img->Set(size=>$size . 'x' . $size);
+	$img->Set(size => $size . 'x' . $size);
 	$img->ReadImage('xc:white');
 
 	# 拡張子アイコンの読み込み
@@ -210,11 +210,10 @@ sub make_thumbnail_for_notimage {
 	my $icon = $self->load_image_magick();
 	eval {
 		$icon->Read( $self->{album_icons} . $icon_file );
-		$icon = $icon->[0];
 	};
 	if (!$@) {
 		my ($x, $y) = $icon->Get('width', 'height');
-		$x = ($size - $y) / 2;
+		$x = ($size - $x) / 2;
 		$y = ($size - $f_height - $y -4) / 2;
 		if($x<0){ $x=0; }
 		if($y<0){ $y=0; }
