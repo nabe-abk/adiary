@@ -92,9 +92,6 @@
 </div>
 	<$coms = if(v.allow_edit, t.coms_all, t.coms)>
 	<div class="body-footer">
-	<@ifexec(t.com_ok || coms, begin)>
-		<span class="element com-caption"><a href="<@v.myself2><@t.elink_key>#com"><span class="com-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span></a></span>
-	<$end>
 <@>ソーシャルボタンの呼び出し
 <@exec(social_func, url)>
 	</div>

@@ -28,7 +28,7 @@
 <$ifbreak(!exporter)>
 <$ifset(!opt.allow_pings, opt.allow_pings, 0)>
 
-<$ifprint(Debug_mode, "Content-Type: text/plain; charset=<@opt.charset>;\n\n")>
+<$ifprint(Export_debug, "Content-Type: text/plain; charset=<@opt.charset>;\n\n")>
 <$set_header('Content-Disposition', "attachment; filename=<@opt.base_filename>_export_mt.txt")>
 <$print_http_headers('text/xml', opt.charset)>
 

@@ -43,6 +43,9 @@ sub init_for_speedycgi {
 	$self->{CGI_cache}=  1;
 	$self->{SpeedyCGI} = 1;
 	$self->{CGI_mode}  = 'SpeedyCGI';
+
+	# SpeedyCGIのバグ対応
+	delete $INC{'Image/Magick.pm'};
 }
 
 ###############################################################################

@@ -123,8 +123,8 @@
 	<@if(!edit_pkey || art.draft, '<input type="submit" name="draft" id="save-draft" value="下書き保存"><span class="help" data-help="下書きは記事一覧にも表示されません">?</span>')>
 	<input type="submit" name="edit" id="save-normal" value="<@if(edit_pkey, '編集内容を保存', 'この記事を新規に登録')>">
 	<br>
-	<a href="http://adiary.blog.abk.nu/0290" target=_blank>記法の暫定ヘルプはこちら</a>
-	<@ifexec(Develop || Debug_mode, begin)>
+	<a href="http://adiary.blog.abk.nu/0290" target=_blank>記法のヘルプ</a>
+	<@ifexec(Develop, begin)>
 		<input type="checkbox" class="js-switch" data-target="#-dummy-" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug">パーサーのデバッグ</label>
 	<$end>
 

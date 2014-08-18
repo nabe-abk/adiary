@@ -79,7 +79,8 @@ select {
 <$end>
 </select>
 <input type="submit" name="submit" value="保存"><button type="button" id="readme-button" class="info" data-title="README" data-url="" data-class="pre" onclick>README表示</button>
-&nbsp;<input type="checkbox" name="not_use_sysmode" value="1"><label class="small">管理画面は標準テーマを使用</label>
+<input type="hidden" name="checkbox.info" value="sysmode_notheme_flg">
+<input type="checkbox" name="sysmode_notheme_flg" value="1"<@if(s.sysmode_notheme, ' checked')>><label class="small">管理画面は標準テーマを使用</label>
 </form>
 <div id="back-link"><a href="<@v.myself>?<@v.skel_dir>">&gt;メニューに戻る</a></div>
 <iframe id="iframe"  seamless></iframe>
@@ -124,7 +125,7 @@ function iframe_resize() {
 });
 </script>
 
-<@ifexec(Develop && (@Error || @Debug || @Warning) || Debug_mode, begin.debug)>
+<@ifexec(Develop && (@Error || @Debug || @Warning), begin.debug)>
 <!--追加フッタ==============================================================-->
 <p><strong>debug</strong></p>
 

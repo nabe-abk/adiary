@@ -9,7 +9,7 @@ use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION = '2.914';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'beta1.4';
+our $SUBVERSION = 'beta1.5';
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
@@ -250,6 +250,12 @@ sub blogid_and_pinfo {
 	# 未設定ならブログを選択 ※$blogidが未設定でも選択すること
 	if (!$selected) { $self->set_and_select_blog( $blogid ); }
 
+	# テーマの設定
+	my $theme = $self->{blog}->{theme};
+	if (!$theme || $self->load_theme($theme)) {
+		$self->load_theme( $self->{default_theme} );
+	}
+
 	# pinfoの保存
 	my $pinfo = join('/', @pinfo);
 	$self->{pinfo}   = $pinfo;
@@ -421,11 +427,6 @@ sub set_and_select_blog {
 		$self->{myself2} = $ROBJ->{Myself2} . "$blogid/";
 	}
 
-	# テーマの設定
-	if ($blog->{theme} && !$self->{system_mode}) {
-		$self->load_theme( $blog->{theme} );
-	}
-
 	# ブログ個別スケルトンの登録（プラグイン等で生成される）
 	if (!$self->{stop_all_plugins}) {
 		$ROBJ->regist_skeleton($self->{blog_dir} . 'skel/', $self->{user_skeleton_level});
@@ -521,12 +522,10 @@ sub system_mode {
 	if ($title ne '') { $self->{title} = $title; }
 	if ($mode_class ne '') { $self->{mode_class} = ' ' . $mode_class; }
 
-	return ;
-
-	# システムテーマのロード
-	$self->load_theme( $self->{system_theme} );
-	# theme templateをoff
-	$ROBJ->delete_skeleton( $self->{theme_skeleton_level} );
+	if ($self->{blog}->{sysmode_notheme}){
+		# デフォルトテーマの選択
+		$self->load_theme( $self->{default_theme} );
+	}
 }
 
 #------------------------------------------------------------------------------
@@ -720,23 +719,23 @@ sub load_articles {
 			my $q = $query->{q};
 			my @buf;
 			$q =~ s!"([^"]+)"!
-				my $x=$1;
-				$x =~ s/^\s+/ /;
-				$x =~ s/\s+$/ /;
-				if ($x eq '') { ' '; }
-				else {
-					push(@buf, $x);
-					" \x04[$#buf] ";
-				}
+				push(@buf, $1);
+				" \x04[$#buf] ";
 			!eg;
-			my @words = split(/\s+/, $q);
+			my $sep = $self->{words_separator} || '\s';
+
+			require Encode;
+			Encode::_utf8_on($q);
+			$q =~ s/[$sep]+/ /g;
+			Encode::_utf8_off($q);
+
+			my @words = split(/ /, $q);
 			foreach(@words) {
 				$_ =~ s/\x04\[(\d+)\]/$buf[$1]/;
 			}
 			$q{search_words} = \@words;
 			$q{search_cols}  = $query->{all} ? ['title','_text'] : ['title'];
 
-			$q =~ s/\s+/ /g;
 			$q =~ s/\x04\[(\d+)\]/"$buf[$1]"/g;
 			$ROBJ->tag_escape( $q );
 			$ret{q} = $q;
@@ -923,6 +922,9 @@ sub load_articles {
 		$ret{year} = $logs->[0]->{year};
 		$ret{mon}  = $logs->[0]->{mon};
 		$ret{day}  = $logs->[0]->{day};
+	}
+	if ($logs->[0] && $ret{mode} eq 'search' && $ret{year} && !$ret{day}) {
+		$ret{mon}  = $logs->[0]->{mon};
 	}
 
 	return wantarray ? ($logs, \%ret) : $logs;
@@ -1394,6 +1396,10 @@ sub blogpub_dir {
 	my $blog = $self->load_blogset($blogid);
 	my $postfix = $blog ? $blog->{blogpub_dir_postfix} : '';
 	return ($self->{ROBJ}->get_filepath("$self->{pub_dir}$blogid$postfix/"));
+}
+sub blogimg_dir {
+	my $self = shift;
+	return $self->{blogpub_dir} . 'image/';
 }
 
 #------------------------------------------------------------------------------

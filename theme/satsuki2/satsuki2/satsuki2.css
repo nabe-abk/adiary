@@ -812,11 +812,12 @@ article.edit span.tag:after {
 	line-height:		100%;
 	vertical-align:		middle;
 }
-
+/*
 #popup-help div.additional {
 	color:			#000;
 	font-weight:		normal;
 }
+*/
 
 /*--------------------------------------------------------------------
 ●jQuery UI, popup-info/dialog

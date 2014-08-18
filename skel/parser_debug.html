@@ -1,5 +1,5 @@
 <@6>
-<$ifbreak(!Develop && !Debug_mode || !v.allow_edit)>
+<$ifbreak(!Develop || !v.allow_edit)>
 <@local(ret,s,t,t2,c,permalink)>
 
 <$(t,ret) = v.load_article_current_blog(v.pinfo, Query)>

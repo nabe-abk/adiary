@@ -16,6 +16,7 @@
 <meta name="author" content="<@v.blogid>">
 <@if(v.system_mode || v.no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
 <link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.notheme.css" id="jquery-ui-css">
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_lightbox/lightbox.css" id="lightbox-css">
 <@forexec(t, v.load_jscss(v.cssfiles), begin)>
 <link rel="stylesheet" media="all" href="<@Basepath><@t>">
 <$end>
@@ -39,8 +40,9 @@
 <!--[if gte IE 9]><!-->
 <script src="<@Basepath><@v.script_dir>jquery-2.min.js"></script>
 <!--<![endif]-->
+<script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <script src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
-<script src="<@Basepath><@v.script_dir>adiary.js"></script>
+<script src="<@Basepath><@v.script_dir>adiary.js?<@tm>"></script>
 <@forexec(t, v.load_jscss(v.scripts), begin)>
 <script src="<@Basepath><@v.script_dir><@t>?<@tm>"></script>
 <$end>
@@ -109,7 +111,7 @@
 <@call( if(v.sidebar, v.sidebar, '_sidebar') )>
 
 
-<@ifexec(Develop && (@Error || @Debug || @Warning) || Debug_mode, begin.debug)>
+<@ifexec(Develop && (@Error || @Debug || @Warning) || ENV_print, begin.debug)>
 <!--追加フッタ==============================================================-->
 
 <div class="main add-main">
@@ -130,7 +132,7 @@ Debug : <strong><@join("<br>\n", Debug)></strong><br>
 Warning : <strong><@join("<br>\n", Warning)></strong><br>
 </div>
 <$end>
-<@ifexec(Debug_mode, begin.debug_mode)>
+<@ifexec(ENV_print, begin.env_print)>
 <div class="small debug mono">
 blogid <@v.blogid><br>
 Basepath <@Basepath><br>
@@ -143,9 +145,9 @@ v.myself2 <@v.myself2><br>
 blog_admin <@v.blog_admin><br>
 allow_edit <@v.allow_edit><br>
 allow_com  <@v.allow_com><br>
-<#@dump_hash("%k=%v<br>\n", ENV)>
+<@dump_hash("%k=%v<br>\n", ENV)>
 </div>
-<$end.debug_mode>
+<$end.env_print>
 </div>
 <$end.debug>
 

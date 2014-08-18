@@ -1,6 +1,15 @@
-<@20>
+<@6>
 <$ifbreak(csrf_check())>
 <$ifbreak(!v.allow_edit)>
 <$action_return = v.image_upload_form( Form )>
-
-
+<@>
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+<$set_content_type('text/plain')>
+<@>
+ret=<@action_return>
+<@>
+<@ifexec(@Message, begin)>
+<@join("\n", Message)>
+<$end>
+<@ifcall(Develop, '_sub/ajax_debug')>

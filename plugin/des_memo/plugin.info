@@ -1,0 +1,39 @@
+######################################################################
+title=memo
+version=1.00
+#					(C)2014 serika
+######################################################################
+author=serika
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.912
+
+module_type=sidebar
+module_class=hatena-module
+module_id=side-serika-memo
+
+*files=<<FILES
+js/<@this>.js
+FILES
+
+*events=<<EVENTS
+JS=js/<@this>.js
+EVENTS
+
+*sample_html=<<HTML
+<div class="hatena-moduletitle">メモ</div>
+<div class="hatena-modulebody">
+<textarea row="5">自由にメモしておけるテキストエリアです
+データは、cookieに保存されます。</textarea>
+</div> <!-- hatena-modulebody -->
+HTML
+
+*module_html=<<HTML
+<$x = v.load_plgset('<@this>')>
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
+<div class="hatena-moduletitle">メモ</div>
+<div class="hatena-modulebody"><textarea rows="5"></textarea>
+</div>
+</div> <!-- hatena-module -->
+HTML

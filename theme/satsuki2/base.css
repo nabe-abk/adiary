@@ -172,6 +172,27 @@ input.color-picker {
 	z-index:	10000;
 }
 
+/* 検索 */
+article.search .ui-icon.ui-icon-close {
+	cursor:		pointer;
+}
+
+/*--------------------------------------------------------------------
+●フロートオブジェクト
+---------------------------------------------------------------------*/
+h3,h4,.clear
+div.body-footer {
+	clear:		both;
+}
+.float, .float-l {
+	float:		left;
+	margin-right:	1em;
+}
+.float-r {
+	float:		right;
+	margin-left:	1em;
+}
+
 /*--------------------------------------------------------------------
 ●フォームポップアップ
 ---------------------------------------------------------------------*/
@@ -303,22 +324,46 @@ ul.menu {
 
 #album-folder-view {
 	margin-top:		4px;
-	min-height:		300px;
+	min-height:		260px;
+	margin-bottom:		8px;
 }
 
+#album-folder-view a {
+	margin:			1px;
+	display:		inline-block;
+}
 #album-folder-view img {
-	border:			2px solid transparent;
-	padding:		2px;
+	border:			3px solid transparent;
 	vertical-align:		middle;
+	max-width:		120px;
+	max-height:		120px;
 }
 #album-folder-view img.selected {
 	border-color:		#f88;
 	background-color:	#f88;
 }
 
+/* アルバムヘッダ */
+#album-header, #album-header select {
+	font-size:		11pt;
+}
+#album-header div {
+	display:		inline-block;
+}
+#album-header div.view-option {
+	float:			right;
+}
+
+/* アルバムメイン部 */
 #iframe-upload-form {
 	width:			100%;
 	border:			none;
+}
+#file-elements {
+	margin-bottom:		6px;
+}
+#file-elements input {
+	display:		block;
 }
 
 /*--------------------------------------------------------------------

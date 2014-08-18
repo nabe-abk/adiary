@@ -42,6 +42,10 @@ plugin/*
 !plugin/des_twitter
 !plugin/notify_mail
 
+# 2nd/3rd party plugin
+!plugin/des_memo
+
+
 #--------------------------------------
 # other files
 #--------------------------------------

@@ -51,6 +51,7 @@ WTFPL（PDS扱い）だと助かります。
     * jquery-cookie (MIT)
     * dynatree  (MIT)
     * Color Picker (MIT / GPL)
+  * Lightbox2 (Creative Commons Attribution 2.5)
   * SyntaxHighlighter (LGPL3)
   * respond.js (MIT / GPL2)
   * IE9.js (MIT)
@@ -69,8 +70,9 @@ VLゴシックフォント（pub-dist/VL-PGothic-Regular.ttf）をライセン�
 
 ## 画像アイコン
 
-  * pub-dist/album-icon  以下のアイコンはせりか氏の著作物です。
+  * pub-dist/album-icon  以下のアイコンの多くはせりか氏の著作物です。
   * pub-dist/album-icon/pdf.png は http://iconhoihoi.oops.jp/ の著作物です。
+  * pub-dist/album-icon  以下の g- で始まるファイルはGNOME Desktopアイコンです。
   * pub-dist/editor-icon 以下のアイコンはせりか氏の著作物です。
   * pub-dist/icon/ 以下にあるアイコンの一部はせりか氏の著作物です。
   * pub-dist/icon/tp*.gif に該当するファイルはSix Apartの著作物です。

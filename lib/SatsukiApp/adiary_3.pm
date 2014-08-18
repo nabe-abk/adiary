@@ -24,7 +24,7 @@ sub init_image_dir {
 	$ROBJ->mkdir($dir);
 	$ROBJ->mkdir($dir . '.trashbox/');	# ごみ箱フォルダ
 
-	# ファイルリストの生成
+	# ブォルダリストの生成
 	$self->genarete_imgae_dirtree();
 }
 
@@ -89,6 +89,9 @@ sub load_image_files {
 	my $dir  = $self->image_folder_to_dir( shift );	# 値check付
 	my $ROBJ = $self->{ROBJ};
 
+	# $|=1;
+	# print "Content-Type: text/plain\n\ntest\n";
+
 	my $files = $ROBJ->search_files( $dir );
 	my @ary;
 	foreach(@$files) {
@@ -96,7 +99,8 @@ sub load_image_files {
 		push(@ary,{
 			name => $_,
 			size => $st[7],
-			date => $st[9]
+			date => $st[9],
+			isImg=> $self->is_image($_)
 		});
 	}
 	# サムネイル生成
@@ -104,7 +108,7 @@ sub load_image_files {
 		$self->make_thumbnail($dir, $files);
 	}
 
-	my $json = $self->generate_json(\@ary, ['name', 'size', 'date']);
+	my $json = $self->generate_json(\@ary, ['name', 'size', 'date', 'isImg']);
 	return (0, $json);
 }
 
@@ -117,6 +121,9 @@ sub make_thumbnail {
 	my $dir  = $ROBJ->get_filepath( shift );
 	my $files= shift || [];
 	my $opt  = shift || {};
+
+	# その他の拡張子情報のロード
+	$ROBJ->call('album/_load_extensions');
 
 	$ROBJ->mkdir("${dir}.thumbnail/");
 	foreach(@$files) {
@@ -146,16 +153,18 @@ sub make_thumbnail_for_image {
 	my $size = shift || $self->{album_thumb_size};
 	my $ROBJ = $self->{ROBJ};
 
-	my $img = $self->load_image_magick();
+	# リサイズ
+	if ($size < 64)  { $size= 64; }
+	if (800 < $size) { $size=800; }
+
+	# print "0\n";
+	my $img = $self->load_image_magick( 'jpeg:size'=>"$size x $size" );
 	eval {
 		$img->Read( "$dir$file" );
 		$img = $img->[0];
 	};
+	# print "4\n";
 	if ($@) { return -1; }	# load 失敗
-
-	# リサイズ
-	if ($size < 16)  { $size=120; }
-	if (800 < $size) { $size=800; }
 
 	my ($w, $h) = $img->Get('width', 'height');
 	if ($w<=$size && $h<=$size) {
@@ -276,18 +285,29 @@ sub image_upload_form {
 	# アップロード
 	my $count_s = 0;
 	my $count_f = 0;
-	foreach my $i (0..99) {
-		my $file_h = $form->{"file$i"};
-		my $fname  = $file_h->{file_name};
+	my @ary;
+	foreach(0..99) {
+		if( $form->{"file$_"} ) {
+			push(@ary, $form->{"file$_"});
+		}
+		push(@ary, @{ $form->{"file${_}_ary"} || [] });
+	}
+	my @files;
+	foreach(@ary) {
+		my $fname = $_->{file_name};
 		if ($fname eq '') { next; }
-		if ($self->do_upload( $dir, $file_h )){
+		if ($self->do_upload( $dir, $_ )){
 			# $ROBJ->message('Upload fail: %s', $fname);
 			$count_f++;
 			next;
 		}
 		$count_s++;
 		$ROBJ->message('Upload: %s', $fname);
+		push(@files, $fname);
 	}
+
+	# サムネイル生成
+	$self->make_thumbnail($dir, \@files);
 
 	# メッセージ
 	return wantarray ? ($count_s, $count_f) : $count_f;
@@ -301,6 +321,9 @@ sub do_upload {
 	my $ROBJ = $self->{ROBJ};
 	my $dir  = $ROBJ->get_filepath( shift );
 	my $file_h = shift;
+
+	# その他の拡張子情報のロード
+	$ROBJ->call('album/_load_extensions');
 
 	# ハッシュデータ（フォームデータの確認）
 	my $file_name = $file_h->{file_name};
@@ -346,11 +369,7 @@ sub do_upload {
 #------------------------------------------------------------------------------
 sub load_image_magick {
 	require Image::Magick;
-	return Image::Magick->new;
-}
-sub blogimg_dir {
-	my $self = shift;
-	return $self->{blogpub_dir} . 'image/';
+	return Image::Magick->new(@_);
 }
 
 #------------------------------------------------------------------------------
@@ -657,7 +676,7 @@ sub contents_edit {
 		}
 		my $org = $cons{ $pkey };
 		my %h;
-		if ($upnode != $org->{upnode} && $cons{$upnode}) {
+		if ($upnode != $org->{upnode} && ($cons{$upnode} || $upnode==0)) {
 			$h{upnode} = $upnode;
 		}
 		if ($link_key ne '' && $link_key ne $org->{link_key}) {
@@ -1469,17 +1488,19 @@ sub load_themes {
 # ●テーマリストの作成
 #------------------------------------------------------------------------------
 sub save_theme {
-	my ($self, $theme) = @_;
+	my ($self, $form) = @_;
 	my $blog = $self->{blog};
 	my $ROBJ = $self->{ROBJ};
 	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
+	my $theme = $form->{theme};
 	if ($theme !~ m|^([\w-]+)/([\w-]+)/?$|) {
 		return 1;
 	}
 
 	# テーマ保存
 	$self->update_blogset($blog, 'theme', $theme);
+	$self->update_blogset($blog, 'sysmode_notheme', $form->{sysmode_notheme_flg});
 	return 0;
 }
 

@@ -71,7 +71,7 @@ sub import_arts {
 		my @tags;
 		while(@ary) {
 			my $line = shift(@ary);
-			if ($line eq '-----') { last; }	# separetor/block end
+			if ($line eq '-----') { last; }	# separator/block end
 			# XXXX: value を解析
 			$line =~ /^([A-Z ]+):\s*(.*)\s*$/;
 			my $key = $1;

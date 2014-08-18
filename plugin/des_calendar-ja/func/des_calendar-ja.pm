@@ -61,7 +61,7 @@ $self->{generate_calendar} = sub {
 	my ($year, $mon, $day) = @_;
 
 	my $today;
-	if (!defined $year) {
+	if (!$year) {
 		$year = $now->{year};
 		$mon  = $now->{mon};
 		$day  = $now->{day};

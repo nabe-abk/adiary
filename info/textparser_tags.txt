@@ -145,12 +145,17 @@ img        = 画像, image
 img#2      = 画像, image, 2, $1:$2
 img#2#link = 画像, image, 2, $1:$2
 
-# 標準アップローダ
+# アルバム管理画像
+image:L     = 画像アルバム, image, 2,  ${image}$1$2
+image:S     = 画像アルバム, image, 2,  ${image}$1.thumbnail/$2.jpg
+# Ver2互換設定
 image       = 画像アルバム, image, 3,  ${image}$2$3
 image#small = 画像アルバム, image, 3,  ${image}$2.thumbnail/$3.jpg
 image#link  = 画像アルバム, image, 3,  ${image}$2$3
-file        = ファイル,     ASCII, 4,  ${image}$3$4
 
+# 通常ファイル
+file        = ファイル, ASCII, 3,  ${image}$2$3
+file#5      = ファイル, ASCII, 4,  ${image}$3$4
 
 #------------------------------------------------------------------------------
 # その他
@@ -196,7 +201,6 @@ sub	= html:sub
 clear   = html:br.clear
 wbr     = html:wbr
 code	= html:code
-
 
 #------------------------------------------------------------------------------
 # テキスト色

@@ -85,7 +85,7 @@ TEXT
 	push(@lines, "0\0");
 
 	# ファイルに書き出し
-	$self->fwrite_lines($cache_file, \@lines );
+	$self->fwrite_lines($cache_file, \@lines);
 }
 
 ###############################################################################
@@ -794,15 +794,16 @@ sub read_multipart_form {
 				# 変数に読み込む
 				my $size = $buffer->read_line(\$value, $boundary, $file_max_size);
 				my %h;
-				$form->{$name} = \%h;
 				$h{data}       = $value;	# tmp file name
 				$h{file_name}  = $filename;
 				$h{file_size}  = $size;
+				$value = \%h;
 			}
 		} else {
 			$buffer->read_line(\$value, $boundary, $data_max_size);
-			$self->form_data_check_and_save($form, $options, $name, $value);
 		}
+		$self->form_data_check_and_save($form, $options, $name, $value);
+
 		## print "$name=$form->{$name}\n";	## debug
 		# データの終わりか確認
 		$buffer->read_line(\$line, "\r\n", $header_max_size);
@@ -848,12 +849,11 @@ sub form_data_check_and_save {
 		if (!exists $form->{$key}) {
 			$form->{$key}=$val;
 		}
-	} elsif ($type ne '_bin') {	# バイナリデータではない
+	} elsif ($type ne '_bin' && !ref($val)) {	# バイナリデータではない
 		# 文字コード変換（文字コードの完全性保証）
 		my $jcode = $self->load_codepm_if_needs( $val );
 		$jcode && $jcode->from_to( \$val, $self->{UA_code} || $self->{System_coding}, $self->{System_coding} );
 		my $substr = $jcode ? sub { $jcode->jsubstr(@_) } : sub { substr($_[0],$_[1],$_[2]) };
-
 
 		# TAB LF CR以外の制御コードを除去
 		$val =~ s/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]//g;

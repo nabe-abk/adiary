@@ -104,8 +104,8 @@ initfunc.push( function(R){
 		var div  = $('#popup-help');
 		var func = function(obj,div) {
 			var text = tag_esc_br( obj.data("help") );
-			if (text.match('<br>'))
-				text = text.replace('<br>', '<div class="additional">') + '</div>';
+			//if (text.match('<br>'))
+			//	text = text.replace('<br>', '<div class="additional">') + '</div>';
 			div.html( text );
 		}
 		regist_popup(obj, div, func);
@@ -645,14 +645,17 @@ function word_highlight(id) {
 	var ch = $(id).children();
 	var words = [];
 	for(var i=0; i<ch.length; i++) {
-		words.push( $(ch[i]).text().toLowerCase() );
+		var w = $(ch[i]).text();
+		if (w.length < 1) continue;
+		words.push( w.toLowerCase() );
 	}
 
 	var target = $("#articles article h2 .title, #articles article div.body div.body-main");
+	var h_cnt = 0;
 	rec_childnodes(target, words);
 
 // childnodesを再起関数で探索
-function rec_childnodes(_nodes,words) {
+function rec_childnodes(_nodes, words) {
 	// ノードはリアルタイムで書き換わるので、呼び出し時点の状態を保存しておく
 	var nodes = [];
 	for(var i=0; i<_nodes.length; i++)
@@ -664,6 +667,7 @@ function rec_childnodes(_nodes,words) {
 			var text = nodes[i].nodeValue;
 			if (text == undefined || text.match(/^[\s\n\r]*$/)) continue;
 			do_highlight_string(nodes[i], words);
+			h_cnt++; if (h_cnt>999) break; 
 			continue;
 		}
 		if (! nodes[i].hasChildNodes() ) continue;

@@ -1,4 +1,4 @@
-Version 1.11.1	full.
+Version 1.11.1	default
 /*
 	not include 'Autocomplete' and 'Datepicker' and 'Spinner' and 'All Effects'.
 */

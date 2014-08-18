@@ -9,4 +9,4 @@ ret=<@ajax_return>
 <@ifexec(@Message, begin)>
 Message : <@tag_delete(join("\n", Message))>
 <$end>
-<@ifcall(Develop || Debug_mode, '_sub/ajax_debug')>
+<@ifcall(Develop, '_sub/ajax_debug')>

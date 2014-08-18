@@ -6,7 +6,7 @@
 #　・url には「,」を含めない。
 # （参考）http://adiary.blog.abk.nu/066
 #-----------------------------------------------------------------------------
-# サンプル（定義済）
+# サンプル（すべて定義済）
 #-----------------------------------------------------------------------------
 #google         = Google検索,          UTF-8, http://www.google.co.jp/search?lr=lang_ja&ie=utf-8&oe=utf-8&q=
 #google:image   = Googleイメージ検索,  UTF-8, http://images.google.co.jp/images?lr=lang_ja&ie=utf-8&oe=utf-8&q=

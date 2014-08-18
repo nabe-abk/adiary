@@ -58,15 +58,12 @@ System-Coding : <@System_coding>
 	<td>Image::Magick</td><td class="c"><@if(lib_check('Image::Magick'), ok, ng)></td>
 	<td>存在すれば画像縮小可能</td>
 </tr><tr>
-	<td>Net::POP3</td><td class="c"><@if(lib_check('Net::POP3'), ok, ng)></td>
-	<td>POPによる「メール投稿」時は必須</td>
-</tr><tr>
 	<td>Net::SSLeay</td><td class="c"><@if(lib_check('Net::SSLeay'), ok, ng)></td>
-	<td>Twitterに更新ポストする際に必要</td>
+	<td>Twitterに投稿等する際に必要</td>
 </tr><tr>
 <$mail = loadpm("Base::Mail")>
 	<td>sendmailコマンド</td><td class="c"><@if(mail.get_sendmail_cmd(), ok, ng)></td>
-	<td>「メール通知」「メール投稿」時は必須</td>
+	<td>「メール通知」プラグインなどで使用</td>
 </tr>
 </table>
 

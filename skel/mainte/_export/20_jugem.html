@@ -22,7 +22,7 @@
 <$ifbreak(!exporter)>
 <$ifset(!opt.allow_pings, opt.allow_pings, 0)>
 
-<$ifprint(Debug_mode, "Content-Type: text/plain; charset='UTF-8';\n\n")>
+<$ifprint(Export_debug, "Content-Type: text/plain; charset='UTF-8';\n\n")>
 <$set_header('Content-Disposition', "attachment; filename=<@opt.base_filename>_export_jugem.xml")>
 <$print_http_headers('text/xml', 'UTF-8')>
 

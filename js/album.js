@@ -4,18 +4,22 @@
 //############################################################################
 //[TAB=8]  require jQuery
 $( function(){
+	var main = $('#album');
 	var form = $('#album-form');
 	var tree = $('#album-folder-tree');
 	var view = $('#album-folder-view');
 
-	var iframe = $('#iframe-upload-form');
-	var if_msg;
-	var if_dir;
-	var if_size;
-
 	var path = $('#image-path').text();
-	var folder = '';
 	var files;
+
+	// ファイルアップロード関連
+	var upform   = $('#upload-form');
+	var iframe   = $('#form-response');
+	var message  = $('#upload-messages');
+	var upfolder = $('#upload-folder');
+	var upreset  = $('#upload-reset');
+	var filesdiv = $('#file-elements');
+	var inputs   = filesdiv.find('input');
 
 	var isMac = /Mac/.test(navigator.platform);
 //////////////////////////////////////////////////////////////////////////////
@@ -116,95 +120,95 @@ tree.dynatree({
 	}
 });
 //////////////////////////////////////////////////////////////////////////////
-// ●アップロードiframeフォーム初期化処理
+// ●[file] 
 //////////////////////////////////////////////////////////////////////////////
-var _iframe_height;
-iframe.load(function(){
-	var upbody   = iframe.contents();
-	var div_body = upbody.find('#div-body');
-	var upform   = upbody.find('#form');
-	var filesdiv = upbody.find('#file-elements');
-	var inputs   = filesdiv.find('input');
+main.on("drop", function(evt) {
+	evt.stopPropagation();
+	evt.preventDefault();  
+	alert(111);
+	//$('#file')[0].files = evt.originalEvent.dataTransfer.files;
+});
+main.on('dragover', function(evt) {
+	return false;
+ });
 
-	// その他要素
-	if_msg  = upbody.find('#messages');
-	if_dir  = upbody.find('#folder');
-	if_size = upbody.find('#size');
-	if_dir.val( folder );
 
-	iframe_height();
-	inputs.change(input_change);
+//////////////////////////////////////////////////////////////////////////////
+// ●[file] <input type=file> が変更された
+//////////////////////////////////////////////////////////////////////////////
+function input_change() {
+	var flag = true;
+	inputs.each(function(num, obj){
+		if ($(obj).val() == '') flag=false;
+	});
+	if (!flag) return;
 
-	//-----------------------------------------------
-	// <input type=file> が変更された
-	//-----------------------------------------------
-	function input_change(){
-		var flag = true;
-		inputs.each(function(num, obj){
-			if ($(obj).val() == '') flag=false;
-		});
-		if (!flag) return;
+	// 新しい要素の追加
+	if (inputs.length > 99) return;
+	var inp = $('<input>', {
+		type: 'file',
+		name: 'file' + inputs.length,
+		multiple: 'multiple'
+	}).change(input_change);
+	filesdiv.append( inp );
 
-		// 新しい要素の追加
-		if (inputs.length > 99) return;
-		var inp = $('<input>', {
-			type: 'file',
-			name: 'file' + inputs.length
-		}).change(input_change);
-		filesdiv.append( inp );
+	// 要素リスト更新
+	inputs = filesdiv.find('input');
+}
+inputs.change( input_change );
 
-		// 要素リスト更新
+//////////////////////////////////////////////////////////////////////////////
+// ●[file] submit
+//////////////////////////////////////////////////////////////////////////////
+upform.submit(function(){
+	var flag = false;
+	inputs.each(function(num, obj){
+		if ($(obj).val() != '') flag=true;
+	});
+	if (!flag) return false;
+	
+	// submit処理
+	iframe.unbind();
+	iframe.load(function(){
+		upform[0].reset();
+		var ary = iframe.contents().text().split(/\n/);
+		var ret = ary.shift();
+		var reg = ret.match(/ret=\d+/);
+		if (reg) {
+			ret = reg[0];
+			message.html( ary.join("\n") );
+			message.show( Default_show_speed );
+		}
+
+		// ファイル選択を１つ残して削除
+		for(var i=1; i<inputs.length; i++) {
+			inputs[i].remove();
+		}
 		inputs = filesdiv.find('input');
-		iframe_height();
-	}
-
-	//-----------------------------------------------
-	// iframeの高さ調整
-	//-----------------------------------------------
-	function iframe_height(){
-		iframe.height( div_body.height()+2 );
-	}
-	_iframe_height = iframe_height;	// export
-
-	//-----------------------------------------------
-	// submit時
-	//-----------------------------------------------
-	upform.submit(function(){
-		var flag = false;
-		inputs.each(function(num, obj){
-			if ($(obj).val() != '') flag=true;
-		});
-		if (!flag) return false;
-		return true;
 	});
+	return true;
+});
 
-	//-----------------------------------------------
-	// resetクリック
-	//-----------------------------------------------
-	upbody.find('#reset').click(function(){
-		if_msg.hide();
-		iframe_height();
-		return true;
-	});
+//////////////////////////////////////////////////////////////////////////////
+// ●[file] reset
+//////////////////////////////////////////////////////////////////////////////
+upreset.click(function(){
+	message.hide();
 });
 
 //////////////////////////////////////////////////////////////////////////////
 // ●フォルダを開く
 //////////////////////////////////////////////////////////////////////////////
 function open_folder(node) {
-	if (if_msg) {	// フォルダを移動したらアップロードメッセージを消す
-		if_msg.hide();
-		_iframe_height();
-	}
-
+	message.hide();
 	ajax_submit({
   		data: {	path: node.data.key },
 		action: 'load_image_files',
 		success: function(data) {
 			// データsave
-			folder = (node.data.key == '/') ? '' : node.data.key;
 			files  = data;
-			if (if_dir) if_dir.val( folder );
+			folder = (node.data.key == '/') ? '' : node.data.key;
+			upfolder.val( folder );
 
 			var title = node.data.key;
 			if (node.data.key == '.trashbox/') title = $('#msg-trashbox').text();
@@ -212,6 +216,10 @@ function open_folder(node) {
 
 			// viewの更新
 			update_view();
+		},
+		error: function() {
+			$('#current-folder').text( '(load failed!)' );
+			
 		}
 	});
 }
@@ -226,11 +234,40 @@ function update_view() {
 		var link = $('<a>', {
 			href: path + folder + file.name
 		});
+		if (file.isImg) {
+			link.attr({
+				'data-lightbox': 'roadtrip',
+				'data-title': file.name
+			});
+		}
 		var img  = $('<img>', {
 			src: path + folder + '.thumbnail/' + file.name + '.jpg'
 		});
+		img.click( img_click );
+		img.dblclick( img_dblclick );
 		link.append(img);
 		view.append(link);
+	}
+	
+	var dbl_click;
+	function img_click(evt) {
+		var obj = $(evt.target);
+		if (dbl_click || evt.ctrlKey) {
+			dbl_click = false;
+			return;
+		}
+		evt.stopPropagation();
+		evt.preventDefault()
+		if (obj.hasClass('selected'))
+			obj.removeClass('selected');
+		else
+			obj.addClass('selected');
+	}
+
+	function img_dblclick(evt) {
+		var obj = $(evt.target);
+		dbl_click = true;
+		obj.click();
 	}
 }
 
@@ -305,9 +342,10 @@ function ajax_submit(opt) {
 //////////////////////////////////////////////////////////////////////////////
 // ●リロードボタン
 //////////////////////////////////////////////////////////////////////////////
-$('#album-reload').click( function(){
+function album_reload() {
 	location.href = location.href;
-});
+}
+$('#album-reload').click( album_reload );
 
 
 //////////////////////////////////////////////////////////////////////////////

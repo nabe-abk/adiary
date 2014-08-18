@@ -36,13 +36,13 @@
 		<td>ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="admin_users" class="w320" value="<@s.admin_users>"></td>
 	</tr>
 	<tr>
-		<th>ブログ<em>編集</em>権限を付与</th>
+		<th>ブログ<em>編集</em>権限を付与<span class="help" data-help="管理権限をもつ人は自動的に編集権限を持ちます。">?</span></th>
 		<td>ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="editors"  class="w320" value="<@s.editors>"><br>
 		<input type="hidden" name="checkbox.info" value="edit_by_author_only">
 		<input type="checkbox" name="edit_by_author_only" value="1"<@if(s.edit_by_author_only, ' checked')>><label>他人の記事は編集できないようにする。</label></td>
 	</tr>
 	<tr>
-		<th>ブログ<em>閲覧</em>権限を付与</th>
+		<th>ブログ<em>閲覧</em>権限を付与<span class="help" data-help="管理権限・編集権限をもつ人は自動的に閲覧権限を持ちます。">?</span></th>
 		<td>
 		<@ifexec(v.blog.private, begin, begin)>
 		ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="viewers" class="w320" value="<@s.viewers>">

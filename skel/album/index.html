@@ -18,36 +18,61 @@
 <$v.regist_js('album.js')>
 
 
-<article class="system album">
+<article class="system" id="album">
 <h2 class="dynatree-ico-ef"><span class="dynatree-icon"></span><span id="current-folder">(no load)</span></h2>
 <div class="body">
-	<div class="body-header">
-		<span class="option-item">
-		<select id="view-type" disabled>
-			<option value="icon">アイコン</option>
-			<option value="detail">詳細</option>
-		</select></span>
-		<span class="option-item">ソート：
-		<select id="sort-type" disabled>
-			<option value="name">名前</option>
-			<option value="date">日付</option>
-			<option value="size">サイズ</option>
-		</select></span>
+	<div id="album-header">
+		<div>
+			操作方法<span class="help" data-help="クリック：選択\nダブルクリック：表示\nCTRL+クリック：表示">?</span>
+		</div>
+		<div class="view-option">
+			<span class="option-item">
+			<select id="view-type">
+				<option value="icon">アイコン</option>
+				<option value="detail">詳細</option>
+			</select></span>
+			<span class="option-item">ソート:
+			<select id="sort-type">
+				<option value="name">名前</option>
+				<option value="date">日付</option>
+				<option value="size">サイズ</option>
+			</select></span>
+		</div>
 	</div>
+
+
 	<p class="error" id="load-error" style="display: none"><strong class="error">画像フォルダが存在しないか情報をロードできません。</strong></p>
 	<div id="album-folder-view"></div>
+
+	<button>サムネイルを記事に</button>
+	<button>元画像を記事に</button>
+
 
 	<form action="<@v.myself>?<@v.skeleton>" method="POST" id="album-form" data-myself="<@v.myself>">
 	<input type="hidden" name="action" value="<@v.skel_dir>" id="action-base">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>" id="csrf-key">
 	</form>
 
-	<h4>アップロード</h4>
-	<iframe src="<@v.myself>?<@v.skel_dir>upload_form" id="iframe-upload-form" frameborder="0" allowTransparency="true"></iframe>
+	<!--========================================================================-->
+	<h4>アップロード<span class="help" data-help="上の部分にファイルをドラッグ＆ドロップしてもアップロードできる予定です。">?</span></h4>
 
-	<p>ドラッグ＆ドロップしてもアップロードできるようになります（そのうちに）。</p>
+	<div class="messages" id="upload-messages" style="display: none;"><@join("\n", Message)></div>
+
+	<form action="<@v.myself>?etc/ajax_dummy" method="POST" enctype="multipart/form-data" id="upload-form" target="form_response">
+	<input type="hidden" name="action" value="<@v.skel_dir>upload_form">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<input type="hidden" name="folder" value="" id="upload-folder">
+	<div id="file-elements"><input type="file" name="file0_ary" multiple id="file"></div>
+	<button type="reset" id="upload-reset">リセット</button><input type="submit" id="upload" value="upload">
+	&nbsp;サムネイル：<input type="number" name="size" value="120" class="w50" min="64" max="800">px 
+	</form>
+
 </div>
 </article>
+
+<iframe name="form_response" id="form-response" frameborder="0" allowTransparency="true"
+ style="width: 100%; height: 80px; overflow-y: scroll; overflow-x:visible; display: none;"></iframe>
+
 
 <div style="display:none">
 <span id="msg-trashbox">ゴミ箱</span>

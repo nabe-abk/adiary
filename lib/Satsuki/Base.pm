@@ -276,8 +276,8 @@ sub finish {
 	my $self = shift;
 
 	# メモリリーク対策 & 各デストラクタ呼び出し
-	$Satsuki::DESTROY_debug = $self->{Destroy_debug};
-	if ($self->{Destroy_debug}) {
+	$Satsuki::DESTROY_debug = $self->{DESTROY_debug};
+	if ($self->{DESTROY_debug}) {
 		print '<pre id="destroy-debug"><strong>***DESTROY debug***</strong>'."\n";
 	}
 	$self->object_free_finish( $self );
@@ -301,7 +301,7 @@ sub object_free_finish {
 	my $h = shift;
 	$h->{"_**objcheck"}=1;
 	if ($h->can('Finish')) {
-		$self->{Destroy_debug} && print "CALL Finish() in $h\n";
+		$self->{DESTROY_debug} && print "CALL Finish() in $h\n";
 		$h->Finish();
 	}
 	foreach(keys(%$h)) {
@@ -772,11 +772,7 @@ sub print_http_headers {
 	# Status
 	print "Status: ". $self->{Status} ."\n";
 	print @{ $self->{Headers} };	# その他のヘッダ
-	# Develop info
-	if ($self->{Debug_mode}) {
-		my @c = caller();
-		print "X-Debug-caller: call from $c[1] line $c[2]\n";
-	}
+
 	# Content-Type;
 	$content_type ||= $self->{Content_type};
 	$charset ||= $self->{System_coding};

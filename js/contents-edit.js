@@ -49,6 +49,10 @@ tree.dynatree({
 			$('#load-error').show();
 			return;
 		}
+		var rootNode = tree.dynatree("getRoot");
+		rootNode.visit(function(node){
+			node.expand(true);
+		});
 		submit.prop('disabled', false);
 		reset.prop ('disabled', false);
 		tree.dynatree("getRoot").getChildren()[1].activate();
