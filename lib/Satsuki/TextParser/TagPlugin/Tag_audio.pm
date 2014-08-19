@@ -38,7 +38,7 @@ sub new {
 
 	#---begin_plugin_info
 	$tags->{audio}->{data} = \&audio_video;
-	$tags->{video}->{data} = \&audio_video;;
+	$tags->{video}->{data} = \&audio_video;
 	#---end
 	
 	$tags->{audio}->{name} = 'audio';
@@ -53,8 +53,16 @@ sub new {
 # ■タグ処理ルーチン
 ###############################################################################
 sub audio_video {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
+	my ($pobj, $tag, $cmd, $ary) = @_;
 	my $tname = $tag->{name};
+
+	my $ftag = $pobj->{tags}->{file};
+	if ($ftag && $cmd =~ /^file:(\w+)/) {
+		# [file:xxx] タグからのaliasの時
+		unshift(@$ary, $1);
+		my $url = $pobj->replace_link($ftag->{data}, $ary, $ftag->{argc});
+		$ary = [ $url ];
+	}
 
 	my $url0;
 	my $src='';

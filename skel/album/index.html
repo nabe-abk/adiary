@@ -3,13 +3,13 @@
 <$ifsuperjump_clear(! v.allow_edit, '_sub/error_message_403', 'ブログが存在しないか権限がありません')>
 
 <@> システムモード
-<$v.system_mode("画像管理")>
+<$v.system_mode("画像アルバム")>
 
 <@> 階層ツリー
 <@call("_dir_tree")>
 
 <!--========================================================================-->
-<$v.sidebar = 'album/_sidebar'>
+<$v.special_sidebar_module = 'album/_sidebar'>
 <$v.init_image_dir()>
 
 <$v.regist_css("<@v.script_dir>dynatree/skin/ui.dynatree.css")>
@@ -44,17 +44,22 @@
 	<p class="error" id="load-error" style="display: none"><strong class="error">画像フォルダが存在しないか情報をロードできません。</strong></p>
 	<div id="album-folder-view"></div>
 
-	<button>サムネイルを記事に</button>
-	<button>元画像を記事に</button>
-
+	<form action="<@v.myself>?edit" method="POST" id="paste-form" data-tag="[file:%e:%d:%f:%f]">
+	<input type="hidden" name="action" value="etc/dummy">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<input type="hidden" name="paste_txt" value="" id="paste-txt">
+	<button type="submit" id="paste-thumbnail" data-tag="[image:S:%d:%f:%f]">サムネイルを記事に</button>
+	<button type="submit" id="paste-original"  data-tag="[image:L:%d:%f:%f]">元画像を記事に</button>
+	</form>
 
 	<form action="<@v.myself>?<@v.skeleton>" method="POST" id="album-form" data-myself="<@v.myself>">
 	<input type="hidden" name="action" value="<@v.skel_dir>" id="action-base">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>" id="csrf-key">
 	</form>
 
+	<section>
 	<!--========================================================================-->
-	<h4>アップロード<span class="help" data-help="ドラッグ＆ドロップでアップロードファイルを選択できます（IE9以前や古いブラウザを除く）。">?</span></h4>
+	<h3>アップロード<span class="help" data-help="ドラッグ＆ドロップでアップロードファイルを選択できます（IE9以前や古いブラウザを除く）。">?</span></h3>
 
 	<div class="messages" id="upload-messages" style="display: none;"><@join("\n", Message)></div>
 
@@ -66,7 +71,16 @@
 	<button type="reset" id="upload-reset">リセット</button><input type="submit" id="upload" value="upload">
 	&nbsp;サムネイル：<input type="number" name="size" value="120" class="w50 js-save" min="64" max="800" id="thumbnail-size">px 
 	</form>
+	</section>
 
+	<!-- 許可拡張子 -->
+	<section id="upload-infomation">
+	<div>最大サイズ : <@(v.uplaod_files_max>>20)>MB<span class="help" data-help="一回のアプロードで許される、全ファイル合計の最大サイズになります。">?</span></div>
+	<div>画像拡張子 : <@join(' ', sort_str(keys(v.album_image_ext)))></div>
+	<$call('album/_load_extensions')>
+	<$x = copy(v.album_allow_ext)><$delete(x.('.'))>
+	<div>許可拡張子 : <@if(v.trust_mode, 'すべて (trust_mode)', join(' ', sort_str(keys(x))))></div>
+	</section>
 </div>
 </article>
 
@@ -78,4 +92,5 @@
 <span id="msg-trashbox">ゴミ箱</span>
 <span id="image-path"><@Basepath><@v.blogimg_dir()></span>
 <span id="icon-path"><@Basepath><@v.album_icons></span>
+<span id="uploading-msg">Now uploading</span>
 </div>

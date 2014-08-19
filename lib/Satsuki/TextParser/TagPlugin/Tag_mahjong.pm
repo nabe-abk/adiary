@@ -11,9 +11,9 @@ package Satsuki::TextParser::TagPlugin::Tag_mahjong;
 # [mj:1m2m3m 4p5rp6p 7s8s9s ton ton sp haku haku hakuy]
 #
 # のように書きます。スペースは区切りになりますが入れなくても構いません。
-# 1m〜9m 萬子（マンズ）
-# 1p〜9p 筒子（ピンズ）
-# 1s〜9s 索子（ソウズ）
+# 1m?9m 萬子（マンズ）
+# 1p?9p 筒子（ピンズ）
+# 1s?9s 索子（ソウズ）
 # 5rm, 5rp, 5rs = 赤ドラ
 # ton nan sha pei = 東南西北
 # haku hatu chun  = 白ハツ中
@@ -53,9 +53,9 @@ my %suji=('m'=>'man', 'p'=>'pin', 's'=>'sou');
 # ●mj記法
 #------------------------------------------------------------------------------
 sub mahjong {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
-	my $tags = $parser_obj->{tags};
-	my $ROBJ = $parser_obj->{ROBJ};
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $tags = $pobj->{tags};
+	my $ROBJ = $pobj->{ROBJ};
 
 	# mode チェック
 	my $tag_name = $tag->{name};
@@ -105,8 +105,8 @@ sub mahjong {
 	}
 
 	# タグ構成
-	my $dir = $parser_obj->replace_data( $tags->{'mj:img'}->{data} );
-	my $name = $parser_obj->make_name($ary, 'mahjong');
+	my $dir = $pobj->replace_data( $tags->{'mj:img'}->{data} );
+	my $name = $pobj->make_name($ary, 'mahjong');
 
 	my $img = join('', map {"<img class=\"mahjong\" alt=\"$_\" src=\"$dir$_.gif\">"} @pi);
 	return "<div class=\"mahjong\">$img</div>";

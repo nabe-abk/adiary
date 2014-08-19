@@ -247,7 +247,13 @@ sub load_tagdata {
 			# タイトルなど
 			my ($title, $option, $url) = split(/\s*,\s*/, $value, 3);
 			$ROBJ->tag_escape( $title, $option );
-			if ($url =~ /^(\d+)\s*,\s*(.*)$/) { $tag_hash->{argc}=$1; $url=$2; }	# 受け取り引数指定
+			if ($url =~ /^(\d+)\s*,\s*(.*)$/) {	# 受け取り引数指定
+				$tag_hash->{argc} = $1;
+				$url = $2;
+			} else {
+				$tag_hash->{argc} = 1;
+				$url .= '$1';
+			}
 			$url =~ s/\"/&quot;/g;
 			if ($title  ne '') { $tag_hash->{title}  = $title;  }
 			if ($option ne '') { $tag_hash->{option} = $option; }
@@ -375,7 +381,7 @@ sub text_parser {
 	foreach(keys(%allow_override)) {
 		$backup{$_} = $self->{$_};
 	}
-	# ユニークリンク名の生成（複数記事表示時の<a id="">重複対策）
+	# ユニークリンク名の生成（複数記事表示時の<h3 id="">重複対策）
 	# ※必ず変数退避のあとに記述すること!!
 	$self->{unique_linkname} ||= 'k'.($self->{thispkey} || int(rand(0x80000000)));
 
@@ -1398,29 +1404,11 @@ sub html_tag {
 sub search {
 	my ($self, $tag, $cmd, $ary) = @_;
 	my $ROBJ = $self->{ROBJ};
-	my $replace_data = $self->{replace_data};
 
 	# Query 構成
 	my $code = $tag->{option};
 	my $argc = $tag->{argc};
 	my $url  = $tag->{data};
-
-	my $jcode;
-	my ($reg, $val);
-	my $system_coding = $ROBJ->{System_coding};
-	# 文字コード変換準備
-	$code =~ tr/a-z/A-Z/;
-	if ($code && $code ne 'ASCII' && ord($code) != 0x25) {	# 0x25=%
-		$jcode = $self->{jcode} ||= $ROBJ->load_codepm();
-	}
-	if (! $argc) {	#引数個数指定なし
-		if (index($url,'$$')>=0) {
-			$argc = 9999;
-		} else {
-			$argc = 1;
-			$url .= '$1';
-		}
-	}
 
 	my @argv = splice(@$ary, 0, $argc);
 	if ($#$ary>=0 && $tag->{replace_html}) {
@@ -1430,22 +1418,9 @@ sub search {
 		@$ary = ();
 	}
 
-	my @argv2 = @argv;
-	$ROBJ->tag_escape(@argv2);
-	my $name = join(':', @argv2);
-	unshift(@argv,  $ROBJ->{Basepath});
-	$url =~ s/\#(\d)/$argv[$1]/g;		# 文字コード変換前
-	foreach(@argv) {
-		if (ord($code) == 0x25) { $_ = sprintf($code, $_); }	# 0x25=%
-		elsif ($jcode) { $jcode->from_to(\$_, $system_coding, $code); }
-		$self->encode_uricom($_);
-	}
-	$url =~ s/\$(\d)/$argv[$1]/g;			# 文字コード変換後
-	$url =~ s/\$\{(\w+)\}/$replace_data->{$1}/g;	# 任意データ置換
-	# 全引数置換
-	shift(@argv);
-	my $all = join(':', @argv);
-	$url =~ s/\$\$/$all/g;
+	# リンク置換
+	my $name = join(':', @argv);
+	$url = $self->replace_link($url, \@argv, $argc, $code);
 
 	# タグそのまま
 	if ($tag->{replace_html}) {
@@ -1467,6 +1442,33 @@ sub option {
 	my ($self, $tag, $cmd, $ary) = @_;
 	$self->{options}->{$cmd} = $ary;
 	return '';
+}
+
+#--------------------------------------------------------------------
+# ●link文字列の置換処理
+#--------------------------------------------------------------------
+sub replace_link {
+	my $self = shift;
+	my ($url, $ary, $argc, $code) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $rep  = $self->{replace_data};
+
+	my @argv = splice(@$ary, 0, $argc);
+	unshift(@argv,  $ROBJ->{Basepath});
+	$url =~ s/\#(\d)/$argv[$1]/g;			# 文字コード変換前
+
+	my $jcode = $code ? $ROBJ->load_codepm() : undef;
+	foreach(@argv) {
+		if ($jcode) { $jcode->from_to(\$_, $ROBJ->{System_coding}, $code); }
+		$self->encode_uricom($_);
+	}
+	$url =~ s/\$(\d)/$argv[$1]/g;		# 文字コード変換後
+	$url =~ s/\$\{(\w+)\}/$rep->{$1}/g;	# 任意データ置換
+	# 全引数置換
+	shift(@argv);
+	my $all = join(':', @argv);
+	$url =~ s/\$\$/$all/g;
+	return $url;
 }
 
 #--------------------------------------------------------------------
@@ -1736,7 +1738,7 @@ sub make_attr {
 	my $ROBJ = $self->{ROBJ};
 	my ($ary, $tag, $type) = @_;
 
-	# target/class/rel 設定, type未定義のときは初期値なし(mailto:等)
+	# target/class/rel 設定, type未定義のとき初期値なし(mailto:等)
 	my $target = $self->{"${type}_target"};
 	my $class  = $self->{"${type}_class"};
 	my $rel    = $self->{"${type}_rel"};
@@ -1751,7 +1753,8 @@ sub make_attr {
 	}
 	$target =~ s/[^\w\-]//g;
 	$class  =~ s/[^\w\s:\-]//g;
-	$rel    =~ s/[^\w\-]//g;
+	$rel    =~ s/%k/$self->{unique_linkname}/g;
+	$rel    =~ s/[^\w\-\[\]]//g;
 	$ROBJ->tag_escape($title);
 
 	if ($class ne '' && $tag->{class} ne '') { $class =" $class"; }

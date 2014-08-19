@@ -6,7 +6,8 @@
 <aside id="sidebar">
 <div id="side-a">
 
-<@ifexec(Auth.ok && v.system_mode && !v.design_edit, begin)>
+<@ifcall(v.special_sidebar_module, v.special_sidebar_module)>
+<@ifexec(!v.special_sidebar_module && Auth.ok && v.system_mode && !v.design_edit, begin)>
 <!--現在のブログ情報=====================================-->
 <div class="hatena-module" id="side-login-information">
 <div class="hatena-modulebody">

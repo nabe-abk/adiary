@@ -201,7 +201,7 @@ sub make_thumbnail_for_notimage {
 	my $ROBJ = $self->{ROBJ};
 
 	# サイズ処理
-	my $size  = $self->{album_thumb_size};
+	my $size  = 120;	# $self->{album_thumb_size};
 	my $fsize = $self->{album_font_size};
 	if($size <120){ $size = 120; }
 	if($fsize<  6){ $fsize=   6; }
@@ -214,13 +214,18 @@ sub make_thumbnail_for_notimage {
 	$img->ReadImage('xc:white');
 
 	# 拡張子アイコンの読み込み
-	my $icon_file = $self->{album_allow_ext}->{'.'};
-	if ($file =~ m/\.(\w+)$/ && $self->{album_allow_ext}->{$1}) {
-		$icon_file = $self->{album_allow_ext}->{$1};
+	my $exts = $self->{album_allow_ext};
+	my $icon_dir  = $ROBJ->get_filepath( $self->{album_icons} );
+	my $icon_file = $exts->{'.'};
+	if ($file =~ m/\.(\w+)$/ && $exts->{$1}) {
+		$icon_file = $exts->{$1};
+	}
+	if (!-r "$icon_dir$icon_file") {	# 読み込めない時はdefaultアイコン
+		$icon_file = $exts->{'.'};
 	}
 	my $icon = $self->load_image_magick();
 	eval {
-		$icon->Read( $self->{album_icons} . $icon_file );
+		$icon->Read( $icon_dir . $icon_file );
 	};
 	if (!$@) {
 		my ($x, $y) = $icon->Get('width', 'height');
@@ -232,23 +237,11 @@ sub make_thumbnail_for_notimage {
 	}
 
 	# 画像情報の書き込み
-	if ($self->{album_font} && -r $ROBJ->get_filepath($self->{album_font})) {
+	my $album_file = $ROBJ->get_filepath( $self->{album_font} );
+	if ($self->{album_font} && -r $album_file) {
 		my @st = stat("$dir$file");
 		my $tm = $ROBJ->tm_printf("%Y/%m/%d %H:%M", $st[9]);
-		my $fs = $st[7];
-		if ($fs > 10240000) {
-			$fs = (($fs + 524288) >> 20);
-			$fs =~ s/(\d{1,3})(?=(?:\d\d\d)+(?!\d))/$1,/g;
-			$fs = $fs . ' MByte';
-		} elsif ($fs > 1024000) {
-			$fs = sprintf("%.1f", $fs/1048576) . ' MByte';
-		} elsif ($fs > 10240) {
-			$fs = (($fs + 512) >> 10) . ' KByte';
-		} elsif ($fs > 1024) {
-			$fs = sprintf("%.1f", $fs/1024) .' KByte';
-		} else {
-			$fs .= ' Byte';
-		}
+		my $fs = $self->size_format($st[7]);
 		my $name = $file;
 		my $code = $ROBJ->{System_coding};
 		if ($code ne 'UTF-8') {
@@ -258,7 +251,7 @@ sub make_thumbnail_for_notimage {
 		my $text = "$name\r\n$tm\r\n$fs";
 		$img->Annotate(
 			text => $text,
-			font => $self->{album_font},
+			font => $album_file,
 			x => 3,
 			y => ($size - $f_height),
 			pointsize => $fsize
@@ -269,6 +262,19 @@ sub make_thumbnail_for_notimage {
 	$img->Set( quality => 98 );
 	$img->Write("${dir}.thumbnail/$file.jpg");
 	return 0;
+}
+
+sub size_format() {
+	my $self = shift;
+	my $s = shift;
+	if ($s > 104857600) {	# 100MB
+		$s = int(($s+524288)/1048576);
+		$s =~ s/(\d{1,3})(?=(?:\d\d\d)+(?!\d))/$1,/g;
+		return $s . ' MB';
+	}
+	if ($s > 1023487) { return sprintf("%.3g", $s/1048576) . ' MB'; }
+	if ($s >     999) { return sprintf("%.3g", $s/1024   ) . ' KB'; }
+	return $s . ' Byte';
 }
 
 #------------------------------------------------------------------------------

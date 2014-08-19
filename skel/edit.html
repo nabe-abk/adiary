@@ -73,7 +73,7 @@
 	<$end>
 	</select>
 	<button type="button" id="open-draft">開く</button>
-	<button type="button" id="open-template">テンプレートとして開く</button>
+	<button type="button" id="open-template">テンプレートとして開く</button><span class="help" data-help="テンプレートとして開くと編集・保存しても元にした下書きは残り続けます。">?</span>
 </div>
 </article>
 <$end>
@@ -111,9 +111,10 @@
 	<br>
 
 	<span class="element" id="edit-title"><span class="edit-caption">タイトル</span> <input class="w360 no-enter-submit" type="text" name="title" size="44" value="<@art.title>"></span> 
-	<span class="element edit-writer"><span class="edit-caption">投稿者</span> <@art.name></span>
+	<span class="element edit-writer"><span class="edit-caption">投稿者</span> <@art.name></span><br>
+	<button type="button" id="album-open" data-url="<@v.myself>?album/#edit">画像を貼り付ける</button><br>
 
-	<textarea name="body_txt" id="editarea" cols="60" rows="16" class="edit-article"><@tag_escape_amp(art._text)></textarea>
+	<textarea name="body_txt" id="editarea" cols="60" rows="16" class="edit-article"><@tag_escape_amp(art._text || form_.paste_txt)></textarea>
 
 	<span class="element" id="select-parser"><span class="edit-caption">パーサ</span>
 	<select name="parser">

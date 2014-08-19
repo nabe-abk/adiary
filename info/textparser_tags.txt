@@ -62,8 +62,8 @@ google:all   = Google検索,         UTF-8, http://www.google.co.jp/search?ie=ut
 google:image = Googleイメージ検索, UTF-8, http://images.google.co.jp/images?lr=lang_ja&ie=utf-8&oe=utf-8&q=
 google:news  = Googleニュース検索, UTF-8, http://news.google.co.jp/news?lr=lang_ja&ie=utf-8&oe=utf-8&q=
 google:transit = Googleトランジット, UTF-8, 2, http://www.google.co.jp/transit?saddr=$1&daddr=$2
-google:qr      = QRコード生成, image, http://chart.apis.google.com/chart?cht=qr&chs=92x92&chl=$$
-google:qr#link = QRコード生成, image, $$
+google:qr      = QRコード生成, image, 999, http://chart.apis.google.com/chart?cht=qr&chs=92x92&chl=$$
+google:qr#link = QRコード生成, image, 999, $$
 
 g   = >google
 ga  = >google:all
@@ -146,8 +146,12 @@ img#2      = 画像, image, 2, $1:$2
 img#2#link = 画像, image, 2, $1:$2
 
 # アルバム管理画像
-image:L     = 画像アルバム, image, 2,  ${image}$1$2
-image:S     = 画像アルバム, image, 2,  ${image}$1.thumbnail/$2.jpg
+image:L  = 画像アルバム, image, 2,  ${image}$1$2
+image:S  = 画像アルバム, image, 2,  ${image}$1.thumbnail/$2.jpg
+image:l  = >image:L
+image:s  = >image:S
+image:S#link = 画像アルバム, image, 2,  ${image}$1$2
+
 # Ver2互換設定
 image       = 画像アルバム, image, 3,  ${image}$2$3
 image#small = 画像アルバム, image, 3,  ${image}$2.thumbnail/$3.jpg
@@ -156,6 +160,22 @@ image#link  = 画像アルバム, image, 3,  ${image}$2$3
 # 通常ファイル
 file        = ファイル, ASCII, 3,  ${image}$2$3
 file#5      = ファイル, ASCII, 4,  ${image}$3$4
+
+#------------------------------------------------------------------------------
+# Audio/Video
+#------------------------------------------------------------------------------
+file:wav  = >audio
+file:wave = >audio
+file:ogg  = >audio
+file:oga  = >audio
+file:mp3  = >audio
+file:aac  = >audio
+file:m4a  = >audio
+
+file:ogv  = >video
+file:webm = >video
+file:mp4  = >video
+file:m4v  = >video
 
 #------------------------------------------------------------------------------
 # その他

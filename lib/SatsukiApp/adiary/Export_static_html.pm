@@ -85,26 +85,32 @@ sub export {
 	my $escape = $ROBJ->loadpm('TextParser::TagEscape');
 	$escape->allow_anytag();
 
-	my $e_basepath = $ROBJ->{Basepath};
-	my $e_myself2  = $aobj->{myself2};
-	$e_basepath =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
-	$e_myself2  =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
+	my $qr_basepath = $ROBJ->{Basepath};
+	my $qr_myself2  = $aobj->{myself2};
+	my $qr_imgdir   = $ROBJ->{Basepath} . $aobj->blogimg_dir();
+	$qr_basepath =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
+	$qr_myself2  =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
+	$qr_imgdir   =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
+	$qr_basepath = qr/^$qr_basepath/;
+	$qr_myself2  = qr/^$qr_myself2/;
+	$qr_imgdir   = qr/^$qr_imgdir/;
 	my $url_wrapper = sub {
 		my $proto = shift;
 		my $url = shift;
 		if ($url =~ m|^\w+://|) {
 			return $url;
 		}
+		$url =~ s|$qr_imgdir|$aobj->{static_files_dir}|g;
 		if ($proto eq 'href') {
 			if ($url eq $aobj->{myself2}) {
 				return './index.html';
 			}
-			$url =~ s|^$e_myself2([^#]*)|./$1.html|g;
+			$url =~ s|$qr_myself2([^#]*)|./$1.html|g;
 		}
 		if ($url =~ /^[^#]*\?/) {	# Queryは無視させる
 			return '#';
 		}
-		$url =~ s|^$e_basepath|./|g;
+		$url =~ s|$qr_basepath|./|g;
 		return $url;
 	};
 

@@ -45,10 +45,10 @@ sub new {
 # ●文字列のダイジェスト記法
 #------------------------------------------------------------------------------
 sub digest {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
-	my $tags = $parser_obj->{tags};
-	my $ROBJ = $parser_obj->{ROBJ};
-	my $replace_data = $parser_obj->{replace_data};
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $tags = $pobj->{tags};
+	my $ROBJ = $pobj->{ROBJ};
+	my $replace_data = $pobj->{replace_data};
 
 	# type=cmd
 	my $digest_type = $cmd;
@@ -73,10 +73,10 @@ sub digest {
 # ●ファイルのダイジェスト記法
 #------------------------------------------------------------------------------
 sub file_digest {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
-	my $tags = $parser_obj->{tags};
-	my $ROBJ = $parser_obj->{ROBJ};
-	my $replace_data = $parser_obj->{replace_data};
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $tags = $pobj->{tags};
+	my $ROBJ = $pobj->{ROBJ};
+	my $replace_data = $pobj->{replace_data};
 
 	# file tag のロード
 	my ($urltag, $digest_type) = split(':', $cmd);
@@ -85,19 +85,7 @@ sub file_digest {
 	# file url構成
 	my $file = $urltag->{data};
 	my $argc = $urltag->{argc};
-	my @argv = splice(@$ary, 0, $argc);
-	unshift(@argv, '(fileext-dummy)');
-	my @argv2 = @argv;
-	$ROBJ->tag_escape(@argv2);
-	my $name = $argv2[$#argv2];
-	unshift(@argv,  $ROBJ->{Basepath});
-	$file =~ s/\$(\d)/$argv[$1]/g;			# 文字コード変換後
-	$file =~ s/\$\{(\w+)\}/$replace_data->{$1}/g;	# 任意データ置換
-	if ($file =~ /\$\$/) {	# 全引数置換
-		shift(@argv);
-		my $str = join(':', @argv);
-		$file =~ s/\$\$/$str/g;
-	}
+	$file = $self->replace_data($file, $ary, $argc);
 
 	# パスを安全チェック
 	$ROBJ->clean_path( $file );

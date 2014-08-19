@@ -105,6 +105,10 @@ ul.toc li span.sanchor {
 	margin-right:	0.5em;
 }
 
+audio, video,
+.article img {
+	max-width:	100%;
+}
 
 /*--------------------------------------------------------------------
 ●フォーム関連
@@ -324,7 +328,7 @@ ul.menu {
 
 #album-folder-view {
 	margin-top:		4px;
-	min-height:		390px;
+	min-height:		260px;
 	margin-bottom:		8px;
 }
 
@@ -366,11 +370,60 @@ ul.menu {
 	display:		block;
 }
 
+#upload-infomation {
+	font-size:		90%;
+	line-height:		130%;
+	margin-bottom:		1em;
+}
+
+/*--------------------------------------------------------------------
+●デザイン編集
+---------------------------------------------------------------------*/
+.design-module-edit {
+	background-color:	#fcc;
+	position:		relative;
+}
+div.module-edit-header {
+	position:		absolute;
+	top:			0px;
+	z-index:		10;
+	width:			100%;
+	text-align:		right;
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI, popup-info/dialog
+---------------------------------------------------------------------*/
+.ui-dialog {
+	background-color:	#f8f8ff;
+}
+.ui-dialog div.pre {
+	white-space:		pre;
+	font-family:		monospace;
+}
+.ui-dialog .ui-widget-header {
+	background-color:	#93b3ff;
+}
+
 /*--------------------------------------------------------------------
 ●その他
 ---------------------------------------------------------------------*/
 #sidebar textarea {
 	width:		98%;
+}
+h3.ui-accordion-header {
+	background-color:	#ccf;
+}
+
+/*--------------------------------------------------------------------
+●IE8バグ対応
+---------------------------------------------------------------------*/
+.IE8 span.tag {
+	margin-left:	3px;
+	margin-right:	3px;
+}
+.IE8 .ui-icon {
+	display:	inline-block;
 }
 
 /*--------------------------------------------------------------------

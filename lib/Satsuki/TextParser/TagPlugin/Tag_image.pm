@@ -52,10 +52,9 @@ sub new {
 # ●image記法
 #------------------------------------------------------------------------------
 sub image {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
-	my $tags = $parser_obj->{tags};
-	my $ROBJ = $parser_obj->{ROBJ};
-	my $replace_data = $parser_obj->{replace_data};
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $tags = $pobj->{tags};
+	my $ROBJ = $pobj->{ROBJ};
 
 	# mode チェック
 	my $tag_name = $tag->{name};
@@ -67,32 +66,15 @@ sub image {
 	}
 
 	#  構成
+	my $name = $ary->[$#$ary];
 	my $url  = $tag->{data};
 	my $link = $url;
 	if (exists $tags->{"$tag_name#link"}) { $link = $tags->{"$tag_name#link"}->{data}; }
 	# URL生成
-	if (! $argc) {	#引数個数指定なし
-		if (index($url,'$$')>=0) {
-			$argc = 9999;
-		} else {
-			$argc = 1;
-			$url .= '$1';
-		}
-	}
-	my @argv = splice(@$ary, 0, $argc);
-	unshift(@argv, $ROBJ->{Basepath});
-	$url  =~ s/\$(\d)/$argv[$1]/g;			# 文字コード変換後
-	$link =~ s/\$(\d)/$argv[$1]/g;
-	$url  =~ s/\$\{(\w+)\}/$replace_data->{$1}/g;	# 任意データ置換
-	$link =~ s/\$\{(\w+)\}/$replace_data->{$1}/g;
-	if ($url =~ /\$\$/) {	# 全引数置換
-		shift(@argv);
-		my $str = join(':', @argv);
-		$url  =~ s/\$\$/$str/g;
-		$link =~ s/\$\$/$str/g;
-	}
-	# 名前
-	my $name = $argv[$#argv];
+	$url  = $pobj->replace_link($url,  $ary, $argc);
+	$link = $pobj->replace_link($link, $ary, $argc);
+	# 使った要素の削除
+	splice(@$ary, 0, $argc);
 	$ROBJ->tag_escape($name);
 
 	# 画像サイズ
@@ -103,9 +85,9 @@ sub image {
 
 	# 属性値
 	my %tag2 = %$tag; 
-	$tag2{title}='';	# altタグと同一にする
-	my $attr = $parser_obj->make_attr($ary, \%tag2, 'image');
-	   $name = $parser_obj->make_name($ary, $name);
+	$tag2{title} = $name;
+	my $attr = $pobj->make_attr($ary, \%tag2, 'image');
+	   $name = $pobj->make_name($ary, $name);
 
 	# リンク構成
 	if ($link eq '') {	# リンクなし

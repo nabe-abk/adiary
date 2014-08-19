@@ -820,7 +820,7 @@ article.edit span.tag:after {
 */
 
 /*--------------------------------------------------------------------
-●jQuery UI, popup-info/dialog
+●jQuery UI, popup-info/dialog（プラグインのREADME/設定画面）
 ---------------------------------------------------------------------*/
 .ui-dialog {
 	background-color:	#f8f8ff;
@@ -831,10 +831,6 @@ article.edit span.tag:after {
 
 	font-size:		10.5pt;
 	line-height:		130%;
-}
-.ui-dialog div.pre {
-	white-space:		pre;
-	font-family:		monospace;
 }
 .ui-dialog .ui-widget-header {
 	background-color:	#93b3ff;
@@ -870,7 +866,6 @@ article.edit span.tag:after {
 .ui-dialog.error-dialog .ui-widget-header {
 	background-color:	#f69;
 }
-
 
 /*--------------------------------------------------------------------
 ●jQuery UI, タブ表示
@@ -955,14 +950,6 @@ nav.tree {
 
 .design-module-edit {
 	background-color:	#fcc;
-	position:		relative;
-}
-div.module-edit-header {
-	position:		absolute;
-	top:			0px;
-	z-index:		10;
-	width:			100%;
-	text-align:		right;
 }
 
 /* モジュールの設定画面 */
@@ -973,7 +960,7 @@ div.module-edit-header {
 /*--------------------------------------------------------------------
 ●accordion（インポート、エクスポート画面等）
 ---------------------------------------------------------------------*/
-article .ui-accordion h3 {
+article h3.ui-accordion-header {
 	font-size:		12pt;
 	line-height:		100%;
 	padding:		0;
@@ -982,12 +969,6 @@ article .ui-accordion h3 {
 .ui-accordion-header-icon {
 	display:		none;
 }
-
-/*
-div.body h3.ui-accordion-header {
-	background-color: #ccf;
-}
-*/
 
 /*--------------------------------------------------------------------
 ●プログレスバー（import等）

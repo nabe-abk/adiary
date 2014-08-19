@@ -7,3 +7,4 @@ parser=default
 rss_items_int=10
 allow_com_users=*
 wiki_tm=1
+image_rel=lightbox[%k]

@@ -35,9 +35,9 @@ sub new {
 # ●adiary this/key/id 記法
 #------------------------------------------------------------------------------
 sub adiary_key {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
-	my $aobj    = $parser_obj->{aobj};
-	my $replace = $parser_obj->{replace_data};
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $aobj    = $pobj->{aobj};
+	my $replace = $pobj->{replace_data};
 
 	# ID記法
 	my $url;
@@ -48,7 +48,7 @@ sub adiary_key {
 		$url    = $aobj->get_blog_path($blogid);
 		$name   = $blogid;
 	} elsif ($tag->{_this}) {
-		$url = $parser_obj->{thisurl};
+		$url = $pobj->{thisurl};
 	} else {
 		$url = $replace->{myself2};
 	}
@@ -80,17 +80,17 @@ sub adiary_key {
 			}
 		}
 	}
-	return &adiary_link_base($parser_obj, $tag, $url, $name, $ary);
+	return &adiary_link_base($pobj, $tag, $url, $name, $ary);
 }
 
 #------------------------------------------------------------------------------
 # ●adiary day 記法
 #------------------------------------------------------------------------------
 sub adiary_day {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
-	my $ROBJ = $parser_obj->{ROBJ};
-	my $aobj = $parser_obj->{aobj};
-	my $replace = $parser_obj->{replace_data};
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $ROBJ = $pobj->{ROBJ};
+	my $aobj = $pobj->{aobj};
+	my $replace = $pobj->{replace_data};
 
 	# 記事の日付指定
 	my $url = $replace->{myself2};
@@ -104,14 +104,14 @@ sub adiary_day {
 		return '[date:(format error)]';
 	}
 
-	return &adiary_link_base($parser_obj, $tag, $url, $name, $ary);
+	return &adiary_link_base($pobj, $tag, $url, $name, $ary);
 }
 
 #------------------------------------------------------------------------------
 # ○adiary  記法のベース
 #------------------------------------------------------------------------------
 sub adiary_link_base {
-	my ($parser_obj, $tag, $url, $name, $ary) = @_;
+	my ($pobj, $tag, $url, $name, $ary) = @_;
 
 	# アンカー名（a name）指定
 	if ($ary->[0] =~ /^\#[\w\.\-]*$/) {
@@ -119,7 +119,7 @@ sub adiary_link_base {
 		$url  .= shift(@$ary);
 	}
 	# 属性
-	my $attr = $parser_obj->make_attr($ary, $tag, 'http');
+	my $attr = $pobj->make_attr($ary, $tag, 'http');
 	# リンク名
 	if ($ary->[0] ne '') { $name=join(':', @$ary); }
 	return "<a href=\"$url\"$attr>$name</a>";

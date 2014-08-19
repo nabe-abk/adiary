@@ -31,8 +31,8 @@ sub new {
 # ●calc記法
 #------------------------------------------------------------------------------
 sub calc {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
-	my $ROBJ = $parser_obj->{ROBJ};
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $ROBJ = $pobj->{ROBJ};
 
 	my $exp = shift(@$ary);
 	# 式の解析
@@ -44,7 +44,7 @@ sub calc {
 		return join(' ', @a);
 	}
 	# 式の評価
-	my $r = &evaluate_poland( $ROBJ, $parser_obj->{x}, \@str_buf, $r );
+	my $r = &evaluate_poland( $ROBJ, $pobj->{x}, \@str_buf, $r );
 	$exp =~ s/\"//g;
 	$exp =~ s/\(/&#40;/g;
 	return "<span class=\"calc\" title=\"$exp\">$r</span>";
@@ -65,7 +65,7 @@ my %operation;	# 実行処理
 # bit 1 - 単項演算子
 # bit 2 - 左辺はオブジェクトで
 # bit 3 - 後置単項演算子
-# bit 4〜12 - 演算子優先度
+# bit 4?12 - 演算子優先度
 $operators{'('}  =  0x00;
 $operators{')'}  =  0x00;
 $operators{'%a'} =  0x00;	# 例外処理

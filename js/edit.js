@@ -1,18 +1,21 @@
 //############################################################################
 // 記事編集画面用JavaScript
-//							(C)2013 nabe@abk
+//							(C)2014 nabe@abk
 //############################################################################
 //[TAB=8]
+var insert_text;	// global function
 $(function(){
 	var body = $('#body');
 	var tagsel = $('#tag-select');
 	var upsel  = $('#upnode-select');
+	
+	var edit = $('#editarea');
 
 	load_taglist(tagsel);
 	load_contents_list(upsel);
 
 //############################################################################
-// ●下書きを開く
+// ■下書きを開く
 //############################################################################
 	var sel_draft = $('#select-draft');
 	$('#open-draft').click(function(){
@@ -25,7 +28,7 @@ $(function(){
 	});
 
 //############################################################################
-// ●タグの削除ボタン、タグの追加
+// ■タグの削除ボタン、タグの追加
 //############################################################################
 	var tagdel = $('<span>').addClass('ui-icon ui-icon-close');
 	tagdel.click(function(evt){
@@ -34,7 +37,9 @@ $(function(){
 	});
 	$("#edit-tags span.tag").append(tagdel);
 
-// タグの追加
+//----------------------------------------------------------------------------
+// ●タグの追加
+//----------------------------------------------------------------------------
 tagsel.change(function(evt){
 	if ($(':selected',tagsel).data('new')) return new_tag_append();
 	var val = tagsel.val();
@@ -58,8 +63,9 @@ function tag_append(tag_text) {
 	tags.append(tag);
 }
 
-
-// 新規タグの追加
+//----------------------------------------------------------------------------
+// ●新規タグの追加
+//----------------------------------------------------------------------------
 var newtag_dialog = $('<div>');
 body.append(newtag_dialog);
 function new_tag_append() {
@@ -96,6 +102,39 @@ function new_tag_append() {
 		buttons: buttons
 	});
 }
+
+//############################################################################
+// ■画像アルバムを開く
+//############################################################################
+var album_btn = $('#album-open');
+album_btn.click(function(){
+	var win = window.open(album_btn.data('url'), 'album', 'location=yes, menubar=no, resizable=yes');
+	win.focus();
+});
+
+//############################################################################
+// ■テキストエリア加工サブルーチン
+//############################################################################
+//----------------------------------------------------------------------------
+// ●カーソル位置にテキスト挿入
+//----------------------------------------------------------------------------
+function _insert_text(text) {
+	edit.focus();
+	var ta  = edit[0];		// textarea element
+	var start = ta.selectionStart;	// カーソル位置
+	if (start == undefined) {
+		// for IE8
+		var tmp = document.selection.createRange();
+		tmp.text = text;
+		return ;
+	}
+	// カーソル移動
+	ta.value = ta.value.substring(0, start)	+ text + ta.value.substring(start);
+	start += text.length;
+	ta.setSelectionRange(start, start);
+}
+insert_text = _insert_text;
+
 
 
 ///

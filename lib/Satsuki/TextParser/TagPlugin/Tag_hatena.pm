@@ -30,7 +30,7 @@ sub new {
 # ●はてなjan/ean記法
 #------------------------------------------------------------------------------
 sub hatena_jan {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
+	my ($pobj, $tag, $cmd, $ary) = @_;
 
 	# janコード
 	my $jan = shift(@$ary);
@@ -44,8 +44,8 @@ sub hatena_jan {
 	} elsif ($name eq 'barcode') {
 		$name = "<img src=\"http://d.hatena.ne.jp/barcode?ean=$jan\" alt=\"$jan\" class=\"barcode\">";
 	}
-	my $attr = $parser_obj->make_attr($ary, $tag);
-	   $name = $parser_obj->make_name($ary, $name);
+	my $attr = $pobj->make_attr($ary, $tag);
+	   $name = $pobj->make_name($ary, $name);
 
 	return "<a href=\"http://d.hatena.ne.jp/ean/$jan\"$attr>$name</a>";
 }
@@ -54,7 +54,7 @@ sub hatena_jan {
 # ●はてなfotolife記法
 #------------------------------------------------------------------------------
 sub hatena_fotolife {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
+	my ($pobj, $tag, $cmd, $ary) = @_;
 
 	my $name = "$cmd:" . join(':', @$ary);
 	# f:id:hatenadiary:20041007101545j:image
@@ -78,7 +78,7 @@ sub hatena_fotolife {
 	else { $size=''; }
 
 	# 属性
-	my $attr = $parser_obj->make_attr($ary, $tag, 'image');
+	my $attr = $pobj->make_attr($ary, $tag, 'image');
 
 	return "<a href=\"$url\"$attr><img src=\"$img_url\" alt=\"$name\" class=\"hatena-fotolife\"$size></a>";
 }
@@ -88,8 +88,8 @@ sub hatena_fotolife {
 #------------------------------------------------------------------------------
 # regist = graph:id
 sub hatena_graph {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
-	my $ROBJ = $parser_obj->{ROBJ};
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $ROBJ = $pobj->{ROBJ};
 
 	my $name = "$cmd:" . join(':', @$ary);
 	# graph:id:sample
@@ -102,20 +102,20 @@ sub hatena_graph {
 	my $graph;
 	if ($ary->[0] ne '') {
 		$name = $graph = shift(@$ary);
-		my $jcode = $parser_obj->{jcode} ||= $ROBJ->load_codepm();
+		my $jcode = $pobj->{jcode} ||= $ROBJ->load_codepm();
 		$jcode->from_to(\$graph, $ROBJ->{System_coding}, 'UTF-8');
-		$parser_obj->encode_uricom($graph);
+		$pobj->encode_uricom($graph);
 		$url .= $graph . '/';
 	}
 	# 画像モード
 	if ($graph ne '' && $ary->[0] eq 'image') {
-		my $attr = $parser_obj->make_attr($ary, $tag, 'image');
-		   $name = $parser_obj->make_name($ary, $name);
+		my $attr = $pobj->make_attr($ary, $tag, 'image');
+		   $name = $pobj->make_name($ary, $name);
 		return "<a href=\"$url\"$attr><img src=\"http://graph.hatena.ne.jp/$id/graph?graphname=$graph\" class=\"hatena-graph-image graph\" alt=\"$name\"></a>";
 	}
 	# 属性/リンク名
-	my $attr = $parser_obj->make_attr($ary, $tag, 'http');
-	   $name = $parser_obj->make_name($ary, $name);
+	my $attr = $pobj->make_attr($ary, $tag, 'http');
+	   $name = $pobj->make_name($ary, $name);
 
 	# リンク構成
 	return "<a href=\"$url\"$attr\">$name</a>";

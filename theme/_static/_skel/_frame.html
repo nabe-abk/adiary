@@ -13,6 +13,7 @@
 <meta name="generator" content="adiary <@v.VERSION>">
 <meta name="author" content="<@v.blogid>">
 <link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.notheme.css" id="jquery-ui-css">
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_lightbox/lightbox.css" id="lightbox-css">
 <@forexec(t, v.load_jscss(v.cssfiles), begin)>
 <link rel="stylesheet" media="all" href="<@Basepath><@t>">
 <$end>
@@ -22,6 +23,7 @@
 <link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>usercss.css" id="user-css">
 <$end>
 <!-- JavaScript ============================================-->
+<$v.script_dir = v.theme_dir>
 <!--[if lt IE 9]>
 <script src="<@Basepath><@v.script_dir>jquery-1.min.js"></script>
 <script src="<@Basepath><@v.script_dir>IE9.js"></script>
@@ -30,15 +32,13 @@
 <!--[if gte IE 9]><!-->
 <script src="<@Basepath><@v.script_dir>jquery-2.min.js"></script>
 <!--<![endif]-->
+<script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <script src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
 <script src="<@Basepath><@v.script_dir>adiary.js"></script>
 <@forexec(t, v.load_jscss(v.scripts), begin)>
 <script async src="<@Basepath><@v.script_dir><@t>"></script>
 <$end>
 <@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.js"></script>\n')>
-<@forexec(t, v.load_js_events(), begin)>
-<script async src="<@Basepath><@t>"></script>
-<$end>
 	<title><@v.header_title_add><@v.title></title>
 </head>
 <body id="body" class="<@if(v.blog_admin, 'blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system-mode')><@v.mode_class>">

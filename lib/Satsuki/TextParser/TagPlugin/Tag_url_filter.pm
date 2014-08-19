@@ -46,9 +46,9 @@ sub filter {
 }
 
 sub _filter {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
-	my $ROBJ = $parser_obj->{ROBJ};
-	my $tags = $parser_obj->{tags};
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $ROBJ = $pobj->{ROBJ};
+	my $tags = $pobj->{tags};
 
 	my $urlf = join(':',@$ary);
 	my $url  = shift(@$ary);
@@ -93,7 +93,7 @@ sub _filter {
 	if ($url =~ m!^https?://www\.amazon\.co\.jp/(?:([^/]+)/)?(?:dp|gp/product)/(\w+)!) {
 		my $title = $1;
 		my $asin  = $2;
-		my $tag   = $parser_obj->load_tag('asin');
+		my $tag   = $pobj->load_tag('asin');
 		$title =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
 		$title =~ s/[\x00-\x1F\"]//g;
 		if (!exists($tags->{asin}) || ref($tag) ne 'HASH' || ref($tag->{data}) ne 'CODE') { 
@@ -102,7 +102,7 @@ sub _filter {
 		}
 		if ($title ne '') { unshift(@$ary, $title); }
 		unshift(@$ary, $asin);
-		return &{$tag->{data}}($parser_obj, $tag, 'asin', $ary);
+		return &{$tag->{data}}($pobj, $tag, 'asin', $ary);
 	}
 
 	#------------------------------------------------------------
@@ -143,11 +143,11 @@ sub _filter {
 	# audio/video
 	#------------------------------------------------------------
 	if ($url =~ m{\.(?:wave?|ogg|mp3|aac|m4a)}i) {
-		return $parser_obj->parse_tag("[audio:$urlf]");
+		return $pobj->parse_tag("[audio:$urlf]");
 	}
 
 	if ($url =~ m{\.(?:webm|mp4|m4v)}i) {
-		return $parser_obj->parse_tag("[video:$urlf]");
+		return $pobj->parse_tag("[video:$urlf]");
 	}
 
 	#------------------------------------------------------------
@@ -187,7 +187,7 @@ sub _filter {
 			if ($title eq '') { last; }
 			my $jcode = $ROBJ->load_codepm_if_needs($title);
 			$jcode && $jcode->from_to( \$title, $charset, $ROBJ->{System_coding} );
-			my $class = $parser_obj->make_attr([], {}, 'http');
+			my $class = $pobj->make_attr([], {}, 'http');
 			return "<a href=\"$urlf\"$class>$title</a>";
 		}
 		return "[(access failed) $urlf]";

@@ -31,7 +31,7 @@ sub new {
 # ●Linux man記法
 #------------------------------------------------------------------------------
 sub linux_jman {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
+	my ($pobj, $tag, $cmd, $ary) = @_;
 
 	my $section;
 	my $search = shift(@$ary);
@@ -44,8 +44,8 @@ sub linux_jman {
 	# 英字以外除去
 	$search =~ /[^\w\-\.]/g;
 	# 属性/リンク名
-	my $attr = $parser_obj->make_attr($ary, $tag, 'http');
-	my $name = $parser_obj->make_name($ary, $search);
+	my $attr = $pobj->make_attr($ary, $tag, 'http');
+	my $name = $pobj->make_name($ary, $search);
 
 	return "<a href=\"http://search.linux.or.jp/cgi-bin/JM/man.cgi?Pagename=$search$section\"$attr>$name</a>";
 }
@@ -54,7 +54,7 @@ sub linux_jman {
 # ●FreeBSD man記法
 #------------------------------------------------------------------------------
 sub freebsd_jman {
-	my ($parser_obj, $tag, $cmd, $ary) = @_;
+	my ($pobj, $tag, $cmd, $ary) = @_;
 
 	my $release_ver = $tag->{option};
 	my $section;
@@ -70,8 +70,8 @@ sub freebsd_jman {
 	# 英字以外除去
 	$search =~ /[^\w\-\.]/g;
 	# 属性/リンク名
-	my $attr = $parser_obj->make_attr($ary, $tag, 'http');
-	my $name = $parser_obj->make_name($ary, $search);
+	my $attr = $pobj->make_attr($ary, $tag, 'http');
+	my $name = $pobj->make_name($ary, $search);
 
 	return "<a href=\"http://www.jp.freebsd.org/cgi/mroff.cgi?subdir=man&lc=1&dir=jpman-$release_ver%2Fman&man=$search$section#toc\"$attr>$name</a>";
 }
