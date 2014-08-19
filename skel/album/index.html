@@ -54,7 +54,7 @@
 	</form>
 
 	<!--========================================================================-->
-	<h4>アップロード<span class="help" data-help="上の部分にファイルをドラッグ＆ドロップしてもアップロードできる予定です。">?</span></h4>
+	<h4>アップロード<span class="help" data-help="ドラッグ＆ドロップでアップロードファイルを選択できます（IE9以前や古いブラウザを除く）。">?</span></h4>
 
 	<div class="messages" id="upload-messages" style="display: none;"><@join("\n", Message)></div>
 
@@ -62,9 +62,9 @@
 	<input type="hidden" name="action" value="<@v.skel_dir>upload_form">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="folder" value="" id="upload-folder">
-	<div id="file-elements"><input type="file" name="file0_ary" multiple id="file"></div>
+	<div id="dnd-files"></div><div id="file-elements"><input type="file" name="file0_ary" multiple id="file"></div>
 	<button type="reset" id="upload-reset">リセット</button><input type="submit" id="upload" value="upload">
-	&nbsp;サムネイル：<input type="number" name="size" value="120" class="w50" min="64" max="800">px 
+	&nbsp;サムネイル：<input type="number" name="size" value="120" class="w50 js-save" min="64" max="800" id="thumbnail-size">px 
 	</form>
 
 </div>

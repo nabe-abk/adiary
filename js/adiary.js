@@ -373,6 +373,25 @@ function btn_click(btn, init) {
 };
 
 //////////////////////////////////////////////////////////////////////////////
+//○フォーム値の保存
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( init_value_save );
+
+function init_value_save(R) {
+	R.find('input.js-save').each( function() {
+		var obj = $(this);
+		var id  = obj.attr("id");
+		if (!id) return;
+		obj.change( function(evt){
+			var obj = $(evt.target);
+			Storage.set(id, obj.val());
+		});
+		if ( Storage.defined(id) )
+			obj.val( Storage.get(id) );
+	});
+};
+
+//////////////////////////////////////////////////////////////////////////////
 //○input[type="text"]などで enter による submit 停止
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){

@@ -20,6 +20,10 @@ $( function(){
 	var upreset  = $('#upload-reset');
 	var filesdiv = $('#file-elements');
 	var inputs   = filesdiv.find('input');
+	
+	// Drag&Drop関連
+	var dnd_div  = $('#dnd-files');
+	var upfiles  = [];
 
 	var isMac = /Mac/.test(navigator.platform);
 //////////////////////////////////////////////////////////////////////////////
@@ -120,17 +124,64 @@ tree.dynatree({
 	}
 });
 //////////////////////////////////////////////////////////////////////////////
-// ●[file] 
+// ●[file] ドラッグ＆ドロップ
 //////////////////////////////////////////////////////////////////////////////
-main.on("drop", function(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();  
-	alert(111);
-	//$('#file')[0].files = evt.originalEvent.dataTransfer.files;
-});
 main.on('dragover', function(evt) {
 	return false;
- });
+});
+main.on("drop", function(evt) {
+	evt.stopPropagation();
+	evt.preventDefault();
+	var dnd_files = evt.originalEvent.dataTransfer.files;
+	if (!dnd_files) return;
+	if (!FormData)  return;
+
+	for(var i=0; i<dnd_files.length; i++)
+		upfiles.push( dnd_files[i] );
+	update_upfiles();
+});
+
+function update_upfiles() {
+	dnd_div.empty();
+	for(var i=0; i<upfiles.length; i++) {
+		if (!upfiles[i]) next;
+		var fs  = upfiles[i].size;
+		if (fs > 10240000) {
+			fs = Math.round(fs/1048576);
+			fs = fs.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+			fs = fs + ' MB';
+		} else if (fs > 1024000) {
+			fs = Math.round(fs*10/1048576)/10 + ' MB';
+		} else if (fs > 10240) {
+			fs = Math.round(fs/1024) + ' KB';
+		} else if (fs > 1024) {
+			fs = Math.round(fs*10/1024)/10 +' KB';
+		} else {
+			fs = fs + ' Byte';
+		}
+
+		var div = $('<div>').text(
+			upfiles[i].name + ' (' + fs + ')'
+		);
+		// 削除アイコン
+		var del = $('<span>').addClass('ui-icon ui-icon-close');
+		del.data('num', i);
+		del.click(function(evt){
+			var obj = $(evt.target);
+			var num = obj.data('num');
+			upfiles[num] = null;
+			obj.parent().remove();
+		});
+		div.append(del);
+		dnd_div.append(div);
+	}
+}
+
+	var ymddel = 
+	ymddel
+
+	form.find("div.yyyymm span.yyyymm").append(ymddel);
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -161,39 +212,92 @@ inputs.change( input_change );
 // ●[file] submit
 //////////////////////////////////////////////////////////////////////////////
 upform.submit(function(){
+	// ajaxで処理？
+	if (upfiles.length) {
+		for(var i=0; i<upfiles.length; i++)
+			if (upfiles[i]) return ajax_upload();
+	}
+
+	// ファイルがセットされているか確認
 	var flag = false;
 	inputs.each(function(num, obj){
 		if ($(obj).val() != '') flag=true;
 	});
 	if (!flag) return false;
-	
+
 	// submit処理
 	iframe.unbind();
-	iframe.load(function(){
-		upform[0].reset();
-		var ary = iframe.contents().text().split(/\n/);
-		var ret = ary.shift();
-		var reg = ret.match(/ret=\d+/);
-		if (reg) {
-			ret = reg[0];
-			message.html( ary.join("\n") );
-			message.show( Default_show_speed );
-		}
-
-		// ファイル選択を１つ残して削除
-		for(var i=1; i<inputs.length; i++) {
-			inputs[i].remove();
-		}
-		inputs = filesdiv.find('input');
+	iframe.load( function(){
+		parse_upload_response( iframe.contents().text() )
 	});
 	return true;
 });
+
+function parse_upload_response(text) {
+	upform[0].reset();
+	var ary = text.split(/\n/);
+	var ret = ary.shift();
+	var reg = ret.match(/^ret=\d*/);
+	if (reg) {
+		ret = reg[0];
+		message.html( ary.join("\n") );
+		message.show( Default_show_speed );
+	}
+
+	// ファイル選択を１つ残して削除
+	for(var i=1; i<inputs.length; i++) {
+		inputs[i].remove();
+	}
+	inputs = filesdiv.find('input');
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●[file] ajaxでファイルアップロード 
+//////////////////////////////////////////////////////////////////////////////
+function ajax_upload() {
+	var fd = new FormData( upform[0] );
+	for(var i=0; i<upfiles.length; i++) {
+		if (!upfiles[i]) continue;
+		fd.append('file_ary', upfiles[i]);
+	}
+
+	// submit処理
+	$.ajax(upform.attr('action'), {
+		method: 'POST',
+		contentType: false,
+		processData: false,
+		data: fd,
+		dataType: 'text',
+		error: function(xhr) {
+			console.log('[ajax_upload()] http post fail');
+			parse_upload_response( xhr.responseText );
+			iframe_write( xhr.responseText );
+		},
+		success: function(data) {
+			console.log('[ajax_upload()] http post success');
+			parse_upload_response(data);
+			iframe_write(data);
+		}
+	});
+
+	upreset.click();
+	return false;
+}
+
+function iframe_write(data) {
+	var doc = iframe[0].contentDocument;
+	doc.open();
+	doc.write(data);
+	doc.close();
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // ●[file] reset
 //////////////////////////////////////////////////////////////////////////////
 upreset.click(function(){
 	message.hide();
+	upfiles = [];
+	update_upfiles();
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -219,7 +323,6 @@ function open_folder(node) {
 		},
 		error: function() {
 			$('#current-folder').text( '(load failed!)' );
-			
 		}
 	});
 }

@@ -172,8 +172,8 @@ input.color-picker {
 	z-index:	10000;
 }
 
-/* 検索 */
-article.search .ui-icon.ui-icon-close {
+/* 検索など */
+.ui-icon.ui-icon-close {
 	cursor:		pointer;
 }
 
@@ -315,7 +315,7 @@ ul.menu {
 ●画像アルバム
 ---------------------------------------------------------------------*/
 #album-folder-tree > ul {
-	min-height:		200px;
+	min-height:		300px;
 	margin-bottom:		2px;
 }
 #album-folder-tree ul a {
@@ -324,7 +324,7 @@ ul.menu {
 
 #album-folder-view {
 	margin-top:		4px;
-	min-height:		260px;
+	min-height:		390px;
 	margin-bottom:		8px;
 }
 

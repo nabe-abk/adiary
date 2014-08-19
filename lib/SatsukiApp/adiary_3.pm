@@ -236,14 +236,14 @@ sub make_thumbnail_for_notimage {
 		my @st = stat("$dir$file");
 		my $tm = $ROBJ->tm_printf("%Y/%m/%d %H:%M", $st[9]);
 		my $fs = $st[7];
-		if ($fs > 10485760) {
-			$fs = ($fs >> 20);
+		if ($fs > 10240000) {
+			$fs = (($fs + 524288) >> 20);
 			$fs =~ s/(\d{1,3})(?=(?:\d\d\d)+(?!\d))/$1,/g;
 			$fs = $fs . ' MByte';
-		} elsif ($fs > 1048576) {
+		} elsif ($fs > 1024000) {
 			$fs = sprintf("%.1f", $fs/1048576) . ' MByte';
 		} elsif ($fs > 10240) {
-			$fs = ($fs >> 10) . ' KByte';
+			$fs = (($fs + 512) >> 10) . ' KByte';
 		} elsif ($fs > 1024) {
 			$fs = sprintf("%.1f", $fs/1024) .' KByte';
 		} else {
@@ -286,6 +286,7 @@ sub image_upload_form {
 	my $count_s = 0;
 	my $count_f = 0;
 	my @ary;
+	push(@ary, @{ $form->{"file_ary"} || []});
 	foreach(0..99) {
 		if( $form->{"file$_"} ) {
 			push(@ary, $form->{"file$_"});
