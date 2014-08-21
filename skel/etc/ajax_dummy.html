@@ -4,7 +4,7 @@
 <$v.frame_skeleton=''>
 <$set_content_type('text/plain')>
 
-ret=<@ajax_return>
+ret=<@ajax_return || action_return>
 <@>
 <@ifexec(@Message, begin)>
 <@join("\n", Message)>

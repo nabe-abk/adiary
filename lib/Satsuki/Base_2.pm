@@ -398,7 +398,7 @@ sub mkdir {
 		if (substr($dir,-1) eq '/') { chop($dir); }
 		if (defined $mode) { $r = chmod($mode, $dir); }
 	} else { $self->error("Failed mkdir '%s'", $_[1]); }
-	return $r;
+	return $r ? 0 : 1;
 }
 
 #------------------------------------------------------------------------------
@@ -425,7 +425,7 @@ sub dir_delete {	# 再起関数
 		if (-d $file) { $self->dir_delete( $file ); }
 		  else { unlink( $file ); }
 	}
-	rmdir($dir);
+	return rmdir($dir);
 }
 
 #------------------------------------------------------------------------------

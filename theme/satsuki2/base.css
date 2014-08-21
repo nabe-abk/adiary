@@ -330,6 +330,7 @@ ul.menu {
 	margin-top:		4px;
 	min-height:		260px;
 	margin-bottom:		8px;
+	clear:			both;
 }
 
 #album-folder-view a {
@@ -341,6 +342,9 @@ ul.menu {
 	vertical-align:		middle;
 	max-width:		120px;
 	max-height:		120px;
+	/* for IE */
+	width:	auto;
+	height:	auto;
 }
 #album-folder-view img.selected {
 	border-color:		#f88;
@@ -369,7 +373,6 @@ ul.menu {
 #file-elements input {
 	display:		block;
 }
-
 #upload-infomation {
 	font-size:		90%;
 	line-height:		130%;

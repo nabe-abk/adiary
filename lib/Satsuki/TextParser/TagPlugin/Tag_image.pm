@@ -71,10 +71,9 @@ sub image {
 	my $link = $url;
 	if (exists $tags->{"$tag_name#link"}) { $link = $tags->{"$tag_name#link"}->{data}; }
 	# URL生成
-	$url  = $pobj->replace_link($url,  $ary, $argc);
-	$link = $pobj->replace_link($link, $ary, $argc);
-	# 使った要素の削除
-	splice(@$ary, 0, $argc);
+	my @ary2 = @$ary;
+	$url  = $pobj->replace_link($url,   $ary,  $argc);
+	$link = $pobj->replace_link($link, \@ary2, $argc);
 	$ROBJ->tag_escape($name);
 
 	# 画像サイズ

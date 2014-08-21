@@ -29,6 +29,10 @@ if (!('console' in window)) {
 	window.console = {};
 	window.console.log = function(x){return x};
 }
+// IE8ではsubstr(-1)が効かない
+String.prototype.last_char = function() {
+	return this.substr(this.length-1, 1);
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //●<body>にCSSのためのブラウザクラスを設定
@@ -43,7 +47,7 @@ function set_browser_class_into_body() {
 	else if (ua.indexOf('Opera')  != -1) x.push('Op');
 	else if (ua.indexOf('Gecko')  != -1) x.push('Fx');
 	
-	var m = ua.match(/MSIE (\d)/);
+	var m = ua.match(/MSIE (\d+)/);
 	if (m) x.push('IE', 'IE' + m[1]);
 	  else x.push('NotIE');
 	if (m && m[1]<8) is_IE67=true;
@@ -378,7 +382,7 @@ function btn_click(btn, init) {
 initfunc.push( init_value_save );
 
 function init_value_save(R) {
-	R.find('input.js-save').each( function() {
+	R.find('input.js-save, select.js-save').each( function() {
 		var obj = $(this);
 		var id  = obj.attr("id");
 		if (!id) return;

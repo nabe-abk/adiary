@@ -19,29 +19,38 @@
 
 
 <article class="system" id="album">
-<h2 class="dynatree-ico-ef"><span class="dynatree-icon"></span><span id="current-folder">(no load)</span></h2>
+<h2 class="dynatree-ico-ef"><span id="folder-icon"></span><span id="current-folder">(no load)</span></h2>
 <div class="body">
 	<div id="album-header">
 		<div>
 			操作方法<span class="help" data-help="クリック：選択\nダブルクリック：表示\nCTRL+クリック：表示">?</span>
+			<input type="checkbox" id="all-select"><label>全選択</label>
 		</div>
 		<div class="view-option">
-			<span class="option-item">
-			<select id="view-type">
-				<option value="icon">アイコン</option>
-				<option value="detail">詳細</option>
-			</select></span>
-			<span class="option-item">ソート:
+			<span class="option-item">最大サイズ
+			<select id="thumb-maxsize" class="r js-save">
+				<option value=" 60"> 60px</option>
+				<option value=" 80"> 80px</option>
+				<option value="100">100px</option>
+				<option value="120" selected>120px</option>
+				<option value="160">160px</option>
+				<option value="200">200px</option>
+				<option value="240">240px</option>
+			</select><span class="help" data-help="サムネイルの表示最大サイズを指定します。指定サイズより小さいサムネイルはそのままです。\n※IE8以前では動作しません。">?</span>
+			</span>
+			<span class="option-item">ソート
 			<select id="sort-type">
 				<option value="name">名前</option>
 				<option value="date">日付</option>
 				<option value="size">サイズ</option>
+			</select>
+			<select id="sort-rev">
+				<option value="0">昇順</option>
+				<option value="1">降順</option>
 			</select></span>
 		</div>
 	</div>
 
-
-	<p class="error" id="load-error" style="display: none"><strong class="error">画像フォルダが存在しないか情報をロードできません。</strong></p>
 	<div id="album-folder-view"></div>
 
 	<form action="<@v.myself>?edit" method="POST" id="paste-form" data-tag="[file:%e:%d:%f:%f]">
@@ -50,8 +59,10 @@
 	<input type="hidden" name="paste_txt" value="" id="paste-txt">
 	<button type="submit" id="paste-thumbnail" data-tag="[image:S:%d:%f:%f]">サムネイルを記事に</button>
 	<button type="submit" id="paste-original"  data-tag="[image:L:%d:%f:%f]">元画像を記事に</button>
+	<button type="button" id="remake-thumbnail">サムネイル再生成</button><span class="help" data-help="選択した画像のサムネイルを、下で指定したサイズで再生成します。">?</span>
 	</form>
 
+	<@> Ajax用基本データ
 	<form action="<@v.myself>?<@v.skeleton>" method="POST" id="album-form" data-myself="<@v.myself>">
 	<input type="hidden" name="action" value="<@v.skel_dir>" id="action-base">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>" id="csrf-key">
@@ -93,4 +104,13 @@
 <span id="image-path"><@Basepath><@v.blogimg_dir()></span>
 <span id="icon-path"><@Basepath><@v.album_icons></span>
 <span id="uploading-msg">Now uploading</span>
+
+<span id="msg-load-error">画像フォルダが存在しないか情報をロードできません。</span>
+<span id="msg-fail-reload">リロードに失敗しました。</span>
+<span id="msg-fail-remake">再生成に失敗しました。</span>
+<span id="msg-fail-rename">フォルダ名の変更に失敗しました。</span>
+<span id="msg-fail-create">フォルダの作成に失敗しました。</span>
+<span id="msg-confirm-trash">ゴミ箱を空を空にしますか？</span>
+<span id="msg-fail-mv-files">ファイルの移動に失敗しました（移動先に同じファイル名がありませんか？）</span>
+<span id="msg-fail-mv-folder">フォルダの移動に失敗しました（移動先に同じフォルダ名がありませんか？）</span>
 </div>

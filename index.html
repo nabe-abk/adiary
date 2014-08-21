@@ -38,9 +38,10 @@
 
 <!--main==========================================================-->
 <article class="system">
-<h2>インストール方法</h2>
+<h2>インストールヘルプ</h2>
 <div class="body">
 	<section>
+	<h3>インストール方法</h3>
 	<p>簡単なインストール方法です。<a href="http://adiary.org/man/">旧オンラインマニュアル</a>は参考程度にご覧ください。</p>
 	<ol>
 		<li>解凍してでてきたファイルをサーバ上の任意の位置に置く</li>
@@ -51,10 +52,11 @@
 		<li>自分自身をユーザーとして追加する。</li>
 	</ol>
 	<p><a href="adiary.cgi">adiary.cgiを開く</a></p>
+
+	<h4>諸注意</h4>
 	<ul>
 		<li>ログインをクリックしても画面が表示されないなど、<strong>リンクがうまく辿れないときは adiary<u>.env.cgi</u></strong>（.conf.cgiではない） <strong>を設置し、そのファイル中の &lt;$Basepath&gt; および &lt;$Mod_rewrite=0&gt; を設定してください。</strong>（<a href="http://adiary.org/man/install_trouble#basepath">詳細はこちら</a>）</li>
 		<li>このファイル不要ですので、最後は適当に上書きするか削除してください。</li>
-		<li>まだβ版です。質問等あるときは<a href="http://twitter.com/nabe_abk">作者まで</a>ご連絡ください。
 	</ul>
 
 	<p><button onclick="security_check()"><strong>セキュリティチェック</strong></button> ※エラーがあれば表示されます</p>
@@ -88,36 +90,37 @@ Valid HTML5/CSS
 <div class="hatena-moduletitle">Information</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">
-<li class="description">adiary Version3は<strong>HTML5専用</strong>のblog/CMSツールです。<strong>分かりやすく使いやすい</strong>ツールを目指しています。</li>
-<li class="description">AGPLv3で配布される純国産のシステムで、CGIでも高速に動作するのが特徴です。</li>
+<li class="description"><p>adiary Version3は<strong>HTML5専用</strong>のblog/CMSツールです。</p>
+			<p>AGPLv3で配布される純国産のシステムで、CGIでも高速に動作するのが特徴です。</p></li>
 </ul>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
+
+<div class="hatena-module">
+<div class="hatena-moduletitle">対応環境</div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+	<li>・Chrome, Firefox等のモダンブラウザ</li>
+	<li>・IE8以降</li>
+	<li>※管理画面で一部機能が使えないため、IE10以降を強く推奨します。</li>
+</ul>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+
+
 
 <div class="hatena-module">
 <div class="hatena-moduletitle">動作環境</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">
-	<li>Perl 5.8以降</li>
-	<li>Apache互換のCGI環境</li>
+	<li>・Apache互換のCGI環境</li>
+	<li>・Perl 5.8.1以降</li>
 	<li>(推奨) Image::Magick</li>
-	<li>(推奨) Net::POP3</li>
-	<li>(推奨) Net::SSLeay</li>
-	<li>(推奨) sendmailコマンド</li>
 </ul>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
 
-<div class="hatena-module">
-<div class="hatena-moduletitle">β版情報</div>
-<div class="hatena-modulebody">
-<ul class="hatena-section">
-	<li>Wikiコンテンツ機能、タグ機能は中途半端な実装です。</li>
-	<li>メール関連機能、画像管理機能はまだありません。</li>
-	<li><strong class="warning">adiary Ver3用のテーマ作者および旧テーマを移植してくれる人</strong>を切実に求めています。</li>
-</ul>
-</div> <!-- hatena-modulebody -->
-</div> <!-- hatena-module -->
+
 
 
 <div class="hatena-module">

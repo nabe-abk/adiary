@@ -36,12 +36,15 @@ sub genarete_imgae_dirtree {
 	my $ROBJ = $self->{ROBJ};
 	if ($self->{blogid} eq '') { return -1; }
 
-	my $dir  = $self->blogimg_dir();
-	my $tree = $self->get_dir_tree($dir);
+	my $dir   = $self->blogimg_dir();
+	my $tree  = $self->get_dir_tree($dir);
+	my $trash = $self->get_dir_tree($dir . '.trashbox/', '.trashbox/');	# ゴミ箱
 
 	$tree->{name} = '/';
 	$tree->{key}  = '/';
-	my $json = $self->generate_json([$tree], ['name', 'key', 'date', 'count'], {name=>'title'});
+	$trash->{name} = '.trashbox/';
+	$trash->{key}  = '.trashbox/';
+	my $json = $self->generate_json([$tree, $trash], ['name', 'key', 'date', 'count']);
 	$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'images.json', $json);
 
 	return $tree->{count};
@@ -60,7 +63,7 @@ sub get_dir_tree {
 	my @files;
 	my $cnt=0;	# ファイル数カウント
 	my $list = $ROBJ->search_files($dir, {dir=>1});
-	foreach(@$list) {
+	foreach(sort(@$list)) {
 		if (ord($_) == ord('.')) { next; }	# .file は無視
 		if (substr($_,-1) ne '/') {
 			# ただのファイル
@@ -89,8 +92,9 @@ sub load_image_files {
 	my $dir  = $self->image_folder_to_dir( shift );	# 値check付
 	my $ROBJ = $self->{ROBJ};
 
-	# $|=1;
-	# print "Content-Type: text/plain\n\ntest\n";
+	if (!-r $dir) {
+		return(-1,'["msg":"Folder not found"]');
+	}
 
 	my $files = $ROBJ->search_files( $dir );
 	my @ary;
@@ -150,7 +154,7 @@ sub make_thumbnail_for_image {
 	my $self = shift;
 	my $dir  = shift;	# 実パス
 	my $file = shift;
-	my $size = shift || $self->{album_thumb_size};
+	my $size = int(shift) || $self->{album_thumb_size};
 	my $ROBJ = $self->{ROBJ};
 
 	# リサイズ
@@ -314,7 +318,10 @@ sub image_upload_form {
 	}
 
 	# サムネイル生成
-	$self->make_thumbnail($dir, \@files);
+	$self->make_thumbnail( $dir, \@files, {size => $form->{size}} );
+
+	# ブォルダリストの再生成
+	$self->genarete_imgae_dirtree();
 
 	# メッセージ
 	return wantarray ? ($count_s, $count_f) : $count_f;
@@ -372,6 +379,112 @@ sub do_upload {
 }
 
 #------------------------------------------------------------------------------
+# ●サムネイルの再生成
+#------------------------------------------------------------------------------
+sub remake_thumbnail {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir   = $self->image_folder_to_dir( $form->{folder} ); # 値check付
+	my $files = $form->{file_ary};
+	my $size  = $form->{size};
+
+	# filesの値チェック
+	foreach(@$files) {
+		if ($self->check_file_name($_)) { return -1; }
+	}
+
+	# サムネイル生成
+	$self->make_thumbnail( $dir, $files, {
+		size  => $form->{size},
+		force => 1
+	});
+
+	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●フォルダの作成
+#------------------------------------------------------------------------------
+sub create_folder {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir  = $self->image_folder_to_dir( $form->{folder} ); # 値check付
+	my $name = $self->chop_slash( $form->{name} );
+	if ( $self->check_file_name($name) ) { return -1; }
+
+	my $r = $ROBJ->mkdir("$dir$name");
+	$ROBJ->mkdir("$dir$name/.thumbnail");
+
+	return $r;
+}
+
+#------------------------------------------------------------------------------
+# ●フォルダ名の変更
+#------------------------------------------------------------------------------
+sub rename_folder {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir  = $self->image_folder_to_dir( $form->{folder} ); # 値check付
+	my $old  = $self->chop_slash( $form->{old}  );
+	my $name = $self->chop_slash( $form->{name} );
+	if ( $self->check_file_name($old ) ) { return -2; }
+	if ( $self->check_file_name($name) ) { return -1; }
+
+	return rename("$dir$old", "$dir$name") ? 0 : 1;
+}
+
+#------------------------------------------------------------------------------
+# ●ゴミ箱を空にする
+#------------------------------------------------------------------------------
+sub clear_trashbox {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $dir  = $self->blogimg_dir() . '.trashbox/';
+
+	my $ret = $ROBJ->dir_delete($dir) ? 0 : 1;
+
+	$ROBJ->mkdir($dir);
+	return $ret;
+}
+
+#------------------------------------------------------------------------------
+# ●ファイルの移動
+#------------------------------------------------------------------------------
+sub move_files {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $from = $self->image_folder_to_dir( $form->{from} ); # 値check付
+	my $to   = $self->image_folder_to_dir( $form->{to}   ); # 値check付
+
+	my $files = $form->{file_ary} || [];
+	my $fail = 0;
+	foreach(@$files) {
+		if ( $self->check_file_name($_) ) {
+			$fail += 1000;
+			next;
+		}
+		if (-e "$to$_") {	# 同じファイル名が存在する
+			$fail++;
+			next;
+		}
+		$fail += rename("$from$_", "$to$_") ? 0 : 1;
+
+		# ファイルを移動した場合、サムネイルも移動
+		if (-d "$to$_") { next; }
+		rename("${from}.thumbnail/$_.jpg", "${to}.thumbnail/$_.jpg");
+	}
+	return $fail;
+}
+
+#------------------------------------------------------------------------------
 # ■アルバム関連サブルーチン
 #------------------------------------------------------------------------------
 sub load_image_magick {
@@ -386,6 +499,21 @@ sub image_folder_to_dir {
 	my ($self, $folder) = @_;
 	$folder =~ s#(^|/)\.+/#$1#g;
 	return $self->{ROBJ}->get_filepath( $self->blogimg_dir() . $folder );
+}
+
+#------------------------------------------------------------------------------
+# ○画像フォルダ名/ファイル名チェック
+#------------------------------------------------------------------------------
+sub check_file_name {
+	my ($self, $file) = @_;
+	if ($file =~ m|/| || $file =~ /^\./) { return -1; }
+	return 0;
+}
+# 最後のスラッシュを取り除く
+sub chop_slash {
+	my ($self, $folder) = @_;
+	if (substr($folder,-1) eq '/') { chop($folder); }
+	return $folder;
 }
 
 #------------------------------------------------------------------------------
