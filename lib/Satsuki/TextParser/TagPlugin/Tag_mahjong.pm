@@ -33,7 +33,7 @@ sub new {
 	#---begin_plugin_info
 	$tags->{'mj'}->{data} = \&mahjong;
 	#---end
-	$tags->{'mj:img'} ||= { data=>'pub-dist/mahjong/' };
+	$tags->{'mj:img'}->{data} ||= '${pubdist}mahjong/';
 
 	return ;
 }
@@ -105,7 +105,7 @@ sub mahjong {
 	}
 
 	# タグ構成
-	my $dir = $pobj->replace_data( $tags->{'mj:img'}->{data} );
+	my $dir  = $pobj->replace_data( $tags->{'mj:img'}->{data} );
 	my $name = $pobj->make_name($ary, 'mahjong');
 
 	my $img = join('', map {"<img class=\"mahjong\" alt=\"$_\" src=\"$dir$_.gif\">"} @pi);

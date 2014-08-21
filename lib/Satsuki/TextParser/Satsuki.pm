@@ -1378,7 +1378,7 @@ sub load_tag {
 	my $cmd = shift;
 	my $tag = $self->{tags}->{$cmd};
 	if (ref($tag) eq 'CODE') { return $tag; }
-	if (!$tag->{data} && $tag->{plugin}) {
+	if ($tag->{plugin}) {
 		$self->eval_load_plugin( $tag->{plugin} );
 	}
 	return $self->{tags}->{$cmd};

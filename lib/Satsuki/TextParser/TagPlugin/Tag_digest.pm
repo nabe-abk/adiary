@@ -85,8 +85,9 @@ sub file_digest {
 	# file url構成
 	my $file = $urltag->{data};
 	my $argc = $urltag->{argc};
-	$file = $self->replace_data($file, $ary, $argc);
-
+	unshift(@$ary, $digest_type);
+	$file = $pobj->replace_link($file, $ary, $argc);
+	
 	# パスを安全チェック
 	$ROBJ->clean_path( $file );
 	$file = $ROBJ->get_filepath( $file );

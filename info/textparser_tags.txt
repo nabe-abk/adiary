@@ -43,8 +43,8 @@ key  = >adiary:key
 id   = >adiary:id
 day  = >adiary:day
 adiary:key = 記事指定
-adiary:id  = ID指定
-adiary:day = 日付指定
+#adiary:id  = ID指定
+#adiary:day = 日付指定
 
 search      = 検索,         ASCII,    ${myself2}&search?all=1&word=
 title       = タイトル検索, ASCII,    ${myself2}&search?word=
@@ -233,7 +233,7 @@ name++ = <span class="tan">#1たん<img class="icon" alt="heart" src="${pubdist}
 # 麻雀記法
 #------------------------------------------------------------------------------
 # plugin mahjong
-mj:img = 麻雀画像, ASCII, ${pubdist}/mahjong/
+mj:img = 麻雀画像, ASCII, 0, ${pubdist}mahjong/
 
 #------------------------------------------------------------------------------
 # 文字サイズ
