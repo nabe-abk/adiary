@@ -1160,7 +1160,7 @@ sub crypt_by_rand_nosalt {
 sub get_rand_string {
 	my $self = shift;
 	my $str = $ENV{REMOTE_ADDR} . ($ENV{REMOTE_PORT} + rand(0x3fffffff) + 0x4000000);
-	my $len = length($str)-1;
+	my $len = int(shift) || 20;
 	my $salt='';
 	foreach(0..$len) {
 		$salt .= chr((((ord(substr($str, $_, 1)) * int(rand(0x10000)))>>8) & 0xff)+1);

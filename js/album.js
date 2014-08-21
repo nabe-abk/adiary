@@ -84,7 +84,9 @@ tree.dynatree({
 		// ゴミ箱の設定
 		if (rnodes[2].data.name === '.trashbox/') {
 			var data = rnodes[2].data;
-			data.title = $('#msg-trashbox').text();
+			data.name  = $('#msg-trashbox').text();
+			data.title = get_title(data);
+			data.name  = '.trashbox/';
 			data.fix   = true;
 			data.icon  = 'trashbox.png';
 		} 
@@ -260,7 +262,6 @@ function edit_node( node ) {
 				obj.blur();
 				break;
 			case 13: // [enter]
-				// obj.blur();
 				rename_folder(obj, node, inp.val());
 				break;
 		}
@@ -272,7 +273,7 @@ function edit_node( node ) {
 		node.setTitle( node.data.title );
 		ctree.$widget.bind();
 		node.focus();
-		if (node.data.key != cur_node.data.key)
+		if (evt && evt.which == 13 && node.data.key != cur_node.data.key)
 			node.activate();
 	});
 }

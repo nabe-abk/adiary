@@ -68,8 +68,7 @@ sub image {
 	#  構成
 	my $name = $ary->[$#$ary];
 	my $url  = $tag->{data};
-	my $link = $url;
-	if (exists $tags->{"$tag_name#link"}) { $link = $tags->{"$tag_name#link"}->{data}; }
+	my $link = (exists $tags->{"$tag_name#link"}) ? $tags->{"$tag_name#link"}->{data} : $url;
 	# URL生成
 	my @ary2 = @$ary;
 	$url  = $pobj->replace_link($url,   $ary,  $argc);
@@ -88,11 +87,7 @@ sub image {
 	my $attr = $pobj->make_attr($ary, \%tag2, 'image');
 	   $name = $pobj->make_name($ary, $name);
 
-	# リンク構成
-	if ($link eq '') {	# リンクなし
-		return "<img title=\"$name\" alt=\"$name\"$size src=\"$url\" class=\"$tag->{class}\">";
-	}
-	return "<a href=\"$link\"$attr><img alt=\"$name\"$size src=\"$url\"></a>";
+	return "<figure class=\"image\"><a href=\"$link\"$attr><img alt=\"$name\"$size src=\"$url\"></a></figure>";
 }
 
 

@@ -60,7 +60,7 @@ sub new {
 	$self->{Form_options} = {};		# form用設定
 	$self->{Loadpm_cache} = {};		# load済ライブラリ用Hash
 	$self->{CGI_mode}     = 'CGI-Perl';
-	$self->{Secret_phrase}= 'Satsuki';
+	$self->{Secret_words} = '';
 	$self->{Content_type} = 'text/html';
 	$self->{Headers}      = [];		# ヘッダ出力バッファ
 
@@ -1325,7 +1325,7 @@ my @s_ary0 = (0xb5d8f3c,0x96a4072,0x492c3e6,0x6053399,0xae5f1a8,0x5bf1227,0x02a7
 my @s_ary1 = (0xd31289f,0x76a6d1e,0xd912fac,0xe119b5b,0xe2823fd,0x67f561d,0xa753dc1,0x5b8062b);
 sub crypt_by_string_with_salt {
 	my ($self, $secret, $generator) = @_;
-	if (!defined $generator) { $generator = $self->{Secret_phrase}; }
+	if (!defined $generator) { $generator = $self->{Secret_words}; }
 	my $base64 = $self->{SALT64chars};
 
 	# SALTキャッシュシステム（１時間おきに初期化）
