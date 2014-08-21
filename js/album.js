@@ -724,7 +724,7 @@ function paste_button(evt) {
 	var filetag = paste_form.data('tag');
 	var imgtag  = obj.data('tag');
 
-	var text='';
+	var ary=[];
 	for(var i=0; i<sel.length; i++) {
 		var img = $(sel[i]);
 		var tag = img.data('isimg') ? imgtag : filetag;
@@ -738,8 +738,10 @@ function paste_button(evt) {
 			f: escape_satsuki(name)
 		};
 		tag = tag.replace(/%([def])/g, function($0,$1){ return rep[$1] });
-		text += tag + "\n";
+		ary.push(tag);
 	}
+	var text= ary.join( evt.ctrlKey ? " \\\n" : "\n" )
+
 	if (window.opener) {
 		// 子ウィンドウとして開かれていたら
 		window.opener.insert_text(text)
