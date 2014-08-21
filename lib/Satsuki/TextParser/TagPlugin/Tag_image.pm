@@ -82,7 +82,7 @@ sub image {
 	elsif (!defined $mode) { shift(@$ary); }	# モード指定読み捨て
 
 	# 属性値
-	my %tag2 = %$tag; 
+	my %tag2 = %$tag;
 	$tag2{title} = $name;
 	my $attr = $pobj->make_attr($ary, \%tag2, 'image');
 	   $name = $pobj->make_name($ary, $name);

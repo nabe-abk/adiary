@@ -298,9 +298,6 @@ sub image_upload_form {
 	my @ary;
 	push(@ary, @{ $form->{"file_ary"} || []});
 	foreach(0..99) {
-		if( $form->{"file$_"} ) {
-			push(@ary, $form->{"file$_"});
-		}
 		push(@ary, @{ $form->{"file${_}_ary"} || [] });
 	}
 	my @files;

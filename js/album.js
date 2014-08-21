@@ -78,6 +78,7 @@ tree.dynatree({
 			data.isFolder = true;
 		});
 		var rnodes = rootNode.getChildren();
+		if (!rnodes) return;	// エラー回避
 		var root = rnodes[1];
 		root.data.fix = true;
 
@@ -873,7 +874,7 @@ function apeend_input_file() {
 	if (inputs.length > 99) return;
 	var inp = $('<input>', {
 		type: 'file',
-		name: 'file' + inputs.length,
+		name: 'file' + inputs.length + '_ary',
 		multiple: 'multiple'
 	}).change(input_change);
 	filesdiv.append( inp );
@@ -883,6 +884,7 @@ function apeend_input_file() {
 }
 
 inputs.change( input_change );
+input_change();
 
 //////////////////////////////////////////////////////////////////////////////
 // ●ファイルアップロード : submit
@@ -913,7 +915,7 @@ upform.submit(function(){
 
 function upload_post_process(text) {
 	upform_reset();	// フォームリセット
-	var ary = text.split(/\n/);
+	var ary = text.split(/[\r\n]/);		// \r for IE8
 	var ret = ary.shift();
 	var reg = ret.match(/^ret=\d*/);
 	if (reg) {
@@ -950,12 +952,10 @@ function ajax_upload() {
 		error: function(xhr) {
 			console.log('[ajax_upload()] http post fail');
 			upload_post_process( xhr.responseText );
-			iframe_write( xhr.responseText );
 		},
 		success: function(data) {
 			console.log('[ajax_upload()] http post success');
 			upload_post_process(data);
-			iframe_write(data);
 		}
 	});
 
@@ -963,13 +963,6 @@ function ajax_upload() {
 	message.html('<div class="message uploading">' + $('#uploading-msg').text() + '</div>');
 	message.show();
 	return false;
-}
-
-function iframe_write(data) {
-	var doc = iframe[0].contentDocument;
-	doc.open();
-	doc.write(data);
-	doc.close();
 }
 
 //////////////////////////////////////////////////////////////////////////////
