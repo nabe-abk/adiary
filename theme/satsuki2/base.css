@@ -378,6 +378,11 @@ ul.menu {
 	line-height:		130%;
 	margin-bottom:		1em;
 }
+#selected-files li:hover {
+	background-color:	#e8e8e8;
+	border-radius:		4px;
+	cursor:			pointer;
+}
 
 /* 記事貼り付け */
 figure {

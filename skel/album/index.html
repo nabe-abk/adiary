@@ -53,6 +53,9 @@
 
 	<div id="album-folder-view"></div>
 
+	<h4 id="selected-files-title"><input type="checkbox" class="js-switch" data-target="#selected-files"><label>選択中のファイル名を表示</label><span class="help" data-help="ファイル名を変更するには「選択ファイル名の表示」から該当ファイルをダブルクリックしてください。">?</span></h4>
+	<ul id="selected-files"></ul>
+
 	<form action="<@v.myself>?edit" method="POST" id="paste-form" data-tag="[file:%e:%d:%f:%f]">
 	<input type="hidden" name="action" value="etc/dummy">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
@@ -108,9 +111,10 @@
 <span id="msg-load-error">画像フォルダが存在しないか情報をロードできません。</span>
 <span id="msg-fail-reload">リロードに失敗しました。</span>
 <span id="msg-fail-remake">再生成に失敗しました。</span>
-<span id="msg-fail-rename">フォルダ名の変更に失敗しました。</span>
+<span id="msg-fail-rename-folder">フォルダ名の変更に失敗しました。</span>
+<span id="msg-fail-rename-file">ファイル名の変更に失敗しました</span>
 <span id="msg-fail-create">フォルダの作成に失敗しました。</span>
 <span id="msg-confirm-trash">ゴミ箱を空を空にしますか？</span>
-<span id="msg-fail-mv-files">ファイルの移動に失敗しました（移動先に同じファイル名がありませんか？）</span>
-<span id="msg-fail-mv-folder">フォルダの移動に失敗しました（移動先に同じフォルダ名がありませんか？）</span>
+<span id="msg-fail-mv-files">ファイルの移動に失敗しました（移動先に同じファイル名がありませんか？）%f</span>
+<span id="msg-fail-mv-folder">フォルダの移動に失敗しました（移動先に同じフォルダ名がありませんか？）%f</span>
 </div>

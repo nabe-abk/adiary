@@ -204,7 +204,7 @@ Design edit failed=デザインの保存に失敗しました
 
 # album
 File name error : %s=ファイル名が不正です : %s
-File extension error : %s=許可されていない拡張子です : %s
+File extension error : %s=許可されない拡張子です : %s
 Save failed ("%s" already exists)=同名のファイルがすでに存在します : %s
 Upload: %s=アップロード : %s
 Upload fail: %s=アップロード失敗 : %s

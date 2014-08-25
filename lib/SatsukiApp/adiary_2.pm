@@ -1637,22 +1637,27 @@ sub generate_json {
 	my $ren  = shift || {};	# カラムのリネーム情報
 	my $tab  = shift || '';
 	my @ary;
+	
+	sub encode {
+		my $v = shift;
+		if ($v =~ /^\d+$/) { return $v; }
+		# 文字列
+		$v =~ s/\\/&#92;/g;
+		$v =~ s/"/&quot;/g;
+		return '"' . $v . '"';
+	}
 
 	my $is_hash = ref($data) eq 'HASH';
 	my $dat = $is_hash ? [$data] : $data;
 	foreach(@$dat) {
+		if (!ref($_)) {
+			push(@ary, &encode($_));
+			next;
+		}
 		my @a;
 		foreach my $x (@$cols) {
-			my $v = $_->{$x};
 			my $k = exists($ren->{$x}) ? $ren->{$x} : $x;
-			if ($v =~ /^\d+$/) {
-				push(@a, "\"$k\": $v");
-				next;
-			}
-			# 文字列
-			$v =~ s/\\/&#92;/g;
-			$v =~ s/"/&quot;/g;
-			push(@a, "\"$k\": \"$v\"");
+			push(@a, "\"$k\": " . &encode( $_->{$x} ));
 		}
 		if ($_->{children}) {
 			my $ch = $self->generate_json( $_->{children}, $cols, $ren, "\t$tab" );

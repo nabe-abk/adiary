@@ -126,9 +126,6 @@ sub make_thumbnail {
 	my $files= shift || [];
 	my $opt  = shift || {};
 
-	# その他の拡張子情報のロード
-	$ROBJ->call('album/_load_extensions');
-
 	$ROBJ->mkdir("${dir}.thumbnail/");
 	foreach(@$files) {
 		my $thumb = "${dir}.thumbnail/$_.jpg";
@@ -218,7 +215,7 @@ sub make_thumbnail_for_notimage {
 	$img->ReadImage('xc:white');
 
 	# 拡張子アイコンの読み込み
-	my $exts = $self->{album_allow_ext};
+	my $exts = $self->load_album_allow_ext();
 	my $icon_dir  = $ROBJ->get_filepath( $self->{album_icons} );
 	my $icon_file = $exts->{'.'};
 	if ($file =~ m/\.(\w+)$/ && $exts->{$1}) {
@@ -333,9 +330,6 @@ sub do_upload {
 	my $dir  = $ROBJ->get_filepath( shift );
 	my $file_h = shift;
 
-	# その他の拡張子情報のロード
-	$ROBJ->call('album/_load_extensions');
-
 	# ハッシュデータ（フォームデータの確認）
 	my $file_name = $file_h->{file_name};
 	my $file_size = $file_h->{file_size};
@@ -389,7 +383,7 @@ sub remake_thumbnail {
 
 	# filesの値チェック
 	foreach(@$files) {
-		if ($self->check_file_name($_)) { return -1; }
+		if (!$self->check_file_name($_)) { return -1; }
 	}
 
 	# サムネイル生成
@@ -411,7 +405,7 @@ sub create_folder {
 
 	my $dir  = $self->image_folder_to_dir( $form->{folder} ); # 値check付
 	my $name = $self->chop_slash( $form->{name} );
-	if ( $self->check_file_name($name) ) { return -1; }
+	if ( !$self->check_file_name($name) ) { return -1; }
 
 	my $r = $ROBJ->mkdir("$dir$name");
 	$ROBJ->mkdir("$dir$name/.thumbnail");
@@ -430,8 +424,8 @@ sub rename_folder {
 	my $dir  = $self->image_folder_to_dir( $form->{folder} ); # 値check付
 	my $old  = $self->chop_slash( $form->{old}  );
 	my $name = $self->chop_slash( $form->{name} );
-	if ( $self->check_file_name($old ) ) { return -2; }
-	if ( $self->check_file_name($name) ) { return -1; }
+	if ( !$self->check_file_name($old ) ) { return -2; }
+	if ( !$self->check_file_name($name) ) { return -1; }
 
 	return rename("$dir$old", "$dir$name") ? 0 : 1;
 }
@@ -462,23 +456,55 @@ sub move_files {
 	my $to   = $self->image_folder_to_dir( $form->{to}   ); # 値check付
 
 	my $files = $form->{file_ary} || [];
-	my $fail = 0;
+	my @fail;
 	foreach(@$files) {
-		if ( $self->check_file_name($_) ) {
-			$fail += 1000;
+		if ( !$self->check_file_name($_) ) {
+			push(@fail, $_);
 			next;
 		}
 		if (-e "$to$_") {	# 同じファイル名が存在する
-			$fail++;
+			push(@fail, $_);
 			next;
 		}
-		$fail += rename("$from$_", "$to$_") ? 0 : 1;
+		if (!rename("$from$_", "$to$_")) {
+			push(@fail, $_);
+			next;
+		}
 
 		# ファイルを移動した場合、サムネイルも移動
 		if (-d "$to$_") { next; }
 		rename("${from}.thumbnail/$_.jpg", "${to}.thumbnail/$_.jpg");
 	}
-	return $fail;
+	my $f = $#fail+1;
+	return wantarray ? ($f, \@fail) : $f;
+}
+
+#------------------------------------------------------------------------------
+# ●ファイル名の変更
+#------------------------------------------------------------------------------
+sub rename_file {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir  = $self->image_folder_to_dir( $form->{folder} ); # 値check付
+	my $old  = $form->{old};
+	my $name = $form->{name};
+	if ( !$self->check_file_name($old ) || !$self->album_check_ext($old ) ) { return -2; }
+	if ( !$self->check_file_name($name) || !$self->album_check_ext($name) ) { return -1; }
+
+	my $r = rename("$dir$old", "$dir$name") ? 0 : 1;
+	if (!$r) {
+		# 成功時、古いサムネイルの削除
+		$ROBJ->file_delete( "${dir}.thumbnail/$old.jpg" );
+		# 新しいサムネイル生成
+		$self->make_thumbnail( $dir, [$name], {
+			size  => $form->{size},
+			force => 1
+		});
+	}
+
+	return $r;
 }
 
 #------------------------------------------------------------------------------
@@ -503,8 +529,8 @@ sub image_folder_to_dir {
 #------------------------------------------------------------------------------
 sub check_file_name {
 	my ($self, $file) = @_;
-	if ($file =~ m|/| || $file =~ /^\./) { return -1; }
-	return 0;
+	if ($file eq '' || $file =~ m|/| || $file =~ /^\./) { return 0; }	# ng
+	return 1;	# ok
 }
 # 最後のスラッシュを取り除く
 sub chop_slash {
@@ -527,6 +553,7 @@ sub is_image {
 sub album_check_ext {
 	my ($self, $f) = @_;
 	if ($self->{trust_mode}) { return 1; }
+	$self->load_album_allow_ext();
 
 	while($f =~ /^(.*)\.([^\.]+)$/) {
 		$f = $1;
@@ -543,6 +570,18 @@ sub album_check_ext_one {
 	# adiary-3.00-beta1.3.tbz のようなファイルを許可
 	return ($ext =~ /-/ || $ext =~ /^\d/);
 }
+
+#------------------------------------------------------------------------------
+# ○その他拡張子のロード
+#------------------------------------------------------------------------------
+sub load_album_allow_ext {
+	my $self = shift;
+	if (!$self->{album_image_ext}->{'.loaded'}) {
+		$self->{ROBJ}->call('album/_load_extensions');
+	}
+	return $self->{album_image_ext};
+}
+
 
 
 ###############################################################################

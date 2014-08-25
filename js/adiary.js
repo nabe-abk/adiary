@@ -67,9 +67,9 @@ function set_browser_class_into_body() {
 	$('#body').addClass( x.join(' ') );
 }
 
-//////////////////////////////////////////////////////////////////////////////
+//############################################################################
 //■初期化処理
-//////////////////////////////////////////////////////////////////////////////
+//############################################################################
 // AjaxでロードしたHTMLにも適用するために初期化処理をまとめる
 var initfunc = [];
 $(function(){
@@ -859,6 +859,7 @@ function append_css_file(file) {
 		rel: "stylesheet",
 		href: file
 	});
+	return css;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -910,13 +911,14 @@ function find_parent(obj, filter) {
 //////////////////////////////////////////////////////////////////////////////
 function show_error(id, hash, addclass) {
 	if (addclass == undefined) addclass='';
-	addclass += ' error-dialog'
+	addclass += ' error-dialog';
 	return show_dialog('ERROR',id,hash,addclass);
 }
 function show_dialog(title, id, hash, addclass) {
 	var html = $(id).html();
 	if (hash) html = html.replace(/%(\w)/g, function(w,m1){ return hash[m1] });
-	
+	html = html.replace(/%(\w)/g, '');
+
 	var div = $('<div>');
 	div.html( html );
 	div.attr('title', title || 'Dialog');
@@ -926,59 +928,6 @@ function show_dialog(title, id, hash, addclass) {
 		buttons: { OK: function(){ div.dialog('close'); } }
 	});
 	return false;
-}
-
-//############################################################################
-// 外部スクリプトロード用ライブラリ
-//############################################################################
-//////////////////////////////////////////////////////////////////////////////
-// ■SyntaxHighlighterのロードと適用
-//////////////////////////////////////////////////////////////////////////////
-var load_sh_flag = false;
-function load_SyntaxHighlighter() {
-	if (load_sh_flag) return;
-	load_sh_flag=true;
-$(function(){
-	var dir = ScriptDir + 'SyntaxHighlighter/';
-	$.getScript(dir + "scripts/shCore.js", function(){
-		$.getScript(dir + "scripts/shAutoloader.js", function(){ 
-			var ary = [
-  'applescript		@shBrushAppleScript.js',
-  'actionscript3 as3	@shBrushAS3.js',
-  'bash shell		@shBrushBash.js',
-  'coldfusion cf	@shBrushColdFusion.js',
-  'cpp c		@shBrushCpp.js',
-  'c# c-sharp csharp	@shBrushCSharp.js',
-  'css			@shBrushCss.js',
-  'delphi pascal	@shBrushDelphi.js',
-  'diff patch pas	@shBrushDiff.js',
-  'erl erlang		@shBrushErlang.js',
-  'groovy		@shBrushGroovy.js',
-  'java			@shBrushJava.js',
-  'jfx javafx		@shBrushJavaFX.js',
-  'js jscript javascript @shBrushJScript.js',
-  'perl pl		@shBrushPerl.js',
-  'php			@shBrushPhp.js',
-  'text plain		@shBrushPlain.js',
-  'py python		@shBrushPython.js',
-  'ruby rails ror rb	@shBrushRuby.js',
-  'sass scss		@shBrushSass.js',
-  'scala		@shBrushScala.js',
-  'sql			@shBrushSql.js',
-  'vb vbnet		@shBrushVb.js',
-  'xml xhtml xslt html	@shBrushXml.js'];
-			for(var i = 0; i < ary.length; i++)
-				ary[i] = ary[i].replace('@', dir + 'scripts/');
-			SyntaxHighlighter.autoloader.apply(null, ary);
-			SyntaxHighlighter.defaults['toolbar'] = false;
-			SyntaxHighlighter.all();
-		})
-	});
-	// CSSの追加
-	append_css_file(dir + 'styles/shCore.css');
-	append_css_file(dir + 'styles/shThemeDefault.css');
-});
-///
 }
 
 //############################################################################
@@ -1066,6 +1015,60 @@ function adiary_ajax(_btn, opt){
 	}
   });
 };
+
+//############################################################################
+// 外部スクリプトロード用ライブラリ
+//############################################################################
+//////////////////////////////////////////////////////////////////////////////
+// ■SyntaxHighlighterのロードと適用
+//////////////////////////////////////////////////////////////////////////////
+var load_sh_flag = false;
+function load_SyntaxHighlighter() {
+	if (load_sh_flag) return;
+	load_sh_flag=true;
+	if (alt_syntax_highlighter) return alt_syntax_highlighter();
+$(function(){
+	var dir = ScriptDir + 'SyntaxHighlighter/';
+	$.getScript(dir + "scripts/shCore.js", function(){
+		$.getScript(dir + "scripts/shAutoloader.js", function(){ 
+			var ary = [
+  'applescript		@shBrushAppleScript.js',
+  'actionscript3 as3	@shBrushAS3.js',
+  'bash shell		@shBrushBash.js',
+  'coldfusion cf	@shBrushColdFusion.js',
+  'cpp c		@shBrushCpp.js',
+  'c# c-sharp csharp	@shBrushCSharp.js',
+  'css			@shBrushCss.js',
+  'delphi pascal	@shBrushDelphi.js',
+  'diff patch pas	@shBrushDiff.js',
+  'erl erlang		@shBrushErlang.js',
+  'groovy		@shBrushGroovy.js',
+  'java			@shBrushJava.js',
+  'jfx javafx		@shBrushJavaFX.js',
+  'js jscript javascript @shBrushJScript.js',
+  'perl pl		@shBrushPerl.js',
+  'php			@shBrushPhp.js',
+  'text plain		@shBrushPlain.js',
+  'py python		@shBrushPython.js',
+  'ruby rails ror rb	@shBrushRuby.js',
+  'sass scss		@shBrushSass.js',
+  'scala		@shBrushScala.js',
+  'sql			@shBrushSql.js',
+  'vb vbnet		@shBrushVb.js',
+  'xml xhtml xslt html	@shBrushXml.js'];
+			for(var i = 0; i < ary.length; i++)
+				ary[i] = ary[i].replace('@', dir + 'scripts/');
+			SyntaxHighlighter.autoloader.apply(null, ary);
+			SyntaxHighlighter.defaults['toolbar'] = false;
+			SyntaxHighlighter.all();
+		})
+	});
+	// CSSの追加
+	append_css_file(dir + 'styles/shCore.css');
+	append_css_file(dir + 'styles/shThemeDefault.css');
+});
+///
+}
 
 //############################################################################
 // Prefix付DOM Storageライブラリ

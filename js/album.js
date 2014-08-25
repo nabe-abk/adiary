@@ -21,6 +21,7 @@ $( function(){
 	var form = $('#album-form');
 	var tree = $('#album-folder-tree');
 	var view = $('#album-folder-view');
+	var selfiles = $('#selected-files')
 
 	// 表示設定
 	var all_select = $('#all-select');
@@ -186,6 +187,7 @@ var img_draggable_option = {
 		var obj = $(evt.target);
 		if (!obj.hasClass('selected')) {
 			obj.addClass('selected')
+			update_selected_files();
 		};
 		// 選択中の画像すべて
 		var imgs = view.find('.selected').clone();
@@ -298,7 +300,7 @@ function rename_folder(obj, node, name) {
 			name:   name
 		},
 		success: function(data) {
-			if (data.ret !== 0) return error_msg('#msg-fail-rename');
+			if (data.ret !== 0) return error_msg('#msg-fail-rename-folder');
 			node.data.name  = name;
 			node.data.title = get_title( node.data );
 			set_keydata(node.getParent().data.key, node);
@@ -308,7 +310,7 @@ function rename_folder(obj, node, name) {
 			obj.blur();
 		},
 		error: function() {
-			error_msg('#msg-fail-rename');
+			error_msg('#msg-fail-rename-folder');
 			node.data.rename = false;
 			obj.blur();
 		}
@@ -426,7 +428,7 @@ function drop_to_tree(node, srcNode, hitMode, ui, draggable) {
 			file_ary: [ chop_slash(srcNode.data.name) ]
 		},
 		success: function(data) {
-			if (data.ret !== 0) error_msg('#msg-fail-mv-folder');
+			if (data.ret !== 0) error_msg('#msg-fail-mv-folder', {files: data.files});
 			srcNode.move(node, hitMode);
 			tree_reload();
 		},
@@ -457,7 +459,7 @@ function move_files(node, srcNode, hitMode, ui, draggable) {
 			file_ary: files
 		},
 		success: function(data) {
-			if (data.ret !== 0) error_msg('#msg-fail-mv-files');
+			if (data.ret !== 0) error_msg('#msg-fail-mv-files', {files: data.files});
 			tree_reload();
 		},
 		error: function() {
@@ -473,12 +475,105 @@ function move_files(node, srcNode, hitMode, ui, draggable) {
 	return true;
 }
 
+
+//////////////////////////////////////////////////////////////////////////////
+// ●選択ファイルの一覧の更新
+//////////////////////////////////////////////////////////////////////////////
+function update_selected_files() {
+	var imgs = view.find('.selected');
+
+	selfiles.empty();
+	for(var i=0; i<imgs.length; i++) {
+		var name = $(imgs[i]).attr('title');
+		var li = $('<li>').text( name );
+		li.data('name', name);
+		li.dblclick(function(evt){ edit_file_name($(evt.target)); });
+		selfiles.append(li);
+	}
+}
+
+//----------------------------------------------------------------------------
+// ファイル名の編集
+//----------------------------------------------------------------------------
+function edit_file_name(li) {
+	var inp = $('<input>').attr({
+		type:  'text',
+		value: li.data('name')
+	}).addClass('w90p');
+	li.empty();
+	li.append( inp );
+
+	inp.focus();
+	inp.select();
+	inp.keydown(function(evt){
+		var obj = $(evt.target);
+		switch( evt.which ) {
+			case 27: // [esc]
+				obj.blur();
+				break;
+			case 13: // [enter]
+				rename_file(inp, li, inp.val());
+				break;
+		}
+	});
+	//-------------------------------------------
+	// ○フォーカスが離れた（編集終了）
+	//-------------------------------------------
+	inp.blur(function(evt){
+		li.text( li.data('name') );
+	});
+	
+}
+
+//----------------------------------------------------------------------------
+// ファイル名の変更
+//----------------------------------------------------------------------------
+function rename_file(obj, li, new_name) {
+	ajax_submit({
+		action: 'rename_file',
+		data: {
+			folder: cur_folder,
+			old:    li.data('name'),
+			name:   new_name,
+			size:	$('#thumbnail-size').val()
+		},
+		success: function(data) {
+			if (data.ret !== 0) return error_msg('#msg-fail-rename-file');
+			var old = li.data('name');
+			li.data('name', new_name);
+			obj.blur();
+
+			// ファイル名の変更を記録する
+			for(var i in cur_files) {
+				var x = cur_files[i].name;
+				if (cur_files[i].name != old) continue;
+				cur_files[i].name = new_name;
+				break;
+			}
+
+			// 選択済情報を保持する
+			var lis = selfiles.find('li');
+			var files = {};
+			for(var i=0; i<lis.length; i++) {
+				files[ $(lis[i]).data('name') ] = true;
+			}
+			update_view(true, files);
+		},
+		error: function() {
+			error_msg('#msg-fail-rename-file');
+			obj.blur();
+		}
+	});
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // ●サブルーチン
 //////////////////////////////////////////////////////////////////////////////
 // tree操作時のエラー表示
-function error_msg(id) {
-	alert( $(id).text() );	/* jQuery UI dialog に変更予定 */
+function error_msg(id, h) {
+	if (h && h.files)
+		h.f = '<div class="small">' + h.files.join("<br>") + '</blockquote>';
+	show_error(id, h);
 }
 
 // 末尾の / を除去
@@ -585,9 +680,9 @@ function ajax_submit(opt) {
 //////////////////////////////////////////////////////////////////////////////
 // ●全選択
 //////////////////////////////////////////////////////////////////////////////
-all_select.change( all_select_change );
+all_select.change( function(){ all_select_change() } );
 
-function all_select_change() {
+function all_select_change(init) {
 	var stat = all_select.is(":checked");
 	var imgs = view.find('img');
 	for(var i=0; i<imgs.length; i++) {
@@ -596,8 +691,9 @@ function all_select_change() {
 			obj.addClass('selected');
 			continue;
 		}
-		obj.removeClass('selected');
+		if (!init) obj.removeClass('selected');
 	}
+	update_selected_files();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -609,10 +705,17 @@ sort_rev.change ( update_view );
 //////////////////////////////////////////////////////////////////////////////
 // ●ビューのアップデート
 //////////////////////////////////////////////////////////////////////////////
-function update_view() {
-	// サムネイル強制更新用のカウント値
+function update_view(flag, selected) {
 	var thumbq = cur_node.data.thumb_remake;
+	if (flag) {
+		// サムネイルの強制更新
+		thumbq = thumbq ? thumbq+1 : 1;
+		cur_node.data.thumb_remake = thumbq;
+	}
 	thumbq = thumbq ? ('?' + thumbq) : '' ;
+
+	// 選択済みファイルのハッシュ
+	selected = selected ? selected : {};
 
 	// ソート処理
 	{
@@ -642,6 +745,7 @@ function update_view() {
 		});
 		img.click( img_click );
 		img.dblclick( img_dblclick );
+		if (selected[file.name]) img.addClass('selected');
 		link.append(img);
 		view.append(link);
 
@@ -666,6 +770,7 @@ function update_view() {
 			obj.removeClass('selected');
 		else
 			obj.addClass('selected');
+		update_selected_files();
 	}
 
 	//-----------------------------------------------
@@ -676,9 +781,9 @@ function update_view() {
 		dbl_click = true;
 		obj.click();
 	}
-	
+
 	// 全選択の処理
-	all_select_change();
+	all_select_change(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -785,10 +890,8 @@ $('#remake-thumbnail').click(function(){
 				return;
 			}
 			var node = cur_node;
-			var c = node.data.thumb_remake;
-			node.data.thumb_remake = c ? (c+1) : 1;
 			// view更新
-			update_view();
+			update_view(true);
 		},
 		error: function() {
 			// 通常起きない
