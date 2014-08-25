@@ -58,7 +58,8 @@ tree.dynatree({
 		rootNode.visit(function(node){
 			node.expand(true);
 		});
-		rootNode.getChildren()[1].activate();
+		var ch = rootNode.getChildren();
+		if (ch && ch.length>0) ch[1].activate();
 		submit.prop('disabled', false);
 		reset.prop ('disabled', false);
 	},
