@@ -1055,6 +1055,7 @@ function adiary_session(_btn, opt){
 // ■SyntaxHighlighterのロードと適用
 //////////////////////////////////////////////////////////////////////////////
 var load_sh_flag = false;
+var alt_syntax_highlighter = false;
 function load_SyntaxHighlighter() {
 	if (load_sh_flag) return;
 	load_sh_flag=true;

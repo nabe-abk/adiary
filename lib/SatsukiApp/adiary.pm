@@ -1350,7 +1350,8 @@ sub load_content_node {
 		my @fam;
 		my @fam = map { $con->{$_} } split(",",$c{upnode}->{children});
 		if (@fam) {
-			$c{family} = [ grep {$_->{pkey} != $pkey} @fam ];
+			my @f = grep {$_->{pkey} != $pkey} @fam;
+			if (@f) { $c{family} = \@f; }
 		}
 	}
 	return \%c;
