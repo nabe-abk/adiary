@@ -1,0 +1,16 @@
+<@6>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.allow_edit)>
+<@>
+<$action_return = v.rename_file( Form )>
+<@>
+<@>
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+<$set_content_type('application/json')>
+{ "ret": <@action_return> }
+<@>
+<@> ディレクトリ情報、再生成
+<$v.genarete_imgae_dirtree()>
+<@>
+<@ifcall(Develop, '_sub/ajax_debug')>
