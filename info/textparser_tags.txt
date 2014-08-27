@@ -202,6 +202,12 @@ footer = <div style="text-align:right; right-margin:2em; font-size: 90%;">#1</di
 # popup
 popup = popup, ASCII, 2, <module name="popup" class="popup" text="#1" popup="#2">
 
+# 内部変数置換
+myself  = text:${myself}
+myself2 = text:${myself2}
+public  = text:${public}
+pubdist = text:${pubdist}
+
 #------------------------------------------------------------------------------
 # HTMLタグへの置換
 #------------------------------------------------------------------------------

@@ -230,6 +230,13 @@ sub load_tagdata {
 			if ($tag_hash->{attribute} ne '') {
 				$tag_hash->{attribute} = ' ' . $tag_hash->{attribute};
 			}
+		} elsif (substr($value,0,5) eq 'text:') { # text置換
+			my $text = substr($value, 5);
+			$text =~ s/^\s*(.*?)\s*$/$1/g;
+			$tag_hash->{data} = $text;
+			$tag_hash->{argc} = 9;
+			$tag_hash->{replace_html} = 1;
+
 		} elsif (substr($value,0,7) eq 'plugin:') { # プラグイン設定
 			my $plg = substr($value, 7);
 			if ($plg =~ /[^\w]/) { next; }
@@ -1365,7 +1372,7 @@ sub special_command {
 			return &$data($self, $tag, $cmd, \@cmd);
 		} elsif($tag->{html}) {		# HTML置換タグ
 			return $self->html_tag($tag, \@cmd);
-		} elsif($data && @cmd) {	# それ以外のときは汎用検索置換ルーチンへ
+		} elsif($data) {		# それ以外のときは汎用検索置換ルーチンへ
 			return $self->search($tag, $cmd, \@cmd);
 		}
 	}
