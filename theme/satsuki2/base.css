@@ -182,6 +182,18 @@ input.color-picker {
 	cursor:		pointer;
 }
 
+/* radioやcheckboxで選択された要素 */
+/* article.setting input[type="checkbox"]:checked + label, */
+article.setting input[type="radio"]:checked + label
+{
+	font-weight:		bold;
+}
+
+/* セレクトボックスの特殊要素（「指定しない」）など */
+select option.special {
+	font-weight:		bold;
+	color:			#800;
+}
 
 /*--------------------------------------------------------------------
 ●フロートオブジェクト

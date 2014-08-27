@@ -485,7 +485,7 @@ sub block_parser {
 			$line =~ s/\\([\{\}])/ "\x01#" . ord($1) . ';'/eg;	# { } のエスケープ
 			$line =~ s/\{\{(.*?)\s?\}\}|(\[\[.*?\]\])/
 				$2 ? $2 : $self->mini_pre($1) /eg;		# mini pre {{ xxx }}
-			$line =~ s/\{(.*?)\s?\}|(\[\[.*?\]\])/
+			$line =~ s/\{(.*?)\s?\}|(\[\[.*?\]*\]\])/
 				$2 ? $2 : $self->mini_verbatim($1) /eg;		# mini varbatim {<xxx>}
 			$line =~ tr/\x01/&/;	# \x01 を & に戻す
 			# マクロ展開
@@ -1289,7 +1289,7 @@ sub parse_tag {
 	# 記法タグの処理
 	my $count=100;
 	# [[ ]] タグを先行処理
-	while ($count>0 && $this =~ /(.*?)\[\[(.*?)\s?\]\](.*)/s) {
+	while ($count>0 && $this =~ /(.*?)\[\[(.*?\]*)\s?\]\](.*)/s) {
 		# [[aa:[[bb:テキスト]]]] のとき bb タグを先に処理する
 		my $x = rindex($2, '[[');
 		my $p0  = $1 . ($x<0 ? '' : '[[' . substr($2,0,$x));	# tagより前

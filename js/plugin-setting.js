@@ -5,9 +5,8 @@
 //[TAB=8]  require jQuery
 $(function(){
 	$('button.setting').click( function(evt){
-			module_setting($(evt.target));
+		module_setting($(evt.target));
 	});
-});
 
 //////////////////////////////////////////////////////////////////////////////
 // ●モジュールの設定を変更する
@@ -90,3 +89,5 @@ function module_setting(obj) {
 	});
 }
 
+//////////////////////////////////////////////////////////////////////////////
+});

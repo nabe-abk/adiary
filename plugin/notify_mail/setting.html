@@ -15,7 +15,7 @@
 	</tr>
 <$else>
 	<tr>
-		<th>送信元アドレス<span class="help" data-help="メールのFromを指定します。空でも構いません。サーバやシステムによっては強制的に異なるアドレスに書き換えられます。また指定するメールアドレスによっては受信側メールサーバにSPAMとして弾かれる可能性があります。">?</span></th>
+		<th>送信元アドレス<span class="help" data-help="メールのFromを指定します。空でも構いません。\nサーバによって強制的に異なるアドレスに書き換えられたり、Fromアドレスが許可されていないドメイン等の場合、そもそも送信されないことがあります。">?</span></th>
 		<td><input type="text" class="w320" name="from" value="<@s.from>" maxlength="128"></td>
 	</tr>
 <$end>
