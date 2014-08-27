@@ -57,7 +57,7 @@
 		<input type="checkbox" name="autolink" value="1"<@if(s.autolink, ' checked')>><label>自動でリンクする</label>
 		</td>
 	</tr>
-	<tr><th>プライベートモード<span class="help" data-help="ログインしているブログ所有者（＋書き込み権限保持者）以外にはブログ全体が非表示になるモードです。しかし、画像等はURLを直指定すれば表示されます。">?</span></th>
+	<tr><th>プライベートモード<span class="help" data-help="ログインしているブログ所有者（＋書き込み権限保持者）以外にはブログ全体が非表示になるモードです。画像等はURLを直指定すれば表示されます。">?</span></th>
 		<td>
 		<input type="hidden" name="checkbox.info" value="private">
 		<input type="checkbox" name="private" value="1"<@if(s.private eq '1', ' checked')>><label>プライベートモードに設定する</label>
@@ -69,7 +69,7 @@
 		<button type="button" data-title="Google Analyticsの自動設定" id="gaid-setting" data-msg="Google Analyticsのトラッキングコードを貼り付けてください。" data-ok="設定" data-cancel="キャンセル">コードから自動設定する</button>
 		</td>
 	</tr>
-	<tr><th>AmazonアフィリエイトID<span class="help" data-help="Amazonアソシエイトを利用する方は、トラッキングIDを設定してください。ここで設定したIDは、記法で記事からAmazonの商品にリンクする際、自動的に挿入されます。">?</span></th>
+	<tr><th>AmazonアフィリエイトID<span class="help" data-help="Amazonアソシエイトを利用する方は、トラッキングIDを設定してください。ここで設定したIDは、記法でAmazonの商品にリンクする際、自動的に挿入されます。">?</span></th>
 		<td>
 		<input type="text" name="asid" class="w160" value="<@s.asid>" id="asid">
 		<button type="button" data-title="AmazonアソシエイトIDの自動設定" id="asid-setting" data-msg="Amazonアソシエイトの<a href='https://widgets.amazon.co.jp/Widget-Source/' target='_blank'>ウィジェットコード</a>を貼り付けてください。" data-ok="設定" data-cancel="キャンセル">コードから自動設定する</button>

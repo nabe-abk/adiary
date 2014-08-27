@@ -275,6 +275,7 @@ function edit_node( node ) {
 	inp.blur(function(evt){
 		node.setTitle( node.data.title );
 		ctree.$widget.bind();
+		node.data.rename = false;
 		node.focus();
 		if (evt && evt.which == 13 && node.data.key != cur_node.data.key)
 			node.activate();
@@ -300,7 +301,12 @@ function rename_folder(obj, node, name) {
 			name:   name
 		},
 		success: function(data) {
-			if (data.ret !== 0) return error_msg('#msg-fail-rename-folder');
+			if (data.ret !== 0) {
+				obj.blur();
+				// blur()してから呼び出さないとキー入力がbindされない
+				error_msg('#msg-fail-rename-folder');
+				return;
+			}
 			node.data.name  = name;
 			node.data.title = get_title( node.data );
 			set_keydata(node.getParent().data.key, node);
@@ -310,9 +316,9 @@ function rename_folder(obj, node, name) {
 			obj.blur();
 		},
 		error: function() {
-			error_msg('#msg-fail-rename-folder');
 			node.data.rename = false;
 			obj.blur();
+			error_msg('#msg-fail-rename-folder');
 		}
 	});
 }
@@ -796,7 +802,7 @@ var apeend_style;
 function thumb_size_change() {
 	var size = Number( thumb_size.val() );
 	if (size<60 || 320<size) return;
-	if (is_IE8) return;
+	if (IE8) return;
 
 	if (apeend_style) apeend_style.remove();
 	apeend_style = $('<style>').text(

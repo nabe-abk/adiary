@@ -177,9 +177,11 @@ input.color-picker {
 }
 
 /* 検索など */
-.ui-icon.ui-icon-close {
+.ui-icon.ui-icon-close,
+.js-switch {
 	cursor:		pointer;
 }
+
 
 /*--------------------------------------------------------------------
 ●フロートオブジェクト

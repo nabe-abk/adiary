@@ -1,14 +1,14 @@
 //############################################################################
 // adiary 汎用 JavaScript
-//							(C)2013 nabe@abk
+//							(C)2014 nabe@abk
 //############################################################################
 //[TAB=8]  require jQuery
 var Default_show_speed = 300;
 var DialogWidth = 640;
 var popup_offset_x = 30;
 var popup_offset_y = 20;
-var is_IE67=false;
-var is_IE8=false;
+var IE67=false;
+var IE8=false;
 var Blogpath;	// _frame.html で設定される
 var Storage;
 $(function(){ if(Blogpath) Storage=load_PrefixStorage( Blogpath ); });
@@ -50,8 +50,8 @@ function set_browser_class_into_body() {
 	var m = ua.match(/MSIE (\d+)/);
 	if (m) x.push('IE', 'IE' + m[1]);
 	  else x.push('NotIE');
-	if (m && m[1]<8) is_IE67=true;
-	if (m && m[1]<9) is_IE8=true;
+	if (m && m[1]<8) IE67=true;
+	if (m && m[1]<9) IE8=true;
 
 	// スマホ
 	var smp=true;
@@ -343,7 +343,7 @@ function btn_click(btn, init) {
 	}
 
 	// 変更後の状態を設定
-	speed = is_IE8 ? undefined : speed;
+	speed = IE8 ? undefined : speed;
 	if (flag) {
 		btn.addClass('sw-show');
 		btn.removeClass('sw-hide');
@@ -368,7 +368,7 @@ function btn_click(btn, init) {
 		if (dom.tagName == 'INPUT' || dom.tagName == 'BUTTON') return true;
 		var span = $('<span>');
 		span.addClass('ui-icon switch-icon');
-		if (is_IE8) span.css('display', 'inline-block');
+		if (IE8) span.css('display', 'inline-block');
 		btn.prepend(span);
 	}
 	return true;
@@ -402,6 +402,20 @@ initfunc.push( function(R){
 	R.find('form input.no-enter-submit, form.no-enter-submit input').keypress( function(ev){
 		if (ev.which === 13) return false;
 		return true;
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//○textareaでのタブ入力
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R){
+	R.find('textarea').keypress( function(evt){
+		var obj = $(evt.target);
+		if (obj.prop('readonly') || obj.prop('disabled')) return;
+		if (evt.keyCode != 9) return;
+
+		evt.preventDefault();
+		insert_to_textarea(evt.target, "\t");
 	});
 });
 
@@ -906,6 +920,24 @@ function find_parent(obj, filter) {
 	}
 	return;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// テキストエリアに文字挿入
+//////////////////////////////////////////////////////////////////////////////
+function insert_to_textarea(ta, text) {
+	var start = ta.selectionStart;	// カーソル位置
+	if (start == undefined) {
+		// for IE8
+		var tmp = document.selection.createRange();
+		tmp.text = text;
+		return;
+	}
+	// カーソル移動
+	ta.value = ta.value.substring(0, start)	+ text + ta.value.substring(start);
+	start += text.length;
+	ta.setSelectionRange(start, start);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // ●エラーの表示
 //////////////////////////////////////////////////////////////////////////////
@@ -916,8 +948,8 @@ function show_error(id, hash, addclass) {
 }
 function show_dialog(title, id, hash, addclass) {
 	var html = $(id).html();
-	if (hash) html = html.replace(/%(\w)/g, function(w,m1){ return hash[m1] });
-	html = html.replace(/%(\w)/g, '');
+	if (hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return hash[m1] });
+	html = html.replace(/%[A-Za-z]/g, '');
 
 	var div = $('<div>');
 	div.html( html );
@@ -933,7 +965,7 @@ function show_dialog(title, id, hash, addclass) {
 //############################################################################
 // adiary用 Ajaxセッションライブラリ
 //############################################################################
-function adiary_ajax(_btn, opt){
+function adiary_session(_btn, opt){
   $(_btn).click( function(evt){
 	var btn = $(evt.target);
 	var myself = opt.myself || btn.data('myself');
@@ -942,7 +974,7 @@ function adiary_ajax(_btn, opt){
 	var load_session = myself + '?etc/load_session';
 	var interval = opt.interval || log.data('interval') || 300;
 	var snum;
-	log.show(500);
+	log.show(Default_show_speed);
 
 	if (opt.init) opt.init(evt);
 
@@ -962,7 +994,7 @@ function adiary_ajax(_btn, opt){
 	// Ajaxセッション開始
 	function ajax_session(){
 		log_start();
-		console.log('[adiary_ajax()] session start');
+		console.log('[adiary_session()] session start');
 		var fd;
 		if (opt.load_formdata) fd = opt.load_formdata(btn);
 				else   fd = new FormData( opt.form );
@@ -980,13 +1012,13 @@ function adiary_ajax(_btn, opt){
 			dataType: opt.dataType || 'text',
 			error: function(data) {
 				if (opt.error) opt.error();
-				console.log('[adiary_ajax()] http post fail');
+				console.log('[adiary_session()] http post fail');
 				console.log(data);
 				log_stop();
 			},
 			success: function(data) {
 				if (opt.success) opt.success();
-				console.log('[adiary_ajax()] http post success');
+				console.log('[adiary_session()] http post success');
 				console.log(data);
 				log_stop();
 			},

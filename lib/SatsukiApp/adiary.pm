@@ -7,9 +7,9 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = '2.92';
+our $VERSION = '2.921';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'beta2';
+our $SUBVERSION = 'beta2.1';
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
@@ -434,7 +434,7 @@ sub set_and_select_blog {
 
 	# 日付変更時間の設定（元日とエイプリルフールは日付変更時間を無視）
 	my $now = $ROBJ->{Now};
-	my $change_hour = (($now->{mon}==1 || $now->{mon}==4) && $now->{day}==1) ? 0 : $blog->{change_hour_int};
+	my $change_hour = ($now->{day}==1 && ($now->{mon}==1 || $now->{mon}==4)) ? 0 : $blog->{change_hour_int};
 	$ROBJ->{Change_hour} = $change_hour;
 	$self->{now} = $change_hour ? $ROBJ->time2timehash( $ROBJ->{TM} ) : $ROBJ->{Now};
 

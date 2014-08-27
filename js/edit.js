@@ -120,18 +120,7 @@ album_btn.click(function(){
 //----------------------------------------------------------------------------
 function _insert_text(text) {
 	edit.focus();
-	var ta  = edit[0];		// textarea element
-	var start = ta.selectionStart;	// カーソル位置
-	if (start == undefined) {
-		// for IE8
-		var tmp = document.selection.createRange();
-		tmp.text = text;
-		return ;
-	}
-	// カーソル移動
-	ta.value = ta.value.substring(0, start)	+ text + ta.value.substring(start);
-	start += text.length;
-	ta.setSelectionRange(start, start);
+	insert_to_textarea(edit[0], text);
 }
 insert_text = _insert_text;
 
