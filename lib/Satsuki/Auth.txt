@@ -78,7 +78,7 @@ Auth.exists_admin	管理者が（１人でも）存在するとき 1 を定義
 ================================================================================
 $self->{root_id} = '';
 　rootになる（Auth.isroot=1）idを指定する。
-　ユーザー情報に isadmin が設定れている必要がある。
+　isadmin でなければ isroot にはなれない。（isrootなら必ずisadminである）
 （auth.pmではroot権限は特に確認しない）
 
 $self->{admin_list} = flagq(id1 id2 ...);

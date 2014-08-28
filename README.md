@@ -11,7 +11,19 @@ See other infomation 'INSTALL.ja.txt'.
 ----------------------------------------------------------------------
 [Japanese]
 
-インストール方法は INSTALL.ja.txt を御覧ください。
+# 動作環境
+
+  * Apache またはそれと互換性のあるWebサーバ
+  * Perl 5.8.1以降（pure-Perl可）
+
+# インストール方法
+
+  1. 解凍してでてきたファイルをサーバ上の任意の位置に置く
+  2. adiary.cgi に実行属性を付ける
+  3. __cache/ data/, pub/ を www 権限で書き込めるようにする。（suEXEC の場合は不要）
+  4. adiary.conf.cgi.sample を adiary.conf.cgi としてコピーし適当にいじる
+  5. adiary.cgi にアクセスし、ID、パスワードを適当に入力してログイン。
+  6. その後、自分自身をユーザーとして追加する。
 
 # 著作権表示(Copryright)
 

@@ -76,11 +76,11 @@
 #-------------------------------------------------------------------------------
 # キャッシュ環境ではキャッシュルーチンありの設定を書きます（その方が高速に動作します）
 
-# 擬似データベースの場合
+# テキストDBの場合
 <$DB = loadpm('DB_text', "<@data_dir>db/")>
 
 # PostgreSQL の場合（データベース名、ユーザー名、パスワード）
-#<$DB = loadpm('DB_pg', 'database=adiary3', 'adiary', 'test', {Pool=>1} )>
+#<$DB = loadpm('DB_pg', 'database=adiary', 'adiary', 'test', {Pool=>1} )>
 
 # MySQL の場合（データベース名、ユーザー名、パスワード）
 #<$DB = loadpm('DB_mysql', 'database=adiary', 'adiary', 'test', {Pool=>1})>

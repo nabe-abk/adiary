@@ -370,6 +370,7 @@ pre strong.comment	{ color: #b50; font-weight: bold; }
 
 
 /* 強調 */
+article:not(.system) strong { color: #c33; }
 em {
 	font-style:		normal;
 	text-decoration:	underline;

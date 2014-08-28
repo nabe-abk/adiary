@@ -228,6 +228,7 @@ sub make_thumbnail_for_notimage {
 	eval {
 		$icon->Read( $icon_dir . $icon_file );
 	};
+
 	if (!$@) {
 		my ($x, $y) = $icon->Get('width', 'height');
 		$x = ($size - $x) / 2;
@@ -552,7 +553,7 @@ sub is_image {
 #------------------------------------------------------------------------------
 sub album_check_ext {
 	my ($self, $f) = @_;
-	if ($self->{trust_mode}) { return 1; }
+	# if ($self->{trust_mode}) { return 1; }	## 危険すぎるので無効に
 	$self->load_album_allow_ext();
 
 	while($f =~ /^(.*)\.([^\.]+)$/) {
@@ -576,10 +577,10 @@ sub album_check_ext_one {
 #------------------------------------------------------------------------------
 sub load_album_allow_ext {
 	my $self = shift;
-	if (!$self->{album_image_ext}->{'.loaded'}) {
+	if (!$self->{album_allow_ext}->{'.loaded'}) {
 		$self->{ROBJ}->call('album/_load_extensions');
 	}
-	return $self->{album_image_ext};
+	return $self->{album_allow_ext};
 }
 
 

@@ -91,8 +91,8 @@
 	<div>最大サイズ : <@(v.uplaod_files_max>>20)>MB<span class="help" data-help="一回のアプロードで許される、全ファイル合計の最大サイズになります。">?</span></div>
 	<div>画像拡張子 : <@join(' ', sort_str(keys(v.album_image_ext)))></div>
 	<$call('album/_load_extensions')>
-	<$x = copy(v.album_allow_ext)><$delete(x.('.'))>
-	<div>許可拡張子 : <@if(v.trust_mode, 'すべて (trust_mode)', join(' ', sort_str(keys(x))))></div>
+	<$x = copy(v.album_allow_ext)><$delete(x.('.'))><$delete(x.('.loaded'))>
+	<div>許可拡張子 : <@join(' ', sort_str(keys(x)))></div>
 	</section>
 </div>
 </article>
