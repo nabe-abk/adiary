@@ -43,8 +43,6 @@ sub new {
 	# ディフォルト値の設定
 	$self->SetDefaultValue();
 	$ROBJ->{secure_id_len} ||= 6;
-	$self->{scripts}  = {};
-	$self->{cssfiles} = {};
 	$self->{_loaded_bset} = {};
 	$self->{server_url} = $ROBJ->{Server_url};
 	$self->{http_agent} = "adiary $VERSION on Satsuki-system $ROBJ->{VERSION}";
@@ -1572,24 +1570,23 @@ sub load_rss_files {
 #------------------------------------------------------------------------------
 # ●js/cssファイルの登録
 #------------------------------------------------------------------------------
+sub regist_jslib {
+	my $self = shift;
+	push(@{ $self->{jslibfiles} ||=[] }, @_);
+}
 sub regist_js {
 	my $self = shift;
-	return $self->regist_jscss($self->{scripts}, @_);
+	push(@{ $self->{jsfiles} ||=[] }, @_);
 }
 sub regist_css {
 	my $self = shift;
-	return $self->regist_jscss($self->{cssfiles}, @_);
-}
-sub regist_jscss {
-	my $self = shift;
-	my $h = shift;
-	my $num = keys(%$h);
-	foreach(@_) { $h->{$_}=($num++); }
+	push(@{ $self->{cssfiles} ||=[] }, @_);
 }
 sub load_jscss {
 	my $self = shift;
-	my $h = shift;
-	return [ sort { $h->{$a} <=> $h->{$b} } keys(%$h) ];
+	my $name = shift;
+	my %h;
+	return [ grep { $h{$_}++; $h{$_}<2 } @{$self->{$name . 'files'}} ];
 }
 
 #------------------------------------------------------------------------------

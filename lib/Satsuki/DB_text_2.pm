@@ -473,8 +473,8 @@ sub commit {
 			$self->delete_rowfile($table, $_);
 		}
 
-		# write block に変更可能ならば変更する
-		# Non blocking。Windowsでは失敗する。
+		# write block に変更可能ならば変更する。
+		# Windowsでは失敗するので変更しない。
 		if (! $ROBJ->{Is_windows}) {
 			$ROBJ->write_lock($self->{"$table.lock"});
 		}
@@ -628,7 +628,7 @@ sub load_and_generate_where {
 	}
 
 	# 条件節に必要なカラムの確認
-	if ($load_all) { $self->load_all($table); }
+	if ($load_all) { $self->load_allrow($table); }
 	return ($func, $self->{"$table.tbl"}, \%in);
 }
 

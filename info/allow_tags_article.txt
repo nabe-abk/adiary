@@ -76,7 +76,7 @@ button		autofocus, disabled, name, type, value, form, formaction, fomenctype, fo
 option		value, selected
 textarea	autofocus, cols, disabled, form, maxlength, name, placeholder, readonly, required, rows, wrap
 keygen		autofocus, challenge, disabled form, keytype, name
-label		for
+label		for, form
 
 optgroup
 fieldset	disabled, form, name

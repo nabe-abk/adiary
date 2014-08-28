@@ -28,7 +28,6 @@
 # スケルトンディレクトリ（非公開ディレクトリ）
 <$regist_skeleton('skel/')>
 <$regist_skeleton('skel.local/', 2)>
-<$Skeleton_ext = '.html'>
 
 # テンポラリディレクトリ
 <$Temp = "<@data_dir>tmp/">
@@ -206,7 +205,6 @@
 #----------------------------------------------------------
 # 許可タグ
 <$v.allow_tags_head = "<@info_dir>allow_tags_">
-<$v.allow_tags_ext  = '.txt'>
 
 # RSS 2.0（コメント含む）
 <$v.rss_skeleton = '_format/rss20'>

@@ -340,10 +340,13 @@ sub fedit_writelines {
 	if (ref $lines ne 'ARRAY') { $lines = [$lines]; }
 
 	seek($fh, 0, 0);	# ファイルポインタを先頭へ
-        truncate($fh, 0);	# ファイルサイズを 0 に
 	foreach(@$lines) {
 		print $fh $_;
 	}
+	# ■Windows注意!
+	# flock($fh, LOCK_SH) して truncate($fh, 0) すると必ずファイルサイズが 0 になる。
+	# See more : http://adiary.blog.abk.nu/0352
+	truncate($fh, tell($fh));
 	close($fh);
 
 	# モード変更

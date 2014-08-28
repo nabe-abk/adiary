@@ -17,7 +17,7 @@
 <@if(v.system_mode || v.no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
 <link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.notheme.css" id="jquery-ui-css">
 <link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_lightbox/lightbox.css" id="lightbox-css">
-<@forexec(t, v.load_jscss(v.cssfiles), begin)>
+<@forexec(t, v.load_jscss('css'), begin)>
 <link rel="stylesheet" media="all" href="<@Basepath><@t>">
 <$end>
 <!--[if IE 8]> <@> for IE8 @import bug
@@ -40,12 +40,15 @@
 <!--[if gte IE 9]><!-->
 <script src="<@Basepath><@v.script_dir>jquery-2.min.js"></script>
 <!--<![endif]-->
-<script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <script src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
 <script src="<@Basepath><@v.script_dir>adiary.js?<@tm>"></script>
-<@forexec(t, v.load_jscss(v.scripts), begin)>
+<@forexec(t, v.load_jscss('jslib'), begin)>
 <script src="<@Basepath><@v.script_dir><@t>?<@tm>"></script>
 <$end>
+<@forexec(t, v.load_jscss('js'), begin)>
+<script async src="<@Basepath><@v.script_dir><@t>?<@tm>"></script>
+<$end>
+<script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.js"></script>\n')>
 <@forexec(t, v.load_js_events(), begin)>
 <script async src="<@Basepath><@t>"></script>

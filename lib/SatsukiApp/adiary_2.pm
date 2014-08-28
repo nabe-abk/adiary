@@ -1722,8 +1722,7 @@ sub load_tag_escaper {
 	my $self = shift;
 
 	my $head = $self->{allow_tags_head};
-	my $ext  = $self->{allow_tags_ext};
-	my @ary = map { "$head$_$ext" } @_;
+	my @ary  = map { "$head$_.txt" } @_;
 
 	my $key = join('*',@ary);
 	my $cache = $self->{__tag_escaper_cache} ||= {};
