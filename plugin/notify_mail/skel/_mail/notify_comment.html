@@ -14,9 +14,8 @@
 <$h.from      = from>
 <$ifset(from, h.reply_to, from)>
 <$h.from_name = Server_name>
-<$h.subject   = if(s.subject ne '', s.subject, '%n notify')>
-<$replace(h.subject, '%n', "『<@v.blog.blog_name>』")>
-
+<$h.subject = if(s.subject ne '', s.subject, '%n notify')>
+<$h.subject = replace(h.subject, '%n', "『<@v.blog.blog_name>』")>
 <$h.text = begin_string>
 『<@v.blog.blog_name>』に新着のコメントがあります。
 from <@form.name>

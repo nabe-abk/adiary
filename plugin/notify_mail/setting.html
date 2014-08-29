@@ -5,8 +5,8 @@
 	<table class="blog-setting">
 	<tbody>
 	<tr>
-		<th>メールタイトル</th>
-		<td><input type="text" class="w160" name="subject" value="<@esc(s.subject) || 'blog notify'>" maxlength="64"></td>
+		<th>メールタイトル<span class="help" data-help="%nはブログ名に置き換わります。">?</span></th>
+		<td><input type="text" class="w160" name="subject" value="<@esc(s.subject) || '%n notify'>" maxlength="64"></td>
 	</tr>
 <@ifexec(v.system_email, begin, begin)>
 	<tr>
