@@ -46,11 +46,11 @@ adiary:key = 記事指定
 #adiary:id  = ID指定
 #adiary:day = 日付指定
 
-search      = 検索,         ASCII,    ${myself2}&all=1&q=
-title       = タイトル検索, ASCII,    ${myself2}&q=
-category    = カテゴリ表示, ASCII,    ${myself2}&category?cat=
-category##3 = カテゴリ表示, ASCII, 3, ${myself2}&category?cat=$1::$3
-category##4 = カテゴリ表示, ASCII, 3, ${myself2}&category?cat=$1::$3
+search      = 検索,         ASCII,    ${myself}?all=1&q=
+title       = タイトル検索, ASCII,    ${myself}?q=
+category    = カテゴリ表示, ASCII,    ${myself}?category?cat=
+category##3 = カテゴリ表示, ASCII, 3, ${myself}?category?cat=$1::$3
+category##4 = カテゴリ表示, ASCII, 3, ${myself}?category?cat=$1::$3
 theme#2 = テーマ, ASCII, 2, ${myself2}?theme&n=$1/$2
 theme   = テーマ, ASCII,    ${myself2}?theme&n=satsuki2/
 
