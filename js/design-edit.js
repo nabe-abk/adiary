@@ -105,6 +105,11 @@ function init_module(obj) {
 	var div = $('<div>');
 	div.addClass('module-edit-header');
 	var name = obj.data('module-name').replace(/,\d+$/,'');
+	if (! modules[ name ]) {
+		// 使われてるモジュールが削除されてる等
+		obj.remove();
+		return ;
+	}
 	var hash = modules[ name ].data();
 	if (hash) {
 		var orig = obj.data('module-name');

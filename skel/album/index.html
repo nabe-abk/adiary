@@ -12,10 +12,10 @@
 <$v.special_sidebar_module = 'album/_sidebar'>
 <$v.init_image_dir()>
 
-<$v.regist_css("<@v.script_dir>dynatree/skin/ui.dynatree.css")>
-<$v.regist_jslib('jquery.cookie.js')>
-<$v.regist_jslib('dynatree/jquery.dynatree.min.js')>
-<$v.regist_js('album.js')>
+<$v.regist_css  ("<@v.script_dir>dynatree/skin/ui.dynatree.css")>
+<$v.regist_jslib("<@v.script_dir>jquery.cookie.js")>
+<$v.regist_jslib("<@v.script_dir>dynatree/jquery.dynatree.min.js")>
+<$v.regist_js   ("<@v.script_dir>album.js")>
 
 <article class="system" id="album">
 <h2 class="dynatree-ico-ef"><span id="folder-icon"></span><span id="current-folder">(no load)</span></h2>
@@ -91,7 +91,7 @@
 	<div>最大サイズ : <@(v.uplaod_files_max>>20)>MB<span class="help" data-help="一回のアプロードで許される、全ファイル合計の最大サイズになります。">?</span></div>
 	<div>画像拡張子 : <@join(' ', sort_str(keys(v.album_image_ext)))></div>
 	<$call('album/_load_extensions')>
-	<$x = copy(v.album_allow_ext)><$delete(x.('.'))><$delete(x.('.loaded'))>
+	<$x = copy(v.album_allow_ext)><$delete(x.('.'))>
 	<div>許可拡張子 : <@join(' ', sort_str(keys(x)))></div>
 	</section>
 </div>

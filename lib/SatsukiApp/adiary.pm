@@ -1170,14 +1170,16 @@ sub load_plugin_function {
 }
 
 #------------------------------------------------------------------------------
-# ●JavaScriptプラグインをロード
+# ●JavaScript/CSSプラグインをロード
 #------------------------------------------------------------------------------
-sub load_js_events {
+sub load_jscss_events {
 	my $self = shift;
+	my $name = shift;
 	if (!$self->{blog}) { return []; }
 	if ($self->{stop_all_plugins}) { return []; }
 
-	my $evt = $self->{blog}->{'event:JS'};
+	$name =~ tr/a-z/A-Z/;
+	my $evt = $self->{blog}->{"event:$name"};
 	my $dir = $self->{blogpub_dir};
 
 	my @ary;
@@ -1586,7 +1588,9 @@ sub load_jscss {
 	my $self = shift;
 	my $name = shift;
 	my %h;
-	return [ grep { $h{$_}++; $h{$_}<2 } @{$self->{$name . 'files'}} ];
+	my @ary = @{ $self->{$name . 'files'} || []};
+	push(@ary, @{ $self->load_jscss_events($name) });
+	return [ grep { $h{$_}++; $h{$_}<2 } @ary ];
 }
 
 #------------------------------------------------------------------------------

@@ -55,7 +55,7 @@
 <$ifjump_clear(edit_pkey && !v.check_editor(art), '_sub/error_message', '他人の記事は編集できません。')>
 
 <@> スクリプトをロード
-<$v.regist_js('edit.js')>
+<$v.regist_js("<@v.script_dir>edit.js")>
 
 <@><!--下書きのロード=======================================================-->
 <$logs2 = v.load_arts_list( { draft_only => 1} )>

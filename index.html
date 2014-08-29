@@ -159,11 +159,11 @@ function security_error(dir) {
 	var ul = $('#security-errors');
 	var li = $('<li>');
 	var st = $('<strong>').addClass('error').text('【セキュリティ警告】');
-	var sp = $('<span>').html('「<a href="' + dir + '/index.html">' + dir + '</a>」ディレクトリがweb上から読み込めます！');
+	var sp = $('<span>').html('「<a href="' + dir + '/index.html">' + dir + '</a>」ディレクトリがweb上から読み込めます！（<a href="http://adiary.org/v3man/install/move_data_dir">対策方法</a>）');
 	li.append(st,sp);
 	ul.append(li);
 	ul.show();
-	alert('「' + dir + '」ディレクトリがweb上から読み込めます！');
+	// alert('「' + dir + '」ディレクトリがweb上から読み込めます！');
 }
 </script>
 </body>

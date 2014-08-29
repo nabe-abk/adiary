@@ -6,15 +6,13 @@ Require permission setting which '__cache' and 'data/' and 'pub/' is writable.
 And, '__cache' and 'data/' directories not permit to access from web.
 (by '.htaccess' or other way)
 
-See other infomation 'INSTALL.ja.txt'.
-
 ----------------------------------------------------------------------
 [Japanese]
 
 # 動作環境
 
   * Apache またはそれと互換性のあるWebサーバ
-  * Perl 5.8.1以降（pure-Perl可）
+  * Perl 5.8.1以降（pure Perl可）
 
 # インストール方法
 

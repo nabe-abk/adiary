@@ -18,6 +18,7 @@ my $sendmail_cmd;
 sub new {
 	my $self = bless({}, shift);
 	$self->{ROBJ} = shift;
+	$self->{mailer} = "Satsuki::Base::Mail";
 
 	# sendmail コマンドのチェック
 	my @search = qw(/usr/sbin /usr/bin /usr/lib);
@@ -100,6 +101,7 @@ Return-Path: $from_orig
 MIME-Version: 1.0
 Content-Type: text/plain; charset="$jcode->{email_default}"
 Content-Transfer-Encoding: 7bit
+X-Mailer: $self->{mailer}
 
 $text
 END

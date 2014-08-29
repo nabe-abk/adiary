@@ -173,6 +173,15 @@ _module_start
 <iframe class="niconico nico-commu"  frameborder="0" height="176" scrolling="no" src="http://ext.nicovideo.jp/thumb_community/${cid}" width="312"></iframe>
 
 #------------------------------------------------------------------------------
+# github/gist表示モジュール
+#------------------------------------------------------------------------------
+*gist
+<script src="https://gist.github.com${path}.js"></script>
+
+*gist-it
+<script src="http://gist-it.appspot.com/github${path}"></script>
+
+#------------------------------------------------------------------------------
 # slideshare モジュール
 #------------------------------------------------------------------------------
 *slideshare

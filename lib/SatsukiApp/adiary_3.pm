@@ -577,7 +577,7 @@ sub album_check_ext_one {
 #------------------------------------------------------------------------------
 sub load_album_allow_ext {
 	my $self = shift;
-	if (!$self->{album_allow_ext}->{'.loaded'}) {
+	if (!$self->{album_allow_ext}->{'.'}) {
 		$self->{ROBJ}->call('album/_load_extensions');
 	}
 	return $self->{album_allow_ext};
@@ -1243,6 +1243,7 @@ sub plugin_install {
 	my $func_dir = $self->{blog_dir} . 'func/';
 	my $skel_dir = $self->{blog_dir} . 'skel/';
 	my $js_dir   = $self->{blogpub_dir} . 'js/';
+	my $css_dir  = $self->{blogpub_dir} . 'css/';
 	my $plg_dir  = $self->{plugin_dir} . "$n/";
 
 	my $copy = $self->{plugin_symlink} ? 'file_symlink' : 'file_copy';
@@ -1270,6 +1271,9 @@ sub plugin_install {
 		}
 		if ($dir eq 'js') {
 			$des = $js_dir . $file;
+		}
+		if ($dir eq 'css') {
+			$des = $css_dir . $file;
 		}
 		if ($dir eq 'skel') {
 			$self->mkdir_with_filepath( $skel_dir, $file );

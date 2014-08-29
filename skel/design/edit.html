@@ -11,16 +11,18 @@
 <@call('_sub/error_message')>
 <$ifbreak(POST)>
 
+<$v.regist_js("<@v.script_dir>design-edit.js")>
+
 <@call('_main')>
 
 <!-- デザインモジュールの情報 =============================================-->
 <div id="design-modules-data" style="display: none">
 
-<$v.regist_js('design-edit.js')>
 <$mods = v.load_modules_info()>
 <$mods = sort_str(mods, 'title')>
 
 <@forexec(t, mods, begin)>
+<$ifnext(t.adiary_version > v.VERSION)> <@>  対応Versionチェック
 <div class="<@t.module_class>" title="<@t.title>"
  data-module-name="<@t.name>"
  data-type="<@t.module_type>"
@@ -46,7 +48,7 @@
 <$end>
 </select><br>
 <button class="save" id="js-save">保存</button>
-<button class="cancel" onclick="window.location = '<@v.myself>?design/'">メニューに戻る</button><br>
+<button class="cancel" onclick="window.location = '<@v.myself>?design/'">キャンセル</button><br>
 </div>
 </div>
 
