@@ -742,10 +742,12 @@ function do_highlight_string(node, words) {
 		str  = str.substr ( p + len );
 		str2 = str2.substr( p + len );
 	}
-	if (!find || !str.length) return ;
+	if (!find) return ;
 	// 残った文字列を追加して、nodeを消す
-	var remain = d.createTextNode( str );
-	par.insertBefore( remain, node );
+	if (str.length) {
+		var remain = d.createTextNode( str );
+		par.insertBefore( remain, node );
+	}
 	par.removeChild( node );
 }
 ///
