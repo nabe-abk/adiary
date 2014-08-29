@@ -264,8 +264,8 @@ sub escape {
 				if ($url_wrapper) { $v = &$url_wrapper($_, $v); }	# URLラッパー
 				# URLの実際参照をデコード
 				my $p = &decode_ncr($v);
-				# 漢字のエンコード
-				$v =~ s/([^\x01-\x08\.\/\~\*\-\w\#:;=\+\?&%])/'%' . unpack('H2',$1)/eg;
+				# 特殊文字のエンコード
+				$v =~ s/([^\x01-\x08\.\/\~\*\-\w\#:;=\+\?&%\@])/'%' . unpack('H2',$1)/eg;
 				if ($p =~ /^([\w\+\-\.]+):/) {	# scheme by RFC2396 Sec3.1
 					my $x = $1;
 					$x =~ tr/A-Z/a-z/;

@@ -23,7 +23,8 @@ my %allow_override = (asid => 1, chain_line => 2,
  anchor_name_base =>1, footnote_name_base => 1, unique_linkname => 1,
  section_count => 2, subsection_count => 2, section_anchor => 1, subsection_anchor => 1,
  http_target => 1, image_target => 1, autolink => 2, list_block => 2, 
- br_mode => 2, paragraph_mode => 2, list_nobr => 2, seemore_msg => 1);
+ br_mode => 2, paragraph_mode => 2, list_nobr => 2, seemore_msg => 1,
+ remove_comment => 1);
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -495,7 +496,7 @@ sub block_parser {
 		#-------------------------------------------------
 		# コメント除去
 		#-------------------------------------------------
-		if ($tag) {	# タグが有効
+		if ($self->{remove_comment} && $tag) {		# 記法タグが有効
 			$line =~ s/<!--.*?-->//g;		# コメント除去
 			my $x = index($line, '<!--');
 			if ($x >= 0) {				# コメントがある

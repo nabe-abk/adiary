@@ -52,7 +52,7 @@ sub new {
 # ●image記法
 #------------------------------------------------------------------------------
 sub image {
-	my ($pobj, $tag, $cmd, $ary) = @_;
+	my ($pobj, $tag, $cmd, $ary, $tagclass) = @_;
 	my $tags = $pobj->{tags};
 	my $ROBJ = $pobj->{ROBJ};
 
@@ -84,7 +84,7 @@ sub image {
 	# 属性値
 	my %tag2 = %$tag;
 	$tag2{title} = $name;
-	my $attr = $pobj->make_attr($ary, \%tag2, 'image');
+	my $attr = $pobj->make_attr($ary, \%tag2, $tagclass || 'image');
 	   $name = $pobj->make_name($ary, $name);
 
 	return "<figure class=\"image\"><a href=\"$link\"$attr><img alt=\"$name\"$size src=\"$url\"></a></figure>";

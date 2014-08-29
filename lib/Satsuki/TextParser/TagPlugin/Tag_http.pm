@@ -47,7 +47,7 @@ sub http {
 		$cmd .= ':image';
 		$tag  = $tags->{$cmd};
 		my $image = $pobj->load_tag('&image');
-		return &$image($pobj, $tag, $cmd, $ary);
+		return &$image($pobj, $tag, $cmd, $ary, 'http');
 	}
 	# 属性/リンク名
 	my $attr = $pobj->make_attr($ary, $tag, 'http');

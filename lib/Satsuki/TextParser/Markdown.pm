@@ -8,7 +8,7 @@ use strict;
 # [S] とあるものは、adiary拡張（Satsuki記法互換機能）
 #
 package Satsuki::TextParser::Markdown;
-our $VERSION = '0.999';
+our $VERSION = '1.00';
 #------------------------------------------------------------------------------
 ###############################################################################
 # ■基本処理
@@ -171,7 +171,7 @@ sub parse_special_block {
 				$endmark = '';
 			}
 			my $first=1;
-			while($x !~ /$tagend/i) {
+			while(@$lines && $x !~ /$tagend/i) {
 				push(@ary, $x . ($first ? "\x01" : $endmark));
 				$first=0;
 				$x = shift(@$lines);

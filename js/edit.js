@@ -8,6 +8,7 @@ $(function(){
 	var body = $('#body');
 	var tagsel = $('#tag-select');
 	var upsel  = $('#upnode-select');
+	var parsel = $('#select-parser');
 	
 	var edit = $('#editarea');
 
@@ -101,6 +102,21 @@ function new_tag_append() {
 		title: $('#new-tag-title').text(),
 		buttons: buttons
 	});
+}
+
+//############################################################################
+// ■パーサーの変更
+//############################################################################
+parsel.change( parser_change );
+parser_change();
+
+function parser_change() {
+	// 記法ヘルプのリンク先変更
+	var link = $('#parser-help-link');
+	var val = parsel.val();
+	var url = link.data('default');
+	if (val.match(/markdown/i)) url = link.data('markdown');
+	link.attr('href', 'http://adiary.org/v3man/' + url);
 }
 
 //############################################################################

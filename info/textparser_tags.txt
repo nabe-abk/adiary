@@ -28,11 +28,13 @@ load textparser_site_tags.txt
 # [http://], [ftp://], [mailto:], 
 # plugin http
 
-# サムネイル機能を使う場合は image プラグインが必要です（ロード順は問わない）
+# サムネイル機能を使う場合は image プラグインが必要です
 http:image       = サムネイル（HeartRails Capture）, image, 1, http://capture.heartrails.com/120x90?http://$1
 http:image#small = サムネイル（HeartRails Capture）, image, 1, http://capture.heartrails.com/120x90?http://$1
 http:image#large = サムネイル（HeartRails Capture）, image, 1, http://capture.heartrails.com/300x225?http://$1
 http:image#link  = サムネイル（HeartRails Capture）, image, 1, http://$1
+http:image#rel   = false
+
 
 #------------------------------------------------------------------------------
 # adiary用プラグイン, adiary設定
