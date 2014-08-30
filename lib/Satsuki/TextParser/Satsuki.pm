@@ -1074,10 +1074,10 @@ sub table {
 	# caption/summary
 	if ($self->{table_rows} || substr($line,-1) eq '|') {
 		# tableが既に記述済 か | で終わるときは何もしない
-	} elsif (substr($line,0,2) eq '|*') {
+	} elsif (substr($line,0,9) eq '|caption=') {
 		$self->{table_caption} = substr($line,2);
 		return;
-	} elsif (substr($line,0,2) eq '|=') {
+	} elsif (substr($line,0,9) eq '|summary=') {
 		$self->{table_summary} = substr($line,2);
 		return;
 	}
