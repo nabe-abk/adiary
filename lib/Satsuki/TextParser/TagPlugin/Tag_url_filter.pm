@@ -183,11 +183,11 @@ sub _filter {
 	#------------------------------------------------------------
 	# その他（audio/video）
 	#------------------------------------------------------------
-	if ($url =~ m{\.(?:wave?|ogg|mp3|aac|m4a)}i) {
+	if ($url =~ m{\.(?:wave?|ogg|oga|mp3|aac|m4a)}i) {
 		return $pobj->parse_tag("[audio:$urlf]");
 	}
 
-	if ($url =~ m{\.(?:webm|mp4|m4v)}i) {
+	if ($url =~ m{\.(?:webm|ogv|mp4|m4v)}i) {
 		return $pobj->parse_tag("[video:$urlf]");
 	}
 
@@ -197,7 +197,6 @@ sub _filter {
 	if ($url =~ m{\.(?:jpg|jpeg|png|gif|bmp)}i) {
 		return $pobj->parse_tag("[img:$url]");
 	}
-
 
 	#------------------------------------------------------------
 	# その他（URLからタイトルを取得してリンク）

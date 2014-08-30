@@ -135,7 +135,7 @@ search:q  = >search:question
 #	$ unzip mimetex.zip
 #	$ gcc -O2 -o mimetex.cgi -lm -DAA mimetex.c gifsave.c
 #	$ cp mimetex.cgi ../
-tex  = mimeTeX, ASCII, 1, <img src="$0mimetex.cgi?$1" alt="#1" title="#1" class="tex">
+tex  = mimeTeX, ASCII, 1, <img src="${Basepath}mimetex.cgi?$1" alt="#1" title="#1" class="tex">
 
 #------------------------------------------------------------------------------
 # 画像プラグイン／ファイルアップローダ

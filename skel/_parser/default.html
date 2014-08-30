@@ -23,13 +23,14 @@
 
 タグ置換用データ
 <$parser.vars = begin_hash>
+	Basepath= <@Basepath>
 	public  = <@v.pub_dir>
 	pubdist = <@v.pubdist_dir>
 	myself  = <@v.myself>
 	myself2 = <@v.myself2>
 	gmap_key = AIzaSyCB2QBs0s-WAEqYRcDCilB8MNF-coJ_Qbo
 <$end>
-<$parser.replace_data.image = v.blogimg_dir()>
+<$parser.vars.image = v.blogimg_dir()>
 
 adiary記法用
 <$parser.aobj = v>
