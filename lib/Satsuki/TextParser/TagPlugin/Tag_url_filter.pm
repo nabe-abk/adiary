@@ -150,16 +150,6 @@ sub _filter {
 		return "<module name=\"rabbit-shocker:slide\" path=\"$path\">";
 	}
 
-	#------------------------------------------------------------
-	# audio/video
-	#------------------------------------------------------------
-	if ($url =~ m{\.(?:wave?|ogg|mp3|aac|m4a)}i) {
-		return $pobj->parse_tag("[audio:$urlf]");
-	}
-
-	if ($url =~ m{\.(?:webm|mp4|m4v)}i) {
-		return $pobj->parse_tag("[video:$urlf]");
-	}
 
 	#------------------------------------------------------------
 	# Google map
@@ -189,6 +179,25 @@ sub _filter {
 		if ($ary->[$#$ary] eq 'large') { $w='100%'; $h=480; }
 		return "<module name=\"google:map:$type\" key=\"$vars->{gmap_key}\" $opt width=\"$w\" height=\"$h\">";
 	}
+
+	#------------------------------------------------------------
+	# その他（audio/video）
+	#------------------------------------------------------------
+	if ($url =~ m{\.(?:wave?|ogg|mp3|aac|m4a)}i) {
+		return $pobj->parse_tag("[audio:$urlf]");
+	}
+
+	if ($url =~ m{\.(?:webm|mp4|m4v)}i) {
+		return $pobj->parse_tag("[video:$urlf]");
+	}
+
+	#------------------------------------------------------------
+	# その他（画像）
+	#------------------------------------------------------------
+	if ($url =~ m{\.(?:jpg|jpeg|png|gif|bmp)}i) {
+		return $pobj->parse_tag("[img:$url]");
+	}
+
 
 	#------------------------------------------------------------
 	# その他（URLからタイトルを取得してリンク）
