@@ -1113,7 +1113,6 @@ sub table {
 	my @td_class_ary = @{ $td_classes };
 	foreach(0..$#ary) {
 		my $x = $ary[$_];
-		$self->debug("$_ : $x");
 		my $h = {cols=>1, rows=>1};
 		$h->{class} = shift( @td_class_ary );
 		if (substr($x,0,1) eq '*') {
