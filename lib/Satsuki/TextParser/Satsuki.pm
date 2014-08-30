@@ -379,7 +379,7 @@ sub text_parser {
 	$self->{sections}       = [];	# 空のarray
 	$self->{subsections}    = [];	# セクション番号ごとにデータ格納
 	$self->{options}        = {};	# 空のhash
-	$self->{replace_data} ||= {};	# タグ置換用データ
+	$self->{vars} ||= {};	# タグ置換用データ
 	$self->{section_count}     = int($opt->{section_count});	# section counter
 	$self->{subsection_count}  = int($opt->{subsection_count});	# sub-section counter
 	$self->{section_hnum}      = int($opt->{section_hnum}) || 3;	# section level
@@ -1075,10 +1075,10 @@ sub table {
 	if ($self->{table_rows} || substr($line,-1) eq '|') {
 		# tableが既に記述済 か | で終わるときは何もしない
 	} elsif (substr($line,0,9) eq '|caption=') {
-		$self->{table_caption} = substr($line,2);
+		$self->{table_caption} = substr($line,9);
 		return;
 	} elsif (substr($line,0,9) eq '|summary=') {
-		$self->{table_summary} = substr($line,2);
+		$self->{table_summary} = substr($line,9);
 		return;
 	}
 
@@ -1461,7 +1461,7 @@ sub replace_link {
 	my $self = shift;
 	my ($url, $ary, $argc, $code) = @_;
 	my $ROBJ = $self->{ROBJ};
-	my $rep  = $self->{replace_data};
+	my $rep  = $self->{vars};
 
 	my @argv = splice(@$ary, 0, $argc);
 	unshift(@argv,  $ROBJ->{Basepath});
@@ -1482,12 +1482,12 @@ sub replace_link {
 }
 
 #--------------------------------------------------------------------
-# ●replace_dataのみの実装
+# ●replace_varsのみの実装
 #--------------------------------------------------------------------
-sub replace_data {
+sub replace_vars {
 	my $self = shift;
 	my $url = shift;
-	my $h = $self->{replace_data};
+	my $h = $self->{vars};
 	$url =~ s/\$\{(\w+)\}/$h->{$1}/g;	# 任意データ置換
 	return $url;
 }

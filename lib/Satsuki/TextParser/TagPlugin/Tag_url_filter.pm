@@ -49,6 +49,7 @@ sub _filter {
 	my ($pobj, $tag, $cmd, $ary) = @_;
 	my $ROBJ = $pobj->{ROBJ};
 	my $tags = $pobj->{tags};
+	my $vars = $pobj->{vars};
 
 	my $urlf = join(':',@$ary);
 	my $url  = shift(@$ary);
@@ -163,18 +164,30 @@ sub _filter {
 	#------------------------------------------------------------
 	# Google map
 	#------------------------------------------------------------
-	{
-		my $url2 = substr($ary->[0],0,2) eq '0x' ? "$url:" . shift(@$ary) : $url;
-		if ($url2 =~ m!^https?://maps\.google\.(?:co\.jp|com)/maps\?(.+)$!
-		 || $url2 =~ m!^<iframe .*?src="https?://maps\.google\.(?:co\.jp|com)/maps\?([^"]+)"!) {
-			my $query = $1;
-			$query =~ s/&(?:amp)?(?:output|source)=embed//;
-			my $w = 425;
-			my $h = 350;
-			if ($ary->[$#$ary] eq 'small') { $w=300; $h=300; }
-			if ($ary->[$#$ary] eq 'large') { $w=640; $h=480; }
-			return "<module name=\"google:map\" query=\"$query\" width=\"$w\" height=\"$h\">";
+	# API infomation : https://developers.google.com/maps/documentation/embed/guide
+	while ($url =~ m!^https://www\.google\.(?:co\.jp|com)/maps/(place/|dir/|)(.+)$!) {
+		my $q = $2;
+		my $type;
+		my $opt;
+		if ($1 eq 'dir/') {
+			$type = 'directions';
+			my ($org, $des) = split('/', $q);
+			$opt = "origin=\"$org\" destination=\"$des\"";
+		} elsif ($1 eq 'place/') {
+			$type = 'search';
+			$q =~ s|/.*||g;
+			$opt = "q=\"$q\"";	# 検索語
+		} elsif ($q =~ /^@(\d+\.\d+,\d+\.\d+)(?:,(\d+)z)?/) {
+			$type = 'view';
+			$opt  = "center=\"$1\" zoom=\"$2\"";
+		} else {
+			last;	# unknown url type
 		}
+		my $w = 425;
+		my $h = 350;
+		if ($ary->[$#$ary] eq 'small') { $w=300; $h=300; }
+		if ($ary->[$#$ary] eq 'large') { $w='100%'; $h=480; }
+		return "<module name=\"google:map:$type\" key=\"$vars->{gmap_key}\" $opt width=\"$w\" height=\"$h\">";
 	}
 
 	#------------------------------------------------------------

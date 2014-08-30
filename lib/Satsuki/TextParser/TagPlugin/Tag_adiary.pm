@@ -38,7 +38,7 @@ sub new {
 sub adiary_key {
 	my ($pobj, $tag, $cmd, $ary) = @_;
 	my $aobj    = $pobj->{aobj};
-	my $replace = $pobj->{replace_data};
+	my $replace = $pobj->{vars};
 
 	# ID記法
 	my $url;
@@ -91,7 +91,7 @@ sub adiary_day {
 	my ($pobj, $tag, $cmd, $ary) = @_;
 	my $ROBJ = $pobj->{ROBJ};
 	my $aobj = $pobj->{aobj};
-	my $replace = $pobj->{replace_data};
+	my $replace = $pobj->{vars};
 
 	# 記事の日付指定
 	my $url = $replace->{myself2};
@@ -122,7 +122,7 @@ sub adiary_tag {
 	my ($pobj, $tag, $cmd, $ary) = @_;
 	my $ROBJ = $pobj->{ROBJ};
 	my $aobj = $pobj->{aobj};
-	my $replace = $pobj->{replace_data};
+	my $replace = $pobj->{vars};
 
 	my $x = shift(@$ary);
 	while(@$ary) {

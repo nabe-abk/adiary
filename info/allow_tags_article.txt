@@ -207,7 +207,13 @@ _module_start
 #------------------------------------------------------------------------------
 # Google-map モジュール
 #------------------------------------------------------------------------------
-*google:map
-<iframe src="https://maps.google.co.jp/maps?${query}&amp;output=embed" width="#{width|425}" height="#{height|350}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ></iframe><br /><small class="google-map"><a href="https://maps.google.co.jp/maps?${query};source=embed">View on Google</a></small>
+*google:map:directions
+<iframe src="https://www.google.com/maps/embed/v1/directions?key=${key}&amp;origin=${origin}&amp;destination=${destination}" width="#{width|425}" height="#{height|350}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
+
+*google:map:search
+<iframe src="https://www.google.com/maps/embed/v1/search?key=${key}&amp;q=${q}" width="#{width|425}" height="#{height|350}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
+
+*google:map:view
+<iframe src="https://www.google.com/maps/embed/v1/view?key=${key}&amp;center=${center}&amp;zoom=${zoom}&amp;" width="#{width|425}" height="#{height|350}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
 
 

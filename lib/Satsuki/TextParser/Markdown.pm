@@ -163,7 +163,7 @@ sub parse_special_block {
 		$x =~ s/(.*)\t/' ' x ($tw - (length($1) % $tw))/eg;
 
 		# HTMLブロック
-		if ($x =~ /<($block_tags)\b([^>]*)>/i) {
+		if ($x =~ /<($block_tags)\b[^>]*>/i) {
 			my $tagend = qr|</$1\s*>\s*$|;
 			my $endmark = "\x02";
 			if ($self->{md_in_htmlblk} && $x =~ /markdown\s*=\s*"1"/) {

@@ -48,7 +48,7 @@ sub digest {
 	my ($pobj, $tag, $cmd, $ary) = @_;
 	my $tags = $pobj->{tags};
 	my $ROBJ = $pobj->{ROBJ};
-	my $replace_data = $pobj->{replace_data};
+	my $replace_vars = $pobj->{vars};
 
 	# type=cmd
 	my $digest_type = $cmd;
@@ -76,7 +76,7 @@ sub file_digest {
 	my ($pobj, $tag, $cmd, $ary) = @_;
 	my $tags = $pobj->{tags};
 	my $ROBJ = $pobj->{ROBJ};
-	my $replace_data = $pobj->{replace_data};
+	my $replace_vars = $pobj->{vars};
 
 	# file tag のロード
 	my ($urltag, $digest_type) = split(':', $cmd);
