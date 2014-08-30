@@ -73,27 +73,28 @@ function new_tag_append() {
 	var div = newtag_dialog;
 	div.empty();
 	var inp = $('<input>').attr('type', 'text').css('width', 200).addClass('mono');
-	var p = $('<p>').html( $('#new-tag-msg').text() );
+	var p = $('<div>').html( $('#new-tag-msg').html() );
 	div.append( inp, p );
 
 	var buttons = {};
-	buttons[ $('#new-tag-append').text() ] = function(){
-		tag_append( inp.val() );
-		div.dialog('close');
-		tagsel.val('');
-	}
+	buttons[ $('#new-tag-append').text() ] = tag_append_func;
 	buttons[ $('#new-tag-cancel').text() ] = function(){
 		div.dialog('close');
 		tagsel.val('');
 	}
-
 	// enterで確定させる
 	inp.keydown(function(evt){
 		if (evt.keyCode != 13) return;
+		return tag_append_func();
+	});
+
+	function tag_append_func() {
+		var tag = inp.val();
+		if (tag.match(',')) return false;
 		tag_append( inp.val() );
 		div.dialog('close');
 		tagsel.val('');
-	});
+	}
 
 	div.dialog({
 		modal: true,

@@ -1,9 +1,9 @@
 <@6>
 <$ifbreak(!Develop || !v.allow_edit)>
 <@local(ret,s,t,t2,c,permalink)>
-
-<$(t,ret) = v.load_article_current_blog(v.pinfo, Query)>
 <$s = v.blog>
+
+<$(t,ret) = v.load_article_current_blog(if(v.pinfo ne '', v.pinfo, s.frontpage))>
 <$v.title = s.blog_name>
 <$art_year = ret.year>
 <$art_mon  = ret.mon>

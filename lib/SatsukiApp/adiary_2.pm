@@ -1686,8 +1686,10 @@ sub tag_normalize {
 	my %h;
 	my @ary;
 	foreach(@$tags) {
+		$_ =~ s/\s+/ /g;	# space 1個に
 		if (0 <= index(":$_:", ':::')) { next; }
 		if ($h{$_}) { next; }	# 重複
+
 		push(@ary, $_);
 		# 重複除去のためのフラグ
 		$h{$_}=1;

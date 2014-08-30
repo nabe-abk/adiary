@@ -1,0 +1,21 @@
+<@6>
+<@local(s)>
+<$s=argv#0>
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>タイトル表示</th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="title_none">
+			<input type="checkbox" name="title_none" value="1"<@if(s.title_none,' checked')>><label>非表示にする</label>
+		</td>
+	</tr>
+	<tr>
+		<th>標準の検索タイプ</th>
+		<td>
+			<input type="radio" name="all" value="0"<@if(!s.all,' checked')>><label>タイトル</label>
+			<input type="radio" name="all" value="1"<@if( s.all,' checked')>><label>全文</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>

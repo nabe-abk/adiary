@@ -1098,19 +1098,22 @@ sub table {
 		return undef;
 	}
 
-
 	# table 1 ROW の作成
 	my $rows = $self->{table_rows} ||= [];
 	my @cols;
 
+	# |aa|bb|cc  → |aa|bb|cc|=
+	# |aa|bb|cc| → |aa|bb|cc|=
+	$line =~ s/\|?\s*$/|=/;
 	my @ary = split(/\s*\|\s*/, $line);
 	shift(@ary);	# 最初を読み捨て
-	if ($ary[$#ary] =~ /^\s*$/) { pop(@ary); }
-	$line = '';
+	pop(@ary);	# "=" 読み捨て
+
 	my $td_classes = $self->{td_classes} || [];
 	my @td_class_ary = @{ $td_classes };
 	foreach(0..$#ary) {
 		my $x = $ary[$_];
+		$self->debug("$_ : $x");
 		my $h = {cols=>1, rows=>1};
 		$h->{class} = shift( @td_class_ary );
 		if (substr($x,0,1) eq '*') {

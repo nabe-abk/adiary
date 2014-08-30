@@ -20,6 +20,7 @@ sub new {
 	$tags->{"adiary:key"} ->{data} = \&adiary_key;
 	$tags->{"adiary:id"}  ->{data} = \&adiary_key;
 	$tags->{"adiary:day"} ->{data} = \&adiary_day;
+	$tags->{"adiary:tag"} ->{data} = \&adiary_tag;
 	#---end
 
 	$tags->{"adiary:this"}->{_this} = 1;
@@ -100,11 +101,51 @@ sub adiary_day {
 	 || $opt =~ m|^(\d\d\d\d)[-/](\d\d?)[-/](\d\d?)?$|) {	# YYYYMM YYYYMMDD
 		$name = $opt;
 		$url .= sprintf("$1%02d%02d", $2, $3);
+	} elsif ($opt =~ m|^(\d\d\d\d)[-/]?(\d\d)$|) {
+		$name = $opt;
+		$url .= sprintf("$1%02d", $2);
+	} elsif ($opt =~ m|^(\d\d\d\d)$|) {
+		$name = $opt;
+		$url .= $opt;
 	} else {
 		return '[date:(format error)]';
 	}
 
 	return &adiary_link_base($pobj, $tag, $url, $name, $ary);
+}
+
+#------------------------------------------------------------------------------
+# ●adiary tag 記法
+#------------------------------------------------------------------------------
+# [tag:import,tag::tag2,tag\:tag:リンク名]
+sub adiary_tag {
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $ROBJ = $pobj->{ROBJ};
+	my $aobj = $pobj->{aobj};
+	my $replace = $pobj->{replace_data};
+
+	my $x = shift(@$ary);
+	while(@$ary) {
+		if (!($ary->[0] eq '' && $ary->[1] ne '')) {
+			last;
+		}
+		shift(@$ary);
+		$x .= '::' . shift(@$ary);
+	}
+	# $x = "import,tag::tag2,tag:tag"
+	my @tags = split(',', $x);
+	my $url = $replace->{myself} . '?&';
+	foreach(@tags) {
+		$pobj->encode_uricom($_);
+		$url .= "t=$_&";
+	}
+	chop($url);
+
+	# 属性
+	my $attr = $pobj->make_attr($ary, $tag, 'http');
+	my $name = $pobj->make_name($ary, $x);
+
+	return "<a href=\"$url\"$attr>$name</a>";
 }
 
 #------------------------------------------------------------------------------

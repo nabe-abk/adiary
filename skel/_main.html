@@ -5,13 +5,21 @@
 <$s = v.blog>
 <$v.title = s.blog_name>
 <$art_year = ret.year>
-<$art_mon  = ret.mon>
+<$art_mon  = ret.mon || ret.art_mon>
 <$art_day  = ret.day>
 
-<@> dayモードで該当記事1件の時
-<$ifexec(##logs==0 && ret.mode eq 'day', begin)>
-	<$t=logs#0>
-	<$redirect( v.myself2 . t.elink_key )>
+<@> dayモードでの処理
+<$ifexec(ret.mode eq 'day', begin)>
+	<$v.no_robots=1>
+	<@>（現在は無効）ログが1件なら key で redirect
+	<$ifexec(0 && ##logs==0, begin)>
+		<$t=logs#0>
+		<$redirect( v.myself2 . t.elink_key )>
+	<$end>
+	<@> 日付指定の時
+	<$ifexec(ret.mode eq 'day' && ret.day, begin)>
+		<$message("<@ret.year>年<@ret.mon>月<@ret.day>日の記事")>
+	<$end>
 <$end>
 
 <@ifexec(!v.blogid, begin, begin)>
@@ -58,9 +66,9 @@
 	<$end>
 	
 	<@>### 年・年月指定 ###
-	<@ifexec(ret.yyyymm, begin)>
+	<@ifexec(ret.yyyymm || ret.day, begin)>
 	<div class="yyyymm cond">
-	<span class="search-caption">指定期間</span> <span class="yyyymm"><@ret.year>年<@if(ret.month, "<@ret.month>月")>の記事</span><br>
+	<span class="search-caption">指定期間</span> <span class="yyyymm"><@ret.year>年<@if(ret.mon, "<@ret.mon>月")><@if(ret.day, "<@ret.day>日")>の記事</span><br>
 	</div>
 	<$end>
 	</form>

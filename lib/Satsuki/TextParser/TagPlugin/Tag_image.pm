@@ -60,9 +60,10 @@ sub image {
 	my $tag_name = $tag->{name};
 	my $argc     = $tag->{argc};
 	my $mode     = $ary->[ ($argc || 1) ];
-	if (exists $tags->{"$tag_name#$mode"}) {
+	if (exists $tags->{"$tag_name#$mode"}) {	# [tag:～:large] 等の指定がある
 		$tag  = $tags->{"$tag_name#$mode"};
 		$mode = undef;
+		pop( @$ary );
 	}
 
 	#  構成

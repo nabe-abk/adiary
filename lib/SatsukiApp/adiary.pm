@@ -922,7 +922,7 @@ sub load_articles {
 		$ret{day}  = $logs->[0]->{day};
 	}
 	if ($logs->[0] && $ret{mode} eq 'search' && $ret{year} && !$ret{day}) {
-		$ret{mon}  = $logs->[0]->{mon};
+		$ret{art_mon} = $logs->[0]->{mon};
 	}
 
 	return wantarray ? ($logs, \%ret) : $logs;
