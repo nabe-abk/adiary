@@ -72,8 +72,7 @@ g   = >google
 ga  = >google:all
 gi  = >google:image
 gn  = >google:news
-gtr = >google:transit
-gq  = >google:qr
+tr  = >google:transit
 qr  = >google:qr
 
 #------------------------------------------------------------------------------
