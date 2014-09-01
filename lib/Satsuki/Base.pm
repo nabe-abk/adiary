@@ -665,7 +665,7 @@ sub continue {
 	$self->{Jump_file}    = $jump_file;
 	$self->{Jump_skeleton}= $file;
 	$self->{Break}        = 1;
-	$self->{Jump_argv}    = \@_;
+	$self->{Jump_argv}    = $self->{argv};
 	$self->{__cont_level} = $skel_level -1;
 }
 

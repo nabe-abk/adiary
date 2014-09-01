@@ -29,7 +29,7 @@ And, '__cache' and 'data/' directories not permit to access from web.
 
 本プログラム（システム）はフリーソフトウェアです。
 
-GNU AGPL(AFFERO GENERAL PUBLIC LICENSE) Vesrion 3 または
+AGPL(AFFERO GENERAL PUBLIC LICENSE) Vesrion 3 または
 それ以降のバージョンの下で本プログラム（システム）を再配布
 することが可能です。
 
