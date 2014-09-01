@@ -234,6 +234,7 @@ my $l_line_number    = 0x0002;	# 行情報が必要
 my $l_break_check    = 0x0004;	# breakチェックが必要
 my $l_no_change      = 0x0008;	# 変更禁止フラグ
 my $l_v_load         = 0x0010;	# $v の値を取り出し
+my $l_single         = 0x0020;	# 単一式である
 my $l_indent         = 0x0100;	# indent 情報用のゲタ
 my $l_indent_bits    = 8;	# ↑が何ビットシフトか
 
@@ -875,12 +876,11 @@ sub poland_to_eval {
 			if ($cmd_flag eq "\$") { undef $_; }
 			next;
 		}
-		# 単一置換式（定数）
-		if ($#$_ == 0 && $types[0] eq 'const') {
-			$_ = pop(@$_);
-			if ($cmd_flag eq "\$") { undef $_; }
-			$_ =~ s/^\'(.*)\'$/$1/;
-			next;
+
+		# 単一式
+		if ($#$_ == 0) {
+			# const line info
+			$line_info |= $l_single;
 		}
 
 		# 複式
@@ -990,7 +990,6 @@ sub poland_to_eval {
 							} else {	# 通常変数
 								@stack = ($cmd . "foreach(0..\$X, \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
 							}
-							print 
 							@stack_type = ('*');
 							last;
 
@@ -1227,23 +1226,20 @@ sub poland_to_eval {
 				#--------------------------------------
 				# constantの処理
 				#--------------------------------------
-				if ($last_op && $op eq '=' && $yt eq 'const_var' && ($xt eq 'const' || $xt eq 'string')) {
+				if ($last_op && $op eq '=' && $yt eq 'const_var' && $xt eq 'const') {
 					my $err;
 					my $const = $x;
-					if ($xt eq 'string') {
-						$err=1;
-						if ($x =~ /^\x01\[\x01(\d+)\]$/) {
-							$const = $strbuf->[$1];
-							$const =~ s/^[\"\'](.*)[\"\']$/$1/;
-							if ($const !~ /[\x00-\x08\x0a-\x1f\"\'\\]/) {
-								$err=0;
-							}
+					if ($x =~ /^\x01\[\x01(\d+)\]$/) {
+						$const = $strbuf->[$1];
+						$const =~ s/^[\"\'](.*)[\"\']$/$1/;
+						if ($const !~ /[\x00-\x08\x0a-\x1f\"\'\\]/) {
+							$err=0;
 						}
 					}
 					# 定数定義
 					if (!$err) {
-						@stack        = ($const);
-						@stack_type   = ('const');
+						@stack      = ($const);
+						@stack_type = ('const');
 
 						if ($const eq 'undef') {
 							$constant{$y}='';
@@ -1385,8 +1381,15 @@ sub poland_to_eval {
 			if ($type eq 'obj') { $exp = &get_object($exp,$local_vars); }	# オブジェクの場合、参照形式へ
 			if ($type eq 'const') {		# 定数
 				if ($cmd_flag eq "\$") { undef $_; next; }	# 無視
-				$_ = $exp;
-				next;
+				# 2/8/16進数なら数値化
+				if ($exp =~ /^0[xb]?\d+$/) {
+					$exp = oct($exp);
+				}
+				# 文字列でなければ置き換え
+				if ($exp !~ /^\x01\[\x01(\d+)\]$/) {		# 文字列
+					$_ = $exp;
+					next;
+				}
 			}
 		#	print "  eval string : $exp\n";
 			$_ = "\x01$line_num" . $exp;		# 置換
@@ -1433,7 +1436,7 @@ sub get_element_type {
 		my $local_vars = $local_vars_ary->[ $#$local_vars_ary ];
 		$strbuf->[$num] =~ s/\x01<([^>]+?)\#(\d+)>/&get_object($1, $local_vars) . "->[$2]"/eg;
 		$strbuf->[$num] =~ s/\x01<([^>]+?)>/(exists $constant->{$1}) ? $constant->{$1} : &get_object($1,$local_vars,1)/eg;
-		return 'string';
+		return substr($strbuf->[$num],0,1) eq "'" ? 'const' : 'string';
 	}
 	if ($p =~ /^'[^\']*'$/) {		# 文字定数
 		return 'const';
@@ -1443,8 +1446,9 @@ sub get_element_type {
 		$_[0] = int($p);
 		return 'const';
 	}
-	if ($p =~ /[^\w\.]/)    { return 'error'; }		# 不正な文字列／エラー
-	if ($p =~ /^[\d\.]+$/ || $p =~ /^0x[\dA-Fa-f]+$/) { return 'const'; }	# 数値（加工しない）
+	if ($p =~ /[^\w\.]/)   { return 'error'; }	# 不正な文字列／エラー
+	if ($p =~ /^[\d\.]+$/) { return 'const'; }	# 数値（加工しない）
+	if ($p =~ /^0[xb][\dA-Fa-f]+$/) { return 'const'; }		# 2進数 16進数
 	if ($p =~ /^([\d\.]+)([KMGT]|week|day|hour|min|sec)B?$/) {	# 単位付き数値
 		$p *= $unit2num{$2};
 		$_[0] = int($p);
@@ -1503,7 +1507,7 @@ sub split_begin_block {
 			$self->split_begin(\@newbuf, $buf, \@arybuf);
 			next;
 		}
-		if ($line =~ /^\x01\d\d\d\dend(?:\.(.*))?/) {
+		if ($line =~ /^\x01\d\d\d\dend(?:\.([^#]*))?/) {
 			my $lnum = &get_line_num_int($line);
 			my $end     = &get_line_data($line);
 			$self->error($lnum, "Exists 'end' without 'begin' (%s)", $end );
@@ -1514,7 +1518,7 @@ sub split_begin_block {
 	# @arybuf に end が残ってないか確認する（エラーチェック）
 	foreach my $ary (@arybuf) {
 		foreach(@$ary) {
-			if ($_ =~ /^\x01\d\d\d\dend(?:\.(.*))?/) {
+			if ($_ =~ /^\x01\d\d\d\dend(?:\.([^#]*))?/) {
 				my $lnum = &get_line_num_int($_);
 				my $end     = &get_line_data($_);
 				$self->error($lnum, "Exists 'end' without 'begin' (%s)", $end );
@@ -1677,7 +1681,6 @@ sub split_begin {
 				}
 			}
 			$ary = '{' . join(',', @out) . '}';
-			$ary =~ s/[\x01-\x03]//g;
 
 		} elsif ($mode eq 'begin' && $flag eq "\x02") {	# 実行構文のブロック展開
 			push(@if_blocks, $ary);
@@ -1734,7 +1737,7 @@ sub splice_block {
 	my @ary;
 	while(@$buf) {
 		my $line = shift(@$buf);
-		if ($line =~ /^\x01\d\d\d\dend(?:\.(.*))?/ && $1 eq $blockname) {
+		if ($line =~ /^\x01\d\d\d\dend(?:\.([^#]*))?/ && $1 eq $blockname) {
 			return \@ary;
 		}
 		if (ord($line) == 1 && $line =~ /[\x01\x02]\[begin.*?\]/) {
@@ -1798,7 +1801,9 @@ sub chain_lines {
 			if (!($info & $l_replace)) {	# 置換しない
 				$cmd = "('',$cmd)[0]";
 			}
-			$cmd = "($cmd)";
+			if (!($info & $l_single)) {	# 定数ではない
+				$cmd = "($cmd)";
+			}
 		}
 		if ($flag>3 && substr($cmd,0,1) ne "'" && $#ary2>0) {
 			# single quote されてなかったら（数値等）quote する
