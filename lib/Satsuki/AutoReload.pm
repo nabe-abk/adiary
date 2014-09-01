@@ -30,9 +30,7 @@ sub save_lib {
 ###############################################################################
 sub check_lib {
 	my $flag = shift || $Satsuki::Base::RELOAD;
-	if ($flag) {
-		&save_lib();
-	} else {
+	if (!$flag) {
 		foreach(@Libs) {
 			if ($Libtime{$_} == (stat($INC{$_}))[9]) { next; }
 			$flag=1;
@@ -49,6 +47,7 @@ sub check_lib {
 		&unload($_);
 	}
 	undef %Libtime;
+	undef @Libs;
 
 	return 1;
 }
