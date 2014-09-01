@@ -155,7 +155,7 @@ sub _filter {
 	# Google map
 	#------------------------------------------------------------
 	# API infomation : https://developers.google.com/maps/documentation/embed/guide
-	while ($url =~ m!^https://www\.google\.(?:co\.jp|com)/maps/(place/|dir/|)(.+)$!) {
+	while ($vars->{gmap_key} && $url =~ m!^https://www\.google\.(?:co\.jp|com)/maps/(place/|dir/|)(.+)$!) {
 		my $q = $2;
 		my $type;
 		my $opt;

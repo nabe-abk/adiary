@@ -64,7 +64,6 @@ sub init_tags {
 	my $self = shift;
 	$self->{tags} = {};
 	$self->{macros} = {};
-	$self->{x} = {};	# 自由変数（calcタグで使用）
 }
 
 #------------------------------------------------------------------------------
@@ -379,7 +378,8 @@ sub text_parser {
 	$self->{sections}       = [];	# 空のarray
 	$self->{subsections}    = [];	# セクション番号ごとにデータ格納
 	$self->{options}        = {};	# 空のhash
-	$self->{vars} ||= {};	# タグ置換用データ
+	$self->{vars}         ||= {};	# タグ置換用データ
+	$self->{x}              = {};	# 自由変数 (calc等で使用)
 	$self->{section_count}     = int($opt->{section_count});	# section counter
 	$self->{subsection_count}  = int($opt->{subsection_count});	# sub-section counter
 	$self->{section_hnum}      = int($opt->{section_hnum}) || 3;	# section level
@@ -761,15 +761,11 @@ sub blocks_and_section {
 		# 自由変数に設定（calcタグで使用）
 		if ($s3 eq ':::') {
 			$line = substr($line, 3);
-			if ($line =~ /(\w+)(\.\w+)?\s*=\s*(\"[^\"]*\"|.*)/) {
-				if ($2 ne '') {
-					$self->{x}->{$1}->{$2}=$3;
-				} else {
-					$self->{x}->{$1}=$3;
-				}
+			if ($line =~ /(.*)\s*=\s*(\"[^\"]*\"|.*)/) {
+				$self->{x}->{$1}=$2;
 			}
 			next;
-		# クラス指定表記
+		# クラス指定表記 / 内部変数書き換え
 		} elsif ($s2 eq '::' && length($line)>2) {
 			$class = substr($line, 2);
 			if ($class =~ /^(\w+)=(.*)/) {
@@ -1280,14 +1276,12 @@ sub parse_tag {
 	my $self = shift;
 	my $this = shift;
 
-	# [[keyword]] 表記 → はてなkeyword表記に変換
-	$this =~ s/\[\[([^:]*?)\]\]/\[keyword:$1\]/g;
 	# [&icon-name] → [icon:icon-name]
 	$this =~ s/\[&(\w+)\]/\[icon:$1\]/g;
 	# [&http://youtube.com/] → [filter:http://youtube.com]
 	$this =~ s/\[&([^\]]+)\]/\[filter:$1\]/g;
-	# [@tw_id] → [twitter:tw_id]に変換
-	$this =~ s/\[\@(\w+(?:\:[^\[]+)?)\]/\[twitter:$1\]/g;
+	# [@name] → 自由変数nameの中身を出力
+	$this =~ s/\[\@(.*?)\]/$self->{x}->{$1}/g;
 
 	# 記法タグの処理
 	my $count=100;

@@ -80,7 +80,9 @@ Unknown begin type (%s)=未知のbegin型です (%s)
 #-----------------------------------------------------------
 # warning
 #-----------------------------------------------------------
-Dupulicate Hash key '%s'. (in %s)=ハッシュキー「%s」が重複しています（%s内）
+Contaion line is not defined hash in 'begin_hash'=ハッシュの定義行ではないものが含まれています（begin_hash内）
+Dupulicate Hash key '%s' in 'begin_hash'=ハッシュキー「%s」が重複しています（begin_hash内）
+Don't use ordering hash (contaion variable key) in 'begin_hash'=変数keyが含まれるため順序指定（_order）ハッシュは使用できません
 "break" variable referenced. Do you mean "break()" function?=「break」という変数を参照しています。本来は break() 関数の呼び出しではありませんか？
 
 ###############################################################################
@@ -145,7 +147,7 @@ Mismatch password and retype password=確認用パスワードと一致してい
 # error
 #-----------------------------------------------------------
 Called create_table() with null table name=テーブル名が指定されていません
-To be a 'a-z' or '_' at the first character of a table name : '%s'=テーブル名の最初は英小文字「a〜z」またはアンダーバー「_」で始まっている必要があります : %s
+To be a 'a-z' or '_' at the first character of a table name : '%s'=テーブル名の最初は英小文字「a?z」またはアンダーバー「_」で始まっている必要があります : %s
 '%s' table already exists=テーブル「%s」はすでに存在しています
 Can't find '%s' table=テーブル「%s」がみつかりません
 On '%s' table, not exists '%s' column=「%s」テーブルに「%s」カラムは存在しません
