@@ -49,6 +49,10 @@ sub check_lib {
 	undef %Libtime;
 	undef @Libs;
 
+	# 自分自身をリロード（unloadはできない）
+	delete $INC{$mypkg};
+	require $mypkg;
+
 	return 1;
 }
 
