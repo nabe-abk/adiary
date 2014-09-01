@@ -1235,10 +1235,10 @@ sub load_sysdat {
 	}
 	$self->{sys}=$sys;
 	# Secret_word 自動設定
-	if (!$sys->{Secret_words}) {
-		$self->update_sysdat('Secret_words', $ROBJ->crypt_by_rand_nosalt($ENV{HTTP_USER_AGENT}));
+	if (!$sys->{Secret_word}) {
+		$self->update_sysdat('Secret_word', $ROBJ->crypt_by_rand_nosalt($ENV{HTTP_USER_AGENT}));
 	}
-	$ROBJ->{Secret_words} = $sys->{Secret_words};
+	$ROBJ->{Secret_word} = $sys->{Secret_word};
 	return $sys;
 }
 
