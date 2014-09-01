@@ -548,22 +548,6 @@ sub parse_inline {
 		# エスケープ処理
 		$_ =~ s/\\([\\'\*_\{\}\[\]\(\)>#\+\-\.!])/"\x03E" . ord($1) . "\x03"/eg;
 
-		# 強調
-		$_ =~ s|\*\*(.*?)\*\*|<strong>$1</strong>|xg;
-		$_ =~ s|  __(.*?)__  |<strong>$1</strong>|xg;
-		$_ =~ s| \*([^\*]*)\*|<em>$1</em>|xg;
-		$_ =~ s|  _( [^_]*)_ |<em>$1</em>|xg;
-
-		# [GitHub] Strikethrough
-		$_ =~ s|~~(.*?)~~|<del>$1</del>|xg;
-		
-		# inline code
-		$_ =~ s|(`+)(.+?)\1|
-			my $s = $2;
-			$self->escape_in_code($s);
-			"<code>$s</code>";
-		|eg;
-
 		# 自動リンク記法
 		$_ =~ s!<((?:https?|ftp):[^'"> ]+)>!<a href="$1">$1</a>!ig;
 
@@ -612,9 +596,31 @@ sub parse_inline {
 
 		# [S] さつき記法のタグ処理
 		if ($satsuki_parser) {
-			$_ = $satsuki_parser->parse_tag( $_ );
+			my $post_process = sub {
+				# 強調タグ処理避け
+				my $s = shift;
+				$s =~ s/([\*\~\`_])/"\x03E". ord($1) ."\x03"/eg;
+				return $s;
+			};
+			$_ = $satsuki_parser->parse_tag( $_, $post_process );
 			$satsuki_parser->un_escape( $_ );
 		}
+
+		# 強調
+		$_ =~ s|\*\*(.*?)\*\*|<strong>$1</strong>|xg;
+		$_ =~ s|  __(.*?)__  |<strong>$1</strong>|xg;
+		$_ =~ s| \*([^\*]*)\*|<em>$1</em>|xg;
+		$_ =~ s|  _( [^_]*)_ |<em>$1</em>|xg;
+
+		# [GitHub] Strikethrough
+		$_ =~ s|~~(.*?)~~|<del>$1</del>|xg;
+		
+		# inline code
+		$_ =~ s|(`+)(.+?)\1|
+			my $s = $2;
+			$self->escape_in_code($s);
+			"<code>$s</code>";
+		|eg;
 
 		# タグ以外の &amp; やタグ以外の<>のエスケープ
 		$_ =~ s{<([A-Za-z][\w]*(?:\s*[A-Za-z_][\w\-]*(?:=".*?"|='.*?'|[^\s>]*))*\s*/?)>}{\x03E60\x03$1\x03E62\x03}g;

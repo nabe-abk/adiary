@@ -1275,6 +1275,7 @@ sub replace_original_tag {
 sub parse_tag {
 	my $self = shift;
 	my $this = shift;
+	my $post_process = shift;	# markdown記法で使用
 
 	# [&icon-name] → [icon:icon-name]
 	$this =~ s/\[&(\w+)\]/\[icon:$1\]/g;
@@ -1297,6 +1298,7 @@ sub parse_tag {
 		$this =~ s/\]/&#93;/g;
 		$this =~ s/:/&#58;/g;
 		$this = $p0 . $this . $p1;
+		if ($post_process) { $this = &$post_process($this); }
 		$count--;
 	}
 	
@@ -1308,6 +1310,7 @@ sub parse_tag {
 		$this =~ s/\[/&#91;/g;
 		$this =~ s/:/&#58;/g;
 		$this = $p0 . $this . $p1;
+		if ($post_process) { $this = &$post_process($this); }
 		$count--;
 	}
 	return $this;
