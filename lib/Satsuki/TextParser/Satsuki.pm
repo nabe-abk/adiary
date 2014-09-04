@@ -19,7 +19,7 @@ my $INFO_END_MARK   = '#---end';
 #   2 数値
 # ※$self内のハッシュkey
 my %allow_override = (asid => 1, chain_line => 2,
- timestamp_date => 1, timestamp_time => 1, timestamp_format => 1,
+ timestamp_date => 1, timestamp_time => 1, 
  anchor_basename =>1, footnote_basename => 1, unique_linkname => 1,
  section_count => 2, subsection_count => 2, section_anchor => 1, subsection_anchor => 1,
  http_target  => 1, http_class  => 1, http_rel  => 1,
@@ -401,6 +401,7 @@ sub text_parser {
 
 	# [02]tableやリストなどのブロック処理、セクション処理
 	$lines = $self->blocks_and_section($lines);
+	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }		# 内部変数復元
 
 	# [03]記法タグの処理
 	$lines = $self->replace_original_tag($lines);
@@ -413,7 +414,7 @@ sub text_parser {
 	$self->post_process( \$data );
 
 	# 内部変数の復元
-	while(my ($k,$v) = each(%backup)) { $self->{$k} = $v; }
+	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
 	$self->{vars} = \%backup_vars;
 
 	# エスケープした文字列の復元
@@ -615,7 +616,6 @@ sub block_parser {
 			}
 			if ($block_tag eq '<!--') {
 				$line =~ s/--/==/g;
-				$self->debug($line);
 				push(@ary, "$line\n");		# そのまま出力
 				next;
 			}			# HTMLタグ無効ブロック
@@ -629,7 +629,7 @@ sub block_parser {
 				$line =~ s/##(\{(.+?)\}|\[(.+?)\]|\|(.+?)\|)/<strong class="comment">$2$3$4<\/strong>/g;
 				$line =~  s/#(\{(.+?)\}|\[(.+?)\]|\|(.+?)\|)/<span class="comment">$2$3$4<\/span>/g;
 			}
-			# [tag] 形式のadiary/はてな記法タグが無効
+			# [tag] 形式の記法タグが無効
 			if (! $atag && $bcom) {			# ((?)) 注釈だけ有効にする：ブロック中コメント機能
 				$line =~ s/([\[\]\{\}\|:])/'&#' . ord($1) . ';'/eg;
 				$line =~ s/^([\-\+\*=])/   '&#' . ord($1) . ';'/e;
@@ -774,12 +774,14 @@ sub blocks_and_section {
 		} elsif ($s2 eq '::' && length($line)>2) {
 			$class = substr($line, 2);
 			if ($class =~ /^(\w+)\s*=\s*(.*)/) {
-				# 一時的な設定値書き換え
+				# 一時的な内部変数書き換え
 				if ($allow_override{$1}==1) {
 					$self->{$1}=$2;
+					push(@ary, "::$1=$2");
 					$ROBJ->tag_escape( $self->{$1} );
 				} elsif ($allow_override{$1}==2) {
 					$self->{$1}=int($2);
+					push(@ary, "::$1=$self->{$1}");
 				}
 				if (lc($1) ne 'id') {
 					$class='';
@@ -990,7 +992,7 @@ sub section {
 	if ($line =~ /^([\w\-\.\d]+)(:[^\*]+)?\*(.*)/s) {
 		$name = $1;
 		$line = $3;
-		my $force_format = substr($2,1) || $self->{timestamp_format};
+		my $force_format = substr($2,1);
 		if ($name > 100000000) {	# 時刻記法
 			my $ROBJ = $self->{ROBJ};
 			my $format = $self->{timestamp_time} || '%J:%M';
@@ -998,7 +1000,7 @@ sub section {
 			if ($h->{day} != $self->{thisday} || $h->{mon} != $self->{thismon} || $h->{year} != $self->{thisyear}) {
 				$format = $self->{timestamp_date} || '%Y/%m/%d';
 			}
-			$format = $force_format || $format;	# timestamp_format で override
+			$format = $force_format || $format;
 			$line .= ' <span class="timestamp">'
 				. $self->{ROBJ}->tm_printf($format, $name) . '</span>';
 		}
@@ -1034,7 +1036,7 @@ sub subsection {
 	if ($line =~ /^([\w\-\.\d]+)(:[^\*]+)?\*(.*)/s) {
 		$name = $1;
 		$line = $3;
-		my $force_format = substr($2,1) || $self->{timestamp_format};
+		my $force_format = substr($2,1);
 		if ($name > 100000000) {	# 時刻記法
 			my $ROBJ = $self->{ROBJ};
 			my $format = $self->{timestamp_time} || '%J:%M';
@@ -1042,7 +1044,7 @@ sub subsection {
 			if ($h->{day} != $self->{thisday} || $h->{mon} != $self->{thismon} || $h->{year} != $self->{thisyear}) {
 				$format = $self->{timestamp_date} || '%Y/%m/%d';
 			}
-			$format = $force_format || $format;	# timestamp_format で override
+			$format = $force_format || $format;
 			$line .= ' <span class="timestamp">'
 				. $self->{ROBJ}->tm_printf($format, $name) . '</span>';
 		}
@@ -1249,6 +1251,12 @@ sub replace_original_tag {
 	my @ary;
 	foreach(@$lines) {
 		if (ref($_)) { push(@ary, $_); next; }
+
+		# 内部変数書き換え処理
+		if ($_ =~ /^::(\w+)=(.*)/ && $allow_override{$1}) {
+			$self->{$1} = $2;
+			next;
+		}
 
 		# autolink
 		if ($autolink && $_ =~ /https?:|ftp:/) {
