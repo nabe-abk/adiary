@@ -44,7 +44,7 @@ sub calc {
 		return join(' ', @a);
 	}
 	# 式の評価
-	my $r = &evaluate_poland( $ROBJ, $pobj->{x}, \@str_buf, $r );
+	my $r = &evaluate_poland( $ROBJ, $pobj->{vars}, \@str_buf, $r );
 	$exp =~ s/\"//g;
 	$exp =~ s/\(/&#40;/g;
 	return "<span class=\"calc\" title=\"$exp\">$r</span>";

@@ -156,13 +156,13 @@ sub escape {
 	### コメント退避(保存) or 除去
 	my @comments;
 	if (exists $tag_list->{_comment}) {		# 退避
-		# 正しくは <!(--.*?--\s*)+> みたいだけど、ブウラザの対応がまちまちなので。
+		# 正しくは <!(--.*?--\s*)+> だけど、ブウラザの対応がまちまちなので。
 		$inp =~ s/<!--(.*?)--\s*>/push(@comments,$1),"\x01$#comments\x01"/seg;
 		foreach(@comments) {	# security対策
 			$_ =~ s/--/==/g;
 		}
 	} else {		# 除去
-		$inp =~ s/<!--.*?-->//sg;
+		$inp =~ s/<!--.*?--\s*>//sg;
 	}
 
 	# & の正規化

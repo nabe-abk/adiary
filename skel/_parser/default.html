@@ -37,12 +37,9 @@ adiary記法用
 
 <$parser.seemore_msg = s.seemore_msg || '続きを読む'>
 <$parser.br_mode = 1>		改行を<br>に置換する
-<$parser.paragraph_mode = 0>	段落処理をしない
+<$parser.p_mode  = 0>		段落処理をしない
 <$parser.ls_mode = 1>		空行を空間処理する
 <$parser.remove_comment = 0>	コメント<!-- -->を除去しない
-
-プリプロセッサあり （「*t*見出し」を「*時刻*見出し」に書き換える）
-<$parser.use_preprocessor = 1>
 
 
 <$return(parser)>

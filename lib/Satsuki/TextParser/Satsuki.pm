@@ -17,14 +17,15 @@ my $INFO_END_MARK   = '#---end';
 # その記事だけの設定を許可する設定値
 #   1 文字列
 #   2 数値
-# ※$self内のハッシュ値を記述
+# ※$self内のハッシュkey
 my %allow_override = (asid => 1, chain_line => 2,
  timestamp_date => 1, timestamp_time => 1, timestamp_format => 1,
- anchor_name_base =>1, footnote_name_base => 1, unique_linkname => 1,
+ anchor_basename =>1, footnote_basename => 1, unique_linkname => 1,
  section_count => 2, subsection_count => 2, section_anchor => 1, subsection_anchor => 1,
- http_target => 1, image_target => 1, autolink => 2, list_block => 2, 
- br_mode => 2, paragraph_mode => 2, list_nobr => 2, seemore_msg => 1,
- remove_comment => 1);
+ http_target  => 1, http_class  => 1, http_rel  => 1,
+ image_target => 1, image_class => 1, image_rel => 1,
+ autolink => 2, br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
+ list_nobr => 2, seemore_msg => 1);
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -38,6 +39,7 @@ sub new {
 	$self->{ROBJ} = shift;
 	$self->{plugin_cache_file} = shift;
 
+	$self->{use_preprocessor} = 1;
 	$self->{timestamp_date} = '%Y/%m/%d';
 	$self->{timestamp_time} = '%J:%M';
 	$self->{br_mode} = 1;
@@ -378,8 +380,7 @@ sub text_parser {
 	$self->{sections}       = [];	# 空のarray
 	$self->{subsections}    = [];	# セクション番号ごとにデータ格納
 	$self->{options}        = {};	# 空のhash
-	$self->{vars}         ||= {};	# タグ置換用データ
-	$self->{x}              = {};	# 自由変数 (calc等で使用)
+	$self->{vars}         ||= {};	# タグ置換用データ。内部自由変数
 	$self->{section_count}     = int($opt->{section_count});	# section counter
 	$self->{subsection_count}  = int($opt->{subsection_count});	# sub-section counter
 	$self->{section_hnum}      = int($opt->{section_hnum}) || 3;	# section level
@@ -389,6 +390,8 @@ sub text_parser {
 	foreach(keys(%allow_override)) {
 		$backup{$_} = $self->{$_};
 	}
+	my %backup_vars = %{ $self->{vars} };
+
 	# ユニークリンク名の生成（複数記事表示時の<h3 id="">重複対策）
 	# ※必ず変数退避のあとに記述すること!!
 	$self->{unique_linkname} ||= 'k'.($self->{thispkey} || int(rand(0x80000000)));
@@ -411,6 +414,7 @@ sub text_parser {
 
 	# 内部変数の復元
 	while(my ($k,$v) = each(%backup)) { $self->{$k} = $v; }
+	$self->{vars} = \%backup_vars;
 
 	# エスケープした文字列の復元
 	if (! $self->{escape_no_dencode}) {
@@ -496,7 +500,7 @@ sub block_parser {
 		#-------------------------------------------------
 		# コメント除去
 		#-------------------------------------------------
-		if ($self->{remove_comment} && $tag) {		# 記法タグが有効
+		if ($atag && $line ne '') {	# 記法タグが有効
 			$line =~ s/<!--.*?-->//g;		# コメント除去
 			my $x = index($line, '<!--');
 			if ($x >= 0) {				# コメントがある
@@ -605,12 +609,13 @@ sub block_parser {
 			}
 			# script環境
 			if ($block_tag eq 'script') {
-				$line =~ s/-->/-- >/g;
+				$line =~ s/--/==/g;
 				push(@ary, "$line\n\x01");	# そのまま出力（インデント不可）
 				next;
 			}
 			if ($block_tag eq '<!--') {
-				$line =~ s/-->/-- >/g;
+				$line =~ s/--/==/g;
+				$self->debug($line);
 				push(@ary, "$line\n");		# そのまま出力
 				next;
 			}			# HTMLタグ無効ブロック
@@ -762,13 +767,13 @@ sub blocks_and_section {
 		if ($s3 eq ':::') {
 			$line = substr($line, 3);
 			if ($line =~ /(.*)\s*=\s*(\"[^\"]*\"|.*)/) {
-				$self->{x}->{$1}=$2;
+				$self->{vars}->{$1}=$2;
 			}
 			next;
 		# クラス指定表記 / 内部変数書き換え
 		} elsif ($s2 eq '::' && length($line)>2) {
 			$class = substr($line, 2);
-			if ($class =~ /^(\w+)=(.*)/) {
+			if ($class =~ /^(\w+)\s*=\s*(.*)/) {
 				# 一時的な設定値書き換え
 				if ($allow_override{$1}==1) {
 					$self->{$1}=$2;
@@ -786,16 +791,16 @@ sub blocks_and_section {
 		}
 		if ($s1 eq ':') {	# : のリスト表記
 			push(@ary, "<dl$class>\n"); $class='';
-			my $list_block = $self->{list_block};	# リストをブロックで処理
+			my $list_ext;
 			if ($line eq '::') {
-				$list_block=1;
+				$list_ext=1;
 			} else {
 				unshift(@$lines, $line);
 			}
 			while(@$lines && ord($lines->[0]) == 0x3a) {
 				$line = shift(@$lines);
 				my @add;
-				if ($list_block) {
+				if ($list_ext) {
 					my $block_c=0;
 					while(@$lines) {
 						my $x = $lines->[0];
@@ -819,16 +824,16 @@ sub blocks_and_section {
 					push(@ary, "\t<dt>$dt</dt><dd>$dd</dd>\n");
 				}
 				# リスト項目後の空行１行は無視
-				if ($list_block && ref($lines->[0]) && $lines->[0]->{null_lines}==1) { shift(@$lines); }
+				if ($list_ext && ref($lines->[0]) && $lines->[0]->{null_lines}==1) { shift(@$lines); }
 			}
 			push(@ary, "</dl>\n");
 			next;
 		}
 		if ($s1 eq '+' || $s1 eq '-') {   # -/+ のリスト表記
-			my $list_block = $self->{list_block};	# リストをブロックで処理
-			if (length($line)==1) { $list_block=1; } 
+			my $list_ext;
+			if (length($line)==1) { $list_ext=1; } 
 					else  { unshift(@$lines, $line); }
-			$self->split_list_block(\@ary, $lines, 1, $class, $list_block);
+			$self->split_list_block(\@ary, $lines, 1, $class, $list_ext);
 			next;
 		}
 		if (!$in_table && $s1 eq '|') {	# | のテーブル表記
@@ -884,7 +889,7 @@ sub blocks_and_section {
 # ○リストブロックの抽出
 #--------------------------------------------------
 sub split_list_block {
-	my ($self, $ary, $lines, $depth, $class, $list_block) = @_;
+	my ($self, $ary, $lines, $depth, $class, $list_ext) = @_;
 	my $tag = 'ul';
 	my $indent = "\t" x ($depth-1);
 	if (substr($lines->[0], 0, 1) eq '+') { $tag='ol'; }
@@ -899,11 +904,11 @@ sub split_list_block {
 			if ($next_line) {
 				if ($next_line !~ /^\t*$/) { push(@$ary, "$next_line\n"); }
 				$next_line='';
-				$self->split_list_block($ary, $lines, $depth+1, '', $list_block);
+				$self->split_list_block($ary, $lines, $depth+1, '', $list_ext);
 				push(@$ary, "$indent\t</li>\n");
 				next;
 			}
-			$self->split_list_block($ary, $lines, $depth+1, '', $list_block);
+			$self->split_list_block($ary, $lines, $depth+1, '', $list_ext);
 			next;
 		}
 		shift(@$lines);
@@ -913,8 +918,8 @@ sub split_list_block {
 		} else {
 			$next_line = "$indent\t<li>$data";
 		}
-		# リストをブロック処理
-		if ($list_block) {
+		# 拡張リスト処理
+		if ($list_ext) {
 			my $f=1;
 			my $block_c=0;
 			while(@$lines) {
@@ -981,7 +986,7 @@ sub section {
 	# 見出しの処理
 	$line = substr($line, 1);
 	my $anchor =  $self->{section_anchor};
-	my $name   = ($self->{anchor_name_base} || "$self->{unique_linkname}p") . $sec_count;
+	my $name   = ($self->{anchor_basename} || "$self->{unique_linkname}p") . $sec_count;
 	if ($line =~ /^([\w\-\.\d]+)(:[^\*]+)?\*(.*)/s) {
 		$name = $1;
 		$line = $3;
@@ -1281,8 +1286,8 @@ sub parse_tag {
 	$this =~ s/\[&(\w+)\]/\[icon:$1\]/g;
 	# [&http://youtube.com/] → [filter:http://youtube.com]
 	$this =~ s/\[&([^\]]+)\]/\[filter:$1\]/g;
-	# [@name] → 自由変数nameの中身を出力
-	$this =~ s/\[\@(.*?)\]/$self->{x}->{$1}/g;
+	# [$name] → 自由変数nameの中身を出力
+	$this =~ s/\[\$(.*?)\]/$self->{vars}->{$1}/g;
 
 	# 記法タグの処理
 	my $count=100;
@@ -1496,8 +1501,8 @@ sub paragraph_processing {
 	my ($self, $lines) = @_;
 
 	my $br_mode  = $self->{br_mode};
-	my $p_mode   = $self->{paragraph_mode};
-	my $p_class  = $self->{paragraph_class};
+	my $p_mode   = $self->{p_mode};
+	my $p_class  = $self->{p_class};
 	my $ls_mode  = $self->{ls_mode};		# 行間処理モード
 	my $indent   = $self->{indent};
 	$self->{footnote_no} = 0;
@@ -1592,7 +1597,7 @@ sub footnote {
 	# 同じ内容は、同じfootnoteを参照する
 	my $number;
 	my $name;
-	my $name_base = $self->{footnote_name_base} || "$self->{unique_linkname}n";
+	my $name_base = $self->{footnote_basename} || "$self->{unique_linkname}n";
 	my $note_buf = $self->{note_buf};
 	if (exists $note_buf->{$note}) {	# 同じ内容注釈がある
 		$number = $note_buf->{$note};

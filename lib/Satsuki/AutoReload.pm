@@ -42,14 +42,14 @@ sub check_lib {
 	# 更新されたものがあれば、ロード済パッケージをすべてアンロード
 	foreach(@Libs) {
 		delete $INC{$_};
-		if ($_ =~ /_\d+\.pm/i) { next; }	# _2.pm _3.pm 等は無視
+		if ($_ =~ /_\d+\.pm$/i) { next; }	# _2.pm _3.pm 等は無視
 		# 名前空間からすべて除去
 		&unload($_);
 	}
 	undef %Libtime;
 	undef @Libs;
 
-	# 自分自身をリロード（unloadはできない）
+	# 自分自身をリロード（unloadは危険なのでしない）
 	delete $INC{$mypkg};
 	require $mypkg;
 
