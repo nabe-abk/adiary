@@ -791,6 +791,7 @@ function load_contents_list(id) {
 				if (pkey == this_pkey) continue;
 				var title = ary[i].title;
 				var opt = $('<option>').attr('value', pkey).text( title );
+				opt.data('link_key', ary[i].link_key);
 				opt.css('padding-left', tab);
 				if ( pkey == _default ) opt.prop('selected', true);
 				obj.append(opt);

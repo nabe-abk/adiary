@@ -763,18 +763,16 @@ sub blocks_and_section {
 		#-------------------------------------------------
 		# table/listブロック判別
 		#-------------------------------------------------
-		# 自由変数に設定（calcタグで使用）
+		# 自由変数に設定
 		if ($s3 eq ':::') {
-			$line = substr($line, 3);
-			if ($line =~ /(.*)\s*=\s*(\"[^\"]*\"|.*)/) {
-				$self->{vars}->{$1}=$2;
-			}
+			# 記法タグの部分で処理する
+			push(@ary, $line);
 			next;
 		# クラス指定表記 / 内部変数書き換え
 		} elsif ($s2 eq '::' && length($line)>2) {
 			$class = substr($line, 2);
 			if ($class =~ /^(\w+)\s*=\s*(.*)/) {
-				# 一時的な内部変数書き換え
+				# 一時的な内部変数書き換え（記法タグの時も処理する）
 				if ($allow_override{$1}==1) {
 					$self->{$1}=$2;
 					push(@ary, "::$1=$2");
@@ -1252,7 +1250,12 @@ sub replace_original_tag {
 	foreach(@$lines) {
 		if (ref($_)) { push(@ary, $_); next; }
 
-		# 内部変数書き換え処理
+		# 自由変数書き換え
+		if ($_ =~ /^:::([A-Za-z]\w*)\s*=\s*(.*)/) {
+			$self->{vars}->{$1} = $2;
+			next;
+		}
+		# 内部変数書き換え
 		if ($_ =~ /^::(\w+)=(.*)/ && $allow_override{$1}) {
 			$self->{$1} = $2;
 			next;
@@ -1364,12 +1367,14 @@ sub special_command {
 			$tag = $tags->{ $arg_cmd };
 		} else {
 			my $x = $#cmd + 1;
-			if (! $tag->{html}) {	# ASCII 限定引数指定
-				$x=0;
-				foreach(@cmd) {
-					if ($_ =~ /[\x80-\xff]/ || $_ eq 'title') { last }
-					$x++;
+			$x=0;
+			foreach(@cmd) {
+				if ($_ =~ /[\x80-\xff]/) { last }
+				if (substr($_,-1) eq ' ') {	# 最後がスペースの引数
+					chop($_);
+					last;
 				}
+				$x++;
 			}
 			my $arg_cmd = $real_cmd . '#' . $x;
 			if (exists $tags->{ $arg_cmd }) { $tag = $tags->{ $arg_cmd }; }
@@ -1390,7 +1395,7 @@ sub special_command {
 		}
 	}
 	# 未知のコマンド
-	return "\[$cmd_line\]";
+	return $verb_flag ? "[[$cmd_line]]" : "[$cmd_line]";
 }
 
 sub load_tag {

@@ -121,6 +121,24 @@ function parser_change() {
 }
 
 //############################################################################
+// ■upnodeの変更 / link_keyの設定
+//############################################################################
+var upsel = $('#upnode-select');
+var lkey  = $('#link-key');
+upsel.change(function(){
+	var val = lkey.val();
+	if (val != '' && val != lkey.data('set')) return;
+
+	var opt = upsel.children(':selected');
+	if (!opt.length) return;
+
+	var set = opt.data('link_key');
+	if (set.last_char() != '/') set += '/';
+	lkey.val( set );
+	lkey.data('set', set);
+});
+
+//############################################################################
 // ■画像アルバムを開く
 //############################################################################
 var album_btn = $('#album-open');
