@@ -156,7 +156,7 @@
 			<li>親ノード：<select name="upnode" id="upnode-select" data-default="<@art.upnode>" data-this-pkey="<@edit_pkey>" data-url="<@Basepath><@v.blogpub_dir>contents.json">
 				<option value="0">*トップ(root)</option>
 			</select></li>
-			<li>コンテンツkey：<input type="text" name="link_key" id="link-key" class="w240" value="<@if(art.ctype, esc(art.link_key))>"></li>
+			<li>コンテンツkey：<input type="text" name="link_key" id="link-key" class="w240" value="<@if(art.ctype, esc(art.link_key))>" data-suggest="<@s.suggest_link_key>"></li>
 		</ul>
 		</li>
 		<@ifexec(!art.draft && edit_pkey, begin)>

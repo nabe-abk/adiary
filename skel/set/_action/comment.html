@@ -7,7 +7,6 @@
 <$ifset(Form.allow_com_sel ne '' , Form.allow_com_users, Form.allow_com_sel)>
 
 <$h = validator(begin_hash, Form)>
-	_order=0
 	allow_com_users = コメント許可対象
 	allow_com_users:filter0 = reg_del:[^\*\w,]
 

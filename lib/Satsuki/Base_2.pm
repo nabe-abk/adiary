@@ -1107,7 +1107,7 @@ sub validator {
 	# 未使用オプションのエラー表示
 	foreach(sort keys(%opts)) {
 		$self->error_from('validator()', "Unknown or unused option '%s'.", $_);
-		if ($self->{Develop} || $self->{Debug}) {
+		if ($self->{Develop}) {
 			$self->form_error('validator()', "validator() options error");
 		}
 	}

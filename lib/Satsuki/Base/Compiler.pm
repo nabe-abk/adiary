@@ -1655,7 +1655,7 @@ sub split_begin {
 						my $lnum = &get_line_num($t);
 						$self->warning($lnum, "Dupulicate Hash key '%s' in 'begin_hash'", $key);
 					}
-					$hash{$key} = 1;
+					$hash{$key} = $val;
 					if ($key eq '_order') { next; }
 
 					&into_single_quot_string($key);
@@ -1811,7 +1811,7 @@ sub chain_lines {
 		}
 		push(@ary3, $cmd);
 	}
-	return join('.', @ary3);
+	return @ary3 ? join('.', @ary3) : "''";
 }
 
 #------------------------------------------------------------------------------

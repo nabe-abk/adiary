@@ -126,6 +126,7 @@ function parser_change() {
 var upsel = $('#upnode-select');
 var lkey  = $('#link-key');
 upsel.change(function(){
+	if (! lkey.data('suggest')) return;	// 機能がoff
 	var val = lkey.val();
 	if (val != '' && val != lkey.data('set')) return;
 
