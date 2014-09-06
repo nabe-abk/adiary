@@ -188,7 +188,7 @@ var img_draggable_option = {
 	helper: function(evt,ui){
 		// 開始要素が選択されてない時、選択する
 		var obj = $(evt.target);
-		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parent();
+		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
 		if (!obj.hasClass('selected')) {
 			obj.addClass('selected')
 			update_selected_files();
@@ -211,7 +211,7 @@ var img_draggable_option = {
 			// ファイル名ビューのとき
 			var files = view.find('.selected');
 			for(var i=0; i<files.length; i++) {
-				var span = $('<span>').text( $(files[i]).attr('title') );
+				var span = $('<span>').text( $(files[i]).data('title') );
 				div.append( span );
 			}
 			div.attr('id', 'album-dnd-name-view');
@@ -472,7 +472,7 @@ function move_files(node, srcNode, hitMode, ui, draggable) {
 	var imgs = view.find('.selected');
 	var files = [];
 	for(var i=0; i<imgs.length; i++)
-		files.push( $(imgs[i]).attr('title') );
+		files.push( $(imgs[i]).data('title') );
 	if (!files.length) return false;
 
 	ajax_submit({
@@ -508,7 +508,7 @@ function update_selected_files() {
 
 	selfiles.empty();
 	for(var i=0; i<imgs.length; i++) {
-		var name = $(imgs[i]).attr('title');
+		var name = $(imgs[i]).data('title');
 		var li = $('<li>').text( name );
 		li.data('name', name);
 		li.dblclick(function(evt){ edit_file_name($(evt.target)); });
@@ -731,7 +731,7 @@ function view_change() {
 	var imgs = view.find('.selected');
 	var files = {};
 	for(var i=0; i<imgs.length; i++) {
-		files[ $(imgs[i]).attr('title') ] = true;
+		files[ $(imgs[i]).data('title') ] = true;
 	}
 	update_view(false, files);
 }
@@ -762,7 +762,8 @@ function update_view(flag, selected) {
 	}
 
 	view.empty();
-	if (view_type.val() != 'name') for(var i in cur_files) {
+	if (view_type.val() != 'name')
+	  for(var i in cur_files) {
 		// サムネイルビュー
 		is_iconview = true;
 		view.removeClass('name-view');
@@ -780,6 +781,7 @@ function update_view(flag, selected) {
 		var img  = $('<img>', {
 			src: path + folder + '.thumbnail/' + file.name + '.jpg' + thumbq,
 			title: file.name,
+			'data-title': file.name,
 			'data-isimg': file.isImg ? 1 : 0
 		});
 		img.click( img_click );
@@ -790,7 +792,8 @@ function update_view(flag, selected) {
 
 		// for Drag&Drop
 		img.draggable( img_draggable_option );
-	} else for(var i in cur_files) {
+	} else {
+	  for(var i in cur_files) {
 		// ファイル名ビュー
 		is_iconview = false;
 		view.removeClass('image-view');
@@ -805,9 +808,11 @@ function update_view(flag, selected) {
 				'data-title': file.name
 			});
 		}
-		var span = $('<span>').addClass('fileline').attr('title', file.name);
+		var span = $('<span>').addClass('fileline').data('title', file.name);
 		// ファイル名
-		span.append( $('<span>').addClass('filename').text( file.name ) );
+		var fname = $('<span>').text( file.name );
+		fname.addClass('js-popup-img').data('img-url', path + folder + '.thumbnail/' + file.name + '.jpg' + thumbq);
+		span.append( $('<span>').addClass('filename').append( fname ) );
 		// 日付
 		var date = new Date( file.date*1000 );
 		var tms  = date.toLocaleString().replace(/\b(\d[\/: ])/g, "0$1");
@@ -825,6 +830,8 @@ function update_view(flag, selected) {
 		// for Drag&Drop
 		span.draggable( img_draggable_option );
 		span.draggable( { opacity: img_draggable_option.opacity_text } );
+	  }
+	  adiary_init(view);
 	}
 
 	//-----------------------------------------------
@@ -838,7 +845,7 @@ function update_view(flag, selected) {
 		}
 		// イベント処理
 		var obj = $(evt.target);
-		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parent();
+		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
 		evt.stopPropagation();
 		evt.preventDefault()
 		if (obj.hasClass('selected'))
@@ -853,7 +860,7 @@ function update_view(flag, selected) {
 	//-----------------------------------------------
 	function img_dblclick(evt) {
 		var obj = $(evt.target);
-		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parent();
+		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
 		dbl_click = true;
 		obj.click();
 	}
@@ -907,7 +914,7 @@ function paste_button(evt) {
 		var img = $(sel[i]);
 		var tag = img.data('isimg') ? imgtag : filetag;
 
-		var name = img.attr('title');
+		var name = img.data('title');
 		var reg  = name.match(/\.(\w+)$/);
 		var ext  = reg ? reg[1] : '';
 		var rep  = {
@@ -946,7 +953,7 @@ $('#remake-thumbnail').click(function(){
 
 	var files = [];
 	for(var i=0; i<sel.length; i++) {
-		files.push( $(sel[i]).attr('title') );
+		files.push( $(sel[i]).data('title') );
 	}
 
 	ajax_submit({

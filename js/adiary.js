@@ -4,9 +4,10 @@
 //############################################################################
 //[TAB=8]  require jQuery
 var Default_show_speed = 300;
+var Default_image_popup_delay = 500;
 var DialogWidth = 640;
-var popup_offset_x = 30;
-var popup_offset_y = 20;
+var popup_offset_x = 15;
+var popup_offset_y = 10;
 var IE67=false;
 var IE8=false;
 var Blogpath;	// _frame.html で設定される
@@ -108,8 +109,6 @@ initfunc.push( function(R){
 		var div  = $('#popup-help');
 		var func = function(obj,div) {
 			var text = tag_esc_br( obj.data("help") );
-			//if (text.match('<br>'))
-			//	text = text.replace('<br>', '<div class="additional">') + '</div>';
 			div.html( text );
 		}
 		regist_popup(obj, div, func);
@@ -118,15 +117,25 @@ initfunc.push( function(R){
 ///////////////////////////////////////
 function regist_popup(obj, div, func) {
 	obj.mouseout( function() {
+		if (obj.data('timer')) {
+			clearTimeout( obj.data('timer') );
+			obj.data('timer', null);
+		}
 		div.hide();
 	});
 
-	obj.mouseover( function() {
+	var do_popup = function(evt) {
 		if (div.is(":animated")) return;
 		func(obj, div);
-	  	div.css("top" , obj.offset().top  +popup_offset_y);
-	  	div.css("left", obj.offset().left +popup_offset_x);
+	  	div.css("left", evt.pageX +popup_offset_x);
+	  	div.css("top" , evt.pageY +popup_offset_y);
 		div.show(Default_show_speed);
+	};
+
+	obj.mouseover( function(evt) {
+		var delay = obj.data('delay') || Default_image_popup_delay;
+		if (!delay) return do_popup(evt);
+		obj.data('timer', setTimeout(function(){ do_popup(evt) }, delay));
 	});
 }
 
