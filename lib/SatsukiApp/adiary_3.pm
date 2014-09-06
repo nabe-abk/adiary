@@ -64,7 +64,7 @@ sub get_dir_tree {
 	my $cnt=0;	# ファイル数カウント
 	my $list = $ROBJ->search_files($dir, {dir=>1});
 	foreach(sort(@$list)) {
-		if (ord($_) == ord('.')) { next; }	# .file は無視
+		if (substr($_,0,1) eq '.')) { next; }	# .file は無視
 		if (substr($_,-1) ne '/') {
 			# ただのファイル
 			push(@files, $_);
@@ -99,6 +99,7 @@ sub load_image_files {
 	my $files = $ROBJ->search_files( $dir );
 	my @ary;
 	foreach(@$files) {
+		if (substr($_,0,1) eq '.')) { next; }	# .file は無視
 		my @st = stat("$dir$_");
 		push(@ary,{
 			name => $_,

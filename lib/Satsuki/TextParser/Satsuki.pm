@@ -112,7 +112,7 @@ sub generate_plugin_cache {
 	}
 
 	# キャッシュの生成
-	my %h = ('&fileVersion' => 1);
+	my %h = ('::FileVersion' => 1);
 	foreach my $f (@$files) {
 		my $lines = $ROBJ->fread_lines("${dir}Tag_$f.pm");
 		my $in_info;
