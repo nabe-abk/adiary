@@ -26,8 +26,10 @@ $( function(){
 	// 表示設定
 	var all_select = $('#all-select');
 	var thumb_size = $('#thumb-maxsize');
+	var view_type  = $('#view-type');
 	var sort_type  = $('#sort-type');
 	var sort_rev   = $('#sort-rev');
+	var is_iconview;
 
 	// ツリー関連
 	var path = $('#image-path').text();
@@ -176,8 +178,9 @@ var visible_on_stop;
 var img_draggable_option = {
 	connectToDynatree: true,
 	zIndex: 100,
-	opacity: isIE8 ? null : 0.7,
-	delay:   isIE8 ? null : 200,
+	opacity: 	isIE8 ? null : 0.7,
+	opacity_text:	isIE8 ? null : 0.95,	// filename-view
+	delay:   	isIE8 ? null : 200,
 	cursorAt: { top: -5, left:-5 },
 	//----------------------------------------
 	// ドラッグ中の画像要素
@@ -185,21 +188,36 @@ var img_draggable_option = {
 	helper: function(evt,ui){
 		// 開始要素が選択されてない時、選択する
 		var obj = $(evt.target);
+		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parent();
 		if (!obj.hasClass('selected')) {
 			obj.addClass('selected')
 			update_selected_files();
 		};
 		// 選択中の画像すべて
-		var imgs = view.find('.selected').clone();
-		imgs.removeClass('selected');
-		imgs.css({
-			'max-width':  60,
-			'max-height': 60,
-			padding: 1,
-			border: 'none',
-			visibility: 'visible'
-		});
-		return $('<div>').css('max-width', 320).append(imgs);
+		var div = $('<div>');
+		if (is_iconview) {
+			// アイコンビューのとき
+			var imgs = view.find('.selected').clone();
+			imgs.removeClass('selected');
+			imgs.css( {'max-width': 60, 'max-height': 60 });
+			div.css('max-width', 320);
+			imgs.css({
+				padding: 1,
+				border: 'none',
+				visibility: 'visible'
+			});
+			div.append(imgs);
+		} else {
+			// ファイル名ビューのとき
+			var files = view.find('.selected');
+			for(var i=0; i<files.length; i++) {
+				var span = $('<span>').text( $(files[i]).attr('title') );
+				div.append( span );
+			}
+			div.attr('id', 'album-dnd-name-view');
+			div.css('visibility', 'visible');
+		}
+		return div;
 	},
 	//----------------------------------------------------------------
 	// ドラッグ開始イベント
@@ -690,7 +708,7 @@ all_select.change( function(){ all_select_change() } );
 
 function all_select_change(init) {
 	var stat = all_select.is(":checked");
-	var imgs = view.find('img');
+	var imgs = is_iconview ? view.find('img') : view.find('.fileline');
 	for(var i=0; i<imgs.length; i++) {
 		var obj = $(imgs[i]);
 		if (stat) {
@@ -705,8 +723,19 @@ function all_select_change(init) {
 //////////////////////////////////////////////////////////////////////////////
 // ●表示形式変更
 //////////////////////////////////////////////////////////////////////////////
-sort_type.change( update_view );
-sort_rev.change ( update_view );
+view_type.change( view_change );
+sort_type.change( view_change );
+sort_rev.change ( view_change );
+function view_change() {
+	// 選択済情報を保持する
+	var imgs = view.find('.selected');
+	var files = {};
+	for(var i=0; i<imgs.length; i++) {
+		files[ $(imgs[i]).attr('title') ] = true;
+	}
+	update_view(false, files);
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 // ●ビューのアップデート
@@ -733,7 +762,11 @@ function update_view(flag, selected) {
 	}
 
 	view.empty();
-	for(var i in cur_files) {
+	if (view_type.val() != 'name') for(var i in cur_files) {
+		// サムネイルビュー
+		is_iconview = true;
+		view.removeClass('name-view');
+		view.addClass('image-view');
 		var file = cur_files[i];
 		var link = $('<a>', {
 			href: path + folder + file.name
@@ -757,19 +790,55 @@ function update_view(flag, selected) {
 
 		// for Drag&Drop
 		img.draggable( img_draggable_option );
-	}
+	} else for(var i in cur_files) {
+		// ファイル名ビュー
+		is_iconview = false;
+		view.removeClass('image-view');
+		view.addClass('name-view');
+		var file = cur_files[i];
+		var link = $('<a>', {
+			href: path + folder + file.name
+		});
+		if (file.isImg) {
+			link.attr({
+				'data-lightbox': 'roadtrip',
+				'data-title': file.name
+			});
+		}
+		var span = $('<span>').addClass('fileline').attr('title', file.name);
+		// ファイル名
+		span.append( $('<span>').addClass('filename').text( file.name ) );
+		// 日付
+		var date = new Date( file.date*1000 );
+		var tms  = date.toLocaleString().replace(/\b(\d[\/: ])/g, "0$1");
+		span.append( $('<span>').addClass('filedate').text( tms ) );
+		// サイズ
+		span.append( $('<span>').addClass('filesize').text( size_format(file.size) ) );
 
+		// 追加
+		span.click( img_click );
+		span.dblclick( img_dblclick );
+		if (selected[file.name]) span.addClass('selected');
+		link.append(span);
+		view.append(link);
+
+		// for Drag&Drop
+		span.draggable( img_draggable_option );
+		span.draggable( { opacity: img_draggable_option.opacity_text } );
+	}
 
 	//-----------------------------------------------
 	// 画像のクリック
 	//-----------------------------------------------
 	var dbl_click;
 	function img_click(evt) {
-		var obj = $(evt.target);
 		if (dbl_click || evt.ctrlKey) {
 			dbl_click = false;
 			return;
 		}
+		// イベント処理
+		var obj = $(evt.target);
+		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parent();
 		evt.stopPropagation();
 		evt.preventDefault()
 		if (obj.hasClass('selected'))
@@ -784,12 +853,10 @@ function update_view(flag, selected) {
 	//-----------------------------------------------
 	function img_dblclick(evt) {
 		var obj = $(evt.target);
+		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parent();
 		dbl_click = true;
 		obj.click();
 	}
-
-	// 全選択の処理
-	all_select_change(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
