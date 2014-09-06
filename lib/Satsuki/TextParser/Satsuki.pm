@@ -1809,7 +1809,6 @@ sub make_attr {
 			$ROBJ->tag_escape($v);
 			$class .=" data-$n=\"$v\"";
 		}
-		$self->debug("$data : $class");
 	}
 
 	# 属性文字列を返す
