@@ -29,7 +29,7 @@ $( function(){
 	var view_type  = $('#view-type');
 	var sort_type  = $('#sort-type');
 	var sort_rev   = $('#sort-rev');
-	var is_iconview;
+	var is_thumbview;
 
 	// ツリー関連
 	var path = $('#image-path').text();
@@ -188,14 +188,14 @@ var img_draggable_option = {
 	helper: function(evt,ui){
 		// 開始要素が選択されてない時、選択する
 		var obj = $(evt.target);
-		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
+		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
 		if (!obj.hasClass('selected')) {
 			obj.addClass('selected')
 			update_selected_files();
 		};
 		// 選択中の画像すべて
 		var div = $('<div>');
-		if (is_iconview) {
+		if (is_thumbview) {
 			// アイコンビューのとき
 			var imgs = view.find('.selected').clone();
 			imgs.removeClass('selected');
@@ -708,7 +708,7 @@ all_select.change( function(){ all_select_change() } );
 
 function all_select_change(init) {
 	var stat = all_select.is(":checked");
-	var imgs = is_iconview ? view.find('img') : view.find('.fileline');
+	var imgs = is_thumbview ? view.find('img') : view.find('.fileline');
 	for(var i=0; i<imgs.length; i++) {
 		var obj = $(imgs[i]);
 		if (stat) {
@@ -765,9 +765,9 @@ function update_view(flag, selected) {
 	if (view_type.val() != 'name')
 	  for(var i in cur_files) {
 		// サムネイルビュー
-		is_iconview = true;
+		is_thumbview = true;
 		view.removeClass('name-view');
-		view.addClass('image-view');
+		view.addClass('thumb-view');
 		var file = cur_files[i];
 		var link = $('<a>', {
 			href: path + folder + file.name
@@ -795,8 +795,8 @@ function update_view(flag, selected) {
 	} else {
 	  for(var i in cur_files) {
 		// ファイル名ビュー
-		is_iconview = false;
-		view.removeClass('image-view');
+		is_thumbview = false;
+		view.removeClass('thumb-view');
 		view.addClass('name-view');
 		var file = cur_files[i];
 		var link = $('<a>', {
@@ -845,7 +845,7 @@ function update_view(flag, selected) {
 		}
 		// イベント処理
 		var obj = $(evt.target);
-		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
+		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
 		evt.stopPropagation();
 		evt.preventDefault()
 		if (obj.hasClass('selected'))
@@ -860,7 +860,7 @@ function update_view(flag, selected) {
 	//-----------------------------------------------
 	function img_dblclick(evt) {
 		var obj = $(evt.target);
-		if (!is_iconview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
+		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
 		dbl_click = true;
 		obj.click();
 	}

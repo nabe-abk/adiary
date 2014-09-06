@@ -385,6 +385,9 @@ sub text_parser {
 	$self->{subsection_count}  = int($opt->{subsection_count});	# sub-section counter
 	$self->{section_hnum}      = int($opt->{section_hnum}) || 3;	# section level
 
+	# ユニークリンク名の生成
+	$self->init_unique_link_name();
+
 	# 内部変数の退避
 	my %backup;
 	foreach(keys(%allow_override)) {
@@ -392,16 +395,14 @@ sub text_parser {
 	}
 	my %backup_vars = %{ $self->{vars} };
 
-	# ユニークリンク名の生成（複数記事表示時の<h3 id="">重複対策）
-	# ※必ず変数退避のあとに記述すること!!
-	$self->{unique_linkname} ||= 'k'.($self->{thispkey} || int(rand(0x80000000)));
-
 	# [01]ブロック処理、コメント除去処理
 	$lines = $self->block_parser($lines);
 
 	# [02]tableやリストなどのブロック処理、セクション処理
 	$lines = $self->blocks_and_section($lines);
-	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }		# 内部変数復元
+
+	# 内部変数復元（[02]での最終オーバーライド結果を[03]で使わないため）
+	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
 
 	# [03]記法タグの処理
 	$lines = $self->replace_original_tag($lines);
@@ -416,13 +417,14 @@ sub text_parser {
 	# 内部変数の復元
 	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
 	$self->{vars} = \%backup_vars;
+	$self->restore_unique_link_name();
 
 	# エスケープした文字列の復元
 	if (! $self->{escape_no_dencode}) {
 		# ( ) [ ] { } | * ^ ~: = + - を復元
 		$self->un_escape( $data );
 	}
-	
+
 	# Moreの処理
 	my $short;
 	if ($self->{more_read}) {
@@ -432,6 +434,19 @@ sub text_parser {
 		$short=~ s/<!--%SeeMore%-->.*?<!--%MoreEnd%-->//sg
 	}
 	return wantarray ? ($data, $short) : $data;
+}
+
+#------------------------------------------------------------------------------
+# ●unique_link_nameの生成と破棄
+#------------------------------------------------------------------------------
+sub init_unique_link_name {
+	my $self = shift;
+	$self->{unique_linkname_bak} = $self->{unique_linkname};
+	$self->{unique_linkname} ||= 'k'.($self->{thispkey} || int(rand(0x80000000)));
+}
+sub restore_unique_link_name {
+	my $self = shift;
+	$self->{unique_linkname} = $self->{unique_linkname_bak};
 }
 
 ###############################################################################
@@ -1766,27 +1781,36 @@ sub make_attr {
 	# target/class/rel 設定, type未定義のとき初期値なし(mailto:等)
 	my $target = $self->{"${type}_target"};
 	my $class  = $self->{"${type}_class"};
-	my $rel    = $self->{"${type}_rel"};
+	my $data   = $self->{"${type}_data"};
 	my $title  = $tag->{title} || $tag->{name};
 	while(1) {
 		my $x = $ary->[0];
 		if (substr($x, 0, 7) eq 'target=') { $target = substr(shift(@$ary), 7); next; }
 		if (substr($x, 0, 6) eq 'title=' ) { $title  = substr(shift(@$ary), 6); next; }
 		if (substr($x, 0, 6) eq 'class=' ) { $class  = substr(shift(@$ary), 6); next; }
-		if (substr($x, 0, 4) eq 'rel='   ) { $rel    = substr(shift(@$ary), 4); next; }
+		if (substr($x, 0, 5) eq 'data='  ) { $data   = substr(shift(@$ary), 4); next; }
 		last;
 	}
 	$target =~ s/[^\w\-]//g;
 	$class  =~ s/[^\w\s:\-]//g;
-	$rel    =~ s/%k/$self->{unique_linkname}/g;
-	$rel    =~ s/[^\w\-\[\]]//g;
+	$data   =~ s/%k/$self->{unique_linkname}/g;
 	$ROBJ->tag_escape($title);
 
 	if ($class ne '' && $tag->{class} ne '') { $class =" $class"; }
 	if ($class ne '' || $tag->{class} ne '') { $class =" class=\"$tag->{class}$class\""; }
 	if ($title  ne '') { $class .=" title=\"$title\""; }
 	if ($target ne '') { $class .=" target=\"$target\""; }
-	if ($rel ne '')    { $class .=" rel=\"$rel\""; }
+	if ($data ne '') {	# data: aaa=bbb, ccc=ddd
+		my @ary = split(/\s*,\s*/, $data);
+		foreach(@ary) {
+			if ($_ !~ /^([A-Za-z][\w\-]*)=(.*)$/) { next; }
+			my $n = $1;
+			my $v = $2;
+			$ROBJ->tag_escape($v);
+			$class .=" data-$n=\"$v\"";
+		}
+		$self->debug("$data : $class");
+	}
 
 	# 属性文字列を返す
 	return $class;

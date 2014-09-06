@@ -56,6 +56,7 @@ sub new {
 #------------------------------------------------------------------------------
 sub text_parser {
 	my ($self, $text) = @_;
+	my $sobj = $self->{satsuki_tags} && $self->{satsuki_obj};	# Satsuki parser
 
 	# コメントの退避
 	my @comment;
@@ -68,6 +69,12 @@ sub text_parser {
 
 	# 内部変数初期化
 	$self->{links} = {};
+	$self->init_unique_link_name();
+	if ( $sobj ) {
+		$sobj->{thisurl}  = $self->{thisurl};
+		$sobj->{thispkey} = $self->{thispkey};
+		$sobj->init_unique_link_name();
+	}
 
 	#-------------------------------------------
 	# ○処理スタート
@@ -92,7 +99,6 @@ sub text_parser {
 	# [S] <toc>の後処理
 	my $all = join("\n", @$lines);
 	if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
-		my $sobj = $self->{satsuki_obj};
 		$sobj->{sections} = $self->{sections};
 		$sobj->{subsections} = $self->{subsections};
 		$sobj->post_process( \$all );
@@ -120,7 +126,23 @@ sub text_parser {
 	$all   =~ s/[\x00-\x03]//g;
 	$short =~ s/[\x00-\x03]//g;
 
+	# 内部変数復元
+	$self->restore_unique_link_name();
+
 	return wantarray ? ($all, $short) : $all;
+}
+
+#------------------------------------------------------------------------------
+# ●unique_link_nameの生成と破棄
+#------------------------------------------------------------------------------
+sub init_unique_link_name {
+	my $self = shift;
+	$self->{unique_linkname_bak} = $self->{unique_linkname};
+	$self->{unique_linkname} ||= $self->{thispkey} ? "k$self->{thispkey}" : '';
+}
+sub restore_unique_link_name {
+	my $self = shift;
+	$self->{unique_linkname} = $self->{unique_linkname_bak};
 }
 
 ###############################################################################
@@ -198,7 +220,7 @@ sub parse_special_block {
 			if ($level==1) {	# [S] h3
 				my $anchor = $self->{section_anchor};
 				my $scount = $#sections+2;
-				my $name   = ($self->{anchor_name_base} || "$self->{unique_linkname}p") . $scount;
+				my $name   = "$self->{unique_linkname}p" . $scount;
 				$anchor =~ s/%n/$scount/g;
 				push(@sections, {
 					name => $name,
@@ -217,7 +239,7 @@ sub parse_special_block {
 				my $scount = $#sections+1;
 				my $ss_ary = $subsections[$scount] ||= [];
 				my $sscount= $#$ss_ary +2;
-				my $name   = ($self->{anchor_name_base} || "$self->{unique_linkname}p") . "$scount.$sscount";
+				my $name   = "$self->{unique_linkname}p" . "$scount.$sscount";
 				$anchor =~ s/%n/$scount/g;
 				$anchor =~ s/%s/$sscount/g;
 				push(@$ss_ary, {

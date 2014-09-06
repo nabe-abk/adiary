@@ -123,16 +123,16 @@
 	<tr><th>[記法]リンク<span class="help" data-help="記法を使ってリンクするときにデフォルトで設定される属性値を指定します。なお、targetの設定は非推奨です。">?</span></th>
 		<@> これらの設定値の安全性は入力した記事HTMLの安全性と同様に保証される。
 		<td>
-		class=<input type="text" name="http_class" size="12" class="w80" value="<@s.http_class>"> 
-		target=<input type="text" name="http_target" size="12" class="w80" value="<@s.http_target>"> 
-		rel=<input type="text" name="http_rel" size="12" class="w80" value="<@s.http_rel>">
+		class <input type="text" name="http_class" size="12" class="w80" value="<@s.http_class>"> 
+		target <input type="text" name="http_target" size="12" class="w80" value="<@s.http_target>"><br>
+		data<span class="help" data-help="aaa=bbbと設定するとdata-aaa=&quot;bbb&quot;という属性が作られます。複数書く場合は「,」区切りで記述してください。\n%kは記事ごとのユニークな文字列に置換されます。">?</span> <input type="text" name="http_data" size="20" class="w80p" value="<@s.http_data>">
 		</td>
 	</tr>
 	<tr><th>[記法]画像へのリンク<span class="help" data-help="記法を使って画像を表示するとき（さらにそれがリンクになるとき）のデフォルト属性値を指定します。なお、targetの設定は非推奨です。">?</span></th>
 		<td>
-		class=<input type="text" name="image_class" size="12" class="w80" value="<@s.image_class>"> 
-		target=<input type="text" name="image_target" size="12" class="w80" value="<@s.image_target>"> 
-		rel=<input type="text" name="image_rel" size="12" class="w80" value="<@s.image_rel>">
+		class <input type="text" name="image_class" size="12" class="w80" value="<@s.image_class>"> 
+		target <input type="text" name="image_target" size="12" class="w80" value="<@s.image_target>"><br>
+		data<span class="help" data-help="デフォルトは「lightbox=%k」です。">?</span> <input type="text" name="image_data" size="20" class="w80p" value="<@s.image_data>">
 		</td>
 	</tr>
 	<tr><th>セクションアンカー<span class="help" data-help="「見出し」の先頭に付くリンクマーク。%dでセクション番号。">?</span></th>
