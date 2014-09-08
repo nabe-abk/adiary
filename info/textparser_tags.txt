@@ -137,7 +137,6 @@ search:q  = >search:question
 #	$ cp mimetex.cgi ../
 mtex   = mimeTeX,          ASCII, 1, <img src="${Basepath}mimetex.cgi?$1" alt="#1" title="#1" class="tex">
 tex    = Google Chart API, ASCII, 1, <img src="http://chart.apis.google.com/chart?cht=tx&chf=bg,s,ffffff00&chl=$1" alt="#1" title="#1" class="tex">
-tex:bk = Google Chart API, ASCII, 1, <img src="http://chart.apis.google.com/chart?cht=tx&chf=bg,s,00000000&chl=$1" alt="#1" title="#1" class="tex">
 
 #------------------------------------------------------------------------------
 # 画像プラグイン／ファイルアップローダ
