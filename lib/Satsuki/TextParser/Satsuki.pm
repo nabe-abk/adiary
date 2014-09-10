@@ -1668,6 +1668,8 @@ sub post_process {
 	while ($$r_data =~ m|<toc>(.*?)</toc>|) {
 		my %h;
 		my $thisurl = $self->{thisurl};
+		$self->debug("[*toc] options : $1");
+		
 		map { $h{$_}=1; } split(':', $1);
 		if ($self->{section_anchor} =~ /%n/ && $self->{subsection_anchor} =~ /%s/) {
 			$h{anchor} = 1;
