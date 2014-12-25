@@ -79,7 +79,7 @@ function module_setting(obj) {
 	formbody.load(url, function(){
 		formbody.append( errdiv );
 		formdiv.dialog( "open" );
-		adiary_init( formbody );
+		// adiary_init( formbody );
 
 		formbody.append( $('<input>').attr({
 			type: 'hidden',

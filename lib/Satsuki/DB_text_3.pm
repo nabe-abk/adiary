@@ -60,7 +60,7 @@ sub create_table {
 
 	my $dir = $ROBJ->get_filepath( $self->{dir} . $table . '/' );
 	if (!-e $dir) {
-		if (! $ROBJ->mkdir($dir) ) { $self->error("mkdir '$dir' error : $!"); }
+		if ($ROBJ->mkdir($dir) ) { $self->error("mkdir '$dir' error : $!"); }
 	}
 	if ($table =~ /^\d/) {
 		$self->error("To be a 'a-z' or '_' at the first character of a table name : '%s'", $table);

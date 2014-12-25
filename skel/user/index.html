@@ -23,7 +23,7 @@
 <article class="system setting">
 <h2><@v.title></h2>
 <div class="body">
-	<form method="POST" action="<@v.myself>?<@v.skeleton>" class="js-form-check" data-target=".pkey-ary" data-flag="#delete-check" data-confirm="%c件のアカウントを削除しますか？">
+	<form method="POST" action="<@v.myself>?<@v.skeleton>" class="js-form-check" data-target=".pkey-ary" data-confirm="%c件のアカウントを削除しますか？">
 	<input type="hidden" name="action" value="<@v.skel_dir>delete">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 
@@ -51,8 +51,8 @@
 	</tr>
 	<$end>
 	</table>
-	<p><input type="checkbox" name="delete_check" value="1" id="delete-check"><label>削除時は確認のためチェックを入れてください</label></p>
-	<input type="submit" name="delete" value="チェックしたユーザーを削除する"><br>
+	<p><input type="checkbox" name="delete_check" class="js-disabled" data-target="#del-submit" id="delete-check"><label>削除時は確認のためチェックを入れてください</label></p>
+	<input type="submit" name="delete" id="del-submit" value="チェックしたユーザーを削除する"><br>
 	</form>
 </div> <!-- end of body -->
 </article>

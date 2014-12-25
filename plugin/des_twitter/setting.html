@@ -110,7 +110,7 @@
 
 <script>
 $('#auto-setting').click(function(evt){
-	popup_textarea(evt.target, function(data){
+	textarea_dialog(evt.target, function(data){
 		var x;
 		if (x = data.match(/>\s*\@(\w+)/)) {
 			$('#tw-id').val( x[1] );

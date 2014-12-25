@@ -117,7 +117,7 @@
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<p class="abbr-msg">
 	<input type="checkbox" name="view_ip_host_agent" class="js-switch" data-target="#com div.ip-host-agent"><label>投稿者情報の表示</label>&nbsp;
-	<input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary"><label>すべて選択（解除）</label></p>
+	<input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary"><label>すべて選択</label></p>
 	<$end>
 	<@forexec(c, v.load_comments_current_blog(t, view), begin)>
 	<div class="comment-one<@if(!c.enable, ' hidden')>" id="c<@c.num>">
@@ -144,11 +144,11 @@
 	<$end>
 	<@ifexec(coms && v.allow_edit, begin)>
 	<@ifexec(t.enable, begin)>
-	<input type="submit" name="enable"  class="js-form-check" data-flag="" data-confirm="" value="表示に設定"><span class="help" data-help="非公開コメントを表示することはできません">?</span>
-	<input type="submit" name="disable" class="js-form-check" data-flag="" data-confirm="" value="非表示に設定">
+	<input type="submit" name="enable"  class="js-form-check" data-confirm="" value="表示に設定"><span class="help" data-help="非公開コメントを表示することはできません">?</span>
+	<input type="submit" name="disable" class="js-form-check" data-confirm="" value="非表示に設定">
 	<$end>
-	<input type="submit" name="delete"  class="js-form-check" value="削除" data-confirm="%c件のコメントを削除しますか？" data-flag="#del-check">
-	<input type="checkbox" name="del_check" value="1" id="del-check"><label>削除確認</label>
+	<input type="submit" name="delete"  class="js-form-check" id="del-submit" value="削除" data-confirm="%c件のコメントを削除しますか？">
+	<input type="checkbox" name="del_check" class="js-disabled" data-target="#del-submit"><label>削除確認</label>
 	</form>
 	<@if(t.com_ok && v.allow_com, '<hr id="com-form-separator">')>
 	<$end>

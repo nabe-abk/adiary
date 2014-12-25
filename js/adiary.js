@@ -4,7 +4,7 @@
 //############################################################################
 //[TAB=8]  require jQuery
 var Default_show_speed = 300;
-var Default_image_popup_delay = 500;
+var Default_image_popup_delay = 300;
 var DialogWidth = 640;
 var popup_offset_x = 15;
 var popup_offset_y = 10;
@@ -71,59 +71,24 @@ function set_browser_class_into_body() {
 //############################################################################
 //■初期化処理
 //############################################################################
-// AjaxでロードしたHTMLにも適用するために初期化処理をまとめる
 var initfunc = [];
 $(function(){
 	var body = $('#body');
-	body.append( $('<div>').attr('id', 'popup-div')  );
-	body.append( $('<div>').attr('id', 'popup-help') );
-	body.append( $('<div>').attr('id', 'popup-com')  );
-	body.append( $('<div>').attr('id', 'popup-textarea')  );
-	adiary_init(body);
-})
+	var popup_div  = $('<div>').attr('id', 'popup-div');
+	var popup_help = $('<div>').attr('id', 'popup-help');
+	body.append( popup_div  );
+	body.append( popup_help );
+	body.append( $('<div>').attr('id', 'popup-com')      );
+	body.append( $('<div>').attr('id', 'popup-textarea') );
 
-function adiary_init(R) {
-	for(var i=0; i<initfunc.length; i++)
-		initfunc[i](R);
-}
 
 //////////////////////////////////////////////////////////////////////////////
-//○画像・ヘルプのポップアップ
+//●画像・ヘルプのポップアップ
 //////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R){
-	R.find('.js-popup-img').each( function(){
-		var obj  = $(this);
-		var div  = $('#popup-div');
-		var func = function(obj,div) {
-			var img = $('<img>');
-			img.attr('src', obj.data('img-url'));
-			img.addClass('popup-image');
-			div.empty();
-			div.append( img );
-		}
-		regist_popup(obj, div, func);
-	} );
-
-	R.find('.help[data-help]').each( function(){
-		var obj  = $(this);
-		var div  = $('#popup-help');
-		var func = function(obj,div) {
-			var text = tag_esc_br( obj.data("help") );
-			div.html( text );
-		}
-		regist_popup(obj, div, func);
-	} );
-
-///////////////////////////////////////
-function regist_popup(obj, div, func) {
-	obj.mouseout( function() {
-		if (obj.data('timer')) {
-			clearTimeout( obj.data('timer') );
-			obj.data('timer', null);
-		}
-		div.hide();
-	});
-
+function easy_popup(evt) {
+	var obj = $(evt.target);
+	var div = evt.data.div;
+	var func= evt.data.func;
 	var do_popup = function(evt) {
 		if (div.is(":animated")) return;
 		func(obj, div);
@@ -132,32 +97,44 @@ function regist_popup(obj, div, func) {
 		div.show(Default_show_speed);
 	};
 
-	obj.mouseover( function(evt) {
-		var delay = obj.data('delay') || Default_image_popup_delay;
-		if (!delay) return do_popup(evt);
-		obj.data('timer', setTimeout(function(){ do_popup(evt) }, delay));
-	});
+	var delay = obj.data('delay') || Default_image_popup_delay;
+	if (!delay) return do_popup(evt);
+	obj.data('timer', setTimeout(function(){ do_popup(evt) }, delay));
+}
+function easy_popup_out(evt) {
+	var obj = $(evt.target);
+	var div = evt.data.div;
+	if (obj.data('timer')) {
+		clearTimeout( obj.data('timer') );
+		obj.data('timer', null);
+	}
+	div.hide();
 }
 
-///
-});
+body.on('mouseover', ".js-popup-img",    {func: function(obj,div){
+	var img = $('<img>');
+	img.attr('src', obj.data('img-url'));
+	img.addClass('popup-image');
+	div.empty();
+	div.append( img );
+}, div: popup_div}, easy_popup);
+
+body.on('mouseover', ".help[data-help]", {func: function(obj,div){
+	var text = tag_esc_br( obj.data("help") );
+	div.html( text );
+}, div: popup_help}, easy_popup);
+
+body.on('mouseout', ".js-popup-img",    {div: popup_div }, easy_popup_out);
+body.on('mouseout', ".help[data-help]", {div: popup_help}, easy_popup_out);
+
 
 //////////////////////////////////////////////////////////////////////////////
-//○詳細情報のポップアップ
+//●詳細情報ダイアログの表示
 //////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R){
-	// onclick要素を確認することで
-	// ユーザーが任意のURLを自由に呼び出せないようにしている
-	R.find('.info[data-info], .info[data-url][onclick]').click(function(){
-		popup_dialog(this);
-	});
-});
-
-//////////////////////////////////////////////////////////////////////////////
-//●ポップアップダイアログを表示
-//////////////////////////////////////////////////////////////////////////////
-function popup_dialog(dom){
-	var obj = $(dom);
+// onclick要素を確認することで
+// ユーザーが任意のURLを自由に呼び出せないようにしている。
+body.on('click', '.info[data-info], .info[data-url][onclick]', function(evt){
+	var obj = $(evt.target);
 	var div = $('<div>');
 	var div2= $('<div>');	// 直接 div にクラスを設定すると表示が崩れる
 	var text;
@@ -175,119 +152,29 @@ function popup_dialog(dom){
 	div2.load( url, function(){
 		div.dialog({ width: DialogWidth, height: 320 });
 	});
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//●テキストエリア入力画面のpopup
-//////////////////////////////////////////////////////////////////////////////
-function popup_textarea(dom, func, is_html) {
-	var obj  = $(dom);
-	var div  = $('#popup-textarea');
-	var text = obj.data('msg');
-
-	div.empty();
-	if (text && text != '') {
-		var p = $('<p>');
-		// 念のための安全対策
-		is_html ? p.html(text) : p.text(text);
-		div.append(p);
-	}
-	var ta = $('<textarea>').attr('rows', 5).addClass('w100p');
-	div.append(ta);
-
-	// ボタンの設定
-	var ok     = obj.data('ok')     || 'OK';
-	var cancel = obj.data('cancel') || 'CANCEL';
-	var buttons = {};
-	buttons[ok] = function(){
-		div.dialog( 'close' );
-		func( ta.val() );	// callback
-	};
-	buttons[cancel] = function(){
-		div.dialog( 'close' );
-	};
-
-	// ダイアログの表示
-	div.dialog({
-		modal: true,
-		minWidth:  DialogWidth,
-		minHeight: 100,
-		title:   obj.data('title'),
-		buttons: buttons
-	});
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//○タブ機能
-//////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R){
-	var obj = R.find('.jqueryui-tabs');
-	if (!obj.length) return;
-	obj.tabs();
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//○accordion機能
+//●フォーム要素の全チェック
 //////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R){
-	var obj = R.find('.jqueryui-accordion');
-	if (!obj.length) return;
-	obj.accordion({
-		heightStyle: "content"
-	});
+body.on('click', 'input.js-checked', function(evt){
+	var obj = $(evt.target);
+	var target = obj.data( 'target' );
+	$(target).prop("checked", obj.is(":checked"));
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//○複数チェックボックスフォーム、全選択、submitチェック
+//●フォーム操作による、disabledの自動変更
 //////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R){
-	R.find('input.js-form-check, button.js-form-check').click( function(){
-		var obj = $(this);
-		var form = obj.parents('form.js-form-check');
-		if (!form.length) return;
-		form.data('confirm', obj.data('confirm') );
-		form.data('flag',    obj.data('flag') );
-	});
-
-	R.find('form.js-form-check').submit( function(){
-		var form = $(this);
-		var target = form.data('target');	// 配列
-		var c = false;
-		if (target) {
-			c = $( target + ":checked" ).length;
-			if (!c) return false;	// ひとつもチェックされてない
-		}
-
-		// フラグ確認（確認チェックボックス）がある
-		var flag = form.data('flag');
-		if (flag && !$(flag).is(':checked')) return false;
-
-		// 確認メッセージがある？
-		var confirm = form.data('confirm');
-		if (!confirm) return true;
-		if (c) confirm = confirm.replace("%c", c);
-		return window.confirm( confirm );
-	});
-
-	// すべてチェック
-	R.find('.js-checked').click( function(){
-		var obj = $(this);
-		var target = obj.data( 'target' );
-		$(target).prop("checked", obj.is(":checked"));
-	});
+body.on('click', 'input.js-disabled', function(evt){
+	js_disabled_click( evt.target );
 });
-
-//////////////////////////////////////////////////////////////////////////////
-//○フォーム操作による、disabledの自動変更
-//////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	R.find('input.js-disabled').each( function() {
-		var obj = $(this);
-		obj.click( function(evt){ btn_click(evt.target) } );
-		btn_click(obj);
+	R.find('input.js-disabled').each( function(idx,dom) {
+		js_disabled_click(dom);
 	} );
-
-function btn_click(dom) {
+});
+function js_disabled_click(dom) {
 	var btn = $(dom);
 	var form =$(btn.data('target'));
 	var flag = (btn.data('change') == '1');
@@ -301,11 +188,39 @@ function btn_click(dom) {
 	else
 		form.removeAttr('disabled');
 }
-///
-});
 
 //////////////////////////////////////////////////////////////////////////////
-//○フォーム操作、クリック操作による表示・非表示の変更
+//●複数チェックボックスフォーム、全選択、submitチェック
+//////////////////////////////////////////////////////////////////////////////
+body.on('click', 'input.js-form-check, button.js-form-check', function(evt){
+	var obj = $(evt.target);
+	var form = obj.parents('form.js-form-check');
+	if (!form.length) return;
+	form.data('confirm', obj.data('confirm') );
+});
+
+body.on('submit', 'form.js-form-check', function(evt){
+	var form = $(evt.target);
+	var target = form.data('target');	// 配列
+	var c = false;
+	if (target) {
+		c = $( target + ":checked" ).length;
+		if (!c) return false;	// ひとつもチェックされてない
+	}
+
+	// 確認メッセージがある？
+	var confirm = form.data('confirm');
+	if (!confirm) return true;
+	if (c) confirm = confirm.replace("%c", c);
+	return window.confirm( confirm );
+});
+
+/// End of $(function(){
+});
+
+
+//////////////////////////////////////////////////////////////////////////////
+//●フォーム操作、クリック操作による表示・非表示の変更
 //////////////////////////////////////////////////////////////////////////////
 // 一般要素 + input type="checkbox", type="button"
 // (例)
@@ -317,11 +232,11 @@ initfunc.push( init_js_switch );
 function init_js_switch(R) {
 	R.find('.js-switch').each( function() {
 		var obj = $(this);
-		var f = btn_click(obj, true);	// initalize
-		if (f) obj.click( function(evt){ btn_click($(evt.target), false) } );
+		var f = display_toggle(obj, true);	// initalize
+		if (f) obj.click( function(evt){ display_toggle($(evt.target), false) } );
 	} );
 
-function btn_click(btn, init) {
+function display_toggle(btn, init) {
 	if (btn[0].tagName == 'A') return false;	// リンククリックは無視
 	var type = btn[0].tagName == 'INPUT' && btn.attr('type').toLowerCase();
 	var id = btn.data('target');
@@ -386,26 +301,7 @@ function btn_click(btn, init) {
 };
 
 //////////////////////////////////////////////////////////////////////////////
-//○フォーム値の保存
-//////////////////////////////////////////////////////////////////////////////
-initfunc.push( init_value_save );
-
-function init_value_save(R) {
-	R.find('input.js-save, select.js-save').each( function() {
-		var obj = $(this);
-		var id  = obj.attr("id");
-		if (!id) return;
-		obj.change( function(evt){
-			var obj = $(evt.target);
-			Storage.set(id, obj.val());
-		});
-		if ( Storage.defined(id) )
-			obj.val( Storage.get(id) );
-	});
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//○input[type="text"]などで enter による submit 停止
+//●input[type="text"]などで enter による submit 停止
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	R.find('form input.no-enter-submit, form.no-enter-submit input').keypress( function(ev){
@@ -415,7 +311,7 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//○textareaでのタブ入力
+//●textareaでのタブ入力
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	R.find('textarea').keypress( function(evt){
@@ -430,7 +326,7 @@ initfunc.push( function(R){
 
 
 //////////////////////////////////////////////////////////////////////////////
-//○色選択ボックスを表示。 ※input[type=text] のリサイズより先に行うこと
+//●色選択ボックスを表示。 ※input[type=text] のリサイズより先に行うこと
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	var load_picker;
@@ -473,7 +369,7 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//○input[type="text"], input[type="password"]の自由リサイズ
+//●input[type="text"], input[type="password"]の自由リサイズ
 //////////////////////////////////////////////////////////////////////////////
 // IE9でもまともに動かないけど無視^^;;;
 initfunc.push( function(R){
@@ -557,7 +453,7 @@ function evt_mousedown(evt, obj, min_width) {
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//○input, textareaのフォーカス設定  ※リサイズ設定より後に行うこと
+//●input, textareaのフォーカスクラス設定  ※リサイズ設定より後に行うこと
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	R.find('form input, form textarea').each( function(){
@@ -585,7 +481,7 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//○INPUT type="radio", type="checkbox" のラベル関連付け（直後のlabel要素）
+//●INPUT type="radio", type="checkbox" のラベル関連付け（直後のlabel要素）
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	R.find('input[type="checkbox"],input[type="radio"]').each( function() {
@@ -612,40 +508,123 @@ initfunc.push( function(R){
 ///
 });
 
+
+//############################################################################
+// ■初期化処理
+//############################################################################
+function adiary_init(R) {
+	for(var i=0; i<initfunc.length; i++)
+		initfunc[i](R);
+}
+$( function(){ adiary_init($('#body')) });
+
+//////////////////////////////////////////////////////////////////////////////
+//●自動でadiary初期化ルーチンが走るようにjQueryに細工する
+//////////////////////////////////////////////////////////////////////////////
+$( function(){
+	var hooking = false;
+	function hook_function(obj, args) {
+		if (hooking || obj.attr('id') !== 'body' && obj.parents('#body').length === 0) return;
+		hooking = true;
+		var R = $('<div>');
+		for(var i=0; i<args.length; i++) {
+			if (!args[i] instanceof jQuery) continue;
+			if (typeof args[i] !== 'string') {
+				adiary_init(args[i]);
+				continue;
+			}
+			var R = $('<div>');
+			R.append(args[i]);
+			adiary_init(R);
+			args[i] = R.html();
+		}
+		hooking = false;
+	}
+
+	var hooks = ['append', 'prepend', 'before', 'after', 'html'];
+	function hook(name) {
+		var func = $.fn[name];
+		$.fn[name] = function() {	// closure
+			hook_function(this, arguments);
+			return func.apply(this, arguments);
+		}
+	}
+	for(var i=0; i<hooks.length; i++) {
+		hook(hooks[i]);
+	}
+});
+//////////////////////////////////////////////////////////////////////////////
+//●タブ機能
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R){
+	var obj = R.find('.jqueryui-tabs');
+	if (!obj.length) return;
+	obj.tabs();
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//●accordion機能
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R){
+	var obj = R.find('.jqueryui-accordion');
+	if (!obj.length) return;
+	obj.accordion({
+		heightStyle: "content"
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//●フォーム値の保存
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R) {
+	R.find('input.js-save, select.js-save').each( function() {
+		var obj = $(this);
+		var id  = obj.attr("id");
+		if (!id) return;
+		obj.change( function(evt){
+			var obj = $(evt.target);
+			Storage.set(id, obj.val());
+		});
+		if ( Storage.defined(id) )
+			obj.val( Storage.get(id) );
+	});
+});
+
 //////////////////////////////////////////////////////////////////////////////
 //●コメント欄の >>14 等をリンクに変更する
 //////////////////////////////////////////////////////////////////////////////
-$(function(){
-///
-var popup=$('#popup-com');
-var timer;
-$('#com div.comment-text a[data-reply], #comlist-table a[data-reply]').each(function(idx,dom) {
-	var link = $(dom);
-	var num  = link.data('reply').toString().replace(/[^\d]/g, '');
-	var com  = $('#c' + num);
-	if (!com.length) return;
+$( function(){
+	var popup=$('#popup-com');
+	var timer;
+	$('#com div.comment-text a[data-reply], #comlist-table a[data-reply]').each(function(idx,dom) {
+		var link = $(dom);
+		var num  = link.data('reply').toString().replace(/[^\d]/g, '');
+		var com  = $('#c' + num);
+		if (!com.length) return;
 
-	link.mouseover(function() {
-		popup.html( com.html() );
-	  	popup.css("top" , link.offset().top  +popup_offset_y);
-	  	popup.css("left", link.offset().left +popup_offset_x);
-		popup.show(Default_show_speed);
-	});
-	link.mouseout(function() {
-		timer = setTimeout(function(){
+		link.mouseover(function() {
+			popup.html( com.html() );
+		  	popup.css("top" , link.offset().top  +popup_offset_y);
+		  	popup.css("left", link.offset().left +popup_offset_x);
+			popup.show(Default_show_speed);
+		});
+		link.mouseout(function() {
+			timer = setTimeout(function(){
+				popup.hide('fast');
+			}, 300);
+		});
+		popup.mouseover(function() {
+			clearTimeout(timer);
+		});
+		popup.mouseleave(function() {
 			popup.hide('fast');
-		}, 300);
+		});
 	});
-	popup.mouseover(function() {
-		clearTimeout(timer);
-	});
-	popup.mouseleave(function() {
-		popup.hide('fast');
-	});
-});
-///
 });
 
+//############################################################################
+// ■スケルトン内部使用ルーチン
+//############################################################################
 //////////////////////////////////////////////////////////////////////////////
 //●セキュリティコードの設定
 //////////////////////////////////////////////////////////////////////////////
@@ -870,7 +849,6 @@ function css_fix(css_text, width) {
 ///
 }
 
-
 //############################################################################
 // ■サブルーチン
 //############################################################################
@@ -948,6 +926,45 @@ function insert_to_textarea(ta, text) {
 	ta.value = ta.value.substring(0, start)	+ text + ta.value.substring(start);
 	start += text.length;
 	ta.setSelectionRange(start, start);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●テキストエリア入力画面のpopup
+//////////////////////////////////////////////////////////////////////////////
+function textarea_dialog(dom, func) {
+	var obj  = $(dom);
+	var div  = $('#popup-textarea');
+	var text = obj.data('msg');
+
+	div.empty();
+	if (text && text != '') {
+		var p = $('<p>');
+		p.html(text);
+		div.append(p);
+	}
+	var ta = $('<textarea>').attr('rows', 5).addClass('w100p');
+	div.append(ta);
+
+	// ボタンの設定
+	var ok     = obj.data('ok')     || 'OK';
+	var cancel = obj.data('cancel') || 'CANCEL';
+	var buttons = {};
+	buttons[ok] = function(){
+		div.dialog( 'close' );
+		func( ta.val() );	// callback
+	};
+	buttons[cancel] = function(){
+		div.dialog( 'close' );
+	};
+
+	// ダイアログの表示
+	div.dialog({
+		modal: false,
+		minWidth:  DialogWidth,
+		minHeight: 100,
+		title:   obj.data('title'),
+		buttons: buttons
+	});
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -14,7 +14,7 @@
 
 	<p>このデザインをリセット（初期化）しますか？</p>
 
-	<form action="<@v.myself>?<@v.skeleton>" method="POST" class="js-form-check" data-flag="#reset-check">
+	<form action="<@v.myself>?<@v.skeleton>" method="POST" class="js-form-check">
 	<input type="hidden" name="action" value="<@v.skeleton>">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 
@@ -24,8 +24,8 @@
 	</ul>
 
 
-	<input type="checkbox" name="reset_check" id="reset-check"><label>確認</label>
-	<input type=submit name="submit" value="リセットする">
+	<input type="checkbox" name="reset_check" class="js-disabled" data-target="#reset-submit"><label>確認</label>
+	<input type=submit name="submit" id="reset-submit" value="リセットする">
 
 	</form>
 </div>

@@ -68,3 +68,28 @@ RewriteRule	^(.*)$			<@cgi>/$1	[L]
 </div>
 </article>
 <$end>
+
+
+<article class="system">
+<h2>debug</h2>
+<div id="test" class="body">
+<button id="test-button">追加</button><br>
+</div>
+</article>
+<script>
+var btn  = $('#test-button');
+var tobj = $('#test');
+btn.click(function(){
+	var line = $('<div>');
+	var inp  = $('<input>').attr('type', 'checkbox');
+	var span = $('<span>').text('ボタン付属の文字列');
+	var help = $('<span>').addClass('help').attr('data-help', 'ヘルプ!!').text('?');
+	line.append(inp);
+	line.append(span);
+	span.append(help);
+	tobj.append(line);
+});
+</script>
+
+
+

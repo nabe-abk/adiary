@@ -73,7 +73,7 @@
 	<$end>
 	</select>
 	<button type="button" id="open-draft">開く</button>
-	<button type="button" id="open-template">テンプレートとして開く</button><span class="help" data-help="テンプレートとして開くと編集・保存しても元にした下書きは残り続けます。">?</span>
+	<button type="button" id="open-template">テンプレートとして開く</button><span class="help" data-help="テンプレートとして開くと、編集・保存しても元にした下書きは残り続けます。">?</span>
 </div>
 </article>
 <$end>
@@ -121,7 +121,7 @@
 		<@forexec_hash(ROBJ, v.parsers, begin)><option value="<@key>"<@if(art.parser eq key, ' selected')>><@val></option>
 		<$end>
 	</select></span>
-	<@if(!edit_pkey || art.draft, '<input type="submit" name="draft" id="save-draft" value="下書き保存"><span class="help" data-help="下書きは記事一覧にも表示されません">?</span>')>
+	<@if(!edit_pkey || art.draft, '<input type="submit" name="draft" id="save-draft" value="下書き保存"><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>')>
 	<input type="submit" name="edit" id="save-normal" value="<@if(edit_pkey, '編集内容を保存', 'この記事を新規に登録')>">
 	<br>
 	<a href="http://adiary.org/v3man/Satsuki/" data-default="Satsuki/" data-markdown="Markdown" target=_blank id="parser-help-link">記法のヘルプ</a>
@@ -179,14 +179,14 @@
 			<li>HOST <@art.host></li>
 			<li>AGENT <@art.agent></li>
 		</ul></li>
-	<li><input type="checkbox" name="del_check" value="1" id="del-check"><label>削除確認</label></li>
+	<li><input type="checkbox" name="del_check" class="js-disabled" data-target="#del-submit"><label>削除確認</label></li>
 	</ul>
-<form method="POST" action="<@v.myself2>" class="delete js-form-check" data-flag="#del-check" data-confirm="この記事を本当に削除しますか？">
+<form method="POST" action="<@v.myself2>" class="delete js-form-check" data-confirm="この記事を本当に削除しますか？">
 	<input type="hidden" name="action" value="delete">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="delete_pkey_int_ary" value="<@edit_pkey>">
 	<input type="hidden" name="title" value="<@art.title>">
-	<input type="submit" name="delete" value="この記事を削除する">
+	<input type="submit" name="delete" id="del-submit" value="この記事を削除する">
 </form>
 <$end>
 </div> <!-- end of body -->

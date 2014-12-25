@@ -664,6 +664,7 @@ sub save_private_mode {
 		return 1;
 	}
 	$blog->{blogpub_dir_postfix} = $postfix;
+	$self->{blogpub_dir} = $self->blogpub_dir();
 
 	$self->call_event($evt_name);
 	$self->rebuild_blog();

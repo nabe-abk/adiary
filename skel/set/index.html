@@ -86,7 +86,7 @@
 
 <script>
 $('#gaid-setting').click(function(evt){
-	popup_textarea(evt.target, function(data){
+	textarea_dialog(evt.target, function(data){
 		var x;
 		if (x = data.match(/['"](UA-\d+-\d+)/)) {
 			$('#gaid').val( x[1] );
@@ -94,14 +94,14 @@ $('#gaid-setting').click(function(evt){
 	});
 });
 $('#asid-setting').click(function(evt){
-	popup_textarea(evt.target, function(data){
+	textarea_dialog(evt.target, function(data){
 		var x;
 		if ((x = data.match(/&t=([\w-]+)/)) 
 		 || (x = data.match(/tag\s*=\s*['"]([\w-]+)/) )
 		) {
 			$('#asid').val( x[1] );
 		}
-	}, 1);
+	});
 
 });
 </script>

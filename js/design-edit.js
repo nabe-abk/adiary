@@ -130,13 +130,13 @@ function init_module(obj) {
 
 	if (obj.data('readme')) {
 		var info = $('<span>');
-		info.addClass('ui-icon ui-icon-help ui-button');
-		info.data('title', obj.data('readme-title'));
-		info.data('url', obj.data("readme-url"));
-		info.data('class', 'pre');
-		info.click(function(){
-			popup_dialog(this);
+		info.addClass('ui-icon ui-icon-help ui-button info');
+		info.attr({
+			onclick: '',
+			'data-url': obj.data("readme-url")
 		});
+		info.data('title', obj.data('readme-title'));
+		info.data('class', 'pre');
 		div.append(info);
 	}
 
@@ -238,7 +238,7 @@ function module_setting(obj) {
 	body.load(url, function(){
 		body.append( errdiv );
 		formdiv.dialog( "open" );
-		adiary_init( body );
+	//	adiary_init( body );
 	});
 }
 
@@ -294,7 +294,7 @@ function load_module_html(obj) {
 
 		init_module( newobj );
 		obj.replaceWith( newobj );
-		adiary_init( newobj );
+	//	adiary_init( newobj );
 	});
 }
 

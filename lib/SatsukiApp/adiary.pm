@@ -9,7 +9,7 @@ use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION = '2.921';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'beta2.1';
+our $SUBVERSION = 'beta2.2';
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
@@ -383,10 +383,11 @@ sub load_blogset {
 sub set_and_select_blog {
 	my ($self, $blogid, $force) = @_;
 	my $ROBJ = $self->{ROBJ};
+	if (!$force && $self->{blogid} eq $blogid) { return $self->{blog}; }
+
 	# myself設定
 	$self->{myself}  = $ROBJ->{Myself};
 	$self->{myself2} = $ROBJ->{Myself2};
-	if (!$force && $self->{blogid} eq $blogid) { return $self->{blog}; }
 
 	# 内部変数初期化
 	$self->{blogid} = undef;

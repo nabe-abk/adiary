@@ -4,4 +4,4 @@ lib/SatsukiApp/ping_server.pm
 lib/SatsukiApp/form.pm
 lib/SatsukiApp/form_2.pm
 
-theme/cocoa/
+theme/satsuki2/cocoa/

@@ -831,7 +831,6 @@ function update_view(flag, selected) {
 		span.draggable( img_draggable_option );
 		span.draggable( { opacity: img_draggable_option.opacity_text } );
 	  }
-	  adiary_init(view);
 	}
 
 	//-----------------------------------------------
