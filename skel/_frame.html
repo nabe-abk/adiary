@@ -159,6 +159,7 @@ allow_com  <@v.allow_com><br>
 <script>
 var Blogpath='<@v.myself>';
 var ScriptDir='<@Basepath><@v.script_dir>';
+var ThemeDir ='<@Basepath><@v.theme_dir>';
 <@ifexec(Timer, begin)>
 $('#system-info-total-time').text('<@int(Timer.check()*10000 + 0.5)/10>');
 $('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');

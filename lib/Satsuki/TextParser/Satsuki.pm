@@ -47,8 +47,7 @@ sub new {
 	$self->{chain_line} = 1;
 
 	# シンタックスハイライト関連
-	$self->{load_SyntaxHighlighter} = '<module name="load_SyntaxHighlighter">';
-	$self->{SyntaxHighlight_lang_class} = 'syntax-%l brush: %l';
+	$self->{load_SyntaxHighlighter} = '<module name="load_SyntaxHighlight">';
 
 	$self->init_tags();
 	$self->load_plugins(@_);
@@ -550,13 +549,8 @@ sub block_parser {
 				else {
 					# シンタックスハイライト記法
 					$new_block_end = '||<'; $block_tag='pre'; $p=$tag=$atag=0; $dc=" syntax-highlight";
-					my $type=$1;
-					if ($type !~ /[^\w\-]/) {
-						my $lang = $1;
-						my $c = $self->{SyntaxHighlight_lang_class};
-						$c =~ s/%l/$lang/g;
-						$dc .= ' ' . $c;
-					}
+					my $lang = $1;
+					if ($lang =~ /^\w[\w\-]*$/) { $dc .= ' ' . $lang; }
 					$add = $self->{load_SyntaxHighlighter};
 				}
 				$line_opt = $2;
@@ -565,7 +559,7 @@ sub block_parser {
 			  elsif ($s10 eq '>||comment') { $len=10; $new_block_end = '||<'; $block_tag='<!--';   $p=$tag=$atag=$br=0; }
 			  elsif ($s4 eq '>||#')  { $len=4; $new_block_end = '#||<'; $block_tag='pre'; $p=$tag=$atag=0; $bcom=1; }
 			  elsif ($s6 eq '>||aa '){ $len=6; $new_block_end =  '||<'; $block_tag='div'; $p=$tag=$atag=0; $br=1; $dc=" ascii-art"; }
-			  elsif ($s4 eq '>|?|')  { $len=4; $new_block_end =  '||<'; $block_tag='pre'; $p=$tag=$atag=0; $dc=" syntax-highlight";}
+			  elsif ($s4 eq '>|?|')  { $len=4; $new_block_end =  '||<'; $block_tag='pre'; $p=$tag=$atag=0; $dc=" syntax-highlight"; }
 			  elsif ($s3 eq '>||')   { $len=3; $new_block_end =  '||<'; $block_tag='pre'; $p=$tag=$atag=0; }
 			  elsif ($s2 eq '>|')    { $len=2; $new_block_end =   '|<'; $block_tag='pre'; $p=0; }
 			} elsif ($s3 eq '>>>') {

@@ -62,7 +62,7 @@ WTFPL（PDS扱い）だと助かります。
     * dynatree  (MIT)
     * Color Picker (MIT / GPL)
   * Lightbox2 (Creative Commons Attribution 2.5)
-  * SyntaxHighlighter (LGPL3)
+  * highlight.js (BSD)
   * respond.js (MIT / GPL2)
   * IE9.js (MIT)
 

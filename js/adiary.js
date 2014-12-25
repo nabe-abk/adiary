@@ -1081,53 +1081,22 @@ function adiary_session(_btn, opt){
 // 外部スクリプトロード用ライブラリ
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
-// ■SyntaxHighlighterのロードと適用
+// ■syntax highlight機能のロード
 //////////////////////////////////////////////////////////////////////////////
 var load_sh_flag = false;
-var alt_syntax_highlighter = false;
-function load_SyntaxHighlighter() {
+var alt_SyntaxHighlight = false;
+var syntax_highlight_css = 'github';
+function load_SyntaxHighlight() {
 	if (load_sh_flag) return;
 	load_sh_flag=true;
-	if (alt_syntax_highlighter) return alt_syntax_highlighter();
 $(function(){
-	var dir = ScriptDir + 'SyntaxHighlighter/';
-	$.getScript(dir + "scripts/shCore.js", function(){
-		$.getScript(dir + "scripts/shAutoloader.js", function(){ 
-			var ary = [
-  'applescript		@shBrushAppleScript.js',
-  'actionscript3 as3	@shBrushAS3.js',
-  'bash shell		@shBrushBash.js',
-  'coldfusion cf	@shBrushColdFusion.js',
-  'cpp c		@shBrushCpp.js',
-  'c# c-sharp csharp	@shBrushCSharp.js',
-  'css			@shBrushCss.js',
-  'delphi pascal	@shBrushDelphi.js',
-  'diff patch pas	@shBrushDiff.js',
-  'erl erlang		@shBrushErlang.js',
-  'groovy		@shBrushGroovy.js',
-  'java			@shBrushJava.js',
-  'jfx javafx		@shBrushJavaFX.js',
-  'js jscript javascript @shBrushJScript.js',
-  'perl pl		@shBrushPerl.js',
-  'php			@shBrushPhp.js',
-  'text plain		@shBrushPlain.js',
-  'py python		@shBrushPython.js',
-  'ruby rails ror rb	@shBrushRuby.js',
-  'sass scss		@shBrushSass.js',
-  'scala		@shBrushScala.js',
-  'sql			@shBrushSql.js',
-  'vb vbnet		@shBrushVb.js',
-  'xml xhtml xslt html	@shBrushXml.js'];
-			for(var i = 0; i < ary.length; i++)
-				ary[i] = ary[i].replace('@', dir + 'scripts/');
-			SyntaxHighlighter.autoloader.apply(null, ary);
-			SyntaxHighlighter.defaults['toolbar'] = false;
-			SyntaxHighlighter.all();
-		})
+	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
+	$.getScript(ScriptDir + 'highlight.pack.js', function(){
+		append_css_file(ThemeDir + '_highlight/'+ syntax_highlight_css +'.css');
+		$('pre.syntax-highlight').each(function(i, block) {
+			hljs.highlightBlock(block);
+		});
 	});
-	// CSSの追加
-	append_css_file(dir + 'styles/shCore.css');
-	append_css_file(dir + 'styles/shThemeDefault.css');
 });
 ///
 }
