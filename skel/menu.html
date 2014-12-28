@@ -82,11 +82,13 @@ var tobj = $('#test');
 btn.click(function(){
 	var line = $('<div>');
 	var inp  = $('<input>').attr('type', 'checkbox');
+	var lab  = $('<label>');
 	var span = $('<span>').text('ボタン付属の文字列');
 	var help = $('<span>').addClass('help').attr('data-help', 'ヘルプ!!').text('?');
 	line.append(inp);
-	line.append(span);
-	span.append(help);
+	line.append(lab);
+	lab.append(span)
+	lab.append(help);
 	tobj.append(line);
 });
 </script>

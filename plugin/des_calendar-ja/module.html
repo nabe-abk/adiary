@@ -1,7 +1,7 @@
 <!--カレンダー===========================================-->
 <$cal  = v.call_plugin_function('<@this>.pm')>
 <$year = if(art_year, art_year, v.now.year)>
-<$mon  = if(art_year, art_mon,  v.now.mon)>
+<$mon  = if(art_year, art_mon,  v.now.mon) || '01'>
 <$day  = if(art_year, art_day,  v.now.day)>
 <div class="hatena-module" id="<@id>" data-module-name="<@this>">
 <div class="hatena-moduletitle">カレンダー</div>

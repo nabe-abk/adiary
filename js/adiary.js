@@ -68,6 +68,15 @@ function set_browser_class_into_body() {
 	$('#body').addClass( x.join(' ') );
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//●[jQuery] 自分自身と子要素から探す findx という拡張をする
+//////////////////////////////////////////////////////////////////////////////
+$.fn.findx = function(){
+	var x = $.fn.filter.apply(this, arguments);
+	var y = $.fn.find.apply  (this, arguments);
+	return x.add(y);
+};
+
 //############################################################################
 //■初期化処理
 //############################################################################
@@ -80,7 +89,7 @@ function adiary_init(R) {
 $(function(){
 	var body = $('#body');
 	body.append( $('<div>').attr('id', 'popup-div')      );
-	body.append( $('<div>').attr('id', 'popup-help')      );
+	body.append( $('<div>').attr('id', 'popup-help')     );
 	body.append( $('<div>').attr('id', 'popup-com')      );
 	body.append( $('<div>').attr('id', 'popup-textarea') );
 	adiary_init(body);
@@ -88,31 +97,32 @@ $(function(){
 	//////////////////////////////////////////////////////////////////////
 	//●自動でadiary初期化ルーチンが走るようにjQueryに細工する
 	//////////////////////////////////////////////////////////////////////
-	var hooking = false;
 	function hook_function(obj, args) {
-		if (hooking || obj.attr('id') !== 'body' && obj.parents('#body').length === 0) return;
-		hooking = true;
 		var R = $('<div>');
 		for(var i=0; i<args.length; i++) {
 			if (!args[i] instanceof jQuery) continue;
-			if (typeof args[i] !== 'string') {
-				adiary_init(args[i]);
-				continue;
-			}
-			var R = $('<div>');
-			R.append(args[i]);
-			adiary_init(R);
-			args[i] = R.html();
+			if (typeof args[i] === 'string') continue;
+			adiary_init(args[i]);
+			continue;
 		}
-		hooking = false;
 	}
 
+	var hooking = false;
 	var hooks = ['append', 'prepend', 'before', 'after', 'html'];
 	function hook(name) {
 		var func = $.fn[name];
 		$.fn[name] = function() {	// closure
+			if (hooking || this.attr('id') !== 'body' && this.parents('#body').length === 0) return func.apply(this, arguments);
+			// hook処理
+			hooking = true;
 			hook_function(this, arguments);
-			return func.apply(this, arguments);
+			var r = func.apply(this, arguments);
+			// html かつ string の特別処理
+			if (name === 'html' && arguments.length === 1 && typeof arguments[0] === 'string') {
+				adiary_init(this);
+			}
+			hooking = false;
+			return r;
 		}
 	}
 	for(var i=0; i<hooks.length; i++) {
@@ -152,7 +162,7 @@ function easy_popup_out(evt) {
 initfunc.push( function(R){
 	var popup_div  = $('#popup-div');
 	var popup_help = $('#popup-help');
-	R.find(".js-popup-img").mouseenter( {func: function(obj,div){
+	R.findx(".js-popup-img").mouseenter( {func: function(obj,div){
 		var img = $('<img>');
 		img.attr('src', obj.data('img-url'));
 		img.addClass('popup-image');
@@ -160,14 +170,17 @@ initfunc.push( function(R){
 		div.append( img );
 	}, div: popup_div}, easy_popup);
 
-
-	R.find(".help[data-help]").mouseenter( {func: function(obj,div){
+	R.findx(".help[data-help]").mouseenter( {func: function(obj,div){
 		var text = tag_esc_br( obj.data("help") );
 		div.html( text );
 	}, div: popup_help}, easy_popup);
+	R.findx(".help[data-help]").each( function(idx,dom){
+		var obj = $(dom);
+		var text = tag_esc_br( obj.data("help") );
+	});
 
-	R.find(".js-popup-img")   .mouseleave({div: popup_div }, easy_popup_out);
-	R.find(".help[data-help]").mouseleave({div: popup_help}, easy_popup_out);
+	R.findx(".js-popup-img")   .mouseleave({div: popup_div }, easy_popup_out);
+	R.findx(".help[data-help]").mouseleave({div: popup_help}, easy_popup_out);
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -176,7 +189,7 @@ initfunc.push( function(R){
 // onclick要素を確認することで
 // ユーザーが任意のURLを自由に呼び出せないようにしている。
 initfunc.push( function(R){
-  R.find('.info[data-info], .info[data-url][onclick]').click( function(evt){
+  R.findx('.info[data-info], .info[data-url][onclick]').click( function(evt){
 	var obj = $(evt.target);
 	var div = $('<div>');
 	var div2= $('<div>');	// 直接 div にクラスを設定すると表示が崩れる
@@ -202,7 +215,7 @@ initfunc.push( function(R){
 //●フォーム要素の全チェック
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-  R.find('input.js-checked').click( function(evt){
+  R.findx('input.js-checked').click( function(evt){
 	var obj = $(evt.target);
 	var target = obj.data( 'target' );
 	$(target).prop("checked", obj.is(":checked"));
@@ -213,7 +226,7 @@ initfunc.push( function(R){
 //●フォーム操作による、disabledの自動変更
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	var objs = R.find('input.js-disabled');
+	var objs = R.findx('input.js-disabled');
 	function btn_evt(evt) {
 		var btn = $(evt.target);
 		var form =$(btn.data('target'));
@@ -237,7 +250,7 @@ initfunc.push( function(R){
 //●複数チェックボックスフォーム、全選択、submitチェック
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-  R.find('input.js-form-check, button.js-form-check').click( function(evt){
+  R.findx('input.js-form-check, button.js-form-check').click( function(evt){
 	var obj = $(evt.target);
 	var form = obj.parents('form.js-form-check');
 	if (!form.length) return;
@@ -246,7 +259,7 @@ initfunc.push( function(R){
 });
 
 initfunc.push( function(R){
-  R.find('form.js-form-check').submit( function(evt){
+  R.findx('form.js-form-check').submit( function(evt){
 	var form = $(evt.target);
 	var target = form.data('target');	// 配列
 	var c = false;
@@ -332,7 +345,7 @@ initfunc.push( function(R){
 		}
 		return true;
 	}
-	R.find('.js-switch').each( function(idx,ele) {
+	R.findx('.js-switch').each( function(idx,ele) {
 		var obj = $(ele);
 		var f = display_toggle(obj, true);	// initalize
 		if (f) obj.click( function(evt){ display_toggle($(evt.target), false) } );
@@ -343,7 +356,7 @@ initfunc.push( function(R){
 //●input[type="text"]などで enter による submit 停止
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	R.find('form input.no-enter-submit, form.no-enter-submit input').keypress( function(ev){
+	R.findx('form input.no-enter-submit, form.no-enter-submit input').keypress( function(ev){
 		if (ev.which === 13) return false;
 		return true;
 	});
@@ -354,7 +367,7 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	var load_picker;
-	var cp = R.find('input.color-picker');
+	var cp = R.findx('input.color-picker');
 	if (!cp.length) return;
 
 	cp.each(function(i,dom){
@@ -396,7 +409,7 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 // IE9でもまともに動かないけど無視^^;;;
 initfunc.push( function(R){
-	R.find('input').each( function(idx,dom){
+	R.findx('input').each( function(idx,dom){
 		if (dom.type != 'text'
 		 && dom.type != 'search'
 		 && dom.type != 'tel'
@@ -479,7 +492,7 @@ function evt_mousedown(evt, obj, min_width) {
 //●input, textareaのフォーカスクラス設定  ※リサイズ設定より後に行うこと
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	R.find('form input, form textarea').each( function(idx,dom){
+	R.findx('form input, form textarea').each( function(idx,dom){
 		if (dom.tagName != 'TEXTAREA'
 		 && dom.type != 'text'
 		 && dom.type != 'search'
@@ -507,7 +520,7 @@ initfunc.push( function(R){
 //●INPUT type="radio", type="checkbox" のラベル関連付け（直後のlabel要素）
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	R.find('input[type="checkbox"],input[type="radio"]').each( function(idx,dom) {
+	R.findx('input[type="checkbox"],input[type="radio"]').each( function(idx,dom) {
 		var obj = $(dom);
 		var label = obj.next();
 		if (!label.length || label[0].tagName != 'LABEL' || label.attr('for')) return;
@@ -535,7 +548,7 @@ initfunc.push( function(R){
 //●フォーム値の保存
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R) {
-	R.find('input.js-save, select.js-save').each( function(idx, dom) {
+	R.findx('input.js-save, select.js-save').each( function(idx, dom) {
 		var obj = $(dom);
 		var id  = obj.attr("id");
 		if (!id) return;
@@ -552,7 +565,7 @@ initfunc.push( function(R) {
 //●textareaでのタブ入力
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	R.find('textarea').keypress( function(evt){
+	R.findx('textarea').keypress( function(evt){
 		var obj = $(evt.target);
 		if (obj.prop('readonly') || obj.prop('disabled')) return;
 		if (evt.keyCode != 9) return;
@@ -567,7 +580,7 @@ initfunc.push( function(R){
 //●タブ機能
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	var obj = R.find('.jqueryui-tabs');
+	var obj = R.findx('.jqueryui-tabs');
 	if (!obj.length) return;
 	obj.tabs();
 });
@@ -576,7 +589,7 @@ initfunc.push( function(R){
 //●accordion機能
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	var obj = R.find('.jqueryui-accordion');
+	var obj = R.findx('.jqueryui-accordion');
 	if (!obj.length) return;
 	obj.accordion({
 		heightStyle: "content"

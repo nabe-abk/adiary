@@ -106,7 +106,7 @@ ul.toc li span.sanchor {
 }
 
 audio, video,
-article img {
+article figure, article img {
 	max-width:	100%;
 }
 

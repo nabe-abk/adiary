@@ -92,7 +92,6 @@ $('#add-module').change(function(evt){
 	} else {
 		obj.insertAfter(editbox);
 	}
-	init_js_switch(obj);
 
 	// モジュールHTMLをサーバからロード？
 	if (obj.data('load-module-html')) load_module_html( obj );
