@@ -72,15 +72,53 @@ function set_browser_class_into_body() {
 //■初期化処理
 //############################################################################
 var initfunc = [];
+function adiary_init(R) {
+	for(var i=0; i<initfunc.length; i++)
+		initfunc[i](R);
+}
+
 $(function(){
 	var body = $('#body');
-	var popup_div  = $('<div>').attr('id', 'popup-div');
-	var popup_help = $('<div>').attr('id', 'popup-help');
-	body.append( popup_div  );
-	body.append( popup_help );
+	body.append( $('<div>').attr('id', 'popup-div')      );
+	body.append( $('<div>').attr('id', 'popup-help')      );
 	body.append( $('<div>').attr('id', 'popup-com')      );
 	body.append( $('<div>').attr('id', 'popup-textarea') );
+	adiary_init(body);
 
+	//////////////////////////////////////////////////////////////////////
+	//●自動でadiary初期化ルーチンが走るようにjQueryに細工する
+	//////////////////////////////////////////////////////////////////////
+	var hooking = false;
+	function hook_function(obj, args) {
+		if (hooking || obj.attr('id') !== 'body' && obj.parents('#body').length === 0) return;
+		hooking = true;
+		var R = $('<div>');
+		for(var i=0; i<args.length; i++) {
+			if (!args[i] instanceof jQuery) continue;
+			if (typeof args[i] !== 'string') {
+				adiary_init(args[i]);
+				continue;
+			}
+			var R = $('<div>');
+			R.append(args[i]);
+			adiary_init(R);
+			args[i] = R.html();
+		}
+		hooking = false;
+	}
+
+	var hooks = ['append', 'prepend', 'before', 'after', 'html'];
+	function hook(name) {
+		var func = $.fn[name];
+		$.fn[name] = function() {	// closure
+			hook_function(this, arguments);
+			return func.apply(this, arguments);
+		}
+	}
+	for(var i=0; i<hooks.length; i++) {
+		hook(hooks[i]);
+	}
+});
 
 //////////////////////////////////////////////////////////////////////////////
 //●画像・ヘルプのポップアップ
@@ -111,29 +149,34 @@ function easy_popup_out(evt) {
 	div.hide();
 }
 
-body.on('mouseover', ".js-popup-img",    {func: function(obj,div){
-	var img = $('<img>');
-	img.attr('src', obj.data('img-url'));
-	img.addClass('popup-image');
-	div.empty();
-	div.append( img );
-}, div: popup_div}, easy_popup);
+initfunc.push( function(R){
+	var popup_div  = $('#popup-div');
+	var popup_help = $('#popup-help');
+	R.find(".js-popup-img").mouseenter( {func: function(obj,div){
+		var img = $('<img>');
+		img.attr('src', obj.data('img-url'));
+		img.addClass('popup-image');
+		div.empty();
+		div.append( img );
+	}, div: popup_div}, easy_popup);
 
-body.on('mouseover', ".help[data-help]", {func: function(obj,div){
-	var text = tag_esc_br( obj.data("help") );
-	div.html( text );
-}, div: popup_help}, easy_popup);
 
-body.on('mouseout', ".js-popup-img",    {div: popup_div }, easy_popup_out);
-body.on('mouseout', ".help[data-help]", {div: popup_help}, easy_popup_out);
+	R.find(".help[data-help]").mouseenter( {func: function(obj,div){
+		var text = tag_esc_br( obj.data("help") );
+		div.html( text );
+	}, div: popup_help}, easy_popup);
 
+	R.find(".js-popup-img")   .mouseleave({div: popup_div }, easy_popup_out);
+	R.find(".help[data-help]").mouseleave({div: popup_help}, easy_popup_out);
+});
 
 //////////////////////////////////////////////////////////////////////////////
 //●詳細情報ダイアログの表示
 //////////////////////////////////////////////////////////////////////////////
 // onclick要素を確認することで
 // ユーザーが任意のURLを自由に呼び出せないようにしている。
-body.on('click', '.info[data-info], .info[data-url][onclick]', function(evt){
+initfunc.push( function(R){
+  R.find('.info[data-info], .info[data-url][onclick]').click( function(evt){
 	var obj = $(evt.target);
 	var div = $('<div>');
 	var div2= $('<div>');	// 直接 div にクラスを設定すると表示が崩れる
@@ -152,54 +195,58 @@ body.on('click', '.info[data-info], .info[data-url][onclick]', function(evt){
 	div2.load( url, function(){
 		div.dialog({ width: DialogWidth, height: 320 });
 	});
+  })
 });
 
 //////////////////////////////////////////////////////////////////////////////
 //●フォーム要素の全チェック
 //////////////////////////////////////////////////////////////////////////////
-body.on('click', 'input.js-checked', function(evt){
+initfunc.push( function(R){
+  R.find('input.js-checked').click( function(evt){
 	var obj = $(evt.target);
 	var target = obj.data( 'target' );
 	$(target).prop("checked", obj.is(":checked"));
+  })
 });
 
 //////////////////////////////////////////////////////////////////////////////
 //●フォーム操作による、disabledの自動変更
 //////////////////////////////////////////////////////////////////////////////
-body.on('click', 'input.js-disabled', function(evt){
-	js_disabled_click( evt.target );
-});
 initfunc.push( function(R){
-	R.find('input.js-disabled').each( function(idx,dom) {
-		js_disabled_click(dom);
-	} );
-});
-function js_disabled_click(dom) {
-	var btn = $(dom);
-	var form =$(btn.data('target'));
-	var flag = (btn.data('change') == '1');
+	var objs = R.find('input.js-disabled');
+	function btn_evt(evt) {
+		var btn = $(evt.target);
+		var form =$(btn.data('target'));
+		var flag = (btn.data('change') == '1');
 
-	// チェックボックスが外されている状態なら条件反転
-	var type=btn.attr('type').toLowerCase();
-	if (type == 'checkbox' && !btn.is(":checked")) flag = !flag;
-	if (type == 'radio'    && !btn.is(":checked")) return;
-	if (flag)
-		form.attr('disabled','disabled');
-	else
-		form.removeAttr('disabled');
-}
+		// チェックボックスが外されている状態なら条件反転
+		var type=btn.attr('type').toLowerCase();
+		if (type == 'checkbox' && !btn.is(":checked")) flag = !flag;
+		if (type == 'radio'    && !btn.is(":checked")) return;
+		if (flag)
+			form.attr('disabled','disabled');
+		else
+			form.removeAttr('disabled');
+	}
+	objs.click( btn_evt );
+	objs.each(function(idx,ele){ btn_evt({target: ele}) });
+});
+
 
 //////////////////////////////////////////////////////////////////////////////
 //●複数チェックボックスフォーム、全選択、submitチェック
 //////////////////////////////////////////////////////////////////////////////
-body.on('click', 'input.js-form-check, button.js-form-check', function(evt){
+initfunc.push( function(R){
+  R.find('input.js-form-check, button.js-form-check').click( function(evt){
 	var obj = $(evt.target);
 	var form = obj.parents('form.js-form-check');
 	if (!form.length) return;
 	form.data('confirm', obj.data('confirm') );
+  })
 });
 
-body.on('submit', 'form.js-form-check', function(evt){
+initfunc.push( function(R){
+  R.find('form.js-form-check').submit( function(evt){
 	var form = $(evt.target);
 	var target = form.data('target');	// 配列
 	var c = false;
@@ -213,92 +260,84 @@ body.on('submit', 'form.js-form-check', function(evt){
 	if (!confirm) return true;
 	if (c) confirm = confirm.replace("%c", c);
 	return window.confirm( confirm );
+  })
 });
-
-/// End of $(function(){
-});
-
 
 //////////////////////////////////////////////////////////////////////////////
 //●フォーム操作、クリック操作による表示・非表示の変更
 //////////////////////////////////////////////////////////////////////////////
 // 一般要素 + input type="checkbox", type="button"
 // (例)
-// <input type="button" value="ボタン" class="js-hide" data-target="xxx"
-//  data-hide-speed="500" data-hide-val="表示する" data-show-val="非表示にする">
+// <input type="button" value="ボタン" class="js-switch" data-target="xxx"
+//  data-switch-speed="500" data-hide-val="表示する" data-show-val="非表示にする">
+initfunc.push( function(R){
+	function display_toggle(btn, init) {
+		if (btn[0].tagName == 'A') return false;	// リンククリックは無視
+		var type = btn[0].tagName == 'INPUT' && btn.attr('type').toLowerCase();
+		var id = btn.data('target');
+		if (!id) {
+			// 子要素のクリックを拾うための処理
+			btn = find_parent(btn, function(par){ return par.attr("data-target") });
+			if (!btn) return;
+			id = btn.data('target');
+		}
+		var target = $(id);
+		if (!target.length) return false;
+		var speed  = btn.data('switch-speed');
+		speed = (speed === undefined) ? Default_show_speed : parseInt(speed);
+		speed = init ? 0 : speed;
 
-initfunc.push( init_js_switch );
+		// スイッチの状態を保存する
+		var storage = btn.data('save') ? Storage : false;
 
-function init_js_switch(R) {
-	R.find('.js-switch').each( function() {
-		var obj = $(this);
+		// 変更後の状態取得
+		var flag;
+		if (init && storage && storage.defined(id)) {
+			flag = storage.getInt(id) ? true : false;
+			if (type == 'checkbox' || type == 'radio') btn.prop("checked", flag);
+		} else if (type == 'checkbox' || type == 'radio') {
+			flag = btn.prop("checked");
+		} else {
+			flag = init ? !target.is(':hidden') : target.is(':hidden');
+		}
+
+		// 変更後の状態を設定
+		speed = IE8 ? undefined : speed;
+		if (flag) {
+			btn.addClass('sw-show');
+			btn.removeClass('sw-hide');
+			if (init) target.show();
+			     else target.show(speed);
+			if (storage) storage.set(id, '1');
+
+		} else {
+			btn.addClass('sw-hide');
+			btn.removeClass('sw-show');
+			if (init) target.hide();
+			     else target.hide(speed);
+			if (storage) storage.set(id, '0');
+		}
+		if (type == 'button') {
+			var val = flag ? btn.data('show-val') : btn.data('hide-val');
+			if (val != undefined) btn.val( val );
+		}
+
+		if (init) {
+			var dom = btn[0];
+			if (dom.tagName == 'INPUT' || dom.tagName == 'BUTTON') return true;
+			var span = $('<span>');
+			span.addClass('ui-icon switch-icon');
+			if (IE8) span.css('display', 'inline-block');
+			btn.prepend(span);
+		}
+		return true;
+	}
+	R.find('.js-switch').each( function(idx,ele) {
+		var obj = $(ele);
 		var f = display_toggle(obj, true);	// initalize
 		if (f) obj.click( function(evt){ display_toggle($(evt.target), false) } );
 	} );
-
-function display_toggle(btn, init) {
-	if (btn[0].tagName == 'A') return false;	// リンククリックは無視
-	var type = btn[0].tagName == 'INPUT' && btn.attr('type').toLowerCase();
-	var id = btn.data('target');
-	if (!id) {
-		// 子要素のクリックを拾うための処理
-		btn = find_parent(btn, function(par){ return par.attr("data-target") });
-		if (!btn) return;
-		id = btn.data('target');
-	}
-	var target = $(id);
-	if (!target.length) return false;
-	var speed  = btn.data('switch-speed');
-	speed = (speed === undefined) ? Default_show_speed : parseInt(speed);
-	speed = init ? 0 : speed;
-
-	// スイッチの状態を保存する
-	var storage = btn.data('save') ? Storage : false;
-
-	// 変更後の状態取得
-	var flag;
-	if (init && storage && storage.defined(id)) {
-		flag = storage.getInt(id) ? true : false;
-		if (type == 'checkbox' || type == 'radio') btn.prop("checked", flag);
-	} else if (type == 'checkbox' || type == 'radio') {
-		flag = btn.prop("checked");
-	} else {
-		flag = init ? !target.is(':hidden') : target.is(':hidden');
-	}
-
-	// 変更後の状態を設定
-	speed = IE8 ? undefined : speed;
-	if (flag) {
-		btn.addClass('sw-show');
-		btn.removeClass('sw-hide');
-		if (init) target.show();
-		     else target.show(speed);
-		if (storage) storage.set(id, '1');
-
-	} else {
-		btn.addClass('sw-hide');
-		btn.removeClass('sw-show');
-		if (init) target.hide();
-		     else target.hide(speed);
-		if (storage) storage.set(id, '0');
-	}
-	if (type == 'button') {
-		var val = flag ? btn.data('show-val') : btn.data('hide-val');
-		if (val != undefined) btn.val( val );
-	}
-
-	if (init) {
-		var dom = btn[0];
-		if (dom.tagName == 'INPUT' || dom.tagName == 'BUTTON') return true;
-		var span = $('<span>');
-		span.addClass('ui-icon switch-icon');
-		if (IE8) span.css('display', 'inline-block');
-		btn.prepend(span);
-	}
-	return true;
-}
-///
-};
+});
 
 //////////////////////////////////////////////////////////////////////////////
 //●input[type="text"]などで enter による submit 停止
@@ -309,21 +348,6 @@ initfunc.push( function(R){
 		return true;
 	});
 });
-
-//////////////////////////////////////////////////////////////////////////////
-//●textareaでのタブ入力
-//////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R){
-	R.find('textarea').keypress( function(evt){
-		var obj = $(evt.target);
-		if (obj.prop('readonly') || obj.prop('disabled')) return;
-		if (evt.keyCode != 9) return;
-
-		evt.preventDefault();
-		insert_to_textarea(evt.target, "\t");
-	});
-});
-
 
 //////////////////////////////////////////////////////////////////////////////
 //●色選択ボックスを表示。 ※input[type=text] のリサイズより先に行うこと
@@ -365,7 +389,6 @@ initfunc.push( function(R){
 	var dir = ScriptDir + 'colorpicker/';
 	append_css_file(dir + 'css/colorpicker.css');
 	$.getScript(dir + "colorpicker.js", initfunc);
-///
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -373,15 +396,15 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 // IE9でもまともに動かないけど無視^^;;;
 initfunc.push( function(R){
-	R.find('input').each( function(){
-		if (this.type != 'text'
-		 && this.type != 'search'
-		 && this.type != 'tel'
-		 && this.type != 'url'
-		 && this.type != 'email'
-		 && this.type != 'password'
+	R.find('input').each( function(idx,dom){
+		if (dom.type != 'text'
+		 && dom.type != 'search'
+		 && dom.type != 'tel'
+		 && dom.type != 'url'
+		 && dom.type != 'email'
+		 && dom.type != 'password'
 		) return;
-		set_input_resize($(this));
+		set_input_resize($(dom));
 	} )
 
 function set_input_resize(obj) {
@@ -399,9 +422,9 @@ function set_input_resize(obj) {
 		var cell  = par;
 		var child = cell.contents();
 		par = $('<div>').css('position', 'relative');
-		child.each( function() {
-			$(this).detach();
-			par.append(this);
+		child.each( function(idx,dom) {
+			$(dom).detach();
+			par.append(dom);
 		});
 		cell.append(par);
 	} else {
@@ -456,17 +479,17 @@ function evt_mousedown(evt, obj, min_width) {
 //●input, textareaのフォーカスクラス設定  ※リサイズ設定より後に行うこと
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	R.find('form input, form textarea').each( function(){
-		if (this.tagName != 'TEXTAREA'
-		 && this.type != 'text'
-		 && this.type != 'search'
-		 && this.type != 'tel'
-		 && this.type != 'url'
-		 && this.type != 'email'
-		 && this.type != 'password'
+	R.find('form input, form textarea').each( function(idx,dom){
+		if (dom.tagName != 'TEXTAREA'
+		 && dom.type != 'text'
+		 && dom.type != 'search'
+		 && dom.type != 'tel'
+		 && dom.type != 'url'
+		 && dom.type != 'email'
+		 && dom.type != 'password'
 		) return;
 
-		var obj = $(this);
+		var obj = $(dom);
 		// firefoxでなぜかうまく動かないバグ
 		var par = find_parent(obj, function(par){ return par.css('display') == 'table-cell' });
 		if (!par) return;
@@ -484,8 +507,8 @@ initfunc.push( function(R){
 //●INPUT type="radio", type="checkbox" のラベル関連付け（直後のlabel要素）
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	R.find('input[type="checkbox"],input[type="radio"]').each( function() {
-		var obj = $(this);
+	R.find('input[type="checkbox"],input[type="radio"]').each( function(idx,dom) {
+		var obj = $(dom);
 		var label = obj.next();
 		if (!label.length || label[0].tagName != 'LABEL' || label.attr('for')) return;
 
@@ -508,51 +531,38 @@ initfunc.push( function(R){
 ///
 });
 
-
-//############################################################################
-// ■初期化処理
-//############################################################################
-function adiary_init(R) {
-	for(var i=0; i<initfunc.length; i++)
-		initfunc[i](R);
-}
-$( function(){ adiary_init($('#body')) });
-
 //////////////////////////////////////////////////////////////////////////////
-//●自動でadiary初期化ルーチンが走るようにjQueryに細工する
+//●フォーム値の保存
 //////////////////////////////////////////////////////////////////////////////
-$( function(){
-	var hooking = false;
-	function hook_function(obj, args) {
-		if (hooking || obj.attr('id') !== 'body' && obj.parents('#body').length === 0) return;
-		hooking = true;
-		var R = $('<div>');
-		for(var i=0; i<args.length; i++) {
-			if (!args[i] instanceof jQuery) continue;
-			if (typeof args[i] !== 'string') {
-				adiary_init(args[i]);
-				continue;
-			}
-			var R = $('<div>');
-			R.append(args[i]);
-			adiary_init(R);
-			args[i] = R.html();
-		}
-		hooking = false;
-	}
-
-	var hooks = ['append', 'prepend', 'before', 'after', 'html'];
-	function hook(name) {
-		var func = $.fn[name];
-		$.fn[name] = function() {	// closure
-			hook_function(this, arguments);
-			return func.apply(this, arguments);
-		}
-	}
-	for(var i=0; i<hooks.length; i++) {
-		hook(hooks[i]);
-	}
+initfunc.push( function(R) {
+	R.find('input.js-save, select.js-save').each( function(idx, dom) {
+		var obj = $(dom);
+		var id  = obj.attr("id");
+		if (!id) return;
+		obj.change( function(evt){
+			var obj = $(evt.target);
+			Storage.set(id, obj.val());
+		});
+		if ( Storage.defined(id) )
+			obj.val( Storage.get(id) );
+	});
 });
+
+//////////////////////////////////////////////////////////////////////////////
+//●textareaでのタブ入力
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R){
+	R.find('textarea').keypress( function(evt){
+		var obj = $(evt.target);
+		if (obj.prop('readonly') || obj.prop('disabled')) return;
+		if (evt.keyCode != 9) return;
+
+		evt.preventDefault();
+		insert_to_textarea(evt.target, "\t");
+	});
+});
+
+
 //////////////////////////////////////////////////////////////////////////////
 //●タブ機能
 //////////////////////////////////////////////////////////////////////////////
@@ -570,23 +580,6 @@ initfunc.push( function(R){
 	if (!obj.length) return;
 	obj.accordion({
 		heightStyle: "content"
-	});
-});
-
-//////////////////////////////////////////////////////////////////////////////
-//●フォーム値の保存
-//////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R) {
-	R.find('input.js-save, select.js-save').each( function() {
-		var obj = $(this);
-		var id  = obj.attr("id");
-		if (!id) return;
-		obj.change( function(evt){
-			var obj = $(evt.target);
-			Storage.set(id, obj.val());
-		});
-		if ( Storage.defined(id) )
-			obj.val( Storage.get(id) );
 	});
 });
 
