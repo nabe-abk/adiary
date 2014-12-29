@@ -1,0 +1,30 @@
+<@6>
+<@local(s,err,t)>
+<$err=FormError>
+
+<!--========================================================================-->
+<@> システムモード
+<$v.system_mode("アップデート処理設定")>
+
+<@> 階層ツリー、権限確認
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<p><button type="submit" name="action" value="<@v.skel_dir>rebuild_info">付加情報の再生成</button><span class="help" data-help="アクセスURLが変わった時に必ず実行してください。">?</span></p>
+
+	<p><button type="submit" name="action" value="<@v.skel_dir>reinstall_all_plugins">プラグインの再インストール</button><span class="help" data-help="プラグインを更新したときに必要です。">?</span></p>
+	
+	<p><button type="submit" name="action" value="<@v.skel_dir>rebuild_all_blogs">全ブログの再構築</button><span class="help" data-help="すべてのブログのすべての記事を再構築します。">?</span></p>
+
+	<button type="submit" name="action" value="<@v.skel_dir>update" value="1"<@if(!v.require_update, ' disabled')>>アップデート処理を行う</button><span class="help" data-help="必要な時だけボタンがonになります">?</span>
+	</form>
+</div>
+</article>
+
+
+

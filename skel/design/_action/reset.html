@@ -3,7 +3,7 @@
 <$ifbreak(! v.blog_admin)>
 
 実際に処理を行う
-<$action_return = v.reset_design(Form, Form.all)>
+<$action_return = v.reset_design(Form.all)>
 
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>

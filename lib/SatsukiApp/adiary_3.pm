@@ -1209,7 +1209,9 @@ sub save_use_plugins {
 			next;
 		}
 		$flag=1;
-		$ROBJ->message("[plugin:%s] $msg success", $name);
+		if (! $self->{stop_plugin_install_msg}) {
+			$ROBJ->message("[plugin:%s] $msg success", $name);
+		}
 		if ($inst) { push(@install_plugins, $name); }
 	}
 	# 状態変更があった？
@@ -1588,7 +1590,6 @@ sub load_and_call_module_html {
 #------------------------------------------------------------------------------
 sub reset_design {
 	my $self = shift;
-	my $form = shift;
 	my $all  = shift;
 	my $ROBJ = $self->{ROBJ};
 	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
@@ -1616,6 +1617,72 @@ sub reset_design {
 
 	return 0;
 }
+
+###############################################################################
+# ■プラグインの再インストール
+###############################################################################
+sub reinstall_plugins {
+	my $self = shift;
+	my $pd = $self->load_plugins_dat();
+
+	$self->reinstall_normal_plugins($pd);
+	$self->reinstall_design_plugins($pd);
+}
+#------------------------------------------------------------------------------
+# ●通常プラグインの再インストール
+#------------------------------------------------------------------------------
+sub reinstall_normal_plugins {
+	my $self = shift;
+	my $pd   = shift;
+	my $plgs = $self->load_plugins_info();
+
+	my %h;
+	foreach(@$plgs) {
+		$h{ $_->{name} } = 0;	# uninstall
+	}
+	$self->save_use_plugins(\%h);
+	foreach(@$plgs) {
+		$h{ $_->{name} } = $pd->{ $_->{name} } ? 1 : 0;	# reinstall
+	}
+	return $self->save_use_plugins(\%h);
+}
+
+#------------------------------------------------------------------------------
+# ●デザインモジュールの再インストール
+#------------------------------------------------------------------------------
+sub reinstall_design_plugins {
+	my $self = shift;
+	my $pd   = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $plgs = $self->load_plugins_info();
+
+	# デザインモジュールの現在の状態をロードしておく
+	my $sidebar = $ROBJ->fread_lines($self->{blog_dir} . 'skel/_sidebar.html');
+
+	# uninstall
+	$self->reset_design();
+
+	# reinistall
+	my $h = {};
+	my $state = '0';
+	foreach(@$sidebar) {
+		if ($_ =~ /^<div\s*id="side-(\w)">[\s\r\n]*$/) {
+			$state = $1;
+		}
+		if ($_ =~ /^<div\s*class="hatena-module".*?data-module-name="([\w,\-]+)"/) {
+			my $ary = $h->{$state} ||= [];
+			push(@$ary, $1);
+		}
+	}
+	my $form = {
+		side_a_ary => $h->{a} || [],
+		side_b_ary => $h->{b} || []
+	};
+	# $self->debug("side_a : " . join(' ', @{$form->{side_a_ary}}) );
+	# $self->debug("side_b : " . join(' ', @{$form->{side_b_ary}}) );
+	return $self->save_design($form);
+}
+
 
 ###############################################################################
 # ■テーマ選択

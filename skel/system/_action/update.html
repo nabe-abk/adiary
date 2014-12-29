@@ -1,0 +1,12 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(! Auth.isadmin)>
+
+<$action_return = v.system_update()>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message('システムアップデートを実行しました')>
+	<$url = v.myself .'?'. v.query0>
+	<$jump('_sub/reload_message', url)>
+<$end>

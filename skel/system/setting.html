@@ -19,7 +19,7 @@
 <article class="system setting">
 <h2><@v.title></h2>
 <div class="body">
-	<form action="<@v.myself>?<@v.skeleton><@if(Query.blogid eq '*', '&blogid=*')>" method="POST">
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
 	<input type="hidden" name="action" value="<@v.skeleton>">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 

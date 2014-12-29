@@ -7,10 +7,10 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = '2.930';
+our $VERSION = '2.93';
 our $OUTVERSION = '3.00';
 our $SUBVERSION = 'beta3';
-our $DATAVERSION = '2.93';
+our $DATA_VERSION = 2.93;
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
@@ -1240,6 +1240,11 @@ sub load_sysdat {
 	if (!$sys->{Secret_word}) {
 		$self->update_sysdat('Secret_word', $ROBJ->crypt_by_rand_nosalt($ENV{HTTP_USER_AGENT}));
 	}
+	# Versionチェック
+	if ($sys->{VERSION} < $DATA_VERSION) {
+		$self->{require_update} = 1;
+	}
+
 	$ROBJ->{Secret_word} = $sys->{Secret_word};
 	return $sys;
 }

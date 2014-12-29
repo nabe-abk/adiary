@@ -170,24 +170,41 @@ sub rebuild_blog {
 }
 
 #------------------------------------------------------------------------------
+# ●全ブログの再構築
+#------------------------------------------------------------------------------
+sub rebuild_all_blogs {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $auth = $ROBJ->{Auth};
+	if (! $auth->{isadmin} ) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	my $blogs = $self->load_all_blogid();
+	my $cur_blogid = $self->{blogid};
+	foreach(@$blogs) {
+		# 再構築
+		$self->rebuild_blog();
+	}
+	$self->set_and_select_blog($cur_blogid);
+	return 0;
+}
+
+#------------------------------------------------------------------------------
 # ●付加情報の再生成
 #------------------------------------------------------------------------------
 sub blogs_info_rebuild {
 	my $self   = shift;
 	my $blogid = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $DB   = $self->{DB};
 	my $auth = $ROBJ->{Auth};
 	if ($blogid eq '' && ! $auth->{isadmin}
 	 || $blogid ne '' && ! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
 
 	my @ary = ($blogid);
 	if ($blogid eq '') {
-		my $blogs = $DB->select_match($self->{bloglist_table}, '*cols', 'id');
-		@ary = map { $_->{id} } @$blogs;
+		@ary = [ $self->load_all_blogid() ];
 	}
 
-	my $now_blogid = $self->{blogid};
+	my $cur_blogid = $self->{blogid};
 	foreach(@ary) {
 		# ブログ選択
 		$self->set_and_select_blog($_);
@@ -198,9 +215,40 @@ sub blogs_info_rebuild {
 		$self->call_event('COMMENT_STATE_CHANGE');
 		$self->call_event('ARTCOM_STATE_CHANGE');
 	}
-	$self->set_and_select_blog($now_blogid);
+	$self->set_and_select_blog($cur_blogid);
 
 	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●全ブログの全プラグインを再インストール
+#------------------------------------------------------------------------------
+sub reinstall_all_plugins {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $auth = $ROBJ->{Auth};
+	if (! $auth->{isadmin} ) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	my $blogs = $self->load_all_blogid();
+	my $cur_blogid = $self->{blogid};
+	$self->{stop_plugin_install_msg} = 1;
+	foreach(@$blogs) {
+		$self->reinstall_plugins();
+	}
+	$self->{stop_plugin_install_msg} = 0;
+	$self->set_and_select_blog($cur_blogid);
+	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●全ブログidのロード
+#------------------------------------------------------------------------------
+sub load_all_blogid {
+	my $self = shift;
+	my $DB   = $self->{DB};
+	my $blogs = $DB->select_match($self->{bloglist_table}, '*cols', 'id');
+	$blogs = [ map { $_->{id} } @$blogs ];
+	return $blogs;
 }
 
 ###############################################################################

@@ -2,6 +2,9 @@
 <@local(ret,s,t,t2,c,permalink,x,node)>
 <$s = v.blog>
 
+<@> アップデート警告
+<@ifcall(v.skel_dir ne 'design/' &&  v.require_update, '_sub/require_update')>
+
 <$ifexec(argv#0, begin, begin)>
 	<$t = argv#0>
 	<$art_year = t.year>

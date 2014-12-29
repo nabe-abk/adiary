@@ -1,6 +1,9 @@
 <@6>
 <@local(ret,logs,s,t,coms,q,url,x,page,page_offfset)>
 
+<@> アップデート警告
+<@ifcall(v.skel_dir ne 'design/' &&  v.require_update, '_sub/require_update')>
+
 <$(logs,ret) = v.load_articles_current_blog(v.pinfo, Query)>
 <$s = v.blog>
 <$v.title = s.blog_name>

@@ -2,14 +2,11 @@
 <$ifbreak(csrf_check())>
 <$ifbreak(! Auth.isadmin)>
 
-<$action_return = v.blogs_info_rebuild()>
+<$action_return = v.reinstall_all_plugins()>
 
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
-	<$v.update_sysdat('myself',  Myself)>
-	<$v.update_sysdat('myself2', Myself2)>
-
-	<$message('付加情報を再生成しました')>
+	<$message('すべてのブログのプラグインを再インストールしました')>
 	<$url = v.myself .'?'. v.query0>
 	<$jump('_sub/reload_message', url)>
 <$end>

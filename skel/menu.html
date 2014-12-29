@@ -5,12 +5,24 @@
 <@> システムモード
 <$v.system_mode("管理メニュー")>
 
+<@ifexec(!v.sys.myself, begin)>
+	<$v.update_sysdat('myself',  Myself)>
+	<$v.update_sysdat('myself2', Myself2)>
+<$end>
+
 <@> 階層ツリー
 <@call("<@v.skel_dir>_dir_tree")>
 <!--========================================================================-->
 <article class="system">
 <h2><@v.title></h2>
 <div class="body">
+	<@ifexec(Auth.isadmin && v.require_update, begin)>
+		<p><strong class="warning">すぐに<a href="<@v.myself>?system/update">アップデート処理</a>を実行してください。</strong></p>
+	<$end>
+	<@ifexec(Auth.isadmin && (v.sys.myself ne Myself || v.sys.myself2 ne Myself2), begin)>
+		<p><a href="<@v.myself>?system/update">付加情報の再生成</a>が必要です。</p>
+	<$end>
+
 	<@ifexec(v.blog.newcom_flag, begin)>
 	<strong class="notice">新着コメントがあります</strong> &gt;<a href="<@v.myself>?comlist">コメント一覧から確認</a><br>
 	<$end>
@@ -63,35 +75,11 @@ RewriteBase	<@Basepath>
 RewriteCond	%{REQUEST_FILENAME}	!-f
 RewriteRule	^(.*)$			<@cgi>/$1	[L]
 </pre>
-<p>※設定変更後「システム管理」から<strong class="warning">「付加情報の再生成」を必ず実行してください。</strong></p>
+<p>※設定変更後「システム管理」→「アップデート」から<strong class="warning">「付加情報の再生成」を必ず実行してください。</strong></p>
 
 </div>
 </article>
 <$end>
-
-
-<article class="system">
-<h2>debug</h2>
-<div id="test" class="body">
-<button id="test-button">追加</button><br>
-</div>
-</article>
-<script>
-var btn  = $('#test-button');
-var tobj = $('#test');
-btn.click(function(){
-	var line = $('<div>');
-	var inp  = $('<input>').attr('type', 'checkbox');
-	var lab  = $('<label>');
-	var span = $('<span>').text('ボタン付属の文字列');
-	var help = $('<span>').addClass('help').attr('data-help', 'ヘルプ!!').text('?');
-	line.append(inp);
-	line.append(lab);
-	lab.append(span)
-	lab.append(help);
-	tobj.append(line);
-});
-</script>
 
 
 

@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.0β3 : 2014/09/xx
+*Ver3.0β3 : 2014/12/29
 
 -{<teatarea>} でTABが入力できるようになりました。
 -github/gistのソースコード貼り付けが簡単にできるようになりました。（[http://adiary.org/v3man/Satsuki-tag/url-filter:#github:参考]）
@@ -11,6 +11,8 @@
 -tex記法の実体を[g:mimeTeX]から[g:Google Chart API]に変更しました。((mimeTeXを使う場合は{[[mtex:]]}記法を使用してください。))
 -ソースコードマークアップを SyntaxHighlighter から highlight.js に変更しました。
 -adiary.jsのDOM要素に対する機能付加の方法を変更しました。
+-mod_rewrite等でのアクセスURL変更時に、付加情報の再生成を促すメッセージを出すようにしました。
+-バージョンアップ時のアップデートを自動処理するようにしまた。
 -【アルバム】ファイル名が変更できるようになりました。
 -【アルバム】ファイル名で一覧表示できるようになりました。
 -【plugin】メール通知プラグインでブログタイトルを入力できるようにしました。記事URLを本文に書くようにしました。

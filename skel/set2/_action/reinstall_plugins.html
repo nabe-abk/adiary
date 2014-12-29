@@ -1,0 +1,14 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.blog_admin)>
+
+<$action_return = v.reinstall_plugins( Form )>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("使用中プラグインを再インストールしました")>
+	<$url = v.myself .'?'. v.query0>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+

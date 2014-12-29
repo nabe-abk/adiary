@@ -271,6 +271,8 @@ $('#js-save').click(function(){
 
 	form_append('side_a_ary', side_a.children(module_selector));
  	form_append('side_b_ary', side_b.children(module_selector));
+ 	
+ 	alert( form.html() );
 	form.submit();
 });
 
