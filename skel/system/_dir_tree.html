@@ -1,6 +1,6 @@
 <@6>
 <nav class="tree">
-<a href="<@if(v.exists_my_blog, v.myself3, Myself)>?menu" class="dir">メニュー</a>
+<a href="<@if(v.exists_blog, v.myself, Myself)>?menu" class="dir">メニュー</a>
  <span class="splitter">&gt;</span>
 <@call('_sub/menu_list')>
  <span class="splitter">&gt;</span>
