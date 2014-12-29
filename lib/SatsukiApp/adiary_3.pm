@@ -1657,7 +1657,8 @@ sub reinstall_design_plugins {
 	my $plgs = $self->load_plugins_info();
 
 	# デザインモジュールの現在の状態をロードしておく
-	my $sidebar = $ROBJ->fread_lines($self->{blog_dir} . 'skel/_sidebar.html');
+	my ($call_file, $dummy, $level) = $ROBJ->check_skeleton('_sidebar');
+	my $sidebar = $ROBJ->fread_lines($call_file);
 
 	# uninstall
 	$self->reset_design();
@@ -1674,6 +1675,7 @@ sub reinstall_design_plugins {
 			push(@$ary, $1);
 		}
 	}
+
 	my $form = {
 		side_a_ary => $h->{a} || [],
 		side_b_ary => $h->{b} || []

@@ -1711,10 +1711,11 @@ sub load_parser {
 	my $name = shift;
 	if ($name =~ /\W/) { return; }
 
+	my $cid = $self->{blogid} . $name;
 	my $cache = $self->{__parser_cache} ||= {};
-	if ($cache->{$name}) { return $cache->{$name}; }
+	if ($cache->{$cid}) { return $cache->{$cid}; }
 
-	return ($cache->{$name} = $self->{ROBJ}->call( '_parser/' . $name ));
+	return ($cache->{$cid} = $self->{ROBJ}->call( '_parser/' . $name ));
 }
 
 #------------------------------------------------------------------------------
