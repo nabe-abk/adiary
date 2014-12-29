@@ -384,7 +384,7 @@ sub load_blogset {
 sub set_and_select_blog {
 	my ($self, $blogid, $force) = @_;
 	my $ROBJ = $self->{ROBJ};
-	if (!$force && $self->{blogid} eq $blogid) { return $self->{blog}; }
+	if (!$force && $blogid ne '' && $self->{blogid} eq $blogid) { return $self->{blog}; }
 
 	# myself設定
 	$self->{myself}  = $ROBJ->{Myself};
