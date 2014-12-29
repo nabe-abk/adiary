@@ -181,7 +181,7 @@ sub rebuild_all_blogs {
 	my $blogs = $self->load_all_blogid();
 	my $cur_blogid = $self->{blogid};
 	foreach(@$blogs) {
-		# 再構築
+		$self->set_and_select_blog($_);
 		$self->rebuild_blog();
 	}
 	$self->set_and_select_blog($cur_blogid);
@@ -233,6 +233,7 @@ sub reinstall_all_plugins {
 	my $cur_blogid = $self->{blogid};
 	$self->{stop_plugin_install_msg} = 1;
 	foreach(@$blogs) {
+		$self->set_and_select_blog($_);
 		$self->reinstall_plugins();
 	}
 	$self->{stop_plugin_install_msg} = 0;
