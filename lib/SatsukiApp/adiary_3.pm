@@ -1669,7 +1669,7 @@ sub reinstall_design_plugins {
 		if ($_ =~ /^<div\s*id="side-(\w)">[\s\r\n]*$/) {
 			$state = $1;
 		}
-		if ($_ =~ /^<div\s*class="hatena-module".*?data-module-name="([\w,\-]+)"/) {
+		if ($_ =~ /^<div\s*class="hatena-module[\s\w\-\.]*".*?data-module-name="([\w,\-]+)"/) {
 			my $ary = $h->{$state} ||= [];
 			push(@$ary, $1);
 		}
