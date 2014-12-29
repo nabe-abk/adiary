@@ -2,6 +2,7 @@
 # development directory
 #--------------------------------------
 .*/
+*.tar.bz2
 
 #--------------------------------------
 # private data directory

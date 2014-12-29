@@ -32,6 +32,7 @@ BASE="
 	adiary.env.cgi.sample
 	adiary.conf.cgi.sample
 	README.md
+	CHANGES.txt
 	index.html
 	dot.htaccess
 "

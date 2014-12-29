@@ -23,6 +23,8 @@ And, '__cache' and 'data/' directories not permit to access from web.
   5. adiary.cgi にアクセスし、ID、パスワードを適当に入力してログイン。
   6. その後、自分自身をユーザーとして追加する。
 
+詳細は[オンラインマニュアル](http://adiary.org/v3man/)を参照してください。
+
 # 著作権表示(Copryright)
 
  Copyright (C)2013-2014 nabe@abk.
@@ -82,7 +84,7 @@ VLゴシックフォント（pub-dist/VL-PGothic-Regular.ttf）を
 ## 画像アイコン
 
   * pub-dist/album-icon  以下のアイコンの多くはせりか氏の著作物です。
-  * pub-dist/album-icon/pdf.png は http://iconhoihoi.oops.jp/ の著作物です。
+  * pub-dist/album-icon/pdf.png は [http://iconhoihoi.oops.jp/] の著作物です。
   * pub-dist/album-icon  以下の g-*.png と trashbox.png はGNOME Desktopアイコンです。
   * pub-dist/editor-icon 以下のアイコンはせりか氏の著作物です。
   * pub-dist/icon/ 以下にあるアイコンの一部はせりか氏の著作物です。
