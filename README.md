@@ -84,7 +84,7 @@ VLゴシックフォント（pub-dist/VL-PGothic-Regular.ttf）を
 ## 画像アイコン
 
   * pub-dist/album-icon  以下のアイコンの多くはせりか氏の著作物です。
-  * pub-dist/album-icon/pdf.png は [http://iconhoihoi.oops.jp/] の著作物です。
+  * pub-dist/album-icon/pdf.png は http://iconhoihoi.oops.jp/ の著作物です。
   * pub-dist/album-icon  以下の g-*.png と trashbox.png はGNOME Desktopアイコンです。
   * pub-dist/editor-icon 以下のアイコンはせりか氏の著作物です。
   * pub-dist/icon/ 以下にあるアイコンの一部はせりか氏の著作物です。

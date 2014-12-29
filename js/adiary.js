@@ -86,6 +86,7 @@ function adiary_init(R) {
 		initfunc[i](R);
 }
 
+var jquery_hook_stop = false;
 $(function(){
 	var body = $('#body');
 	body.append( $('<div>').attr('id', 'popup-div')      );
@@ -102,8 +103,9 @@ $(function(){
 		for(var i=0; i<args.length; i++) {
 			if (!args[i] instanceof jQuery) continue;
 			if (typeof args[i] === 'string') continue;
+			if (!('findx' in args[i])) continue;
+			// hook ok
 			adiary_init(args[i]);
-			continue;
 		}
 	}
 
@@ -112,7 +114,7 @@ $(function(){
 	function hook(name) {
 		var func = $.fn[name];
 		$.fn[name] = function() {	// closure
-			if (hooking || this.attr('id') !== 'body' && this.parents('#body').length === 0) return func.apply(this, arguments);
+			if (jquery_hook_stop || hooking || this.attr('id') !== 'body' && this.parents('#body').length === 0) return func.apply(this, arguments);
 			// hook処理
 			hooking = true;
 			hook_function(this, arguments);
