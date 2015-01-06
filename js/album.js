@@ -53,6 +53,7 @@ $( function(){
 	var isMac = /Mac/.test(navigator.platform);
 	var isIE8 = ('IE'.substr(-1) === 'IE');
 	if (isIE8) thumb_size.prop('disabled', true);
+	if (isIE8) $('#auto-upload-box').hide();
 	
 //////////////////////////////////////////////////////////////////////////////
 // ●初期化処理
@@ -998,6 +999,9 @@ main.on("drop", function(evt) {
 	for(var i=0; i<dnd_files.length; i++)
 		upfiles.push( dnd_files[i] );
 	update_upfiles();
+
+	// 自動アップロード
+	if ($('#auto-upload').prop('checked')) upform.submit();
 });
 
 function update_upfiles() {

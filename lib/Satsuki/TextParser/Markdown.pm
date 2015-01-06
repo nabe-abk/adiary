@@ -1,14 +1,14 @@
 use strict;
 #------------------------------------------------------------------------------
 # markdown記法
-#                                                   (C)2014 nabe / nabe@abk.nu
+#                                              (C)2014-2015 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
 # コメント中に [M] とあるものは、Markdown.pl 準拠。
 # [GitHub] とあるものは、GitHub Flavored Markdown 準拠。
 # [S] とあるものは、adiary拡張（Satsuki記法互換機能）
 #
 package Satsuki::TextParser::Markdown;
-our $VERSION = '1.00';
+our $VERSION = '1.02';
 #------------------------------------------------------------------------------
 ###############################################################################
 # ■基本処理
@@ -181,7 +181,7 @@ sub parse_special_block {
 		if ($x =~ /^\s*$/) { $x = ''; }
 
 		# [M] TAB to SPACE 4つ
-		$x =~ s/(.*)\t/' ' x ($tw - (length($1) % $tw))/eg;
+		$x =~ s/(.*?)\t/$1 . (' ' x ($tw - (length($1) % $tw)))/eg;
 
 		# HTMLブロック
 		if ($x =~ /<($block_tags)\b[^>]*>/i) {
@@ -326,21 +326,23 @@ sub parse_special_block {
 sub parse_block {
 	my ($self, $lines, $rec) = @_;
 
-	my $lf_patch = $self->{lf_patch};
 	my $pmode=1;
-	if ($rec && !grep{ $_ eq '' } @$lines) { $pmode=0; }
 	my $seemore = 1;
+	if ($rec && !grep{ $_ eq '' } @$lines) { $pmode=0; }
 
 	my @ary;
 	if ($lines->[$#$lines] ne '') { push(@$lines, ''); }
 	my $links = $self->{links};
+	my @p_block;
 	while(@$lines) {
 		my $x = shift(@$lines);
 		if (ord(substr($x, -1)) < 3) {
+			$self->p_block_end(\@ary, \@p_block);
 			push(@ary, $x);
 			next;
 		}
 		if ($x eq '') {
+			$self->p_block_end(\@ary, \@p_block);
 			push(@ary, $x);
 			next;
 		}
@@ -348,13 +350,14 @@ sub parse_block {
 		#----------------------------------------------
 		# リストブロック
 		#----------------------------------------------
-		if ($x =~ /^ ? ? ?(\*|\+|\-|\d+\.)\s+/) {
+		if ($x =~ /^ ? ? ?(\*|\+|\-|\d+\.) /) {
+			$self->p_block_end(\@ary, \@p_block);
 			my $ulol = length($1)<2 ? 'ul' : 'ol';
 			my @list=($x);
 			my $blank=0;
 			while(@$lines) {
 				$x = shift(@$lines);
-				if (ord(substr($x, -1)) < 4) { last; }
+				if ($x ne '' && ord(substr($x, -1)) < 4) { last; }
 				if ($blank && $x !~ /^ ? ? ?(?:\*|\+|\-|\d+\.) |^    /) { last; }
 				push(@list, $x);
 				$blank = ($x eq '');
@@ -367,42 +370,47 @@ sub parse_block {
 			my @ul;
 			my $li = [];
 			my $blank=0;
-			my $first_ul;
+			my $ul_indent = -1;
 			my %p;
-			push(@list,'+ dummy');
 			while(@list) {
 				$x = shift(@list);
-				if ($x =~ /^ ? ? ?(?:\*|\+|\-|\d+\.) (.*)$/) {
+				if ($x =~ /^( ? ? ?)(?:\*|\+|\-|\d+\.) (.*)$/
+				 && ($ul_indent == -1 || length($1) == $ul_indent)) {
 					if (@$li) {
 						push(@ul, $li);
 					}
-					$li = [$1];
+					$li = [$2];
+					$ul_indent = length($1);
 					if ($blank) { $p{$li} = 1; }
 					$blank=0;
-					$first_ul=1;
 					next;
 				} elsif ( $x eq '' )  {
-					$first_ul=0;
 					$blank=1;
 					$p{$li} = 1;
 				} else {
 					$blank=0;
-					$x =~ s/^ ? ? ? ?//;	# 先頭からSP4つまで除去
-					if ($first_ul && $x =~ /^ ? ? ?(?:\*|\+|\-|\d+\.) /) {
-						push(@$li, '');
-						$first_ul=0;
+					for(my $i=0; $i<$ul_indent; $i++) {
+						# そのブロックのインデント除去
+						if (ord($x) != 0x20) { next; }
+						$x = substr($x,1);
 					}
 				}
 				push(@$li, $x);
 			}
+			if (@$li) { push(@ul, $li); }
+
 			# ネスト処理
-			foreach(@ul) {
-				if ($#$_ == 0) {
-					push(@ary, $p{$_} ? "<li><p>$_->[0]</p></li>" : "<li>$_->[0]</li>");
+			foreach my $li (@ul) {
+				if ($#$li == 0) {
+					push(@ary, $p{$li} ? "<li><p>$li->[0]</p></li>" : "<li>$li->[0]</li>");
 					next;
 				}
-				my $blk = $self->parse_block($_, 1);
- 				if ($blk->[$#$blk] eq '') { pop(@$blk); }
+				# [M] リストネスト時は先頭スペースを最大1つ除去する
+				foreach(@$li) {
+					$_ =~ s/ //;
+				}
+				my $blk = $self->parse_block($li, 1);
+				if ($blk->[$#$blk] eq '') { pop(@$blk); }
 				$blk->[0] = '<li>' . $blk->[0];
 				$blk->[$#$blk] .= '</li>';
 				push(@ary, @$blk);
@@ -415,6 +423,7 @@ sub parse_block {
 		# 引用ブロック [M] ブロックは入れ子処理する
 		#----------------------------------------------
 		if ($x =~ /^>/) {
+			$self->p_block_end(\@ary, \@p_block);
 			push(@ary, '<blockquote>');
 			my $p = 0;
 			my @block;
@@ -434,9 +443,10 @@ sub parse_block {
 		}
 
 		#----------------------------------------------
-		# コードブロック
+		# [M] コードブロック
 		#----------------------------------------------
 		if ($x =~ /^    (.*)/) {
+			$self->p_block_end(\@ary, \@p_block);
 			my @code;
 			unshift(@$lines, $x);
 			while(substr($lines->[0],0,4) eq '    ') {
@@ -455,6 +465,7 @@ sub parse_block {
 		# [GitHub] シンタックスハイライト
 		#----------------------------------------------
 		if ($x =~ /^```([^`]*?)\s*$/) {
+			$self->p_block_end(\@ary, \@p_block);
 			my ($lang,$file) = split(':', $1, 2);
 			my @code;
 			$x = shift(@$lines);
@@ -483,6 +494,7 @@ sub parse_block {
 		# 続きを読む記法
 		#----------------------------------------------
 		if ($seemore && $self->{satsuki_seemore} && ($x eq '====' || $x eq '=====')) {
+			$self->p_block_end(\@ary, \@p_block);
 			push(@ary, <<TEXT);
 <p class="seemore"><a class="seemore" href="$self->{thisurl}">$self->{seemore_msg}</a></p><!--%SeeMore%-->\x02
 TEXT
@@ -497,6 +509,7 @@ TEXT
 		my $y = $x;
 		$y =~ s/\s//g;
 		if ($y =~ /^\*\*\*\**$|^----*$|^____*$/) {
+			$self->p_block_end(\@ary, \@p_block);
 			push(@ary, "<hr />\x01");
 			next;
 		}
@@ -505,6 +518,7 @@ TEXT
 		# リンク定義。[M] 参照名が空文字の場合は無効
 		#----------------------------------------------
 		if ($x =~ /^ ? ? ?\[([^\]]+)\]:\s*(.*?)\s*(?:\s*("[^\"]*"|'[^\']*')\s*)?\s*$/) {
+			$self->p_block_end(\@ary, \@p_block);
 			my $name = $1;
 			my $url  = $2;
 			my $title = substr($3,1);
@@ -527,29 +541,35 @@ TEXT
 			push(@ary, $x);
 			next;
 		}
-
-		# 通常の文字列ブロック
-		my $prev = "<p>$x";
-		push(@ary, $prev);
-		while(@$lines) {
-			$x = shift(@$lines);
-			if ($x eq '') { last; }
-			if ($lf_patch && 0x7f < ord(substr($prev,-1)) &&  0x7f < ord($x)) {
-				# 日本語文章中に改行が含まれるとスペースになり汚いため行連結する。
-				$prev =~ s|   *$| <br />|;
-				$ary[$#ary] = $prev = $prev . $x;
-				next;
-			}
-			$ary[$#ary] =~ s|   *$| <br />|;	# 行末スペース2つ以上は強制改行
-			push(@ary, $x);
-			$prev = $x;
-		}
-		$ary[$#ary] .= "</p>";
-		push(@ary, '');
+		# 段落ブロック
+		push(@p_block, $x);
 	}
 	# 文末空行の除去
 	while($ary[$#ary] eq '') { pop(@ary); }
 	return \@ary;
+}
+
+sub p_block_end {
+	my $self = shift;
+	my $ary = shift;
+	my $blk = shift;
+	my $lf_patch = $self->{lf_patch};
+	if (!@$blk) { return; }
+
+	my $line = '<p>' . shift(@$blk);
+	foreach my $x (@$blk) {
+		$line =~ s|   *$| <br />|;	# 行末スペース2つ以上は強制改行
+		if ($lf_patch && 0x7f < ord(substr($line,-1)) &&  0x7f < ord($x)) {
+			# 日本語文章中に改行が含まれるとスペースになり汚いため行連結する。
+			$line .= $x;
+			next;
+		}
+		push(@$ary, $line);
+		$line = $x;
+	}
+	push(@$ary, $line . '</p>');
+	push(@$ary, '');
+	$blk = [];
 }
 
 #------------------------------------------------------------------------------

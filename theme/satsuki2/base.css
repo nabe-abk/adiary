@@ -110,6 +110,14 @@ article figure, article img {
 	max-width:	100%;
 }
 
+/* ブロック中のpタグ */
+blockquote p:first-child {
+	margin-top:	0;
+}
+blockquote p:last-child {
+	margin-bottom:	0;
+}
+
 /*--------------------------------------------------------------------
 ●フォーム関連
 ---------------------------------------------------------------------*/
