@@ -1522,6 +1522,13 @@ sub save_design {
 	if ($r) {
 		$ROBJ->message('Design edit failed');
 	}
+	# デザイン情報を保管（再構築時）
+	$self->update_design_info({
+		side_a => join("\n", @side_a),
+		side_b => join("\n", @side_b),
+		side_info => 1
+	});
+
 	return $r;
 }
 
@@ -1585,6 +1592,7 @@ sub load_and_call_module_html {
 	$ROBJ->file_delete( $file );
 	return $ret;
 }
+
 #------------------------------------------------------------------------------
 # ●デザインの初期化
 #------------------------------------------------------------------------------
@@ -1657,34 +1665,41 @@ sub reinstall_design_plugins {
 	my $plgs = $self->load_plugins_info();
 
 	# デザインモジュールの現在の状態をロードしておく
-	my ($call_file, $dummy, $level) = $ROBJ->check_skeleton('_sidebar');
-	my $sidebar = $ROBJ->fread_lines($call_file);
+	my $des = $self->load_design_info();
+	my $sidebar;
+	if (!$des->{side_info}) {
+		my ($call_file, $dummy, $level) = $ROBJ->check_skeleton('_sidebar');
+		$sidebar = $ROBJ->fread_lines($call_file);
+	}
 
 	# uninstall
 	$self->reset_design();
 
 	# reinistall
-	my $h = {};
-	my $state = '0';
-	foreach(@$sidebar) {
-		if ($_ =~ /^<div\s*id="side-(\w)">[\s\r\n]*$/) {
-			$state = $1;
-		}
-		if ($_ =~ /^<div\s*class="hatena-module[\s\w\-\.]*".*?data-module-name="([\w,\-]+)"/) {
-			my $ary = $h->{$state} ||= [];
-			push(@$ary, $1);
+	my $h;
+	if ($des->{side_info}) {
+		$h->{a} = [ split(/\n/, $des->{side_a}) ];
+		$h->{b} = [ split(/\n/, $des->{side_b}) ];
+	} else {
+		# 初期状態では design.dat は存在しないために、
+		# この部分は消してはいけない。
+		my $state = '0';
+		foreach(@$sidebar) {
+			if ($_ =~ /^<div\s*id="side-(\w)">[\s\r\n]*$/) {
+				$state = $1;
+			}
+			if ($_ =~ /^<div\s*class="hatena-module[\s\w\-\.]*".*?data-module-name="([\w,\-]+)"/) {
+				my $ary = $h->{$state} ||= [];
+				push(@$ary, $1);
+			}
 		}
 	}
 
-	my $form = {
+	return $self->save_design({
 		side_a_ary => $h->{a} || [],
 		side_b_ary => $h->{b} || []
-	};
-	# $self->debug("side_a : " . join(' ', @{$form->{side_a_ary}}) );
-	# $self->debug("side_b : " . join(' ', @{$form->{side_b_ary}}) );
-	return $self->save_design($form);
+	});
 }
-
 
 ###############################################################################
 # ■テーマ選択
@@ -1750,6 +1765,43 @@ sub save_theme {
 	$self->update_blogset($blog, 'sysmode_notheme', $form->{sysmode_notheme_flg});
 	return 0;
 }
+
+###############################################################################
+# ■デザイン情報の管理
+###############################################################################
+#------------------------------------------------------------------------------
+# ●デザイン情報のロード
+#------------------------------------------------------------------------------
+sub load_design_info {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	return $ROBJ->fread_hash_cached( $self->{blog_dir} . 'design.dat', {NoError => 1} );
+}
+
+#------------------------------------------------------------------------------
+# ●デザイン情報の保存
+#------------------------------------------------------------------------------
+sub save_design_info {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	return $ROBJ->fwrite_hash( $self->{blog_dir} . 'design.dat', @_ );
+}
+
+#------------------------------------------------------------------------------
+# ●デザイン情報の更新
+#------------------------------------------------------------------------------
+sub update_design_info {
+	my $self = shift;
+	my $h = $self->load_design_info();
+	$self->update_hash( $h, @_ );
+	return $self->save_design_info($h);
+}
+
+
+
+
+
+
 
 
 1;

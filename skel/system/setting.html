@@ -82,14 +82,14 @@
 	</tr>
 
 	<tr>
-		<th>更新通知/TBのタイムアウト<span class="help" data-help="更新通知Pingやトラックバック送信時の1サイトあたりのタイムアウト時間を設定します。">?</span></th>
+		<th>更新通知等のタイムアウト<span class="help" data-help="更新通知PingやTwitter通知など、外部サイトアクセス時に最大何秒まで待つかを指定します。">?</span></th>
 		<td<@err.c_http_timeout>>
 			<input type="number" name="http_timeout" min="1" max="60" class="w40" value="<@s.http_timeout || 3>">秒（標準3秒）
 		</td>
 	</tr>
 
 	<tr>
-		<th>リロードタイム<span class="help" data-help="設定保存時等のリロード画面の自動リロードまでの時間を設定します。">?</span></th>
+		<th>リロードタイム<span class="help" data-help="記事編集後や設定保存後の画面で、自動リロードまでの時間を設定します。">?</span></th>
 		<td<@err.c_reload_time>>
 			<input type="number" name="reload_time" min="0" max="60" class="w40" value="<@if(s.reload_time eq '', 3, s.reload_time)>">秒（0＝自動リロードしない）
 		</td>

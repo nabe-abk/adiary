@@ -8,7 +8,7 @@
 #　・先頭 '#' はコメント。空行は無視。
 #　・alias は ">linkname"。１階層しかたどれない。
 #　・url には「,」を含めない。
-#  ・文字コード "ASCII" 指定はコード変換なし指定
+#  ・文字コード "ASCII" や 小文字指定 はコード変換しない。
 #  ・引数の数が限定されていれば、それ以上の表記は「:」で連結する。
 #------------------------------------------------------------------------------
 # ■サイト固有、タグ設定ファイルのロード
@@ -125,18 +125,12 @@ search:k  = >search:keyword
 search:q  = >search:question
 
 #------------------------------------------------------------------------------
-# mimeTeX
+# TeX記法
 #------------------------------------------------------------------------------
-# mimeTeX をインストールする必要があります。
-#	http://www.forkosh.com/mimetex.html
-#	$ mkdir tmp
-#	$ cd tmp
-#	$ wget http://www.forkosh.com/mimetex.zip
-#	$ unzip mimetex.zip
-#	$ gcc -O2 -o mimetex.cgi -lm -DAA mimetex.c gifsave.c
-#	$ cp mimetex.cgi ../
-mtex   = mimeTeX,          ASCII, 1, <img src="${Basepath}mimetex.cgi?$1" alt="#1" title="#1" class="tex">
-tex    = Google Chart API, ASCII, 1, <img src="http://chart.apis.google.com/chart?cht=tx&chf=bg,s,ffffff00&chl=$1" alt="#1" title="#1" class="tex">
+tex = Google Chart API, ASCII, 1, <img src="http://chart.apis.google.com/chart?cht=tx&chf=bg,s,ffffff00&chl=$1" alt="#1" title="#1" class="tex">
+
+# mimeTeX（要インストール http://adiary.org/v3man/Satsuki-tag/tex#mimetex）
+mtex = mimeTeX, ASCII, 1, <img src="${Basepath}mimetex.cgi?$1" alt="#1" title="#1" class="tex">
 
 #------------------------------------------------------------------------------
 # 画像プラグイン／ファイルアップローダ

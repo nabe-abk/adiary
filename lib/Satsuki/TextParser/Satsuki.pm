@@ -1,13 +1,16 @@
 use strict;
 #------------------------------------------------------------------------------
-# 記事システム標準パーサー／Satsukiパーサー
-#                                                (C)2006-13 nabe / nabe@abk.nu
+# システム標準パーサー／Satsukiパーサー
+#                                             (C)2006-2015 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
+# \x00-\x05は内部で使用するため、いかなる場合も記述できません。
+# ※記述してある場合除去されます。
+#
 package Satsuki::TextParser::Satsuki;
 # ※注意。パッケージ名変更時は78行目付近も修正のこと！
 
 use Satsuki::AutoLoader;
-our $VERSION = '2.00';
+our $VERSION = '2.01';
 #------------------------------------------------------------------------------
 my $TAG_PLUGIN_CLASS = 'TextParser::TagPlugin::Tag_';
 my $CSS_CLASS_PREFIX = 'tag-';
@@ -499,7 +502,6 @@ sub block_parser {
 			while($self->{chain_line} && substr($line, -1) eq "\\") {
 				chop($line);
 				$line  =~ s/ +$//;	# \ の手前のスペース除去
-				$line .= shift(@$lines);
 			}
 			# mini verbatim表記  {xxx}, {<tag>}, {[xxx:tag]}
 			$line =~ s/\\([\{\}])/ "\x01#" . ord($1) . ';'/eg;	# { } のエスケープ
@@ -507,7 +509,8 @@ sub block_parser {
 				$2 ? $2 : $self->mini_pre($1) /eg;		# mini pre {{ xxx }}
 			$line =~ s/\{(.*?)\s?\}|(\[\[.*?\]*\]\])/
 				$2 ? $2 : $self->mini_verbatim($1) /eg;		# mini varbatim {<xxx>}
-			$line =~ tr/\x01/&/;	# \x01 を & に戻す
+			# $line =~ tr/\x01/&/;	# \x01 を & に戻す
+			$line =~ s/\x01#(\d+);/chr($1)/eg;	# { } を戻す
 			# マクロ展開
 			$line =~ s#\[\*toc(?:|:(.*?))\]#<toc>$1</toc>\n#g;
 			$line =~ s/\[\*(.*?)\]/ $macros->{$1} && unshift(@$lines, @{ $macros->{$1} }), ''/eg;
@@ -1302,23 +1305,15 @@ sub parse_tag {
 	my $this = shift;
 	my $post_process = shift;	# markdown記法で使用
 
-	# [&icon-name] → [icon:icon-name]
-	$this =~ s/\[&(\w+)\]/\[icon:$1\]/g;
-	# [&http://youtube.com/] → [filter:http://youtube.com]
-	$this =~ s/\[&([^\]]+)\]/\[filter:$1\]/g;
-	# [$name] → 自由変数nameの中身を出力
-	$this =~ s/\[\$(.*?)\]/$self->{vars}->{$1}/g;
-
-	# 記法タグの処理
-	my $count=100;
 	# [[ ]] タグを先行処理
+	my $count=100;
 	while ($count>0 && $this =~ /(.*?)\[\[(.*?\]*)\s?\]\](.*)/s) {
 		# [[aa:[[bb:テキスト]]]] のとき bb タグを先に処理する
 		my $x = rindex($2, '[[');
 		my $p0  = $1 . ($x<0 ? '' : '[[' . substr($2,0,$x));	# tagより前
 		my $cmd =       $x<0 ? $2 :        substr($2,$x+2);
 		my $p1  = $3;	# tagより後ろ
-		$this = $self->special_command( $cmd, 1 );
+		$this = $self->special_command( $cmd, {verb => 1} );
 		$this =~ s/\[/&#91;/g;
 		$this =~ s/\]/&#93;/g;
 		$this =~ s/:/&#58;/g;
@@ -1328,7 +1323,7 @@ sub parse_tag {
 	}
 	
 	# [ ] タグを処理
-	while ($count>0 && $this =~ /(.*?)\[([^\[\]]+)\](.*)/s) {
+	while ($count>0 && $this =~ /(^|.*?[^\\])\[((?:\\\[|\\\]|[^\[\]])+)\](.*)/s) {
 		my $p0 = $1;	# tagより前
 		my $p1 = $3;	# tagより後ろ
 		$this = $self->special_command( $2 );
@@ -1345,25 +1340,40 @@ sub parse_tag {
 # ○コマンドの処理
 #--------------------------------------------------------------------
 sub special_command {
-	my $self      = shift;
-	my $cmd_line  = shift;
-	my $verb_flag = shift;
-	my $tags    = $self->{tags};
+	my $self     = shift;
+	my $cmd_line = shift;
+	my $opt  = shift || {};
+	my $tags = $self->{tags};
+	my $orig = $cmd_line;
+
+	# 特殊コマンド処理
+	# [&icon-name] → [icon:icon-name]
+	$cmd_line =~ s/^&(\w+)$/icon:$1/g;
+	# [&http://youtube.com/] → [filter:http://youtube.com]
+	$cmd_line =~ s/^&(.+)$/filter:$1/g;
+	# [$name] → 自由変数nameの中身を出力
+	if ($cmd_line =~ /^\$(.*)$/) {
+		return $self->{vars}->{$1};
+	}
 
 	# cmd:arg1:arg2 ... のパース
-	$cmd_line =~ s/\\:/\x00/g;
+	if (!$opt->{verb}) {
+		$cmd_line =~ s/\\([\[\]])/$1/g;
+		$cmd_line =~ s/\\:/\x00/g;
+	}
+	
 	my @cmd = map { s/\x00/:/g; $_ } split(':', $cmd_line);
 	my $cmd = shift(@cmd);
 	while (exists $tags->{ "$cmd:$cmd[0]" } && @cmd) {	# 連結コマンド
 		$cmd = $cmd . ':' . shift(@cmd);
 	}
-	if ($verb_flag) {	# [[ ]] 環境では : をそのまま書ける
-		my $str = join(':', @cmd);
-		@cmd = ($str);
-	}
 
 	if (exists $tags->{ $cmd }) {
 		my $tag = $self->load_tag($cmd);
+		# verb環境？
+		if ($opt->{verb}) {
+			@cmd = ( join(':', @cmd) );
+		}
 		# alias 処理
 		my $real_cmd = $cmd;
 		if ($tag->{alias}) {
@@ -1404,7 +1414,7 @@ sub special_command {
 		}
 	}
 	# 未知のコマンド
-	return $verb_flag ? "[[$cmd_line]]" : "[$cmd_line]";
+	return $opt->{verb} ? "[[$orig]]" : "[$orig]";
 }
 
 sub load_tag {
@@ -1491,7 +1501,9 @@ sub replace_link {
 	unshift(@argv,  $ROBJ->{Basepath});
 	$url =~ s/\#(\d)/$argv[$1]/g;			# 文字コード変換前
 
+	if ($code eq 'ASCII' || $code !~ /[A-Z]/) { $code=''; }
 	my $jcode = $code ? $ROBJ->load_codepm() : undef;
+
 	foreach(@argv) {
 		if ($jcode) { $jcode->from_to(\$_, $ROBJ->{System_coding}, $code); }
 		$self->encode_uricom($_);

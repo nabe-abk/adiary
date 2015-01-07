@@ -11,7 +11,7 @@ our $VERSION = '1.00';
 
 # use Satsuki::Exporter 'import';
 use Exporter 'import';
-our @EXPORT = qw(AUTOLOAD debug DESTROY);
+our @EXPORT = qw(AUTOLOAD debug DESTROY ROBJ);
 our $AUTOLOAD;
 
 #------------------------------------------------------------------------------
@@ -65,6 +65,9 @@ sub AUTOLOAD {
 sub debug {
 	my $self = shift;
 	$self->{ROBJ}->debug($_[0], 1);		# debug-safe
+}
+sub ROBJ {
+	return $_[0]->{ROBJ};
 }
 sub DESTROY {
 	my $self = shift;

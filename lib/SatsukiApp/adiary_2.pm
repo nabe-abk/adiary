@@ -1595,11 +1595,7 @@ sub update_bloginfo {
 sub update_blogset {
 	my ($self, $blogid, $k, $v) = @_;
 	my $blog = ref($blogid) ? $blogid : $self->load_blogset($blogid);
-	if (ref($k)) {
-		$self->{ROBJ}->into($blog, $k);
-	} elsif ($k ne '') {
-		$blog->{$k}=$v;
-	}
+	$self->update_hash( $blog, $k, $v );
 	$blog->{_update}=1;
 }
 
