@@ -966,7 +966,7 @@ $('#remake-thumbnail').click(function(){
 		success: function(data) {
 			if (data.ret !== 0) {
 				// ファイル名が不正など
-				alert( $('#msg-fail-remake').text() );
+				error_msg('#msg-fail-remake');
 				return;
 			}
 			var node = cur_node;
@@ -975,7 +975,7 @@ $('#remake-thumbnail').click(function(){
 		},
 		error: function() {
 			// 通常起きない
-			alert( $('#msg-fail-remake').text() );
+			error_msg('#msg-fail-remake');
 		}
 	});
 });

@@ -2,6 +2,7 @@
 
 *Ver3.0β4 : 2015/xx/xx
 
+-記法の[http://adiary.org/v3man/Satsuki-detail/escape:エスケープ表記動作]を整理しました。
 -【アルバム】D&Dで自動アップロードする機能をつけました。
 -【fix】フィルター記法を{[[&http://adiary.org]]}のように{[[ ]]}中に書けない。
 -【Markdown】【fix】行頭以外にTABを入力した時の挙動が正しくない。

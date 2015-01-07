@@ -1798,10 +1798,4 @@ sub update_design_info {
 }
 
 
-
-
-
-
-
-
 1;

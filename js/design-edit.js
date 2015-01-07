@@ -27,7 +27,8 @@ $(function(){
 		var html = obj.html();
 		var x = html.match(/\s+(id\s*=\s*"[\w\-]*")/);
 		if (x && !x[1].match(/^id="js-generate-id-/)) {
-			alert('"' + obj.data('module-name') + '" sample html has id-attribute. Please correct to "data-id" attribute) : ' + x[1]);
+			// モジュールの「sample_html」に id="xxx" な要素があるとき、警告する。
+			show_dialog('Warning!', '"' + obj.data('module-name') + '" \'s sample_html has id-attribute. Please correct to "data-id" attribute.<p>' + x[1] + '</p>', undefined, ' error-dialog');
 		}
 	});
 

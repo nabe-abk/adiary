@@ -984,7 +984,9 @@ function show_error(id, hash, addclass) {
 	return show_dialog('ERROR',id,hash,addclass);
 }
 function show_dialog(title, id, hash, addclass) {
-	var html = $(id).html();
+	var html;
+	if (id.substr(0,1) == '#') html = $(id).html();
+				else html = id;
 	if (hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return hash[m1] });
 	html = html.replace(/%[A-Za-z]/g, '');
 

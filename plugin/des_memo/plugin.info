@@ -23,7 +23,7 @@ EVENTS
 
 *sample_html=<<HTML
 <div class="hatena-moduletitle">メモ</div>
-<div class="hatena-modulebody">
+<div class="hatena-modulebody" id="q4444">
 <textarea row="5">自由にメモしておけるテキストエリアです
 データは、cookieに保存されます。</textarea>
 </div> <!-- hatena-modulebody -->
