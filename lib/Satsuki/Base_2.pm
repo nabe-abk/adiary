@@ -422,7 +422,7 @@ sub dir_delete {	# 再起関数
 		return unlink($dir);
 	}
 	$dir .= '/';
-	my $files = $self->search_files( $dir, {dir=>1});
+	my $files = $self->search_files( $dir, {dir=>1, all=>1});
 	foreach(@$files) {
 		my $file = $dir . $_;
 		if (-d $file) { $self->dir_delete( $file ); }
@@ -493,7 +493,7 @@ sub dir_copy {
 sub _dir_copy {
 	my ($self, $src, $des) = @_;
 	$self->mkdir("$des");
-	my $files = $self->search_files( $src, {dir=>1} );
+	my $files = $self->search_files( $src, {dir=>1, all=>1} );
 	my $error = 0;
 	foreach(@$files) {
 		my $file = $src . $_;
@@ -573,7 +573,7 @@ sub tmpwatch {
 	my $check_tm = $self->{TM} - $time;	# $check_tm より古ければ削除
 
 	# 削除ループ
-	my $files = $self->search_files( $dir );
+	my $files = $self->search_files( $dir, {all=>1} );
 	my $c = 0;
 	foreach(@$files) {
 		my $file = $dir . $_;

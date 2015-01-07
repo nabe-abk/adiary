@@ -554,6 +554,16 @@ initfunc.push( function(R) {
 		var obj = $(dom);
 		var id  = obj.attr("id");
 		if (!id) return;
+		var type = obj.attr('type');
+		if (type && type.toLowerCase() == 'checkbox') {
+			obj.change( function(evt){
+				var obj = $(evt.target);
+				Storage.set(id, obj.prop('checked') ? 1 : 0);
+			});
+			if ( Storage.defined(id) )
+				obj.prop('checked', Storage.get(id) != 0 );
+			return;
+		}
 		obj.change( function(evt){
 			var obj = $(evt.target);
 			Storage.set(id, obj.val());

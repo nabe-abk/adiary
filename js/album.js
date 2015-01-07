@@ -373,7 +373,7 @@ $('#album-new-folder').click( function(){
 		// フォルダ名の重複防止
 		var h = {};
 		for(var i=0; i<ary.length; i++) {
-			var dir = ary[i].data.title;
+			var dir = ary[i].data.name;
 			dir = dir.substr(0, dir.length-1);
 			h[dir] = true;
 		}
@@ -515,6 +515,10 @@ function update_selected_files() {
 		li.dblclick(function(evt){ edit_file_name($(evt.target)); });
 		selfiles.append(li);
 	}
+	var bool = (imgs.length == 0);
+	$('#paste-thumbnail' ).prop('disabled', bool);
+	$('#paste-original'  ).prop('disabled', bool);
+	$('#remake-thumbnail').prop('disabled', bool);
 }
 
 //----------------------------------------------------------------------------
@@ -639,7 +643,16 @@ function open_folder(node, isReloading) {
 		success: function(data) {
 			// データsave
 			cur_files = data;
-			set_current_folder(node)
+			set_current_folder(node);
+			// jpegあり？
+			var jpeg;
+			for(var i in cur_files) {
+				var file = cur_files[i].name;
+				if (! file.match(/\.jpe?g$/i)) continue;
+				jpeg = true;
+				break;
+			}
+			$('#select-exifjpeg').prop('disabled', !jpeg);
 
 			// viewの更新
 			update_view();
@@ -648,6 +661,7 @@ function open_folder(node, isReloading) {
 			$('#current-folder').text( '(load failed!)' );
 			error_msg('#msg-load-error');
 			cur_files = [];
+			set_current_folder(node);
 			update_view();
 		}
 	});
@@ -838,13 +852,28 @@ function update_view(flag, selected) {
 	// 画像のクリック
 	//-----------------------------------------------
 	var dbl_click;
+	var stop_prop;
 	function img_click(evt) {
-		if (dbl_click || evt.ctrlKey) {
+		var obj = $(evt.target);
+		if (dbl_click) {
 			dbl_click = false;
 			return;
 		}
+		if (evt.ctrlKey) {
+			// download させる
+			evt.stopPropagation();
+			evt.preventDefault()
+			var file = obj.parent('a').attr('href');
+			var dl = $('<a>').attr({
+				href: file,
+				download: obj.data('title')
+			});
+			var e = document.createEvent('MouseEvent');
+			e.initEvent("click", true, false);
+			dl[0].dispatchEvent( e ); 
+			return;
+		}
 		// イベント処理
-		var obj = $(evt.target);
 		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
 		evt.stopPropagation();
 		evt.preventDefault()
@@ -864,6 +893,9 @@ function update_view(flag, selected) {
 		dbl_click = true;
 		obj.click();
 	}
+	
+	// 選択ファイル情報更新
+	update_selected_files();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -961,6 +993,7 @@ $('#remake-thumbnail').click(function(){
 		data: {
 			folder: cur_folder,
 			file_ary: files,
+			del_exif: $('#delete-exif').prop('checked') ? 1 : 0,
 			size: $('#thumbnail-size').val()
 		},
 		success: function(data) {
@@ -976,6 +1009,30 @@ $('#remake-thumbnail').click(function(){
 		error: function() {
 			// 通常起きない
 			error_msg('#msg-fail-remake');
+		}
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
+// ●exifファイルの検索
+//////////////////////////////////////////////////////////////////////////////
+$('#select-exifjpeg').click(function(){
+	ajax_submit({
+		action: 'load_exif_files',
+		data: { path: cur_folder },
+		success: function(data) {
+			if (!data in Array)   return error_msg('#msg-load-exif-error');
+			if (data.length == 0) return show_dialog('','#msg-exif-notfound');
+
+			// exifファイルを選択
+			var files = {};
+			for(var i in data) {
+				files[ data[i] ] = true;
+			}
+			update_view(false, files);
+		},
+		error: function() {
+			error_msg('#msg-load-exif-error');
 		}
 	});
 });

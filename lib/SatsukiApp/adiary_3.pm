@@ -64,7 +64,6 @@ sub get_dir_tree {
 	my $cnt=0;	# ファイル数カウント
 	my $list = $ROBJ->search_files($dir, {dir=>1});
 	foreach(sort(@$list)) {
-		if (substr($_,0,1) eq '.') { next; }	# .file は無視
 		if (substr($_,-1) ne '/') {
 			# ただのファイル
 			push(@files, $_);
@@ -99,7 +98,6 @@ sub load_image_files {
 	my $files = $ROBJ->search_files( $dir );
 	my @ary;
 	foreach(@$files) {
-		if (substr($_,0,1) eq '.') { next; }	# .file は無視
 		my @st = stat("$dir$_");
 		push(@ary,{
 			name => $_,
@@ -114,6 +112,30 @@ sub load_image_files {
 	}
 
 	my $json = $self->generate_json(\@ary, ['name', 'size', 'date', 'isImg']);
+	return (0, $json);
+}
+
+#------------------------------------------------------------------------------
+# ●ディレクトリ内のEXIFあり画像一覧
+#------------------------------------------------------------------------------
+sub load_exif_files {
+	my $self = shift;
+	my $dir  = $self->image_folder_to_dir( shift );	# 値check付
+	my $ROBJ = $self->{ROBJ};
+	if (!-r $dir) {
+		return(-1,'["msg":"Folder not found"]');
+	}
+
+	my $files = $ROBJ->search_files( $dir );
+	my $jpeg = $ROBJ->loadpm('Jpeg');
+	my @ary;
+	foreach(@$files) {
+		if ($_ !~ /\.jpe?g$/i) { next; }
+		if (! $jpeg->exists_exif("$dir$_")) { next; }
+		push(@ary, $_);
+	}
+
+	my $json = $self->generate_json(\@ary);
 	return (0, $json);
 }
 
@@ -134,6 +156,10 @@ sub make_thumbnail {
 		if (!$opt->{force} && -r $thumb) { next; }
 
 		if ($self->is_image($_)) {
+			if ($opt->{del_exif} && $_ =~ /\.jpe?g$/i) {
+				my $jpeg = $ROBJ->loadpm('Jpeg');
+				$jpeg->strip("$dir$_");
+			}
 			my $r = $self->make_thumbnail_for_image($dir, $_, $opt->{size});
 			if (!$r) { next; }
 		}
@@ -161,14 +187,15 @@ sub make_thumbnail_for_image {
 
 	# print "0\n";
 	my $img = $self->load_image_magick( 'jpeg:size'=>"$size x $size" );
+	my ($w, $h);
 	eval {
 		$img->Read( "$dir$file" );
 		$img = $img->[0];
+		($w, $h) = $img->Get('width', 'height');
 	};
 	# print "4\n";
 	if ($@) { return -1; }	# load 失敗
 
-	my ($w, $h) = $img->Get('width', 'height');
 	if ($w<=$size && $h<=$size) {
 		$size = 0;	# resize しない
 	} elsif ($w>$h) {
@@ -181,12 +208,12 @@ sub make_thumbnail_for_image {
 	if ($size) {	# リサイズ
 		eval { $img->Thumbnail(width => $w, height => $h); };
 		if ($@) {
-			# ImageMagick-5.x.x以前の場合Thumbnailメソッドは使えない
+			# ImageMagick-5.x.x以前
 			eval { $img->Resize(width => $w, height => $h, blur => 0.7); };
 			if ($@) { return -2; }	# サムネイル作成失敗
+			eval { $img->Strip(); }	# exif削除
  		}
 	}
-
 	# ファイルに書き出し
 	$img->Set( quality => ($self->{jpeg_quality} || 80) );
 	$img->Write("${dir}.thumbnail/$file.jpg");
@@ -314,7 +341,10 @@ sub image_upload_form {
 	}
 
 	# サムネイル生成
-	$self->make_thumbnail( $dir, \@files, {size => $form->{size}} );
+	$self->make_thumbnail( $dir, \@files, {
+		size => $form->{size},
+		del_exif => $form->{del_exif}
+	});
 
 	# ブォルダリストの再生成
 	$self->genarete_imgae_dirtree();
@@ -368,6 +398,8 @@ sub do_upload {
 			return $fail;
 		}
 	}
+	# サムネイル削除
+	$ROBJ->file_delete( "${dir}.thumbnail/$file_name.jpg" );
 	return 0;	# 成功
 }
 
@@ -390,8 +422,9 @@ sub remake_thumbnail {
 
 	# サムネイル生成
 	$self->make_thumbnail( $dir, $files, {
-		size  => $form->{size},
-		force => 1
+		size     => $form->{size},
+		del_exif => $form->{del_exif},
+		force    => 1
 	});
 
 	return 0;

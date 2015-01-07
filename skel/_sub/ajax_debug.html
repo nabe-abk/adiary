@@ -1,8 +1,12 @@
+<@6>
 <@ifexec(@Error, begin)>
 Error : <@error_load_and_clear("\n")>
 <$end>
 <@ifexec(@Debug, begin)>
-Debug : <@join("\n", Debug)>
+<$str=join("\n", Debug)>
+<$replace(str,'&nbsp;',' ')>
+<$replace(str,'<br>',"\n")>
+Debug : <@str>
 <$end>
 <@ifexec(@Warning, begin)>
 Warning : <@join("\n", Warning)>
