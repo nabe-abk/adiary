@@ -1,0 +1,10 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.allow_edit)>
+<$(action_return, data) = v.load_exif_files( Form.folder )>
+
+<$ifset_status(action_return ne '0', 404)>
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+<$set_content_type('application/json')>
+<@data>
