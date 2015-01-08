@@ -421,8 +421,10 @@ $('#album-new-folder').click( function(){
 //////////////////////////////////////////////////////////////////////////////
 $('#album-clear-trashbox').click( function(){
 	// 確認メッセージ
-	if(! confirm( $('#msg-confirm-trash').text() )) return;
+	my_confirm('#msg-confirm-trash', clear_trashbox);
 
+  function clear_trashbox(flag) {
+	if (!flag) return;
 	ajax_submit({
 		action: 'clear_trashbox',
 		success: function(data) {
@@ -434,6 +436,7 @@ $('#album-clear-trashbox').click( function(){
 			tree_reload();
 		}
 	});
+  }
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -484,6 +487,9 @@ function move_files(node, srcNode, hitMode, ui, draggable) {
 			file_ary: files
 		},
 		success: function(data) {
+			for(var i in data.files) {
+				data.files[i] = data.files[i].replace(/\.#[\d\-]+/g, '');
+			}
 			if (data.ret !== 0) error_msg('#msg-fail-mv-files', {files: data.files});
 			tree_reload();
 		},
@@ -601,8 +607,8 @@ function rename_file(obj, li, new_name) {
 // tree操作時のエラー表示
 function error_msg(id, h) {
 	if (h && h.files)
-		h.f = '<div class="small">' + h.files.join("<br>") + '</blockquote>';
-	show_error(id, h);
+		h.f = '<ul class="small"><li>' + h.files.join("</li><li>") + '</li></ul>';
+	show_error({id:id, hash:h});
 }
 
 // 末尾の / を除去
@@ -638,7 +644,7 @@ function open_folder(node, isReloading) {
 	}
 	if (node.data.rename) return;	// リネーム中は何もしない
 	ajax_submit({
-  		data: {	path: node.data.key },
+  		data: {	folder: node.data.key },
 		action: 'load_image_files',
 		success: function(data) {
 			// データsave
@@ -653,6 +659,8 @@ function open_folder(node, isReloading) {
 				break;
 			}
 			$('#select-exifjpeg').prop('disabled', !jpeg);
+			if (data.length==0)	// ファイルがひとつもない
+				all_select.prop('checked', false);
 
 			// viewの更新
 			update_view();
@@ -785,7 +793,7 @@ function update_view(flag, selected) {
 		view.addClass('thumb-view');
 		var file = cur_files[i];
 		var link = $('<a>', {
-			href: path + folder + file.name
+			href: encode_link( path + folder + file.name )
 		});
 		if (file.isImg) {
 			link.attr({
@@ -794,7 +802,7 @@ function update_view(flag, selected) {
 			});
 		}
 		var img  = $('<img>', {
-			src: path + folder + '.thumbnail/' + file.name + '.jpg' + thumbq,
+			src: encode_link( path + folder + '.thumbnail/' + file.name + '.jpg' + thumbq ),
 			title: file.name,
 			'data-title': file.name,
 			'data-isimg': file.isImg ? 1 : 0
@@ -815,7 +823,7 @@ function update_view(flag, selected) {
 		view.addClass('name-view');
 		var file = cur_files[i];
 		var link = $('<a>', {
-			href: path + folder + file.name
+			href: encode_link( path + folder + file.name )
 		});
 		if (file.isImg) {
 			link.attr({
@@ -826,7 +834,7 @@ function update_view(flag, selected) {
 		var span = $('<span>').addClass('fileline').data('title', file.name);
 		// ファイル名
 		var fname = $('<span>').text( file.name );
-		fname.addClass('js-popup-img').data('img-url', path + folder + '.thumbnail/' + file.name + '.jpg' + thumbq);
+		fname.addClass('js-popup-img').data('img-url', encode_link( path + folder + '.thumbnail/' + file.name + '.jpg' + thumbq) );
 		span.append( $('<span>').addClass('filename').append( fname ) );
 		// 日付
 		var date = new Date( file.date*1000 );
@@ -837,6 +845,7 @@ function update_view(flag, selected) {
 
 		// 追加
 		span.click( img_click );
+		span.data('href', link.attr('href') );	// for CTRL + click
 		span.dblclick( img_dblclick );
 		if (selected[file.name]) span.addClass('selected');
 		link.append(span);
@@ -855,6 +864,7 @@ function update_view(flag, selected) {
 	var stop_prop;
 	function img_click(evt) {
 		var obj = $(evt.target);
+		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
 		if (dbl_click) {
 			dbl_click = false;
 			return;
@@ -863,7 +873,7 @@ function update_view(flag, selected) {
 			// download させる
 			evt.stopPropagation();
 			evt.preventDefault()
-			var file = obj.parent('a').attr('href');
+			var file = obj.data('href') || obj.parent('a').attr('href');
 			var dl = $('<a>').attr({
 				href: file,
 				download: obj.data('title')
@@ -874,7 +884,6 @@ function update_view(flag, selected) {
 			return;
 		}
 		// イベント処理
-		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
 		evt.stopPropagation();
 		evt.preventDefault()
 		if (obj.hasClass('selected'))
@@ -1019,10 +1028,10 @@ $('#remake-thumbnail').click(function(){
 $('#select-exifjpeg').click(function(){
 	ajax_submit({
 		action: 'load_exif_files',
-		data: { path: cur_folder },
+		data: { folder: cur_folder },
 		success: function(data) {
 			if (!data in Array)   return error_msg('#msg-load-exif-error');
-			if (data.length == 0) return show_dialog('','#msg-exif-notfound');
+			if (data.length == 0) return show_dialog('#msg-exif-notfound');
 
 			// exifファイルを選択
 			var files = {};
@@ -1219,6 +1228,13 @@ function upform_reset(){
 	update_upfiles();
 }
 upreset.click( upform_reset );
+
+//////////////////////////////////////////////////////////////////////////////
+// ●リンクのエンコード
+//////////////////////////////////////////////////////////////////////////////
+function encode_link(str){
+	return str.replace(/#/g, "%23");
+}
 
 
 

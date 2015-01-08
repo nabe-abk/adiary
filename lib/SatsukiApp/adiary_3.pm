@@ -366,9 +366,7 @@ sub do_upload {
 	my $file_name = $file_h->{file_name};
 	my $file_size = $file_h->{file_size};
 	my $tmp_file  = $file_h->{tmp_file};		# 読み込んだファイルデータ(tmp file)
-	$file_name =~ s|^\.+|-|;			# 先頭 . の除去
-	$file_name =~ s|[\x00-\x1f/]|-|g;		# 制御コードや / を - に置き換え
-	if ($file_name eq '') {
+	if (!$self->check_file_name($file_name)) {
 		$ROBJ->message("File name error : %s", $file_h->{file_name});
 		return 2;
 	}
@@ -490,25 +488,62 @@ sub move_files {
 	my $from = $self->image_folder_to_dir( $form->{from} ); # 値check付
 	my $to   = $self->image_folder_to_dir( $form->{to}   ); # 値check付
 
+	my $src_trash = ($form->{from} =~ m|\.trashbox/|);	# 移動元がゴミ箱？
+	my $des_trash = ($form->{to}   =~ m|\.trashbox/|);	# 移動先がゴミ箱？
+	if ($src_trash && $des_trash) {
+		# ゴミ箱内移動なら特になにもしない
+		$src_trash = $des_trash = 0;
+	}
+
 	my $files = $form->{file_ary} || [];
 	my @fail;
+	my $tm = $ROBJ->tm_printf("%Y%m%d-%H%M%S");
 	foreach(@$files) {
 		if ( !$self->check_file_name($_) ) {
 			push(@fail, $_);
 			next;
 		}
-		if (-e "$to$_") {	# 同じファイル名が存在する
+		my $src = $_;
+		my $des = $_;
+		#---------------------------------
+		# ゴミ箱にファイルを移動
+		#---------------------------------
+		if ($des_trash && !-d "$from$_") {
+			my $x = rindex($des, '.');
+			if ($x > 0) {
+				$des = substr($des, 0, $x) . ".#$tm" . substr($des, $x);
+			} else {
+				$des .= ".#$tm";
+			}
+		}
+		#---------------------------------
+		# ゴミ箱からファイルを移動
+		#---------------------------------
+		if ($src_trash && !-d "$from$_") {
+			$des =~ s/\.#[\d\-]+//g;	# ここを修正したら album.js も修正すること
+		}
+		#---------------------------------
+		# 同じファイル名が存在する
+		#---------------------------------
+		if (-e "$to$des") {
 			push(@fail, $_);
 			next;
 		}
-		if (!rename("$from$_", "$to$_")) {
+		#---------------------------------
+		# リネーム（移動）
+		#---------------------------------
+		if (!rename("$from$src", "$to$des")) {
 			push(@fail, $_);
 			next;
 		}
 
 		# ファイルを移動した場合、サムネイルも移動
-		if (-d "$to$_") { next; }
-		rename("${from}.thumbnail/$_.jpg", "${to}.thumbnail/$_.jpg");
+		if (-d "$to$des") { next; }
+		# $ROBJ->mkdir("${to}.thumbnail/");
+		if (!rename("${from}.thumbnail/$src.jpg", "${to}.thumbnail/$des.jpg")) {
+			# 移動失敗時はサムネイル消去
+			unlink("${from}.thumbnail/$src.jpg");
+		}
 	}
 	my $f = $#fail+1;
 	return wantarray ? ($f, \@fail) : $f;
@@ -564,7 +599,9 @@ sub image_folder_to_dir {
 #------------------------------------------------------------------------------
 sub check_file_name {
 	my ($self, $file) = @_;
-	if ($file eq '' || $file =~ m|/| || $file =~ /^\./) { return 0; }	# ng
+	if ($file eq '' || $file =~ /^\./) { return 0; }	# ng
+	# 制御コードや / 等の使用不可文字
+	if ($file =~ m![\x00-\x1f\\/\:*\?\"\'<>|&]!) { return 0; }
 	return 1;	# ok
 }
 # 最後のスラッシュを取り除く
@@ -603,7 +640,8 @@ sub album_check_ext_one {
 	if (!$self->{album_allow_ver_ext}) { return 0; }
 
 	# adiary-3.00-beta1.3.tbz のようなファイルを許可
-	return ($ext =~ /-/ || $ext =~ /^\d/);
+	# '#' は内部使用（ゴミ箱）
+	return ($ext =~ /[-#]/ || $ext =~ /^\d/);
 }
 
 #------------------------------------------------------------------------------

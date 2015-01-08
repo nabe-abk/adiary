@@ -251,9 +251,11 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 //●複数チェックボックスフォーム、全選択、submitチェック
 //////////////////////////////////////////////////////////////////////////////
+var confrim_button;
 initfunc.push( function(R){
   R.findx('input.js-form-check, button.js-form-check').click( function(evt){
 	var obj = $(evt.target);
+	confrim_button = obj;
 	var form = obj.parents('form.js-form-check');
 	if (!form.length) return;
 	form.data('confirm', obj.data('confirm') );
@@ -261,6 +263,7 @@ initfunc.push( function(R){
 });
 
 initfunc.push( function(R){
+  var confirmed;
   R.findx('form.js-form-check').submit( function(evt){
 	var form = $(evt.target);
 	var target = form.data('target');	// 配列
@@ -273,8 +276,19 @@ initfunc.push( function(R){
 	// 確認メッセージがある？
 	var confirm = form.data('confirm');
 	if (!confirm) return true;
+  	if (confirmed) { confirmed=false; return true; }
+
+	// 確認ダイアログ
 	if (c) confirm = confirm.replace("%c", c);
-	return window.confirm( confirm );
+	var btn = confrim_button;
+	confrim_button = false;
+	my_confirm(confirm, function(flag) {
+		if (!flag) return;
+		confirmed = true;
+		if (btn) return btn.click();
+		form.submit();
+	});
+	return false;
   })
 });
 
@@ -985,30 +999,61 @@ function textarea_dialog(dom, func) {
 	});
 }
 
+//############################################################################
+// ダイアログ関連
+//############################################################################
 //////////////////////////////////////////////////////////////////////////////
 // ●エラーの表示
 //////////////////////////////////////////////////////////////////////////////
-function show_error(id, hash, addclass) {
-	if (addclass == undefined) addclass='';
-	addclass += ' error-dialog';
-	return show_dialog('ERROR',id,hash,addclass);
+function show_error(h) {
+	if (typeof(h) === 'string') h = {id: h};
+	h.class = h.class + ' error-dialog';
+	h.title = 'ERROR';
+	return show_dialog(h);
 }
-function show_dialog(title, id, hash, addclass) {
-	var html;
-	if (id.substr(0,1) == '#') html = $(id).html();
-				else html = id;
-	if (hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return hash[m1] });
+function show_dialog(h) {
+	if (typeof(h) === 'string') h = {id: h};
+	var html = (h.id.substr(0,1) != '#') ? h.id : $(h.id).html();
+	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 	html = html.replace(/%[A-Za-z]/g, '');
 
 	var div = $('<div>');
 	div.html( html );
-	div.attr('title', title || 'Dialog');
+	div.attr('title', h.title || 'Dialog');
+	div.attr('title', '<script>alert(1)</script>');
 	div.dialog({
 		modal: true,
-		dialogClass: addclass,
+		dialogClass: h.class,
 		buttons: { OK: function(){ div.dialog('close'); } }
 	});
 	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●確認ダイアログ
+//////////////////////////////////////////////////////////////////////////////
+function my_confirm(h, callback) {
+	if (typeof(h) === 'string') h = {id: h, callback: callback};
+	var html = (h.id.substr(0,1) != '#') ? h.id : $(h.id).html();
+	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
+
+	var div = $('<div>');
+	div.html( html );
+	div.attr('title', h.title || $('#ajs-confirm').text());
+	var btn = {};
+	btn[ h.btn_ok || $('#ajs-ok').text()] = function(){
+		div.dialog('close');
+		callback(true);
+	};
+	btn[ h.btn_cancel || $('#ajs-cancel').text()] = function(){
+		div.dialog('close');
+		callback(false);
+	};
+	div.dialog({
+		modal: true,
+		dialogClass: h.class,
+		buttons: btn
+	});
 }
 
 //############################################################################

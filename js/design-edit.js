@@ -28,7 +28,12 @@ $(function(){
 		var x = html.match(/\s+(id\s*=\s*"[\w\-]*")/);
 		if (x && !x[1].match(/^id="js-generate-id-/)) {
 			// モジュールの「sample_html」に id="xxx" な要素があるとき、警告する。
-			show_dialog('Warning!', '"' + obj.data('module-name') + '" \'s sample_html has id-attribute. Please correct to "data-id" attribute.<p>' + x[1] + '</p>', undefined, ' error-dialog');
+			show_dialog({
+				title: 'WARNING',
+				id: '#msg-sample-has-id',
+				hash: { m: obj.data('module-name'), i:x[1] }, 
+				class: 'error-dialog'
+			});
 		}
 	});
 
@@ -153,12 +158,14 @@ function init_module(obj) {
 	close.addClass('ui-icon ui-icon-close ui-button');
 	close.attr('title', btn_close_title);
 	close.click(function(){
-		var confirm = $('#msg-delete-confirm');
-		if (confirm) {
-			confirm = confirm.html().replace("%n", obj.attr('title'));
-			if (!window.confirm( confirm )) return;
-		}
-		obj.detach();
+		my_confirm({
+			id:'#msg-delete-confirm',
+			hash: { n: obj.attr('title') },
+			btn_ok: $('#btn-close').text(),
+			callback: function(flag) {
+				if (flag) obj.detach();
+			}
+		});
 	});
 	div.append(close);
 

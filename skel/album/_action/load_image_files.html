@@ -1,7 +1,7 @@
 <@20>
 <$ifbreak(csrf_check())>
 <$ifbreak(!v.allow_edit)>
-<$(action_return, data) = v.load_image_files( Form.path )>
+<$(action_return, data) = v.load_image_files( Form.folder )>
 
 <$ifset_status(action_return ne '0', 404)>
 <$v.action_is_main=1>
