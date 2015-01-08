@@ -512,6 +512,8 @@ function move_files(node, srcNode, hitMode, ui, draggable) {
 //////////////////////////////////////////////////////////////////////////////
 function update_selected_files() {
 	var imgs = view.find('.selected');
+	if (!imgs.length) all_select.prop('checked', false);
+	if (imgs.length == cur_files.length) all_select.prop('checked', true);
 
 	selfiles.empty();
 	for(var i=0; i<imgs.length; i++) {
@@ -525,6 +527,7 @@ function update_selected_files() {
 	$('#paste-thumbnail' ).prop('disabled', bool);
 	$('#paste-original'  ).prop('disabled', bool);
 	$('#remake-thumbnail').prop('disabled', bool);
+	
 }
 
 //----------------------------------------------------------------------------
@@ -828,10 +831,13 @@ function update_view(flag, selected) {
 		if (file.isImg) {
 			link.attr({
 				'data-lightbox': 'roadtrip',
-				'data-title': file.name
+				'data-title': file.name,
 			});
 		}
-		var span = $('<span>').addClass('fileline').data('title', file.name);
+		var span = $('<span>').addClass('fileline').data({
+			title: file.name,
+			isimg: file.isImg ? 1 : 0
+		});
 		// ファイル名
 		var fname = $('<span>').text( file.name );
 		fname.addClass('js-popup-img').data('img-url', encode_link( path + folder + '.thumbnail/' + file.name + '.jpg' + thumbq) );
@@ -983,6 +989,8 @@ function paste_button(evt) {
 	var obj = $(evt.target);
 	var filetag = paste_form.data('tag');
 	var imgtag  = obj.data('tag');
+	var exiftag;
+	if ($('#paste-to-exif').prop('checked')) exiftag = paste_form.data('exif-tag');
 
 	var ary=[];
 	for(var i=0; i<sel.length; i++) {
@@ -995,9 +1003,13 @@ function paste_button(evt) {
 		var rep  = {
 			d: escape_satsuki(cur_folder),
 			e: escape_satsuki(ext),
-			f: escape_satsuki(name)
+			f: escape_satsuki(name),
+			c: ''
 		};
-		tag = tag.replace(/%([def])/g, function($0,$1){ return rep[$1] });
+		if (exiftag && img.data('isimg') && name.match(/\.jpe?g$/i)) {
+			rep.c = exiftag.replace(/%([def])/g, function($0,$1){ return rep[$1] });
+		}
+		tag = tag.replace(/%([cdef])/g, function($0,$1){ return rep[$1] });
 		ary.push(tag);
 	}
 	var text= ary.join( evt.ctrlKey ? " \\\n" : "\n" )

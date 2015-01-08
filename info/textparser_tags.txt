@@ -133,9 +133,10 @@ tex = Google Chart API, ASCII, 1, <img src="http://chart.apis.google.com/chart?c
 mtex = mimeTeX, ASCII, 1, <img src="${Basepath}mimetex.cgi?$1" alt="#1" title="#1" class="tex">
 
 #------------------------------------------------------------------------------
-# 画像プラグイン／ファイルアップローダ
+# 画像プラグイン／画像アルバム
 #------------------------------------------------------------------------------
 # plugin image
+# plugin exif
 
 # ただの画像
 img        = 画像, image
@@ -155,6 +156,10 @@ image#link  = 画像アルバム, image, 3,  ${image}$2$3
 # 通常ファイル
 file        = ファイル, ASCII, 3,  ${image}$2$3
 file#5      = ファイル, ASCII, 4,  ${image}$3$4
+
+# exif
+exif#link = 画像へのリンク, ASCII, 2, ${image}$1$2
+
 
 #------------------------------------------------------------------------------
 # Audio/Video

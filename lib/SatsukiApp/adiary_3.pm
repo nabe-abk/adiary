@@ -131,7 +131,7 @@ sub load_exif_files {
 	my @ary;
 	foreach(@$files) {
 		if ($_ !~ /\.jpe?g$/i) { next; }
-		if (! $jpeg->exists_exif("$dir$_")) { next; }
+		if (! $jpeg->check_exif("$dir$_")) { next; }
 		push(@ary, $_);
 	}
 

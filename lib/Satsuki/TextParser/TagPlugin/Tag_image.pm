@@ -67,14 +67,12 @@ sub image {
 	}
 
 	#  構成
-	my $name = $ary->[$#$ary];
 	my $url  = $tag->{data};
 	my $link = (exists $tags->{"$tag_name#link"}) ? $tags->{"$tag_name#link"}->{data} : $url;
 	# URL生成
 	my @ary2 = @$ary;
 	$url  = $pobj->replace_link($url,   $ary,  $argc);
 	$link = $pobj->replace_link($link, \@ary2, $argc);
-	$ROBJ->tag_escape($name);
 
 	# 画像サイズ
 	my $size;
@@ -82,13 +80,22 @@ sub image {
 	elsif ($mode =~ /^h(\d+%?)$/) { $size=" height=\"$1\""; shift(@$ary); }
 	elsif (!defined $mode) { shift(@$ary); }	# モード指定読み捨て
 
+	# Captionあり？
+	my $caption='';
+	if ($ary->[$#$ary] =~ /\#/) {
+		my $cap = substr(pop(@$ary),1);
+		$caption = "<figcaption>$cap</figcaption>";
+	}
+
 	# 属性値
+	my $name = $ary->[$#$ary];
+	$ROBJ->tag_escape($name);
 	my %tag2 = %$tag;
 	$tag2{title} = $name;
 	my $attr = $pobj->make_attr($ary, \%tag2, $tagclass || 'image');
 	   $name = $pobj->make_name($ary, $name);
 
-	return "<figure class=\"image\"><a href=\"$link\"$attr><img alt=\"$name\"$size src=\"$url\"></a></figure>";
+	return "<figure class=\"image\"><a href=\"$link\"$attr><img alt=\"$name\"$size src=\"$url\"></a>$caption</figure>";
 }
 
 
