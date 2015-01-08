@@ -862,6 +862,7 @@ function update_view(flag, selected) {
 	//-----------------------------------------------
 	var dbl_click;
 	var stop_prop;
+	var prev_sel;
 	function img_click(evt) {
 		var obj = $(evt.target);
 		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
@@ -883,13 +884,46 @@ function update_view(flag, selected) {
 			dl[0].dispatchEvent( e ); 
 			return;
 		}
-		// イベント処理
+
+		// 選択処理
 		evt.stopPropagation();
 		evt.preventDefault()
-		if (obj.hasClass('selected'))
-			obj.removeClass('selected');
-		else
-			obj.addClass('selected');
+		if (prev_sel && evt.shiftKey && prev_sel[0] != obj[0]) {
+			var sel = obj[0];
+			var ary = [];
+			// 前方範囲選択
+			var objs = prev_sel.parent().prevAll().children();
+			var find = -1;
+			for(var i=0; i<objs.length; i++) {
+				if (objs[i] != sel) continue;
+				find=i;
+				break;
+			}
+			for(var i=0; i<=find; i++) ary.push(objs[i]);
+			// 後方範囲選択
+			var objs = prev_sel.parent().nextAll().children();
+			var find = -1;
+			for(var i=0; i<objs.length; i++) {
+				if (objs[i] != sel) continue;
+				find=i;
+				break;
+			}
+			for(var i=0; i<=find; i++) ary.push(objs[i]);
+
+			// 選択・非選択操作
+			for(var i=0; i<ary.length; i++) {
+				if (prev_sel.hasClass('selected'))
+					$(ary[i]).addClass('selected');
+				else
+					$(ary[i]).removeClass('selected');
+			}
+		} else {
+			prev_sel = obj;
+			if (obj.hasClass('selected'))
+				obj.removeClass('selected');
+			else
+				obj.addClass('selected');
+		}
 		update_selected_files();
 	}
 

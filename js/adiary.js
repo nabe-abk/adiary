@@ -1020,7 +1020,6 @@ function show_dialog(h) {
 	var div = $('<div>');
 	div.html( html );
 	div.attr('title', h.title || 'Dialog');
-	div.attr('title', '<script>alert(1)</script>');
 	div.dialog({
 		modal: true,
 		dialogClass: h.class,
