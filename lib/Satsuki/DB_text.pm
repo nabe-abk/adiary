@@ -438,7 +438,7 @@ sub load_index {
 		}
 		($fh, $lines) = $ROBJ->fedit_readlines($index, $flags);
 		if ($#$lines < 0) {
-			$ROBJ->fedit_exit($index, $fh);
+			$ROBJ->fedit_exit($fh);
 			delete $self->{transaction}->{$table};
 			return undef;
 		}

@@ -81,9 +81,15 @@ sub image {
 	elsif (!defined $mode) { shift(@$ary); }	# モード指定読み捨て
 
 	# Captionあり？
-	my $caption='';
-	if ($ary->[$#$ary] =~ /\#/) {
-		my $cap = substr(pop(@$ary),1);
+	my $caption;
+	for(my $i=0; $i<=$#$ary; $i++) {
+		if ($ary->[$i] =~ /\#/) {
+			$caption = $i;
+			last;
+		}
+	}
+	if ($caption) {
+		my $cap = substr(join(':', splice(@$ary,$caption)),1);
 		$caption = "<figcaption>$cap</figcaption>";
 	}
 

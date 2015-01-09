@@ -785,7 +785,7 @@ FUNC
 	# unlock
 	my $r;
 	if (exists $self->{"$table.lock"}) {
-		$r = $ROBJ->fedit_writelines($index, $self->{"$table.lock"}, \@lines);
+		$r = $ROBJ->fedit_writelines($self->{"$table.lock"}, \@lines);
 		delete $self->{"$table.lock"};
 	} else {
 		$ROBJ->fwrite_lines($index, \@lines);
@@ -810,7 +810,7 @@ sub edit_index_exit {
 	}
 	if (defined $self->{"$table.lock"}) {
 		my $index_file = $self->{dir} . $table . '/' . $self->{index_file};
-		$self->{ROBJ}->fedit_exit($index_file, $self->{"$table.lock"});
+		$self->{ROBJ}->fedit_exit($self->{"$table.lock"});
 		delete $self->{"$table.lock"};
 	}
 	# キャッシュの削除

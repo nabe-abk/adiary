@@ -242,8 +242,8 @@ sub fwrite_lines {
 
 	my $fail_flag=0;
 	my $fh;
-	my $append = $flags->{Append} ? O_APPEND : 0;
-	if ( !sysopen($fh, $file, O_CREAT | O_RDWR | $append) ) {
+	my $append = $flags->{append} ? O_APPEND : 0;
+	if ( !sysopen($fh, $file, O_CREAT | O_WRONLY | $append) ) {
 		$self->error("File can't write '%s'", $file);
 		close($fh);
 		return 1;
@@ -271,7 +271,7 @@ sub fwrite_lines {
 #------------------------------------------------------------------------------
 sub fappend_lines {
 	my ($self, $file, $lines, $flags) = @_;
-	$flags->{Append} = 1;
+	$flags->{append} = 1;
 	return $self->fwrite_lines($file, $lines, $flags);
 }
 
@@ -282,7 +282,7 @@ sub fwrite_hash {
 	my ($self, $file, $h, $flags) = @_;
 
 	my @ary;
-	my $append = $flags->{Append};
+	my $append = $flags->{append};
 	foreach(keys(%$h)) {
 		my $val = $h->{$_};
 		if (ref $val || (!$append && $val eq '')) { next; }
@@ -303,20 +303,20 @@ sub fwrite_hash {
 #------------------------------------------------------------------------------
 sub fappend_hash {
 	my ($self, $file, $h, $flags) = @_;
-	$flags->{Append} = 1;
+	$flags->{append} = 1;
 	return $self->fwrite_hash($file, $h, $flags);
 }
 
 #------------------------------------------------------------------------------
 # ●ファイル：ファイルを編集
 #------------------------------------------------------------------------------
-# 編集用。ロック処理付き。
+# 編集用。ロック処理付き。ファイルがなければ作る。
 sub fedit_readlines {
 	my ($self, $_file, $flags) = @_;
 	my $file = $self->get_filepath($_file);
 
 	my $fh;
-	if ( !sysopen($fh, $file, O_CREAT | O_RDWR | ($flags->{Append} ? O_APPEND : 0)) ) {
+	if ( !sysopen($fh, $file, O_CREAT | O_RDWR | ($flags->{append} ? O_APPEND : 0)) ) {
 		if ($flags->{NoError}) {
 			$self->warning("File can't open (for %s) '%s'", 'edit', $file);
 		} else {
@@ -332,11 +332,16 @@ sub fedit_readlines {
 	my @lines;
 	@lines = <$fh>;
 	$self->delete_file_cache($file);
+
+	# モード変更
+	if (defined $flags->{FileMode}) {
+		chmod($flags->{FileMode}, $self->get_filepath($file));
+	}
 	return ($fh, \@lines);
 }
 
 sub fedit_writelines {
-	my ($self, $file, $fh, $lines, $flags) = @_;
+	my ($self, $fh, $lines, $flags) = @_;
 	if (ref $lines ne 'ARRAY') { $lines = [$lines]; }
 
 	seek($fh, 0, 0);	# ファイルポインタを先頭へ
@@ -348,16 +353,11 @@ sub fedit_writelines {
 	# See more : http://adiary.blog.abk.nu/0352
 	truncate($fh, tell($fh));
 	close($fh);
-
-	# モード変更
-	if (defined $flags->{FileMode}) {
-		chmod($flags->{FileMode}, $self->get_filepath($file));
-	}
 	return 0;
 }
 
 sub fedit_exit {
-	my ($self, $file, $fh) = @_;
+	my ($self, $fh) = @_;
 	close($fh);
 }
 
@@ -371,9 +371,9 @@ sub fedit_readhash {
 	return ($fh, $hash);
 }
 sub fedit_writehash {
-	my ($self, $file, $fh, $h, $flags) = @_;
+	my ($self, $fh, $h, $flags) = @_;
 	my $lines = $self->fwrite_hash('', $h);
-	$self->fedit_writelines($file, $fh, $lines, $flags);
+	$self->fedit_writelines($fh, $lines, $flags);
 }
 
 ###############################################################################
@@ -561,23 +561,20 @@ sub open_tmpfile {
 #------------------------------------------------------------------------------
 sub tmpwatch {
 	my $self = shift;
-	my ($dir, $type, $time) = @_;
+	my ($dir, $time) = @_;
 	$dir = $dir ? $self->get_filepath( $dir ) : $self->get_tmpdir();
 	if ($time < $self->{Temp_timeout}) { $time=$self->{Temp_timeout}; }
 	if ($time < 10) { $time = 10; }
 
-	# 削除条件の設定
-	if    ($type eq 'atime') { $type= 8; }
-	elsif ($type eq 'ctime') { $type=10; }
-	else  { $type=9; }	# mtime (modified time)
-	my $check_tm = $self->{TM} - $time;	# $check_tm より古ければ削除
+	# $check_tm より modtime が古ければ削除
+	my $check_tm = $self->{TM} - $time;
 
 	# 削除ループ
 	my $files = $self->search_files( $dir, {all=>1} );
 	my $c = 0;
 	foreach(@$files) {
 		my $file = $dir . $_;
-		if ((stat($file))[$type] > $check_tm) { next; }
+		if ((stat($file))[9] > $check_tm) { next; }
 		$c += unlink( $file );
 	}
 	return $c;

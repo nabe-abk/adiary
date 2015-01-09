@@ -1,0 +1,12 @@
+<@6>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.allow_edit)>
+<@>
+<$(action_return, data) = v.edit_lock( Form.name )>
+
+<$ifset_status(action_return ne '0', 403)>
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+<$set_content_type('application/json')>
+<@data || action_return>
+<@ifcall(Develop, '_sub/ajax_debug')>

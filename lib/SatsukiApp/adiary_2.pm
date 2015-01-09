@@ -1621,6 +1621,100 @@ sub update_plgset {
 }
 
 ###############################################################################
+# ■編集ロック機能
+###############################################################################
+#
+# 同じ記事をロックしている場合に、警告を出すシステム
+#
+#------------------------------------------------------------------------------
+# ●ロックをかける
+#------------------------------------------------------------------------------
+sub edit_unlock {
+	my $self = shift;
+	$self->edit_lock($_[0], $_[1], 'unlock');
+}
+sub edit_lock {
+	my $self = shift;
+	my ($name, $sid, $unlock) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $id   = $ROBJ->{Auth}->{id};
+	$sid =~ s/[\x00-\x1f]//g;
+
+	if (!$self->{allow_edit}) { return -1; }
+	if ($name eq '') { return -2; }
+	if ($self->{sys}->{edit_lock_time} < 1) { return 1; }
+
+	# lock処理
+	my ($fh, $ary) = $self->load_lock_file( $name );
+	if (!$fh) { return 7; }
+	$ary = [ grep {$_->{id} ne $id || $_->{sid} ne $sid} @$ary ];
+	if ($sid ne '') {
+		if (!$unlock) {
+			push(@$ary, {
+				id => $id,
+				sid=> $sid,
+				tm => $ROBJ->{TM}
+			});
+		}
+		$self->update_lock_file($fh, $ary);
+		pop(@$ary);
+	} else {
+		close($fh);
+	}
+
+	# ロック状況を返す
+	my $json= $self->generate_json($ary, ['id', 'sid', 'tm']);
+	return (0, $json);
+}
+
+#------------------------------------------------------------------------------
+# ●ロックファイルのロード
+#------------------------------------------------------------------------------
+sub load_lock_file {
+	my $self = shift;
+	my $name = shift;
+	my $ROBJ = $self->{ROBJ};
+	$name =~ s/[^\w\-:]//g;
+
+	# 時間
+	my $ctime = $self->{sys}->{edit_lock_time};
+
+	# tmpwatch
+	my $dir =  $self->{blog_dir} . 'lock/';
+	$ROBJ->mkdir($dir);
+	$ROBJ->tmpwatch( $ctime*2 );
+
+	# lock処理
+	my $file = $dir . $name;
+	my ($fh,$lines) = $ROBJ->fedit_readlines($file);
+	if (!$fh) { return ; }
+
+	my @ary;
+	my $obs_time = $ROBJ->{TM} - $self->{sys}->{edit_lock_time};
+	foreach(@$lines) {
+		my %h;
+		chomp($_);
+		($h{id}, $h{sid}, $h{tm}) = split("\t", $_);
+		if ($h{tm} < $obs_time) { next; }
+		push(@ary, \%h);
+	}
+	return ($fh, \@ary);
+}
+
+#------------------------------------------------------------------------------
+# ●ロックファイルのアップデート
+#------------------------------------------------------------------------------
+sub update_lock_file {
+	my $self = shift;
+	my $fh   = shift;
+	my $ary  = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my @lines = map { "$_->{id}\t$_->{sid}\t$_->{tm}\n" } @$ary;
+	return $ROBJ->fedit_writelines($fh, \@lines);
+}
+
+###############################################################################
 # ■サブルーチン
 ###############################################################################
 #------------------------------------------------------------------------------

@@ -24,6 +24,12 @@
 	reload_time:min = 0
 	reload_time:max = 60
 
+	edit_lock_time = 同時編集の確認間隔
+	edit_lock_time:type = int
+	edit_lock_time:default = 60
+	edit_lock_time:min = 0
+	edit_lock_time:max = 300
+
 	blogs_allow = ブログ一覧の表示範囲
 	blogs_allow:enum = ,users,admin
 	create_blog_only_admin = flag
@@ -49,6 +55,7 @@
 <$ifform_error( id ne '' && !v.find_blog(id), 'default_blogid', "指定のブログが見つかりません" )>
 <$ifbreak(form_error())>
 
+<$ifset(h.edit_lock_time < 10, h.edit_lock_time, 0)>
 <$h.default_blogid = id>
 
 <$old_d_blogid = v.sys.default_blogid>

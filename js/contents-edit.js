@@ -4,7 +4,7 @@
 //############################################################################
 //[TAB=8]  require jQuery
 $( function(){
-	var form = $('#form');
+	var form = $secure('#form');
 	var tree = $('#tree');
 	var open　 = $('#open');
 	var submit = $('#submit');
@@ -136,7 +136,7 @@ open.click(function(){
 //////////////////////////////////////////////////////////////////////////////
 form.submit(function(){
 	var rootNode = tree.dynatree("getRoot");
-	var div = $('#div-in-form');
+	var div = $secure('#div-in-form');
 	div.empty();
 
 	// treeと順序の情報

@@ -12,21 +12,30 @@
 <@> アクションファイルから呼び出された場合、
 <@> このファイルをmain skeleton代わりにする
 <$v.action_is_main = 1>
-
 <$rtime = if(reload_stop, 0, v.sys.reload_time)>
-<@ifexec(rtime, begin)>
+
 <script><!--
-var reload_timer = setTimeout(
-	function() {
+$(function(){
+	var stop=$('#reload-stop');
+	var msgs=$('#reload-msg');
+	function reload() {
 		location.href = "<@url>";
-	}, <@rtime>000);
-function reload_stop() {
-	clearTimeout(reload_timer);
-	$('#reload-stop').css('display','none');
-	$('#reload-msg').html('クリックするとリロードします');
-}
-// --></script>
-<$end>
+	};
+	$('#body').keydown(function(evt) {
+		if (evt.keyCode == 13) reload();	// Enterでリロード
+		if (evt.keyCode == 27) stop.click();	// ESCでストップ
+	});
+
+	// Auto reload
+	if (!stop.length) return;
+	var reload_timer = setTimeout(reload, <@rtime>000);
+	stop.click( function() {
+		clearTimeout(reload_timer);
+		stop.css('display','none');
+		msgs.html('クリックするとリロードします');
+	});
+});
+--></script>
 
 <!--reload msg============================================================-->
 <article class="system message">
@@ -38,9 +47,9 @@ function reload_stop() {
 	<$end>
 
 <@ifexec(rtime, begin, begin)>
-	<p><a href="<@url>"><strong id="reload-msg"><@v.sys.reload_time>秒後にリロードします</strong></a> <a href="javascript:reload_stop()" id="reload-stop">(STOP)</a></p>
+	<p><a href="<@url>" id="reload-link"><strong id="reload-msg"><@v.sys.reload_time>秒後にリロードします</strong>(Enter)</a> <button id="reload-stop">STOP</button></p>
 <$else>
-	<p><a href="<@url>">クリックするとリロードします</a></p>
+	<p><a href="<@url>" id="reload-link"><strong id="reload-msg">クリックするとリロードします</strong>(Enter)</a></p>
 <$end>
 
 </div> <!-- end of body -->

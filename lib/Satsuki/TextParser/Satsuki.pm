@@ -1328,6 +1328,7 @@ sub parse_tag {
 		my $p1 = $3;	# tagより後ろ
 		$this = $self->special_command( $2 );
 		$this =~ s/\[/&#91;/g;
+		$this =~ s/\]/&#93;/g;
 		$this =~ s/:/&#58;/g;
 		$this = $p0 . $this . $p1;
 		if ($post_process) { $this = &$post_process($this); }

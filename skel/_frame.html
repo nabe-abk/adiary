@@ -98,7 +98,7 @@
 <footer id="footer"><!--フッタ-->
 <@if(s.user_footer, "<@s.user_footer><br>")>
 <span class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></span>
-<!-- Blog system "adiary" Copyright (C)2006-2014 nabe@abk.
+<!-- Blog system "adiary" Copyright (C)2006-2015 nabe@abk.
      This system is licensed under AGPLv3 or later.-->
 </footer>
 </div> <!-- End of main -->
@@ -155,7 +155,6 @@ allow_com  <@v.allow_com><br>
 </div> <!-- End of #hatena-body -->
 </div> <!-- End of #adiary-body -->
 
-
 <@> adiary.js用のメッセージ
 <div style="display: none">
 <span id="ajs-ok">OK</span>
@@ -164,7 +163,8 @@ allow_com  <@v.allow_com><br>
 </div>
 
 <script>
-var Blogpath='<@v.myself>';
+var Vmyself='<@v.myself>';
+var Vmyself2='<@v.myself2>';
 var ScriptDir='<@Basepath><@v.script_dir>';
 var ThemeDir ='<@Basepath><@v.theme_dir>';
 <@ifexec(Timer, begin)>

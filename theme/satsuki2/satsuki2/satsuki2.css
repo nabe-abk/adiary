@@ -731,7 +731,7 @@ article.setting input[type="submit"]
 /*--------------------------------------------------------------------
 ●記事の編集画面
 ---------------------------------------------------------------------*/
-#draft-notice {
+article.system.notice {
 	margin-bottom:	0.4em;
 }
 textarea.edit-article {

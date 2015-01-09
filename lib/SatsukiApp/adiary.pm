@@ -116,7 +116,7 @@ sub main {
 	$self->read_query_form();
 
 	# 表示スケルトン選択
-	$self->select_skeleton( $ROBJ->{Query}->{sk} || $self->{query0} );
+	$self->select_skeleton( $ROBJ->{Query}->{_} || $self->{query0} );
 
 	#-------------------------------------------------------------
 	# pop タイマー処理

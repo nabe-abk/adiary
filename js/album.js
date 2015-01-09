@@ -18,7 +18,7 @@
 //
 $( function(){
 	var main = $('#album');
-	var form = $('#album-form');
+	var form = $secure('#album-form');
 	var tree = $('#album-folder-tree');
 	var view = $('#album-folder-view');
 	var selfiles = $('#selected-files')
@@ -38,7 +38,7 @@ $( function(){
 	var cur_node;
 
 	// ファイルアップロード関連
-	var upform   = $('#upload-form');
+	var upform   = $secure('#upload-form');
 	var iframe   = $('#form-response');
 	var message  = $('#upload-messages');
 	var upfolder = $('#upload-folder');
@@ -54,13 +54,13 @@ $( function(){
 	var isIE8 = ('IE'.substr(-1) === 'IE');
 	if (isIE8) thumb_size.prop('disabled', true);
 	if (isIE8) $('#auto-upload-box').hide();
-	
+
 //////////////////////////////////////////////////////////////////////////////
 // ●初期化処理
 //////////////////////////////////////////////////////////////////////////////
 tree.dynatree({
 	persist: true,
-	cookieId: 'album:' + Blogpath,
+	cookieId: 'album:' + Vmyself,
 	minExpandLevel: 2,
 	imagePath: $('#icon-path').text(),
 
@@ -708,7 +708,7 @@ function ajax_submit(opt) {
 	data.action = $('#action-base').val() + opt.action;
 	data.csrf_check_key = $('#csrf-key').val();
 
-	$.ajax(form.data('myself') + '?etc/ajax_dummy', {
+	$.ajax(Vmyself + '?etc/ajax_dummy', {
 		method: 'POST',
 		data: data,
 		dataType: opt.type || 'json',
@@ -972,7 +972,7 @@ function thumb_size_change() {
 //////////////////////////////////////////////////////////////////////////////
 // ●記事に貼り付け
 //////////////////////////////////////////////////////////////////////////////
-var paste_form = $('#paste-form');
+var paste_form = $secure('#paste-form');
 paste_form.submit(function(){
 	// エラー時送信しない為
 	if ($('#paste-txt').val() == '') return false;

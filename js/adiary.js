@@ -10,9 +10,9 @@ var popup_offset_x = 15;
 var popup_offset_y = 10;
 var IE67=false;
 var IE8=false;
-var Blogpath;	// _frame.html で設定される
+var Vmyself;	// _frame.html で設定される
 var Storage;
-$(function(){ if(Blogpath) Storage=load_PrefixStorage( Blogpath ); });
+$(function(){ if(Vmyself) Storage=load_PrefixStorage( Vmyself ); });
 //////////////////////////////////////////////////////////////////////////////
 //●RSSからの参照リンクURLの細工を消す
 //////////////////////////////////////////////////////////////////////////////
@@ -31,10 +31,12 @@ if (!('console' in window)) {
 	window.console.log = function(x){return x};
 }
 // IE8ではsubstr(-1)が効かない
-String.prototype.last_char = function() {
-	return this.substr(this.length-1, 1);
+String.prototype.rsubstr = function(n) {
+	return this.substr(this.length-n, n);
 }
-
+String.prototype.last_char = function() {
+	return this.rsubstr(1);
+}
 //////////////////////////////////////////////////////////////////////////////
 //●<body>にCSSのためのブラウザクラスを設定
 //////////////////////////////////////////////////////////////////////////////
@@ -885,6 +887,19 @@ function css_fix(css_text, width) {
 // ■サブルーチン
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
+// セキュアなオブジェクト取得
+//////////////////////////////////////////////////////////////////////////////
+function $secure(id) {
+	if (id.substr(0,1) != '#') { return ; }
+	var obj = $('[id="' + id.substr(1) + '"]');
+	if (obj.length >1) {
+		show_error('Security Error!<p>id="' + id + '" is duplicate.</p>');
+		return $('#--not-found--');	// 2つ以上発見された
+	}
+	return obj;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 // CSSファイルの追加
 //////////////////////////////////////////////////////////////////////////////
 function append_css_file(file) {
@@ -1007,7 +1022,7 @@ function textarea_dialog(dom, func) {
 //////////////////////////////////////////////////////////////////////////////
 function show_error(h) {
 	if (typeof(h) === 'string') h = {id: h};
-	h.class = h.class + ' error-dialog';
+	h.dclass = h.dclass + ' error-dialog';
 	h.title = 'ERROR';
 	return show_dialog(h);
 }
@@ -1022,7 +1037,7 @@ function show_dialog(h) {
 	div.attr('title', h.title || 'Dialog');
 	div.dialog({
 		modal: true,
-		dialogClass: h.class,
+		dialogClass: h.dclass,
 		buttons: { OK: function(){ div.dialog('close'); } }
 	});
 	return false;
@@ -1050,18 +1065,21 @@ function my_confirm(h, callback) {
 	};
 	div.dialog({
 		modal: true,
-		dialogClass: h.class,
+		dialogClass: h.class_,
 		buttons: btn
 	});
 }
 
 //############################################################################
-// adiary用 Ajaxセッションライブラリ
+// ■adiary用 Ajaxライブラリ
 //############################################################################
+//////////////////////////////////////////////////////////////////////////////
+// ●セッションを保持して随時データをロードする
+//////////////////////////////////////////////////////////////////////////////
 function adiary_session(_btn, opt){
   $(_btn).click( function(evt){
 	var btn = $(evt.target);
-	var myself = opt.myself || btn.data('myself');
+	var myself = opt.myself || Vmyself;
 	var log = $(opt.log || btn.data('log-target') || '#session-log');
 
 	var load_session = myself + '?etc/load_session';

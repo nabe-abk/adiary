@@ -12,7 +12,7 @@ $(function(){
 // ●モジュールの設定を変更する
 //////////////////////////////////////////////////////////////////////////////
 var formdiv = $('<div>');
-var form = $('#ajax-form');
+var form = $secure('#ajax-form');
 var formbody = $('<div>').addClass('body');
 {
 	form.detach();

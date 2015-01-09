@@ -84,20 +84,26 @@
 	<tr>
 		<th>更新通知等のタイムアウト<span class="help" data-help="更新通知PingやTwitter通知など、外部サイトアクセス時に最大何秒まで待つかを指定します。">?</span></th>
 		<td<@err.c_http_timeout>>
-			<input type="number" name="http_timeout" min="1" max="60" class="w40" value="<@s.http_timeout || 3>">秒（標準3秒）
+			<input type="number" name="http_timeout" min="1" max="60" class="w50" value="<@s.http_timeout || 3>">秒（標準3秒）
 		</td>
 	</tr>
 
 	<tr>
 		<th>リロードタイム<span class="help" data-help="記事編集後や設定保存後の画面で、自動リロードまでの時間を設定します。">?</span></th>
 		<td<@err.c_reload_time>>
-			<input type="number" name="reload_time" min="0" max="60" class="w40" value="<@if(s.reload_time eq '', 3, s.reload_time)>">秒（0＝自動リロードしない）
+			<input type="number" name="reload_time" min="0" max="60" class="w50" value="<@if(s.reload_time eq '', 3, s.reload_time)>">秒（0＝自動リロードしない）
+		</td>
+	</tr>
+	<tr>
+		<th>同時編集の確認<span class="help" data-help="同じ記事を２重に編集したとき確認メッセージを出すシステムです。編集状況の確認間隔（秒）を設定してください。">?</span></th>
+		<td<@err.c_reload_time>>
+			<input type="number" name="edit_lock_time" min="0" max="300" class="w50" value="<@if(s.edit_lock_time eq '', 0, s.edit_lock_time)>">秒（0-9秒＝無効。推奨：60秒）
 		</td>
 	</tr>
 	<tr>
 		<th>公開ディレクト付加文字列長<span class="help" data-help="プライベートモード設定時に、ブログ公開ディレクトリを推測されないよう付加するランダムな文字列の長さを指定します。">?</span></th>
 		<td<@err.c_dir_postfix_len>>
-			<input type="number" name="dir_postfix_len" min="2" max="32" class="w40" value="<@if(s.dir_postfix_len eq '', 8, s.dir_postfix_len)>">文字（2～32文字）
+			<input type="number" name="dir_postfix_len" min="2" max="32" class="w50" value="<@if(s.dir_postfix_len eq '', 8, s.dir_postfix_len)>">文字（2～32文字）
 		</td>
 	</tr>
 	<tr>

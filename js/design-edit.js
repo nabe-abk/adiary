@@ -180,7 +180,7 @@ function init_module(obj) {
 // ●モジュールの設定を変更する
 //////////////////////////////////////////////////////////////////////////////
 var formdiv = $('<div>');
-var form = $('#ajax-form');
+var form = $secure('#ajax-form');
 {
 	form.detach();
 	formdiv.append( form );
@@ -189,7 +189,7 @@ var form = $('#ajax-form');
 function module_setting(obj) {
 	var name = obj.data('module-name');
 	var url = editbox.data('setting-url') + name;
-	var body = $('#js-form-body');
+	var body = $secure('#js-form-body');
 	$('#js-form-module-name').val( name );
 
 	// エラー表示用
@@ -254,7 +254,7 @@ function module_setting(obj) {
 //////////////////////////////////////////////////////////////////////////////
 $('#js-save').click(function(){
 	$('#js-form input.js-value').detach();	// 戻るをされた時の対策
-	var form = $('#js-form');
+	var form = $secure('#js-form');
 	if (!form.length) return;
 
 	var form_append = function(key, obj) {
@@ -290,9 +290,9 @@ function load_module_html(obj) {
 	if (!obj.data('load-module-html')) return;
 
 	// HTML取得用フォーム
-	var form = $('#load-module-html-form');
+	var form = $secure('#load-module-html-form');
 	$('#js-load-module-name').val( name );
-	var url  = form.attr('action');
+	var url = form.attr('action');
 
 	$.post(url, form.serialize(), function(data){
 		if (data.match(/^[\r\n\s]*$/)) return;
