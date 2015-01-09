@@ -231,11 +231,7 @@ function start_edit(){
 //----------------------------------------------------------------------------
 var lock_interval;
 function set_lock_interval() {
-	// 接続時間を考慮し、少し短い間隔でロック処理する
-	var diff = el_time * 0.9;
-	if (diff > 5) diff=5;
-	if (diff < 2) diff=2;
-	lock_interval = setInterval(do_edit_lock, (el_time-diff)*1000 );
+	lock_interval = setInterval(do_edit_lock, el_time*1000 );
 }
 
 $('#force-lock-check').click(function(){

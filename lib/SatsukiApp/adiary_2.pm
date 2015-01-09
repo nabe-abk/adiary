@@ -1682,7 +1682,7 @@ sub load_lock_file {
 	# tmpwatch
 	my $dir =  $self->{blog_dir} . 'lock/';
 	$ROBJ->mkdir($dir);
-	$ROBJ->tmpwatch( $ctime*2 );
+	$ROBJ->tmpwatch( $dir, $ctime+10 );
 
 	# lock処理
 	my $file = $dir . $name;
@@ -1690,7 +1690,7 @@ sub load_lock_file {
 	if (!$fh) { return ; }
 
 	my @ary;
-	my $obs_time = $ROBJ->{TM} - $self->{sys}->{edit_lock_time};
+	my $obs_time = $ROBJ->{TM} - ($self->{sys}->{edit_lock_time}+5);
 	foreach(@$lines) {
 		my %h;
 		chomp($_);

@@ -120,7 +120,8 @@
 
 	<span class="element" id="edit-title"><span class="edit-caption">タイトル</span> <input class="w360 no-enter-submit" type="text" name="title" size="44" value="<@art.title>"></span> 
 	<span class="element edit-writer"><span class="edit-caption">投稿者</span> <@art.name></span><br>
-	<button type="button" id="album-open" data-url="<@v.myself>?album/#edit">画像を貼り付ける</button><br>
+	<button type="button" id="album-open" data-url="<@v.myself>?album/#edit">画像を貼り付ける</button>
+	<a href="http://adiary.org/v3man/Satsuki/" data-default="Satsuki/" data-markdown="Markdown" target=_blank id="parser-help-link">記法のヘルプ</a><br>
 
 	<textarea name="body_txt" id="editarea" cols="60" rows="16" class="edit-article"><@tag_escape_amp(art._text || form_.paste_txt)></textarea>
 
@@ -131,8 +132,6 @@
 	</select></span>
 	<@if(!edit_pkey || art.draft, '<input type="submit" name="draft" id="save-draft" value="下書き保存"><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>')>
 	<input type="submit" name="edit" id="save-normal" value="<@if(edit_pkey, '編集内容を保存', 'この記事を新規に登録')>">
-	<br>
-	<a href="http://adiary.org/v3man/Satsuki/" data-default="Satsuki/" data-markdown="Markdown" target=_blank id="parser-help-link">記法のヘルプ</a>
 	<@ifexec(Develop, begin)>
 		<input type="checkbox" class="js-switch" data-target="#-dummy-" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug">パーサーのデバッグ</label>
 	<$end>
@@ -203,6 +202,6 @@
 
 <input type="hidden" value="<@v.sys.edit_lock_time>" id="edit-lock-time">
 <div style="display:none">
-<span id="edit-confirm">この記事を編集している人が他にもいますが、編集を継続しますか？%u</span>
+<span id="edit-confirm">この記事を編集している人が他にいますが、編集を継続しますか？%u</span>
 </div>
 
