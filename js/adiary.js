@@ -11,6 +11,7 @@ var popup_offset_x = 15;
 var popup_offset_y = 10;
 var IE67=false;
 var IE8=false;
+var IE9=false;
 var Vmyself;	// _frame.html で設定される
 var Storage;
 $(function(){ if(Vmyself) Storage=load_PrefixStorage( Vmyself ); });
@@ -58,8 +59,9 @@ function set_browser_class_into_body() {
 	var m = ua.match(/MSIE (\d+)/);
 	if (m) x.push('IE', 'IE' + m[1]);
 	  else x.push('NotIE');
-	if (m && m[1]<8) IE67=true;
-	if (m && m[1]<9) IE8=true;
+	if (m && m[1]<8)  IE67=true;
+	if (m && m[1]<9)  IE8=true;
+	if (m && m[1]<10) IE9=true;
 
 	// スマホ
 	var smp=true;
