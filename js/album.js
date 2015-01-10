@@ -305,7 +305,7 @@ function edit_node( node ) {
 // ○リネームの実行
 //-------------------------------------------
 function rename_folder(obj, node, name) {
-	if (name.last_char() != '/') name += '/';
+	if (name.rsubstr(1) != '/') name += '/';
 	if (node.data.name === name) {
 		obj.blur();	// 変更なし
 		return;
@@ -616,7 +616,7 @@ function error_msg(id, h) {
 
 // 末尾の / を除去
 function chop_slash(str) {
-	if (str.last_char() != '/') return str;
+	if (str.rsubstr(1) != '/') return str;
 	return str.substr(0, str.length-1);
 }
 

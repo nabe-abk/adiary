@@ -34,9 +34,10 @@
 ※リンクを省略した場合、リンク名はURLと同じになります。<br>
 </div>
 
-<div style="display: none" id="lkbox-elemtns">
+<@> IE8で不具合がでるため textarea にしてある（本来はdiv）
+<textarea style="display: none" id="lkbox-elemtns">
 <@s.elements>
-</div>
+</textarea>
 
 <!-- JavaScript ==========================================================-->
 <script>!function(){
@@ -107,7 +108,7 @@ function append_element(text, url) {
 /////////////////
 //初期化処理
 /////////////////
-var list = $('#lkbox-elemtns').text().split("\n");
+var list = $secure('#lkbox-elemtns').text().split("\n");
 for(var i=0; i<list.length; i++) {
 	var x = list[i].indexOf("\t");
 	if (x<0) continue;

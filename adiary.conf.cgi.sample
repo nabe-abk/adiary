@@ -179,8 +179,8 @@
 <$v.parsers = begin_hash>
 	default       = 標準（そのまま改行）
 	default_p1    = 標準（１行＝１段落）
-	default_p2    = 標準（空行で段落処理。改行無視）
-	default_p2_br = 標準（空行で段落処理。そのまま改行）
+	default_p2    = 標準（空行で段落。改行無視）
+	default_p2_br = 標準（空行で段落。そのまま改行）
 	default_no_br = 標準（改行処理・段落処理なし）
 	simple_br     = HTML入力（そのまま改行）
 	simple_p      = HTML入力（１行＝１段落）

@@ -381,23 +381,27 @@ dt { font-weight:	bold; }
 /*--------------------------------------------------------------------
 ●記事：テーブル
 ---------------------------------------------------------------------*/
-.body table {
+.body table,
+.ui-dialog table {
 	font-size:		inherit;
 	margin:			0.5em 1em 0.5em 1em;
 	border-collapse:	separate;
 	border-spacing:		2px;
 	empty-cells:		show;
 }
-.body table tr {
+.body table tr,
+.ui-dialog table tr {
 	margin:			0px;
 	padding:		0px;
 }
-.body table td {
+.body table td,
+.ui-dialog table td {
 	margin:			0px;
 	padding:		2px;
 	border-bottom:		1px dashed #000;
 }
-.body table th {
+.body table th,
+.ui-dialog table th {
 	font-weight:		bold;
 	margin:			0px;
 	padding:		2px;

@@ -2,6 +2,14 @@
 <@local(s,ps)>
 <$s=v.blog>
 
+<!--カスタムサイドバー===================================================-->
+<@ifexec(v.sidebar_html, begin)>
+<aside id="sidebar">
+<@v.sidebar_html>
+</aside> <!-- End of sidebar -->
+<$break(0)>
+<$end>
+
 <!--サイドバー==========================================================-->
 <aside id="sidebar">
 <div id="side-a">
@@ -79,5 +87,6 @@ HTTP Status: <@Status><br>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
 
-</div> <!-- End of side-b -->
+</div> <!-- End of side-a -->
+<div id="side-b"></div>
 </aside> <!-- End of sidebar -->

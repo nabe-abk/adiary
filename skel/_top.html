@@ -1,4 +1,7 @@
 <@6>
+<@>
+<@> 特にブログも記事も指定されていない場合に表示されるトップ
+<@>
 <$thisurl = v.myself . '?' . v.query_ary#0>
 
 <@> システムモード
@@ -8,22 +11,82 @@
 <@ifcall(v.require_update, '_sub/require_update')>
 
 <@><!--=====================================================================-->
-<@> 特に記事が指定されていない場合のトップ
-<@ifexec(v.title eq '', begin)>
-<$v.title    ="Welcome adiary Ver3α">
-<$v.title_h1 ='Welcome adiary Ver3α'>
+<$v.title = v.title_h1 = "Welcome adiary Ver3">
 
 <!--トップ==================================================================-->
 <article class="system">
 <h2>ようこそ</h2>
 	<div class="body">
-	<p>「adiary Ver3.00 <@v.SUBVERSION>」へようこそ。ログインは右上です。</p>
-	<p>βテストご協力ありがとうございます。使用感やご意見などお知らせ頂ければ幸いです。</p>
+	<p>「adiary Ver3」へようこそ。ログインは右上です。</p>
+	<p>このページを書き換えたい時は "skel/_top.html" を "skel.local/_top.html" にコピーして編集してください。</p>
 	</div>
 </article>
-<$end>
 
 <@><!--=====================================================================-->
-<@>ブログリストの呼び出し
-<$jump('blogs')>
+<@>ブログ一覧の呼び出し
+<@call('blogs')>
 
+<@><!--=====================================================================-->
+<@> sidebarのカスタマイズ
+<$v.sidebar_html = exec(begin)>
+<div id="side-a">
+
+
+<div class="hatena-module">
+<div class="hatena-moduletitle">対応環境</div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+	<li>・Chrome, Firefox</li>
+	<li>・その他モダンブラウザ</li>
+	<li>・IE8以降</li>
+	<li>※<strong>管理する場合はIE10以降</strong>を強く推奨します。</li>
+</ul>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+
+
+<div class="hatena-module">
+<div class="hatena-moduletitle">動作環境</div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+	<li>・Apache互換のCGI環境</li>
+	<li>・Perl 5.8.1以降</li>
+	<li>(推奨) Image::Magick</li>
+	<li>(推奨) Net::SSLeay</li>
+</ul>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+
+
+
+<div class="hatena-module">
+<div class="hatena-moduletitle">外部リンク</div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+<li><a href="http://adiary.org/">adiary公式サイト</a></li>
+<li><a href="http://adiary.org/v3man/">オンラインマニュアル</a></li>
+</ul>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+
+
+<!--システム情報============================================-->
+<div class="hatena-module" id="side-system-info" data-module-name="des_system-info">
+<div class="hatena-moduletitle">System info</div>
+<div class="hatena-modulebody">
+<@ifexec(Timer, begin)>
+Total time : <span id="system-info-total-time"><@int(Timer.check()*10000 + 0.5)/10></span> ms<br>
+DB time : <span id="system-info-db-time"><@int(Timer.check('db')*10000 + 0.5)/10></span> ms<br>
+<$end>
+Runtime : <@CGI_mode><br>
+RDBMS : <@DB._RDBMS><br>
+<@ifexec(Develop, begin)>
+HTTP Status: <@Status><br>
+<@if(AutoReload, "AutoReload : 1<br>")>
+<$end>
+</div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
+
+
+</div>
+<$end>

@@ -642,6 +642,13 @@ sub tag_escape_for_xml {	# &nbsp; は使えない
 	}
 	return $_[0];
 }
+sub esc_js_string {	# 非破壊
+	my $self = shift;
+	my $str  = shift;
+	$str =~ s/\\/\\\\/g;
+	$str =~ s/\'/&apos;/g;
+	return $str;
+}
 
 # 改行なし文字列の正規化
 sub string_normalize {
@@ -930,7 +937,7 @@ sub validator {
 		# 使用したオプションを削除
 		#----------------------------------------------
 		delete $opts{$_};
-		foreach my $o qw(default min_chars max_chars min max type protocol enum enum_txt) {
+		foreach my $o (qw(default min_chars max_chars min max type protocol enum enum_txt)) {
 			delete $opts{"$_:$o"};
 		}
 		# フィルタ前処理

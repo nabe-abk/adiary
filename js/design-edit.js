@@ -3,6 +3,7 @@
 //							(C)2013 nabe@abk
 //############################################################################
 //[TAB=8]  require jQuery
+'use strict';
 $(function(){
 	var module_data_id   = '#design-modules-data';
 	var module_selector  = '*[data-module-name]';
@@ -32,7 +33,7 @@ $(function(){
 				title: 'WARNING',
 				id: '#msg-sample-has-id',
 				hash: { m: obj.data('module-name'), i:x[1] }, 
-				class: 'error-dialog'
+				dclass: 'error-dialog'
 			});
 		}
 	});
@@ -179,18 +180,21 @@ function init_module(obj) {
 //////////////////////////////////////////////////////////////////////////////
 // ●モジュールの設定を変更する
 //////////////////////////////////////////////////////////////////////////////
-var formdiv = $('<div>');
-var form = $secure('#ajax-form');
-{
-	form.detach();
-	formdiv.append( form );
-	$('#body').append( formdiv );
-}
 function module_setting(obj) {
 	var name = obj.data('module-name');
 	var url = editbox.data('setting-url') + name;
-	var body = $secure('#js-form-body');
-	$('#js-form-module-name').val( name );
+
+	var formdiv = $('<div>').attr('id', 'popup-dialog');
+	var form = $secure('#setting-form').clone();
+	form.removeAttr('id');
+	form.append($('<input>').attr({
+		type: 'hidden',
+		name: 'module_name',
+		value: name
+	}));
+	var body = $('<div>').attr('id', 'js-form-body');
+	form.append( body );
+	formdiv.append( form );
 
 	// エラー表示用
 	var errdiv = $('<div>').addClass('error-message');
@@ -199,7 +203,7 @@ function module_setting(obj) {
 	errdiv.append(errmsg, erradd);
 
 	var buttons = {};
-	buttons[ $('#btn-ok').text() ] = function(){
+	var ok_func = buttons[ $('#btn-ok').text() ] = function(){
 		// alert( form.serialize() );
 		// 今すぐ保存
 		$.ajax({
@@ -224,21 +228,33 @@ function module_setting(obj) {
 			error: function(xmlobj){
 				errmsg.html( $('#msg-ajax-error').html() );
 				errmsg.attr('title', xmlobj.responseText);
-			}
+			},
 		});
 	};
 	buttons[ $('#btn-cancel').text() ] = function(){
 		formdiv.dialog( 'close' );
 	};
 
+	// Enterキーで設定ウィンドウを閉じる
+	form.on('keypress', 'input', function(evt) {
+		if (evt.which === 13) { ok_func(); return false; }
+		return true;
+	});
+
+	// こうしておこないとロードしたJavaScriptが実行されない
+	$('#body').append( formdiv );
+
 	// ダイアログの設定
 	formdiv.dialog({
 		autoOpen: false,
 		modal: true,
-		minWidth:  DialogWidth,
+		width:  DialogWidth,
 		minHeight: 100,
 		title:   obj.attr('title').replace('%n', obj.attr('title')),
-		buttons: buttons
+		buttons: buttons,
+		beforeClose: function(evt,ui) {
+			formdiv.remove();
+		}
 	});
 
 	// フォーム本体をロード

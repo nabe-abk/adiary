@@ -3,6 +3,7 @@
 //							(C)2014 nabe@abk
 //############################################################################
 //[TAB=8]  require jQuery
+'use strict';
 var Default_show_speed = 300;
 var Default_image_popup_delay = 300;
 var DialogWidth = 640;
@@ -34,9 +35,13 @@ if (!('console' in window)) {
 String.prototype.rsubstr = function(n) {
 	return this.substr(this.length-n, n);
 }
-String.prototype.last_char = function() {
-	return this.rsubstr(1);
+if (!Array.isArray) Array.isArray = function (vArg) {
+	return Object.prototype.toString.call(vArg) === "[object Array]";  
 }
+if (!String.prototype.trim ) String.prototype.trim = function(){
+	return this.toString().replace(/^\s+|\s+$/g, '');
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //●<body>にCSSのためのブラウザクラスを設定
 //////////////////////////////////////////////////////////////////////////////
@@ -91,10 +96,9 @@ function adiary_init(R) {
 var jquery_hook_stop = false;
 $(function(){
 	var body = $('#body');
-	body.append( $('<div>').attr('id', 'popup-div')      );
-	body.append( $('<div>').attr('id', 'popup-help')     );
-	body.append( $('<div>').attr('id', 'popup-com')      );
-	body.append( $('<div>').attr('id', 'popup-textarea') );
+	body.append( $('<div>').attr('id', 'popup-div')    );
+	body.append( $('<div>').attr('id', 'popup-help')   );
+	body.append( $('<div>').attr('id', 'popup-com')    );
 	adiary_init(body);
 
 	//////////////////////////////////////////////////////////////////////
@@ -438,7 +442,17 @@ initfunc.push( function(R){
 		set_input_resize($(dom));
 	} )
 
-function set_input_resize(obj) {
+function set_input_resize(obj, flag) {
+	// 非表示要素は最初にhoverされた時に処理する
+	if (!flag && obj.is(":hidden")) {
+		var func = function(){
+			obj.off('mouseenter', func);
+			set_input_resize(obj, 1);
+		};
+		obj.on('mouseenter', func);
+		return;
+	}
+
 	// テーマ側でのリサイズ機能の無効化手段なので必ず先に処理すること
 	var span = $('<span>').addClass('resize-parts');
 	if(span.css('display') == 'none') return;
@@ -467,7 +481,7 @@ function set_input_resize(obj) {
 	span.css("left", obj.position().left +  obj.outerWidth() - span.width());
 	span.css("top",  obj.position().top );
 	span.css("height", obj.outerHeight() );
-	
+
 	// 最小幅算出
 	var width = obj.width();
 	var min_width = parseInt(span.css("z-index")) % 1000;
@@ -679,7 +693,6 @@ function put_sid(id) {
 //////////////////////////////////////////////////////////////////////////////
 function init_top_search(id) {
 	var form = $(id);
-	
 	var tagdel = $('<span>').addClass('ui-icon ui-icon-close');
 	tagdel.click(function(evt){
 		var obj = $(evt.target);
@@ -975,59 +988,20 @@ function insert_to_textarea(ta, text) {
 	ta.setSelectionRange(start, start);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// ●テキストエリア入力画面のpopup
-//////////////////////////////////////////////////////////////////////////////
-function textarea_dialog(dom, func) {
-	var obj  = $(dom);
-	var div  = $('#popup-textarea');
-	var text = obj.data('msg');
-
-	div.empty();
-	if (text && text != '') {
-		var p = $('<p>');
-		p.html(text);
-		div.append(p);
-	}
-	var ta = $('<textarea>').attr('rows', 5).addClass('w100p');
-	div.append(ta);
-
-	// ボタンの設定
-	var ok     = obj.data('ok')     || 'OK';
-	var cancel = obj.data('cancel') || 'CANCEL';
-	var buttons = {};
-	buttons[ok] = function(){
-		div.dialog( 'close' );
-		func( ta.val() );	// callback
-	};
-	buttons[cancel] = function(){
-		div.dialog( 'close' );
-	};
-
-	// ダイアログの表示
-	div.dialog({
-		modal: false,
-		minWidth:  DialogWidth,
-		minHeight: 100,
-		title:   obj.data('title'),
-		buttons: buttons
-	});
-}
-
 //############################################################################
 // ダイアログ関連
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
 // ●エラーの表示
 //////////////////////////////////////////////////////////////////////////////
-function show_error(h) {
-	if (typeof(h) === 'string') h = {id: h};
+function show_error(h, _arg) {
+	if (typeof(h) === 'string') h = {id: h, hash:_arg};
 	h.dclass = h.dclass + ' error-dialog';
 	h.title = 'ERROR';
 	return show_dialog(h);
 }
-function show_dialog(h) {
-	if (typeof(h) === 'string') h = {id: h};
+function show_dialog(h, _arg) {
+	if (typeof(h) === 'string') h = {id: h, hash:_arg};
 	var html = (h.id.substr(0,1) != '#') ? h.id : $(h.id).html();
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 	html = html.replace(/%[A-Za-z]/g, '');
@@ -1069,6 +1043,99 @@ function my_confirm(h, callback) {
 		buttons: btn
 	});
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// ●テキストエリア入力のダイアログ
+//////////////////////////////////////////////////////////////////////////////
+function textarea_dialog(dom, func) {
+	var obj  = $(dom);
+	form_dialog({
+		title: obj.data('title'),
+		elements: [
+			{type: 'p', html: obj.data('msg')},
+			{type: 'textarea', name: 'ta'}
+		],
+		callback: function( h ) { func( h.ta ) }
+	});
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●入力のダイアログの表示
+//////////////////////////////////////////////////////////////////////////////
+function form_dialog(h) {
+	var ele = h.elements || { type:'text', name:'str', dclass:'w80p' };
+	if (!Array.isArray(ele)) ele = [ ele ];
+	var div = $('<div>').attr('id','popup-dialog');
+
+	var form = $('<form>');
+	for(var i=0; i<ele.length; i++) {
+		var x = ele[i];
+		if (!x) continue;
+		if (typeof(x) == 'string') {
+			var line = $('<div>').html(x);
+			form.append( line );
+			continue;
+		}
+		if (x.type == 'p') {
+			form.append( $('<p>').html( x.html ) );
+			continue;
+		}
+		if (x.type == 'textarea') {
+			var t = $('<textarea>').attr({
+				rows: x.rows || 5,
+				name: x.name
+			}).addClass('w100p');
+			if (x.val != '') t.text( x.val );
+			form.append( t );
+			continue;
+		}
+		if (x.type == '*') {
+			form.append( x.html );
+			continue;
+		}
+		// else
+		var inp = $('<input>').attr({
+			type: x.type || 'text',
+			name: x.name,
+			value: x.val,
+		});
+		inp.addClass( x.dclass || 'w80p');
+		form.append( inp );
+	}
+	div.empty();
+	div.append( form );
+
+	// ボタンの設定
+	var buttons = {};
+	var ok_func = buttons[ $('#ajs-ok').text() ] = function(){
+		div.dialog( 'close' );
+		var ret = {};
+		var ary = form.serializeArray();
+		for(var i=0; i<ary.length; i++){
+			ret[ ary[i].name ] = ary[i].value;
+		}
+		h.callback( ret );	// callback
+	};
+	buttons[ $('#ajs-cancel').text() ] = function(){
+		div.dialog( 'close' );
+		if (h.cancel) h.cancel();
+	};
+	// Enterキーによる送信防止
+	form.on('keypress', 'input', function(evt) {
+		if (evt.which === 13) { ok_func(); return false; }
+		return true;
+	});
+
+	// ダイアログの表示
+	div.dialog({
+		modal: true,
+		width:  DialogWidth,
+		minHeight: 100,
+		title:   h.title || $('#msg-setting-title').text(),
+		buttons: buttons
+	});
+}
+
 
 //############################################################################
 // ■adiary用 Ajaxライブラリ

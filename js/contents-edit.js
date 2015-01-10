@@ -3,6 +3,7 @@
 //							(C)2013 nabe@abk
 //############################################################################
 //[TAB=8]  require jQuery
+'use strict';
 $( function(){
 	var form = $secure('#form');
 	var tree = $('#tree');

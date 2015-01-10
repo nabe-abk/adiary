@@ -40,12 +40,13 @@
 <!-- information内のモジュールデータ -->
 <div id="information-modules" style="display: none">
 
-<div id="current-elements">
+<@> IE8で不具合がでるため textarea にしてある（本来はdiv）
+<textarea id="current-elements">
 <@if(s.elements || s.title, s.elements, begin_string)>
 description
 artlist-link
 print-link
-<$end></div>
+<$end></textarea>
 
 <div data-module-name="description" title="ブログの説明">
 ※<a href="<@v.myself>?set/" target="_blank">ここで設定</a>
@@ -112,8 +113,8 @@ var modules = [];
 var count = 0;
 form.sortable();
 
-$("#information-modules > div[data-module-name]").each(function(){
-	var obj  = $(this);
+$("#information-modules > div[data-module-name]").each(function(i,ele){
+	var obj = $(ele);
 	obj.remove();
 	var name = obj.data('module-name');
 	modules[ name ] = obj;
@@ -130,7 +131,8 @@ sel.change( function(){
 function append_element(name, val) {
 	if (name == '') return;
 	var mod= modules[ name ];
-	
+	if (!mod) return;
+
 	var alt= mod.data('alt');
 	var tr = $('<tr>');
 	var th = $('<th>').addClass('nowrap').html( alt ? alt : mod.attr('title') );
@@ -161,8 +163,8 @@ function append_element(name, val) {
 }
 /// 初期化
 function init() {
-	var ele = $('#current-elements');
-	var list = ele.html().split("\n");
+	var ele = $secure('#current-elements');
+	var list = ele.html().split(/\n/);
 	for (var i=0; i<list.length; i++) {
 		var x = list[i].split(",",2);
 		var name = x[0];

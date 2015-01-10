@@ -3,6 +3,7 @@
 //							(C)2013 nabe@abk
 //############################################################################
 //[TAB=8]  require jQuery
+'use strict';
 $(function(){
 	$('button.setting').click( function(evt){
 		module_setting($(evt.target));
@@ -69,7 +70,7 @@ function module_setting(obj) {
 	formdiv.dialog({
 		autoOpen: false,
 		modal: true,
-		minWidth:  DialogWidth,
+		width:  DialogWidth,
 		minHeight: 100,
 		title:   obj.data('title').replace('%n', obj.data('title')),
 		buttons: buttons

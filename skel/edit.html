@@ -110,18 +110,48 @@
 		<option value="" class="special">【追加するタグを選択】</option>
 		<option value="*" class="special" data-new="1">【新規に登録】</option>
 	</select><br>
-	<div style="display:none">
-	<span id="new-tag-title">タグを入力</span>
-	<span id="new-tag-msg">※階層の区切りは「<span class="mono">::</span>」です。<br>※「,」は使用できません。</span>
-	<span id="new-tag-append">追加</span>
-	<span id="new-tag-cancel">キャンセル</span>
-	</div>
 	<br>
 
 	<span class="element" id="edit-title"><span class="edit-caption">タイトル</span> <input class="w360 no-enter-submit" type="text" name="title" size="44" value="<@art.title>"></span> 
-	<span class="element edit-writer"><span class="edit-caption">投稿者</span> <@art.name></span><br>
-	<button type="button" id="album-open" data-url="<@v.myself>?album/#edit">画像を貼り付ける</button>
-	<a href="http://adiary.org/v3man/Satsuki/" data-default="Satsuki/" data-markdown="Markdown" target=_blank id="parser-help-link">記法のヘルプ</a><br>
+	<span class="element edit-writer"><span class="edit-caption">投稿者</span> <@art.name></span>
+	<div id="edit-helper">
+	<button class="helper" type="button" id="btn-strong" data-msg="太字にしたい文字列を入力" data-start="[bf:" data-end="]">太字</button>
+	<button class="helper" type="button" id="btn-link"   data-msg="リンクを生成" data-msg1="リンク先" data-val1="http://" data-msg2="リンク文字列">リンク</button>
+	<button class="helper" type="button" id="btn-google" data-msg="Google検索へのリンクを生成" data-msg1="検索する言葉" data-msg2="リンク文字列" data-start="[g:" data-end="]">検索</button>
+	<button class="helper" type="button" id="btn-list"   data-msg="箇条書きにしたい項目を１行ずつ入力" data-tag="-" data-type="lines">箇条書き</button>
+	<button class="helper" type="button" id="btn-quote"  data-msg="引用したい文章を入力" data-start-base=">>" data-end="<<" data-type="block" data-sp-msg="引用元サイトがある場合、そのURLを入力してください">引用</button>
+	<button class="helper" type="button" id="btn-annotation" data-msg="注釈にしたい文字列を入力" data-start="((" data-end="))">注釈</button>
+	<button class="helper" type="button" id="album-open" data-url="<@v.myself>?album/#edit">画像</button>
+	<select class="helper" id="select-color" title="選択した文字列に色を付けます。" data-start-base="[color:" data-end="]" data-msg="色を変更したい文字列を入力">
+		<option value="" selected>色</option>
+		<option value="#FF0000" style="color:#FF0000;">■</option>
+		<option value="#FFFF00" style="color:#FFFF00;">■</option>
+		<option value="#00FF00" style="color:#00FF00;">■</option>
+		<option value="#00FFFF" style="color:#00FFFF;">■</option>
+		<option value="#0000FF" style="color:#0000FF;">■</option>
+		<option value="#FF00FF" style="color:#FF00FF;">■</option>
+		<option value="#800000" style="color:#800000;">■</option>
+		<option value="#808000" style="color:#808000;">■</option>
+		<option value="#008000" style="color:#008000;">■</option>
+		<option value="#008080" style="color:#008080;">■</option>
+		<option value="#000080" style="color:#000080;">■</option>
+		<option value="#800080" style="color:#800080;">■</option>
+		<option value="#000000" style="color:#000000;">■</option>
+		<option value="#808080" style="color:#808080;">■</option>
+		<option value="#C0C0C0" style="color:#C0C0C0;">■</option>
+		<option value="#FFFFFF" style="color:#000000;">□</option>
+	</select>
+	<select class="helper" id="select-fontsize" title="選択した文字列のサイズを変えます。"  data-start-base="[" data-end="]" data-msg="サイズを変更したい文字列を入力">
+		<option value="" selected>サイズ</option>
+		<option value="xx-large">大大大</option>
+		<option value="x-large">大大</option>
+		<option value="large">大</option>
+		<option value="small">小</option>
+		<option value="x-small">小小</option>
+		<option value="xx-small">小小小</option>
+	</select>
+	<a href="http://adiary.org/v3man/Satsuki/" data-default="Satsuki/" data-markdown="Markdown" target=_blank id="parser-help-link">記法のヘルプ</a>
+	</div>
 
 	<textarea name="body_txt" id="editarea" cols="60" rows="16" class="edit-article"><@tag_escape_amp(art._text || form_.paste_txt)></textarea>
 
@@ -130,8 +160,10 @@
 		<@forexec_hash(ROBJ, v.parsers, begin)><option value="<@key>"<@if(art.parser eq key, ' selected')>><@val></option>
 		<$end>
 	</select></span>
-	<@if(!edit_pkey || art.draft, '<input type="submit" name="draft" id="save-draft" value="下書き保存"><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>')>
-	<input type="submit" name="edit" id="save-normal" value="<@if(edit_pkey, '編集内容を保存', 'この記事を新規に登録')>">
+	<@ifexec(!edit_pkey || art.draft, begin)>
+	<button type="submit" name="draft" value="1" id="save-draft">下書き保存</button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
+	<$end>
+	<button type="submit" name="edit" id="save-normal" value="1"><@if(edit_pkey, '編集内容を保存', '新規に保存')></button>
 	<@ifexec(Develop, begin)>
 		<input type="checkbox" class="js-switch" data-target="#-dummy-" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug">パーサーのデバッグ</label>
 	<$end>
@@ -171,7 +203,7 @@
 		<$end>
 	</ul>
 
-	<input type=submit name="edit" id="save-last" value="<@if(edit_pkey, '編集内容を保存', 'この記事を新規に登録')>">
+	<button type="submit" name="edit" id="save-last" value="1"><@if(edit_pkey, '編集内容を保存', '新規に保存')></button>
 </form>
 <@ifexec(edit_pkey, begin)>
 	<ul class="checkbox">
@@ -202,6 +234,12 @@
 
 <input type="hidden" value="<@v.sys.edit_lock_time>" id="edit-lock-time">
 <div style="display:none">
+<span id="new-tag-title">タグを入力</span>
+<span id="new-tag-msg">※階層の区切りは「<span class="mono">::</span>」です。<br>※「,」は使用できません。</span>
+<span id="new-tag-append">追加</span>
+<span id="new-tag-cancel">キャンセル</span>
 <span id="edit-confirm">この記事を編集している人が他にいますが、編集を継続しますか？%u</span>
+<span id="msg-multiline">複数行を一度に処理できません。</span>
+<span id="msg-for-ie8">このブラウザではこの機能は使用できません。</span>
 </div>
 
