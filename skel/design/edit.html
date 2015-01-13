@@ -1,26 +1,115 @@
 <@6>
-<@local(mods, t)>
-<$ifsuperjump_clear(! Auth.ok,       '_sub/error_message_403', 'ログインしていません')>
-<$ifsuperjump_clear(! v.blog_admin,  '_sub/error_message_403', 'ブログが存在しないか権限がありません')>
+<@local(s,tp,t)>
+<$s = v.blog>
+<$ifredirect(!v.blog_admin, v.myself)>
+<$v.frame_skeleton=''>
+<!--========================================================================-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="adiary <@v.VERSION><@v.SUBVERSION>">
+<!--[if lt IE 9]>
+<script src="<@Basepath><@v.script_dir>jquery-1.min.js"></script>
+<script src="<@Basepath><@v.script_dir>IE9-2.1b4.js"></script>
+<![endif]-->
+<!--[if gte IE 9]><!-->
+<script src="<@Basepath><@v.script_dir>jquery-2.min.js"></script>
+<!--<![endif]-->
+<script src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
+<script src="<@Basepath><@v.script_dir>adiary.js"></script>
+<script src="<@Basepath><@v.script_dir>design-edit.js"></script>
 
-<@> システムモード
-<$v.system_mode("デザイン編集")>
-<$v.design_edit=1>
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.notheme.css" id="jquery-ui-css">
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>satsuki2/base.css" id="base-css">
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>satsuki2/satsuki2/satsuki2.css" id="theme">
 
-<@> エラー表示
-<@call('_sub/error_message')>
-<$ifbreak(POST)>
+	<title>デザイン編集 - <@s.blog_name></title>
+<!--========================================================================-->
+<style>
+* {
+	margin:		0;
+	padding:	0;
+}
+html, #body {
+	height:		100%;
+	overflow:	hidden;
+<@ifexec(!Develop, begin)>
+	overflow:	hidden;
+<$end>
+}
+#body {
+	background-color:	#008;
+	font-size:		11pt;
+}
+#right-buttons {
+	position:		absolute;
+	right:			4px;
+}
+#right-buttons button {
+	margin:			1px;
+}
+#form {
+	color:			#fff;
+	margin:			2px 4px;
+}
+#form button + button {
+	margin:			inherit;
+}
+select {
+	padding:		0px 1px;
+}
+#iframe {
+	width:			100%;
+	min-height:		0;
+	overflow-x:		hidden;
+	overflow-y:		scrollbar;
+	border:			none;
+	background-color:	#fff;
 
-<$v.regist_js("<@v.script_dir>design-edit.js")>
+	position:		absolute;
+	left:			0px;
 
-<@call('_main')>
-
-<!-- デザインモジュールの情報 =============================================-->
-<div id="design-modules-data" style="display: none">
-
+}
+</style>
+</head>
+<body id="body">
+<!--========================================================================-->
 <$mods = v.load_modules_info()>
 <$mods = sort_str(mods, 'title')>
 
+<form id="form">
+デザイン編集
+<select name="modules" id="add-module">
+<option value="">（追加モジュール選択）</option>
+<@forexec(t, mods, begin)>
+<option value="<@t.name>"><@t.title></option>
+<$end>
+</select>
+
+<button id="save-btn" type="button">保存</button>
+<button id="back-btn" type="button" onclick="window.location='<@v.myself>?<@v.skel_dir>'">戻る</button>
+</form>
+<iframe id="iframe" src="<@v.myself>"></iframe>
+
+<!--========================================================================-->
+<script>
+$(function(){
+	var body = $('#body');
+	var iframe = $('#iframe');
+	iframe_resize();
+	$(window).resize( iframe_resize );
+	function iframe_resize() {
+		var h = body.height() - iframe.position().top;
+		$('#debug-msg').html(body.height() + ' / ' + iframe.position().top);
+		iframe.css('height', h);
+	}
+});
+</script>
+
+<!-- デザインモジュールの情報 =============================================-->
+<div id="design-modules-data" style="display: none">
 <@forexec(t, mods, begin)>
 <$ifnext(t.adiary_version > v.VERSION)> <@>  対応Versionチェック
 <div class="<@t.module_class>" title="<@t.title>"
@@ -37,20 +126,6 @@
 </div>
 <$end>
 
-<!-- デザイン編集ボックス -->
-<div class="hatena-module location-fix system-module" id="module-editbox" data-setting-url="<@v.myself>?set2/plugin_setting&amp;name=" data-load-module-url="<@v.myself>?<@v.skel_dir>load_module&amp;name=">
-<div class="hatena-moduletitle">モジュール編集</div>
-<div class="hatena-modulebody">
-<select name="modules" id="add-module">
-<option value="">（追加モジュール選択）</option>
-<@forexec(t, mods, begin)>
-<option value="<@t.name>"><@t.title></option>
-<$end>
-</select><br>
-<button class="save" id="js-save">保存</button>
-<button class="cancel" onclick="window.location = '<@v.myself>?design/'">キャンセル</button><br>
-</div>
-</div>
 
 <!-- フォーム -->
 <form action="<@v.myself>?<@v.skeleton>" method="POST" id="js-form">
@@ -59,19 +134,19 @@
 </form>
 
 <!-- モジュール設定画面用フォーム -->
-<form action="<@v.myself>?<@v.skeleton>" method="POST" id="setting-form">
+<form method="POST" id="setting-form"
+ data-setting-url="<@v.myself>?set2/plugin_setting&amp;name=">
 <input type="hidden" name="action" value="set2/plugin_setting">
 <input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 </form>
 
 <!-- モジュールHTMLロード用フォーム -->
-<form action="<@v.myself>?<@v.skeleton>" method="POST" id="load-module-html-form">
+<form method="POST" id="load-module-html-form">
 <input type="hidden" name="action" value="design/load_module">
 <input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 <input type="hidden" name="module_name" id="js-load-module-name">
 </form>
 </div>
-
 
 
 <@call('_sub/ajax_messages')>
@@ -80,3 +155,8 @@
 <span id="msg-duplicate-id">「%n」は既に存在します（１つしか追加できません）</span>
 <span id="msg-sample-has-id">モジュール「%m」のサンプルHTMLがid属性を持っています。"id"ではなく"data-id"を使用してください。<br><p>%i</p></span>
 </div>
+
+<@call('_sub/frame_end')>
+
+</body>
+</html>

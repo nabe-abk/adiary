@@ -178,8 +178,8 @@ sub read_query_form {
 	my $q = $ROBJ->read_query({'t'=>1});	# t= をarray扱い
 	if ($query ne '') {
 		$self->{query} = $query;
-		$query =~ m|^([\w/]+)|;
-		$self->{query0} = exists($q->{q}) ? '' : $1;	# 検索Queryをスケルトン指定と誤解しないため
+		$query =~ m|^([\w/=]+)|;
+		$self->{query0} = index($1,'=')<0 ? $1 : '';	# 検索Queryをスケルトン指定と誤解しないため
 	}
 }
 

@@ -4,20 +4,20 @@
 //############################################################################
 //[TAB=8]  require jQuery
 'use strict';
+//////////////////////////////////////////////////////////////////////////////
+// ●モジュール情報のロード
+//////////////////////////////////////////////////////////////////////////////
 $(function(){
+	var iframe = $('#iframe');
+	var ifcont;
 	var module_data_id   = '#design-modules-data';
 	var module_selector  = '*[data-module-name]';
 	var module_name_attr = 'data-module-name';
-//////////////////////////////////////////////////////////////////////////////
-// ●初期化処理
-//////////////////////////////////////////////////////////////////////////////
-	var side_a = $('#side-a');
-	var side_b = $('#side-b');
+
+	var btn_save = $('#save-btn');
+
 	var btn_setting_title = $('#btn-setting').text() || '';
 	var btn_close_title   = $('#btn-close').text()   || '';
-
-	var editbox = $('#module-editbox');
-	editbox.detach();
 
 	var modules = [];	// 各モジュールを取得し保存
 	$(module_data_id + '>' + module_selector).each( function(idx,obj){
@@ -38,19 +38,45 @@ $(function(){
 		}
 	});
 
+//////////////////////////////////////////////////////////////////////////////
+// ●初期化処理
+//////////////////////////////////////////////////////////////////////////////
+iframe.on('load', function(){
+	var if_cw = iframe[0].contentWindow;
+	var $i    = iframe[0].contentWindow.$;
+	var side_a = $i('#side-a');
+	var side_b = $i('#side-b');
+
+	// フレーム内check
+	if ($i('#body').hasClass('system-mode')) {
+		btn_save.prop('disabled', true);
+		return;
+	}
+	btn_save.prop('disabled', false);
+
 	// モジュールにボタン追加
-	$('#sidebar ' + module_selector).each( function(idx,obj){
+	$i('#sidebar ' + module_selector).each( function(idx,obj){
 		init_module( $(obj) );
 	});
 
-	// 編集ボックスを追加
-	side_a.prepend(editbox);
-	
 	// sortable設定
 	side_a.addClass('connectedSortable');
 	side_b.addClass('connectedSortable');
 	side_a.sortable({ items: '>' + module_selector, connectWith: ".connectedSortable" });
 	side_b.sortable({ items: '>' + module_selector, connectWith: ".connectedSortable" });
+
+	// iframe内のリンク書き換え
+	$i('a').each(function(idx,dom) {
+		var obj = $(dom);
+		var url = obj.attr('href');
+		if (!url) return;
+
+		if (url.substr(0, if_cw.Vmyself.length) != if_cw.Vmyself
+		 || url.indexOf('?&')<0 && 0<url.indexOf('?')) {
+			obj.attr('target', '_top');
+		}
+	});
+
 
 //////////////////////////////////////////////////////////////////////////////
 // ●要素を追加する
@@ -65,7 +91,7 @@ $('#add-module').change(function(evt){
 	if (! mod.length) return;
 
 	var id = mod.data('id');
-	if (id != '' && $('#' + id).length) {	// 同じidが既に存在する、↓同じモジュール名が存在する
+	if (id != '' && $i('#' + id).length) {	// 同じidが既に存在する、↓同じモジュール名が存在する
 		show_error( '#msg-duplicate-id', {
 			n: mod.attr('title')
 		});
@@ -85,7 +111,7 @@ $('#add-module').change(function(evt){
 		name = obj.data('module-name');
 		for(var i=1; i<9999; i++) {
 			var name2 = name + ',' + i.toString();
-			if ($('*[data-module-name="'+ name2 +'"]').length) continue;
+			if ($i('*[data-module-name="'+ name2 +'"]').length) continue;
 			break;
 		}
 		obj.data('module-name', name2);
@@ -97,7 +123,7 @@ $('#add-module').change(function(evt){
 	if (obj.hasClass('location-last')) {	// System info専用
 		obj.appendTo(side_b);
 	} else {
-		obj.insertAfter(editbox);
+		obj.prependTo(side_a);
 	}
 
 	// モジュールHTMLをサーバからロード？
@@ -160,7 +186,7 @@ function init_module(obj) {
 	close.attr('title', btn_close_title);
 	close.click(function(){
 		my_confirm({
-			id:'#msg-delete-confirm',
+			id: '#msg-delete-confirm',
 			hash: { n: obj.attr('title') },
 			btn_ok: $('#btn-close').text(),
 			callback: function(flag) {
@@ -182,10 +208,10 @@ function init_module(obj) {
 //////////////////////////////////////////////////////////////////////////////
 function module_setting(obj) {
 	var name = obj.data('module-name');
-	var url = editbox.data('setting-url') + name;
 
 	var formdiv = $('<div>').attr('id', 'popup-dialog');
 	var form = $secure('#setting-form').clone();
+	var url  = form.data('setting-url') + name;
 	form.removeAttr('id');
 	form.append($('<input>').attr({
 		type: 'hidden',
@@ -231,7 +257,7 @@ function module_setting(obj) {
 			},
 		});
 	};
-	buttons[ $('#btn-cancel').text() ] = function(){
+	buttons[ $('#ajs-cancel').text() ] = function(){
 		formdiv.dialog( 'close' );
 	};
 
@@ -268,15 +294,15 @@ function module_setting(obj) {
 //////////////////////////////////////////////////////////////////////////////
 // ●結果を保存する
 //////////////////////////////////////////////////////////////////////////////
-$('#js-save').click(function(){
+btn_save.click(function(){
 	$('#js-form input.js-value').detach();	// 戻るをされた時の対策
 	var form = $secure('#js-form');
 	if (!form.length) return;
 
 	var form_append = function(key, obj) {
 		var i=0;
-		obj.each( function(idx,_this){
-			var name = $(_this).data('module-name');
+		obj.each( function(idx,dom){
+			var name = $(dom).data('module-name');
 			if (!name || name == '') return;
 			var inp1 = $('<input>');
 			inp1.addClass('js-value');
@@ -295,7 +321,7 @@ $('#js-save').click(function(){
 
 	form_append('side_a_ary', side_a.children(module_selector));
  	form_append('side_b_ary', side_b.children(module_selector));
-	form.submit();
+ 	form.submit();
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -322,4 +348,5 @@ function load_module_html(obj) {
 }
 
 //############################################################################
+});
 });

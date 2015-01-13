@@ -62,7 +62,7 @@ function module_setting(obj) {
 			}
 		});
 	};
-	buttons[ $('#btn-cancel').text() ] = function(){
+	buttons[ $('#ajs-cancel').text() ] = function(){
 		formdiv.dialog( 'close' );
 	};
 

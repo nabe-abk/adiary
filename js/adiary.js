@@ -1033,11 +1033,11 @@ function my_confirm(h, callback) {
 	var btn = {};
 	btn[ h.btn_ok || $('#ajs-ok').text()] = function(){
 		div.dialog('close');
-		callback(true);
+		h.callback(true);
 	};
 	btn[ h.btn_cancel || $('#ajs-cancel').text()] = function(){
 		div.dialog('close');
-		callback(false);
+		h.callback(false);
 	};
 	div.dialog({
 		modal: true,

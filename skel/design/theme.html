@@ -33,27 +33,25 @@
 html, #body {
 	height:		100%;
 	overflow:	hidden;
+<@ifexec(!Develop, begin)>
+	overflow:	hidden;
+<$end>
 }
 #body {
 	background-color:	#008;
 	font-size:		11pt;
 }
-#back-link {
+#back-btn {
 	position:		absolute;
-	top:			0;
-	right:			0;
-	background-color:	#008;
-	width:			auto;
-	text-align:		right;
-	padding-left:		6px;
-}
-#back-link a {
-	padding-right:		1em;
-	color:			#fff;
+	top:			2px;
+	right:			4px;
 }
 #form {
 	color:			#fff;
 	margin:			2px 4px;
+}
+#form button + button {
+	margin:			inherit;
 }
 select {
 	padding:		0px 1px;
@@ -85,16 +83,17 @@ select {
 <$end>
 <$end>
 </select>
-<input type="submit" name="submit" value="保存"><button type="button" id="readme-button" class="info" data-title="README" data-url="" data-class="pre" onclick>README表示</button>
+<button type="submit">保存</button>
+<button type="button" onclick="window.location='<@v.myself>?<@v.skel_dir>'">戻る</button>
+&nbsp;
+<button type="button" id="readme-button" class="info" data-title="README" data-url="" data-class="pre" onclick>README表示</button>
 <input type="hidden" name="checkbox.info" value="sysmode_notheme_flg">
 <input type="checkbox" name="sysmode_notheme_flg" value="1"<@if(s.sysmode_notheme, ' checked')>><label class="small">管理画面は標準テーマを使用</label>
 </form>
-<div id="back-link"><a href="<@v.myself>?<@v.skel_dir>">&gt;メニューに戻る</a></div>
 <iframe id="iframe" ></iframe>
 
 <!--========================================================================-->
 <script>
-var Fx = (navigator.userAgent.indexOf('Gecko') != -1);
 $(function(){
 	var body = $('#body');
 	var form = $('#form');
@@ -103,25 +102,53 @@ $(function(){
 	
 	// bodyいっぱいに表示
 	iframe_resize();
-	$(window).resize( function(){ iframe_resize() } );
+	$(window).resize( iframe_resize );
 
 	// テーマ変更
 	var sel = $('#theme-select');
 	sel.val('<@v.template>/<@v.theme>');	// default
+	var theme_query='';
 
 	// テーマ選択操作
 	sel.change(function(){
 		var theme = sel.val();
-		iframe.attr('src', '<@v.myself>?theme&n=' + theme ); 
+		theme_query = '?theme&n=' + theme;
+		iframe.attr('src', '<@v.myself>' + theme_query ); 
 		var opt = sel.children(':selected');
 		if (opt.data('readme')) {
-			readme.data('url', '<@v.myself>?<@v.skel_dir>theme_readme&name=' + theme);
+			readme.data('url', '<@v.myself>' + '?<@v.skel_dir>theme_readme&name=' + theme);
 			readme.removeAttr('disabled');
 		} else {
 			readme.attr('disabled', true);
 		}
 	});
 	sel.change();
+
+	// iframe内のリンク書き換え
+	iframe.on('load', function(){
+		if (!theme_query) return;
+	iframe.contents().find('a').each(function(idx,dom) {
+		var obj = $(dom);
+		var url = obj.attr('href');
+		if (!url) return;
+		if (url.substr(0,<@length(v.myself)>) != '<@v.myself>') {
+			obj.attr('target', '_top');
+			return;
+		}
+		var m;
+		if (m = url.match(/(.*?)\?(&.*)/)) {
+			url = m[1] + theme_query + m[2];
+		} else if (0 < url.indexOf('?')) {
+			return;
+		} else if (m = url.match(/(.*?)(#.*)/)) {
+			url = m[1] + theme_query + m[2];
+		} else {
+			url += theme_query;
+		}
+		obj.attr('href', url);
+
+	});	// contents
+	});	// onload
 
 function iframe_resize() {
 	var h = body.height() - iframe.position().top;

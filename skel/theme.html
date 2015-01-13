@@ -9,6 +9,5 @@
 <$ifmessage(r, "指定のテーマが見つかりません : <@Query.n>")>
 
 <$v.no_robots=1>
-<$Query = {}>
-<$v.query = ''>
+<$delete(Query.n)>
 <$jump( v.select_default_skeleton() )>
