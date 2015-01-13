@@ -33,7 +33,11 @@ sub new {
 sub http {
 	my ($pobj, $tag, $cmd, $ary) = @_;
 
+	# URL取り出し
 	my $url2 = shift(@$ary);
+	if ($ary->[0] =~ /^#/) {
+		$url2 .= shift(@$ary);
+	}
 	# URIエンコード
 	$pobj->encode_uri($url2);
 	$cmd =~ s/\W//g;

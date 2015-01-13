@@ -35,11 +35,12 @@ AGPL(AFFERO GENERAL PUBLIC LICENSE) Vesrion 3 または
 それ以降のバージョンの下で本プログラム（システム）を再配布
 することが可能です。
 
-ライセンスについてご意見がある場合は、
+もっと緩いライセンスをご希望の場合は、
 理由を沿えてお知らせください。
 考慮するかもしれません。
 
-なお、skel/以下のファイルはデザインではなくプログラムとしての著作物に該当します。
+特にベースシステムに関しては、
+より緩いライセンスへの移行も考えています。
 
 # パッチを送られる方へ
 
@@ -86,7 +87,6 @@ VLゴシックフォント（pub-dist/VL-PGothic-Regular.ttf）を
   * pub-dist/album-icon  以下のアイコンの多くはせりか氏の著作物です。
   * pub-dist/album-icon/pdf.png は http://iconhoihoi.oops.jp/ の著作物です。
   * pub-dist/album-icon  以下の g-*.png と trashbox.png はGNOME Desktopアイコンです。
-  * pub-dist/editor-icon 以下のアイコンはせりか氏の著作物です。
   * pub-dist/icon/ 以下にあるアイコンの一部はせりか氏の著作物です。
   * pub-dist/icon/tp*.gif に該当するファイルはSix Apartの著作物です。
   * pub-dist/mahjong/ 以下のファイルは「まつセン　牌画」を利用自由のライセンスに基づき同梱しています。
