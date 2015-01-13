@@ -23,7 +23,6 @@
 <link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>satsuki2/base.css" id="base-css">
 <link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>satsuki2/satsuki2/satsuki2.css" id="theme">
 
-
 	<title>テーマ選択 - <@s.blog_name></title>
 <!--========================================================================-->
 <style>
@@ -32,7 +31,8 @@
 	padding:	0;
 }
 html, #body {
-	height:		99.5%;
+	height:		100%;
+	overflow:	hidden;
 }
 #body {
 	background-color:	#008;
@@ -42,8 +42,10 @@ html, #body {
 	position:		absolute;
 	top:			0;
 	right:			0;
+	background-color:	#008;
 	width:			auto;
 	text-align:		right;
+	padding-left:		6px;
 }
 #back-link a {
 	padding-right:		1em;
@@ -58,10 +60,15 @@ select {
 }
 #iframe {
 	width:			100%;
+	min-height:		0;
 	overflow-x:		hidden;
 	overflow-y:		scrollbar;
 	border:			none;
 	background-color:	#fff;
+
+	position:		absolute;
+	left:			0px;
+
 }
 </style>
 </head>
@@ -83,7 +90,7 @@ select {
 <input type="checkbox" name="sysmode_notheme_flg" value="1"<@if(s.sysmode_notheme, ' checked')>><label class="small">管理画面は標準テーマを使用</label>
 </form>
 <div id="back-link"><a href="<@v.myself>?<@v.skel_dir>">&gt;メニューに戻る</a></div>
-<iframe id="iframe"  seamless></iframe>
+<iframe id="iframe" ></iframe>
 
 <!--========================================================================-->
 <script>
@@ -118,7 +125,7 @@ $(function(){
 
 function iframe_resize() {
 	var h = body.height() - iframe.position().top;
-	if (Fx) h -= 8;	// Firefoxだけなぜかスクロールバーが出てしまう対策
+	$('#debug-msg').html(body.height() + ' / ' + iframe.position().top);
 	iframe.css('height', h);
 }
 ///
