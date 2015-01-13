@@ -153,15 +153,18 @@ a.next-page:after {
 /* 1つの記事 */
 article {
 	margin-bottom:		1.5em;
+	border-radius:		8px;
+	box-shadow:		8px 8px rgba(0,0,0, 0.3);
 }
 /* 記事タイトル */
 article h2 {
 	background-color:	#93b3ff;
-	border:			2px solid #2133a9;
-	border-bottom:		none;
 	padding:		2px 8px 2px 8px;
 	font-size:		100%;
 	margin:			0px;
+
+	border:			2px solid #2133a9;
+	border-bottom:		none;
 	border-radius:		8px 8px 0 0;
 }
 article h2 a.date {
@@ -175,10 +178,11 @@ article div.body {
 	background-color:	#fff;
 	font-size:		90%;
 	line-height:		140%;
-	border:			2px solid #2133a9;
-	border-top:		none;
 	margin:			0px;
 	padding:		0.5em 1em 0.5em 1.5em;
+
+	border:			2px solid #2133a9;
+	border-top:		none;
 	border-radius:		0 0 8px 8px;
 }
 /* コンテンツ記事 */
@@ -317,6 +321,9 @@ div.body h3 {
 	padding:		4px 0px 4px 8px;
 	border-left:		6px solid #2133a9;
 	background-color:	#e8e8ff;
+
+	border-radius:		0 6px 6px 0;
+	box-shadow:		4px 4px rgba(0,0,0, 0.4);
 }
 div.body h3 span.timestamp {
 	font-size:		100%;
@@ -353,6 +360,7 @@ blockquote, pre, div.box {
 	margin:			0.5em 2em 0.5em 2em;
 	padding:		0.3em 1em 0.3em 1em;
 	border:			1px solid #2133a9;
+	border-radius:		4px;
 }
 div.body blockquote p {
 	margin:			0.2em 0.5em 0.2em 0;
