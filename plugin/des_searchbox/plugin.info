@@ -17,9 +17,9 @@ module_id=side-search
 *sample_html=<<HTML
 <div class="hatena-moduletitle">検索</div>
 <div class="hatena-modulebody">
-<form method="GET" action="./" data-id="side-search-form" onsubmit="return false;">
-<input type="search" class="w80" name="q" size="12" value="" data-id="side-search-textbox" required>
-<input type="submit" value="検索" data-id="side-search-submit"><br>
+<form method="GET" action="./" id="side-search-form" onsubmit="return false;">
+<input type="search" class="w80" name="q" size="12" value="" id="side-search-textbox" required>
+<input type="submit" value="検索" id="side-search-submit"><br>
 <input name="all" value="0" type="radio"><label>タイトル</label>
 <input name="all" value="1" checked="" type="radio"><label>全文</label>
 </form>

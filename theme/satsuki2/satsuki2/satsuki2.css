@@ -15,7 +15,7 @@ section, article {
 ---------------------------------------------------------------------*/
 body
 {
-	background-color:	#fff;
+	background-color:	#fff;		/* ${bgcolor} */
 	color:			#000;
 	font-size:		12pt;
 
@@ -632,7 +632,6 @@ button:disabled
 {
 	color:			#444;
 	background-color:	#aac;
-	background-image:	none;
 }
 
 /*--------------------------------------------------------------------
@@ -866,6 +865,17 @@ article.edit span.tag:after {
 }
 .ui-dialog.error-dialog .ui-widget-header {
 	background-color:	#f69;
+}
+.ui-dialog.error-dialog button {
+	border-color:		#632;
+	background-image:	linear-gradient(to bottom, #fdd, #faa);
+}
+.ui-dialog.error-dialog .ui-icon {
+	-webkit-filter:		hue-rotate(120deg) brightness(80%);
+	-moz-filter:		hue-rotate(120deg) brightness(80%);
+	-o-filter:		hue-rotate(120deg) brightness(80%);
+	-ms-filter:		hue-rotate(120deg) brightness(80%);
+	filter:			hue-rotate(120deg) brightness(80%);
 }
 
 /*--------------------------------------------------------------------

@@ -19,8 +19,8 @@ load_module_html_in_edit=1
 <div class="hatena-moduletitle">コンテンツ</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">
-	<li><span class="js-switch" data-target="#sidetag-314"><a href="#">adiary</a> <span class="qt">(<span>414</span>)</span></span>
-	<ul data-id="sidetag-314">
+	<li><span class="js-switch" data-target="#sidecon-X99"><a href="#">adiary</a> <span class="qt">(<span>414</span>)</span></span>
+	<ul id="sidecon-X99">
 		<li><a href="#">雑記</a> <span class="qt">(<span>88</span>)</span></li>
 		<li><a href="#">snapshot</a> <span class="qt">(<span>48</span>)</span></li>
 		<li><a href="#">ToDo</a> <span class="qt">(<span>16</span>)</span></li>

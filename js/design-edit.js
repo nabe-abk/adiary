@@ -15,28 +15,16 @@ $(function(){
 	var module_name_attr = 'data-module-name';
 
 	var btn_save = $('#save-btn');
-
-	var btn_setting_title = $('#btn-setting').text() || '';
-	var btn_close_title   = $('#btn-close').text()   || '';
+	var btn_setting_title = $('#btn-setting').text() || 'setting';
+	var btn_close_title   = $('#btn-close').text()   || 'delete';
 
 	var modules = [];	// 各モジュールを取得し保存
 	$(module_data_id + '>' + module_selector).each( function(idx,obj){
 		obj = $(obj);
 		obj.detach();
 		modules[ obj.data('module-name') ] = obj;
-		// データチェック
-		var html = obj.html();
-		var x = html.match(/\s+(id\s*=\s*"[\w\-]*")/);
-		if (x && !x[1].match(/^id="js-generate-id-/)) {
-			// モジュールの「sample_html」に id="xxx" な要素があるとき、警告する。
-			show_dialog({
-				title: 'WARNING',
-				id: '#msg-sample-has-id',
-				hash: { m: obj.data('module-name'), i:x[1] }, 
-				dclass: 'error-dialog'
-			});
-		}
 	});
+
 
 //////////////////////////////////////////////////////////////////////////////
 // ●初期化処理
@@ -120,11 +108,7 @@ $('#add-module').change(function(evt){
 	}
 
 	init_module(obj);
-	if (obj.hasClass('location-last')) {	// System info専用
-		obj.appendTo(side_b);
-	} else {
-		obj.prependTo(side_a);
-	}
+	obj.prependTo(side_a);
 
 	// モジュールHTMLをサーバからロード？
 	if (obj.data('load-module-html')) load_module_html( obj );

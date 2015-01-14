@@ -19,9 +19,9 @@ load_module_html_in_edit=1
 *sample_html=<<HTML
 <div class="hatena-moduletitle">タグ</div>
 <div class="hatena-modulebody">
-<ul data-id="sidetag-root" class="hatena-section">
+<ul id="sidetag-root" class="hatena-section">
 	<li><span class="js-switch" data-target="#sidetag-314"><a href="#">adiary</a> <span class="qt">(<span>414</span>)</span></span>
-	<ul data-id="sidetag-314">
+	<ul id="sidetag-314">
 		<li><a href="#">雑記</a> <span class="qt">(<span>88</span>)</span></li>
 		<li><a href="#">snapshot</a> <span class="qt">(<span>48</span>)</span></li>
 		<li><a href="#">ToDo</a> <span class="qt">(<span>16</span>)</span></li>

@@ -471,6 +471,9 @@ figure {
 	background-color:	#fcc;
 	position:		relative;
 }
+.design-module-edit:hover {
+	background-color:	#faa;
+}
 div.module-edit-header {
 	position:		absolute;
 	top:			0px;
