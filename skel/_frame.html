@@ -24,9 +24,10 @@
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir>satsuki2/base.css">
 <![endif]-->
 <@> テーマとユーザーCSSは最後に読み込む
-<link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.css" id="theme-css">
+<link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css" id="theme-css">
 <$file = "<@v.blogpub_dir>usercss.css">
 <@if(!v.system_mode && file_readable(file), #'<link rel="stylesheet" href="<@Basepath><@file>" id="user-css">\n')>
+<@if(s.theme_custom && s.theme eq v.theme, #'<link rel="stylesheet" href="<@Basepath><@s.theme_custom>" id="user-css">\n')>
 <@if(canonical_url, #'<link rel="canonical" href="<@canonical_url>">\n')>
 <@forexec(t, v.load_rss_files(), begin)>
 <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<@Basepath><@v.blogpub_dir><@t>" /> 
@@ -49,7 +50,7 @@
 <script async src="<@Basepath><@t>?<@tm>"></script>
 <$end>
 <script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
-<@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.js"></script>\n')>
+<@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.js"></script>\n')>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
 </head>
 <body id="body" class="<@if(v.blog_admin, 'blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system-mode')><@v.mode_class>">
@@ -89,6 +90,7 @@
 
 <!--Start of body ==========================================================-->
 <div id="hatena-body">
+
 
 <!--内容====================================================================-->
 <div class="main">

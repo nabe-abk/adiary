@@ -12,13 +12,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="generator" content="adiary <@v.VERSION>">
 <meta name="author" content="<@v.blogid>">
-<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.notheme.css" id="jquery-ui-css">
+<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.custom.css" id="jquery-ui-css">
 <link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_lightbox/lightbox.css" id="lightbox-css">
 <@forexec(t, v.load_jscss(v.cssfiles), begin)>
 <link rel="stylesheet" media="all" href="<@Basepath><@t>">
 <$end>
 <@> テーマとユーザーCSSは最後に読み込む
-<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.css" id="theme-css">
+<link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css" id="theme-css">
 <@ifexec(option.usercss && file_readable("<@v.blogpub_dir>usercss.css"), begin)>
 <link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>usercss.css" id="user-css">
 <$end>
@@ -38,7 +38,7 @@
 <@forexec(t, v.load_jscss(v.scripts), begin)>
 <script async src="<@Basepath><@v.script_dir><@t>"></script>
 <$end>
-<@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.js"></script>\n')>
+<@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.js"></script>\n')>
 	<title><@v.header_title_add><@v.title></title>
 </head>
 <body id="body" class="<@if(v.blog_admin, 'blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system-mode')><@v.mode_class>">
@@ -92,8 +92,10 @@
 </div> <!-- End of #adiary-body -->
 
 <script><!--
-var Blogpath='<@v.myself>';
+var Vmyself='<@v.myself>';
+var Vmyself2='<@v.myself2>';
 var ScriptDir='<@Basepath><@v.script_dir>';
+var ThemeDir ='<@Basepath><@v.theme_dir>';
 <@ifexec(Timer, begin)>
 $('#system-info-total-time').text('<@int(Timer.check()*10000 + 0.5)/10>');
 $('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');

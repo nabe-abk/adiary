@@ -16,7 +16,7 @@ section, article {
 body
 {
 	background-color:	#fff;		/* $c=fixbg */
-	color:			#000;
+	color:			#000;		/* $c=fixfont */
 	font-size:		12pt;
 
 	margin-left:		auto;
@@ -432,7 +432,7 @@ dt { font-weight:	bold; }
 
 	border-radius:		8px;
 	border:			2px solid #2133a9;	/* $c=border */
-	background-color:	#f1f1ff;
+	background-color:	#f1f1ff;		/* $c=combg */
 	box-shadow:		8px 8px rgba(0,0,0, 0.3);
 }
 #com div.caption a {
@@ -613,7 +613,7 @@ input[type="submit"],
 input[type="button"],
 button
 {
-	color:			#000;
+	color:			#000;			/* $c=fixfont */
 	font-weight:		bold;
 	border:			1px solid #66c;		/* $c=btnborder */
 	border-radius:		6px;

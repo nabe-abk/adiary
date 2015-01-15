@@ -1443,14 +1443,15 @@ sub load_theme {
 	my $ROBJ = $self->{ROBJ};
 
 	if ($theme !~ m|^([\w-]+)/([\w-]+)/?$| ) { return -1; }	# error
-	my $theme = $2;
+	my $name = $2;
 	my $dir = $ROBJ->get_filepath( $self->{theme_dir} . "$1/" );
-	if (! -r "$dir$theme/$theme.css") { return 1; }		# not found
+	if (! -r "$dir$name/$name.css") { return 1; }		# not found
 
 	# 内部変数に記録
-	$self->{template} = $1;
-	$self->{theme}    = $2;
-	$self->{theme_js} = -r "$dir$theme/$theme.js";
+	$self->{theme}      = $theme;
+	$self->{template}   = $1;
+	$self->{theme_name} = $name;
+	$self->{theme_js}   = -r "$dir$name/$name.js";
 
 	# スケルトンテンプレートの登録
 	if (-r "${dir}_skel") {

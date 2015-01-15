@@ -86,9 +86,163 @@ iframe.on('load', function(){
 //////////////////////////////////////////////////////////////////////////////
 	var custom_form = $('#custom-form');
 	var custom_cols = $('#custom-colors');
+	var input_cols;
 
 	var cols;
 	var css_text;
+
+//////////////////////////////////////////////////////////////////////////////
+// ●カスタマイズ情報のロード
+//////////////////////////////////////////////////////////////////////////////
+function init_custmize(name) {
+  cols = undefined;
+  css_text = '';
+  $.ajax({
+	url: Vmyself + '?design/theme_colors&name=' + name,
+	dataType: 'json',
+	success: function(data){
+		if (data.error || !data._css_text)
+			return custom_form_empty();
+		// 値保存
+		css_text = data._css_text;
+		delete data['_css_text'];
+		$('#custom-flag').val('1');
+
+		// フォーム初期化
+		init_custom_form(data);
+	},
+	error: custom_form_empty
+  });
+}
+function custom_form_empty() {
+	custom_form.hide();
+	custom_cols.empty();
+	input_cols = [];
+	iframe_resize();
+	$('#custom-flag').val('');
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●カスタマイズフォーム設定
+//////////////////////////////////////////////////////////////////////////////
+function init_custom_form(data) {
+	cols = [];
+
+	// データの取り出しと並べ替え
+	var priority = ['base', 'main', 'art', 'wiki', 'footnote', 'border'];
+	function get_priority(name) {
+		if (name.indexOf( 'fix' ) == 0) return 1000;
+		for(var i=0; i<priority.length; i++)
+			if (name.indexOf( priority[i] ) == 0) return i;
+		return 999;
+	}
+	for(var k in data) {
+		if (k.rsubstr(4) == '-cst') continue;
+		cols.push({name: k, val: data[k], priority: get_priority(k) });
+	}
+	cols = cols.sort(function(a, b) {
+		if (a.priority < b.priority) return -1;
+		if (a.priority > b.priority) return  1;
+	        return (a.name < b.name) ? -1 : 1;
+	});
+
+	// フォームの生成
+	custom_cols.empty();
+	var div = $('<div>');
+	for(var i=0; i<cols.length; i++) {
+		var name = cols[i].name;
+		var val  = cols[i].val;
+		var cval = data[name+'-cst'] || val; // 初期値
+		var msg  = name2msg(name);
+
+		var span = $('<span>').addClass('color-box');
+		span.text(msg);
+		var inp = $('<input>').addClass('color-picker no-enter-submit').attr({
+			type: 'text',
+			name: 'c_' + name,
+			value: cval
+		});
+		inp.data('original', val);	// テーマ初期値
+		inp.data('default', cval);	// 現在の設定値
+		inp.change( function(evt){
+			update_css();
+			var obj = $(evt.target);
+			obj.ColorPickerSetColor( obj.val() );
+		});
+		span.append(inp);
+		div.append(span);
+	}
+	custom_cols.append(div);
+	input_cols = custom_cols.find('input');
+	custom_form.show();
+	iframe_resize();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●カスタマイズフォーム設定
+//////////////////////////////////////////////////////////////////////////////
+function update_css() {
+	var col = {};
+	input_cols.each(function(idx,dom){
+		var obj = $(dom);
+		var val = obj.val();
+		if (val.match(/#[0-9A-Fa-f]{3}/) || val.match(/#[0-9A-Fa-f]{6}/))
+			col[ obj.attr('name').substr(2) ] = val;
+	});
+	var lines = css_text.split("\n");
+	for(var i=0; i<lines.length; i++) {
+		var x = lines[i];
+		var ma = x.match(/\$c=(\w+)/);
+		if (!ma) continue;
+		lines[i] = x.replace(/#[0-9A-Fa-f]+/, col[ ma[1] ]);
+	}
+	var new_css = lines.join("\n");
+	try {
+		if_css.html( new_css );
+	} catch(e) {
+		// for IE8
+		iframe.contents().find('head').append(if_css);
+		if_css[0].styleSheet.cssText = new_css;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●リセット
+//////////////////////////////////////////////////////////////////////////////
+$('#btn-reset').click( function() {
+	var col = {};
+	input_cols.each(function(idx,dom){
+		var obj = $(dom);
+		set_color(obj, obj.data('default'));
+	});
+	update_css();
+});
+
+//////////////////////////////////////////////////////////////////////////////
+// ●テーマ初期値リセット
+//////////////////////////////////////////////////////////////////////////////
+$('#btn-super-reset').click( function() {
+	var col = {};
+	input_cols.each(function(idx,dom){
+		var obj = $(dom);
+		set_color(obj, obj.data('original'));
+	});
+	update_css();
+});
+
+
+//////////////////////////////////////////////////////////////////////////////
+// ●色見本を設定
+//////////////////////////////////////////////////////////////////////////////
+function set_color(obj, rgb) {
+	obj.val( rgb );
+	if (obj.ColorPickerSetColor) {
+		var prev = obj.prev();
+		if (prev.hasClass('colorbox'))
+			prev.css('background-color', rgb);
+		obj.ColorPickerSetColor( rgb );
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // ●色一括変更機能
@@ -102,11 +256,11 @@ function change_hsv() {
 	var s = s_slider.slider( "value" );
 	var v = v_slider.slider( "value" );
 
-	var cols = custom_cols.find('input');
+	var cols = input_cols;
 	for(var i=0; i<cols.length; i++) {
 		var obj = $(cols[i]);
 		var name=obj.attr('name');
-		if (name.indexOf('fix') == 0) continue;
+		if (name.indexOf('c_fix') == 0) continue;
 
 		var hsv = RGBtoHSV( obj.data('default') );
 		if (!hsv) return;
@@ -115,13 +269,7 @@ function change_hsv() {
 		hsv.s *= (s/255);
 		hsv.v *= (v/255);
 		var rgb = HSVtoRGB( hsv );
-		obj.val( rgb );
-		if (obj.ColorPickerSetColor) {
-			var prev = obj.prev();
-			if (prev.hasClass('colorbox'))
-				prev.css('background-color', rgb);
-			obj.ColorPickerSetColor( rgb );
-		}
+		set_color(obj, rgb);
 	}
 	update_css();
 }
@@ -145,6 +293,9 @@ function RGBtoHSV(str) {
 	var r = parseInt('0x' + ma[1]);
 	var g = parseInt('0x' + ma[2]);
 	var b = parseInt('0x' + ma[3]);
+
+	if (r==0 && g==0 && b==0)
+		return {h:0, s:0, v:0};
 
 	// 最大値 = V
 	var max = r;
@@ -242,7 +393,7 @@ function HSVtoRGB( hsv ) {
 	var n2msg = {};
 {
 	// 色名の翻訳テキスト
-	var ary =$('#attr-msg').text().split(/\n/);
+	var ary =$('#attr-msg').html().split("\n");
 	for(var i=0; i<ary.length; i++) {
 		var line = ary[i];
 		var ma = line.match(/(.*?)\s*=\s*([^\s]*)/);
@@ -253,106 +404,6 @@ function name2msg(name) {
 	for(var n in n2msg)
 		name = name.replace(n, n2msg[n]);
 	return name;
-}
-//////////////////////////////////////////////////////////////////////////////
-// ●カスタマイズ情報のロード
-//////////////////////////////////////////////////////////////////////////////
-function init_custmize(name) {
-  cols = undefined;
-  css_text = '';
-  $.ajax({
-	url: Vmyself + '?design/theme_colors&name=' + name,
-	dataType: 'json',
-	success: function(data){
-		if (data.error || !data._css_text) {
-			custom_form.hide();
-			custom_cols.empty();
-			iframe_resize();
-			return;
-		}
-		// 値保存
-		css_text = data._css_text;
-		delete data['_css_text'];
-		cols = data;
-
-		// フォーム初期化
-		init_custom_form(data);
-	},
-	error: function(){
-		custom_form.hide();
-		custom_cols.empty();
-		iframe_resize();
-	}
-  });
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// ●カスタマイズフォーム設定
-//////////////////////////////////////////////////////////////////////////////
-function init_custom_form(data) {
-	cols = [];
-
-	// データの取り出しと並べ替え
-	var priority = ['base', 'main', 'art', 'wiki', 'footnote', 'border'];
-	function get_priority(name) {
-		if (name.indexOf( 'fix' ) == 0) return 1000;
-		for(var i=0; i<priority.length; i++)
-			if (name.indexOf( priority[i] ) == 0) return i;
-		return 999;
-	}
-	for(var k in data) {
-		cols.push({name: k, val: data[k], priority: get_priority(k) });
-	}
-	cols = cols.sort(function(a, b) {
-		if (a.priority < b.priority) return -1;
-		if (a.priority > b.priority) return  1;
-	        return (a.name < b.name) ? -1 : 1;
-	});
-
-	// フォームの生成
-	custom_cols.empty();
-	for(var i=0; i<cols.length; i++) {
-		var name = cols[i].name;
-		var val  = cols[i].val;
-		var msg  = name2msg(name);
-
-		var span = $('<span>').addClass('color-box');
-		span.text(msg);
-		var inp = $('<input>').addClass('color-picker no-enter-submit').attr({
-			type: 'text',
-			name: name,
-			value: val
-		});
-		inp.data('default', val);	// 初期値
-		inp.change( update_css );
-		span.append(inp);
-		custom_cols.append(span);
-	}
-
-	custom_form.show();
-	iframe_resize();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// ●カスタマイズフォーム設定
-//////////////////////////////////////////////////////////////////////////////
-function update_css() {
-	var col = {};
-	custom_cols.find('input').each(function(idx,dom){
-		var obj = $(dom);
-		var val = obj.val();
-		if (val.match(/#[0-9A-Fa-f]{3}/) || val.match(/#[0-9A-Fa-f]{6}/))
-			col[ obj.attr('name') ] = val;
-	});
-	var lines = css_text.split("\n");
-	for(var i=0; i<lines.length; i++) {
-		var x = lines[i];
-		var ma = x.match(/\$c=(\w+)/);
-		if (!ma) continue;
-		lines[i] = x.replace(/#[0-9A-Fa-f]+/, col[ ma[1] ]);
-	}
-	var new_css = lines.join("\n");
-	if_css.html( new_css );
 }
 
 //############################################################################

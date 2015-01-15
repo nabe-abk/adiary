@@ -106,7 +106,7 @@ div.iblk {
 <select id="theme-select" name="theme">
 <@forexec(tp, v.load_templates(), begin)>
 <@forexec(t,  v.load_themes(tp), begin)>
-	<option value="<@tp><@t.name>" data-readme="<@t.readme>"<@if("<@tp><@t.name>" eq "<@v.template>/<@v.theme>", ' selected')>><@tp><@t.name></option>
+	<option value="<@tp><@t.name>" data-readme="<@t.readme>"<@if("<@tp><@t.name>" eq v.theme, ' selected')>><@tp><@t.name></option>
 <$end>
 <$end>
 </select>
@@ -116,8 +116,10 @@ div.iblk {
 <button type="button" id="readme-button" class="info" data-title="README" data-url="" data-class="pre" onclick>README表示</button>
 <input type="hidden" name="checkbox.info" value="sysmode_notheme_flg">
 <input type="checkbox" name="sysmode_notheme_flg" value="1"<@if(s.sysmode_notheme, ' checked')>><label class="small">管理画面は標準テーマを使用</label>
+
 <div id="custom-form">
 <div id="custom-functions">
+<input type="hidden" name="custom" value="" id="custom-flag">
 <button type="button" id="btn-reset">リセット</button>
 <button type="button" id="btn-super-reset">テーマ初期値に</button>
 <div class="iblk">H <div id="h-slider" class="silder"></div></div>
@@ -145,6 +147,7 @@ sys=システムモード
 art=記事
 main=メイン
 base=基本
+com=コメント
 fix=*
 </textarea>
 </div>

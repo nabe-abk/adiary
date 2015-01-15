@@ -1833,8 +1833,71 @@ sub save_theme {
 
 	# テーマ保存
 	$self->update_blogset($blog, 'theme', $theme);
+	$self->update_blogset($blog, 'theme_custom', '');
 	$self->update_blogset($blog, 'sysmode_notheme', $form->{sysmode_notheme_flg});
+
+	# テーマカスタマイズ情報の保存
+	if (!$form->{custom}) { return 0; }
+	my ($c,$css) = $self->load_theme_colors( $theme );
+	if (!$css) { return 0; }
+	my $file = $self->get_theme_custom_css($theme);
+	if (!$file) { return 0; }
+
+	my %col;
+	my $diff;
+	foreach(keys(%$form)) {
+		if ($_ !~ /^c_(\w+)/) { next; }
+		my $name = $1;
+		my $val = $form->{$_};
+		if ($val !~ /(#[0-9A-Fa-f]{6})/) { next; }
+		$col{$name} = $1;
+		if ($c->{$name} ne $col{$name}) { $diff=1; }
+	}
+	if (!$diff) {	# カスタマイズしてない
+		$ROBJ->file_delete( $file );
+		return 0;
+	}
+
+	# CSS書き換え
+	my @ary = split(/\n/, $css);
+	foreach(@ary) {
+		$_ .= "\n";
+		if ($_ !~ /\$c=(\w+)/) { next; }
+		my $name = $1;
+		$_ =~ s/#[0-9A-Fa-f]+/$col{$name}/g;
+	}
+	$ROBJ->fwrite_lines($file, \@ary);
+
+	# カスタマイズ情報の保存
+	$self->update_blogset($blog, 'theme_custom', $file);
 	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●テーマの色カスタム情報ロード
+#------------------------------------------------------------------------------
+sub load_theme_info {
+	my ($self, $theme, $rec) = @_;
+	my $ROBJ = $self->{ROBJ};
+	if ($theme !~ m|^([\w-]+)/([\w-]+)/?$|) {
+		return 1;
+	}
+	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	# テーマ色情報のロード
+	my ($col, $css) = $self->load_theme_colors($theme);
+	if (!$css) { return $col; }
+
+	# カスタマイズ情報のロード
+	my $file = $ROBJ->get_filepath( $self->get_theme_custom_css($theme) );
+	if (-r $file) {
+		my $lines = $ROBJ->fread_lines( $file );
+		foreach(@$lines) {
+			if ($_ !~ /(#[0-9A-Fa-f]+).*\$c=(\w+)/) { next; }
+			$col->{"$2-cst"} = $1;
+		}
+	}
+	return ($col, $css);
 }
 
 #------------------------------------------------------------------------------
@@ -1913,7 +1976,19 @@ sub load_theme_colors {
 		# セレクタ
 		$sel .= $_;
 	}
-	return (\%col, \@ary);
+	return (\%col, join('',@ary));
+}
+
+#------------------------------------------------------------------------------
+# ●テーマカスタムファイルの取得
+#------------------------------------------------------------------------------
+sub get_theme_custom_css {
+	my ($self, $theme) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $dir = $self->{blogpub_dir} . 'css/';
+	$ROBJ->mkdir($dir);
+	$theme =~ s|/|.|g;
+	return $dir . $theme . '.css';
 }
 
 ###############################################################################

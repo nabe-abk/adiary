@@ -626,10 +626,10 @@ body .ui-tooltip {
 ----------------------------------*/
 .ui-widget {
 	font-family: Verdana,Arial,sans-serif;
-	font-size: 1.1em;
+/*	font-size: 1.1em;	*/
 }
 .ui-widget .ui-widget {
-	font-size: 1em;
+/*	font-size: 1em;		*/
 }
 .ui-widget input,
 .ui-widget select,
@@ -651,10 +651,14 @@ body .ui-tooltip {
 	color: #222222;
 }
 .ui-widget-header {
-	border: 1px solid #aaaaaa;
-	background-color: #cccccc;
+/*	border: 1px solid #aaaaaa;
+	background-color: #cccccc;	*/
 	color: #222222;
 	font-weight: bold;
+}
+.ui-slider-range {
+	border: 1px solid #aaaaaa;
+	background-color: #cccccc;
 }
 .ui-widget-header a {
 	color: #222222;
