@@ -12,7 +12,10 @@
 <$ifset(Form.draft, Form.enable, 0)>
 <$ifexec(Form.wiki, begin, begin)>
 	<$ifset(Form.priority<1,  Form.priority, v.default_wiki_priority)>
-	<$ifset(Form.link_key eq '', Form.link_key, Form.title)>
+	<$ifexec(Form.link_key eq '', begin)>
+		<$title = if(Form.title ne '', Form.title, Form.ymd)>
+		<$Form.link_key = if(match(title,'^\s*\d'), 't', '') . title>
+	<$end>
 	<$Form.ctype = 'wiki'>
 <$else>
 	<$delete(Form.link_key)>
@@ -36,8 +39,9 @@
 <$ifexec(art.first_visible && Form.tw_ping && s.tw_access_token, begin)>
 	<@>twitterへの通知ツイート
 	<@local(line,tw,res,t)>
-	<$line = s.tw_ping_title>
+	<$line = s.tw_ping_txt || "%t - %n %u">
 	<$replace(line, '%t', art.title)>
+	<$replace(line, '%n', s.blog_name)>
 	<$replace(line, '%u', art.absolute_url)>
 	<@> ツイート処理
 	<$tw = call('_sub/load_twitter_info')>

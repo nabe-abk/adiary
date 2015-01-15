@@ -247,8 +247,8 @@ function do_edit_lock() {
 
 function display_lock_state(data) {
 	if (data && data.length)
-		lock_notice.show( Default_show_speed );
-	else	lock_notice.hide( Default_show_speed );
+		lock_notice.delay_show();
+	else	lock_notice.delay_hide();
 	// 編集中の人々
 	lockers_ul.empty();
 	for(var i in data) {

@@ -9,7 +9,6 @@
 //////////////////////////////////////////////////////////////////////////////
 $(function(){
 	var iframe = $('#iframe');
-	var ifcont;
 	var module_data_id   = '#design-modules-data';
 	var module_selector  = '*[data-module-name]';
 	var module_name_attr = 'data-module-name';
@@ -24,6 +23,18 @@ $(function(){
 		obj.detach();
 		modules[ obj.data('module-name') ] = obj;
 	});
+
+//////////////////////////////////////////////////////////////////////////////
+// ●iframeの自動リサイズ
+//////////////////////////////////////////////////////////////////////////////
+	var body = $('#body');
+	iframe_resize();
+	$(window).resize( iframe_resize );
+	function iframe_resize() {
+		var h = body.height() - iframe.position().top;
+		$('#debug-msg').html(body.height() + ' / ' + iframe.position().top);
+		iframe.css('height', h);
+	}
 
 
 //////////////////////////////////////////////////////////////////////////////

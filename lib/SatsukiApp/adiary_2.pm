@@ -1723,7 +1723,7 @@ sub update_lock_file {
 sub generate_json {
 	my $self = shift;
 	my $data = shift;
-	my $cols = shift || [];	# データカラム
+	my $cols = shift;	# データカラム
 	my $ren  = shift || {};	# カラムのリネーム情報
 	my $tab  = shift || '';
 	my @ary;
@@ -1733,7 +1733,9 @@ sub generate_json {
 		if ($v =~ /^\d+$/) { return $v; }
 		# 文字列
 		$v =~ s/\\/&#92;/g;
-		$v =~ s/"/&quot;/g;
+		$v =~ s/\n/\\n/g;
+		$v =~ s/\t/\\t/g;
+		$v =~ s/"/\\"/g;
 		return '"' . $v . '"';
 	}
 
@@ -1745,7 +1747,8 @@ sub generate_json {
 			next;
 		}
 		my @a;
-		foreach my $x (@$cols) {
+		my $_cols = $cols ? $cols : [ keys(%$_) ];
+		foreach my $x (@$_cols) {
 			my $k = exists($ren->{$x}) ? $ren->{$x} : $x;
 			push(@a, "\"$k\": " . &encode( $_->{$x} ));
 		}

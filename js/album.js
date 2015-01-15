@@ -1221,7 +1221,7 @@ function upload_post_process(text) {
 	if (reg) {
 		ret = reg[0];
 		message.html( ary.join("\n") );
-		message.show( Default_show_speed );
+		message.delay_show();
 	}
 
 	// ファイル選択を初期化する

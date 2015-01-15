@@ -6,7 +6,8 @@
 <$ifexec(Form.setting, begin)>
 	<$h = validator(begin_hash, Form)>
 		tw_ping = flag
-		tw_ping_title = ツイート内容
+		tw_ping_txt = ツイート内容
+		tw_ping_txt:filter0 = trim
 	<$end>
 	<$ifbreak(form_error())>
 

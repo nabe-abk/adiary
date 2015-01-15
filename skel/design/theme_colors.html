@@ -1,0 +1,15 @@
+<@6>
+<$ifredirect(!Auth.ok, v.myself)>
+<$v.frame_skeleton=''>
+<$set_content_type('application/json')>
+
+<$(cols, css) = v.load_theme_colors(Query.name)>
+<@ifexec(!css, begin)>
+{
+	_error: <@cols>
+}
+<$break()>
+<$end>
+<$ifset(css && @css, cols._css_text, join('',css))>
+<@v.generate_json(cols)>
+<@ifcall(Develop, '_sub/ajax_debug')>

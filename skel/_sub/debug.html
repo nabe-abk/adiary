@@ -1,0 +1,38 @@
+<@6>
+<!--追加フッタ==============================================================-->
+
+<div class="main add-main">
+<p><strong>debug</strong></p>
+
+<@ifexec(@Error, begin)>
+<div class="debug">
+Error : <strong><@error_load_and_clear("<br>\n")></strong><br>
+</div>
+<$end>
+<@ifexec(@Debug, begin)>
+<div class="debug">
+Debug : <strong><@join("<br>\n", Debug)></strong><br>
+</div>
+<$end>
+<@ifexec(@Warning, begin)>
+<div class="debug">
+Warning : <strong><@join("<br>\n", Warning)></strong><br>
+</div>
+<$end>
+<@ifexec(ENV_print, begin.env_print)>
+<div class="small debug mono">
+blogid <@v.blogid><br>
+Basepath <@Basepath><br>
+Request_base <@Request_base><br>
+cgifile <@CGI_file><br>
+myself  <@Myself><br>
+myself2 <@Myself2><br>
+v.myself  <@v.myself><br>
+v.myself2 <@v.myself2><br>
+blog_admin <@v.blog_admin><br>
+allow_edit <@v.allow_edit><br>
+allow_com  <@v.allow_com><br>
+<@dump_hash("%k=%v<br>\n", ENV)>
+</div>
+<$end.env_print>
+</div>

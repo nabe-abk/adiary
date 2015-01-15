@@ -56,7 +56,8 @@
 <$canonical_url = url>
 <$encode_uricom(url)>
 <@>
-<article class="article<@if(t.ctype ne '', " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
+<article id="article" class="article<@if(t.ctype ne '', " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
+<article class="article-body">
 <h2 id="art-<@t.pkey>"><@if(!t.wiki, #'<a class="date" href="<@permalink>"><@t.year>/<@t.mon>/<@t.day>(<@t.wday_name>)</a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
 <div class="body" id="s<@t.pkey>">
 	<div class="body-header">
@@ -102,6 +103,7 @@
 <@exec(social_func, url)>
 	</div>
 </div> <!-- body -->
+</article> <!-- article-body -->
 
 
 <@ifexec(t.com_ok || coms, begin)>

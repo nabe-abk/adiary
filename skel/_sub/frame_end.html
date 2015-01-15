@@ -17,25 +17,5 @@ $('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');
 <$end>
 </script>
 
-
-<@ifexec(Develop && (@Error || @Debug || @Warning), begin.debug)>
-<!--追加フッタ==============================================================-->
-<p><strong>debug</strong></p>
-
-<@ifexec(@Error, begin)>
-<div class="debug">
-Error : <strong><@error_load_and_clear("<br>\n")></strong><br>
-</div>
-<$end>
-<@ifexec(@Debug, begin)>
-<div class="debug">
-Debug : <strong><@join("<br>\n", Debug)></strong><br>
-</div>
-<$end>
-<@ifexec(@Warning, begin)>
-<div class="debug">
-Warning : <strong><@join("<br>\n", Warning)></strong><br>
-</div>
-<$end>
-<$end.debug>
+<@ifcall(Develop && (@Error || @Debug || @Warning) || ENV_print, '_sub/debug')>
 

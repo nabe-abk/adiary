@@ -1827,7 +1827,7 @@ sub save_theme {
 	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
 	my $theme = $form->{theme};
-	if ($theme !~ m|^([\w-]+)/([\w-]+)/?$|) {
+	if ($theme !~ m|^[\w-]+/[\w-]+/?$|) {
 		return 1;
 	}
 
@@ -1835,6 +1835,85 @@ sub save_theme {
 	$self->update_blogset($blog, 'theme', $theme);
 	$self->update_blogset($blog, 'sysmode_notheme', $form->{sysmode_notheme_flg});
 	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●テーマの色情報ロード
+#------------------------------------------------------------------------------
+sub load_theme_colors {
+	my ($self, $theme, $rec) = @_;
+	my $ROBJ = $self->{ROBJ};
+	if ($theme !~ m|^([\w-]+)/([\w-]+)/?$|) {
+		return 1;
+	}
+	my $template = $1;
+	$theme = $2;
+
+	my $lines = $ROBJ->fread_lines( "$self->{theme_dir}$template/$theme/$theme.css" );
+	my %col;
+	my $sel  = '';
+	my $attr = '';
+	my $in_com;
+	my $in_attr;
+	my @ary;
+	foreach(@$lines) {
+		$_ =~ s/\r\n?/\n/;
+		if ($in_com) {	# コメント中
+			if ($_ !~ m|\*/(.*)|) { next; }
+			$_ = $1;
+			$in_com = 0;
+		}
+		if (!$rec && $_ =~ /\$color_info\s*=\s*([\w\-]+)/) {	# /* $color_info = satsuki2 */
+			# 色設定情報は、他ファイル参照
+			return $self->load_theme_colors("$template/$1", 1);
+		}
+		if ($_ =~ /^\s*\@/) { next; }
+		if ($_ =~ /\$c=([\w]+)/) {	# /* $c=main */ 等
+			my $name = $1;
+			$_ =~ s/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])([^0-9A-Fa-f])/#$1$1$2$2$3$3$4/g;
+			if ($name =~ /^_/) {
+				# 色は持たないけども属性値として保存する
+				$_ =~ s|\s*/\*.*?\*/[\t ]*||g;
+
+			} elsif ($_ =~ /(#[0-9A-Fa-f]+)/) {
+				$col{$name} = $1;
+
+				# border: 1px solid #ffffff; → border-color:
+				if ($_ =~ /^(.*border[\w\-]*?)(?:-color)*\s*:[^\}]*?(}?\s*\/\*.*)/i) {
+					$_ = $1 . "-color:\t" . $col{$name} . ";$2\n";
+				}
+			}
+			if (!$in_attr && $_ =~ /{.*}/) {
+				push(@ary, $sel, $_);
+				$sel='';
+				next;
+			}
+			$attr .= $_;
+			next;
+		}
+		# その行だけのコメントを除去
+		$_ =~ s|\s*/\*.*?\*/[\t ]*||g;
+		if ($_ =~ m|(.*?)/\*|) {	# コメント開始
+			$_ = $1;
+			$in_com = 1;
+		}
+		if ($_ =~ /^\s*\n?$/) { next; }	# 空行
+		if ($_ =~ /}/) {
+			if ($attr ne '') {
+				push(@ary, $sel, $attr, $_);
+			}
+			$sel = $attr = '';
+			$in_attr=0;
+			next;
+		}
+		if ($in_attr) { next; }		# 一般属性値は無視
+		if ($_ =~ /{/ && $_ !~ /{.*}/) {
+			$in_attr=1;
+		}
+		# セレクタ
+		$sel .= $_;
+	}
+	return (\%col, \@ary);
 }
 
 ###############################################################################

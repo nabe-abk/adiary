@@ -4,9 +4,8 @@
 //############################################################################
 //[TAB=8]  require jQuery
 'use strict';
-var Default_show_speed = 300;
-var Default_image_popup_delay = 300;
 var DialogWidth = 640;
+var default_show_speed = 300;
 var popup_offset_x = 15;
 var popup_offset_y = 10;
 var IE67=false;
@@ -76,14 +75,37 @@ function set_browser_class_into_body() {
 	// bodyにクラス設定する
 	$('#body').addClass( x.join(' ') );
 }
+//////////////////////////////////////////////////////////////////////////////
+//●[jQuery] ディレイ付showとhide
+//////////////////////////////////////////////////////////////////////////////
+$.fn.delay_show = function(){
+	var args = Array.prototype.slice.call(arguments);
+	args[0] = (args[0] == undefined) ? default_show_speed : args[0];
+	return $.fn.show.apply(this, args);
+};
+$.fn.delay_hide = function(){
+	var args = Array.prototype.slice.call(arguments);
+	args[0] = (args[0] == undefined) ? default_show_speed : args[0];
+	return $.fn.hide.apply(this, args);
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //●[jQuery] 自分自身と子要素から探す findx という拡張をする
 //////////////////////////////////////////////////////////////////////////////
-$.fn.findx = function(){
+$.fn.findx = function(sel){
 	var x = $.fn.filter.apply(this, arguments);
 	var y = $.fn.find.apply  (this, arguments);
-	return x.add(y);
+	x = x.add(y);
+	// 重複処理の防止
+	var r = [];
+	sel = '-f-' + sel;
+	for(var i=0; i<x.length; i++) {
+		var obj = $(x[i]);
+		if (obj.data(sel)) continue;
+		obj.data(sel, true);
+		r.push(x[i]);
+	}
+	return $(r);
 };
 
 //############################################################################
@@ -152,10 +174,10 @@ function easy_popup(evt) {
 		func(obj, div);
 	  	div.css("left", evt.pageX +popup_offset_x);
 	  	div.css("top" , evt.pageY +popup_offset_y);
-		div.show(Default_show_speed);
+		div.delay_show();
 	};
 
-	var delay = obj.data('delay') || Default_image_popup_delay;
+	var delay = obj.data('delay') || default_show_speed;
 	if (!delay) return do_popup(evt);
 	obj.data('timer', setTimeout(function(){ do_popup(evt) }, delay));
 }
@@ -172,7 +194,10 @@ function easy_popup_out(evt) {
 initfunc.push( function(R){
 	var popup_div  = $('#popup-div');
 	var popup_help = $('#popup-help');
-	R.findx(".js-popup-img").mouseenter( {func: function(obj,div){
+	var imgs  = R.findx(".js-popup-img");
+	var helps = R.findx(".help[data-help]");
+	
+	imgs.mouseenter( {func: function(obj,div){
 		var img = $('<img>');
 		img.attr('src', obj.data('img-url'));
 		img.addClass('popup-image');
@@ -180,17 +205,17 @@ initfunc.push( function(R){
 		div.append( img );
 	}, div: popup_div}, easy_popup);
 
-	R.findx(".help[data-help]").mouseenter( {func: function(obj,div){
+	helps.mouseenter( {func: function(obj,div){
 		var text = tag_esc_br( obj.data("help") );
 		div.html( text );
 	}, div: popup_help}, easy_popup);
-	R.findx(".help[data-help]").each( function(idx,dom){
+	helps.each( function(idx,dom){
 		var obj = $(dom);
 		var text = tag_esc_br( obj.data("help") );
 	});
 
-	R.findx(".js-popup-img")   .mouseleave({div: popup_div }, easy_popup_out);
-	R.findx(".help[data-help]").mouseleave({div: popup_help}, easy_popup_out);
+	imgs .mouseleave({div: popup_div }, easy_popup_out);
+	helps.mouseleave({div: popup_help}, easy_popup_out);
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -321,7 +346,7 @@ initfunc.push( function(R){
 		var target = $(id);
 		if (!target.length) return false;
 		var speed  = btn.data('switch-speed');
-		speed = (speed === undefined) ? Default_show_speed : parseInt(speed);
+		speed = (speed === undefined) ? default_show_speed : parseInt(speed);
 		speed = init ? 0 : speed;
 
 		// スイッチの状態を保存する
@@ -380,7 +405,7 @@ initfunc.push( function(R){
 //●input[type="text"]などで enter による submit 停止
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	R.findx('form input.no-enter-submit, form.no-enter-submit input').keypress( function(ev){
+	R.findx('input.no-enter-submit, form.no-enter-submit input').keypress( function(ev){
 		if (ev.which === 13) return false;
 		return true;
 	});
@@ -403,14 +428,26 @@ initfunc.push( function(R){
 			box.css('background-color', col);
 	});
 	var initfunc = function(){
-		cp.ColorPicker( { onSubmit: function(hsb, hex, rgb, _el) {
-			var el = $(_el);
-			el.val('#' + hex);
-			el.ColorPickerHide();
-			var prev = el.prev();
-			if (! prev.hasClass('colorbox')) return;
-			prev.css('background-color', '#' + hex);
-		}});
+		cp.each(function(idx,dom){
+			var obj = $(dom);
+			obj.ColorPicker({
+				onSubmit: function(hsb, hex, rgb, _el) {
+					var el = $(_el);
+					el.val('#' + hex);
+					el.ColorPickerHide();
+					var prev = el.prev();
+					if (! prev.hasClass('colorbox')) return;
+					prev.css('background-color', '#' + hex);
+					obj.change();
+				},
+				onChange: function(hsb, hex, rgb) {
+					var prev = obj.prev();
+					if (! prev.hasClass('colorbox')) return;
+					prev.css('background-color', '#' + hex);
+				}
+			});
+			obj.ColorPickerSetColor( obj.val() );
+		});
 		cp.bind('keyup', function(evt){
 			$(evt.target).ColorPickerSetColor(evt.target.value);
 		});
@@ -445,6 +482,8 @@ initfunc.push( function(R){
 	} )
 
 function set_input_resize(obj, flag) {
+	if (obj.parents('colorpicker')) return;
+
 	// 非表示要素は最初にhoverされた時に処理する
 	if (!flag && obj.is(":hidden")) {
 		var func = function(){
@@ -656,7 +695,7 @@ $( function(){
 			popup.html( com.html() );
 		  	popup.css("top" , link.offset().top  +popup_offset_y);
 		  	popup.css("left", link.offset().left +popup_offset_x);
-			popup.show(Default_show_speed);
+			popup.delay_show();
 		});
 		link.mouseout(function() {
 			timer = setTimeout(function(){
@@ -919,7 +958,7 @@ function $secure(id) {
 //////////////////////////////////////////////////////////////////////////////
 function append_css_file(file) {
 	$("head").append("<link>");
-	css = $("head").children(":last");
+	var css = $("head").children(":last");
 	css.attr({
 		type: "text/css",
 		rel: "stylesheet",
@@ -1154,7 +1193,7 @@ function adiary_session(_btn, opt){
 	var load_session = myself + '?etc/load_session';
 	var interval = opt.interval || log.data('interval') || 300;
 	var snum;
-	log.show(Default_show_speed);
+	log.delay_show();
 
 	if (opt.init) opt.init(evt);
 

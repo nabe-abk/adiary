@@ -15,18 +15,18 @@
 <meta name="generator" content="adiary <@v.VERSION>">
 <meta name="author" content="<@v.blogid>">
 <@if(v.system_mode || v.no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
-<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.notheme.css" id="jquery-ui-css">
-<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>_lightbox/lightbox.css" id="lightbox-css">
+<link rel="stylesheet" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.custom.css" id="jquery-ui-css">
+<link rel="stylesheet" href="<@Basepath><@v.theme_dir>_lightbox/lightbox.css" id="lightbox-css">
 <@forexec(t, v.load_jscss('css'), begin)>
-<link rel="stylesheet" media="all" href="<@Basepath><@t>">
+<link rel="stylesheet" href="<@Basepath><@t>">
 <$end>
 <!--[if IE 8]> <@> for IE8 @import bug
-<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir>satsuki2/base.css">
+<link rel="stylesheet" href="<@Basepath><@v.theme_dir>satsuki2/base.css">
 <![endif]-->
 <@> テーマとユーザーCSSは最後に読み込む
-<link rel="stylesheet" media="all" href="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.css" id="theme-css">
+<link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.template>/<@v.theme>/<@v.theme>.css" id="theme-css">
 <$file = "<@v.blogpub_dir>usercss.css">
-<@if(!v.system_mode && file_readable(file), #'<link rel="stylesheet" media="all" href="<@Basepath><@file>" id="user-css">\n')>
+<@if(!v.system_mode && file_readable(file), #'<link rel="stylesheet" href="<@Basepath><@file>" id="user-css">\n')>
 <@if(canonical_url, #'<link rel="canonical" href="<@canonical_url>">\n')>
 <@forexec(t, v.load_rss_files(), begin)>
 <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<@Basepath><@v.blogpub_dir><@t>" /> 
@@ -110,47 +110,7 @@
 <!--sidebar=================================================================-->
 <@call( if(v.sidebar, v.sidebar, '_sidebar') )>
 
-
-<@ifexec(Develop && (@Error || @Debug || @Warning) || ENV_print, begin.debug)>
-<!--追加フッタ==============================================================-->
-
-<div class="main add-main">
-<p><strong>debug</strong></p>
-
-<@ifexec(@Error, begin)>
-<div class="debug">
-Error : <strong><@error_load_and_clear("<br>\n")></strong><br>
-</div>
-<$end>
-<@ifexec(@Debug, begin)>
-<div class="debug">
-Debug : <strong><@join("<br>\n", Debug)></strong><br>
-</div>
-<$end>
-<@ifexec(@Warning, begin)>
-<div class="debug">
-Warning : <strong><@join("<br>\n", Warning)></strong><br>
-</div>
-<$end>
-<@ifexec(ENV_print, begin.env_print)>
-<div class="small debug mono">
-blogid <@v.blogid><br>
-Basepath <@Basepath><br>
-Request_base <@Request_base><br>
-cgifile <@CGI_file><br>
-myself  <@Myself><br>
-myself2 <@Myself2><br>
-v.myself  <@v.myself><br>
-v.myself2 <@v.myself2><br>
-blog_admin <@v.blog_admin><br>
-allow_edit <@v.allow_edit><br>
-allow_com  <@v.allow_com><br>
-<@dump_hash("%k=%v<br>\n", ENV)>
-</div>
-<$end.env_print>
-</div>
-<$end.debug>
-
+<@ifcall(Develop && (@Error || @Debug || @Warning) || ENV_print, '_sub/debug')>
 <!--End of body ============================================================-->
 </div> <!-- End of #hatena-body -->
 </div> <!-- End of #adiary-body -->
@@ -168,10 +128,6 @@ var Vmyself='<@v.myself>';
 var Vmyself2='<@v.myself2>';
 var ScriptDir='<@Basepath><@v.script_dir>';
 var ThemeDir ='<@Basepath><@v.theme_dir>';
-<@ifexec(Timer, begin)>
-$('#system-info-total-time').text('<@int(Timer.check()*10000 + 0.5)/10>');
-$('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');
-<$end>
 <@ifexec(!v.system_mode && s.gaid, begin)>
 // Google Analytics
 var _gaq = _gaq || [];
@@ -182,6 +138,10 @@ var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async
 ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
+<$end>
+<@ifexec(Timer, begin)>
+$('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');
+$('#system-info-total-time').text('<@int(Timer.check()*10000 + 0.5)/10>');
 <$end>
 </script>
 </body>
