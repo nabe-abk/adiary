@@ -39,13 +39,13 @@
 <nav class="page-head page-nav">
 <@page_nav = exec(begin.function)>
 <@ifexec(node.prev && node.prev != node.upnode, begin)>
-<a href="<@v.myself2><@if(node.prev.link_key, node.prev.elink_key, "0<@node.prev.pkey>")>" class="prev-page" rel="prev"><@node.prev.title></a>
+<a href="<@v.myself2><@if(node.prev.link_key, node.prev.elink_key, "0<@node.prev.pkey>")>" class="prev-page pnavi" rel="prev"><@node.prev.title></a>
 <$end>
 <@ifexec(node.upnode, begin)>
-<a href="<@v.myself2><@node.upnode.elink_key>" class="upnode-page"><@node.upnode.title></a>
+<a href="<@v.myself2><@node.upnode.elink_key>" class="upnode-page pnavi"><@node.upnode.title></a>
 <$end>
 <@ifexec(node.next, begin)>
-<a href="<@v.myself2><@if(node.next.link_key, node.next.elink_key, "0<@node.next.pkey>")>" class="next-page" rel="next"><@node.next.title></a>
+<a href="<@v.myself2><@if(node.next.link_key, node.next.elink_key, "0<@node.next.pkey>")>" class="next-page pnavi" rel="next"><@node.next.title></a>
 <$end>
 <$end.function>
 </nav>

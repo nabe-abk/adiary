@@ -324,8 +324,8 @@ sub fedit_readlines {
 		}
 	}
 	binmode($fh);
-	if ($flags->{ReadLock}) {
-		$self->read_lock($fh);
+	if ($flags->{ReadLock} && ! $self->{Is_windows}) {
+		$self->read_lock($fh);	# Windows環境では read_lock 後の書き換え時に不具合が起こる
 	} else {
 		$self->write_lock($fh);
 	}
@@ -348,9 +348,6 @@ sub fedit_writelines {
 	foreach(@$lines) {
 		print $fh $_;
 	}
-	# ■Windows注意!
-	# flock($fh, LOCK_SH) して truncate($fh, 0) すると必ずファイルサイズが 0 になる。
-	# See more : http://adiary.blog.abk.nu/0352
 	truncate($fh, tell($fh));
 	close($fh);
 	return 0;

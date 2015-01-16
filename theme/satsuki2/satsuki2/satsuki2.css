@@ -133,7 +133,7 @@ a.next-page:after {
 	display:		inline-block;
 	width:			16px;
 	height:			16px;
-	background-image:	url(ui-icons.png);
+/*	background-image:	url(ui-icons.png);	*/
 	content:		' ';
 	vertical-align:		bottom;
 }
@@ -647,19 +647,15 @@ button:disabled
 /*--------------------------------------------------------------------
 ●jQuery UI アイコン設定
 ---------------------------------------------------------------------*/
+#ui-icon-autoload {
+	display:		none;
+	background-color:	#0000ff;		/* $c=uiicon */
+}
 .ui-icon {
-	background-image:	url(ui-icons.png);
+/*	background-image:	url(ui-icons.png);	*/
 	display:		inline-block;
 	width:			16px;
 	vertical-align:		middle;
-}
-.sw-show .ui-icon.switch-icon {
-	background-position:	-224px 0px;
-	width:			13px;
-}
-.sw-hide .ui-icon.switch-icon {
-	background-position:	-240px 0px;
-	width:			13px;
 }
 
 .ui-icon.ui-button {

@@ -54,8 +54,8 @@
 
 <@ifexec(exists(ret.prev_page) || ret.next_page, begin.page)>
 <nav class="page-foot">
-<@if(exists(ret.prev_page), #'<a href="<@v.myself2><@ret.prev_page>" class="prev-page" rel="prev">前の記事</a>')>
-<@if(ret.next_page,         #'<a href="<@v.myself2><@ret.next_page>" class="next-page" rel="next">次の記事</a>')>
+<@if(exists(ret.prev_page), #'<a href="<@v.myself2><@ret.prev_page>" class="prev-page pnavi" rel="prev">前の記事</a>')>
+<@if(ret.next_page,         #'<a href="<@v.myself2><@ret.next_page>" class="next-page pnavi" rel="next">次の記事</a>')>
 </nav>
 <$end.page>
 

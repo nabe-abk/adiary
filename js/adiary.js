@@ -75,6 +75,61 @@ function set_browser_class_into_body() {
 	// bodyにクラス設定する
 	$('#body').addClass( x.join(' ') );
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//●ui-iconの自動ロード
+//////////////////////////////////////////////////////////////////////////////
+$(function(){
+	var vals = [0, 0x80, 0xC0, 0xff];
+	var obj = $('<span>').attr('id', 'ui-icon-autoload');
+	$('#body').append(obj);
+	var color = obj.css('background-color');
+	obj.remove();
+	if (!color || color == 'transparent') return;
+	if (color.match(/\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0/)) return;
+
+	var ma = color.match(/#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})/);
+	var cols = [];
+	if (ma) {	// IE8 is #0000ff
+		cols[0] = parseInt('0x' + ma[1]);
+		cols[1] = parseInt('0x' + ma[2]);
+		cols[2] = parseInt('0x' + ma[3]);
+	} else {
+		// rgb( 0, 0, 255 )
+		var ma = color.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+		if (!ma) return;
+		cols[0] = ma[1];
+		cols[1] = ma[2];
+		cols[2] = ma[3];
+	}
+	// 用意されているアイコンからもっとも近い色を選択
+	var file='';
+	for(var i=0; i<3; i++) {
+		var c = cols[i];
+		var diff=255;
+		var near;
+		for(var j=0; j<vals.length; j++) {
+			var d = Math.abs(vals[j] - c);
+			if (d>diff) continue;
+			near = vals[j];
+			diff = d;
+		}
+		file += (near<16 ? '0' : '') + near.toString(16);;
+	}
+	// アイコンのロード
+	var css = '.ui-icon, a.pnavi:before, a.pnavi:after { background-image: '
+		+ 'url("' + ThemeDir + '_ui-icon/' + file + '.png") }';
+	var style = $('<style>').attr('type','text/css');
+	$('head').append(style);
+	if (IE8)
+		style[0].styleSheet.cssText = css;
+	else
+		style.html(css);
+});
+
+//############################################################################
+//■jQuery拡張
+//############################################################################
 //////////////////////////////////////////////////////////////////////////////
 //●[jQuery] ディレイ付showとhide
 //////////////////////////////////////////////////////////////////////////////

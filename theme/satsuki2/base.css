@@ -352,6 +352,28 @@ ul.menu {
 	margin-bottom:		1em;
 }
 
+
+/*--------------------------------------------------------------------
+●UIアイコン
+---------------------------------------------------------------------*/
+.sw-show .ui-icon.switch-icon {
+	background-position:	-224px 0px;
+	width:			13px;
+}
+.sw-hide .ui-icon.switch-icon {
+	background-position:	-240px 0px;
+	width:			13px;
+}
+.ui-icon.prev-page {
+	background-position: -208px -16px;
+}
+.ui-icon.upnode-page {
+	background-position: -224px -16px;
+}
+.ui-icon.next-page {
+	background-position: -240px -16px;
+}
+
 /*--------------------------------------------------------------------
 ●画像アルバム
 ---------------------------------------------------------------------*/

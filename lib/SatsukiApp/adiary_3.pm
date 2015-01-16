@@ -167,7 +167,16 @@ sub make_thumbnail {
 		if (!$r) { next; }
 
 		# サムネイル生成に失敗したとき
-		$ROBJ->file_copy($self->{album_icons} . $self->{album_nothumb_image}, $thumb);
+		my $icon = $self->{album_icons} . $self->{album_nothumb_image};
+		if ($_ =~ m/\.(\w+)$/) {
+			my $ext = $1;
+			my $exts = $self->load_album_allow_ext();
+			my $file = $self->{album_allow_ext}->{$ext} || $self->{album_extra_icons}->{$ext};
+			if ($file) {
+				$icon = $self->{album_icons} . $file;
+			}
+		}
+		$ROBJ->file_copy($icon, $thumb);	# アイコンをコピー
 	}
 }
 
@@ -187,6 +196,7 @@ sub make_thumbnail_for_image {
 
 	# print "0\n";
 	my $img = $self->load_image_magick( 'jpeg:size'=>"$size x $size" );
+	if (!$img) { return -99; }
 	my ($w, $h);
 	eval {
 		$img->Read( "$dir$file" );
@@ -239,6 +249,7 @@ sub make_thumbnail_for_notimage {
 
 	# キャンパス生成
 	my $img = $self->load_image_magick();
+	if (!$img) { return -99; }
 	$img->Set(size => $size . 'x' . $size);
 	$img->ReadImage('xc:white');
 
@@ -581,7 +592,8 @@ sub rename_file {
 # ■アルバム関連サブルーチン
 #------------------------------------------------------------------------------
 sub load_image_magick {
-	require Image::Magick;
+	eval { require Image::Magick; };
+	if ($@) { return ; }
 	return Image::Magick->new(@_);
 }
 
