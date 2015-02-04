@@ -1,20 +1,21 @@
 #-------------------------------------------------------------------------------
 # 許可タグリスト for ユーザーテキスト
 #-------------------------------------------------------------------------------
-# タグ制限を完全になくしたい場合は trust_mode を利用してください。
+# タグ制限を完全になくしたい場合は trust_mode を検討ください。
 _base		id, title, class, style, lang, data-
+_base_deny	data-url, data-module-name
 _protocol	http, https, ftp, mailto, mms
 _comment
-
 ### 基本 ########################
 a		href, name, target, rel
 p
-br
 span
+br
 h3
 h4
 h5
 h6
+hr
 
 ### ブロック要素 ###############
 div

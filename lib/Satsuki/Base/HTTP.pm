@@ -6,7 +6,7 @@ use strict;
 # 簡易実装の HTTP モジュールです。本格的な使用には耐えません。
 #
 package Satsuki::Base::HTTP;
-our $VERSION = '1.30';
+our $VERSION = '1.31';
 #------------------------------------------------------------------------------
 use Socket;
 ###############################################################################
@@ -243,8 +243,11 @@ sub do_request {
 		} else {
 			$content = $post_data;
 		}
-		$header{'Content-Length'} = length($content);
-		$header{'Content-Type'} ||= 'application/x-www-form-urlencoded';
+		if (!$https) {
+			# Net::SSLeay::post_https は自動付加するので付けない
+			$header{'Content-Length'} = length($content);
+			$header{'Content-Type'} ||= 'application/x-www-form-urlencoded';
+		}
 	}
 
 	#----------------------------------------------------------------------
@@ -271,18 +274,20 @@ sub do_request {
 		if ($@) {
 			return $self->error(undef, "Net::SSLeay module not found (please install this server)");
 		}
-		my ($page, $result, %headers);
+		my ($page, $result, @headers);
 		if ($method eq 'POST') {
-			($page, $result, %headers) = Net::SSLeay::post_https($host, $port, $path, $header, $content);
+			($page, $result, @headers) = Net::SSLeay::post_https($host, $port, $path, $header, $content);
 		} else {
-			($page, $result, %headers) = Net::SSLeay::get_https ($host, $port, $path, $header);
+			($page, $result, @headers) = Net::SSLeay::get_https ($host, $port, $path, $header);
 		}
 
 		$self->parse_status_line($result, $host);
 
 		$res = [ $result ];
-		foreach(keys(%headers)) {
-			push(@$res, "$_: $headers{$_}");
+		while(@headers) {
+			my $name = shift(@headers);
+			my $val  = shift(@headers);
+			push(@$res, "$name: $val");
 		}
 		push(@$res, '');
 		push(@$res, $page);

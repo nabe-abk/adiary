@@ -223,9 +223,6 @@
 <$v.album_icons = "<@pubdist_dir>album-icon/">
 <$v.album_jpeg_quality = 80>
 
-# サムネイルがないときに表示する画像
-<$v.album_nothumb_image = 'nothumb.jpg'>
-
 # サムネイルサイズ（長辺のpixel数）
 <$v.album_thumb_size = 120>
 

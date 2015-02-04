@@ -68,12 +68,14 @@ select {
 
 <form id="form">
 デザイン編集
-<select name="modules" id="add-module">
-<option value="">（追加モジュール選択）</option>
-<@forexec(t, mods, begin)>
-<option value="<@t.name>"><@t.title></option>
-<$end>
+<select name="modules" id="module-type">
+<option value="sidebar">サイドバー</option>
+<option value="main">メイン部</option>
 </select>
+
+<select name="modules" id="add-module">
+</select>
+
 
 <button id="save-btn" type="button">保存</button>
 <button id="back-btn" type="button" onclick="window.location='<@v.myself>?<@v.skel_dir>'">戻る</button>
@@ -123,6 +125,7 @@ select {
 
 <@call('_sub/ajax_messages')>
 <div style="display:none">
+<span id="msg-append-module-select">（追加モジュール選択）</span>
 <span id="msg-delete-confirm">「%n」を削除しますか？</span>
 <span id="msg-duplicate-id">「%n」は既に存在します（１つしか追加できません）</span>
 </div>

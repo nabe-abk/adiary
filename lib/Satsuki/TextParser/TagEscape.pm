@@ -97,7 +97,8 @@ sub init {
 		$name = substr($_,1);
 	}
 	# 値保存
-	if ($tag_allow{_base}) { $self->{allow_base} = join(', ', @{ $tag_allow{_base} }); }
+	if ($tag_allow{_base})      { $self->{allow_base} = join(', ', @{ $tag_allow{_base} }); }
+	if ($tag_allow{_base_deny}) { $self->{deny_base}  = join(', ', @{ $tag_allow{_base_deny} }); }
 	if ($tag_allow{_protocol}) {
 		my $p = $tag_allow{_protocol};
 		$self->{allow_protocol} = join(', ', @$p);
@@ -136,6 +137,7 @@ sub escape {
 	my $mod_list  = $self->{modules};
 	my $tag_check = (! $self->{allow_anytag});
 	my $attrs_all = $tag_list->{_base};
+	my $deny_attr = { map { $_ => 1 } @{$tag_list->{_base_deny} || []} };
 	my $protocols = $tag_list->{_protocol};
 	my $style_secure = $tag_list->{_style_secure};
 	# 相対パス／URI書き換え？
@@ -244,13 +246,14 @@ sub escape {
 			if (ref($attrs) eq 'ARRAY') {	# ハッシュに変換
 				$attrs = { map { $_ => 1 } @$attrs };
 				map { $attrs->{$_}=1 } @$attrs_all;
+				$tag_list->{$tag_name} = $attrs;	# cache
 			}
 			if ($attrs->{'data-'} && substr($_,0,5) eq 'data-' && length($_)>5) {
 				$attrs->{$_}=1;
 				$_ =~ m/-([^-]*)$/;
 				$data_attr = $1;	# data-xxxx-url の最後の "url" を抽出
 			}
-			if ($tag_check && !$attrs->{$_}) { next; }	# 属性を無視
+			if ($tag_check && (!$attrs->{$_} || $deny_attr->{$_})) { next; }	# 属性を無視
 
 			# 値無し属性 （例）selected
 			if (!exists $at{$_}) { unshift(@y, $_); next; }

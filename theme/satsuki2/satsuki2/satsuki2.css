@@ -109,6 +109,18 @@ span.welcome a, span.welcome a:link, span.welcome a:visited {
 	font-weight:		inherit;
 	text-decoration:	none;
 }
+/*--------------------------------------------------------------------
+■ドロップダウンメニュー
+---------------------------------------------------------------------*/
+
+.exists-dropdown-menu h1 {
+	margin-bottom:		0px;
+}
+.dropdown-menu {
+	margin-bottom:		1em;
+}
+
+
 
 /*--------------------------------------------------------------------
 ■ページ送り
@@ -146,12 +158,11 @@ a.upnode-page:before {
 a.next-page:after {
 	background-position: -240px -16px;
 }
-
 /*--------------------------------------------------------------------
 ■記事のデザイン配置（本文）
 ---------------------------------------------------------------------*/
 /* 1つの記事 */
-article {
+article, #article-body {
 	margin-bottom:		1.5em;
 	border-radius:		8px;
 	box-shadow:		8px 8px rgba(0,0,0, 0.3);
@@ -720,7 +731,7 @@ th.error input, td.error input {
 
 /* フォーカス */
 th.focus, td.focus {
-	background-color:	#ffffcc;
+	background-color:	#ffffcc;	/* $c=fixfocusbg1 */
 }
 input[type="text"]:focus,
 input[type="search"]:focus,
@@ -729,7 +740,7 @@ input[type="url"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
 .setting textarea:focus {
-	background-color:	#ffeeee;
+	background-color:	#ffeeee;	/* $c=fixfocusbg2 */
 }
 textarea#editarea:focus {
 	background-color:	#fff;
@@ -794,7 +805,7 @@ article.edit span.tag:after {
 	padding:		0.5em 1em;
 
 	background-color:	#fff;
-	color:			#2133a9;		/* $c=border */
+	color:			#2133a9;		/* $c=fixhelpfont */
 
 	font-size:		11pt;
 	/* font-weight:		bold; */

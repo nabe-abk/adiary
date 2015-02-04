@@ -18,10 +18,12 @@ $(function(){
 	var btn_close_title   = $('#btn-close').text()   || 'delete';
 
 	var modules = [];	// 各モジュールを取得し保存
-	$(module_data_id + '>' + module_selector).each( function(idx,obj){
-		obj = $(obj);
+	var mod_list= [];
+	$(module_data_id + '>' + module_selector).each( function(idx,_obj){
+		var obj = $(_obj);
 		obj.detach();
 		modules[ obj.data('module-name') ] = obj;
+		mod_list.push(obj.data('module-name'));
 	});
 
 //////////////////////////////////////////////////////////////////////////////
@@ -42,19 +44,23 @@ $(function(){
 //////////////////////////////////////////////////////////////////////////////
 iframe.on('load', function(){
 	var if_cw = iframe[0].contentWindow;
-	var $i    = iframe[0].contentWindow.$;
-	var side_a = $i('#side-a');
-	var side_b = $i('#side-b');
+	var $f    = iframe[0].contentWindow.$;
+	var side_a = $f('#side-a');
+	var side_b = $f('#side-b');
+	var f_main = $f('.main:first-child');
 
 	// フレーム内check
-	if ($i('#body').hasClass('system-mode')) {
+	if ($f('#body').hasClass('system-mode')) {
 		btn_save.prop('disabled', true);
 		return;
 	}
 	btn_save.prop('disabled', false);
 
 	// モジュールにボタン追加
-	$i('#sidebar ' + module_selector).each( function(idx,obj){
+	$f('#sidebar ' + module_selector).each( function(idx,obj){
+		init_module( $(obj) );
+	});
+	f_main.find(module_selector).each( function(idx,obj){
 		init_module( $(obj) );
 	});
 
@@ -63,9 +69,10 @@ iframe.on('load', function(){
 	side_b.addClass('connectedSortable');
 	side_a.sortable({ items: '>' + module_selector, connectWith: ".connectedSortable" });
 	side_b.sortable({ items: '>' + module_selector, connectWith: ".connectedSortable" });
+	f_main.sortable({ items: '>' + module_selector });
 
 	// iframe内のリンク書き換え
-	$i('a').each(function(idx,dom) {
+	$f('a').each(function(idx,dom) {
 		var obj = $(dom);
 		var url = obj.attr('href');
 		if (!url) return;
@@ -76,6 +83,28 @@ iframe.on('load', function(){
 		}
 	});
 
+//////////////////////////////////////////////////////////////////////////////
+// ●要素タイプの選択
+//////////////////////////////////////////////////////////////////////////////
+var mod_type = $('#module-type');
+mod_type.change(function(evt){
+	var type = $(evt.target).val();
+	var sel  = $('#add-module').empty();
+	sel.append( $('<option>')
+		.val('').text( $('#msg-append-module-select').text() )
+	);
+	for(var i=0; i<mod_list.length; i++) {
+		var name = mod_list[i];
+		var obj = modules[name];
+		if (obj.data('type') != type) continue;
+		// 追加
+		sel.append( $('<option>')
+			.attr('value', name)
+			.text(obj.attr('title'))
+		);
+	}
+});
+mod_type.change();
 
 //////////////////////////////////////////////////////////////////////////////
 // ●要素を追加する
@@ -90,7 +119,7 @@ $('#add-module').change(function(evt){
 	if (! mod.length) return;
 
 	var id = mod.data('id');
-	if (id != '' && $i('#' + id).length) {	// 同じidが既に存在する、↓同じモジュール名が存在する
+	if (id != '' && $f('#' + id).length) {	// 同じidが既に存在する、↓同じモジュール名が存在する
 		show_error( '#msg-duplicate-id', {
 			n: mod.attr('title')
 		});
@@ -110,16 +139,19 @@ $('#add-module').change(function(evt){
 		name = obj.data('module-name');
 		for(var i=1; i<9999; i++) {
 			var name2 = name + ',' + i.toString();
-			if ($i('*[data-module-name="'+ name2 +'"]').length) continue;
+			if ($f('*[data-module-name="'+ name2 +'"]').length) continue;
 			break;
 		}
 		obj.data('module-name', name2);
 		obj.attr('data-module-name', name2);	// 必須
 		name = name2;
 	}
-
+	// type?
+	var type = mod_type.val();
+	var place = side_a;
+	if (type == 'main') place = f_main;
 	init_module(obj);
-	obj.prependTo(side_a);
+	place.prepend(obj);
 
 	// モジュールHTMLをサーバからロード？
 	if (obj.data('load-module-html')) load_module_html( obj );

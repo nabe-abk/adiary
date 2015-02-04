@@ -88,6 +88,7 @@
 </div>
 </header>
 
+
 <!--Start of body ==========================================================-->
 <div id="hatena-body">
 
@@ -95,14 +96,41 @@
 <!--内容====================================================================-->
 <div class="main">
 
+
+<div id="dropdown-menu" data-move="#page-title" data-move-type="after" data-body-class="exists-dropdown-menu">
+<ul class="clist">
+	<li><a href="xx">孫階層</a></li>
+	<li><a href="x2">子階層てててててててててててててててててて</a>
+	<ul>
+		<li><a href="%c2%b9%a4%ce%bc%ea">新たな記事</a></li>
+		<li><a href="%a4%a6%a4%a7%a4%ec%a3%f1%a3%f7%a3%f2%a3%f1%a4%a6%a4%a7">[adiary official]うぇれ</a></li>
+		<li><a href="vczxv--">あああ</a>
+		<ul>
+			<li><a href="%a5%c6%a5%b9%a5%c8">テスト</a></li>
+			<li><a href="%a4%cf%a4%b7%a4%c1%a4%c8%a4%cf%a4%b7%a4%c1%a4%c8%a4%cf%a4%c1%a4%c8%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7">はしちとはしちとはちとしししししししししし</a></li>
+			<li><a href="%a5%a2%a5%cb%a5%e1">アニメ</a></li>
+		</ul></li>
+	</ul></li>
+	<li><a href="%a4%a2%22">Re: メール投稿の確認</a></li>
+	<li><a href="%a4%e5%a4%a6%a4%b7%a4%b3%a4%bf%a1%a3%a4%ab%a4%b3%a4%a6%a4%ab%24a-~%40%24fas%5c%5c">ふと</a></li>
+	<li><a href="%a4%bd%a4%ce%c2%be">その他</a>
+	<ul>
+		<li><a href="%3f4">fsadfdas</a></li>
+		<li><a href="dddd2">wrqwereqw</a></li>
+		<li><a href="%c2%b92">sdfdsafd</a></li>
+	</ul></li>
+</ul></div>
+
+
 <@inframe>
 
-<footer id="footer"><!--フッタ-->
-<@if(s.user_footer, "<@s.user_footer><br>")>
+<@ifexec(!stop_footer, begin)>
+<footer id="footer" data-module-name="dem_footer"><!--フッタ-->
 <span class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></span>
 <!-- Blog system "adiary" Copyright (C)2006-2015 nabe@abk.
      This system is licensed under AGPLv3 or later.-->
 </footer>
+<$end>
 </div> <!-- End of main -->
 
 

@@ -167,11 +167,12 @@ sub make_thumbnail {
 		if (!$r) { next; }
 
 		# サムネイル生成に失敗したとき
-		my $icon = $self->{album_icons} . $self->{album_nothumb_image};
+		my $icon = $self->{album_icons} . $self->{album_allow_ext}->{'..'};
 		if ($_ =~ m/\.(\w+)$/) {
 			my $ext = $1;
+			$ext =~ tr/A-Z/a-z/;
 			my $exts = $self->load_album_allow_ext();
-			my $file = $self->{album_allow_ext}->{$ext} || $self->{album_extra_icons}->{$ext};
+			my $file = $self->{album_allow_ext}->{$ext};
 			if ($file) {
 				$icon = $self->{album_icons} . $file;
 			}
@@ -257,8 +258,12 @@ sub make_thumbnail_for_notimage {
 	my $exts = $self->load_album_allow_ext();
 	my $icon_dir  = $ROBJ->get_filepath( $self->{album_icons} );
 	my $icon_file = $exts->{'.'};
-	if ($file =~ m/\.(\w+)$/ && $exts->{$1}) {
-		$icon_file = $exts->{$1};
+	if ($file =~ m/\.(\w+)$/) {
+		my $ext = $1;
+		$ext =~ tr/A-Z/a-z/;
+		if ($exts->{$1}) {
+			$icon_file = $exts->{$1};
+		}
 	}
 	if (!-r "$icon_dir$icon_file") {	# 読み込めない時はdefaultアイコン
 		$icon_file = $exts->{'.'};
@@ -648,6 +653,7 @@ sub album_check_ext {
 
 sub album_check_ext_one {
 	my ($self, $ext) = @_;
+	$ext =~ tr/A-Z/a-z/;
 	if ($self->{album_image_ext}->{$ext} || $self->{album_allow_ext}->{$ext}) { return 1; }
 	if (!$self->{album_allow_ver_ext}) { return 0; }
 
@@ -1109,7 +1115,7 @@ sub load_plugins_info {
 	my $files = $ROBJ->search_files($dir, {dir_only => 1});
 	my @ary;
 	foreach( sort @$files ) {
-		my $f = (substr($_,0,4) eq 'des_');	# デザインモジュール？
+		my $f = ($_ =~ /^de[sm]_/);		# デザインモジュール？
 		if (!$modf && $f || $modf && !$f) { next; }
 		# load
 		push(@ary, $self->load_plugin_info($_, $dir));

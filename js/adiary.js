@@ -114,7 +114,7 @@ $(function(){
 			near = vals[j];
 			diff = d;
 		}
-		file += (near<16 ? '0' : '') + near.toString(16);;
+		file += (near<16 ? '0' : '') + near.toString(16);
 	}
 	// アイコンのロード
 	var css = '.ui-icon, a.pnavi:before, a.pnavi:after { background-image: '
@@ -276,10 +276,8 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 //●詳細情報ダイアログの表示
 //////////////////////////////////////////////////////////////////////////////
-// onclick要素を確認することで
-// ユーザーが任意のURLを自由に呼び出せないようにしている。
 initfunc.push( function(R){
-  R.findx('.info[data-info], .info[data-url][onclick]').click( function(evt){
+  R.findx('.info[data-info], .info[data-url]').click( function(evt){
 	var obj = $(evt.target);
 	var div = $('<div>');
 	var div2= $('<div>');	// 直接 div にクラスを設定すると表示が崩れる
@@ -734,6 +732,35 @@ initfunc.push( function(R){
 	});
 });
 
+//////////////////////////////////////////////////////////////////////////////
+//●要素の位置を変更する
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R){
+	R.findx('[data-move]').each(function(idx,dom) {
+		var obj = $(dom);
+		obj.detach();
+		var target = $(obj.data('move'));
+		var type   = obj.data('move-type');
+		     if (type == 'prepend') target.prepend(obj);
+		else if (type == 'append')  target.append (obj);
+		else if (type == 'before')  target.before(obj);
+					else target.after(obj);
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//●bodyにクラスを追加する
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R){
+	R.findx('[data-body-class]').each(function(idx,dom) {
+		var cls = $(dom).data('body-class');
+		$('#body').addClass(cls);
+	});
+});
+
+//############################################################################
+// ■最初のロード時のみのサービス処理
+//############################################################################
 //////////////////////////////////////////////////////////////////////////////
 //●コメント欄の >>14 等をリンクに変更する
 //////////////////////////////////////////////////////////////////////////////
