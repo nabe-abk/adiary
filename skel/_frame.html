@@ -121,16 +121,15 @@
 	</ul></li>
 </ul></div>
 
-
 <@inframe>
 
 <@ifexec(!stop_footer, begin)>
-<footer id="footer" data-module-name="dem_footer"><!--フッタ-->
+<footer id="footer" data-module-name="dem_footer" data-fix="1"><!--フッタ-->
 <span class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></span>
-<!-- Blog system "adiary" Copyright (C)2006-2015 nabe@abk.
-     This system is licensed under AGPLv3 or later.-->
 </footer>
 <$end>
+<!-- Blog system "adiary" Copyright (C)2006-2015 nabe@abk.
+     This system is licensed under AGPLv3 or later.-->
 </div> <!-- End of main -->
 
 
@@ -154,7 +153,7 @@
 
 <@> 変更したら _sub/frame_end.htmlにもコピーすること！
 <script>
-var Vmyself='<@v.myself>';
+var Vmyself='<@v.myself>';	// = Blogpath
 var Vmyself2='<@v.myself2>';
 var ScriptDir='<@Basepath><@v.script_dir>';
 var ThemeDir ='<@Basepath><@v.theme_dir>';

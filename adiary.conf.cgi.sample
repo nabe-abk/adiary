@@ -197,7 +197,7 @@
 
 # シンボリックリンクでプラグインをインストール。
 # 開発時には便利だけども、実用には向かない。
-# Options +FollowSymLinks を忘れずに。
+#（要）Options +FollowSymLinks -SymLinksIfOwnerMatch
 #<$v.plugin_symlink = 1>
 
 #----------------------------------------------------------

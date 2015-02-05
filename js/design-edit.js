@@ -208,20 +208,22 @@ function init_module(obj) {
 		});
 		div.append(set);
 	}
-	var close = $('<span>');
-	close.addClass('ui-icon ui-icon-close ui-button');
-	close.attr('title', btn_close_title);
-	close.click(function(){
-		my_confirm({
-			id: '#msg-delete-confirm',
-			hash: { n: obj.attr('title') },
-			btn_ok: $('#btn-close').text(),
-			callback: function(flag) {
-				if (flag) obj.detach();
-			}
+	if (!obj.data('fix')) {
+		var close = $('<span>');
+		close.addClass('ui-icon ui-icon-close ui-button');
+		close.attr('title', btn_close_title);
+		close.click(function(){
+			my_confirm({
+				id: '#msg-delete-confirm',
+				hash: { n: obj.attr('title') },
+				btn_ok: $('#btn-close').text(),
+				callback: function(flag) {
+					if (flag) obj.detach();
+				}
+			});
 		});
-	});
-	div.append(close);
+		div.append(close);
+	}
 
 	obj.addClass('design-module-edit');
 	obj.prepend(div);

@@ -90,7 +90,6 @@ samp
 kbd
 var
 abbr
-acronym
 bdi
 bdo
 wbr

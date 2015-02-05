@@ -13,7 +13,14 @@ var IE8=false;
 var IE9=false;
 var Vmyself;	// _frame.html で設定される
 var Storage;
-$(function(){ if(Vmyself) Storage=load_PrefixStorage( Vmyself ); });
+var SettedBrowserClass;
+//////////////////////////////////////////////////////////////////////////////
+//●初期化処理
+//////////////////////////////////////////////////////////////////////////////
+$(function(){
+	if(Vmyself) Storage=load_PrefixStorage( Vmyself );
+	if (!SettedBrowserClass) set_browser_class_into_body();
+});
 //////////////////////////////////////////////////////////////////////////////
 //●RSSからの参照リンクURLの細工を消す
 //////////////////////////////////////////////////////////////////////////////
@@ -54,7 +61,7 @@ function set_browser_class_into_body() {
 	else if (ua.indexOf('WebKit') != -1) x.push('GC');
 	else if (ua.indexOf('Opera')  != -1) x.push('Op');
 	else if (ua.indexOf('Gecko')  != -1) x.push('Fx');
-	
+
 	var m = ua.match(/MSIE (\d+)/);
 	if (m) x.push('IE', 'IE' + m[1]);
 	  else x.push('NotIE');
@@ -74,6 +81,7 @@ function set_browser_class_into_body() {
 
 	// bodyにクラス設定する
 	$('#body').addClass( x.join(' ') );
+	SettedBrowserClass=true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -125,6 +133,7 @@ $(function(){
 		style[0].styleSheet.cssText = css;
 	else
 		style.html(css);
+
 });
 
 //############################################################################
@@ -1144,7 +1153,8 @@ function show_dialog(h, _arg) {
 // ●確認ダイアログ
 //////////////////////////////////////////////////////////////////////////////
 function my_confirm(h, callback) {
-	if (typeof(h) === 'string') h = {id: h, callback: callback};
+	if (typeof(h) === 'string') h = {id: h};
+	callback = callback || h.callback;
 	var html = (h.id.substr(0,1) != '#') ? h.id : $(h.id).html();
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 
@@ -1154,11 +1164,11 @@ function my_confirm(h, callback) {
 	var btn = {};
 	btn[ h.btn_ok || $('#ajs-ok').text()] = function(){
 		div.dialog('close');
-		h.callback(true);
+		callback(true);
 	};
 	btn[ h.btn_cancel || $('#ajs-cancel').text()] = function(){
 		div.dialog('close');
-		h.callback(false);
+		callback(false);
 	};
 	div.dialog({
 		modal: true,

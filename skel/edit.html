@@ -168,6 +168,7 @@
 		<input type="checkbox" class="js-switch" data-target="#-dummy-" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug">パーサーのデバッグ</label>
 	<$end>
 
+
 	<!--===============================================================-->
 	<input type="hidden" name="checkbox.info" value="enable">
 	<input type="hidden" name="checkbox.info" value="draft">
@@ -201,6 +202,7 @@
 		<@ifexec(!art.draft && edit_pkey, begin)>
 		<li><input type="checkbox" name="draft" value="1"<@if(art.draft, ' checked')>><label>この記事を下書きとして保存する</label><span class="help" data-help="初公開日時の情報も消去されます。">?</span></li>
 		<$end>
+		<li><a href="<@v.myself>?etc/allow_tags&amp;n=article" target="_blank">※使用可能なHTMLタグ一覧</a></li>
 	</ul>
 
 	<button type="submit" name="edit" id="save-last" value="1"><@if(edit_pkey, '編集内容を保存', '新規に保存')></button>

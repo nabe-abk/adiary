@@ -536,7 +536,7 @@ sub load_articles_current_blog {
 	my $blog = $self->{blog};
 
 	$opt->{pagemode}=1;
-	$opt->{loads} = $blog->{load_items};
+	$opt->{loads}     = $opt->{load_items} || $blog->{load_items};
 	$opt->{blog_only} = $blog->{separate_blog};
 
 	if ($self->{allow_edit}) {

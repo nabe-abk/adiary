@@ -6,7 +6,8 @@
 <@ifcall(v.skel_dir ne 'design/' &&  v.require_update, '_sub/require_update')>
 
 <$ifexec(argv#0, begin, begin)>
-	<$t = argv#0>
+	<$t   = argv#0>
+	<$ret = argv#1>
 	<$art_year = t.year>
 	<$art_mon  = t.mon>
 	<$art_day  = t.day>
@@ -35,9 +36,9 @@
 
 <@><!--========================================================================-->
 <$node = if(t.ctype, v.load_content_node(t.pkey), v.load_art_node(t.pkey))>
-<@ifexec(node.prev || node.next || node.upnode, begin.page)>
-<nav class="page-head page-nav">
-<@page_nav = exec(begin.function)>
+<@ifexec(node.prev || node.next || node.upnode || page_nav_force, begin.page)>
+<nav class="page-head page-nav" data-module-name="dem_page-nav,1">
+<@page_nav = page_nav_force || exec(begin.function)>
 <@ifexec(node.prev && node.prev != node.upnode, begin)>
 <a href="<@v.myself2><@if(node.prev.link_key, node.prev.elink_key, "0<@node.prev.pkey>")>" class="prev-page pnavi" rel="prev"><@node.prev.title></a>
 <$end>
@@ -186,7 +187,7 @@
 
 
 <@ifexec(page_nav, begin.page)>
-<nav class="page-foot page-nav">
+<nav class="page-foot page-nav" data-module-name="dem_page-nav,2">
 <@page_nav>
 </nav>
 <$end.page>

@@ -858,9 +858,10 @@ article.edit span.tag:after {
 	border-radius:		8px 8px 0 0;
 }
 .ui-dialog span.ui-dialog-title {
-	height:			16px;
+	height:			1em;
 	margin-top:		0;
 	padding-top:		0;
+	padding-bottom:		2px;
 }
 .ui-dialog button.ui-button {
 	border-radius:		4px;

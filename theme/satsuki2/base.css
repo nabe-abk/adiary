@@ -499,8 +499,9 @@ figure {
 div.module-edit-header {
 	position:		absolute;
 	top:			0px;
+	right:			0px;
 	z-index:		10;
-	width:			100%;
+	float:			right;
 	text-align:		right;
 }
 
@@ -517,6 +518,10 @@ div.module-edit-header {
 .ui-dialog .ui-widget-header {
 	background-color:	#93b3ff;
 }
+.ui-dialog ul {
+	margin:			1em 0em 1em 2em;
+}
+
 
 /*--------------------------------------------------------------------
 ●その他

@@ -24,7 +24,7 @@ $(function(){
 			exp.setTime(0);
 		}
 
-		document.cookie = 'serikamemo='+encodeURIComponent(d)+'; expires=' + exp.toUTCString()+'; path='+Blogpath;
+		document.cookie = 'serikamemo='+encodeURIComponent(d)+'; expires=' + exp.toUTCString()+'; path='+Vmyself;
 	}
 
 	function init(){
