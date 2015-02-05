@@ -1,0 +1,42 @@
+<@6>
+<@local(ret,s,t)>
+<$s = v.blog>
+
+<$art_dummy = begin_hash>
+pkey  = 1
+title = ダミー
+yyyymmdd = 20141231
+year  = 2014
+mon   = 12
+day   = 31
+text  = <section>この記事はダミーです。<br>なるべく記事を用意してから行ってください。<br></section>
+priority=0
+hcom_ok=1
+ip=192.168.1.1
+parser=default
+tm=1423150095
+update_tm=1423150095
+id=test
+enable=1
+com_ok=1
+coms=0
+name=owner
+host=localhost
+coms_all=0
+link_key=01
+agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0
+<$end>
+<$(t,ret) = v.load_article_current_blog('', s.frontpage))>
+<$ifexec(!t, begin)>
+	<$(logs,ret) = v.load_articles_current_blog('',{}, { load_items => 1 })>
+	<$t = logs#0>
+	<$ifset(!t, t, art_dummy)>
+<$end>
+
+<$page_nav_force = begin_string>
+<a href="#" class="prev-page pnavi" rel="prev">sampleについて</a>
+<a href="#" class="upnode-page pnavi">sample公式ページ</a>
+<a href="#" class="next-page pnavi" rel="next">sampleマニュアル</a>
+<$end>
+
+<$jump('_article', t, ret)>
