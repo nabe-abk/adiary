@@ -1,5 +1,6 @@
+<@>$HEADER$--------------------------------------------------------------------
 <@6>
-<@local(ret,logs,s,t,coms,q,url,x,page,page_offfset)>
+<@local(ret,logs,s,t,coms,q,url,x,page,page_offfset,ps)>
 
 <@> アップデート警告
 <@ifcall(v.skel_dir ne 'design/' &&  v.require_update, '_sub/require_update')>
@@ -126,6 +127,7 @@
 
 
 <$ifbreak(##logs==-1)><@> 記事がなければ処理終了
+<@>$HEADER:END$----------------------------------------------------------------
 
 <@><!--========================================================================-->
 <@ifexec(ret.pagemode && (1<page || ret.next_page), begin.page)>
@@ -144,7 +146,8 @@
 <$end>
 <$end.function>
 </nav>
-<$end.page)>
+<$end.page>
+<@>$ARTICLE$-------------------------------------------------------------------
 
 <div id="articles">
 <@forexec(t, logs, begin)>
@@ -176,6 +179,7 @@
 </article>
 <$end>
 </div>
+<@>$ARTICLE:END$---------------------------------------------------------------
 
 
 <@ifexec(page_nav, begin.page)>
@@ -185,6 +189,7 @@
 <$end.page>
 
 
+<@>$FOOTER$--------------------------------------------------------------------
 <@>検索ワードハイライトのための処理。
 <@>直接スクリプト中に展開するとXSSの危険があるためDOMに展開する
 <@ifexec(ret.words, begin)>

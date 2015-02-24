@@ -27,6 +27,7 @@
 -【fix】フィルター記法を{[[&http://adiary.org]]}のように{[[ ]]}中に書けない。
 -【fix】非表示input要素に対する自動リサイズ機能が正しく働いてなかったので、表示後、初めてmouseenterしたときにリサイズ加工をするように修正しました。
 -【fix】Image::Magickが存在しないとき、アルバムの動作がエラーになっていた。
+-【fix】data-target指定時にjQuery XSSの問題があった。[http://subtech.g.hatena.ne.jp/mala/20110624/1308881526:参考]
 -【IE8】デザインモジュールの「Information/リンク集」にて、現在の状況をロードできない「IE8の不具合」に対応しました。
 -【Windows】記事のインポート処理がうまくいかないWindowsの謎の挙動に対応しました。
 -【Base/HTTP.pm】【fix】SSL接続時、Cookieを1つしか受け取れなかった。

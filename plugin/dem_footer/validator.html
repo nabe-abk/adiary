@@ -1,0 +1,20 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	_order=0
+	lf2br  = flag
+	outver = flag
+
+	footer_txt = フッタテキスト
+	footer_txt:filter0     = trim
+	footer_txt:filter1     = file:<@v.allow_tags_head>usertext.txt
+	footer_txt:filter1_opt = <@v.trust_mode>
+<$end>
+
+<$ifbreak(form_error())>
+
+<$ifexec(h.lf2br, begin)>
+	<$replace(h.footer_txt, '[\r\n]', '<br>')>
+<$end>
+
+<$return(h)>

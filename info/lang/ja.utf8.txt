@@ -202,7 +202,7 @@ name is empty=名前を入力してください
 # adiary_3
 ###############################################################################
 Rename failed blog public directory (%s)=ブログ公開ディレクトリのリネームに失敗しました（%s）
-Design edit failed=デザインの保存に失敗しました
+Design save failed : %s=デザインの保存に失敗しました : %s
 
 # album
 File name error : %s=ファイル名が不正です : %s

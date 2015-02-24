@@ -2,17 +2,19 @@
 <@local(s,tp,t)>
 <$s = v.blog>
 <$ifredirect(!v.blog_admin, v.myself)>
-<$v.frame_skeleton=''>
-<@><!--========================================================================-->
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<@call('_sub/frame_head')>
-<script src="<@Basepath><@v.script_dir>design-edit.js"></script>
 
-	<title>デザイン編集 - <@s.blog_name></title>
-<!--========================================================================-->
+<@><!--========================================================================-->
+<@> システムモード
+<$v.system_mode("デザイン編集")>
+
+<$v.regist_js("<@v.script_dir>design-edit.js")>
+<$plain_html_mode = 1>
+
+<$append_header = exec(begin)>
 <style>
+#adiary-body {
+	display:	none;
+}
 * {
 	margin:		0;
 	padding:	0;
@@ -60,8 +62,7 @@ select {
 	left:			0px;
 }
 </style>
-</head>
-<body id="body">
+<$end>
 <!--========================================================================-->
 <$mods = v.load_modules_info()>
 <$mods = sort_str(mods, 'title')>
@@ -129,8 +130,3 @@ select {
 <span id="msg-delete-confirm">「%n」を削除しますか？</span>
 <span id="msg-duplicate-id">「%n」は既に存在します（１つしか追加できません）</span>
 </div>
-
-<@call('_sub/frame_end')>
-
-</body>
-</html>

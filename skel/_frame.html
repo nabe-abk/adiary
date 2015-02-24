@@ -52,10 +52,16 @@
 <script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.js"></script>\n')>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
+<@append_header>
 </head>
 <body id="body" class="<@if(v.blog_admin, 'blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system-mode')><@v.mode_class>">
 <@>bodyにブラウザ別クラスを設定するためのスクリプト呼び出し
 <script>set_browser_class_into_body();</script>
+
+<@ifexec(plain_html_mode, begin.plain_html, begin.plain_html)>
+<@inframe>
+<@ifcall(Develop && (@Error || @Debug || @Warning) || ENV_print, '_sub/debug')>
+<$else.plain_html>
 <div id="adiary-body">
 
 <!--ヘッダ部================================================================-->
@@ -96,31 +102,6 @@
 <!--内容====================================================================-->
 <div class="main">
 
-
-<div id="dropdown-menu" data-move="#page-title" data-move-type="after" data-body-class="exists-dropdown-menu">
-<ul class="clist">
-	<li><a href="xx">孫階層</a></li>
-	<li><a href="x2">子階層てててててててててててててててててて</a>
-	<ul>
-		<li><a href="%c2%b9%a4%ce%bc%ea">新たな記事</a></li>
-		<li><a href="%a4%a6%a4%a7%a4%ec%a3%f1%a3%f7%a3%f2%a3%f1%a4%a6%a4%a7">[adiary official]うぇれ</a></li>
-		<li><a href="vczxv--">あああ</a>
-		<ul>
-			<li><a href="%a5%c6%a5%b9%a5%c8">テスト</a></li>
-			<li><a href="%a4%cf%a4%b7%a4%c1%a4%c8%a4%cf%a4%b7%a4%c1%a4%c8%a4%cf%a4%c1%a4%c8%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7%a4%b7">はしちとはしちとはちとしししししししししし</a></li>
-			<li><a href="%a5%a2%a5%cb%a5%e1">アニメ</a></li>
-		</ul></li>
-	</ul></li>
-	<li><a href="%a4%a2%22">Re: メール投稿の確認</a></li>
-	<li><a href="%a4%e5%a4%a6%a4%b7%a4%b3%a4%bf%a1%a3%a4%ab%a4%b3%a4%a6%a4%ab%24a-~%40%24fas%5c%5c">ふと</a></li>
-	<li><a href="%a4%bd%a4%ce%c2%be">その他</a>
-	<ul>
-		<li><a href="%3f4">fsadfdas</a></li>
-		<li><a href="dddd2">wrqwereqw</a></li>
-		<li><a href="%c2%b92">sdfdsafd</a></li>
-	</ul></li>
-</ul></div>
-
 <@inframe>
 
 <@ifexec(!stop_footer, begin)>
@@ -143,15 +124,15 @@
 <!--End of body ============================================================-->
 </div> <!-- End of #hatena-body -->
 </div> <!-- End of #adiary-body -->
+<$end.plain_html>
 
-<@> adiary.js用のメッセージ（_sub/frame_end.htmlにもコピーすること）
+<@> adiary.js用のメッセージ
 <div style="display: none">
 <span id="ajs-ok">OK</span>
 <span id="ajs-cancel">キャンセル</span>
 <span id="ajs-confirm">確認</span>
 </div>
 
-<@> 変更したら _sub/frame_end.htmlにもコピーすること！
 <script>
 var Vmyself='<@v.myself>';	// = Blogpath
 var Vmyself2='<@v.myself2>';

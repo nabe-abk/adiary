@@ -2,17 +2,19 @@
 <@local(s,tp,t)>
 <$s = v.blog>
 <$ifredirect(!v.blog_admin, v.myself)>
-<$v.frame_skeleton=''>
-<@><!--========================================================================-->
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<@call('_sub/frame_head')>
-<script src="<@Basepath><@v.script_dir>theme-custom.js"></script>
 
-	<title>テーマ選択 - <@s.blog_name></title>
-<!--========================================================================-->
+<@><!--========================================================================-->
+<@> システムモード
+<$v.system_mode("テーマ選択")>
+
+<$v.regist_js("<@v.script_dir>theme-custom.js")>
+<$plain_html_mode = 1>
+
+<$append_header = exec(begin)>
 <style>
+#adiary-body {
+	display:	none;
+}
 * {
 	margin:		0;
 	padding:	0;
@@ -96,8 +98,7 @@ div.iblk {
 	margin-left:		4px;
 }
 </style>
-</head>
-<body id="body">
+<$end>
 <!--========================================================================-->
 <form id="form" action="<@v.myself>?<@v.skeleton>" method="POST">
 <input type="hidden" name="action" value="<@v.skeleton>">
@@ -134,7 +135,6 @@ div.iblk {
 
 <!--========================================================================-->
 
-<@call('_sub/frame_end')>
 <div style="display: none">
 <textarea id="attr-msg">
 bg=背景
@@ -152,6 +152,3 @@ icon=アイコン
 fix=*
 </textarea>
 </div>
-
-</body>
-</html>

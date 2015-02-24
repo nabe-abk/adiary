@@ -28,6 +28,9 @@ skel.local/*
 plugin/*
 !plugin/.htaccess
 !plugin/README.txt
+!plugin/dem_footer
+!plugin/dem_freetext
+!plugin/dem_page-nav
 !plugin/des_artlist
 !plugin/des_broken-clock
 !plugin/des_comlist

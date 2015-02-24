@@ -10,7 +10,8 @@
 $(function(){
 	var iframe = $('#iframe');
 	var module_data_id   = '#design-modules-data';
-	var module_selector  = '*[data-module-name]';
+	var module_selector  = '[data-module-name]';
+	var not_sortable     = ':not([data-fix])';
 	var module_name_attr = 'data-module-name';
 
 	var btn_save = $('#save-btn');
@@ -20,10 +21,12 @@ $(function(){
 	var modules = [];	// 各モジュールを取得し保存
 	var mod_list= [];
 	$(module_data_id + '>' + module_selector).each( function(idx,_obj){
-		var obj = $(_obj);
+		var obj  = $(_obj);
+		var name = obj.data('module-name');
 		obj.detach();
-		modules[ obj.data('module-name') ] = obj;
-		mod_list.push(obj.data('module-name'));
+		if (name.match(/[^\w\-]/)) return;
+		modules[name] = obj;
+		mod_list.push(name);
 	});
 
 //////////////////////////////////////////////////////////////////////////////
@@ -67,9 +70,10 @@ iframe.on('load', function(){
 	// sortable設定
 	side_a.addClass('connectedSortable');
 	side_b.addClass('connectedSortable');
-	side_a.sortable({ items: '>' + module_selector, connectWith: ".connectedSortable" });
-	side_b.sortable({ items: '>' + module_selector, connectWith: ".connectedSortable" });
-	f_main.sortable({ items: '>' + module_selector });
+	var selector = '>' + module_selector + not_sortable;
+	side_a.sortable({ items: selector, connectWith: ".connectedSortable" });
+	side_b.sortable({ items: selector, connectWith: ".connectedSortable" });
+	f_main.sortable({ items: selector + ', #article, #articles' });
 
 	// iframe内のリンク書き換え
 	$f('a').each(function(idx,dom) {
@@ -350,7 +354,22 @@ btn_save.click(function(){
 
 	form_append('side_a_ary', side_a.children(module_selector));
  	form_append('side_b_ary', side_b.children(module_selector));
- 	form.submit();
+
+	var main_a_ary = [];
+	var main_b_ary = [];
+	var x = main_a_ary;
+	var items = f_main.children(module_selector + ', #article');
+	for(var i=0; i<items.length; i++) {
+		var id = $(items[i]).attr('id');
+		if (id == 'article' || id == 'articles') {
+			x = main_b_ary;
+			continue;
+		}
+		x.push(items[i]);
+	}
+	form_append('main_a_ary', $(main_a_ary));
+ 	form_append('main_b_ary', $(main_b_ary));
+	form.submit();
 });
 
 //////////////////////////////////////////////////////////////////////////////

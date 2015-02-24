@@ -714,10 +714,13 @@ sub regist_skeleton {
 # ●スケルトンディレクトリの削除（引数：level）
 #------------------------------------------------------------------------------
 sub delete_skeleton {
-	my $self  = shift;
+	my $self = shift;
+	my @r;
 	foreach(@_) {
+		push(@r, $self->{Sekeleton_dir}->{$_});
 		delete $self->{Sekeleton_dir}->{$_};
 	}
+	return wantarray ? @r : $r[0];
 }
 
 #------------------------------------------------------------------------------

@@ -165,7 +165,7 @@ a.next-page:after {
 article, #article-body {
 	margin-bottom:		1.5em;
 	border-radius:		8px;
-	box-shadow:		8px 8px rgba(0,0,0, 0.3);
+	box-shadow:		4px 4px 4px 4px rgba(0,0,0, 0.3);
 }
 #article {
 	box-shadow:		none;
@@ -337,7 +337,7 @@ div.body h3 {
 	background-color:	#e8e8ff;		/* $c=h3bg */
 
 	border-radius:		0 6px 6px 0;
-	box-shadow:		4px 4px rgba(0,0,0, 0.4);
+	box-shadow:		4px 4px 4px 4px rgba(0,0,0, 0.4);
 }
 div.body h3 span.timestamp {
 	font-size:		100%;
@@ -444,7 +444,7 @@ dt { font-weight:	bold; }
 	border-radius:		8px;
 	border:			2px solid #2133a9;	/* $c=border */
 	background-color:	#f1f1ff;		/* $c=combg */
-	box-shadow:		8px 8px rgba(0,0,0, 0.3);
+	box-shadow:		4px 4px 4px 4px rgba(0,0,0, 0.3);
 }
 #com div.caption a {
 	font-weight:		bold;
@@ -491,7 +491,7 @@ div.ip-host-agent {
 	border:			1px solid #000;
 	background-color:	#ffd;
 	border-radius:		4px;
-	box-shadow:		2px 2px rgba(60,60,20,0.75);
+	box-shadow:		2px 2px 2px 2px rgba(60,60,20,0.75);
 
 	font-size:		10pt;
 	padding:		0.5em;
@@ -812,7 +812,7 @@ article.edit span.tag:after {
 
 	border:			2px solid #2133a9;	/* $c=border */
 	border-radius:		10px;
-	box-shadow:		2px 2px rgba(60,60,20,0.75);
+	box-shadow:		2px 2px 2px 2px rgba(60,60,20,0.75);
 }
 #popup-help:before {
 	content:		"HELP";
@@ -843,7 +843,7 @@ article.edit span.tag:after {
 	background-color:	#eeeeff;		/* $c=sysbg */
 	border:			2px solid #2133a9;	/* $c=border */
 	border-radius:		10px;
-	box-shadow:		5px 5px rgba(60,60,100,0.75);
+	box-shadow:		4px 4px 4px 4px rgba(60,60,100,0.75);
 	padding:		0;
 
 	font-size:		10.5pt;
@@ -905,7 +905,7 @@ article.jqueryui-tabs {
 article.jqueryui-tabs div.body {
 	border-top:		2px solid #2133a9;	/* $c=border */
 	border-radius:		10px;
-	box-shadow:		8px 8px rgba(0,0,0, 0.3);
+	box-shadow:		8px 8px 8px 8px rgba(0,0,0, 0.3);
 }
 .ui-tabs .ui-tabs-nav {
 	padding-left:	1em;

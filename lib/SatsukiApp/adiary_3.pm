@@ -1165,8 +1165,11 @@ sub load_plugin_info {
 	# <@this>の置換
 	$h->{files}  =~ s/<\@this>/$name/g;
 	$h->{events} =~ s/<\@this>/$name/g;
-	$h->{module_html} =~ s/<\@this>/$name/g;
-	$h->{module_html} =~ s/<\@id>/$h->{module_id}/g;
+	foreach(keys(%$h)) {
+		if ($_ !~ /^module\w*_html$/) { next; }
+		$h->{$_} =~ s/<\@this>/$name/g;
+		$h->{$_} =~ s/<\@id>/$h->{module_id}/g;
+	}
 
 	# タグの除去
 	foreach(keys(%$h)) {
@@ -1574,12 +1577,12 @@ sub save_design {
 	my $ROBJ = $self->{ROBJ};
 	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	my $sa = $form->{side_a_ary} || [];
-	my $sb = $form->{side_b_ary} || [];
-	my @side_a = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @$sa;
-	my @side_b = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @$sb;
+	my @side_a = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{side_a_ary} || []};
+	my @side_b = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{side_b_ary} || []};
+	my @main_a = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{main_a_ary} || []};
+	my @main_b = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{main_b_ary} || []};
 
-	my %use_f = map {$_ => 1} (@side_a,@side_b);
+	my %use_f = map {$_ => 1} (@side_a,@side_b,@main_a,@main_b);
 	my $pd = $self->load_plugins_dat();
 	foreach(keys(%$pd)) {	# 現在のinstall状態確認
 		if (index($_,':')>0) { next; }
@@ -1590,35 +1593,137 @@ sub save_design {
 	my ($ret, $fail) = $self->save_use_modules(\%use_f);
 	if ($ret) { return $ret; }	# error
 
-	# HTMLを生成
-	my @html;
-	push(@html, $ROBJ->chain_array( $ROBJ->fread_skeleton('_format/sidebar_header') ));
-	foreach(@side_a) {
-		if ($fail->{$_}) { next; }
-		push(@html, $self->load_module_html($_) . "\n");
-	}
-	push(@html, $ROBJ->chain_array( $ROBJ->fread_skeleton('_format/sidebar_separator') ));
-	foreach(@side_b) {
-		if ($fail->{$_}) { next; }
-		push(@html, $self->load_module_html($_) . "\n");
-	}
-	push(@html, $ROBJ->chain_array( $ROBJ->fread_skeleton('_format/sidebar_footer') ));
-
-	# そのブログ専用のスケルトンとして保存
+	# そのブログ専用のスケルトンとして保存する準備
 	my $dir = $self->{blog_dir} . 'skel/';
 	$ROBJ->mkdir($dir);
-	my $r = $ROBJ->fwrite_lines($dir . '_sidebar.html', \@html);
-	if ($r) {
-		$ROBJ->message('Design edit failed');
+	my $ret = 0;
+
+	#-------------------------------------------------------------------
+	# _sidebar.html を生成
+	#-------------------------------------------------------------------
+	{
+		my $file = '_sidebar';
+		my $h = $self->parse_original_skeleton($file);
+		my @html;
+		push(@html, @{$h->{HEADER} || []});
+		foreach(@side_a) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{SEPARATOR} || []});
+		foreach(@side_b) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{FOOTER} || []});
+
+		my $r = $ROBJ->fwrite_lines("$dir$file.html", \@html);
+		if ($r) {
+			$ret++;
+			$ROBJ->message('Design save failed : %s', "$file.html");
+		}
 	}
-	# デザイン情報を保管（再構築時）
+
+	#-------------------------------------------------------------------
+	# _article.html を生成
+	#-------------------------------------------------------------------
+	if (! $form->{sidebar_only}) {
+		my $file = '_article';
+		my $h = $self->parse_original_skeleton($file);
+
+		my @html;
+		push(@html, @{$h->{HEADER} || []});
+		foreach(@main_a) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{ARTICLE} || []});
+		foreach(@main_b) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{FOOTER} || []});
+
+		my $r = $ROBJ->fwrite_lines("$dir$file.html", \@html);
+		if ($r) {
+			$ret++;
+			$ROBJ->message('Design save failed : %s', "$file.html");
+		}
+	}
+
+	#-------------------------------------------------------------------
+	# _main.html を生成
+	#-------------------------------------------------------------------
+	if (! $form->{sidebar_only}) {
+		my $file = '_main';
+		my $h = $self->parse_original_skeleton($file);
+
+		my @html;
+		push(@html, @{$h->{HEADER} || []});
+		foreach(@main_a) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{ARTICLE} || []});
+		foreach(@main_b) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{FOOTER} || []});
+
+		my $r = $ROBJ->fwrite_lines("$dir$file.html", \@html);
+		if ($r) {
+			$ret++;
+			$ROBJ->message('Design save failed : %s', "$file.html");
+		}
+	}
+	
+	#-------------------------------------------------------------------
+	# デザイン情報を保管（再構築時用）
+	#-------------------------------------------------------------------
 	$self->update_design_info({
 		side_a => join("\n", @side_a),
 		side_b => join("\n", @side_b),
+		main_a => join("\n", @main_a),
+		main_b => join("\n", @main_b),
 		side_info => 1
 	});
 
-	return $r;
+	return $ret;
+}
+#------------------------------------------------------------------------------
+# ●オリジナルデザインのパース
+#------------------------------------------------------------------------------
+sub parse_original_skeleton {
+	my $self = shift;
+	my $name = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	# ユーザーレベルスケルトンの無効化して読み込む
+	my $dir   = $ROBJ->delete_skeleton($self->{user_skeleton_level});
+	my $lines = $ROBJ->fread_skeleton( $name );
+	if ($dir ne '') {
+		 $ROBJ->regist_skeleton($dir, $self->{user_skeleton_level});
+	}
+
+	# セパレーター探し
+	my %h;
+	my %in;
+	foreach(@$lines) {
+		if ($_ =~ /^<\@>\$(\w+)\$/) {
+			$in{$1} = 1;
+			$h{$1} = [];
+			next;
+		}
+		if ($_ =~ /^<\@>\$(\w+):END\$/i) {
+			delete $in{$1};
+			next;
+		}
+		foreach my $k (keys(%in)) {
+			push(@{ $h{$k} }, $_);
+		}
+	}
+	return \%h;
 }
 
 #------------------------------------------------------------------------------
@@ -1627,13 +1732,15 @@ sub save_design {
 sub load_module_html {
 	my $self = shift;
 	my $name = shift;
+	my $target = shift;
 	my $ROBJ = $self->{ROBJ};
 
 	# generatorの有無はファイルの存在で確認
 	my $n = $self->plugin_name_check( $name );
 	my $pm = $ROBJ->get_filepath( "$self->{plugin_dir}$n/html_generator.pm" );
 	if (! -r $pm) {
-		return ($self->load_plugin_info($name) || {})->{module_html};
+		my $h = $self->load_plugin_info($name) || {};
+		return $h->{"module${target}_html"} || $h->{"module_html"};
 	}
 
 	my $func = $self->load_plugin_function( $pm, $pm );
@@ -1643,7 +1750,7 @@ sub load_module_html {
 
 	my $ret;
 	eval {
-		$ret = &$func($self, $name);
+		$ret = &$func($self, $name, $target);
 	};
 	if ($@ || !defined $ret) {
 		$ROBJ->error("[plugin:%s] Module's html generate failed : %s", $name, $@);
@@ -1701,6 +1808,8 @@ sub reset_design {
 
 	# 生成スケルトンを消す
 	$ROBJ->file_delete($self->{blog_dir} . 'skel/_sidebar.html');
+	$ROBJ->file_delete($self->{blog_dir} . 'skel/_article.html');
+	$ROBJ->file_delete($self->{blog_dir} . 'skel/_main.html');
 
 	# 個別の設定もすべて消す
 	if ($all) {

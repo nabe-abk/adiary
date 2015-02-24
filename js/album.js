@@ -650,6 +650,11 @@ function open_folder(node, isReloading) {
   		data: {	folder: node.data.key },
 		action: 'load_image_files',
 		success: function(data) {
+			// 数値→文字列（数字だけのファイル名対策）
+			for(var i in data) {
+				if (typeof(data[i].name) == "string") continue;
+				data[i].name = data[i].name.toString();
+			}
 			// データsave
 			cur_files = data;
 			set_current_folder(node);

@@ -1,3 +1,4 @@
+<@>$HEADER$--------------------------------------------------------------------
 <@6>
 <@local(s,ps)>
 <$s=v.blog>
@@ -38,6 +39,7 @@
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
 <$end>
+<@>$HEADER:END$----------------------------------------------------------------
 
 <@ifexec(v.blogid, begin)>
 <!--Information=========================================-->
@@ -52,9 +54,11 @@
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
 <$end>
+<@>$SEPARATOR$----------------------------------------------------------------
 </div> <!-- End of side-a -->
 
 <div id="side-b">
+<@>$SEPARATOR:END$------------------------------------------------------------
 <@ifexec(v.blogid, begin)>
 <!--検索====================================================-->
 <div class="hatena-module" id="side-search" data-module-name="des_searchbox">
@@ -87,6 +91,6 @@ HTTP Status: <@Status><br>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
 
-</div> <!-- End of side-a -->
-<div id="side-b"></div>
+<@>$FOOTER$--------------------------------------------------------------------
+</div> <!-- End of side-b -->
 </aside> <!-- End of sidebar -->

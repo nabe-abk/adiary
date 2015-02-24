@@ -1,5 +1,6 @@
+<@>$HEADER$--------------------------------------------------------------------
 <@6>
-<@local(ret,s,t,t2,c,permalink,x,node)>
+<@local(ret,s,t,t2,c,permalink,x,node,ps)>
 <$s = v.blog>
 
 <@> アップデート警告
@@ -33,6 +34,7 @@
 
 <@>ソーシャルボタンの準備
 <$call('_sub/social_buttons')>
+<@>$HEADER:END$----------------------------------------------------------------
 
 <@><!--========================================================================-->
 <$node = if(t.ctype, v.load_content_node(t.pkey), v.load_art_node(t.pkey))>
@@ -50,7 +52,9 @@
 <$end>
 <$end.function>
 </nav>
-<$end.page)>
+<$end.page>
+<@>$ARTICLE$-------------------------------------------------------------------
+
 <!--========================================================================-->
 <$permalink = if(t.link_key eq s.frontpage, v.myself, "<@v.myself2><@t.elink_key>")>
 <$url=v.server_url . permalink>
@@ -184,6 +188,7 @@
 </aside> <!-- comment -->
 <$end>
 </article>
+<@>$ARTICLE:END$---------------------------------------------------------------
 
 
 <@ifexec(page_nav, begin.page)>
@@ -192,4 +197,5 @@
 </nav>
 <$end.page>
 
+<@>$FOOTER$--------------------------------------------------------------------
 <@exec(social_script_func)>

@@ -22,7 +22,7 @@
 	<ul>
 		<li><strong>すべてのタグが利用可能です。</strong></li>
 	<$else>
-		<p>タグ制限をなくしたい場合は、adiary.conf.cgi で trust_mode を設定してください。</p>
+		<p>タグ制限をなくしたい場合は、adiary.conf.cgi で &lt;$v.<@if(Auth.isadmin, 'admin_')>trust_mode=1&gt; を設定してください。</p>
 		<$tags = tag.load_allowtags()>
 		<table>
 		<thead>

@@ -57,8 +57,8 @@ cp -Rp $CPFLAGS skel pub-dist info js lib theme $RELEASE/
 cp -Rp $CPFLAGS $BASE $RELEASE/
 
 # プラグイン
-mkdir $RELEASE/plugin
-cp -Rp $CPFLAGS $PLUGINS $RELEASE/plugin/
+cp -Rp $CPFLAGS plugin $RELEASE/
+rm -rf $RELEASE/plugin/\@*
 
 #-----------------------------------------------------------
 # 個別ディレクトリの生成

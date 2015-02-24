@@ -172,6 +172,30 @@ $.fn.findx = function(sel){
 	return $(r);
 };
 
+//////////////////////////////////////////////////////////////////////////////
+//●[jQuery] find でのエラーを無視する
+//////////////////////////////////////////////////////////////////////////////
+function myfind(sel) {
+	try {
+		return $(document).find(sel);
+	} catch(e) {
+		console.log(e);
+	}
+	return $('#--not-found-');
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//●[jQuery] $() でXSS対策
+//////////////////////////////////////////////////////////////////////////////
+{
+	var init_orig = $.fn.init;
+	$.fn.init = function(sel,cont) {
+		if (typeof sel === "string" && sel.match(/<[\s\"\']on\w*\s*=/i))
+			throw 'Security error by adiary.js : ' + sel;
+		return  new init_orig(sel,cont);
+	};
+}
+
 //############################################################################
 //■初期化処理
 //############################################################################
@@ -315,7 +339,7 @@ initfunc.push( function(R){
   R.findx('input.js-checked').click( function(evt){
 	var obj = $(evt.target);
 	var target = obj.data( 'target' );
-	$(target).prop("checked", obj.is(":checked"));
+	myfind(target).prop("checked", obj.is(":checked"));
   })
 });
 
@@ -326,7 +350,7 @@ initfunc.push( function(R){
 	var objs = R.findx('input.js-disabled');
 	function btn_evt(evt) {
 		var btn = $(evt.target);
-		var form =$(btn.data('target'));
+		var form =myfind( btn.data('target') );
 		var flag = (btn.data('change') == '1');
 
 		// チェックボックスが外されている状態なら条件反転
@@ -364,7 +388,7 @@ initfunc.push( function(R){
 	var target = form.data('target');	// 配列
 	var c = false;
 	if (target) {
-		c = $( target + ":checked" ).length;
+		c = myfind( target + ":checked" ).length;
 		if (!c) return false;	// ひとつもチェックされてない
 	}
 
@@ -405,8 +429,8 @@ initfunc.push( function(R){
 			if (!btn) return;
 			id = btn.data('target');
 		}
-		var target = $(id);
-		if (!target.length) return false;
+		var target = myfind(id);
+		if (!target.length || !target.is) return false;
 		var speed  = btn.data('switch-speed');
 		speed = (speed === undefined) ? default_show_speed : parseInt(speed);
 		speed = init ? 0 : speed;
@@ -748,7 +772,7 @@ initfunc.push( function(R){
 	R.findx('[data-move]').each(function(idx,dom) {
 		var obj = $(dom);
 		obj.detach();
-		var target = $(obj.data('move'));
+		var target = myfind(obj.data('move'));
 		var type   = obj.data('move-type');
 		     if (type == 'prepend') target.prepend(obj);
 		else if (type == 'append')  target.append (obj);
@@ -1036,7 +1060,7 @@ function css_fix(css_text, width) {
 //////////////////////////////////////////////////////////////////////////////
 function $secure(id) {
 	if (id.substr(0,1) != '#') { return ; }
-	var obj = $('[id="' + id.substr(1) + '"]');
+	var obj = myfind('[id="' + id.substr(1) + '"]');
 	if (obj.length >1) {
 		show_error('Security Error!<p>id="' + id + '" is duplicate.</p>');
 		return $('#--not-found--');	// 2つ以上発見された
@@ -1280,7 +1304,7 @@ function adiary_session(_btn, opt){
   $(_btn).click( function(evt){
 	var btn = $(evt.target);
 	var myself = opt.myself || Vmyself;
-	var log = $(opt.log || btn.data('log-target') || '#session-log');
+	var log = myfind(opt.log || btn.data('log-target') || '#session-log');
 
 	var load_session = myself + '?etc/load_session';
 	var interval = opt.interval || log.data('interval') || 300;

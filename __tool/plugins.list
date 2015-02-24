@@ -14,7 +14,3 @@ plugin/des_taglist
 plugin/des_twitter
 plugin/notify_mail
 plugin/des_memo
-
-#plugin/des_pagescroll
-#plugin/des_reverse-articles
-#plugin/des_scroll-comment
