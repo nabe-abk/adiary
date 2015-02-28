@@ -165,6 +165,7 @@ $.fn.findx = function(sel){
 	sel = '-f-' + sel;
 	for(var i=0; i<x.length; i++) {
 		var obj = $(x[i]);
+		if (obj.parents('.js-hook-stop').length || obj.hasClass('js-hook-stop')) continue;
 		if (obj.data(sel)) continue;
 		obj.data(sel, true);
 		r.push(x[i]);
@@ -201,7 +202,6 @@ function myfind(sel) {
 //############################################################################
 var initfunc = [];
 function adiary_init(R) {
-	if (R.parents('.js-hook-stop').length || R.hasClass('js-hook-stop')) return;
 	for(var i=0; i<initfunc.length; i++)
 		initfunc[i](R);
 }

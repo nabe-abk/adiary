@@ -20,7 +20,8 @@ $(function(){
 
 	var modules = [];	// 各モジュールを取得し保存
 	var mod_list= [];
-	$(module_data_id + '>' + module_selector).each( function(idx,_obj){
+	var data = $secure(module_data_id);
+	data.children(module_selector).each( function(idx,_obj){
 		var obj  = $(_obj);
 		var name = obj.data('module-name');
 		obj.detach();
@@ -121,16 +122,17 @@ $('#add-module').change(function(evt){
 
 	var mod = modules[ name ];
 	if (! mod.length) return;
+	var obj = mod.children().clone(true);
+	obj.data('module-name', name);
+	obj.attr('data-module-name', name);
 
-	var id = mod.data('id');
+	var id = obj.attr('id');
 	if (id != '' && $f('#' + id).length) {	// 同じidが既に存在する、↓同じモジュール名が存在する
 		show_error( '#msg-duplicate-id', {
-			n: mod.attr('title')
+			n: mod.attr('title') || name
 		});
 		return false;
 	}
-	var obj = mod.clone(true);
-	if (id) obj.attr('id', id);
 
 	// data-id to id
 	obj.find('*[data-id]').each(function(){
@@ -150,6 +152,7 @@ $('#add-module').change(function(evt){
 		obj.attr('data-module-name', name2);	// 必須
 		name = name2;
 	}
+
 	// type?
 	var type = mod_type.val();
 	var place = side_a;

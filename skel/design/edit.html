@@ -5,7 +5,7 @@
 
 <@><!--========================================================================-->
 <@> システムモード
-<$v.system_mode("デザイン編集")>
+<$v.special_system_mode("デザイン編集")>
 
 <$v.regist_js("<@v.script_dir>design-edit.js")>
 <$plain_html_mode = 1>
@@ -84,16 +84,14 @@ select {
 <iframe id="iframe" src="<@v.myself>?<@v.skel_dir>art_sample"></iframe>
 
 <!-- デザインモジュールの情報 =============================================-->
-<div class="js-hook-stop">
-<div id="design-modules-data" style="display: none">
+<div class="js-hook-stop" id="design-modules-data" style="display: none">
 <@forexec(t, mods, begin)>
 <$ifnext(t.adiary_version > v.VERSION)> <@>  対応Versionチェック
-<div class="<@t.module_class>" title="<@t.title>"
+<div title="<@t.title>"
  data-module-name="<@t.name>"
  data-type="<@t.module_type>"
- data-id="<@t.module_id>"
  data-setting="<@t.module_setting>"
- data-load-module-html="<@t.load_module_html_in_edit>"
+<@> for debug ::: data-load-module-html="<@t.load_module_html_in_edit>"
  data-readme="<@if(t.readme,1)>"
  data-readme-url="<@Myself>?set2/plugin_readme&amp;name=<@t.name>"
  data-readme-title="<@t.name>のREADME"

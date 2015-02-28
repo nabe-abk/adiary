@@ -5,7 +5,6 @@ sub {
 	my $self = shift;
 	my $name = shift;
 	my $set  = $self->load_plgset($name);
-	my $id   = $self->load_plugin_info($name)->{module_id};
 
 #-----------------------------------------------------------------------------
 # モジュールのデータ
@@ -16,7 +15,7 @@ sub {
 
 	$modules{_header} = <<HTML;
 <!--Information=========================================-->
-<div class="hatena-module" id="$id" data-module-name="$name">
+<div class="hatena-module" id="side-information" data-module-name="$name">
 <div class="hatena-moduletitle$hidden">$title</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">

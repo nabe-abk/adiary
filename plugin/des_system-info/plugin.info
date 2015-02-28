@@ -7,14 +7,11 @@ author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-# 対応するadiary Version
-adiary_version=2.90
-
+adiary_version=2.94
 module_type=sidebar
-module_class=hatena-module
-module_id=side-system-info
 
 *sample_html=<<HTML
+<div class="hatena-module" id="side-system-info">
 <div class="hatena-moduletitle">System info</div>
 <div class="hatena-modulebody">
 Total time : 99.9 ms<br>
@@ -22,10 +19,11 @@ DB time : 9.9 ms<br>
 Runtime : CGI-Perl<br>
 RDBMS : Text-DB<br>
 </div> <!-- hatena-modulebody -->
+</div> <!-- hatena-module -->
 HTML
 
 *module_html=<<HTML
-<div class="hatena-module" id="<@id>" data-module-name="<@this>">
+<div class="hatena-module" id="side-system-info" data-module-name="<@this>">
 <div class="hatena-moduletitle">System info</div>
 <div class="hatena-modulebody">
 <@ifexec(Timer, begin)>

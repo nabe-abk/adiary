@@ -58,10 +58,10 @@
 <@>bodyにブラウザ別クラスを設定するためのスクリプト呼び出し
 <script>set_browser_class_into_body();</script>
 
-<@ifexec(plain_html_mode, begin.plain_html, begin.plain_html)>
+<@ifexec(v.special_system_mode, begin.sp_sysmode, begin.sp_sysmode)>
 <@inframe>
 <@ifcall(Develop && (@Error || @Debug || @Warning) || ENV_print, '_sub/debug')>
-<$else.plain_html>
+<$else.sp_sysmode>
 <div id="adiary-body">
 
 <!--ヘッダ部================================================================-->
@@ -124,7 +124,7 @@
 <!--End of body ============================================================-->
 </div> <!-- End of #hatena-body -->
 </div> <!-- End of #adiary-body -->
-<$end.plain_html>
+<$end.sp_sysmode>
 
 <@> adiary.js用のメッセージ
 <div style="display: none">

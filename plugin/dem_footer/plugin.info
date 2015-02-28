@@ -9,13 +9,11 @@ license=WTFPL
 
 adiary_version=2.94
 module_type=main
-module_id=footer
-module_setting=1
 
 load_module_html_in_edit=1
 
 *sample_html=<<HTML
-<footer id="footer" data-module-name="dem_footer"><!--フッタ-->
+<footer id="footer" data-fix="1"><!--フッタ-->
 <span class="adiary"><a href="http://adiary.org/">adiary</a> Version 3.00</span>
 </footer>
 HTML
@@ -24,7 +22,7 @@ HTML
 *module_html=<<HTML
 <$ps = v.load_plgset('<@this>')>
 <$stop_footer = 1>
-<footer id="footer" data-module-name="dem_footer" data-fix="1"><!--フッタ-->
+<footer id="footer" data-module-name="<@this>" data-fix="1"><!--フッタ-->
 <@ps.footer_txt>
 <@ifexec(ps.outver, begin)>
 <div class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></div>

@@ -7,15 +7,12 @@ author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-# 対応するadiary Version
-adiary_version=2.90
-
+adiary_version=2.94
 module_type=sidebar
-module_class=hatena-module side-contents-list
-
 load_module_html_in_edit=1
 
 *sample_html=<<HTML
+<div class="hatena-module side-contents-list">
 <div class="hatena-moduletitle">コンテンツ</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">
@@ -32,6 +29,7 @@ load_module_html_in_edit=1
 	<li><a href="#">cgi</a> <span class="qt">(<span>12</span>)</span></li>
 	<li><a href="#">ネット</a> <span class="qt">(<span>24</span>)</span></li>
 </ul>
+</div>
 </div>
 HTML
 

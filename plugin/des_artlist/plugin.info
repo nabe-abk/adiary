@@ -7,16 +7,12 @@ author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-# 対応するadiary Version
-adiary_version=2.90
-
+adiary_version=2.94
 module_type=sidebar
-module_class=hatena-module
-module_id=side-recent-article
-
 load_module_html_in_edit=1
 
 *sample_html=<<HTML
+<div class="hatena-module" id="side-recent-article">
 <div class="hatena-moduletitle">最近の記事</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">
@@ -27,12 +23,13 @@ load_module_html_in_edit=1
 	<li><a href="#">記事のタイトルその5</a></li>
 </ul>
 </div>
+</div>
 HTML
 
 
 *module_html=<<HTML
 <!--最近の記事=======================================-->
-<div class="hatena-module" id="<@id>" data-module-name="<@this>">
+<div class="hatena-module" id="side-recent-article" data-module-name="<@this>">
 <div class="hatena-moduletitle">最近の記事</div>
 <div class="hatena-modulebody">
 <@v.load_plgset('<@this>', 'html')>

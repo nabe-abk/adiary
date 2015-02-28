@@ -1165,10 +1165,10 @@ sub load_plugin_info {
 	# <@this>の置換
 	$h->{files}  =~ s/<\@this>/$name/g;
 	$h->{events} =~ s/<\@this>/$name/g;
+	$h->{sample_html} =~ s/<\@this>/$name/g;
 	foreach(keys(%$h)) {
 		if ($_ !~ /^module\w*_html$/) { next; }
 		$h->{$_} =~ s/<\@this>/$name/g;
-		$h->{$_} =~ s/<\@id>/$h->{module_id}/g;
 	}
 
 	# タグの除去
@@ -1181,11 +1181,6 @@ sub load_plugin_info {
 	$h->{module_setting} = -r "$dir$n/setting.html";
 	# モジュールジェネレーター
 	$h->{module_html_generator} = -r "$dir$n/html_generator.pm";
-
-	# 多重インストールモジュール？
-	if ($h->{module_type} && $h->{module_id} eq '') {
-		$h->{multiple} = 1;
-	}
 
 	# キャッシュ
 	$cache->{"$dir$name"} = $h;
@@ -1222,13 +1217,9 @@ sub save_use_plugins {
 			my $n = $self->plugin_name_check( $_ );
 			if (!$n || !$pl{$n}) { next; }
 			if ($n eq $_) {
-				if ($pl{$n}->{multiple}) { next; }
 				push(@$ary, $pl{$_});
 				next;
 			}
-
-			# 複数インストールを許可しているか？
-			if (! $pl{$n}->{multiple}) { next; }
 
 			# エイリアスを保存
 			my %h = %{ $pl{$n} };
@@ -1275,7 +1266,7 @@ sub save_use_plugins {
 		}
 
 		# 多重インストール処理
-		if ($_->{multiple} && $cname ne $name) {
+		if ($cname ne $name) {
 			if ($inst) {
 				# install
 				if ($fail{$cname}) { $fail{$name}=1; next; }
@@ -1417,9 +1408,7 @@ sub plugin_install {
 	$pd->{$name} = 1;
 	$pd->{"$name:version"} = $plugin->{version};
 	$pd->{"$name:files"}   = join("\n", @copy_files);
-	if (!$plugin->{multiple}) {
-		$pd->{"$name:events"}  = $plugin->{events};
-	}
+	$pd->{"$name:events"}  = $plugin->{events};
 
 	return 0;
 }
@@ -1815,7 +1804,7 @@ sub reset_design {
 	if ($all) {
 		my $blog = $self->{blog};
 		foreach(keys(%$blog)) {
-			if (substr($_,0,6) ne 'p:des_') { next; }
+			if ($_ !~ /p:de\w_/) { next; }
 			delete $blog->{$_};
 		}
 		$self->update_blogset($blog);
