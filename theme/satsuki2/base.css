@@ -504,7 +504,6 @@ div.module-edit-header {
 	float:			right;
 	text-align:		right;
 }
-
 div.dem-module {
 	margin-top:		0.5em;
 	margin-bottom:		0.5em;
@@ -541,105 +540,105 @@ h3.ui-accordion-header {
 /*--------------------------------------------------------------------
 ●プルダウンメニュー（旧:コンテンツバー）
 ---------------------------------------------------------------------*/
-#dropdown-menu {
+.dropdown-menu {
 	height:		24px;	/* X=24 */
 }
-ul.clist li,
-ul.clist li:hover>ul>li {
+.dropdown-menu>ul li,
+.dropdown-menu>ul li:hover>ul>li {
 	height:		22px;	/* =X-2 */
 }
-ul.clist li a {
+.dropdown-menu>ul li a {
 	padding-top:	1px;
 	height:		21px;	/* =X-4-1 */
 	width:		100%;
 }
-ul.clist ul ul {
+.dropdown-menu>ul ul ul {
 	top:		-21px;	/* =-(X-3) */
 }
 /* 項目の幅の設定 */
-ul.clist>li {
+.dropdown-menu>ul>li {
 	width:		108px;	/* 実際の幅-2 */
 }
-ul.clist>li>ul>li {
+.dropdown-menu>ul>li>ul>li {
 	width:		180%;
 }
 /* 非選択色 */
-#dropdown-menu, ul.clist li {
+.dropdown-menu, .dropdown-menu>ul li {
 	background-color:	#ccccff;
 }
 /* 選択色 */
-ul.clist li:hover {
+.dropdown-menu>ul li:hover {
 	background-color:	#f0f8ff;
 }
 /* 枠線 */
-ul.clist li {
+.dropdown-menu>ul li {
 	border-color:		#933;
 }
 /**************************************************/
 /* プルダウンメニュー、ギミック部（通常変更不要） */
 /**************************************************/
-#dropdown-menu {
+.dropdown-menu {
 	position:	relative;
 	width:		100%;
-	z-index:	990;
+	z-index:	10;
 	font-size:	90%;
 	font-weight:	bold;
 }
-ul.clist, ul.clist * {	/* 全称セレクタ */
+.dropdown-menu>ul, .dropdown-menu>ul * {	/* 全称セレクタ */
 	margin:		0px;
 	padding:	0px;
 	list-style:	none;
 }
-ul.clist li {
+.dropdown-menu>ul li {
 	border-width:	1px;
 	border-style:	solid;
 	vertical-align:	top;
 	text-align:	center;
 }
-ul.clist a {
+.dropdown-menu>ul a {
 	display:	block;
 	text-decoration: none;
 	overflow:	hidden;
 }
 /* 表示位置調整 */
-ul.clist>li {
+.dropdown-menu>ul>li {
 	float:		left;
 }
-ul.clist li ul {
+.dropdown-menu>ul li ul {
 	position:	relative;
 }
-ul.clist>li>ul {
+.dropdown-menu>ul>li>ul {
 	margin-left:	-1px;
 }
-ul.clist>li ul>li {
+.dropdown-menu>ul>li ul>li {
 	margin-top:	-1px;
 }
-ul.clist>li ul>li:first-child {
+.dropdown-menu>ul>li ul>li:first-child {
 	margin-top:	0;
 }
-ul.clist>li:last-child ul{
+.dropdown-menu>ul>li:last-child ul{
 	left: -80%;
 	width: 100%
 }
 /* ３階層目 */
-ul.clist ul ul {
+.dropdown-menu>ul ul ul {
 	float:		left;
 	left:		100%;
 	margin-top:	-2px;
 	margin-left:	1px;
 }
 /* on/off する細工 */
-ul.clist li {
+.dropdown-menu>ul li {
  	overflow:	hidden;
 }
-ul.clist li:hover {
+.dropdown-menu>ul li:hover {
 	overflow:	visible;
 }
 /* アニメーションのための細工 */
-ul.clist>li>ul li  {
+.dropdown-menu>ul>li>ul li  {
 	height:		0px;
 }
-ul.clist li {
+.dropdown-menu>ul li {
 	transition:	 0.2s;
 }
 

@@ -190,7 +190,7 @@ function myfind(sel) {
 {
 	var init_orig = $.fn.init;
 	$.fn.init = function(sel,cont) {
-		if (typeof sel === "string" && sel.match(/<[\s\"\']on\w*\s*=/i))
+		if (typeof sel === "string" && sel.match(/<[\W]on\w+\s*=/i))
 			throw 'Security error by adiary.js : ' + sel;
 		return  new init_orig(sel,cont);
 	};
@@ -201,6 +201,7 @@ function myfind(sel) {
 //############################################################################
 var initfunc = [];
 function adiary_init(R) {
+	if (R.parents('.js-hook-stop').length || R.hasClass('js-hook-stop')) return;
 	for(var i=0; i<initfunc.length; i++)
 		initfunc[i](R);
 }

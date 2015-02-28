@@ -200,7 +200,7 @@ function init_module(obj) {
 		});
 		info.data('title', obj.data('readme-title'));
 		info.data('class', 'pre');
-		div.append(info);
+			div.append(info);
 	}
 
 	if (obj.data('setting')) {
