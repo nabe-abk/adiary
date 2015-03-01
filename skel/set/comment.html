@@ -32,9 +32,9 @@
 	<tbody>
 	<tr><th>コメント許可対象</th>
 		<td>
-		<input type="radio" class="js-disabled" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="*"<@if(s.allow_com_users eq '*', ' checked')>><label>誰でも</label>&nbsp;
-		<input type="radio" class="js-disabled" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="user*"<@if(s.allow_com_users eq 'user*', ' checked')>><label>ユーザーのみ</label><span class="help" data-help="ログインできる人のみに限定します">?</span>&nbsp;
-		<input type="radio" class="js-disabled" data-change="0" data-target="#allow-com-users" name="allow_com_sel" value=""<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', ' checked')>><label>ID指定（「,」区切り）</label><br>
+		<input type="radio" class="js-enable" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="*"<@if(s.allow_com_users eq '*', ' checked')>><label>誰でも</label>&nbsp;
+		<input type="radio" class="js-enable" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="user*"<@if(s.allow_com_users eq 'user*', ' checked')>><label>ユーザーのみ</label><span class="help" data-help="ログインできる人のみに限定します">?</span>&nbsp;
+		<input type="radio" class="js-enable" data-change="0" data-target="#allow-com-users" name="allow_com_sel" value=""<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', ' checked')>><label>ID指定（「,」区切り）</label><br>
 		<input type="text" name="allow_com_users" id="allow-com-users" size="54" class="w320"  value="<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', s.allow_com_users)>">
 		</td>
 	</tr>

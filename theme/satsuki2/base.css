@@ -202,7 +202,12 @@ select option.special {
 	font-weight:		bold;
 	color:			#800;
 }
-
+/* readonly */
+input[readonly],
+select[readonly],
+textarea[readonly] {
+	background-color:	#ddd;
+}
 
 /*--------------------------------------------------------------------
 ●編集画面
@@ -496,7 +501,7 @@ figure {
 .design-module-edit:hover {
 	background-color:	#faa;
 }
-div.module-edit-header {
+.module-edit-header {
 	position:		absolute;
 	top:			0px;
 	right:			0px;
@@ -504,7 +509,7 @@ div.module-edit-header {
 	float:			right;
 	text-align:		right;
 }
-div.dem-module {
+.dem-module {
 	margin-top:		0.5em;
 	margin-bottom:		0.5em;
 }
@@ -538,50 +543,15 @@ h3.ui-accordion-header {
 }
 
 /*--------------------------------------------------------------------
-●プルダウンメニュー（旧:コンテンツバー）
+●ドロップダウンメニュー（旧:コンテンツバー）
 ---------------------------------------------------------------------*/
-.dropdown-menu {
-	height:		24px;	/* X=24 */
-}
-.dropdown-menu>ul li,
-.dropdown-menu>ul li:hover>ul>li {
-	height:		22px;	/* =X-2 */
-}
-.dropdown-menu>ul li a {
-	padding-top:	1px;
-	height:		21px;	/* =X-4-1 */
-	width:		100%;
-}
-.dropdown-menu>ul ul ul {
-	top:		-21px;	/* =-(X-3) */
-}
-/* 項目の幅の設定 */
-.dropdown-menu>ul>li {
-	width:		108px;	/* 実際の幅-2 */
-}
-.dropdown-menu>ul>li>ul>li {
-	width:		180%;
-}
-/* 非選択色 */
-.dropdown-menu, .dropdown-menu>ul li {
-	background-color:	#ccccff;
-}
-/* 選択色 */
-.dropdown-menu>ul li:hover {
-	background-color:	#f0f8ff;
-}
-/* 枠線 */
-.dropdown-menu>ul li {
-	border-color:		#933;
-}
 /**************************************************/
 /* プルダウンメニュー、ギミック部（通常変更不要） */
 /**************************************************/
 .dropdown-menu {
 	position:	relative;
 	width:		100%;
-	z-index:	10;
-	font-size:	90%;
+	z-index:	990;
 	font-weight:	bold;
 }
 .dropdown-menu>ul, .dropdown-menu>ul * {	/* 全称セレクタ */
@@ -589,16 +559,24 @@ h3.ui-accordion-header {
 	padding:	0px;
 	list-style:	none;
 }
+.dropdown-menu>ul {
+	margin:		0px auto;
+}
 .dropdown-menu>ul li {
 	border-width:	1px;
 	border-style:	solid;
-	vertical-align:	top;
-	text-align:	center;
 }
 .dropdown-menu>ul a {
 	display:	block;
 	text-decoration: none;
 	overflow:	hidden;
+}
+/* 項目文字列を上下中央揃えする細工 */
+.dropdown-menu>ul a:before {
+	content:	"";
+	display:	inline-block;
+	height:		100%;
+	vertical-align:	middle;
 }
 /* 表示位置調整 */
 .dropdown-menu>ul>li {
@@ -616,13 +594,8 @@ h3.ui-accordion-header {
 .dropdown-menu>ul>li ul>li:first-child {
 	margin-top:	0;
 }
-.dropdown-menu>ul>li:last-child ul{
-	left: -80%;
-	width: 100%
-}
 /* ３階層目 */
 .dropdown-menu>ul ul ul {
-	float:		left;
 	left:		100%;
 	margin-top:	-2px;
 	margin-left:	1px;
@@ -639,8 +612,94 @@ h3.ui-accordion-header {
 	height:		0px;
 }
 .dropdown-menu>ul li {
-	transition:	 0.2s;
+	transition:	0.3s;
 }
+
+/* 階層リンクの矢印 */
+.dropdown-menu li ul li ul:before {
+	position:	absolute;
+	content:	"";
+	left:		-14px;
+	border:		5px solid transparent;
+}
+.dropdown-menu li:last-child ul li ul:before {
+	left:		200%;
+	margin-left:	-14px;
+}
+
+/**************************************************/
+/* プルダウンメニュー、カスタマイズ領域           */
+/**************************************************/
+.dropdown-menu {
+	font-size:	11pt;
+	height:		30px;	/* X */
+}
+.dropdown-menu>ul>li,
+.dropdown-menu>ul li:hover>ul>li {
+	height:		28px;	/* = X-2 */
+}
+.dropdown-menu>ul li a {
+	padding-top:	1px;
+	height:		27px;	/* = X-3 */
+	width:		100%;
+}
+.dropdown-menu>ul ul ul {
+	top:		-27px;	/* = 3-X */
+}
+.dropdown-menu li ul li ul:before {
+	top:		10px;	/* = (X-10)/2 */
+}
+/* 項目の文字位置 */
+.dropdown-menu li {
+	text-align:	center;
+}
+/* 項目の幅の設定 */
+.dropdown-menu>ul>li {
+	width:		108px;	/* 実際の幅-2 */
+}
+.dropdown-menu>ul>li>ul,
+.dropdown-menu>ul>li>ul li {
+	width:		200px;	/* 実際の幅-2 */
+}
+.dropdown-menu>ul>li:last-child>ul {
+	left:		-92px;	/* =200 - 108 */
+}
+.dropdown-menu>ul>li:last-child>ul ul {
+	left:		-204px;
+}
+/* 全体 */
+.dropdown-menu {
+	background-color:	#ccccff;
+}
+/* 非選択色 */
+.dropdown-menu>ul li {
+	background-color:	#ccccff;
+}
+/* 選択色 */
+.dropdown-menu>ul li:hover {
+	background-color:	#f0f0ff;
+}
+/* 枠線 */
+.dropdown-menu>ul li {
+	border-color:		#aad;
+}
+/* 文字色 */
+/*
+.dropdown-menu a:link,
+.dropdown-menu a:visited
+{
+	color:			#33f;
+}
+*/
+/* 矢印の色 */
+.dropdown-menu li ul li ul:before {
+	border-left-color:	#338;
+}
+.dropdown-menu li:last-child ul li ul:before {
+	border-left-color:	transparent;
+	border-right-color:	#338;
+}
+
 
 /*--------------------------------------------------------------------
 ●IE8バグ対応

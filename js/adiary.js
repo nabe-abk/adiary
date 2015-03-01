@@ -233,14 +233,16 @@ $(function(){
 	function hook(name) {
 		var func = $.fn[name];
 		$.fn[name] = function() {	// closure
-			if (jquery_hook_stop || hooking || this.attr('id') !== 'body' && this.parents('#body').length === 0) return func.apply(this, arguments);
+			if (jquery_hook_stop || hooking || this.attr('id') !== 'body' && !this.parents('#body').length)
+				return func.apply(this, arguments);
 			// hook処理
 			hooking = true;
-			hook_function(this, arguments);
 			var r = func.apply(this, arguments);
 			// html かつ string の特別処理
 			if (name === 'html' && arguments.length === 1 && typeof arguments[0] === 'string') {
 				adiary_init(this);
+			} else {
+				hook_function(this, arguments);
 			}
 			hooking = false;
 			return r;
@@ -345,23 +347,25 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●フォーム操作による、disabledの自動変更
+//●フォーム操作による、enable/disableの自動変更
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	var objs = R.findx('input.js-disabled');
+	var objs = R.findx('input.js-enable, input.js-disable');
 	function btn_evt(evt) {
 		var btn = $(evt.target);
-		var form =myfind( btn.data('target') );
-		var flag = (btn.data('change') == '1');
+		var form = myfind( btn.data('target') );
 
-		// チェックボックスが外されている状態なら条件反転
+		var flag;
 		var type=btn.attr('type').toLowerCase();
-		if (type == 'checkbox' && !btn.is(":checked")) flag = !flag;
-		if (type == 'radio'    && !btn.is(":checked")) return;
-		if (flag)
-			form.attr('disabled','disabled');
-		else
+		if (type == 'checkbox' || type == 'radio')
+			flag = btn.is(":checked");
+		else	flag = ! (btn.val() + '').match(/^\s*$/);
+		if (btn.hasClass('js-disable')) flag=!flag;
+
+		if (flag)	// 有効
 			form.removeAttr('disabled');
+		else		// 無効
+			form.attr('disabled','disabled');
 	}
 	objs.click( btn_evt );
 	objs.each(function(idx,ele){ btn_evt({target: ele}) });
@@ -791,6 +795,21 @@ initfunc.push( function(R){
 		$('#body').addClass(cls);
 	});
 });
+
+//////////////////////////////////////////////////////////////////////////////
+//●要素の幅を中身を参照して自動設定する（最後に処理すること）
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R){
+	R.findx('.js-auto-width').each(function(idx,dom) {
+		var obj = $(dom);
+		var ch = obj.children();
+		var width = 0;
+		for(var i=0; i<ch.length; i++)
+			width += $(ch[i]).outerWidth();
+		obj.width(width);
+	});
+});
+
 
 //############################################################################
 // ■最初のロード時のみのサービス処理

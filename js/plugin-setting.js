@@ -34,7 +34,8 @@ function module_setting(obj) {
 
 	var buttons = {};
 	buttons[ $('#btn-ok').text() ] = function(){
-		// alert( form.serialize() );
+		// disabled要素も送信する
+		form.find('[disabled]').removeAttr('disabled');
 		// 今すぐ保存
 		$.ajax({
 			url: form.attr('action'),
@@ -72,6 +73,7 @@ function module_setting(obj) {
 		modal: true,
 		width:  DialogWidth,
 		minHeight: 100,
+		maxHeight: $(window).height(),
 		title:   obj.data('title').replace('%n', obj.data('title')),
 		buttons: buttons
 	});

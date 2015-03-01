@@ -1232,7 +1232,7 @@ sub save_use_plugins {
 			if ($form->{$_}) {
 				unshift(@$ary, $pl{$_});	# install
 			} else {
-				push(@$ary, $pl{$_});	# unisntall
+				push(@$ary, $pl{$_});		# unisntall
 			}
 		}
 	}
@@ -1573,9 +1573,19 @@ sub save_design {
 
 	my %use_f = map {$_ => 1} (@side_a,@side_b,@main_a,@main_b);
 	my $pd = $self->load_plugins_dat();
+	my @multi;
 	foreach(keys(%$pd)) {	# 現在のinstall状態確認
 		if (index($_,':')>0) { next; }
 		if ($pd->{$_} && !$use_f{$_}) { $use_f{$_}=0; }	# uninstall
+
+		# マルチインストールモジュールの抽出
+		my $n = $self->plugin_name_check($_);
+		if ($_ eq $n) { next; }
+		push(@multi, $n);
+	}
+	# マルチインストールモジュールは common名 に対する操作を無視させる
+	foreach(@multi) {
+		delete $use_f{$_};
 	}
 
 	# プラグイン状況を保存

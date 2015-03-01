@@ -10,7 +10,7 @@
 <$v.regist_js("<@v.script_dir>theme-custom.js")>
 <$plain_html_mode = 1>
 
-<$append_header = exec(begin)>
+<$v.append_header(exec(begin))>
 <style>
 #adiary-body {
 	display:	none;

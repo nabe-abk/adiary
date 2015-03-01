@@ -52,7 +52,7 @@
 <script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.js"></script>\n')>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
-<@append_header>
+<@v.extra_header>
 </head>
 <body id="body" class="<@if(v.blog_admin, 'blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system-mode')><@v.mode_class>">
 <@>bodyにブラウザ別クラスを設定するためのスクリプト呼び出し

@@ -11,16 +11,21 @@ div.body p {
 	margin:			1em 0 1em 0;
 }
 */
-/*** ログインをサイドバー配置に ****************************/
-/*
-div.adminmenu  { display: none; }
-div#side-login { display: block; }
-*/
-
-/*** システム情報（System info）を見えなくする *************/
-/*
-div#side-system-info { display: none; }
-*/
+/*** ドロップダウンメニュー ********************************/
+/* 文字の変更 */ /*
+.dropdown-menu li {
+	font-size:	11pt;
+	font-family:	sans-serif;
+	font-weight:	bold;
+	padding:	0;
+	text-align:	center;
+} */
+/* 文字の変更（メニュー2項目目以降） */ /*
+.dropdown-menu li li {
+	font-weight:	bold;
+	padding:	0;
+	text-align:	center;
+} */
 
 
 /*** 追加のスタイル ****************************************/

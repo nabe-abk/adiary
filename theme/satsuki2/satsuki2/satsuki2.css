@@ -26,13 +26,17 @@ body
 	line-height:		130%;
 }
 /* 見出し */
+header {
+	position:		relative;
+	margin-bottom:		1em;
+}
 h1
 {
 	font-size:		20pt;
 	font-weight:		normal;
 	border-bottom:		2px solid #2133a9;	/* $c=border */
 	padding:		4px 1em 4px 0.5em;
-	margin:			0.5em 0em 1em 0em;
+	margin:			0.5em 0 0 0;
 }
 h1 a, h1 a:link, h1 a:visited {
 	color:			inherit;
@@ -42,6 +46,7 @@ h1 a, h1 a:link, h1 a:visited {
 h1 img, h1 a img {
 	border:			none;
 }
+
 /* 全体配置用 */
 #hatena-body {
 	position:		relative;
@@ -112,15 +117,19 @@ span.welcome a, span.welcome a:link, span.welcome a:visited {
 /*--------------------------------------------------------------------
 ■ドロップダウンメニュー
 ---------------------------------------------------------------------*/
-
-.exists-dropdown-menu h1 {
-	margin-bottom:		0px;
-}
 .dropdown-menu {
 	margin-bottom:		1em;
 }
+.dropdown-menu>ul li:hover ul {
+	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
+}
 
-
+.dropdown-menu>ul li a,
+.dropdown-menu ul li a:link,
+.dropdown-menu ul li a:visited
+{
+	color:			#33f;	/* $c=ddlink */
+}
 
 /*--------------------------------------------------------------------
 ■ページ送り
@@ -734,6 +743,7 @@ th.focus, td.focus {
 	background-color:	#ffffcc;	/* $c=fixfocusbg1 */
 }
 input[type="text"]:focus,
+input[type="date"]:focus,
 input[type="search"]:focus,
 input[type="tel"]:focus,
 input[type="url"]:focus,

@@ -61,10 +61,7 @@ iframe.on('load', function(){
 	btn_save.prop('disabled', false);
 
 	// モジュールにボタン追加
-	$f('#sidebar ' + module_selector).each( function(idx,obj){
-		init_module( $(obj) );
-	});
-	f_main.find(module_selector).each( function(idx,obj){
+	$f(module_selector).each( function(idx,obj){
 		init_module( $(obj) );
 	});
 
@@ -190,7 +187,7 @@ function init_module(obj) {
 	if (!obj.attr('title')) {
 		var title = obj.children('.hatena-moduletitle');
 		title = title.length ? title.text() : '';
-		title = title || obj.data('title') ||  obj.data('module-name') || '(unknown)';
+		title = title || modules[name].attr('title') ||  obj.data('module-name') || '(unknown)';
 		obj.attr('title', title);
 	}
 
@@ -266,7 +263,8 @@ function module_setting(obj) {
 
 	var buttons = {};
 	var ok_func = buttons[ $('#btn-ok').text() ] = function(){
-		// alert( form.serialize() );
+		// disabled要素も送信する
+		form.find('[disabled]').removeAttr('disabled');
 		// 今すぐ保存
 		$.ajax({
 			url: form.attr('action'),
@@ -312,6 +310,7 @@ function module_setting(obj) {
 		modal: true,
 		width:  DialogWidth,
 		minHeight: 100,
+		maxHeight: $(window).height(),
 		title:   obj.attr('title').replace('%n', obj.attr('title')),
 		buttons: buttons,
 		beforeClose: function(evt,ui) {
@@ -360,16 +359,26 @@ btn_save.click(function(){
 
 	var main_a_ary = [];
 	var main_b_ary = [];
-	var x = main_a_ary;
-	var items = f_main.children(module_selector + ', #article');
-	for(var i=0; i<items.length; i++) {
-		var id = $(items[i]).attr('id');
-		if (id == 'article' || id == 'articles') {
-			x = main_b_ary;
-			continue;
+	{
+		// mainの外に移動しているモジュール
+		var items = $f("[data-move]").filter(module_selector);
+		for(var i=0; i<items.length; i++) {
+			main_a_ary.push(items[i]);
 		}
-		x.push(items[i]);
 	}
+	{
+		var x = main_a_ary;
+		var items = f_main.children(module_selector + ', #article');
+		for(var i=0; i<items.length; i++) {
+			var id = $(items[i]).attr('id');
+			if (id == 'article' || id == 'articles') {
+				x = main_b_ary;
+				continue;
+			}
+			x.push(items[i]);
+		}
+	}
+
 	form_append('main_a_ary', $(main_a_ary));
  	form_append('main_b_ary', $(main_b_ary));
 	form.submit();
