@@ -596,6 +596,9 @@ h3.ui-accordion-header {
 	vertical-align:	middle;
 }
 /* 表示位置調整 */
+.dropdown-menu>ul li a {
+	height:		100%;
+}
 .dropdown-menu>ul>li {
 	float:		left;
 }
@@ -651,11 +654,9 @@ h3.ui-accordion-header {
 .dropdown-menu>ul>li {
 	height:		30px;	/* Y */
 }
+.dropdown-menu>ul>li a,
 .dropdown-menu>ul li:hover>ul>li {
 	height:		28px;	/* = Y-2 */
-}
-.dropdown-menu>ul li a {
-	height:		100%;	/* = Y-3 */
 }
 .dropdown-menu>ul ul ul {
 	top:		-27px;	/* = 3-Y */

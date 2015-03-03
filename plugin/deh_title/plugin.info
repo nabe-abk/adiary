@@ -1,0 +1,29 @@
+######################################################################
+title=ページタイトル（標準）
+version=1.00
+#					(C)2015 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+adiary_version=2.94
+module_type=header
+
+*sample_html=<<HTML
+<div id="page-title" data-module-name="deh_title">
+<h1><a href="#">ブログのタイトル</a></h1>
+</div>
+HTML
+
+
+*module_html=<<HTML
+<div id="page-title" data-module-name="deh_title">
+<@ifexec(v.blogid, begin, begin)>
+<h1><@if(! v.system_mode && v.blog.blog_image, #'<a href="<@v.myself>"><img src="<@v.blog.blog_image>" alt="<@v.title>"></a>', #'<a href="<@v.myself>"><@v.title></a>')></h1>
+<$else>
+<h1><a href="<@Myself>"><@if(v.title_h1, v.title_h1, v.title)></a></h1>
+<$end>
+</div>
+HTML
+

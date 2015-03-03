@@ -1,0 +1,168 @@
+<@6>
+<@local(name,id,ps)>
+<$name = argv#0>
+<$id = '#' . argv#1>
+<$ps = v.load_plgset(name)>
+/**************************************************
+ * for <@name>  <@Timestamp>
+ **************************************************/
+<@>----------------------------------------------------------------
+<@> サイズ設定
+<@>----------------------------------------------------------------
+<@ifexec(ps.height ne '', begin)>
+/* 高さの設定 */
+<@id>,
+<@id>>ul>li {
+	height:		<@ps.height>px;	/* Y */
+}
+<@id>>ul>li a,
+<@id>>ul li:hover>ul>li {
+	height:		<@ps.height-2>px;	/* = Y-2 */
+}
+<@id>>ul ul ul {
+	top:		<@3 - ps.height>px;	/* = 3-Y */
+}
+<@id> li ul li ul:before {
+	top:		<@int((ps.height - 10)/2)>px;	/* = (Y-10)/2 */
+}
+<$end>
+<@>
+<@ifexec(ps.width1 ne '' && ps.width2 ne '', begin)>
+/* 項目の幅の設定 */
+<@id>>ul>li {
+	width:		<@x1=ps.width1-2>px;	/* X1 = 実際の幅 -2 */
+}
+<@id>>ul>li>ul,
+<@id>>ul>li>ul li {
+	width:		<@x2=ps.width2-2>px;	/* X2 = 実際の幅 -2 */
+}
+<@id>>ul>li:last-child>ul {
+	left:		<@x1-x2>px;	/* = X1-X2 */
+}
+<@id>>ul>li:last-child>ul ul {
+	left:		<@-x2>px;	/* = -X2 */
+}
+<@id>>ul>li:last-child ul li ul:before {
+	left:		<@x2>px;	/* = X2 */
+}
+<$end>
+
+<@>
+<@ifexec(ps.nob_left, begin)>
+<@id>>ul>li:first-child {
+	border-left:	none;
+}
+<$end>
+<@ifexec(ps.nob_right, begin)>
+<@id>>ul>li:last-child {
+	border-right:	none;
+}
+<$end>
+<@ifexec(ps.nob_lr, begin)>
+<@id>>ul>li {
+	border-left:	none;
+	border-right:	none;
+}
+<$end>
+<@ifexec(ps.nob_tb, begin)>
+<@id>>ul>li li {
+	border-top:	none;
+	border-bottom:	none;
+}
+.dropdown-menu>ul ul ul {
+	margin-top:	-1px;
+}
+<$end>
+<@>
+<@ifexec(ps.no_underl, begin)>
+<@id>>ul>li a {
+	height:		100%;
+}
+<$end>
+<@>
+<@ifexec(ps.zindex ne '' || ps.margin0 ne '', begin)>
+<@id> {
+<@ifexec(ps.zindex ne '', begin)>
+	z-index:	<@ps.zindex>;
+<$end>
+<@ifexec(ps.margin0 ne '', begin)>
+	margin:		<@ps.margin0>px <@ps.margin1>px <@ps.margin2>px <@ps.margin3>px;
+<$end>
+}
+<$end>
+<@>
+<@ifexec(ps.padding ne '', begin)>
+/* 左右padding */
+<@id>>ul {
+	padding:	0 <@ps.padding>px;
+}
+<$end>
+<@>----------------------------------------------------------------
+<@> 色設定
+<@>----------------------------------------------------------------
+<@ifexec(ps.item_bg, begin)>
+/* 背景色（非選択色） */
+<@id>,<@id>>ul li {
+	background-color:	<@ps.item_bg>;
+}
+<$end>
+<@ifexec(ps.tbg_trans, begin)>
+/* トップアイテムを背景透過に */
+<@id>>ul>li {
+	background-color:	transparent;
+	border-left:		none;
+	border-right:		none;
+}
+<@id>>ul>li:hover {
+	background-color:	inherit;
+}
+<$end>
+<@>
+<@ifexec(ps.bg_trans, begin)>
+/* 全体の背景色 */
+<@id> {
+	background-color:	transparent;
+}
+<$end>
+<@>
+<@ifexec(ps.select_bg, begin)>
+/* 選択色 */
+<@id>>ul li:hover,
+<@id>>ul li.hover {
+	background-color:	<@ps.select_bg>;
+}
+<$end>
+<@>
+<@ifexec(ps.border, begin)>
+/* 枠線 */
+<@id>>ul li {
+	border-color:		<@ps.border>;
+}
+<$end>
+<@ifexec(ps.arrow, begin)>
+/* 矢印の色 */
+<@id> li ul li ul:before {
+	border-left-color:	<@ps.arrow>;
+}
+<@id> li:last-child ul li ul:before {
+	border-left-color:	transparent;
+	border-right-color:	<@ps.arrow>;
+}
+<@id> {
+	color:			<@ps.arrow>;
+}
+<$end>
+<@>
+<@ifexec(ps.font, begin)>
+/* 文字色 */
+<@id> a:link,
+<@id> a:visited
+{
+	color:			<@ps.font>;
+}
+<$end>
+<@ifexec(ps.no_shadow, begin)>
+<@id> * {
+	box-shadow:		none;
+}
+<$end>

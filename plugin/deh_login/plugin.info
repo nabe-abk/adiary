@@ -1,0 +1,22 @@
+######################################################################
+title=ログインヘッダー
+version=1.00
+#					(C)2013 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+adiary_version=2.94
+module_type=header
+
+*sample_html=<<HTML
+<nav id="nav-header" data-module-name="<@this>" data-fix="1">
+	<span class="welcome"><a href="#"><span class="welcome-prefix">ようこそ</span></a><span class="welcome-name"><a href="#">ユーザー</a></span><span class="welcome-postfix">さん</span></span>	<span class="admin-links">
+		<a class="adminmenu edit" href="#">書く</a>
+		<a class="adminmenu admin" href="#">管理</a>
+		<a class="adminmenu logout" href="#">ログアウト</a>
+</span>
+</nav>
+HTML
+

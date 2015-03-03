@@ -1,0 +1,19 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	node = 表示開始ノード
+	node:filter0 = normalize
+	depth = 深さ
+	depth:type = int
+	depth:min  =   1
+	depth:max  =   3
+	art_pkey = リスト記事
+	art_pkey:type = int
+	art_pkey:min  =   1
+
+	no_centering  = flag
+<$end>
+
+
+<$ifbreak(form_error())>
+<$return(h)>

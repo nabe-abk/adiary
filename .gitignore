@@ -25,29 +25,7 @@ static/*
 skel.local/*
 !skel.local/.htaccess
 !skel.local/README.txt
-plugin/*
-!plugin/.htaccess
-!plugin/README.txt
-!plugin/dem_footer
-!plugin/dem_freetext
-!plugin/dem_page-nav
-!plugin/des_artlist
-!plugin/des_broken-clock
-!plugin/des_comlist
-!plugin/des_calendar-ja
-!plugin/des_contents_list
-!plugin/des_freetext
-!plugin/des_information-ja
-!plugin/des_linkbox
-!plugin/des_monthlist
-!plugin/des_searchbox
-!plugin/des_system-info
-!plugin/des_taglist
-!plugin/des_twitter
-!plugin/notify_mail
-
-# 2nd/3rd party plugin
-!plugin/des_memo
+plugin/@*
 
 #--------------------------------------
 # other files

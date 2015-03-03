@@ -1,0 +1,83 @@
+######################################################################
+title=ドロップダウンメニュー
+version=1.00
+#					(C)2015 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+adiary_version=2.94
+module_type=main,header
+load_module_html_in_edit=1
+
+*sample_html=<<HTML
+<div class="dropdown-menu">
+<ul class="js-auto-width">
+	<li><a href="#">はじめに</a>
+	<ul>
+		<li><a href="#">項目1</a></li>
+		<li><a href="#">項目2</a></li>
+		<li><a href="#">項目3</a>
+		<ul>
+			<li><a href="#">項目3.1</a></li>
+			<li><a href="#">項目3.2</a></li>
+			<li><a href="#">項目3.3</a></li>
+		</ul>
+		</li>
+		<li><a href="#">項目4</a></li>
+	</ul>
+	</li>
+	<li><a href="#">メニュー2</a></li>
+	<li><a href="#">いちご</a>
+	<ul>
+		<li><a href="#">あまおう</a></li>
+		<li><a href="#">とちおとめ</a></li>
+		<li><a href="#">さちのか</a></li>
+		<li><a href="#">やよいひめ</a></li>
+	</ul>
+	</li>
+	<li><a href="#">果物</a>
+	<ul>
+		<li><a href="#">バナナ</a></li>
+		<li><a href="#">リンゴ</a>
+		<ul>
+			<li><a href="#">青りんご</a></li>
+		</ul>
+		</li>
+		<li><a href="#">パイナップル</a></li>
+		<li><a href="#">梨</a>
+		<ul>
+			<li><a href="#">幸水</a></li>
+			<li><a href="#">豊水</a></li>
+			<li><a href="#">新高梨</a></li>
+			<li><a href="#">二十世紀</a></li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+</ul></div>
+HTML
+
+*module_html=<<HTML
+<!--ドロップダウンメニュー=====================================-->
+<div class="dropdown-menu" data-module-name="<@this>" id="<@id>">
+<@v.load_plgset('<@this>', 'html')>
+</div>
+HTML
+
+*files=<<FILES
+func/<@this>.pm
+func/<@this>-uninstall.pm
+skel/_format/ddmenu.html
+FILES
+
+*events=<<EVENTS
+CONTENT_STATE_CHANGE=func/<@this>.pm
+ARTICLE_AFTER=func/<@this>.pm
+SETTING=func/<@this>.pm
+INSTALL=func/<@this>.pm
+UNINSTALL=func/<@this>-uninstall.pm
+EVENTS
+
+

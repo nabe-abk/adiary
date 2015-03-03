@@ -1,0 +1,83 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	width1 = トップの項目幅
+	width1:type =  int
+	width1:min  =   40
+	width1:max  = 9999
+	width1:default = 
+
+	width2 = 2段目以降の項目幅
+	width2:type =  int
+	width2:min  =   40
+	width2:max  = 9999
+	width2:default = 
+
+	height = アイテムの高さ
+	height:type = int
+	height:min  =  20
+	height:max  =  99
+	height:default = 
+	
+	margin0 = マージン上
+	margin0:type = int
+	margin0:min  =  -999
+	margin0:max  =   999
+	margin0:default = 
+	margin1 = マージン右
+	margin1:type = int
+	margin1:min  =  -999
+	margin1:max  =   999
+	margin1:default = 
+	margin2 = マージン下
+	margin2:type = int
+	margin2:min  =  -999
+	margin2:max  =   999
+	margin2:default = 
+	margin3 = マージン左
+	margin3:type = int
+	margin3:min  =  -999
+	margin3:max  =   999
+	margin3:default = 
+
+	padding = 左右padding
+	padding:type = int
+	padding:min  =   0
+	padding:max  = 999
+	padding:default = 
+
+	zindex = 表示優先度
+	zindex:type =  int
+	zindex:min  =    1
+	zindex:default = 
+
+	nob_left  = flag
+	nob_right = flag
+	nob_tb    = flag
+	nob_lr    = flag
+	no_underl = flag
+
+	bg_trans  = flag
+	tbg_trans = flag
+	item_bg   = 項目の背景色
+	select_bg = 選択中の色
+	border    = 区切り線の色
+	arrow     = 矢印の色
+	font      = 文字色
+	no_shadow = flag
+
+	item_bg:filter0 = rgb
+	item_bg:default = 
+	select_bg:filter0 = rgb
+	select_bg:default = 
+	border:filter0 = rgb
+	border:default = 
+	arrow:filter0  = rgb
+	arrow:default  = 
+	font:filter0   = rgb
+	font:default   = 
+<$end>
+
+
+<$ifbreak(form_error())>
+<$return(h)>

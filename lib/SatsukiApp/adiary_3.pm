@@ -1269,7 +1269,7 @@ sub load_plugin_info {
 	# setting.html
 	$h->{module_setting} = -r "$dir$n/setting.html";
 	# デザイン設定ファイル
-	$h->{design_setting} = -r "$dir$n/design_setting.html";
+	$h->{css_setting}    = -r "$dir$n/css_setting.html";
 
 	# 動的CSSファイル
 	my $dcss = $h->{module_dcss} = -r "$dir$n/module-d.css";
@@ -1644,7 +1644,7 @@ sub save_plugin_setting {
 	my $name = $form->{module_name};
 
 	my $mode = $form->{setting_mode};
-	if ($mode ne 'design') { $mode = ''; }
+	if ($mode ne 'css') { $mode = ''; }
 	if ($mode ne '') { $mode .= '_'; }
 
 	my $n = $self->plugin_name_check($name);	# $n = プラグイン名

@@ -19,7 +19,7 @@ $(function(){
 	var btn_save = $('#save-btn');
 	var btn_close_title   = $('#btn-close').text()   || 'delete';
 	var btn_setting_title = $('#btn-setting').text() || 'setting';
-	var btn_desset_title  = $('#btn-design-setting').text() || 'design setting';
+	var btn_cssset_title  = $('#btn-css-setting').text() || 'design setting';
 
 	var modules = [];	// 各モジュールを取得し保存
 	var mod_list= [];
@@ -230,12 +230,12 @@ function init_module(obj) {
 		div.append(set);
 	}
 
-	if (obj.data('design-setting')) {
+	if (obj.data('css-setting')) {
 		var set = $('<span>');
 		set.addClass('ui-icon ui-icon-image ui-button');
-		set.attr('title', btn_desset_title);
+		set.attr('title', btn_cssset_title);
 		set.click(function(){
-			module_setting(obj, 'design');
+			module_setting(obj, 'css');
 		});
 		div.append(set);
 	}
@@ -413,7 +413,7 @@ btn_save.click(function(){
 // ●モジュールをロードして置き換える
 //////////////////////////////////////////////////////////////////////////////
 function load_module_html(obj, mode) {
-	if (mode == 'design') return load_module_css(obj, mode);
+	if (mode == 'css') return load_module_css(obj, mode);
 	if (!obj.data('load-module-html')) return;
 
 	// HTML取得用フォーム
@@ -438,7 +438,7 @@ function load_module_html(obj, mode) {
 //////////////////////////////////////////////////////////////////////////////
 function load_module_css(obj) {
 	var name = obj.data('module-name');
-	if (!obj.data('load-module-html') || !obj.data('design-setting')) return;
+	if (!obj.data('load-module-html') || !obj.data('css-setting')) return;
 
 	var form = $secure('#load-module-form');
 	$('#js-load-module-name').val( name );

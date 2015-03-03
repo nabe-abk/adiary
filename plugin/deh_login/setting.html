@@ -1,0 +1,15 @@
+<@6>
+<@local(s)>
+<$s=argv#0>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>ログイン表示の消去<span class="help" data-help="画面右上（等）に表示されるログインリンクを見えなくします。見えないだけ（空白文字になるだけ）でリンク自体は残ります。">?</span></th>
+		<td>
+		<input type="hidden" name="checkbox.info" value="erase_login_link">
+		<input type="checkbox" name="erase_login" value="1"<@if(s.erase_login, ' checked')>><label>「ログイン」を見えなくする</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+

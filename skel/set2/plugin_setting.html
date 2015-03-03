@@ -15,6 +15,6 @@
 <@if(Develop, "module_name = <@name><br>")>
 <@>
 <$file = 'setting'>
-<$ifset(mode eq 'design', file, 'design_setting')>
+<$ifset(mode eq 'css', file, 'css_setting')>
 <@>
 <@_call("<@v.plugin_dir><@n>/<@file>.html", set, name)>

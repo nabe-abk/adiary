@@ -1,0 +1,45 @@
+<@6>
+<@local(x,s)>
+<$s=argv#0>
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>表示開始ノード<span class="help" data-help="指定したノードから下をリスト表示します。">?</span></th>
+		<td>
+			<select name="node" id="node-select" data-default="<@s.node>" data-url="<@Basepath><@v.blogpub_dir>contents.json">
+				<option value="0">*トップ(root)</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<th>表示階層<span class="help" data-help="指定したノードからどれくらい深くのノードまで表示するか指定します。">?</span></th>
+		<td>
+			<$x=s.depth || 3>
+			<select name="depth" class="int" id="depth">
+				<option value="1" <@if(x == 1, ' selected')>>1</option>
+				<option value="2" <@if(x == 2, ' selected')>>2</option>
+				<option value="3" <@if(x == 3, ' selected')>>3</option>
+			</select>階層まで表示
+		</td>
+	</tr>
+	<tr>
+		<th>記事を表示<span class="help" data-help="コンテンツツリーではなく特定の記事（非公開でも可）に書かれたリスト（<ul>～</ul>）を表示することができます。編集画面右上の記事番号を入力してください。">?</span></th>
+		<td>
+			<input type="number" class="int w100 js-disable" data-target="#depth, #node-select" name="art_pkey" value="<@s.art_pkey>" min="1">
+		</td>
+	</tr>
+	<tr>
+		<th>アイテム表示位置<span class="help" data-help="メニューアイテム全体を左寄せで表示するか設定します。項目内の文字位置はCSS等により変更してください。">?</span></th>
+		<td>
+			<input type="checkbox" name="no_centering" value="1"<@if(s.no_centering,' checked')>><label>左寄せで表示する</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+
+
+<!-- JavaScript ==========================================================-->
+<script>
+load_contents_list('#node-select');
+</script>
