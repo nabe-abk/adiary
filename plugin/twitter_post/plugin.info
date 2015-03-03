@@ -1,0 +1,24 @@
+######################################################################
+title=Twitter通知
+version=1.10
+#					(C)2015 nabe@abk
+######################################################################
+description=新規に記事を投稿したときTwitterにPOSTして知らせるプラグイン
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.90
+
+*files=<<FILES
+skel/twitter/_setting.html
+skel/twitter/_action/oauth1.html
+skel/twitter/_action/oauth2.html
+skel/_func/twitter_ping.html
+FILES
+
+*events=<<EVENTS
+ARTICLE_FIRST_VISIBLE=skel/_func/twitter_ping
+EVENTS
+

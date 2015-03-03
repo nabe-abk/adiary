@@ -120,16 +120,45 @@ span.welcome a, span.welcome a:link, span.welcome a:visited {
 .dropdown-menu {
 	margin-bottom:		1em;
 }
+
+/* 背景色（非選択色） */
+.dropdown-menu,
+.dropdown-menu>ul li {
+	background-color:	#ccccff;	/* $c=ddbg */
+}
+/* 選択色 */
+.dropdown-menu>ul li:hover,
+.dropdown-menu>ul li.hover {
+	background-color:	#f0f0ff;	/* $c=ddhover */
+}
+/* 枠線 */
+.dropdown-menu>ul li {
+	border-color:		#aac;	/* $c=ddborder */
+}
+/* 文字 */
+.dropdown-menu a,
+.dropdown-menu a:link,
+.dropdown-menu a:visited
+{
+	color:			#33f;	/* $c=ddfont */
+}
+/* 矢印の色 */
+.dropdown-menu li ul li ul:before {
+	border-left-color:	#338;	/* $c=ddarrow */
+}
+.dropdown-menu li:last-child ul li ul:before {
+	border-left-color:	transparent;
+	border-right-color:	#338;	/* $c=ddarrow */
+}
+/* 設定画面に矢印の色を自動取得させるための指定 */
+.dropdown-menu {
+	color:			#338;	/* $c=ddarrow */
+}
+/* 影をつける */
 .dropdown-menu>ul li:hover ul {
 	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
 }
 
-.dropdown-menu>ul li a,
-.dropdown-menu ul li a:link,
-.dropdown-menu ul li a:visited
-{
-	color:			#33f;	/* $c=ddlink */
-}
 
 /*--------------------------------------------------------------------
 ■ページ送り

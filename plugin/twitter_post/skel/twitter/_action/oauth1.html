@@ -1,0 +1,27 @@
+<@20>
+<@local(tw,ps,name)>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.blog_admin)>
+
+<$name = Form.name>
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+
+<$tw = call('_sub/load_twitter_info')>
+<$oauth = loadpm("Base::OAuth")>
+
+<$r = oauth.request_token(tw)>
+<$ifexec(!r, begin)>
+	<@"1">
+	<$break()>
+<$end>
+
+<$ps = new>
+<$ps.tw_oauth_token = r.oauth_token>
+<$ps.tw_oauth_token_secret = r.oauth_token_secret>
+<$ps.tw_access_token = "">
+<$ps.tw_access_token_secret = "">
+<$v.update_plgset(name, ps)>
+
+<@"0\n">
+<@"<@tw.authorize_path>?oauth_token=<@ps.tw_oauth_token>">

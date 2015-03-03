@@ -36,30 +36,6 @@
 	<@>更新通知ping
 	<$v.send_update_ping(v.blogid, art)>
 <$end>
-<$ifexec(art.first_visible && Form.tw_ping && s.tw_access_token, begin)>
-	<@>twitterへの通知ツイート
-	<@local(line,tw,res,t)>
-	<$line = s.tw_ping_txt || "%t - %n %u">
-	<$replace(line, '%t', art.title)>
-	<$replace(line, '%n', s.blog_name)>
-	<$replace(line, '%u', art.absolute_url)>
-	<@> ツイート処理
-	<$tw = call('_sub/load_twitter_info')>
-	<$oauth = loadpm("Base::OAuth")>
-	<$res = oauth.status_update(tw, tw.status_update_api, {status => line})>
-	<$ifexec(!res || res.errors, begin, begin)>
-		<$ifexec(res.errors, begin, begin)>
-			<@forexec(t, res.errors, begin)>
-				<$notice('Twitterへの通知に失敗しました : %s', "<@t.message> (<@t.code>)")>
-			<$end>
-		<$else>
-			<$notice('Twitterへの通知に失敗しました')>
-		<$end>
-	<$else>
-		<$notice('Twitterに通知しました : %s', line)>
-	<$end>
-</$>
-<$end>
 
 <$ifmessage_top(Form.edit_key_int, '記事を編集しました', '記事を書き込みました')>
 <$url = v.myself2 . art.elink_key . if(Form.parser_debug, '?parser_debug')>

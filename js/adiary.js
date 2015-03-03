@@ -1189,7 +1189,7 @@ function show_error(h, _arg) {
 }
 function show_dialog(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, hash:_arg};
-	var html = (h.id.substr(0,1) != '#') ? h.id : $(h.id).html();
+	var html = h.msg || ((h.id.substr(0,1) != '#') ? h.id : myfind(h.id).html());
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 	html = html.replace(/%[A-Za-z]/g, '');
 
@@ -1210,7 +1210,7 @@ function show_dialog(h, _arg) {
 function my_confirm(h, callback) {
 	if (typeof(h) === 'string') h = {id: h};
 	callback = callback || h.callback;
-	var html = (h.id.substr(0,1) != '#') ? h.id : $(h.id).html();
+	var html = (h.id.substr(0,1) != '#') ? h.id : myfind(h.id).html();
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 
 	var div = $('<div>');

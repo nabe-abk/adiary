@@ -1,0 +1,20 @@
+<@40.is_function>
+<@local(h)>
+<@>-----------------------------------------------
+<@> ※フォームは skel/twitter/_setting.html です。
+<@>-----------------------------------------------
+<$h = validator(begin_hash, argv#0) )>
+	re_auth = flag
+	tw_ping = flag
+	tw_ping_txt = ツイート内容
+	tw_ping_txt:filter0 = trim
+<$end>
+
+<$ifexec(h.re_auth, begin)>	<@> 再認証
+	<$h.tw_screen_name  = undef>
+	<$h.tw_access_token = undef>
+	<$h.tw_access_token_secret = undef>
+<$end>
+
+<$ifbreak(form_error())>
+<$return(h)>

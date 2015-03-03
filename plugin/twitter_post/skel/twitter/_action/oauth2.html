@@ -1,0 +1,29 @@
+<@20>
+<@local(tw,r,ps,name)>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.blog_admin)>
+
+<$name = Form.name>
+<$ps = v.load_plgset(name)>
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+
+<$oauth = loadpm("Base::OAuth")>
+<$tw = call('_sub/load_twitter_info', ps)>
+<$tw.verifier = Form.pin_code>
+
+<$r = oauth.request_access_token(tw)>
+<$ifexec(!r || r.oauth_token eq '', begin)>
+	<@"1">
+	<$break()>
+<$end>
+
+<$ps.tw_oauth_token = undef>
+<$ps.tw_oauth_token_secret = undef>
+<$ps.tw_access_token = r.oauth_token>
+<$ps.tw_access_token_secret = r.oauth_token_secret>
+<$ps.tw_screen_name = r.screen_name>
+<$ifset(ps.tw_ping_txt eq '', ps.tw_ping_txt, 'ブログ更新「%t」 %u')>
+<$v.update_plgset(name, ps)>
+
+<@"0">

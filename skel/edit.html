@@ -188,9 +188,6 @@
 		<@ifexec(v.sys.ping_servers_txt, begin)>
 		<li><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label><span class="help" data-help="更新通知を送ると他の人があなたの記事を見つけやすくなります。\n【送信先】\n<@v.sys.ping_servers_txt>">?</span></li>
 		<$end>
-		<@ifexec(s.tw_access_token, begin)>
-		<li><input type="checkbox" name="tw_ping" value="1"<@if(art.tw_ping, ' checked')>><label>Twitterに通知する</label></li>
-		<$end>
 	<$end>
 		<li><input type="checkbox" name="wiki" value="1" data-target="#wiki-block" class="js-switch"<@if(art.ctype || art.wiki, ' checked')>><label>wikiコンテンツにする</label>
 		<input type="hidden" name="priority" value="<@art.priority>">
