@@ -1,9 +1,18 @@
 <@20>
 <$ifbreak(csrf_check())>
 <$ifbreak(! v.blog_admin)>
+<$name = Form.module_name>
 
 <$v.action_is_main=1>
 <$v.frame_skeleton=''>
 
 <$s = v.blog>
-<@v.load_and_call_module_html(Form.module_name)>
+<@ifexec(Form.mode eq 'css', begin)>
+	<@ifexec(v.check_dynamic_css( name ), begin)>
+		<@"reload=1">
+		<$break()>
+	<$end>
+	<@v.generate_module_css( name )>
+	<$break()>
+<$end>
+<@v.load_and_call_module_html( name )>

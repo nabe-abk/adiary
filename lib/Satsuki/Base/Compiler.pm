@@ -212,6 +212,7 @@ my $forexec_inline_on = 1;
 
 # ifjump や ifmessage を展開する
 my %inline_if = (if=>-1, ifdef=>-1,
+	ifcontinue=>1,
 	ifbreak=>1, ifbreak_clear=>1, ifsuperbreak=>1, ifsuperbreak_clear=>1,
 	ifjump=>1, ifjump_clear=>1, ifsuperjump=>1, ifsuperjump_clear=>1,
 	ifcall=>1, ifredirect=>1, ifform_error=>1, ifform_clear=>1,
@@ -1557,7 +1558,7 @@ sub split_begin {
 		}
 
 		# 前処理
-		if ($mode eq 'begin_string' || $mode eq 'begin_array' || $mode eq 'begin_hash') {
+		if ($mode eq 'begin_string' || $mode eq 'begin_array' || $mode eq 'begin_hash' || $mode eq 'begin_hash_order') {
 			my @newary;
 			my $line = [];
 			foreach(@$ary) {
@@ -1577,7 +1578,7 @@ sub split_begin {
 			$ary = \@newary;
 		}
 		# 各行の行頭、行末スペースと改行を消去
-		if ($mode eq 'begin_array' || $mode eq 'begin_hash') {
+		if ($mode eq 'begin_array' || $mode eq 'begin_hash' || $mode eq 'begin_hash_order') {
 			foreach(@$ary) {
 				while(@$_ && $_->[0] =~ /^\s*$/) {
 					shift(@$_);
@@ -1612,8 +1613,9 @@ sub split_begin {
 			$ary = '[' . join(',', @$ary) . ']';
 			$ary =~ s/[\x01-\x03]//g;
 
-		} elsif ($mode eq 'begin_hash') {	 # ブロック要素（ハッシュ）
+		} elsif ($mode eq 'begin_hash' || $mode eq 'begin_hash_order') {	 # ブロック要素（ハッシュ）
 			my %hash;
+			if ($mode eq 'begin_hash_order') { $hash{_order}=1; }
 			my @order;	# key順序保存配列
 			my $order_ng;	# 順序保持不可フラグ
 			my @out;
@@ -1635,7 +1637,7 @@ sub split_begin {
 				if (!@key) {
 					if (join('',@$line) ne '') {
 						my $lnum = &get_line_num($t);
-						$self->warning($lnum, "Contaion line is not defined hash in 'begin_hash'");
+						$self->warning($lnum, "Contaion line is not defined hash in '%s'", $mode);
 						$self->warning($lnum, "-->" . join('',@$line));
 					}
 					next;
@@ -1653,7 +1655,7 @@ sub split_begin {
 					my $val = $self->chain_lines(\@val);
 					if (exists $hash{$key}) {
 						my $lnum = &get_line_num($t);
-						$self->warning($lnum, "Dupulicate Hash key '%s' in 'begin_hash'", $key);
+						$self->warning($lnum, "Dupulicate Hash key '%s' in '%s'", $key, $mode);
 					}
 					$hash{$key} = $val;
 					if ($key eq '_order') { next; }
@@ -1674,7 +1676,7 @@ sub split_begin {
 			if ($hash{_order}) {
 				if ($order_ng) {
 					my $lnum = &get_line_num($t);
-					$self->warning($lnum, "Don't use ordering hash (contaion variable key) in 'begin_hash'");
+					$self->warning($lnum, "Don't use ordering hash (contaion variable key) in '%s'", $mode);
 				} else {
 					my $ord = join(',',@order);
 					push(@out, "_order=>[$ord]");	# 出力

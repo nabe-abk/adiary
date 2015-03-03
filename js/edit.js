@@ -221,6 +221,11 @@ function start_edit(){
 	do_edit_lock();
 	set_lock_interval();
 	$('#edit').find('form, button:not(.helper), input, select').prop('disabled', false);
+
+	// ページを離れるときにunlock	※IE8では無効
+	$(window).bind('unload', function(){
+		ajax_edit_lock('ajax_lock', function(){}, 1);
+	});
 }
 
 //----------------------------------------------------------------------------
@@ -280,15 +285,8 @@ function ajax_edit_lock(action, func, unlock) {
 		},
 		success: func
 	});
+	return ;
 }
-
-//----------------------------------------------------------------------------
-// ●ページを離れるときにunlock
-//----------------------------------------------------------------------------
-// IE8では無効
-$(window).bind('unload', function(){
-	ajax_edit_lock('ajax_lock', function(){}, 1);
-});
 
 //############################################################################
 // ■テキストエリア加工サブルーチン

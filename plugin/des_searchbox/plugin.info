@@ -9,6 +9,7 @@ license=WTFPL
 
 adiary_version=2.94
 module_type=sidebar
+load_module_html_in_edit=1
 
 *sample_html=<<HTML
 <div class="hatena-module" id="side-search">

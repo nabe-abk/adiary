@@ -80,9 +80,9 @@ Unknown begin type (%s)=未知のbegin型です (%s)
 #-----------------------------------------------------------
 # warning
 #-----------------------------------------------------------
-Contaion line is not defined hash in 'begin_hash'=ハッシュの定義行ではないものが含まれています（begin_hash内）
-Dupulicate Hash key '%s' in 'begin_hash'=ハッシュキー「%s」が重複しています（begin_hash内）
-Don't use ordering hash (contaion variable key) in 'begin_hash'=変数keyが含まれるため順序指定（_order）ハッシュは使用できません
+Contaion line is not defined hash in '%s'=ハッシュの定義行ではないものが含まれています（%s内）
+Dupulicate Hash key '%s' in '%s'=ハッシュキー「%s」が重複しています（%s内）
+Don't use ordering hash (contaion variable key) in '%s'=変数keyが含まれるため順序指定（_order）ハッシュは使用できません（%s内）
 "break" variable referenced. Do you mean "break()" function?=「break」という変数を参照しています。本来は break() 関数の呼び出しではありませんか？
 
 ###############################################################################

@@ -2,6 +2,7 @@
 <$ifredirect(!Auth.ok, v.myself)>
 <$v.frame_skeleton=''>
 <$name = Query.name>
+<$mode = Query.mode>
 <$replace(name, '[^\w\-,]', '')>
 
 <@ifexec(v.blogid eq '', begin)>
@@ -10,6 +11,10 @@
 <$end>
 
 <$set = v.load_plgset(name)>
-<$n = v.split_number(name)>
+<$n = v.plugin_name_check(name)>
 <@if(Develop, "module_name = <@name><br>")>
-<@_call("<@v.plugin_dir><@n>/setting.html", set)>
+<@>
+<$file = 'setting'>
+<$ifset(mode eq 'design', file, 'design_setting')>
+<@>
+<@_call("<@v.plugin_dir><@n>/<@file>.html", set, name)>

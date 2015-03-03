@@ -71,7 +71,8 @@ select {
 デザイン編集
 <select name="modules" id="module-type">
 <option value="sidebar">サイドバー</option>
-<option value="main">メイン部</option>
+<option value="header">ヘッダー</option>
+<option value="main">メイン</option>
 </select>
 
 <select name="modules" id="add-module">
@@ -80,7 +81,10 @@ select {
 
 <button id="save-btn" type="button">保存</button>
 <button id="back-btn" type="button" onclick="window.location='<@v.myself>?<@v.skel_dir>'">戻る</button>
+<input type="checkbox" id="display-modules" class="js-save"><label>表示</label>
 </form>
+
+
 <iframe id="iframe" src="<@v.myself>?<@v.skel_dir>art_sample"></iframe>
 
 <!-- デザインモジュールの情報 =============================================-->
@@ -91,6 +95,7 @@ select {
  data-module-name="<@t.name>"
  data-type="<@t.module_type>"
  data-setting="<@if(t.module_setting,1)>"
+ data-design-setting="<@if(t.design_setting,1)>"
  data-load-module-html="<@t.load_module_html_in_edit>"
  data-readme="<@if(t.readme,1)>"
  data-readme-url="<@Myself>?set2/plugin_readme&amp;name=<@t.name>"
@@ -116,7 +121,7 @@ select {
 </form>
 
 <!-- モジュールHTMLロード用フォーム -->
-<form method="POST" id="load-module-html-form">
+<form method="POST" id="load-module-form">
 <input type="hidden" name="action" value="design/load_module">
 <input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 <input type="hidden" name="module_name" id="js-load-module-name">
@@ -128,4 +133,5 @@ select {
 <span id="msg-append-module-select">（追加モジュール選択）</span>
 <span id="msg-delete-confirm">「%n」を削除しますか？</span>
 <span id="msg-duplicate-id">「%n」は既に存在します（１つしか追加できません）</span>
+<span id="btn-design-setting">デザイン設定</span>
 </div>

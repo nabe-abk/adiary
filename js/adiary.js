@@ -229,7 +229,7 @@ $(function(){
 	}
 
 	var hooking = false;
-	var hooks = ['append', 'prepend', 'before', 'after', 'html'];
+	var hooks = ['append', 'prepend', 'before', 'after', 'html', 'replaceWith'];
 	function hook(name) {
 		var func = $.fn[name];
 		$.fn[name] = function() {	// closure
@@ -362,10 +362,8 @@ initfunc.push( function(R){
 		else	flag = ! (btn.val() + '').match(/^\s*$/);
 		if (btn.hasClass('js-disable')) flag=!flag;
 
-		if (flag)	// 有効
-			form.removeAttr('disabled');
-		else		// 無効
-			form.attr('disabled','disabled');
+		// disabled設定
+		form.prop('disabled', !flag);
 	}
 	objs.click( btn_evt );
 	objs.each(function(idx,ele){ btn_evt({target: ele}) });
@@ -806,6 +804,7 @@ initfunc.push( function(R){
 		var width = 0;
 		for(var i=0; i<ch.length; i++)
 			width += $(ch[i]).outerWidth();
+		if (IE8) width+=2;
 		obj.width(width);
 	});
 });
@@ -1015,6 +1014,19 @@ function load_contents_list(id) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+// ●ユーザーCSSの強制リロード
+//////////////////////////////////////////////////////////////////////////////
+function reload_user_css() {
+	var obj = $('#user-css');
+	var url = obj.attr('href');
+	if (!url || !url.length) return;
+
+	url = url.replace(/\?.*/, '');	// ?より後ろを除去
+	url += '?' + Math.random().toString().replace('.', '');
+	obj.attr('href', url);
+}
+
+//////////////////////////////////////////////////////////////////////////////
 //●twitterウィジェットのデザイン変更スクリプト
 //////////////////////////////////////////////////////////////////////////////
 function twitter_css_fix(css_text, width){
@@ -1079,7 +1091,6 @@ function css_fix(css_text, width) {
 // セキュアなオブジェクト取得
 //////////////////////////////////////////////////////////////////////////////
 function $secure(id) {
-	if (id.substr(0,1) != '#') { return ; }
 	var obj = myfind('[id="' + id.substr(1) + '"]');
 	if (obj.length >1) {
 		show_error('Security Error!<p>id="' + id + '" is duplicate.</p>');

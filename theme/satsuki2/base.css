@@ -494,9 +494,14 @@ figure {
 /*--------------------------------------------------------------------
 ●デザイン編集
 ---------------------------------------------------------------------*/
+#body .design-module-edit {
+	min-height:		18px;
+}
 .design-module-edit {
-	background-color:	#fcc;
 	position:		relative;
+}
+.design-module-edit.display {
+	background-color:	#fcc;
 }
 .design-module-edit:hover {
 	background-color:	#faa;
@@ -563,13 +568,25 @@ h3.ui-accordion-header {
 	margin:		0px auto;
 }
 .dropdown-menu>ul li {
-	border-width:	1px;
 	border-style:	solid;
 }
-.dropdown-menu>ul a {
+.dropdown-menu>ul>li {
+	border-width:		0px;
+	border-left-width:	2px;
+}
+.dropdown-menu>ul>li:last-child {
+	border-right-width:	2px;
+}
+.dropdown-menu>ul>li li {
+	border-width:	1px;
+	border-left:	none;
+	border-right:	none;
+}
+.dropdown-menu>ul li a {
 	display:	block;
 	text-decoration: none;
 	overflow:	hidden;
+	width:		100%;
 }
 /* 項目文字列を上下中央揃えする細工 */
 .dropdown-menu>ul a:before {
@@ -585,10 +602,7 @@ h3.ui-accordion-header {
 .dropdown-menu>ul li ul {
 	position:	relative;
 }
-.dropdown-menu>ul>li>ul {
-	margin-left:	-1px;
-}
-.dropdown-menu>ul>li ul>li {
+.dropdown-menu>ul>li li {
 	margin-top:	-1px;
 }
 .dropdown-menu>ul>li ul>li:first-child {
@@ -598,7 +612,6 @@ h3.ui-accordion-header {
 .dropdown-menu>ul ul ul {
 	left:		100%;
 	margin-top:	-2px;
-	margin-left:	1px;
 }
 /* on/off する細工 */
 .dropdown-menu>ul li {
@@ -612,42 +625,43 @@ h3.ui-accordion-header {
 	height:		0px;
 }
 .dropdown-menu>ul li {
-	transition:	0.3s;
+	transition:	0.4s;
 }
 
 /* 階層リンクの矢印 */
 .dropdown-menu li ul li ul:before {
 	position:	absolute;
 	content:	"";
-	left:		-14px;
+	left:		-12px;
 	border:		5px solid transparent;
 }
 .dropdown-menu li:last-child ul li ul:before {
-	left:		200%;
-	margin-left:	-14px;
+	margin-left:	 2px;
 }
 
 /**************************************************/
-/* プルダウンメニュー、カスタマイズ領域           */
+/* プルダウンメニュー、カスタマイズ領域（サイズ） */
 /**************************************************/
+/* フォントの設定（色を除く） */
 .dropdown-menu {
 	font-size:	11pt;
-	height:		30px;	/* X */
 }
-.dropdown-menu>ul>li,
+/* 高さの設定 */
+.dropdown-menu,
+.dropdown-menu>ul>li {
+	height:		30px;	/* Y */
+}
 .dropdown-menu>ul li:hover>ul>li {
-	height:		28px;	/* = X-2 */
+	height:		28px;	/* = Y-2 */
 }
 .dropdown-menu>ul li a {
-	padding-top:	1px;
-	height:		27px;	/* = X-3 */
-	width:		100%;
+	height:		100%;	/* = Y-3 */
 }
 .dropdown-menu>ul ul ul {
-	top:		-27px;	/* = 3-X */
+	top:		-27px;	/* = 3-Y */
 }
 .dropdown-menu li ul li ul:before {
-	top:		10px;	/* = (X-10)/2 */
+	top:		10px;	/* = (Y-10)/2 */
 }
 /* 項目の文字位置 */
 .dropdown-menu li {
@@ -655,35 +669,44 @@ h3.ui-accordion-header {
 }
 /* 項目の幅の設定 */
 .dropdown-menu>ul>li {
-	width:		108px;	/* 実際の幅-2 */
+	width:		108px;	/* X1 = 実際の幅 -2 */
 }
 .dropdown-menu>ul>li>ul,
 .dropdown-menu>ul>li>ul li {
-	width:		200px;	/* 実際の幅-2 */
+	width:		200px;	/* X2 = 実際の幅 -2 */
 }
 .dropdown-menu>ul>li:last-child>ul {
-	left:		-92px;	/* =200 - 108 */
+	left:		-92px;	/* = X1-X2 */
 }
 .dropdown-menu>ul>li:last-child>ul ul {
-	left:		-204px;
+	left:		-200px;	/* = -X2 */
 }
-/* 全体 */
-.dropdown-menu {
-	background-color:	#ccccff;
+.dropdown-menu>ul>li:last-child ul li ul:before {
+	left:		200px;	/* = X2 */
 }
-/* 非選択色 */
+/* 左右padding */
+.dropdown-menu>ul {
+	padding:	0 0px
+}
+
+/**************************************************/
+/* プルダウンメニュー、カスタマイズ領域（配色）   */
+/**************************************************/
+/* 背景色（非選択色） */
+.dropdown-menu,
 .dropdown-menu>ul li {
 	background-color:	#ccccff;
 }
 /* 選択色 */
-.dropdown-menu>ul li:hover {
+.dropdown-menu>ul li:hover,
+.dropdown-menu>ul li.hover {
 	background-color:	#f0f0ff;
 }
 /* 枠線 */
 .dropdown-menu>ul li {
-	border-color:		#aad;
+	border-color:		#aac;
 }
-/* 文字色 */
+/* 文字 */
 /*
 .dropdown-menu a:link,
 .dropdown-menu a:visited
@@ -699,7 +722,16 @@ h3.ui-accordion-header {
 	border-left-color:	transparent;
 	border-right-color:	#338;
 }
-
+/* 設定画面に矢印の色を自動取得させるための指定 */
+.dropdown-menu {
+	color:			#338;
+}
+/* 影をつける */
+/*
+.dropdown-menu>ul li:hover ul {
+	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
+}
+*/
 
 /*--------------------------------------------------------------------
 ●IE8バグ対応

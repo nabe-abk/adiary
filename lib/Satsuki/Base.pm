@@ -658,7 +658,7 @@ sub _jump {
 sub continue {
 	my $self = shift;
 	my $file = $self->{__skeleton};
-	if ($self->{__cont_level}<0) { die "Can't contnue($self->{__cont_level})."; }
+	if ($self->{__cont_level}<0) { die "Can't continue($self->{__cont_level})."; }
 
 	my ($jump_file, $dummy, $skel_level) = $self->check_skeleton($file, $self->{__cont_level});
 	$self->{Jump_file}    = $jump_file;
@@ -1186,7 +1186,7 @@ sub get_libfile_modtime {
 #	拡張子を省略した場合、すべてのリストが返る。
 #	ディレクトリには最後に / を付けて返す。
 #
-#	$opt->{ext}	 	検索する拡張子（"txt"のように指定）
+#	$opt->{ext}	 	検索する拡張子（".txt"のように指定）
 #	$opt->{all}	 = 1	'.'で始まるファイルを含める
 #	$opt->{dir}	 = 1	ディレクトリを含める
 #	$opt->{dir_only} = 1	ディレクトリのみ返す

@@ -7,6 +7,8 @@
 //////////////////////////////////////////////////////////////////////////////
 // ●モジュール情報のロード
 //////////////////////////////////////////////////////////////////////////////
+var $f;
+var $fsec;
 $(function(){
 	var iframe = $('#iframe');
 	var module_data_id   = '#design-modules-data';
@@ -15,8 +17,9 @@ $(function(){
 	var module_name_attr = 'data-module-name';
 
 	var btn_save = $('#save-btn');
-	var btn_setting_title = $('#btn-setting').text() || 'setting';
 	var btn_close_title   = $('#btn-close').text()   || 'delete';
+	var btn_setting_title = $('#btn-setting').text() || 'setting';
+	var btn_desset_title  = $('#btn-design-setting').text() || 'design setting';
 
 	var modules = [];	// 各モジュールを取得し保存
 	var mod_list= [];
@@ -48,10 +51,12 @@ $(function(){
 //////////////////////////////////////////////////////////////////////////////
 iframe.on('load', function(){
 	var if_cw = iframe[0].contentWindow;
-	var $f    = iframe[0].contentWindow.$;
-	var side_a = $f('#side-a');
-	var side_b = $f('#side-b');
-	var f_main = $f('.main:first-child');
+	    $f    = iframe[0].contentWindow.$;		// global
+	    $fsec = iframe[0].contentWindow.$secure;	// global
+	var side_a = $fsec('#side-a');
+	var side_b = $fsec('#side-b');
+	var f_main = $f('#hatena-body .main:first-child');
+	var f_head = $fsec('#header');
 
 	// フレーム内check
 	if ($f('#body').hasClass('system-mode')) {
@@ -72,6 +77,7 @@ iframe.on('load', function(){
 	side_a.sortable({ items: selector, connectWith: ".connectedSortable" });
 	side_b.sortable({ items: selector, connectWith: ".connectedSortable" });
 	f_main.sortable({ items: selector + ', #article, #articles' });
+	f_head.sortable({ items: selector });
 
 	// iframe内のリンク書き換え
 	$f('a').each(function(idx,dom) {
@@ -97,12 +103,17 @@ mod_type.change(function(evt){
 	);
 	for(var i=0; i<mod_list.length; i++) {
 		var name = mod_list[i];
-		var obj = modules[name];
-		if (obj.data('type') != type) continue;
+		var mod = modules[name];
+		if (mod.data('type').indexOf(type)<0) continue;
+		// 
+		var id = mod.children().attr('id');
+		if (id) {
+			if ($f('#' + id).data('fix')) continue;	// 固定要素は無視
+		}
 		// 追加
 		sel.append( $('<option>')
 			.attr('value', name)
-			.text(obj.attr('title'))
+			.text(mod.attr('title'))
 		);
 	}
 });
@@ -148,14 +159,21 @@ $('#add-module').change(function(evt){
 		obj.data('module-name', name2);
 		obj.attr('data-module-name', name2);	// 必須
 		name = name2;
+		var id = name.replace(/_/g, '-').replace(',', '');
+		obj.attr('id', id);			// 個別CSS適用のための細工
 	}
 
-	// type?
-	var type = mod_type.val();
-	var place = side_a;
-	if (type == 'main') place = f_main;
+	// モジュール初期化
 	init_module(obj);
-	place.prepend(obj);
+
+	// 追加
+	var type = mod_type.val();
+	if (type == 'header') {
+		f_head.append(obj);
+	} else {
+		var place = (type == 'main') ? f_main : side_a;
+		place.prepend(obj);
+	}
 
 	// モジュールHTMLをサーバからロード？
 	if (obj.data('load-module-html')) load_module_html( obj );
@@ -175,12 +193,11 @@ function init_module(obj) {
 	}
 	var hash = modules[ name ].data();
 	if (hash) {
-		var orig = obj.data('module-name');
 		for (var k in hash) {
+			// 元々持つのdata要素を上書きしないようにする
+			if (obj.data(k) != undefined) continue;
 			obj.data(k, hash[k]);
 		}
-		// jQuery中でのデータ管理(kの値)と名前が異なるため他の方法はない
-		obj.data('module-name', orig);
 	}
 
 	// モジュールに title 属性を設定
@@ -212,6 +229,17 @@ function init_module(obj) {
 		});
 		div.append(set);
 	}
+
+	if (obj.data('design-setting')) {
+		var set = $('<span>');
+		set.addClass('ui-icon ui-icon-image ui-button');
+		set.attr('title', btn_desset_title);
+		set.click(function(){
+			module_setting(obj, 'design');
+		});
+		div.append(set);
+	}
+
 	if (!obj.data('fix')) {
 		var close = $('<span>');
 		close.addClass('ui-icon ui-icon-close ui-button');
@@ -233,23 +261,28 @@ function init_module(obj) {
 	obj.prepend(div);
 
 	obj.show();
-	obj.css('min-height', 32);
 };
 
 //////////////////////////////////////////////////////////////////////////////
 // ●モジュールの設定を変更する
 //////////////////////////////////////////////////////////////////////////////
-function module_setting(obj) {
+function module_setting(obj, mode) {
 	var name = obj.data('module-name');
 
 	var formdiv = $('<div>').attr('id', 'popup-dialog');
 	var form = $secure('#setting-form').clone();
 	var url  = form.data('setting-url') + name;
+	if (mode) url += '&mode=' + mode;
 	form.removeAttr('id');
 	form.append($('<input>').attr({
 		type: 'hidden',
 		name: 'module_name',
 		value: name
+	}));
+	form.append($('<input>').attr({
+		type: 'hidden',
+		name: 'setting_mode',
+		value: mode
 	}));
 	var body = $('<div>').attr('id', 'js-form-body');
 	form.append( body );
@@ -263,8 +296,6 @@ function module_setting(obj) {
 
 	var buttons = {};
 	var ok_func = buttons[ $('#btn-ok').text() ] = function(){
-		// disabled要素も送信する
-		form.find('[disabled]').removeAttr('disabled');
 		// 今すぐ保存
 		$.ajax({
 			url: form.attr('action'),
@@ -279,7 +310,7 @@ function module_setting(obj) {
 					//成功
 					formdiv.dialog( 'close' );
 					// モジュールHTMLをサーバからロード？
-					if (obj.data('load-module-html')) load_module_html( obj );
+					if (obj.data('load-module-html')) load_module_html( obj, mode );
 					return ;
 				}
 				errmsg.attr('title', data);
@@ -356,16 +387,10 @@ btn_save.click(function(){
 
 	form_append('side_a_ary', side_a.children(module_selector));
  	form_append('side_b_ary', side_b.children(module_selector));
+ 	form_append('header_ary', f_head.children(module_selector));
 
 	var main_a_ary = [];
 	var main_b_ary = [];
-	{
-		// mainの外に移動しているモジュール
-		var items = $f("[data-move]").filter(module_selector);
-		for(var i=0; i<items.length; i++) {
-			main_a_ary.push(items[i]);
-		}
-	}
 	{
 		var x = main_a_ary;
 		var items = f_main.children(module_selector + ', #article');
@@ -387,12 +412,13 @@ btn_save.click(function(){
 //////////////////////////////////////////////////////////////////////////////
 // ●モジュールをロードして置き換える
 //////////////////////////////////////////////////////////////////////////////
-function load_module_html(obj) {
-	var name = obj.data('module-name');
+function load_module_html(obj, mode) {
+	if (mode == 'design') return load_module_css(obj, mode);
 	if (!obj.data('load-module-html')) return;
 
 	// HTML取得用フォーム
-	var form = $secure('#load-module-html-form');
+	var name = obj.data('module-name');
+	var form = $secure('#load-module-form');
 	$('#js-load-module-name').val( name );
 	var url = form.attr('action');
 
@@ -406,6 +432,52 @@ function load_module_html(obj) {
 	//	adiary_init( newobj );
 	});
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// ●CSSをロードして置き換える
+//////////////////////////////////////////////////////////////////////////////
+function load_module_css(obj) {
+	var name = obj.data('module-name');
+	if (!obj.data('load-module-html') || !obj.data('design-setting')) return;
+
+	var form = $secure('#load-module-form');
+	$('#js-load-module-name').val( name );
+	var url = form.attr('action');
+	var data= form.serialize() + '&mode=css';
+
+	$.post(url, data, function(data){
+		if (data.match(/^\s*reload=1\s*$/)) {
+			// インストール済の時は、CSS強制リロード
+			return if_cw.reload_user_css();
+		}
+		if (IE8) return;	// 以下が動かない
+
+		// CSSテキストを適用
+		var id = 'js-css-' + name.replace(/[_,]/g, '-');
+		$f('#' + id).remove();
+		var css = $('<style>').attr({
+			id: id,
+			type: 'text/css'
+		});
+		css.html(data);
+		$f('head').append(css);
+	});
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●モジュールの背景色を変えて表示
+//////////////////////////////////////////////////////////////////////////////
+var disp_modules = $('#display-modules');
+disp_modules.change(function() {
+	var flag = disp_modules.prop('checked');
+
+	if (flag)
+		$f(module_selector).addClass('display');
+	else
+		$f(module_selector).removeClass('display');
+});
+disp_modules.change();
+
 
 //############################################################################
 });

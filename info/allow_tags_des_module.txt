@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# 許可タグリスト for 記事の説明（概要）
+# 許可タグリスト for デザインモジュール用
 #-------------------------------------------------------------------------------
 _base		id, title, class
 _protocol	http, https, ftp, mailto
@@ -9,6 +9,12 @@ a		href, name, target, rel
 p
 br
 span
+
+### ブロック要素 ###############
+div
+blockquote	cite
+pre
+code
 
 ### 修飾 ########################
 ins
@@ -25,6 +31,18 @@ rt
 rp
 mark
 cite
+
+### list ########################
+ul		type
+ol		type
+li		value
+dt
+dl
+dd
+
+### 画像 ########################
+img		alt, src, width, height, usemap, ismap
+
 
 # style 指定子によるXSS対策
 _style_secure

@@ -1832,10 +1832,13 @@ sub load_tag_escaper {
 
 	my $head = $self->{allow_tags_head};
 	my @ary  = map { "$head$_.txt" } @_;
-
-	my $key = join('*',@ary);
+	return $self->_load_tag_escaper(@ary);
+}
+sub _load_tag_escaper {
+	my $self  = shift;
+	my $key   = join('*',@_);
 	my $cache = $self->{__tag_escaper_cache} ||= {};
-	my $obj   = $cache->{$key} || $self->{ROBJ}->loadpm('TextParser::TagEscape', @ary);
+	my $obj   = $cache->{$key} || $self->{ROBJ}->loadpm('TextParser::TagEscape', @_);
 
 	$obj->{allow_anytag} = $self->{trust_mode};
 	return ($cache->{$key} = $obj);

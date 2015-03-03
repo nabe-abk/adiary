@@ -15,7 +15,7 @@ load_module_html_in_edit=1
 <div class="hatena-module">
 <div class="hatena-moduletitle">フリー入力</div>
 <div class="hatena-modulebody">
-自由にテキストやHTMLを入力することができます。
+テキストやHTMLを自由に入力できます。
 </div>
 </div>
 HTML
@@ -28,7 +28,7 @@ HTML
 <div class="hatena-moduletitle"><@if(ps.title ne '',ps.title ,'フリー入力')></div>
 <$end>
 <@if(!ps.body_none,  #'<div class="hatena-modulebody">\n')>
-<@if(ps.free_txt ne '', ps.free_txt, '自由にテキストやHTMLを入力することができます。')>
+<@if(ps.free_txt ne '', ps.free_txt, 'テキストやHTMLを自由に入力できます。')>
 <@if(!ps.body_none,  #'</div> <!-- hatena-modulebody -->\n')>
 </div> <!-- End of module -->
 HTML

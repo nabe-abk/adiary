@@ -188,7 +188,7 @@ sub make_thumbnail_for_image {
 	my $self = shift;
 	my $dir  = shift;	# 実パス
 	my $file = shift;
-	my $size = int(shift) || $self->{album_thumb_size};
+	my $size = int(shift) || 120;
 	my $ROBJ = $self->{ROBJ};
 
 	# リサイズ
@@ -241,7 +241,7 @@ sub make_thumbnail_for_notimage {
 	my $ROBJ = $self->{ROBJ};
 
 	# サイズ処理
-	my $size  = 120;	# $self->{album_thumb_size};
+	my $size  = 120;
 	my $fsize = $self->{album_font_size};
 	if($size <120){ $size = 120; }
 	if($fsize<  6){ $fsize=   6; }
@@ -673,8 +673,6 @@ sub load_album_allow_ext {
 	return $self->{album_allow_ext};
 }
 
-
-
 ###############################################################################
 # ■設定関連
 ###############################################################################
@@ -1009,8 +1007,8 @@ sub load_usercss {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $file = $ROBJ->get_filepath( $self->{blogpub_dir} . 'usercss.css' );
-	if (!-e $file) { $file = $self->{default_usercss_file}; }
+	my $file = $ROBJ->get_filepath( $self->dynamic_css_file('_usercss') );
+	if (!-r $file) { $file = $self->{default_usercss_file}; }
 	return join('', @{ $ROBJ->fread_lines($file) });
 }
 
@@ -1023,21 +1021,13 @@ sub save_usercss {
 	my $auth = $ROBJ->{Auth};
 	if (! $self->{allow_edit}) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	my $file = $self->{blogpub_dir} . 'usercss.css';
-	if ($css_txt =~ /^\s*$/) {
-		$ROBJ->file_delete( $file );
-		return 0;
+	if ($css_txt =~ /^\s*$/s) {
+		return $self->delete_dynamic_css( '_usercss' );
 	}
-
 	# XSS対策チェック
 	if (! $self->{trust_mode}) { $css_txt = $self->css_escape( \$css_txt ); }
 
-	my $r = $ROBJ->fwrite_lines( $file, $css_txt );
-	if ($r) {
-		$ROBJ->message('Save failed');
-		return 1;
-	}
-	return 0;
+	return $self->save_dynamic_css( '_usercss', $css_txt );
 }
 
 #------------------------------------------------------------------------------
@@ -1097,6 +1087,103 @@ sub css_escape {
 }
 
 ###############################################################################
+# ■動的CSS 管理機構
+###############################################################################
+#------------------------------------------------------------------------------
+# ●CSSの保存
+#------------------------------------------------------------------------------
+sub save_dynamic_css {
+	my $self = shift;
+	my $name = shift;
+	my $css  = shift;
+	my $ROBJ = $self->{ROBJ};
+	if ($name =~ /[^\w\-,]/ || $name =~ /^\s*$/g) { return 1; }
+
+	if ($css =~ /^\s$/s) {	# 中身がからっぽ
+		return $self->delete_dynamic_css($name);
+	}
+
+	my $dir = $self->dynamic_css_dir();
+	$ROBJ->mkdir($dir);
+	my $file = $self->dynamic_css_file($name);
+	$ROBJ->fwrite_lines($file, $css);
+
+	return $self->update_dynamic_css();
+}
+
+#------------------------------------------------------------------------------
+# ●CSSの削除
+#------------------------------------------------------------------------------
+sub delete_dynamic_css {
+	my $self = shift;
+	my $name = shift;
+	my $ROBJ = $self->{ROBJ};
+	if ($name =~ /[^\w\-,]/ || $name =~ /^\s*$/g) { return 1; }
+
+	my $file = $self->dynamic_css_file($name);
+	$ROBJ->file_delete( $file );
+
+	return $self->update_dynamic_css();
+}
+
+#------------------------------------------------------------------------------
+# ●動的CSSをまとめて1つのCSSに出力
+#------------------------------------------------------------------------------
+sub update_dynamic_css {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir = $self->dynamic_css_dir();
+	my $files = $ROBJ->search_files($dir, {ext => '.css'});
+
+	# 名前順ソート。ただし _ で始まるファイルを最後に処理する
+	$files = [ sort {
+			my ($x,$y) = ($a,$b);
+			$x =~ tr/a-z/A-Z/;
+			$y =~ tr/a-z/A-Z/;
+			$x cmp $y;
+	} @$files ];
+
+	my @ary;
+	foreach(@$files) {
+		push(@ary, "\n/* from $_ */\n\n");
+		push(@ary, join('', @{ $ROBJ->fread_lines("$dir$_") }));
+	}
+
+	my $file = $self->{blogpub_dir} . 'dynamic.css';
+	if (@ary) {
+		$ROBJ->fwrite_lines($file, \@ary);
+	} else {
+		$ROBJ->file_delete($file);
+	}
+	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●動的CSSの存在確認
+#------------------------------------------------------------------------------
+sub check_dynamic_css {
+	my $self = shift;
+	my $name = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $file = $self->dynamic_css_file( $name );
+	return (-r $ROBJ->get_filepath( $file )) ? 1 : 0;
+}
+
+#------------------------------------------------------------------------------
+# ●動的CSS保管領域
+#------------------------------------------------------------------------------
+sub dynamic_css_dir {
+	my $self = shift;
+	return $self->{blogpub_dir} . 'css.d/';
+}
+sub dynamic_css_file {
+	my $self = shift;
+	my $name = shift;
+	return $self->dynamic_css_dir() . $name . '-d.css';
+}
+
+###############################################################################
 # ■プラグインの設定
 ###############################################################################
 #------------------------------------------------------------------------------
@@ -1115,7 +1202,7 @@ sub load_plugins_info {
 	my $files = $ROBJ->search_files($dir, {dir_only => 1});
 	my @ary;
 	foreach( sort @$files ) {
-		my $f = ($_ =~ /^de[sm]_/);		# デザインモジュール？
+		my $f = ($_ =~ /^de[smha]_/);		# デザインモジュール？
 		if (!$modf && $f || $modf && !$f) { next; }
 		# load
 		push(@ary, $self->load_plugin_info($_, $dir));
@@ -1162,13 +1249,15 @@ sub load_plugin_info {
 		$h->{module_html} ||= join('', @{ $ROBJ->fread_lines("$dir$n/module.html") });
 	}
 
-	# <@this>の置換
+	# <@this>, <@id>の置換
+	my $id = $self->plugin_name_id( $name );
 	$h->{files}  =~ s/<\@this>/$name/g;
 	$h->{events} =~ s/<\@this>/$name/g;
-	$h->{sample_html} =~ s/<\@this>/$name/g;
-	foreach(keys(%$h)) {
-		if ($_ !~ /^module\w*_html$/) { next; }
+	my @ary = grep { /^module\w*_html$/ } keys(%$h);
+	push(@ary, 'sample_html');
+	foreach(@ary) {
 		$h->{$_} =~ s/<\@this>/$name/g;
+		$h->{$_} =~ s/<\@id>/$id/g;
 	}
 
 	# タグの除去
@@ -1179,8 +1268,20 @@ sub load_plugin_info {
 
 	# setting.html
 	$h->{module_setting} = -r "$dir$n/setting.html";
-	# モジュールジェネレーター
-	$h->{module_html_generator} = -r "$dir$n/html_generator.pm";
+	# デザイン設定ファイル
+	$h->{design_setting} = -r "$dir$n/design_setting.html";
+
+	# 動的CSSファイル
+	my $dcss = $h->{module_dcss} = -r "$dir$n/module-d.css";
+	if ($dcss) {
+		$h->{events}  =~ s/\r?\n?$/\n/;
+		$h->{events} .= <<DCSS_EVENT;
+INSTALL=skel/_sub/module_css_generate
+SETTING=skel/_sub/module_css_generate
+UNINSTALL=skel/_sub/module_css_delete
+DCSS_EVENT
+		chomp($h->{events});
+	}
 
 	# キャッシュ
 	$cache->{"$dir$name"} = $h;
@@ -1274,6 +1375,9 @@ sub save_use_plugins {
 				$pd->{"$name"} = 1;
 				$pd->{"$name:events"} = $_->{events};
 				push(@install_plugins, $name);
+
+				# common名でのイベント登録を削除
+				delete $pd->{"$cname:events"};
 			} else {
 				# uninstall
 				delete $pd->{"$name"};
@@ -1284,7 +1388,7 @@ sub save_use_plugins {
 		}
 
 		# install/uninstall 実行
-		my $r = $fail{$name} ? -1 : $self->$func( $pd, $_ );
+		my $r = $fail{$name} ? 100 : $self->$func( $pd, $_ );
 		$err += $r;
 		if ($r) {
 			$fail{$name}=1;
@@ -1331,7 +1435,8 @@ sub plugin_install {
 	my $skel_dir = $self->{blog_dir} . 'skel/';
 	my $js_dir   = $self->{blogpub_dir} . 'js/';
 	my $css_dir  = $self->{blogpub_dir} . 'css/';
-	my $plg_dir  = $self->{plugin_dir} . "$n/";
+	my $cssd_dir = $self->{blogpub_dir} . 'css.d/';	# 自動ロードcss
+	my $plg_dir  = $self->plugin_name_dir($n);	# plugin/ : 読み込み用
 
 	my $copy = $self->{plugin_symlink} ? 'file_symlink' : 'file_copy';
 
@@ -1339,9 +1444,12 @@ sub plugin_install {
 	$ROBJ->mkdir( $func_dir );
 	$ROBJ->mkdir( $skel_dir );
 	$ROBJ->mkdir( $js_dir   );
+	$ROBJ->mkdir( $css_dir  );
+	$ROBJ->mkdir( $cssd_dir );
 
 	# ファイルのインストール
 	my $err=0;
+	my $cssd;
 	my @copy_files;
 	foreach(split("\n",$files)) {
 		# 親ディレクトリ参照などの防止
@@ -1361,6 +1469,10 @@ sub plugin_install {
 		}
 		if ($dir eq 'css') {
 			$des = $css_dir . $file;
+		}
+		if ($dir eq 'css.d') {
+			$des = $cssd_dir . $file;
+			$cssd=1;
 		}
 		if ($dir eq 'skel') {
 			$self->mkdir_with_filepath( $skel_dir, $file );
@@ -1396,6 +1508,7 @@ sub plugin_install {
 		# インストールしたファイルを記録
 		push(@copy_files, $des);
 	}
+	if ($cssd) { $self->update_dynamic_css(); }
 
 	if ($err) {
 		foreach(@copy_files) {
@@ -1423,11 +1536,18 @@ sub plugin_uninstall {
 	my $name = ref($plugin) ? $plugin->{name} : $plugin;
 	my $files = $pd->{"$name:files"};
 	my $err=0;
+	my $cssd=0;
 	foreach(split("\n", $files)) {
 		my $r = $ROBJ->file_delete( $_ );
-		if ($r) { next; }	# 成功
+		if ($r) {	# 成功
+			if ($_ =~ m|/css\.d/|) { $cssd=1; }
+			next;
+		}
 		$err++;
 		$ROBJ->error("[plugin:%s] File delete failed : %s", $name, $_);
+	}
+	if ($cssd && !$plugin->{module_dcss}) {
+		$self->update_dynamic_css();
 	}
 	if ($err) { return $err; }
 
@@ -1523,17 +1643,21 @@ sub save_plugin_setting {
 	my $ROBJ = $self->{ROBJ};
 	my $name = $form->{module_name};
 
-	my $n = $self->plugin_name_check($name);
+	my $mode = $form->{setting_mode};
+	if ($mode ne 'design') { $mode = ''; }
+	if ($mode ne '') { $mode .= '_'; }
+
+	my $n = $self->plugin_name_check($name);	# $n = プラグイン名
 	if (!$n) { return 1; }
 
 	my $dir = $ROBJ->get_filepath($self->{plugin_dir} . $n);
 	my $ret;
-	my $pm = "$dir/validator.pm";
+	my $pm = "$dir/${mode}validator.pm";
 	if (-r $pm) {
 		my $func = $self->load_plugin_function( $pm, $pm );
 		$ret = &$func($self, $form);
 	} else {
-		$ret = $ROBJ->_call("$dir/validator.html", $form);
+		$ret = $ROBJ->_call("$dir/${mode}validator.html", $form);
 	}
 	if (ref($ret) ne 'HASH') { return; }
 
@@ -1553,6 +1677,20 @@ sub plugin_num {
 	my $self = shift;
 	return ($_[0] =~ /^(?:[A-Za-z][\w\-]*),(\d+)$/) ? $1 : undef;
 }
+sub plugin_name_id {
+	my $self = shift;
+	my $name = shift;
+	if ($name !~ /,/) { return ''; }	# 多重インストールモジュールではない
+	$name =~ s/,//g;
+	$name =~ tr/_/-/;
+	return $name;
+}
+sub plugin_name_dir {
+	my $self = shift;
+	my $name = $self->plugin_name_check(shift);
+	return $self->{plugin_dir} . "$name/";
+}
+
 
 ###############################################################################
 # ■デザインモジュールの設定
@@ -1570,8 +1708,9 @@ sub save_design {
 	my @side_b = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{side_b_ary} || []};
 	my @main_a = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{main_a_ary} || []};
 	my @main_b = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{main_b_ary} || []};
+	my @header = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{header_ary} || []};
 
-	my %use_f = map {$_ => 1} (@side_a,@side_b,@main_a,@main_b);
+	my %use_f = map {$_ => 1} (@side_a,@side_b,@main_a,@main_b,@header);
 	my $pd = $self->load_plugins_dat();
 	my @multi;
 	foreach(keys(%$pd)) {	# 現在のinstall状態確認
@@ -1616,6 +1755,27 @@ sub save_design {
 		}
 		push(@html, @{$h->{FOOTER} || []});
 
+		my $r = $ROBJ->fwrite_lines("$dir$file.html", \@html);
+		if ($r) {
+			$ret++;
+			$ROBJ->message('Design save failed : %s', "$file.html");
+		}
+	}
+
+	#-------------------------------------------------------------------
+	# _header.html を生成
+	#-------------------------------------------------------------------
+	if (! $form->{sidebar_only}) {
+		my $file = '_header';
+		my $h = $self->parse_original_skeleton($file);
+		my @html;
+		push(@html, @{$h->{HEADER} || []});
+		foreach(@header) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{FOOTER} || []});
+		
 		my $r = $ROBJ->fwrite_lines("$dir$file.html", \@html);
 		if ($r) {
 			$ret++;
@@ -1709,6 +1869,9 @@ sub parse_original_skeleton {
 	my %h;
 	my %in;
 	foreach(@$lines) {
+		if ($_ =~ /^<\@>\$PASTE=(.*)/s) {
+			$_ = $1;
+		}
 		if ($_ =~ /^<\@>\$(\w+)\$/) {
 			$in{$1} = 1;
 			$h{$1} = [];
@@ -1735,8 +1898,8 @@ sub load_module_html {
 	my $ROBJ = $self->{ROBJ};
 
 	# generatorの有無はファイルの存在で確認
-	my $n = $self->plugin_name_check( $name );
-	my $pm = $ROBJ->get_filepath( "$self->{plugin_dir}$n/html_generator.pm" );
+	my $dir = $self->plugin_name_dir( $name );
+	my $pm  = $ROBJ->get_filepath( $dir . 'html_generator.pm' );
 	if (! -r $pm) {
 		my $h = $self->load_plugin_info($name) || {};
 		return $h->{"module${target}_html"} || $h->{"module_html"};
@@ -1806,6 +1969,7 @@ sub reset_design {
 	my $ret = $self->save_use_modules(\%reset);
 
 	# 生成スケルトンを消す
+	$ROBJ->file_delete($self->{blog_dir} . 'skel/_header.html');
 	$ROBJ->file_delete($self->{blog_dir} . 'skel/_sidebar.html');
 	$ROBJ->file_delete($self->{blog_dir} . 'skel/_article.html');
 	$ROBJ->file_delete($self->{blog_dir} . 'skel/_main.html');
@@ -1821,6 +1985,41 @@ sub reset_design {
 	}
 
 	return 0;
+}
+
+###############################################################################
+# ■プラグインの動的CSS処理
+###############################################################################
+#------------------------------------------------------------------------------
+# ●モジュールCSSの生成
+#------------------------------------------------------------------------------
+sub generate_module_css {
+	my $self = shift;
+	my $name = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir = $self->plugin_name_dir( $name );
+	my $css = $ROBJ->get_filepath( $dir . "module-d.css" );
+	if (! -r $css) { return; }
+
+	# 動的生成CSSがある？
+	my $id = $self->plugin_name_id( $name );
+	return $ROBJ->chain_array( $ROBJ->_call($css, $name, $id) );
+}
+
+#------------------------------------------------------------------------------
+# ●モジュールCSSの保存
+#------------------------------------------------------------------------------
+sub generate_and_save_module_css {
+	my $self = shift;
+	my $name = shift;
+	my $css  = $self->generate_module_css( $name );
+	return $self->save_dynamic_css($name, $css);
+}
+
+# 削除
+sub delete_module_css {
+	&delete_dynamic_css(@_);
 }
 
 ###############################################################################

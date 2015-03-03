@@ -1,29 +1,13 @@
 #!/usr/bin/perl
-use 5.6.0;
+use 5.8.0;
 use strict;
-BEGIN { unshift(@INC, './lib'); }
-
-require Satsuki::Base;			# ¥Ù¡¼¥¹¥·¥¹¥Æ¥à¡ÊÉ¸½à´Ø¿ô¡Ë¥í¡¼¥É
-my $ROBJ = Satsuki::Base->new();	# ¥ë¡¼¥È¥ª¥Ö¥¸¥§¥¯¥ÈÀ¸À®
+use Encode;
+use Encode::Guess qw(ascii euc-jp shiftjis iso-2022-jp);
 ###############################################################################
 # adiary Release checker
 ###############################################################################
 my $errors=0;
 print "---adiary Release checker-------------------------------------------\n";
-
-#------------------------------------------------------------------------------
-# Design file check
-#------------------------------------------------------------------------------
-if (0) {
-	my $lines = $ROBJ->fread_lines( "info/design_default.dat" );
-	my $x = $lines->[0];
-	if ($x =~ /Ver(\d+\.\d+)/) {
-		print "## Design Version : $1\n";
-	} else {
-		print "## Design Version : not found!\n";
-		$errors++;
-	}
-}
 #------------------------------------------------------------------------------
 # Debug check
 #------------------------------------------------------------------------------
@@ -50,7 +34,7 @@ if (0) {
 # CRLF check
 #------------------------------------------------------------------------------
 {
-	open(my $fh, "grep -r '\r\n' skel/ lib/ info/ plugin/|");
+	open(my $fh, "grep -r '\r\n' skel/ js/*.js lib/ info/ plugin/|");
 	my @ary = <$fh>;
 	close($fh);
 
@@ -70,13 +54,46 @@ if (0) {
 # BOM check
 #------------------------------------------------------------------------------
 {
-	open(my $fh, "grep -r '\xEF\xBB' skel/ lib/ info/ plugin/|");
+	open(my $fh, "grep -r '\xEF\xBB' skel/ js/*.js lib/ info/ plugin/|");
 	my @ary = <$fh>;
 	close($fh);
 	foreach(@ary) {
 		print "## BOM warning : $_\n";
 	}
 }
+
+#------------------------------------------------------------------------------
+# æ–‡å­—ã‚³ãƒ¼ãƒ‰check
+#------------------------------------------------------------------------------
+{
+	open(my $fh, "find skel/ js/ lib/ info/ plugin/|");
+	my @files = <$fh>;
+	close($fh);
+
+	foreach(@files) {
+		chomp($_);
+		if (-d $_) { next; }
+		if ($_ !~ /\.(pm|html|css|info|dat|txt)$/) { next; }
+
+		open(my $fh, $_);
+		my @lines = <$fh>;
+		close($fh);
+		my $str  = join('', @lines);
+		my $code = guess_encoding($str);
+		if (!$code) { next; }	# æŽ¨å®šã§ããš
+		
+		if (ref($code)) { $code = $code->name(); }
+		if ($code eq 'utf8' || $code eq 'ascii') { next; }
+
+		# shiftjis or utf8 / utf8 or shiftjis
+		if ($code =~ /utf8/) { next; }
+
+		print "## code error : $code $_ \n";
+		$errors++;
+	}
+}
+
+
 
 #------------------------------------------------------------------------------
 # exit

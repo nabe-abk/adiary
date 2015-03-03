@@ -3,6 +3,9 @@
 <$s = v.blog>
 <$ifredirect(!v.blog_admin, v.myself)>
 
+<@>システムモード移行前に
+<$theme = v.theme>
+
 <@><!--========================================================================-->
 <@> システムモード
 <$v.special_system_mode("テーマ選択")>
@@ -107,7 +110,7 @@ div.iblk {
 <select id="theme-select" name="theme">
 <@forexec(tp, v.load_templates(), begin)>
 <@forexec(t,  v.load_themes(tp), begin)>
-	<option value="<@tp><@t.name>" data-readme="<@t.readme>"<@if("<@tp><@t.name>" eq v.theme, ' selected')>><@tp><@t.name></option>
+	<option value="<@tp><@t.name>" data-readme="<@t.readme>"<@if("<@tp><@t.name>" eq theme, ' selected')>><@tp><@t.name></option>
 <$end>
 <$end>
 </select>
