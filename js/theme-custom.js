@@ -169,6 +169,14 @@ function init_custom_form(data) {
 			var obj = $(evt.target);
 			obj.ColorPickerSetColor( obj.val() );
 		});
+		(function(){
+			var iobj = inp;		// クロージャ
+			iobj.data('onChange', function(hsb, hex, rgb) {
+				iobj.data('val', '#' + hex);
+				update_css();
+				iobj.removeData('val');
+			});
+		})();
 		span.append(inp);
 		div.append(span);
 	}
@@ -185,7 +193,7 @@ function update_css() {
 	var col = {};
 	input_cols.each(function(idx,dom){
 		var obj = $(dom);
-		var val = obj.val();
+		var val = obj.data('val') || obj.val();
 		if (val.match(/#[0-9A-Fa-f]{3}/) || val.match(/#[0-9A-Fa-f]{6}/))
 			col[ obj.attr('name').substr(2) ] = val;
 	});

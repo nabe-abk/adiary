@@ -1,0 +1,105 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	bg = 背景色
+	bg:filter0 = rgb
+	bg:default = 
+
+	font_c = 文字色
+	font_c:filter0 = rgb
+	font_c:default = 
+
+	font_s = 文字サイズ
+	font_s:type = int
+	font_s:min  =   0
+	font_s:max  = 999
+	font_s:default = 
+
+	line_h = 行間
+	line_h:type = int
+	line_h:min  =   0
+	line_h:max  = 999
+	line_h:default = 
+
+	border_c = 枠線の色
+	border_c:filter0 = rgb
+	border_c:default = 
+
+	border_w = 枠線の太さ
+	border_w:type = int
+	border_w:min  =   0
+	border_w:max  =  99
+
+	border_r = 枠線の丸め量
+	border_r:type = int
+	border_r:min  =   0
+	border_r:max  =  99
+
+	shadow_b = 影の幅
+	shadow_b:type = int
+	shadow_b:min  =   0
+	shadow_b:max  =  99
+
+	shadow_bb = 影のぼかし量
+	shadow_bb:type = int
+	shadow_bb:min  =   0
+	shadow_bb:max  =  99
+
+	width2 = 2段目以降の項目幅
+	width2:type =  int
+	width2:min  =   40
+	width2:max  = 9999
+	width2:default = 
+
+	margin0 = マージン上
+	margin0:type = int
+	margin0:min  =  -999
+	margin0:max  =   999
+	margin0:default = 
+	margin1 = マージン右
+	margin1:type = int
+	margin1:min  =  -999
+	margin1:max  =   999
+	margin1:default = 
+	margin2 = マージン下
+	margin2:type = int
+	margin2:min  =  -999
+	margin2:max  =   999
+	margin2:default = 
+	margin3 = マージン左
+	margin3:type = int
+	margin3:min  =  -999
+	margin3:max  =   999
+	margin3:default = 
+
+	padding0 = padding上
+	padding0:type = int
+	padding0:min  =   0
+	padding0:max  = 999
+	padding0:default = 
+	padding1 = padding右
+	padding1:type = int
+	padding1:min  =   0
+	padding1:max  = 999
+	padding1:default = 
+	padding2 = padding下
+	padding2:type = int
+	padding2:min  =   0
+	padding2:max  = 999
+	padding2:default = 
+	padding3 = padding左
+	padding3:type = int
+	padding3:min  =   0
+	padding3:max  = 999
+	padding3:default = 
+
+	padding = 左右padding
+	padding:type = int
+	padding:min  =   0
+	padding:max  = 999
+	padding:default = 
+<$end>
+
+
+<$ifbreak(form_error())>
+<$return(h)>

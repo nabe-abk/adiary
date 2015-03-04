@@ -1100,7 +1100,18 @@ sub save_dynamic_css {
 	if ($name =~ /[^\w\-,]/ || $name =~ /^\s*$/g) { return 1; }
 
 	if ($css =~ /^\s$/s) {	# 中身がからっぽ
-		return $self->delete_dynamic_css($name);
+		$css = '';	# 0byte でファイルを置いておかないと矛盾が起こる
+	}
+
+	# 中身があるかチェック
+	if ($name !~ /^_/) {	# usercss以外
+		my $c = $css;
+		$c =~ s|/\*(.*?)\*/||sg;			# コメント除去
+		$c =~ s/(['"])(?:\\.|.)*?\1/str/sg;		# 文字列を置換
+		$c =~ s|[\w\-\[\]=,\.*>~:\s\(\)\#]*\{\s*\}||sg;	# 中身のない定義を除去
+		if ($c =~ /^\s*$/) {				# 残りが空白だけ
+			$css = '';
+		}
 	}
 
 	my $dir = $self->dynamic_css_dir();
@@ -1146,16 +1157,14 @@ sub update_dynamic_css {
 
 	my @ary;
 	foreach(@$files) {
-		push(@ary, "\n/* from $_ */\n\n");
-		push(@ary, join('', @{ $ROBJ->fread_lines("$dir$_") }));
+		my $css = join('', @{ $ROBJ->fread_lines("$dir$_") });
+		if ($css =~ /^\s*$/) { next; }		# 空のファイルを無視
+		push(@ary, "\n/* from '$_' */\n\n");
+		push(@ary, $css);
 	}
 
 	my $file = $self->{blogpub_dir} . 'dynamic.css';
-	if (@ary) {
-		$ROBJ->fwrite_lines($file, \@ary);
-	} else {
-		$ROBJ->file_delete($file);
-	}
+	$ROBJ->fwrite_lines($file, \@ary);
 	return 0;
 }
 
@@ -1284,7 +1293,9 @@ sub load_plugin_info {
 	# 動的CSSファイル
 	my $dcss = $h->{module_dcss} = -r "$dir$n/module-d.css";
 	if ($dcss) {
-		$h->{events}  =~ s/\r?\n?$/\n/;
+		if ($h->{events} ne '' ) {
+			$h->{events}  =~ s/\r?\n?$/\n/;
+		}
 		$h->{events} .= <<DCSS_EVENT;
 INSTALL=skel/_sub/module_css_generate
 SETTING=skel/_sub/module_css_generate

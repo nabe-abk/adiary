@@ -124,7 +124,7 @@ blockquote p:last-child {
 input[type="number"] {
 	text-align:		right;
 }
-label, input[type="checkbox"], input[type="radio"] {
+label, input {
 	vertical-align:		middle;
 }
 td.checkbox, th.checkbox {
@@ -135,6 +135,11 @@ td.button, th.button {
 }
 textarea {
 	display:		block;
+}
+
+input[type="radio"]    + label,
+input[type="checkbox"] + label {
+	margin-left:	1px;
 }
 
 /* radioやcheckboxが複数並んだ場合 */
@@ -503,7 +508,7 @@ figure {
 .design-module-edit.display {
 	background-color:	#fcc;
 }
-.design-module-edit:hover {
+.design-module-edit:hover:not(.hoverstop) {
 	background-color:	#faa;
 }
 .module-edit-header {
@@ -513,6 +518,9 @@ figure {
 	z-index:		10;
 	float:			right;
 	text-align:		right;
+}
+#body .module-edit-header * {
+	vertical-align:		top;
 }
 .dem-module {
 	margin-top:		0.5em;

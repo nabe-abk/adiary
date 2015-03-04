@@ -533,7 +533,12 @@ initfunc.push( function(R){
 					var prev = obj.prev();
 					if (! prev.hasClass('colorbox')) return;
 					prev.css('background-color', '#' + hex);
+					var func = obj.data('onChange');
+					if (func) func(hsb, hex, rgb);
 				}
+			});
+			$('.colorpicker').draggable({
+				cancel: ".colorpicker_color, .colorpicker_hue, .colorpicker_submit, input, span"
 			});
 			obj.ColorPickerSetColor( obj.val() );
 		});
@@ -1019,11 +1024,12 @@ function load_contents_list(id) {
 function reload_user_css() {
 	var obj = $('#user-css');
 	var url = obj.attr('href');
-	if (!url || !url.length) return;
+	if (!url || !url.length) return 1;
 
 	url = url.replace(/\?.*/, '');	// ?より後ろを除去
 	url += '?' + Math.random().toString().replace('.', '');
 	obj.attr('href', url);
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////

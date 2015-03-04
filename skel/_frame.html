@@ -27,7 +27,7 @@
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css" id="theme-css">
 <@if(s.theme_custom && s.theme eq v.theme, #'<link rel="stylesheet" href="<@Basepath><@s.theme_custom>" id="theme-custom-css">\n')>
 <$file = "<@v.blogpub_dir>dynamic.css">
-<@if(!v.system_mode && file_readable(file), #'<link rel="stylesheet" href="<@Basepath><@file>" id="user-css">\n')>
+<@if(!v.system_mode && file_size(file), #'<link rel="stylesheet" href="<@Basepath><@file>" id="user-css">\n')>
 <@if(canonical_url, #'<link rel="canonical" href="<@canonical_url>">\n')>
 <@forexec(t, v.load_rss_files(), begin)>
 <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<@Basepath><@v.blogpub_dir><@t>" /> 

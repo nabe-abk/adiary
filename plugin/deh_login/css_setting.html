@@ -1,0 +1,36 @@
+<@6>
+<@local(s)>
+<$s=argv#0>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>ログイン表示の消去<span class="help" data-help="画面右上（等）に表示されるログインリンクを見えなくします。見えないだけ（空白文字になるだけ）でリンク自体は残ります。">?</span></th>
+		<td>
+		<input type="hidden" name="checkbox.info" value="erase_login_link">
+		<input type="checkbox" name="erase_login" value="1"<@if(s.erase_login, ' checked')>><label>「ログイン」を見えなくする</label>
+		</td>
+	</tr>
+	<tr><th>全体の横幅を設定する<span class="help" data-help="横幅がフリー設定（ウィンドウに合わせる）になっているテーマに対し、表示領域の横幅を固定で設定します。">?</span></th>
+		<td>
+			<input type="number" class="int w60" name="width" value="<@s.width || 800>" min="600" max="2000" id="width"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#width"<@if(!s.width,' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+
+	</tbody>
+	</table>
+
+<script>
+$(function(){
+// デフォルト値を設定する
+var abody = $f('#adiary-body');
+if (!abody.length) return;
+
+// 全体の横幅
+if ('<@s.width>' == '') {
+	$('#width').val( abody.width() );
+}
+
+//-----------------------------------------------------------------------------
+});
+</script>

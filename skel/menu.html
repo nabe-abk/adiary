@@ -43,10 +43,10 @@
 		<li><a href="<@v.myself>?set/">基本設定</a></li>
 	<$end>
 	<@ifexec(v.allow_edit, begin)>
-		<li><a href="<@v.myself>?set2/">その他の設定</a><span class="help" data-help="タグ、コンテンツツリー、記法タグ、ユーザーCSS、メール設定<@if(v.blog_admin,'、twitter設定、プラグイン設定')>">?</span></li>
+		<li><a href="<@v.myself>?set2/">その他の設定</a><span class="help" data-help="タグ、コンテンツツリー、記法タグ、ユーザーCSS<@if(v.blog_admin,'、プラグイン設定')>">?</span></li>
 	<$end>
 	<@ifexec(v.blog_admin, begin)>
-		<li><a href="<@v.myself>?design/">デザイン編集</a><span class="help" data-help="テーマ選択、パーツの表示設定">?</span></li>
+		<li><a href="<@v.myself>?design/">デザイン設定</a><span class="help" data-help="テーマ選択、デザイン編集">?</span></li>
 		<li><a href="<@v.myself>?mainte/">ブログの管理</a><span class="help" data-help="ブログの再構築・削除、インポート、エクスポート">?</span></li>
 	<$end>
 		<li><a href="<@v.myself>?personal/">個人の設定</a><span class="help" data-help="ユーザー名の変更、パスワードの変更">?</span></li>
@@ -55,7 +55,7 @@
 	<@ifexec(Auth.isadmin, begin)>
 	<ul class="menu">
 		<li><a href="<@v.myself>?user/">【管理者】ユーザー管理</a></li>
-		<li><a href="<@v.myself>?system/">【管理者】システム管理</a><span class="help" data-help="システム設定、任意のブログ作成、システムチェック">?</span></li>
+		<li><a href="<@v.myself>?system/">【管理者】システム管理</a><span class="help" data-help="システム設定、任意のブログ作成、アップデート処理、システムチェック">?</span></li>
 	</ul>
 	<$end>
 </div>

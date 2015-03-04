@@ -18,12 +18,12 @@
 	<$break()>
 <$end>
 
-<$ps.tw_oauth_token = undef>
-<$ps.tw_oauth_token_secret = undef>
-<$ps.tw_access_token = r.oauth_token>
-<$ps.tw_access_token_secret = r.oauth_token_secret>
-<$ps.tw_screen_name = r.screen_name>
-<$ifset(ps.tw_ping_txt eq '', ps.tw_ping_txt, 'ブログ更新「%t」 %u')>
+<$ps.oauth_token = undef>
+<$ps.oauth_token_secret = undef>
+<$ps.access_token = r.oauth_token>
+<$ps.access_token_secret = r.oauth_token_secret>
+<$ps.screen_name = r.screen_name>
+<$ifset(ps.ping_txt eq '', ps.ping_txt, 'ブログ更新「%t」 %u')>
 <$v.update_plgset(name, ps)>
 
 <@"0">

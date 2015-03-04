@@ -1,13 +1,13 @@
 use strict;
 #------------------------------------------------------------------------------
 # OAuthモジュール
-#						(C)2010 nabe / nabe@abk
+#						(C)2010-2015 nabe / nabe@abk
 #------------------------------------------------------------------------------
 # HMAC-SHA1 専用
 #
 package Satsuki::Base::OAuth;
 use Satsuki::Boolean;
-our $VERSION = '0.20';
+our $VERSION = '0.90';
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -35,12 +35,13 @@ sub request_token {
 	my $ROBJ = $self->{ROBJ};
 
 	my $nonce = $self->generate_nonce();
-	my $msg = "oauth_consumer_key=$h->{consumer_key}"
-		. "&oauth_nonce=$nonce"
-		. "&oauth_signature_method=$self->{signature_method}"
-		. "&oauth_timestamp=$ROBJ->{TM}"
-		. "&oauth_version=$self->{oauth_ver}"
-		;
+	my $msg = $self->generate_msg({
+		oauth_consumer_key => $h->{consumer_key},
+		oauth_nonce        => $nonce,
+		oauth_timestamp    => $ROBJ->{TM},
+		oauth_version      => $self->{oauth_ver},
+		oauth_signature_method => $self->{signature_method}
+	});
 	my $sig = $self->generate_signature('GET', $h->{request_token_path}, $msg, $h->{consumer_secret});
 
 	my %header = ('Authorization' => <<TEXT);
@@ -75,14 +76,15 @@ sub request_access_token {
 	my $ROBJ = $self->{ROBJ};
 
 	my $nonce = $self->generate_nonce();
-	my $msg = "oauth_consumer_key=$h->{consumer_key}"
-		. "&oauth_nonce=$nonce"
-		. "&oauth_signature_method=$self->{signature_method}"
-		. "&oauth_timestamp=$ROBJ->{TM}"
-		. "&oauth_token=$h->{token}"
-		. "&oauth_verifier=$h->{verifier}"
-		. "&oauth_version=$self->{oauth_ver}"
-		;
+	my $msg = $self->generate_msg({
+		oauth_consumer_key => $h->{consumer_key},
+		oauth_nonce        => $nonce,
+		oauth_timestamp    => $ROBJ->{TM},
+		oauth_token        => $h->{token},
+		oauth_verifier     => $h->{verifier},
+		oauth_version      => $self->{oauth_ver},
+		oauth_signature_method => $self->{signature_method}
+	});
 	my $sig = $self->generate_signature('GET', $h->{access_token_path}, $msg,
 		$h->{consumer_secret}, $h->{token_secret});
 
@@ -106,12 +108,19 @@ TEXT
 }
 
 #------------------------------------------------------------------------------
-# ●認証用Queryの生成
+# ●OAuth GET/POST
 #------------------------------------------------------------------------------
-# status のみ対応のやっつけ仕様。
-sub status_update {
+sub get {
 	my $self = shift;
-	my ($h, $url, $req) = @_;
+	return $self->request('GET',  @_);
+}
+sub post {
+	my $self = shift;
+	return $self->request('POST', @_);
+}
+sub request {
+	my $self = shift;
+	my ($method, $h, $url, $req) = @_;
 	my $ROBJ = $self->{ROBJ};
 
 #  GET /photos?file=vacation.jpg&size=original HTTP/1.1
@@ -124,27 +133,33 @@ sub status_update {
 #     oauth_nonce="chapoH",
 #     oauth_signature="MdpQcU8iPSUjWoN%2FUDMsK2sui9I%3D"
 
-	my $status = $req->{status};
+	my $nonce = $self->generate_nonce();
+	my %h=( oauth_consumer_key => $h->{consumer_key},
+		oauth_nonce        => $nonce,
+		oauth_timestamp    => $ROBJ->{TM},
+		oauth_token        => $h->{access_token},
+		oauth_version      => $self->{oauth_ver},
+		oauth_signature_method => $self->{signature_method}
+	);
+
+	# フォーム値の追加
+	my $jcode;
 	if ($ROBJ->{System_coding} ne 'UTF-8') {
-		my $jcode = $ROBJ->load_codepm();
-		$jcode->from_to(\$status, $ROBJ->{System_coding}, 'UTF-8');
+		$jcode = $ROBJ->load_codepm();
 	}
-	$req->{status} = $status;
+	foreach(keys(%$req)) {
+		my $v = $req->{$_};
+		if ($jcode) {
+			$jcode->from_to(\$v, $ROBJ->{System_coding}, 'UTF-8');
+		}
+		$self->urlencode_com($v);
+		$h{$_} = $v;
+	}
 
 	my $HTTP = $ROBJ->loadpm('Base::HTTP');
-	$self->urlencode_com($status);
-
-	my $nonce = $self->generate_nonce();
-	my $msg = "oauth_consumer_key=$h->{consumer_key}"
-		. "&oauth_nonce=$nonce"
-		. "&oauth_signature_method=$self->{signature_method}"
-		. "&oauth_timestamp=$ROBJ->{TM}"
-		. "&oauth_token=$h->{access_token}"
-		. "&oauth_version=$self->{oauth_ver}"
-		. "&status=$status"
-		;
-	my $sig = $self->generate_signature('POST', $url, $msg,
-		$h->{consumer_secret}, $h->{access_token_secret});
+	my $msg  = $self->generate_msg(\%h);
+	my $sig  = $self->generate_signature($method, $url, $msg,
+			$h->{consumer_secret}, $h->{access_token_secret});
 
 	my %header = ('Authorization' => <<TEXT);
 OAuth realm="$h->{realm}",
@@ -158,10 +173,27 @@ OAuth realm="$h->{realm}",
 TEXT
 
 	# $HTTP->{error_to_root} = 1;
-	my $res = $HTTP->post($url, \%header, $req);
+	my $res;
+	if ($method eq 'POST') {
+		$res = $HTTP->post($url, \%header, $req);
+	} elsif ($method eq 'GET') {
+		if ($req) {
+			my $par='';
+			foreach(keys(%$req)) {
+				$par .= "$_=$req->{$_}&";
+			}
+			chop($par);
+			$url .= '?' . $par;
+		}
+		$res = $HTTP->get($url, \%header);
+	} else {
+		return;			# error
+	}
 
-	if (!ref($res)) { return undef; }	# error
-	return $self->parse_json( join('', @$res) );
+	if (!ref($res)) { return; }	# error
+	my $text = join('', @$res);
+	my $data = $self->parse_json( $text );
+	return wantarray ? ($data, $text) : $data;
 }
 
 ###############################################################################
@@ -187,6 +219,21 @@ sub generate_nonce {
 	my $nonce = $self->{ROBJ}->get_rand_string_salt(20);
 	$nonce =~ s/[^\w\-]//g;
 	return $nonce;
+}
+
+#------------------------------------------------------------------------------
+# ●OAuthメッセージの生成
+#------------------------------------------------------------------------------
+sub generate_msg {
+	my $self = shift;
+	my $h = shift;
+	my @ary = sort {$a cmp $b} keys(%$h);
+	my $msg = '';
+	foreach(@ary) {
+		$msg .= "$_=$h->{$_}&";
+	}
+	chop($msg);
+	return $msg;
 }
 
 #------------------------------------------------------------------------------

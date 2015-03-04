@@ -310,7 +310,8 @@ function module_setting(obj, mode) {
 					//成功
 					formdiv.dialog( 'close' );
 					// モジュールHTMLをサーバからロード？
-					if (obj.data('load-module-html')) load_module_html( obj, mode );
+					if (mode == 'css') return load_module_css( obj );
+					if (obj.data('load-module-html')) return load_module_html( obj );
 					return ;
 				}
 				errmsg.attr('title', data);
@@ -412,8 +413,7 @@ btn_save.click(function(){
 //////////////////////////////////////////////////////////////////////////////
 // ●モジュールをロードして置き換える
 //////////////////////////////////////////////////////////////////////////////
-function load_module_html(obj, mode) {
-	if (mode == 'css') return load_module_css(obj, mode);
+function load_module_html(obj) {
 	if (!obj.data('load-module-html')) return;
 
 	// HTML取得用フォーム
@@ -438,7 +438,7 @@ function load_module_html(obj, mode) {
 //////////////////////////////////////////////////////////////////////////////
 function load_module_css(obj) {
 	var name = obj.data('module-name');
-	if (!obj.data('load-module-html') || !obj.data('css-setting')) return;
+	if (!obj.data('css-setting')) return;
 
 	var form = $secure('#load-module-form');
 	$('#js-load-module-name').val( name );
@@ -448,9 +448,11 @@ function load_module_css(obj) {
 	$.post(url, data, function(data){
 		if (data.match(/^\s*reload=1\s*$/)) {
 			// インストール済の時は、CSS強制リロード
-			return if_cw.reload_user_css();
+			var r = if_cw.reload_user_css();
+			if (!r) return;	// 成功
 		}
 		if (IE8) return;	// 以下が動かない
+		alert("loadcss" + data);
 
 		// CSSテキストを適用
 		var id = 'js-css-' + name.replace(/[_,]/g, '-');
@@ -482,3 +484,60 @@ disp_modules.change();
 //############################################################################
 });
 });
+//############################################################################
+// 設定画面用のサブルーチン
+//############################################################################
+// FX : rgb(200,200,200), tranparent
+// GC : rgb(200,200,200), rgb(0, 0, 0, 0)
+// IE8: #ccf / #ccccff
+function parse_color(col) {
+	col = col.toLowerCase();
+	if (col == 'transparent') return '';
+	col = col.replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/, "#$1$1$2$2$3$3");
+	if (col.match(/^#[0-9a-f]{6}$/)) return col;
+
+	var ma = col.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+	if (ma) {
+		var c1 = Number(ma[1]).toString(16);
+		var c2 = Number(ma[2]).toString(16);
+		var c3 = Number(ma[3]).toString(16);
+		if (c1.length == 1) c1 = '0' + c1;
+		if (c2.length == 1) c2 = '0' + c2;
+		if (c3.length == 1) c3 = '0' + c3;
+		return '#' + c1 + c2 + c3;
+	}
+	return '';	// unknown type
+}
+
+function parse_px(m) {
+	return Math.round( parse_px_float(m) );
+}
+function parse_px_float(m) {
+	var ma = m.match(/^(-?\d+(?:\.\d+)?)\s*(?:px)$/);
+	if (ma) return ma[1];
+	return 0;
+}
+
+function get_border_color(obj) {
+	return parse_color(
+		obj.css('border-color')
+		|| obj.css('border-top-color')
+		|| obj.css('border-right-color')
+		|| obj.css('border-bottom-color')
+		|| obj.css('border-left-color')
+	);
+}
+
+function delay_color_setting(target, obj, style, func) {
+	setTimeout( function(){
+		var col = parse_color(obj.css('background-color'));
+		if (col) $('#select-bg').val(col);
+		if (func) {
+			if (typeof(func) == 'function')	return func(obj);
+			obj.removeClass(func);
+		}
+	}, 500);
+}
+
+
+

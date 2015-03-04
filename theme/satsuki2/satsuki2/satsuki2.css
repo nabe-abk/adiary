@@ -15,7 +15,7 @@ section, article {
 ---------------------------------------------------------------------*/
 body
 {
-	background-color:	#fff;		/* $c=fixbg */
+	background-color:	#fff;		/* $c=fixbg */removeData
 	color:			#000;		/* $c=fixfont */
 	font-size:		12pt;
 
@@ -743,7 +743,7 @@ table.plugins button { margin: 0; }
 ●システム画面
 ---------------------------------------------------------------------*/
 article.system div.body {
-	background-color:	#eeeeff;		/* $c=sysbg */
+	background-color:	#eeeeff;		/* $c=sysartbg */
 }
 article.system div.body {
 	padding-bottom:		1em;
@@ -773,6 +773,7 @@ th.focus, td.focus {
 }
 input[type="text"]:focus,
 input[type="date"]:focus,
+input[type="number"]:focus,
 input[type="search"]:focus,
 input[type="tel"]:focus,
 input[type="url"]:focus,
@@ -879,7 +880,7 @@ article.edit span.tag:after {
 ●jQuery UI, popup-info/dialog（プラグインのREADME/設定画面）
 ---------------------------------------------------------------------*/
 .ui-dialog {
-	background-color:	#eeeeff;		/* $c=sysbg */
+	background-color:	#eeeeff;		/* $c=sysartbg */
 	border:			2px solid #2133a9;	/* $c=border */
 	border-radius:		10px;
 	box-shadow:		4px 4px 4px 4px rgba(60,60,100,0.75);
@@ -972,8 +973,8 @@ article.jqueryui-tabs div.body {
 	z-index:	999;
 
 	border:			2px solid #2133a9;	/* $c=border */
-	border-bottom:		3px solid #eeeeff;	/* $c=sysbg */
-	background-color:	#eeeeff;		/* $c=sysbg */
+	border-bottom:		3px solid #eeeeff;	/* $c=sysartbg */
+	background-color:	#eeeeff;		/* $c=sysartbg */
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active a {
 	color:			black;
@@ -994,7 +995,7 @@ nav.tree {
 	margin-bottom:		1.5em;
 	padding:		0.5em 1em 0.5em 1.5em;
 
-	background-color:	#eeeeff;		/* $c=sysbg */
+	background-color:	#eeeeff;		/* $c=sysartbg */
 }
 
 /*--------------------------------------------------------------------

@@ -4,11 +4,11 @@
 <$art  = argv#1>
 <$ps   = v.load_plgset(name)>
 
-<$ifbreak(ps.tw_access_token eq '')>
+<$ifbreak(ps.access_token eq '')>
 
 <@>twitterへの通知ツイート
 <@local(line,tw,res,t)>
-<$line = ps.tw_ping_txt || "%t - %n %u">
+<$line = ps.ping_txt || "%t - %n %u">
 <$replace(line, '%t', art.title)>
 <$replace(line, '%n', v.blog.blog_name)>
 <$replace(line, '%u', art.absolute_url)>
@@ -16,7 +16,7 @@
 <@> ツイート処理
 <$tw = call('_sub/load_twitter_info', ps)>
 <$oauth = loadpm("Base::OAuth")>
-<$res = oauth.status_update(tw, tw.status_update_api, {status => line})>
+<$res = oauth.post(tw, tw.status_update_api, {status => line})>
 <$ifexec(!res || res.errors, begin, begin)>
 	<$ifexec(res.errors, begin, begin)>
 		<@forexec(t, res.errors, begin)>

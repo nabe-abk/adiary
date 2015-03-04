@@ -126,7 +126,7 @@ $(function(){
 load_contents_list('#node-select');
 
 // 設定中のモジュールを探し、デフォルト値を設定する
-var obj = $f('#<@id>')
+var obj = $f('#<@id>');
 if (!obj.length) return;
 var li  = obj.find('>ul>li:first-child');
 var li2 = obj.find('ul>li>ul>li');
@@ -147,17 +147,17 @@ if ('<@s.zindex>' == '') {
 }
 // マージンとpadding
 if ('<@s.margin0>' == '')
-	$('#margin0').val( parse_margin( obj.css('margin-top') ) );
+	$('#margin0').val( parse_px( obj.css('margin-top') ) );
 if ('<@s.margin1>' == '')
-	$('#margin1').val( parse_margin( obj.css('margin-right') ) );
+	$('#margin1').val( parse_px( obj.css('margin-right') ) );
 if ('<@s.margin2>' == '')
-	$('#margin2').val( parse_margin( obj.css('margin-bottom') ) );
+	$('#margin2').val( parse_px( obj.css('margin-bottom') ) );
 if ('<@s.margin3>' == '')
-	$('#margin3').val( parse_margin( obj.css('margin-left') ) );
+	$('#margin3').val( parse_px( obj.css('margin-left') ) );
 
 if ('<@s.padding>' == '') {
 	var ul = obj.find('>ul');
-	$('#padding').val( parse_margin( ul.css('padding-left') ) );
+	$('#padding').val( parse_px( ul.css('padding-left') ) );
 }
 
 
@@ -166,9 +166,7 @@ if ('<@s.item_bg>' == '' && li.length) {
 	if (col) $('#item-bg').val(col);
 }
 if ('<@s.border>' == '' && li.length) {
-	var col = li.css('border-color');
-	if (col == '') // for Firefox
-		col = li.css('border-right-color') || li.css('border-left-color');
+	var col = get_border_color(li)
 	col = parse_color( col );
 	if (col) $('#border').val(col);
 }
@@ -185,40 +183,8 @@ if ('<@s.arrow>' == '' && li.length) {
 // 最後に処理
 if ('<@s.select_bg>' == '' && li.length) {
 	li.addClass('hover');
-	setTimeout( function(){
-		var col = parse_color(li.css('background-color'));
-		if (col) $('#select-bg').val(col);
-		li.removeClass('hover');
-	},500);
+	delay_color_setting('#select-bg', li, 'background-color', 'hover');
 }
-
-// FX : rgb(200,200,200), tranparent
-// GC : rgb(200,200,200), rgb(0, 0, 0, 0)
-// IE8: #ccf / #ccccff
-function parse_color(col) {
-	col = col.toLowerCase();
-	if (col == 'transparent') return '';
-	col = col.replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/, "#$1$1$2$2$3$3");
-	if (col.match(/^#[0-9a-f]{6}$/)) return col;
-
-	var ma = col.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
-	if (ma) {
-		var c1 = Number(ma[1]).toString(16);
-		var c2 = Number(ma[2]).toString(16);
-		var c3 = Number(ma[3]).toString(16);
-		if (c1.length == 1) c1 = '0' + c1;
-		if (c2.length == 1) c2 = '0' + c2;
-		if (c3.length == 1) c3 = '0' + c;
-		return '#' + c1 + c2 + c3;
-	}
-	return '';	// unknown type
-}
-
-function parse_margin(m) {
-	var ma = m.match(/^(-?\d+)\s*px$/);
-	if (ma) return m[0];
-	return 0;
-}
-
+//-----------------------------------------------------------------------------
 });
 </script>

@@ -5,15 +5,15 @@
 <@>-----------------------------------------------
 <$h = validator(begin_hash, argv#0) )>
 	re_auth = flag
-	tw_ping = flag
-	tw_ping_txt = ツイート内容
-	tw_ping_txt:filter0 = trim
+	ping = flag
+	ping_txt = ツイート内容
+	ping_txt:filter0 = trim
 <$end>
 
 <$ifexec(h.re_auth, begin)>	<@> 再認証
-	<$h.tw_screen_name  = undef>
-	<$h.tw_access_token = undef>
-	<$h.tw_access_token_secret = undef>
+	<$h.screen_name  = undef>
+	<$h.access_token = undef>
+	<$h.access_token_secret = undef>
 <$end>
 
 <$ifbreak(form_error())>

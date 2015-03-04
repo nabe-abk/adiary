@@ -436,6 +436,15 @@ sub {
 }
 FUNC
 
+$Builtin_func{'file_size.arg'} = '$R,';
+$Builtin_func{file_size} = <<'FUNC';
+sub {
+	my ($self, $file) = @_;
+	if (-s $self->get_filepath($file)) { return 1; }
+	return 0;
+}
+FUNC
+
 #--------------------------------------------------------------------
 # ●配列から指定した数をランダムにロードする
 #--------------------------------------------------------------------

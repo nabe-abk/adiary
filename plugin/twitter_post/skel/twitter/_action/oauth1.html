@@ -17,11 +17,11 @@
 <$end>
 
 <$ps = new>
-<$ps.tw_oauth_token = r.oauth_token>
-<$ps.tw_oauth_token_secret = r.oauth_token_secret>
-<$ps.tw_access_token = "">
-<$ps.tw_access_token_secret = "">
+<$ps.oauth_token = r.oauth_token>
+<$ps.oauth_token_secret = r.oauth_token_secret>
+<$ps.access_token = "">
+<$ps.access_token_secret = "">
 <$v.update_plgset(name, ps)>
 
 <@"0\n">
-<@"<@tw.authorize_path>?oauth_token=<@ps.tw_oauth_token>">
+<@"<@tw.authorize_path>?oauth_token=<@ps.oauth_token>">
