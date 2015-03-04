@@ -31,7 +31,7 @@
 	<table class="blog-setting">
 	<tbody>
 	<tr>
-		<th>ブログ名</th><td<@err.c_blog_name>><input type="text" name="blog_name" size="40" class="w280" value="<@s.blog_name>" required></td>
+		<th>ブログ名</th><td<@err.c_blog_name>><input type="text" name="blog_name" class="w280" value="<@s.blog_name>" required></td>
 	</tr>
 	<tr>
 		<th>ブログの紹介（説明）<br>（RSSにも出力）<br><a href="<@v.myself>?etc/allow_tags&amp;n=description" target="_blank">使用可能なHTMLタグ</a></th><td><textarea name="description_txt" class="description w400" cols="50" rows="3" wrap="soft"><@replace(x = s.description_txt, "<br>", "\n")></textarea>

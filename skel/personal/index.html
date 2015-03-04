@@ -24,7 +24,7 @@
 	</tr>
 	<tr>
 		<th>アカウント名</th>
-		<td<@err.c_name>><input type=text name="name" size="32" value="<@if(POST, esc(Form.name), Auth.name)>" ></td>
+		<td<@err.c_name>><input type=text name="name" class="w200" value="<@if(POST, esc(Form.name), Auth.name)>" ></td>
 	</tr>
 	</table>
 	<input type=submit name="submit" value="アカウント名を変更"><br>
@@ -38,10 +38,10 @@
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<table class="blog-setting">
 	<tbody>
-		<tr><th>現在のパスワード</th><td<@err.c_now_pass>><input type="password" name="now_pass" size="16" class="w120" value="" required>
-		<tr><th>新しいパスワード</th><td<@err.c_pass>><input type="password" name="pass" size="16" class="w120" value="" required>
+		<tr><th>現在のパスワード</th><td<@err.c_now_pass>><input type="password" name="now_pass" class="w120" value="" required>
+		<tr><th>新しいパスワード</th><td<@err.c_pass>><input type="password" name="pass" class="w120" value="" required>
 			<strong class="warning"><@Auth.pass_min>文字</strong>以上</td></tr>
-		<tr><th>新しいパスワード確認</th><td<@err.c_pass>><input type="password" name="pass2" size="16" class="w120" value="" required>←もう一度</td></tr>
+		<tr><th>新しいパスワード確認</th><td<@err.c_pass>><input type="password" name="pass2" class="w120" value="" required>←もう一度</td></tr>
 	</table>
 	<input type=submit name="submit" value="パスワードを変更"><br>
 	</form>

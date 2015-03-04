@@ -65,7 +65,7 @@
 <div class="hatena-moduletitle">検索</div>
 <div class="hatena-modulebody">
 <form method="GET" action="<@v.myself>" id="side-search-form">
-<input type="search" class="w80" name="q" size="12" value="<@tag_escape(x = Query.q)>" id="side-search-text" required>
+<input type="search" class="w80" name="q" value="<@tag_escape(x = Query.q)>" id="side-search-text" required>
 <button type="submit" id="side-search-submit">検索</button><br>
 <input type="radio" name="all" value="0" <@if(!Query.all, "checked")>><label>タイトル</label>
 <input type="radio" name="all" value="1" <@if( Query.all, "checked")>><label>全文</label>

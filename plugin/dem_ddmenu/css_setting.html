@@ -77,34 +77,34 @@ id : #<@id><br>
 	</tr>
 	<tr>
 		<th>背景色</th><td>
-			<input type="text" id="item-bg" name="item_bg" size="12" value="<@s.item_bg || '#ccccff'>" class="color-picker">
+			<input type="text" id="item-bg" name="item_bg" value="<@s.item_bg || '#ccccff'>" class="color-picker">
 			<input type="checkbox" class="js-disable" data-target="#item-bg"<@if(s.item_bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>選択中の背景</th><td>
-			<input type="text" id="select-bg" name="select_bg" size="12" value="<@s.select_bg || '#f0f0ff'>" class="color-picker">
+			<input type="text" id="select-bg" name="select_bg" value="<@s.select_bg || '#f0f0ff'>" class="color-picker">
 
 			<input type="checkbox" class="js-disable" data-target="#select-bg"<@if(s.select_bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>区切り線の色</th><td>
-			<input type="text" id="border" name="border" size="12" value="<@s.border || '#aaaadd'>" class="color-picker">
+			<input type="text" id="border" name="border" value="<@s.border || '#aaaadd'>" class="color-picker">
 
 			<input type="checkbox" class="js-disable" data-target="#border"<@if(s.border eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>矢印の色<span class="help" data-help="3階層目のメニューがあるときに表示される矢印の色を指定します。">?</span></th><td>
-			<input type="text" id="arrow" name="arrow" size="12" value="<@s.arrow || '#333366'>" class="color-picker">
+			<input type="text" id="arrow" name="arrow" value="<@s.arrow || '#333366'>" class="color-picker">
 
 			<input type="checkbox" class="js-disable" data-target="#arrow"<@if(s.arrow eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>文字色</th><td>
-			<input type="text" id="font" name="font" size="12" value="<@s.font || '#3333cc'>" class="color-picker">
+			<input type="text" id="font" name="font" value="<@s.font || '#3333cc'>" class="color-picker">
 
 			<input type="checkbox" class="js-disable" data-target="#font"<@if(s.font eq '',' checked')>><label>変更しない</label>
 		</td>

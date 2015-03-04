@@ -774,6 +774,19 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
+//●formDataが使用できないブラウザで、ファイルアップ部分を無効にする
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R){
+	if (window.FormData) return;
+	var msg = $('#msg-not-use-func').text() || "Your browser don't work!";
+	R.findx('.js-fileup').each(function(idx,dom) {
+		var obj = $(dom);
+		obj.prop('disabled');
+		obj.attr('title', msg);
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
 //●要素の位置を変更する
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
@@ -814,7 +827,6 @@ initfunc.push( function(R){
 	});
 });
 
-
 //############################################################################
 // ■最初のロード時のみのサービス処理
 //############################################################################
@@ -848,6 +860,25 @@ $( function(){
 			popup.hide('fast');
 		});
 	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//●sidebarかmainの高さに hatena-body をあわせる
+//////////////////////////////////////////////////////////////////////////////
+// テーマで指定があるときのみ実行
+$( function(){
+	var hbody = $('#hatena-body');
+	if ( hbody.css('max-height') != '99999px' ) return;
+
+	var height = 0;
+	var ary = ['#main-first', '#sidebar', '#side-a', '#side-b'];
+	for(var i=0; i<ary.length; i++) {
+		var h = parseInt( $(ary[i]).outerHeight() );
+		if (isNaN(h)) continue;
+		if (height < h) height=h;
+	}
+	if (!h) return;
+	hbody.css('min-height', height);
 });
 
 //############################################################################

@@ -8,13 +8,13 @@ id : #<@id><br>
 	<tbody>
 	<tr>
 		<th>背景色<td>
-			<input type="text" id="bg" name="bg" size="12" value="<@s.bg || '#ffffff'>" class="color-picker">
+			<input type="text" id="bg" name="bg" value="<@s.bg || '#ffffff'>" class="color-picker">
 			<input type="checkbox" class="js-disable" data-target="#bg"<@if(s.bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>文字</th><td>
-			<input type="text" id="font-c" name="font_c" size="12" value="<@s.font_c || '#000000'>" class="color-picker"> &nbsp;
+			<input type="text" id="font-c" name="font_c" value="<@s.font_c || '#000000'>" class="color-picker"> &nbsp;
 			<input type="number" class="int w50" name="font_s" value="<@s.font_s || 16>" min="0" max="999" id="font-s">px 
 			行間<input type="number" class="int w50" name="line_h" value="<@s.line_h || 100>" min="0" max="999" id="line-h">% 
 			
@@ -23,7 +23,7 @@ id : #<@id><br>
 	</tr>
 	<tr>
 		<th>枠線の色</th><td>
-			<input type="text" id="border-c" name="border_c" size="12" value="<@s.border_c || '#000080'>" class="color-picker">
+			<input type="text" id="border-c" name="border_c" value="<@s.border_c || '#000080'>" class="color-picker">
 
 			<input type="checkbox" class="js-disable" data-target="#border-c"<@if(s.border_c eq '',' checked')>><label>変更しない</label>
 		</td>

@@ -7,12 +7,31 @@
  * "<@name>" module's setting. <@Timestamp>
  **************************************************/
 <@ifexec(ps.width ne '', begin)>
-#body {
+#adiary-body {
 	margin-left:		auto;
 	margin-right:		auto;
 	width:			<@ps.width>px;
 }
 <$end>
-#body.ccc:not([xxx]) {
-	/* test */
+<@>
+<@ifexec(ps.bg ne '', begin)>
+#body {
+	background-color:	<@ps.bg>;
+	background-image:	none;
 }
+<$end>
+<@>
+<@ifexec(ps.body_bg ne '', begin)>
+#adiary-body {
+	background-color:	<@ps.body_bg>;
+	background-image:	none;
+}
+<$end>
+<@>
+<@ifexec(ps.head_bg ne '', begin)>
+#header {
+	background-color:	<@ps.head_bg>;
+	background-image:	none;
+}
+<$end>
+

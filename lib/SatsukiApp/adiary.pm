@@ -1451,7 +1451,6 @@ sub load_theme {
 	$self->{theme}      = $theme;
 	$self->{template}   = $1;
 	$self->{theme_name} = $name;
-	$self->{theme_js}   = -r "$dir$name/$name.js";
 
 	# スケルトンテンプレートの登録
 	if (-r "${dir}_skel") {

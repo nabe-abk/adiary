@@ -181,8 +181,8 @@ span.colorbox {
 	border-radius:		4px;
 	margin-right:		4px;
 }
-input.color-picker {
-	width:		100px;
+.color-picker {
+	width:		60px;
 	vertical-align: middle;
 }
 .colorpicker {
@@ -752,7 +752,9 @@ h3.ui-accordion-header {
 .IE8 .ui-icon {
 	display:	inline-block;
 }
-
+.IE8 header {
+	margin-top:	0;
+}
 /*--------------------------------------------------------------------
 ●デバッグ
 ---------------------------------------------------------------------*/

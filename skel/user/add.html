@@ -33,12 +33,12 @@
 	<$end>
 
 	<table>
-	<tr><th>ID</th>        <td<@err.c_id>>先頭は英小文字。「a-z, 0-9, _」のみ使用可能。<br><input type="text" name="id" size="16" class="w100" value="<@esc(Form.id)>" required>
+	<tr><th>ID</th>        <td<@err.c_id>>先頭は英小文字。「a-z, 0-9, _」のみ使用可能。<br><input type="text" name="id" class="w100" value="<@esc(Form.id)>" required>
 		</td></tr>
-	<tr><th>名前</th>      <td<@err.c_name>><input type="text" name="name" size="16" class="w100" value="<@esc(Form.name)>" required></td></tr>
-	<tr><th>パスワード</th><td<@err.c_pass>><input type="password" name="pass" size="16" class="w120" value="" required>
+	<tr><th>名前</th>      <td<@err.c_name>><input type="text" name="name" class="w100" value="<@esc(Form.name)>" required></td></tr>
+	<tr><th>パスワード</th><td<@err.c_pass>><input type="password" name="pass" class="w120" value="" required>
 		<strong class="warning"><@Auth.pass_min>文字</strong>以上</td></tr>
-	<tr><th>パスワード確認</th><td<@err.c_pass>><input type="password" name="pass2" size="16" class="w120" value="" required>←もう一度</td></tr>
+	<tr><th>パスワード確認</th><td<@err.c_pass>><input type="password" name="pass2" class="w120" value="" required>←もう一度</td></tr>
 	<tr><th>管理者</th>
 		<@ifexec(! Auth.exists_admin, begin, begin)><@>ユーザーなし自動承認モードなら無条件に管理者
 		<td><input type="hidden" name="isadmin" value="1">最初のユーザーは自動的に管理者になります</td></tr>

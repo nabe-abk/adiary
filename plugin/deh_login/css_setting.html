@@ -16,6 +16,24 @@
 			<input type="checkbox" class="js-disable" data-target="#width"<@if(!s.width,' checked')>><label>変更しない</label>
 		</td>
 	</tr>
+	<tr><th>全体の背景<span class="help" data-help="ウィンドウ全体のベースとなる背景を指定します。">?</span></th>
+		<td>
+			<input type="text" id="bg" name="bg" value="<@s.bg || '#ffffff'>" class="color-picker w60">
+			<input type="checkbox" class="js-disable" data-target="#bg"<@if(s.bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>表示領域の背景<span class="help" data-help="実際の表示領域の背景を指定します。">?</span></th>
+		<td>
+			<input type="text" id="body-bg" name="body_bg" value="<@s.body_bg || '#ffffff'>" class="color-picker">
+			<input type="checkbox" class="js-disable" data-target="#body-bg"<@if(s.body_bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>ヘッダ領域の背景<span class="help" data-help="ログインヘッダやタイトル部分の背景を指定します。">?</span></th>
+		<td>
+			<input type="text" id="head-bg" name="head_bg" value="<@s.head_bg || '#ffffff'>" class="color-picker"><br>
+			<input type="checkbox" class="js-disable" data-target="#head-bg"<@if(s.head_bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
 
 	</tbody>
 	</table>
@@ -23,13 +41,33 @@
 <script>
 $(function(){
 // デフォルト値を設定する
+var body  = $f('#body');
 var abody = $f('#adiary-body');
+var head  = $f('#header');
+if (! body.length) return;
 if (!abody.length) return;
+if (! head.length) return;
 
 // 全体の横幅
 if ('<@s.width>' == '') {
 	$('#width').val( abody.width() );
 }
+if ('<@s.bg>' == '') {
+	var col = parse_color( body.css('background-color') );
+	if (col) $('#bg').val(col);
+}
+if ('<@s.body_bg>' == '') {
+	var col = parse_color( abody.css('background-color') );
+	if (col) $('#body-bg').val(col);
+}
+if ('<@s.head_bg>' == '') {
+	var col = parse_color( head.css('background-color') );
+	if (col) $('#head-bg').val(col);
+}
+
+
+
+
 
 //-----------------------------------------------------------------------------
 });

@@ -24,7 +24,7 @@ HTML
 <$stop_footer = 1>
 <footer id="footer" data-module-name="<@this>" data-fix="1"><!--フッタ-->
 <@ps.footer_txt>
-<@ifexec(ps.outver, begin)>
+<@ifexec(ps.outver ne '0', begin)>
 <div class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></div>
 <$end>
 </footer>

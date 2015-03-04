@@ -15,13 +15,12 @@ section, article {
 ---------------------------------------------------------------------*/
 body
 {
-	background-color:	#fff;		/* $c=fixbg */removeData
+	background-color:	#fff;		/* $c=fixbg */
 	color:			#000;		/* $c=fixfont */
 	font-size:		12pt;
 
-	margin-left:		auto;
-	margin-right:		auto;
-	margin-top:		0px;
+	margin:			0;
+	padding:		0;
 	min-width:		400px;
 	line-height:		130%;
 }
@@ -52,6 +51,7 @@ h1 img, h1 a img {
 	position:		relative;
 	margin:			1em 1em 1em 1em;
 	width:			98%;
+	max-height:		99999px;	/* adiary.jsで高さを自動フィットさせる指定 */
 }
 /* 記事部 */
 div.main {

@@ -1,5 +1,5 @@
 <@6>
-<@local(s,ps,tm,bpath)>
+<@local(s,ps,tm,bpath,file)>
 <$inframe = argv#0>
 <@>
 <$ifset(v.title eq '', v.title, 'adiary')>
@@ -50,7 +50,8 @@
 <script async src="<@Basepath><@t>?<@tm>"></script>
 <$end>
 <script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
-<@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.js"></script>\n')>
+<$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">
+<@if(!v.system_mode && file_size(file), #'<script async src="<@Basepath><@file>"></script>\n')>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
 <@v.extra_header>
 </head>
@@ -76,7 +77,7 @@
 <div id="hatena-body">
 
 <!--内容====================================================================-->
-<div class="main">
+<div class="main" id="main-first">
 
 <@inframe>
 

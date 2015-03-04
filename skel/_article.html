@@ -172,15 +172,15 @@
 		<input type="hidden" name="a_pkey" value="<@t.pkey>">
 		<input type="hidden" name="secure_id" value="" id="sid<@t.pkey>">
 		<span class="caption-name">名前</span><span class="separater">:</span>
-		<@ifexec(Auth.ok, begin, begin)><span class="comment-author"><@Auth.name></span><$else><input type="text" name="name" size="15" class="w160 comment-author" value="<@esc(Form.name)>" required><$end>
+		<@ifexec(Auth.ok, begin, begin)><span class="comment-author"><@Auth.name></span><$else><input type="text" name="name" class="w160 comment-author" value="<@esc(Form.name)>" required><$end>
 		<@if(t.hcom_ok, '&nbsp;<input type="checkbox" name="hidden" value="1"><label>非公開コメント</label>')>
 		<input type="submit" name="post" id="post-comment" value="投稿"><br>
 		<textarea name="comment_txt" cols="60" rows="3" required><@esc(Form.comment_txt)></textarea>
 		<@ifexec(s.com_email, begin)>
-		<span class="caption-email">E-Mail(任意/非公開)</span><span class="separater">:</span><input class="w300" type="email" size="40" name="email" value="<@esc(Form.email)>"><br>
+		<span class="caption-email">E-Mail(任意/非公開)</span><span class="separater">:</span><input class="w300" type="email" name="email" value="<@esc(Form.email)>"><br>
 		<$end>
 		<@ifexec(s.com_url, begin)>
-		<span class="caption-url">URL(任意)</span><span class="separater">:</span><input class="w300" type="url" size="45" name="url" value="<@esc(Form.url)>"><br>
+		<span class="caption-url">URL(任意)</span><span class="separater">:</span><input class="w300" type="url" name="url" value="<@esc(Form.url)>"><br>
 		<$end>
 	</form> <!-- comment form -->
 	<$end>

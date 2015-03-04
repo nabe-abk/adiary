@@ -55,7 +55,7 @@ iframe.on('load', function(){
 	    $fsec = iframe[0].contentWindow.$secure;	// global
 	var side_a = $fsec('#side-a');
 	var side_b = $fsec('#side-b');
-	var f_main = $f('#hatena-body .main:first-child');
+	var f_main = $fsec('#main-first');
 	var f_head = $fsec('#header');
 
 	// フレーム内check
@@ -452,7 +452,6 @@ function load_module_css(obj) {
 			if (!r) return;	// 成功
 		}
 		if (IE8) return;	// 以下が動かない
-		alert("loadcss" + data);
 
 		// CSSテキストを適用
 		var id = 'js-css-' + name.replace(/[_,]/g, '-');
