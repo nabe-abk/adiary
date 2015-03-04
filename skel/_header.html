@@ -29,11 +29,7 @@
 
 <!--タイトル部==============================================================-->
 <div id="page-title" data-module-name="deh_title">
-<@ifexec(v.blogid, begin, begin)>
-<h1><@if(! v.system_mode && v.blog.blog_image, #'<a href="<@v.myself>"><img src="<@v.blog.blog_image>" alt="<@v.title>"></a>', #'<a href="<@v.myself>"><@v.title></a>')></h1>
-<$else>
 <h1><a href="<@Myself>"><@if(v.title_h1, v.title_h1, v.title)></a></h1>
-<$end>
 </div>
 
 <@>$FOOTER$--------------------------------------------------------------------

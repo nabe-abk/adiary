@@ -14,24 +14,36 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="generator" content="adiary <@v.VERSION>">
 <meta name="author" content="<@v.blogid>">
+<@>
 <@if(v.system_mode || v.no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.custom.css" id="jquery-ui-css">
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir>_lightbox/lightbox.css" id="lightbox-css">
+<@>
 <@forexec(t, v.load_jscss('css'), begin)>
 <link rel="stylesheet" href="<@Basepath><@t>">
 <$end>
+<@>
 <!--[if IE 8]> <@> for IE8 @import bug
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir>satsuki2/base.css">
 <![endif]-->
 <@> テーマとユーザーCSSは最後に読み込む
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css" id="theme-css">
+<@>
 <@if(s.theme_custom && s.theme eq v.theme, #'<link rel="stylesheet" href="<@Basepath><@s.theme_custom>" id="theme-custom-css">\n')>
+<@>
 <$file = "<@v.blogpub_dir>dynamic.css">
 <@if(!v.system_mode && file_size(file), #'<link rel="stylesheet" href="<@Basepath><@file>" id="user-css">\n')>
+<@>
 <@if(canonical_url, #'<link rel="canonical" href="<@canonical_url>">\n')>
+<@>
 <@forexec(t, v.load_rss_files(), begin)>
 <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<@Basepath><@v.blogpub_dir><@t>" /> 
 <$end>
+<@> ショートカットアイコン
+<@ifexec(s.iconfile, begin)>
+<link rel="shortcut icon" href="<@s.iconfile>">
+<$end>
+<@>
 <!-- JavaScript ============================================-->
 <!--[if lt IE 9]>
 <script src="<@Basepath><@v.script_dir>jquery-1.min.js"></script>

@@ -1,5 +1,5 @@
 <@20>
-<@local(h)>
+<@local(h,h2)>
 <$ifbreak(! v.blog_admin && ! Auth.isadmin)>
 <$ifbreak(csrf_check())>
 
@@ -32,6 +32,20 @@
 <$end>
 <$ifbreak(form_error())>
 
+
+<@> ファイル無効化
+<$v.void_plugin_images(h, Form)>
+
+<@> ファイルアップロード処理
+<$h2 = new>
+<$v.plugin_upload_images(h2, 'sys', Form, begin_array)>
+	iconfile
+<$end>
+<$ifbreak(form_error())>
+<$ifset(h2.iconfile, h.iconfile, v.plugin_image_path(h2.iconfile))>
+
+
+<@> 設定保存
 <$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>
 
 POST成功時の処理

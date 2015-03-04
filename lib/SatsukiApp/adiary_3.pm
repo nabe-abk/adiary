@@ -1731,6 +1731,7 @@ sub plugin_upload_images {
 	my $dir = $ROBJ->get_filepath( $self->plugin_image_dir() );
 	foreach(@$ary) {
 		if (!ref($form->{$_})) { next; }
+		if (! $form->{$_}->{file_size}) { next; }	# サイズ0は無視
 		my $r = $self->upload_image_for_plugin($name, $_, $form->{$_});
 		if ($r) { next; }
 

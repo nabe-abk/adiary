@@ -1,6 +1,7 @@
 <@6>
-<@local(s,err)>
+<@local(s, err, default)>
 <$err=FormError>
+<$default = if(Query.blogid eq '*' && Auth.isadmin, 1, 0)>
 
 <@> システムモード
 <$v.system_mode("編集画面の設定")>
@@ -22,13 +23,15 @@
 <article class="system setting">
 <h2><@v.title></h2>
 <div class="body">
-	<@ifexec(Query.blogid ne '*' && Auth.isadmin, begin, begin)>
-	<p><a href="<@v.myself>?<@v.skeleton>&amp;blogid=*">&gt;標準設定を変更する</a></p>
+	<@ifexec(Auth.isadmin, begin)>
+	<@ifexec(default, begin, begin)>
+		<p><a href="<@v.myself>?<@v.skeleton>">&gt;ブログ固有の設定に戻る</a></p>
 	<$else>
-	<@if(v.blogid, #'<p><a href="<@v.myself>?<@v.skeleton>">&gt;ブログ固有の設定に戻る</a></p>')>
+		<p><a href="<@v.myself>?<@v.skeleton>&amp;blogid=*">&gt;標準設定を変更する</a></p>
+	<$end>
 	<$end>
 
-	<form action="<@v.myself>?<@v.skeleton><@if(Query.blogid eq '*', '&blogid=*')>" method="POST">
+	<form action="<@v.myself>?<@v.skeleton><@if(default, '&amp;blogid=*')>" method="POST">
 	<input type="hidden" name="action" value="<@v.skeleton>">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 
