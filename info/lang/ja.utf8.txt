@@ -222,6 +222,7 @@ Upload fail: %s=アップロード失敗 : %s
 [plugin:%s] File already exists : %s=[plugin:%s] ファイルが既に存在します : %s
 [plugin:%s] File delete failed : %s=[plugin:%s] ファイルの削除に失敗しました : %s
 [plugin:%s] Module's html generate failed : %s=[plugin:%s] モジュールHTMLの生成に失敗しました : %s
+File is not image : %s=画像をアップロードしてください : %s
 
 ###############################################################################
 # adiary_4

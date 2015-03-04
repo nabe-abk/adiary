@@ -576,7 +576,7 @@ initfunc.push( function(R){
 	} )
 
 function set_input_resize(obj, flag) {
-	if (obj.parents('colorpicker')) return;
+	if (obj.parents('.color-picker, .colorpicker').length) return;
 
 	// 非表示要素は最初にhoverされた時に処理する
 	if (!flag && obj.is(":hidden")) {
@@ -626,6 +626,8 @@ function set_input_resize(obj, flag) {
 }
 
 function evt_mousedown(evt, obj, min_width) {
+	if (obj.parents('.ui-draggable, .ui-sortable-handle').length) return;
+
 	var span = $(evt.target);
 	var body = $('#body');
 	span.data('drag-X', evt.pageX);
@@ -778,11 +780,9 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	if (window.FormData) return;
-	var msg = $('#msg-not-use-func').text() || "Your browser don't work!";
 	R.findx('.js-fileup').each(function(idx,dom) {
 		var obj = $(dom);
-		obj.prop('disabled');
-		obj.attr('title', msg);
+		obj.prop('disabled', true);
 	});
 });
 

@@ -63,7 +63,12 @@ sub get_dir_tree {
 	my @files;
 	my $cnt=0;	# ファイル数カウント
 	my $list = $ROBJ->search_files($dir, {dir=>1});
-	foreach(sort(@$list)) {
+	@$list = sort {		# '@'(0x40)を最後に表示する仕組み
+		my $x = (ord($a)==0x40) cmp (ord($b)==0x40);
+		$x ? $x : $a cmp $b;
+	} @$list;
+
+	foreach(@$list) {
 		if (substr($_,-1) ne '/') {
 			# ただのファイル
 			push(@files, $_);
@@ -395,7 +400,7 @@ sub do_upload {
 
 	# ファイルの保存
 	my $save_file = $dir . $file_name;
-	if (-e $save_file) {	# 同じファイルが存在する
+	if (-e $save_file && !$file_h->{overwrite}) {	# 同じファイルが存在する
 		if ((-s $save_file) != $file_size) {	# ファイルサイズが同じならば、同一と見なす
 			$ROBJ->message('Save failed ("%s" already exists)', $file_name);
 			return 10;
@@ -1676,9 +1681,9 @@ sub save_plugin_setting {
 	my $pm = "$dir/${mode}validator.pm";
 	if (-r $pm) {
 		my $func = $self->load_plugin_function( $pm, $pm );
-		$ret = &$func($self, $form);
+		$ret = &$func($self, $form, $name);
 	} else {
-		$ret = $ROBJ->_call("$dir/${mode}validator.html", $form);
+		$ret = $ROBJ->_call("$dir/${mode}validator.html", $form, $name);
 	}
 	if (ref($ret) ne 'HASH') { return; }
 
@@ -1712,6 +1717,92 @@ sub plugin_name_dir {
 	return $self->{plugin_dir} . "$name/";
 }
 
+#------------------------------------------------------------------------------
+# ●プラグインのための画像アップロード処理（一括）
+#------------------------------------------------------------------------------
+sub plugin_upload_images {
+	my $self = shift;
+	my $ret  = shift;
+	my $name = shift;	# プラグイン名
+	my $form = shift;
+	my $ary  = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir = $ROBJ->get_filepath( $self->plugin_image_dir() );
+	foreach(@$ary) {
+		if (!ref($form->{$_})) { next; }
+		my $r = $self->upload_image_for_plugin($name, $_, $form->{$_});
+		if ($r) { next; }
+
+		# アップロード成功
+		my $file = $ret->{$_} = $form->{$_}->{file_name};
+
+		# サイズ取得
+		my $img = $self->load_image_magick();
+		if (!$img) { next; }
+		eval {
+			$img->Read( "$dir$file" );
+			$img = $img->[0];
+			$ret->{"${_}_w"} = $img->Get('width');
+			$ret->{"${_}_h"} = $img->Get('height');
+		};
+	}
+}
+
+#------------------------------------------------------------------------------
+# ●プラグインのための画像アップロード
+#------------------------------------------------------------------------------
+sub upload_image_for_plugin {
+	my $self = shift;
+	my $pname= shift;	# プラグイン名
+	my $fname= shift;	# ファイル名
+	my $file = shift;
+	my $ROBJ = $self->{ROBJ};
+	if (!$file) {
+		$ROBJ->form_error('file', "File data error.");
+		return -1;
+	}
+	if ($file->{file_name} =~ /(\.\w+)$/) {
+		$fname .= $1;
+	}
+	if (!$self->is_image($fname)) {
+		$ROBJ->form_error('file', "File is not image : %s", $file->{file_name});
+		return -1;
+	}
+
+	# アップロード
+	my $dir  = $self->plugin_image_dir();
+	$file->{file_name} = $pname . '-' . $fname;
+	$file->{overwrite} = 1;
+	return $self->do_upload( $dir, $file );
+}
+#------------------------------------------------------------------------------
+# ●プラグインのための画像ファイル名取得
+#------------------------------------------------------------------------------
+sub void_plugin_images {
+	my $self = shift;
+	my $h    = shift;
+	my $form = shift;
+	foreach(keys(%$form)) {
+		if ($_ !~ /^(\w+)_void$/) { next; }
+		if (! $form->{$_}) { next; }
+		my $n = $1;
+		$h->{$n} = undef
+		$h->{"${n}_w"} = undef
+		$h->{"${n}_h"} = undef
+	}
+}
+
+#------------------------------------------------------------------------------
+sub plugin_image_dir {
+	my $self = shift;
+	return $self->image_folder_to_dir( '@system/' );
+}
+sub plugin_image_path {
+	my $self = shift;
+	my $file = shift;
+	return $self->{ROBJ}->{Basepath} . $self->plugin_image_dir() . $file;
+}
 
 ###############################################################################
 # ■デザインモジュールの設定

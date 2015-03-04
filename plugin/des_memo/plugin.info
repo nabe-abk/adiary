@@ -21,7 +21,7 @@ EVENTS
 <div class="hatena-module" id="side-serika-memo">
 <div class="hatena-moduletitle">メモ</div>
 <div class="hatena-modulebody">
-<textarea row="5">自由にメモしておけるテキストエリアです
+<textarea rows="5">自由にメモしておけるテキストエリアです
 データは、cookieに保存されます。</textarea>
 </div>
 </div> <!-- hatena-module -->

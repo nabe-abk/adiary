@@ -6,6 +6,12 @@
 /**************************************************
  * "<@name>" module's setting. <@Timestamp>
  **************************************************/
+<@ifexec(ps.bf, begin)>
+#header {
+	font-weight:		bold;
+}
+<$end>
+<@>
 <@ifexec(ps.width ne '', begin)>
 #adiary-body {
 	margin-left:		auto;
@@ -34,4 +40,17 @@
 	background-image:	none;
 }
 <$end>
+
+<@ifexec(ps.bgfile, begin)>
+#header {
+	background-image:	url('<@v.plugin_image_path(ps.bgfile)>');
+	background-repeat:	<@if(ps.bgfile_rep, 'repeat', 'no-repeat')>;
+	background-position:	center;
+<@ifexec(ps.bgfile_fit && ps.bgfile_h, begin)>
+	min-height:		<@ps.bgfile_h>px;
+<$end>
+}
+<$end>
+
+
 

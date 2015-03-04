@@ -6,8 +6,12 @@
 	<tbody>
 	<tr><th>ログイン表示の消去<span class="help" data-help="画面右上（等）に表示されるログインリンクを見えなくします。見えないだけ（空白文字になるだけ）でリンク自体は残ります。">?</span></th>
 		<td>
-		<input type="hidden" name="checkbox.info" value="erase_login_link">
 		<input type="checkbox" name="erase_login" value="1"<@if(s.erase_login, ' checked')>><label>「ログイン」を見えなくする</label>
+		</td>
+	</tr>
+	<tr><th>ログインヘッダの文字</th>
+		<td>
+		<input type="checkbox" name="bf" value="1"<@if(s.bf, ' checked')>><label>太字にする</label>
 		</td>
 	</tr>
 	<tr><th>全体の横幅を設定する<span class="help" data-help="横幅がフリー設定（ウィンドウに合わせる）になっているテーマに対し、表示領域の横幅を固定で設定します。">?</span></th>
@@ -30,8 +34,20 @@
 	</tr>
 	<tr><th>ヘッダ領域の背景<span class="help" data-help="ログインヘッダやタイトル部分の背景を指定します。">?</span></th>
 		<td>
-			<input type="text" id="head-bg" name="head_bg" value="<@s.head_bg || '#ffffff'>" class="color-picker"><br>
-			<input type="checkbox" class="js-disable" data-target="#head-bg"<@if(s.head_bg eq '',' checked')>><label>変更しない</label>
+			<input type="text" id="head-bg" name="head_bg" value="<@s.head_bg || '#ffffff'>" class="color-picker">
+			<input type="checkbox" class="js-disable" data-target="#head-bg"<@if(s.head_bg eq '',' checked')>><label>変更しない</label><br>
+		</td>
+	</tr>
+	<tr><th>ヘッダの背景画像<span class="help" data-help="背景に使う画像をアップロードします。IE8/9では設定できません。">?</span></th>
+		<td>
+			<input type="file" class="js-fileup" id="head-file" name="bgfile"><br>
+			<input type="checkbox" name="bgfile_fit" value="1"<@if(s.bgfile_fit,' checked')>><label>ヘッダの高さを画像にフィットさせる</label>
+			<span class="help" data-help="画像がヘッダがより大きい場合のみ有効になります。">?</span><br>
+			<input type="checkbox" name="bgfile_rep" value="1"<@if(s.bgfile_rep,' checked')>><label>画像をリピート表示する</label>
+			<span class="help" data-help="画像を繰り返し表示します。画像がヘッダより小さい場合のみ意味があります。">?</span><br>
+			<@ifexec(s.bgfile, begin)>
+			<input type="checkbox" name="bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<$end>
 		</td>
 	</tr>
 

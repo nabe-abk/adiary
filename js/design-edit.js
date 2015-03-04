@@ -294,34 +294,50 @@ function module_setting(obj, mode) {
 	var erradd = $('<div>');
 	errdiv.append(errmsg, erradd);
 
+	var ajax = {
+		url: form.attr('action'),
+		type: 'POST',
+		success: function(data){
+			if (! data.match(/ret=(-?\d+)(?:\n|$)/) ) {
+				errmsg.html( $('#msg-save-error').html() );
+			} else if (RegExp.$1 != '0') {
+				errmsg.html( $('#msg-save-error').html() +'(ret='+ RegExp.$1 +')');
+			} else {
+				//成功
+				formdiv.dialog( 'close' );
+				// モジュールHTMLをサーバからロード？
+				if (mode == 'css') return load_module_css( obj );
+				if (obj.data('load-module-html')) return load_module_html( obj );
+				return ;
+			}
+			errmsg.attr('title', data);
+			if (data.match(/\nmsg=([\s\S]*)$/) ) erradd.html( RegExp.$1 );
+		},
+		error: function(xmlobj){
+			errmsg.html( $('#msg-ajax-error').html() );
+			errmsg.attr('title', xmlobj.responseText);
+		},
+	};
+
 	var buttons = {};
 	var ok_func = buttons[ $('#btn-ok').text() ] = function(){
+		// ファイルアップロードチェック
+		var file;
+		var files = form.find('input[type="file"]');
+		for(var i=0; i<files.length; i++)
+			if ($(files[i]).val()) file=true;
+		
+		// フォームデータ生成
+		if (file) {
+		        var fd = new FormData( form[0] );
+			ajax.data = fd;
+			ajax.processData = false;
+			ajax.contentType = false;
+		} else {
+			ajax.data = form.serialize();
+		}
 		// 今すぐ保存
-		$.ajax({
-			url: form.attr('action'),
-			type: 'POST',
-			data: form.serialize(),
-			success: function(data){
-				if (! data.match(/ret=(-?\d+)(?:\n|$)/) ) {
-					errmsg.html( $('#msg-save-error').html() );
-				} else if (RegExp.$1 != '0') {
-					errmsg.html( $('#msg-save-error').html() +'(ret='+ RegExp.$1 +')');
-				} else {
-					//成功
-					formdiv.dialog( 'close' );
-					// モジュールHTMLをサーバからロード？
-					if (mode == 'css') return load_module_css( obj );
-					if (obj.data('load-module-html')) return load_module_html( obj );
-					return ;
-				}
-				errmsg.attr('title', data);
-				if (data.match(/\nmsg=([\s\S]*)$/) ) erradd.html( RegExp.$1 );
-			},
-			error: function(xmlobj){
-				errmsg.html( $('#msg-ajax-error').html() );
-				errmsg.attr('title', xmlobj.responseText);
-			},
-		});
+		$.ajax( ajax );
 	};
 	buttons[ $('#ajs-cancel').text() ] = function(){
 		formdiv.dialog( 'close' );

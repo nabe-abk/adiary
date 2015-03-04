@@ -1,6 +1,10 @@
 <@40.is_function>
-<@local(h)>
-<$h = validator(begin_hash, argv#0) )>
+<@local(h,h2,form,name)>
+<$form = argv#0>
+<$name = argv#1>
+
+<$h = validator(begin_hash, form) )>
+	bf = flag
 	erase_login = flag
 
 	width = 全体の横幅
@@ -20,7 +24,20 @@
 	head_bg = ヘッダ領域の背景
 	head_bg:filter0 = rgb
 	head_bg:default = 
+
+	bgfile_fit = flag
+	bgfile_rep = flag
 <$end>
 <$ifbreak(form_error())>
+
+<@> ファイル無効化
+<$v.void_plugin_images(h, form)>
+
+<@> ファイルアップロード処理
+<$v.plugin_upload_images(h, name, form, begin_array)>
+	bgfile
+<$end>
+<$ifbreak(form_error())>
+
 
 <$return(h)>
