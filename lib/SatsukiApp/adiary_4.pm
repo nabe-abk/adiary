@@ -253,6 +253,63 @@ sub load_all_blogid {
 }
 
 ###############################################################################
+# ■プラグインの再インストール
+###############################################################################
+sub reinstall_plugins {
+	my $self = shift;
+	my $pd = $self->load_plugins_dat();
+
+	$self->reinstall_normal_plugins($pd);
+	$self->reinstall_design_plugins($pd);
+}
+#------------------------------------------------------------------------------
+# ●通常プラグインの再インストール
+#------------------------------------------------------------------------------
+sub reinstall_normal_plugins {
+	my $self = shift;
+	my $pd   = shift;
+	my $plgs = $self->load_plugins_info();
+
+	my %h;
+	foreach(@$plgs) {
+		$h{ $_->{name} } = 0;	# uninstall
+	}
+	$self->save_use_plugins(\%h);
+	foreach(@$plgs) {
+		$h{ $_->{name} } = $pd->{ $_->{name} } ? 1 : 0;	# reinstall
+	}
+	return $self->save_use_plugins(\%h);
+}
+
+#------------------------------------------------------------------------------
+# ●デザインモジュールの再インストール
+#------------------------------------------------------------------------------
+sub reinstall_design_plugins {
+	my $self = shift;
+	my $pd   = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $plgs = $self->load_plugins_info();
+
+	# デザインモジュールの現在の状態をロードしておく
+	my $des = $self->load_design_info();
+	if ($des->{side_info} < 5) {
+		return -1;	# 情報がないので再インストール不可
+	}
+
+	# uninstall
+	$self->reset_design();
+
+	# reinistall
+	return $self->save_design({
+		side_a_ary => [ split(/\n/, $des->{side_a}) ],
+		side_b_ary => [ split(/\n/, $des->{side_b}) ],
+		main_a_ary => [ split(/\n/, $des->{main_a}) ],
+		main_b_ary => [ split(/\n/, $des->{main_b}) ],
+		header_ary => [ split(/\n/, $des->{header}) ]
+	});
+}
+
+###############################################################################
 # ■データベースがらみサブルーチン
 ###############################################################################
 #------------------------------------------------------------------------------

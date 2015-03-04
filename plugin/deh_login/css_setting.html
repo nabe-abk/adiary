@@ -50,6 +50,26 @@
 			<$end>
 		</td>
 	</tr>
+	<tr>
+		<th>マージン</th>
+		<td>
+			上<input type="number" class="int w50" name="margin0" value="<@s.margin0 || 0>" min="-999" max="999" id="margin0"> 
+			右<input type="number" class="int w50" name="margin1" value="<@s.margin1 || 0>" min="-999" max="999" id="margin1"> 
+			下<input type="number" class="int w50" name="margin2" value="<@s.margin2 || 0>" min="-999" max="999" id="margin2"> 
+			左<input type="number" class="int w50" name="margin3" value="<@s.margin3 || 0>" min="-999" max="999" id="margin3"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(s.margin0 eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>padding</th>
+		<td>
+			上<input type="number" class="int w50" name="padding0" value="<@s.padding0 || 0>" min="-999" max="999" id="padding0"> 
+			右<input type="number" class="int w50" name="padding1" value="<@s.padding1 || 0>" min="-999" max="999" id="padding1"> 
+			下<input type="number" class="int w50" name="padding2" value="<@s.padding2 || 0>" min="-999" max="999" id="padding2"> 
+			左<input type="number" class="int w50" name="padding3" value="<@s.padding3 || 0>" min="-999" max="999" id="padding3"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(s.padding0 eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
 
 	</tbody>
 	</table>
@@ -81,9 +101,23 @@ if ('<@s.head_bg>' == '') {
 	if (col) $('#head-bg').val(col);
 }
 
-
-
-
+// マージンとpadding
+if ('<@s.margin0>' == '')
+	$('#margin0').val( parse_px( head.css('margin-top') ) );
+if ('<@s.margin1>' == '')
+	$('#margin1').val( parse_px( head.css('margin-right') ) );
+if ('<@s.margin2>' == '')
+	$('#margin2').val( parse_px( head.css('margin-bottom') ) );
+if ('<@s.margin3>' == '')
+	$('#margin3').val( parse_px( head.css('margin-left') ) );
+if ('<@s.padding0>' == '')
+	$('#padding0').val( parse_px( head.css('padding-top') ) );
+if ('<@s.padding1>' == '')
+	$('#padding1').val( parse_px( head.css('padding-right') ) );
+if ('<@s.padding2>' == '')
+	$('#padding2').val( parse_px( head.css('padding-bottom') ) );
+if ('<@s.padding3>' == '')
+	$('#padding3').val( parse_px( head.css('padding-left') ) );
 
 //-----------------------------------------------------------------------------
 });

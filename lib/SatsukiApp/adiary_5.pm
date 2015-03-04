@@ -12,6 +12,7 @@ package SatsukiApp::adiary;
 ###############################################################################
 my @update_versions = (
 	{ ver => 2.93, func => 'sys_update_293', rebuild=>1, plugin=>1 },
+	{ ver => 2.94, func => 'sys_update_294' },
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
@@ -22,6 +23,7 @@ sub system_update {
 	my $auth = $ROBJ->{Auth};
 	if (!$auth->{isadmin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
+	my $cur_blogid = $self->{blogid};
 	my $blogs = $self->load_all_blogid();
 
 	my %opt;
@@ -38,6 +40,8 @@ sub system_update {
 		}
 		$cur = $h->{ver};
 	}
+	$self->set_and_select_blog($cur_blogid);
+
 	# 再構築？
 	if ($opt{rebuild}) {
 		$ROBJ->message("Rebuild all blogs");
@@ -64,6 +68,27 @@ sub sys_update_293 {
 		$self->update_blogset($_, 'http_rel');
 		$self->update_blogset($_, 'image_rel');
 		$self->update_blogset($_, 'image_data', 'lightbox=%k');
+	}
+}
+
+#------------------------------------------------------------------------------
+# ●システムアップデート for Ver2.94
+#------------------------------------------------------------------------------
+sub sys_update_294 {
+	my $self  = shift;
+	my $blogs = shift;
+	my $ROBJ = $self->{ROBJ};
+	foreach(@$blogs) {
+		$self->set_and_select_blog( $_ );
+		#
+		my $dir  = $ROBJ->get_filepath( $self->{blogpub_dir} );
+		my $file = $dir . 'usercss.css';
+		if (-r $file) {
+			my $lines = $ROBJ->fread_lines( $file );
+			my $css = join('', @$lines);
+			$self->save_usercss( $css );
+			unlink( $file );
+		}
 	}
 }
 

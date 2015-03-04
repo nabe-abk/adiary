@@ -40,7 +40,7 @@
 	background-image:	none;
 }
 <$end>
-
+<@>
 <@ifexec(ps.bgfile, begin)>
 #header {
 	background-image:	url('<@v.plugin_image_path(ps.bgfile)>');
@@ -51,6 +51,15 @@
 <$end>
 }
 <$end>
+<@>
+#header {
+<@ifexec(ps.margin0 ne '', begin)>
+	margin:			<@ps.margin0>px <@ps.margin1>px <@ps.margin2>px <@ps.margin3>px;
+<$end>
+<@ifexec(ps.padding0 ne '', begin)>
+	padding:		<@ps.padding0>px <@ps.padding1>px <@ps.padding2>px <@ps.padding3>px;
+<$end>
+}
 
 
 
