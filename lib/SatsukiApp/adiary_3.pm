@@ -1784,7 +1784,10 @@ sub upload_image_for_plugin {
 	}
 
 	# アップロード
-	my $dir  = $self->plugin_image_dir();
+	my $dir = $self->plugin_image_dir();
+	$self->init_image_dir();
+	$ROBJ->mkdir( $dir );
+
 	$file->{file_name} = $pname . '-' . $fname;
 	$file->{overwrite} = 1;
 	return $self->do_upload( $dir, $file );
