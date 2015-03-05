@@ -38,6 +38,19 @@ div.element, form.element {
 	margin-right:		1em;
 }
 
+header {
+	position:		relative;
+}
+
+/* 「ようこそ」のリンクで文字色を変えない */
+#nav-header a.welcome-prefix,
+#nav-header a.welcome-prefix:link,
+#nav-header a.welcome-prefix:visited {
+	color:			inherit;
+	font-weight:		inherit;
+	text-decoration:	none;
+}
+
 /*--------------------------------------------------------------------
 ●記法関連
 ---------------------------------------------------------------------*/
@@ -124,7 +137,7 @@ blockquote p:last-child {
 input[type="number"] {
 	text-align:		right;
 }
-label, input {
+label, input, button, select {
 	vertical-align:		middle;
 }
 td.checkbox, th.checkbox {
@@ -182,7 +195,7 @@ span.colorbox {
 	margin-right:		4px;
 }
 .color-picker {
-	width:		60px;
+	width:		70px;
 	vertical-align: middle;
 }
 .colorpicker {
@@ -499,7 +512,7 @@ figure {
 /*--------------------------------------------------------------------
 ●デザイン編集
 ---------------------------------------------------------------------*/
-#body .design-module-edit {
+.design-module-edit {
 	min-height:		18px;
 }
 .design-module-edit {
@@ -535,6 +548,7 @@ figure {
 }
 .ui-dialog div.pre {
 	white-space:		pre;
+	white-space:		pre-wrap;	/* CSS3 */
 	font-family:		monospace;
 }
 .ui-dialog .ui-widget-header {

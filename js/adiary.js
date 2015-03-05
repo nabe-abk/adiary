@@ -313,7 +313,7 @@ initfunc.push( function(R){
 //●詳細情報ダイアログの表示
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-  R.findx('.info[data-info], .info[data-url]').click( function(evt){
+  R.findx('.js-info[data-info], .js-info[data-url]').click( function(evt){
 	var obj = $(evt.target);
 	var div = $('<div>');
 	var div2= $('<div>');	// 直接 div にクラスを設定すると表示が崩れる
@@ -626,7 +626,8 @@ function set_input_resize(obj, flag) {
 }
 
 function evt_mousedown(evt, obj, min_width) {
-	if (obj.parents('.ui-draggable, .ui-sortable-handle').length) return;
+	if (!obj.parents('.ui-dialog-content').length
+	  && obj.parents('.ui-draggable, .ui-sortable-handle').length) return;
 
 	var span = $(evt.target);
 	var body = $('#body');
@@ -1055,7 +1056,7 @@ function load_contents_list(id) {
 function reload_user_css() {
 	var obj = $('#user-css');
 	var url = obj.attr('href');
-	if (!url || !url.length) return 1;
+	if (!obj.length || !url || !url.length) return 1;
 
 	url = url.replace(/\?.*/, '');	// ?より後ろを除去
 	url += '?' + Math.random().toString().replace('.', '');

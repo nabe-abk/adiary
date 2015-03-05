@@ -368,6 +368,17 @@ function module_setting(obj, mode) {
 
 	// フォーム本体をロード
 	body.load(url, function(){
+		var id = obj.attr('id');
+		if (id) body.prepend( $('<div>').text('id : #' + id) );
+		if (1 || mode == 'css') {	// HTMLソースを表示
+			var vbtn = $('<button>').attr('type','button');
+			vbtn.text( $('#btn-view-html').text() );
+			vbtn.css( 'float', 'right' );
+			vbtn.click( function(){
+				view_html_source(obj)
+			});
+			body.prepend( vbtn );
+		}
 		body.append( errdiv );
 		formdiv.dialog( "open" );
 	//	adiary_init( body );
@@ -462,7 +473,18 @@ function load_module_css(obj) {
 	var data= form.serialize() + '&mode=css';
 
 	$.post(url, data, function(data){
+		// モジュールのstyleを削除
+		$f(module_selector).removeAttr('style');
 		if (data.match(/^\s*reload=1\s*$/)) {
+			if (!$f('#user-css').length) {	// usercssが読み込まれてない
+				var style = $('<link>').attr({
+					id: 'user-css',
+					rel: 'stylesheet',
+					href: $('#user-css-url').data('url')
+				});
+				$f('head').append(style);
+				return ;
+			}
 			// インストール済の時は、CSS強制リロード
 			var r = if_cw.reload_user_css();
 			if (!r) return;	// 成功
@@ -495,6 +517,43 @@ disp_modules.change(function() {
 });
 disp_modules.change();
 
+
+//////////////////////////////////////////////////////////////////////////////
+// ●モジュールのHTMLソースを表示
+//////////////////////////////////////////////////////////////////////////////
+function view_html_source(_obj) {
+	var div = $('<div>');
+	var obj = _obj.clone();
+	{	// 整形する
+		obj.find('.module-edit-header').remove();	// 編集ボタンの削除
+		obj.removeClass('design-module-edit ui-sortable-handle display');
+		obj.removeAttr('title');
+		obj.removeAttr('style');
+		if (obj.attr('class') == '') obj.removeAttr('class');
+
+		// いらない属性の削除
+		obj.find('[target]').removeAttr('target');
+		obj.find('[title]').removeAttr('target');
+		obj.find('[for]').removeAttr('for');
+		obj.find('[style]').removeAttr('style');
+		obj.find('.resize-parts').remove();
+
+		// hrefを'#'に置換
+		obj.find('[href]').attr('href', '#');
+
+		// id=js-generate の削除
+		obj.find('[id]').each(function(idx,dom){
+			var ob = $(dom);
+			var id = ob.attr('id');
+			if (! id.match(/^js-generate/)) return;
+			ob.removeAttr('id');
+		});
+	}
+	div.attr('title', $('#msg-html-source').text() );
+	div.addClass( 'pre' );
+	div.text( obj[0].outerHTML );
+	div.dialog({ width: DialogWidth });
+}
 
 //############################################################################
 });
@@ -536,9 +595,9 @@ function parse_px_float(m) {
 function get_border_color(obj) {
 	return parse_color(
 		obj.css('border-color')
+		|| obj.css('border-bottom-color')
 		|| obj.css('border-top-color')
 		|| obj.css('border-right-color')
-		|| obj.css('border-bottom-color')
 		|| obj.css('border-left-color')
 	);
 }

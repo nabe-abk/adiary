@@ -9,7 +9,7 @@
 <@id> {
 <@>
 <@ifexec(ps.bg ne '', begin)>
-	background-color:	<@ps.bg>;
+	background-color:	rgba(<@v.hex2rgb(ps.bg)>, <@ps.bg_alpha>);
 <$end>
 <@>
 <@ifexec(ps.font_c ne '', begin)>
@@ -36,5 +36,11 @@
 <$end>
 <@ifexec(ps.padding0 ne '', begin)>
 	padding:		<@ps.padding0>px <@ps.padding1>px <@ps.padding2>px <@ps.padding3>px;
+<$end>
+<@ifexec(ps.abs_x ne '', begin)>
+	position:		absolute;
+	left:			<@ps.abs_x>px;
+	top:			<@ps.abs_y>px;
+	z-index:		1;
 <$end>
 }

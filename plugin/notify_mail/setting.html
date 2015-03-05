@@ -1,12 +1,12 @@
 <@6>
-<@local(x,s)>
-<$s=argv#0>
+<@local(x,ps)>
+<$ps=argv#0>
 
 	<table class="blog-setting">
 	<tbody>
 	<tr>
 		<th>メールタイトル<span class="help" data-help="%nはブログ名に置き換わります。">?</span></th>
-		<td><input type="text" class="w160" name="subject" value="<@esc(s.subject) || '%n notify'>" maxlength="64"></td>
+		<td><input type="text" class="w160" name="subject" value="<@esc(ps.subject) || '%n notify'>" maxlength="64"></td>
 	</tr>
 <@ifexec(v.system_email, begin, begin)>
 	<tr>
@@ -16,12 +16,12 @@
 <$else>
 	<tr>
 		<th>送信元アドレス<span class="help" data-help="メールのFromを指定します。空でも構いません。\nサーバによって強制的に異なるアドレスに書き換えられたり、Fromアドレスが許可されていないドメイン等の場合、そもそも送信されないことがあります。">?</span></th>
-		<td><input type="text" class="w320" name="from" value="<@s.from>" maxlength="128"></td>
+		<td><input type="text" class="w320" name="from" value="<@ps.from>" maxlength="128"></td>
 	</tr>
 <$end>
 	<tr>
 		<th>送信先アドレス<span class="help" data-help="複数指定したい場合は「,」で区切ってください。">?</span></th>
-		<td><input type="text" class="w320" name="to" value="<@s.to>" maxlength="128"></td>
+		<td><input type="text" class="w320" name="to" value="<@ps.to>" maxlength="128"></td>
 	</tr>
 	</tbody>
 	</table>

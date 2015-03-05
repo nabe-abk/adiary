@@ -1,37 +1,37 @@
 <@6>
-<@local(s)>
-<$s=argv#0>
+<@local(ps)>
+<$ps=argv#0>
 	<table class="blog-setting">
 	<tbody>
 	<tr>
 		<th>モジュールタイトル</th>
-		<td><input type="text" class="w160" name="title" value="<@s.title || '（タイトル）'>" maxlength="64"></td>
+		<td><input type="text" class="w160" name="title" value="<@ps.title || '（タイトル）'>" maxlength="64"></td>
 	</tr>
 	<tr>
 		<th>モジュールクラス<span class="help" data-help="モジュール全体に出力するクラスを指定します。スペース区切り。">?</span></th>
-		<td><input type="text" class="w300" name="class" value="<@if(s.title eq '', 'hatena-module', s.class)>"></td>
+		<td><input type="text" class="w300" name="class" value="<@if(ps.class eq '', 'hatena-module', ps.class)>"></td>
 	</tr>
 	<tr>
 		<th>タイトル出力<span class="help" data-help='モジュールタイトル<div class="hatena-moduletitle">を出力しないようにします。'>?</span></th>
 		<td>
 			<input type="hidden" name="checkbox.info" value="title_none">
-			<input type="checkbox" name="title_none" value="1"<@if(s.title_none,' checked')>><label>出力しない</label>
+			<input type="checkbox" name="title_none" value="1"<@if(ps.title_none,' checked')>><label>出力しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>modulebody出力<span class="help" data-help='<div class="hatena-modulebody">を出力しないようにします。'>?</span></th>
 		<td>
 			<input type="hidden" name="checkbox.info" value="body_none">
-			<input type="checkbox" name="body_none" value="1"<@if(s.body_none,' checked')>><label>出力しない</label>
+			<input type="checkbox" name="body_none" value="1"<@if(ps.body_none,' checked')>><label>出力しない</label>
 		</td>
 	</tr>
 	</tbody>
 	</table>
 
-	<$txt = s.free_txt><$ifexec(s.lf2br,begin)><$replace(txt, '<br>', "\n")><$end>
+	<$txt = ps.free_txt><$ifexec(ps.lf2br,begin)><$replace(txt, '<br>', "\n")><$end>
 	<textarea class="w512" rows="8" name="free_txt"><@esc(txt)></textarea>
 
-	<p><input type="checkbox" name="lf2br" value="1"<@if(s.lf2br,' checked')>><label>改行を有効にする</label>
+	<p><input type="checkbox" name="lf2br" value="1"<@if(ps.lf2br,' checked')>><label>改行を有効にする</label>
 	&nbsp;&nbsp;<a href="<@v.myself>?etc/allow_tags&amp;n=usertext" target="_blank">※使用可能なHTMLタグ</a></p>
 
 

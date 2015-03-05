@@ -104,16 +104,9 @@ div.main {
 	color:			#33f;	/* $c=link */
 	text-decoration:	none;
 }
-/* ようこそ */
-span.welcome-prefix { text-decoration: none; color: #000; }
 /* ○○さん */
-span.welcome      { margin-right: 0.5em; }
-span.welcome-name { margin: 0px 4px 0px 4px; }
-span.welcome a, span.welcome a:link, span.welcome a:visited {
-	color:			inherit;
-	font-weight:		inherit;
-	text-decoration:	none;
-}
+a.welcome-name { margin: 0px 4px 0px 4px; }
+
 /*--------------------------------------------------------------------
 ■ドロップダウンメニュー
 ---------------------------------------------------------------------*/
@@ -788,13 +781,6 @@ textarea#editarea:focus {
 textarea#editarea {
 	font-size:		11.5pt;
 }
-
-/* submitボタンの位置調整 */
-article.setting input[type="submit"]
-{
-	margin-top:	1em;
-}
-
 
 /*--------------------------------------------------------------------
 ●記事の編集画面

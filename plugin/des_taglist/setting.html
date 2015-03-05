@@ -1,17 +1,17 @@
 <@6>
-<@local(x,s)>
-<$s=argv#0>
-	<table class="blog-setting">
+<@local(x,ps)>
+<$ps=argv#0>
+	<table class="blog-ps.tting">
 	<tbody>
 	<tr>
 		<th>タグなし記事のリンク名</th>
-		<td><input type="text" class="w200" name="notag_title" value="<@s.notag_title || '(none)'>" maxlength="32"></td>
+		<td><input type="text" class="w200" name="notag_title" value="<@ps.notag_title || '(none)'>" maxlength="32"></td>
 	</tr>
 	<tr>
 		<th>記事のないタグの扱い</th>
 		<td>
 			<input type="hidden" name="checkbox.info" value="disp_noart_tag">
-			<input type="checkbox" name="disp_noart_tag" value="1"<@if(s.disp_noart_tag,' checked')>><label>表示する</label>
+			<input type="checkbox" name="disp_noart_tag" value="1"<@if(ps.disp_noart_tag,' checked')>><label>表示する</label>
 		</td>
 	</tr>
 	</tbody>

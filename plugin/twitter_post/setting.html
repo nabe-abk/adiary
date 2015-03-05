@@ -1,6 +1,6 @@
 <@6>
-<@local(x,s,name)>
-<$s=argv#0>
+<@local(ps,name)>
+<$ps=argv#0>
 <$name=argv#1>
 
 <@ifexec(!lib_check('Net::SSLeay'), begin)>
@@ -13,7 +13,7 @@
 <$end>
 
 <@>認証済
-<$ifsuperjump(s.access_token ne '', 'twitter/_setting', s, name)>
+<$ifsuperjump(ps.access_token ne '', 'twitter/_setting', ps, name)>
 
 <@>----------------------------------------------------------------------------
 <@> 設定画面

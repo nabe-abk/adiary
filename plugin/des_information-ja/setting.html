@@ -1,17 +1,17 @@
 <@6>
-<@local(s)>
-<$s=argv#0>
+<@local(ps)>
+<$ps=argv#0>
 	<table class="blog-setting">
 	<tbody>
 	<tr>
 		<th>モジュールタイトル<span class="help" data-help="Informationモジュールのタイトルです。">?</span></th>
-		<td><input type="text" class="w160" name="title" value="<@s.title || 'Information'>" maxlength="64"></td>
+		<td><input type="text" class="w160" name="title" value="<@ps.title || 'Information'>" maxlength="64"></td>
 	</tr>
 	<tr>
 		<th>タイトル表示<span class="help" data-help="タイトルを「display: none;」します。使用テーマによっては最初から非表示になっています。（テーマ側で強制的に表示されることもあります）">?</span></th>
 		<td>
 			<input type="hidden" name="checkbox.info" value="title_hidden">
-			<input type="checkbox" name="title_hidden" value="1"<@if(s.title_hidden,' checked')>><label>非表示にする</label>
+			<input type="checkbox" name="title_hidden" value="1"<@if(ps.title_hidden,' checked')>><label>非表示にする</label>
 		</td>
 	</tr>
 	</tbody>
@@ -42,7 +42,7 @@
 
 <@> IE8で不具合がでるため textarea にしてある（本来はdiv）
 <textarea id="current-elements">
-<@if(s.elements || s.title, s.elements, begin_string)>
+<@if(ps.elements || ps.title, ps.elements, begin_string)>
 description
 artlist-link
 print-link

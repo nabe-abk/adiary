@@ -54,13 +54,13 @@
 		<$end>
 		<@if(t.description, #'<@t.description><br>')>
 		<@ifexec(t.files, begin)>
-		<button type="button" class="info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</button>
+		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</button>
 		<$end)>
 		<@ifexec(t.events, begin)>
-		<button type="button" class="info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events>">登録イベント</button>
+		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events>">登録イベント</button>
 		<$end>
 		<@ifexec(t.readme, begin)>
-		<button type="button" class="info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>
+		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>
 		<$end>
 		<@ifexec(t.module_setting, begin)>
 		<button type="button" class="setting" data-title="<@t.name>の設定" data-module-name="<@t.name>" data-url="<@v.myself>?<@v.skel_dir>plugin_setting&amp;name=<@t.name>">設定</button>
@@ -114,13 +114,13 @@
 		<$end>
 		<@if(t.description, #'<@t.description><br>')>
 		<@ifexec(t.files, begin)>
-		<button type="button" class="info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</button>
+		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</button>
 		<$end)>
 		<@ifexec(t.events, begin)>
-		<button type="button" class="info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events>">登録イベント</button>
+		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events>">登録イベント</button>
 		<$end>
 		<@ifexec(t.readme, begin)>
-		<button type="button" class="info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>
+		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>
 		<$end>
 		</td>
 	</tr>

@@ -1,10 +1,10 @@
 <@6>
-<@local(x,s)>
-<$s=argv#0>
+<@local(x,ps)>
+<$ps=argv#0>
 	<table class="blog-setting">
 	<tbody>
 	<tr><th>表示件数</th>
-		<td><$x=s.displays || 5>
+		<td><$x=ps.displays || 5>
 		<select name="displays" class="int">
 			<option value="1" <@if(x == 1, ' selected')>>1件</option>
 			<option value="2" <@if(x == 2, ' selected')>>2件</option>

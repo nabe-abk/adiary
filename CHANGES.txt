@@ -32,6 +32,7 @@
 -【fix】非表示input要素に対するリサイズ機能が正しく働いてなかったので、表示後、初めてmouseenterしたときにリサイズ加工をするように修正しました。
 -【fix】Image::Magickが存在しないとき、アルバムの動作がエラーになっていた。
 -【fix】data-target指定時にjQuery XSSの問題があった。[http://subtech.g.hatena.ne.jp/mala/20110624/1308881526:参考]
+-【fix】管理画面で選択テーマを使用しない設定の場合、デザインの初期化の確認画面で常に標準テーマが表示されていた。
 -【IE8】デザインモジュールの「Information/リンク集」にて、現在の状況をロードできない「IE8の不具合」に対応しました。
 -【Windows】記事のインポート処理がうまくいかないWindowsの謎の挙動に対応しました。
 -【Base/OAuth.pm】status update以外の、一般的なOAuthなGET/POST処理に対応しました。

@@ -1109,15 +1109,9 @@ sub save_dynamic_css {
 		$css = '';	# 0byte でファイルを置いておかないと矛盾が起こる
 	}
 
-	# 中身があるかチェック
-	if ($name !~ /^_/) {	# usercss以外
-		my $c = $css;
-		$c =~ s|/\*(.*?)\*/||sg;			# コメント除去
-		$c =~ s/(['"])(?:\\.|.)*?\1/str/sg;		# 文字列を置換
-		$c =~ s|[\w\-\[\]=,\.*>~:\s\(\)\#]*\{\s*\}||sg;	# 中身のない定義を除去
-		if ($c =~ /^\s*$/) {				# 残りが空白だけ
-			$css = '';
-		}
+	# 中身があるかチェック / usercssを除く
+	if ($name !~ /^_/ && !$self->check_css_content($css)) {
+		$css = '';
 	}
 
 	my $dir = $self->dynamic_css_dir();
@@ -1164,7 +1158,9 @@ sub update_dynamic_css {
 	my @ary;
 	foreach(@$files) {
 		my $css = join('', @{ $ROBJ->fread_lines("$dir$_") });
-		if ($css =~ /^\s*$/) { next; }		# 空のファイルを無視
+		if (!$self->check_css_content($css)) {
+			next;			# 中身のないファイルを無視
+		}
 		push(@ary, "\n/* from '$_' */\n\n");
 		push(@ary, $css);
 	}
@@ -1196,6 +1192,21 @@ sub dynamic_css_file {
 	my $self = shift;
 	my $name = shift;
 	return $self->dynamic_css_dir() . $name . '-d.css';
+}
+
+#------------------------------------------------------------------------------
+# ●CSSが中身があるか確認する
+#------------------------------------------------------------------------------
+sub check_css_content {
+	my $self = shift;
+	my $css  = shift;
+	$css =~ s|/\*(.*?)\*/||sg;				# コメント除去
+	$css =~ s/(['"])(?:\\.|.)*?\1/str/sg;			# 文字列を置換
+	$css =~ s|[\w\-\[\]=,\.*>~:\s\(\)\#]*\{\s*\}||sg;	# 中身のない定義を除去
+	if ($css =~ /^\s*$/s) {					# 残りが空白だけ
+		return 0;
+	}
+	return 1;
 }
 
 ###############################################################################

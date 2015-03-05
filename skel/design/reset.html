@@ -1,23 +1,78 @@
 <@6>
+<@local(s,tp,t)>
+<$s = v.blog>
+<$ifredirect(!v.blog_admin, v.myself)>
 
+<@>システムモード移行前に
+<$theme = v.theme>
+
+<@><!--========================================================================-->
 <@> システムモード
-<$v.system_mode("デザインのリセット")>
+<$v.special_system_mode("テーマ選択")>
+<$plain_html_mode = 1>
 
+<$v.append_header(exec(begin))>
+<style>
+#adiary-body {
+	display:	none;
+}
+* {
+	margin:		0;
+	padding:	0;
+}
+html, #body {
+	height:		100%;
+	overflow:	hidden;
+<@ifexec(!Develop, begin)>
+	overflow:	hidden;
+<$end>
+}
+#body {
+	background-color:	#008;
+	font-size:		11pt;
+}
+#form {
+	color:			#fff;
+	margin:			2px 4px;
+}
+#form button + button {
+	margin:			inherit;
+}
+select {
+	padding:		0px 1px;
+}
+button {
+	padding:		0 3px;
+}
+#iframe {
+	width:			100%;
+	min-height:		0;
+	overflow-x:		hidden;
+	overflow-y:		scrollbar;
+	border:			none;
+	background-color:	#fff;
+
+	position:		absolute;
+	left:			0px;
+}
+#custom-form {
+	font-size:		10pt;
+	color:			#000;
+	background-color:	#eef;
+	margin-bottom:		6px;
+	padding:		0 0 0.5em 2em;
+}
+ul {
+	padding:		0.5em 0;
+}
+</style>
+<$end>
 <!--========================================================================-->
-<@> 階層ツリー、初期処理
-<@call("<@v.skel_dir>_dir_tree")>
-
-<!--========================================================================-->
-<article class="system setting">
-<h2><@v.title></h2>
-<div class="body">
-
-	<p>このデザインをリセット（初期化）しますか？</p>
-
-	<form action="<@v.myself>?<@v.skeleton>" method="POST" class="js-form-check">
-	<input type="hidden" name="action" value="<@v.skeleton>">
-	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
-
+<form id="form" action="<@v.myself>?<@v.skeleton>" method="POST">
+<input type="hidden" name="action" value="<@v.skeleton>">
+<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+デサインの初期化
+<div id="custom-form">
 	<ul class="none">
 	<li><input type="checkbox" name="all" value="1"><label>モジュール個別の設定もすべてリセットする</label></li>
 	<li><input type="checkbox" name="load_design" value="1"><label>リセット後にデフォルトデザインをロードする</label></li>
@@ -26,10 +81,23 @@
 
 	<input type="checkbox" name="reset_check" class="js-enable" data-target="#reset-submit"><label>確認</label>
 	<input type=submit name="submit" id="reset-submit" value="リセットする">
-
-	</form>
+	&nbsp;&nbsp;<button id="back-btn" type="button" onclick="window.location='<@v.myself>?<@v.skel_dir>'">戻る</button>
 </div>
-</article>
+</form>
+<iframe id="iframe" src="<@v.myself>"></iframe>
 
+<script>
+//////////////////////////////////////////////////////////////////////////////
+// ●iframeの自動リサイズ
+//////////////////////////////////////////////////////////////////////////////
+$(function(){
+	var body = $('#body');
+	var iframe = $('#iframe');
+	function iframe_resize() {
+		var h = body.height() - iframe.position().top;
+		iframe.css('height', h);
+	}
+	iframe_resize();
+	$(window).resize( iframe_resize );
 
-<@call('_main')>
+});</script>

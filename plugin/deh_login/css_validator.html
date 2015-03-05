@@ -7,64 +7,114 @@
 	bf = flag
 	erase_login = flag
 
-	width = ‘S‘Ì‚Ì‰¡•
+	width = å…¨ä½“ã®æ¨ªå¹…
 	width:type =  int
 	width:min  =  600
 	width:max  = 2000
 	width:default = 
 
-	bg   = ‘S‘Ì‚Ì”wŒi
+	font_c = æ–‡å­—ã®è‰²
+	font_c:filter0 = rgb
+	font_c:default = 
+
+	font_ca = ãƒªãƒ³ã‚¯ã®æ–‡å­—è‰²
+	font_ca:filter0 = rgb
+	font_ca:default = 
+
+	bg   = å…¨ä½“ã®èƒŒæ™¯
 	bg:filter0 = rgb
 	bg:default = 
 
-	body_bg = •\¦—Ìˆæ‚Ì”wŒi
+	body_bg = è¡¨ç¤ºé ˜åŸŸã®èƒŒæ™¯
 	body_bg:filter0 = rgb
 	body_bg:default = 
 
-	head_bg = ƒwƒbƒ_—Ìˆæ‚Ì”wŒi
+	head_bg = ãƒ˜ãƒƒãƒ€é ˜åŸŸã®èƒŒæ™¯
 	head_bg:filter0 = rgb
 	head_bg:default = 
 
 	bgfile_fit = flag
-	bgfile_rep = flag
 
-	margin0 = ƒ}[ƒWƒ“ã
+	margin0 = ãƒãƒ¼ã‚¸ãƒ³ä¸Š
 	margin0:type = int
 	margin0:min  =  -999
 	margin0:max  =   999
 	margin0:default = 
-	margin1 = ƒ}[ƒWƒ“‰E
+	margin1 = ãƒãƒ¼ã‚¸ãƒ³å³
 	margin1:type = int
 	margin1:min  =  -999
 	margin1:max  =   999
 	margin1:default = 
-	margin2 = ƒ}[ƒWƒ“‰º
+	margin2 = ãƒãƒ¼ã‚¸ãƒ³ä¸‹
 	margin2:type = int
 	margin2:min  =  -999
 	margin2:max  =   999
 	margin2:default = 
-	margin3 = ƒ}[ƒWƒ“¶
+	margin3 = ãƒãƒ¼ã‚¸ãƒ³å·¦
 	margin3:type = int
 	margin3:min  =  -999
 	margin3:max  =   999
 	margin3:default = 
 
-	padding0 = paddingã
+	padding0 = paddingä¸Š
 	padding0:type = int
 	padding0:min  =   0
 	padding0:max  = 999
 	padding0:default = 
-	padding1 = padding‰E
+	padding1 = paddingå³
 	padding1:type = int
 	padding1:min  =   0
 	padding1:max  = 999
 	padding1:default = 
-	padding2 = padding‰º
+	padding2 = paddingä¸‹
 	padding2:type = int
 	padding2:min  =   0
 	padding2:max  = 999
 	padding2:default = 
-	padding3 = padding¶
+	padding3 = paddingå·¦
+	padding3:type = int
+	padding3:min  =   0
+	padding3:max  = 999
+	padding3:default = 
+
+
+	margin0 = ãƒ˜ãƒƒãƒ€ã®ãƒãƒ¼ã‚¸ãƒ³ä¸Š
+	margin0:type = int
+	margin0:min  =  -999
+	margin0:max  =   999
+	margin0:default = 
+	margin1 = ãƒ˜ãƒƒãƒ€ã®ãƒãƒ¼ã‚¸ãƒ³å³
+	margin1:type = int
+	margin1:min  =  -999
+	margin1:max  =   999
+	margin1:default = 
+	margin2 = ãƒ˜ãƒƒãƒ€ã®ãƒãƒ¼ã‚¸ãƒ³ä¸‹
+	margin2:type = int
+	margin2:min  =  -999
+	margin2:max  =   999
+	margin2:default = 
+	margin3 = ãƒ˜ãƒƒãƒ€ã®ãƒãƒ¼ã‚¸ãƒ³å·¦
+	margin3:type = int
+	margin3:min  =  -999
+	margin3:max  =   999
+	margin3:default = 
+
+	padding0 = ãƒ˜ãƒƒãƒ€ã®paddingä¸Š
+	padding0:type = int
+	padding0:min  =   0
+	padding0:max  = 999
+	padding0:default = 
+	padding1 = ãƒ˜ãƒƒãƒ€ã®paddingå³
+	padding1:type = int
+	padding1:min  =   0
+	padding1:max  = 999
+	padding1:default = 
+	padding2 = ãƒ˜ãƒƒãƒ€ã®paddingä¸‹
+	padding2:type = int
+	padding2:min  =   0
+	padding2:max  = 999
+	padding2:default = 
+	padding3 = ãƒ˜ãƒƒãƒ€ã®paddingå·¦
 	padding3:type = int
 	padding3:min  =   0
 	padding3:max  = 999
@@ -72,10 +122,10 @@
 <$end>
 <$ifbreak(form_error())>
 
-<@> ƒtƒ@ƒCƒ‹–³Œø‰»
+<@> ãƒ•ã‚¡ã‚¤ãƒ«ç„¡åŠ¹åŒ–
 <$v.void_plugin_images(h, form)>
 
-<@> ƒtƒ@ƒCƒ‹ƒAƒbƒvƒ[ƒhˆ—
+<@> ãƒ•ã‚¡ã‚¤ãƒ«ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰å‡¦ç†
 <$v.plugin_upload_images(h, name, form, begin_array)>
 	bgfile
 <$end>

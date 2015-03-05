@@ -1,11 +1,11 @@
 <@6>
-<@local(s)>
-<$s=argv#0>
+<@local(ps)>
+<$ps=argv#0>
 	<table class="blog-setting">
 	<tbody>
 	<tr>
 		<th>モジュールタイトル</th>
-		<td><input type="text" class="w160" name="title" value="<@s.title || 'リンク集'>" maxlength="64"></td>
+		<td><input type="text" class="w160" name="title" value="<@ps.title || 'リンク集'>" maxlength="64"></td>
 	</tr>
 	</tbody>
 	</table>
@@ -36,7 +36,7 @@
 
 <@> IE8で不具合がでるため textarea にしてある（本来はdiv）
 <textarea style="display: none" id="lkbox-elemtns">
-<@s.elements>
+<@ps.elements>
 </textarea>
 
 <!-- JavaScript ==========================================================-->

@@ -1,63 +1,63 @@
 <@6>
-<@local(x,s,name,id)>
-<$s=argv#0>
+<@local(ps,name,id)>
+<$ps=argv#0>
 <$name=argv#1>
 <$id  = v.plugin_name_id( name )>
-id : #<@id><br>
+
 	<table class="blog-setting">
 	<tbody>
 	<tr>
 		<th>項目幅</th>
 		<td>
-			1段目<input type="number" class="int w60" name="width1" value="<@s.width1 || 110>" min="40" max="9999" id="width1"> &nbsp;
-			2段目以降<input type="number" class="int w60" name="width2" value="<@s.width2 || 200>" min="40" max="9999" id="width2"> &nbsp;
-			<input type="checkbox" class="js-disable" data-target="#width1,#width2"<@if(s.width1 eq '',' checked')>><label>変更しない</label>
+			1段目<input type="number" class="int w60" name="width1" value="<@ps.width1 || 110>" min="40" max="9999" id="width1"> &nbsp;
+			2段目以降<input type="number" class="int w60" name="width2" value="<@ps.width2 || 200>" min="40" max="9999" id="width2"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#width1,#width2"<@if(ps.width1 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>アイテムの高さ</th>
 		<td>
-			<input type="number" class="int w60" name="height" value="<@s.height || 30>" min="20" max="99" id="height"> &nbsp;
-			<input type="checkbox" class="js-disable" data-target="#height"<@if(s.height eq '',' checked')>><label>変更しない</label>
+			<input type="number" class="int w60" name="height" value="<@ps.height || 30>" min="20" max="99" id="height"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>区切り線の非表示</th>
 		<td>
-			<input type="checkbox" name="nob_left"  value="1"<@if(s.nob_left, ' checked')>><label>一番左</label> 
-			<input type="checkbox" name="nob_right" value="1"<@if(s.nob_right,' checked')>><label>一番右</label> 
-			<input type="checkbox" name="nob_tb"    value="1"<@if(s.nob_tb,   ' checked')>><label>上下</label> 
-			<input type="checkbox" name="nob_lr"    value="1"<@if(s.nob_lr,   ' checked')>><label>左右</label> 
+			<input type="checkbox" name="nob_left"  value="1"<@if(ps.nob_left, ' checked')>><label>一番左</label> 
+			<input type="checkbox" name="nob_right" value="1"<@if(ps.nob_right,' checked')>><label>一番右</label> 
+			<input type="checkbox" name="nob_tb"    value="1"<@if(ps.nob_tb,   ' checked')>><label>上下</label> 
+			<input type="checkbox" name="nob_lr"    value="1"<@if(ps.nob_lr,   ' checked')>><label>左右</label> 
 		</td>
 	</tr>
 	<tr>
 		<th>トップの下線<span class="help" data-help="2段目がありかつ上下の区切り線を表示しているとき、トップ項目の下に線が見えます。この表示を消します。">?</span></th>
 		<td>
-			<input type="checkbox" name="no_underl" value="1"<@if(s.no_underl,' checked')>><label>下線を消す</label>
+			<input type="checkbox" name="no_underl" value="1"<@if(ps.no_underl,' checked')>><label>下線を消す</label>
 		</td>
 	</tr>
 	<tr>
 		<th>マージン<span class="help" data-help="表示位置はこの項目（特に「上」と「左」）で変更してください。">?</span></th>
 		<td>
-			上<input type="number" class="int w50" name="margin0" value="<@s.margin0 || 0>" min="-999" max="999" id="margin0"> 
-			右<input type="number" class="int w50" name="margin1" value="<@s.margin1 || 0>" min="-999" max="999" id="margin1"> 
-			下<input type="number" class="int w50" name="margin2" value="<@s.margin2 || 0>" min="-999" max="999" id="margin2"> 
-			左<input type="number" class="int w50" name="margin3" value="<@s.margin3 || 0>" min="-999" max="999" id="margin3"> &nbsp;
-			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(s.margin0 eq '',' checked')>><label>変更しない</label>
+			上<input type="number" class="int w50" name="margin0" value="<@ps.margin0 || 0>" min="-999" max="999" id="margin0"> 
+			右<input type="number" class="int w50" name="margin1" value="<@ps.margin1 || 0>" min="-999" max="999" id="margin1"> 
+			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
+			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>左右padding</th>
 		<td>
-			<input type="number" class="int w60" name="padding" value="<@s.padding || 0>" min="0" max="999" id="padding"> &nbsp;
-			<input type="checkbox" class="js-disable" data-target="#padding"<@if(s.padding eq '',' checked')>><label>変更しない</label>
+			<input type="number" class="int w60" name="padding" value="<@ps.padding || 0>" min="0" max="999" id="padding"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#padding"<@if(ps.padding eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>表示優先度<span class="help" data-help="表示優先度(z-index)を変更します。複数のドロップダウンメニューを配置するときのみ変更してください。">?</span></th>
 		<td>
-			<input type="number" class="int w80" name="zindex" value="<@s.zindex || 990>" min="1" id="zindex"> &nbsp;
-			<input type="checkbox" class="js-disable" data-target="#zindex"<@if(s.zindex eq '',' checked')>><label>変更しない</label>
+			<input type="number" class="int w80" name="zindex" value="<@ps.zindex || 990>" min="1" id="zindex"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#zindex"<@if(ps.zindex eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	</tbody>
@@ -67,51 +67,51 @@ id : #<@id><br>
 	<tbody>
 	<tr>
 		<th>全体の背景<span class="help" data-help="メニューアイテムを除いた部分の背景の設定です。">?</span></th><td>
-			<input type="checkbox" name="bg_trans" value="1"<@if(s.bg_trans,' checked')>><label>透過にする</label>
+			<input type="checkbox" name="bg_trans" value="1"<@if(ps.bg_trans,' checked')>><label>透過にする</label>
 		</td>
 	</tr>
 	<tr>
 		<th>トップの背景<span class="help" data-help="トップアイテムの背景色のみ透過にすることができます。使用する場合は「選択中の背景」を設定することを推奨します。">?</span></th><td>
-			<input type="checkbox" class="js-enable" name="tbg_trans" value="1"<@if(s.tbg_trans,' checked')>><label>透過にする</label>
+			<input type="checkbox" class="js-enable" name="tbg_trans" value="1"<@if(ps.tbg_trans,' checked')>><label>透過にする</label>
 		</td>
 	</tr>
 	<tr>
 		<th>背景色</th><td>
-			<input type="text" id="item-bg" name="item_bg" value="<@s.item_bg || '#ccccff'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#item-bg"<@if(s.item_bg eq '',' checked')>><label>変更しない</label>
+			<input type="text" id="item-bg" name="item_bg" value="<@ps.item_bg || '#ccccff'>" class="color-picker">
+			<input type="checkbox" class="js-disable" data-target="#item-bg"<@if(ps.item_bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>選択中の背景</th><td>
-			<input type="text" id="select-bg" name="select_bg" value="<@s.select_bg || '#f0f0ff'>" class="color-picker">
+			<input type="text" id="select-bg" name="select_bg" value="<@ps.select_bg || '#f0f0ff'>" class="color-picker">
 
-			<input type="checkbox" class="js-disable" data-target="#select-bg"<@if(s.select_bg eq '',' checked')>><label>変更しない</label>
+			<input type="checkbox" class="js-disable" data-target="#select-bg"<@if(ps.select_bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>区切り線の色</th><td>
-			<input type="text" id="border" name="border" value="<@s.border || '#aaaadd'>" class="color-picker">
+			<input type="text" id="border" name="border" value="<@ps.border || '#aaaadd'>" class="color-picker">
 
-			<input type="checkbox" class="js-disable" data-target="#border"<@if(s.border eq '',' checked')>><label>変更しない</label>
+			<input type="checkbox" class="js-disable" data-target="#border"<@if(ps.border eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>矢印の色<span class="help" data-help="3階層目のメニューがあるときに表示される矢印の色を指定します。">?</span></th><td>
-			<input type="text" id="arrow" name="arrow" value="<@s.arrow || '#333366'>" class="color-picker">
+			<input type="text" id="arrow" name="arrow" value="<@ps.arrow || '#333366'>" class="color-picker">
 
-			<input type="checkbox" class="js-disable" data-target="#arrow"<@if(s.arrow eq '',' checked')>><label>変更しない</label>
+			<input type="checkbox" class="js-disable" data-target="#arrow"<@if(ps.arrow eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>文字色</th><td>
-			<input type="text" id="font" name="font" value="<@s.font || '#3333cc'>" class="color-picker">
+			<input type="text" id="font" name="font" value="<@ps.font || '#3333cc'>" class="color-picker">
 
-			<input type="checkbox" class="js-disable" data-target="#font"<@if(s.font eq '',' checked')>><label>変更しない</label>
+			<input type="checkbox" class="js-disable" data-target="#font"<@if(ps.font eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>影を消す<span class="help" data-help="影が表示されるテーマのみ有効です。">?</span></th><td>
-			<input type="checkbox" name="no_shadow" value="1"<@if(s.no_shadow,' checked')>><label>影を消す</label>
+			<input type="checkbox" name="no_shadow" value="1"<@if(ps.no_shadow,' checked')>><label>影を消す</label>
 		</td>
 	</tr>
 	</tbody>
@@ -131,57 +131,57 @@ if (!obj.length) return;
 var li  = obj.find('>ul>li:first-child');
 var li2 = obj.find('ul>li>ul>li');
 
-if ('<@s.width1>' == '') {
+if ('<@ps.width1>' == '') {
 	if (li.length)
 		$('#width1').val( li.outerWidth() );
 }
-if ('<@s.width2>' == '') {
+if ('<@ps.width2>' == '') {
 	if (li2.length)
 		$('#width2').val( li2.outerWidth() );
 }
-if ('<@s.height>' == '') {
+if ('<@ps.height>' == '') {
 	$('#height').val( obj.outerHeight() );
 }
-if ('<@s.zindex>' == '') {
+if ('<@ps.zindex>' == '') {
 	$('#zindex').val( obj.css('z-index') || 990 );
 }
 // マージンとpadding
-if ('<@s.margin0>' == '')
+if ('<@ps.margin0>' == '')
 	$('#margin0').val( parse_px( obj.css('margin-top') ) );
-if ('<@s.margin1>' == '')
+if ('<@ps.margin1>' == '')
 	$('#margin1').val( parse_px( obj.css('margin-right') ) );
-if ('<@s.margin2>' == '')
+if ('<@ps.margin2>' == '')
 	$('#margin2').val( parse_px( obj.css('margin-bottom') ) );
-if ('<@s.margin3>' == '')
+if ('<@ps.margin3>' == '')
 	$('#margin3').val( parse_px( obj.css('margin-left') ) );
 
-if ('<@s.padding>' == '') {
+if ('<@ps.padding>' == '') {
 	var ul = obj.find('>ul');
 	$('#padding').val( parse_px( ul.css('padding-left') ) );
 }
 
 
-if ('<@s.item_bg>' == '' && li.length) {
+if ('<@ps.item_bg>' == '' && li.length) {
 	var col = parse_color(li.css('background-color'));
 	if (col) $('#item-bg').val(col);
 }
-if ('<@s.border>' == '' && li.length) {
+if ('<@ps.border>' == '' && li.length) {
 	var col = get_border_color(li)
 	col = parse_color( col );
 	if (col) $('#border').val(col);
 }
-if ('<@s.font>' == '' && li.length) {
+if ('<@ps.font>' == '' && li.length) {
 	var a = li.find('a:first-child');
 	var col = parse_color(a.css('color'));
 	if (col) $('#font').val(col);
 }
-if ('<@s.arrow>' == '' && li.length) {
+if ('<@ps.arrow>' == '' && li.length) {
 	var col = parse_color(obj.css('color'));
 	if (col) $('#arrow').val(col);
 }
 
 // 最後に処理
-if ('<@s.select_bg>' == '' && li.length) {
+if ('<@ps.select_bg>' == '' && li.length) {
 	li.addClass('hover');
 	delay_color_setting('#select-bg', li, 'background-color', 'hover');
 }

@@ -1,0 +1,173 @@
+<@40.is_function>
+<@local(h,h2,form,name)>
+<$form = argv#0>
+<$name = argv#1>
+
+<$h = validator(begin_hash, form) )>
+	font_c = 文字の色
+	font_c:filter0 = rgb
+	font_c:default = 
+
+	font_s = 文字サイズ
+	font_s:type = int
+	font_s:min  =   0
+	font_s:max  = 999
+	font_s:default = 
+
+	font_f = フォントの種類
+	font_f:filter0 = trim
+	font_f:filter1 = reg_del:[<>;:]
+	font_f:filter2 = reg_rep:'
+	font_f:filter2_opt = "
+
+	height = 領域の高さ
+	height:type =  int
+	height:min  =    0
+	height:max  =  999
+	height:default = 
+
+	s_mode = 文字の装飾
+	s_mode:enum = ,shadow_rb ,shadow_rt ,shadow_all ,light_lt ,light_lb ,light_all
+
+	s_w = 修飾効果の幅
+	s_w:type = int
+	s_w:min  =   0
+	s_w:max  =  99
+	s_bl = 修飾効果のぼかし幅
+	s_bl:type = int
+	s_bl:min  =   0
+	s_bl:max  =  99
+	s_c1 = 修飾のハイライト色
+	s_c1:filter0 = rgb
+	s_c1:default = 
+	s_c0 = 修飾の影色
+	s_c0:filter0 = rgb
+	s_c0:default = 
+
+	s_oc = 縁取りの色
+	s_oc:filter0 = rgb
+	s_oc:default = 
+	s_ow = 縁取りの幅
+	s_ow:type = int
+	s_ow:min  =   0
+	s_ow:max  =   9
+
+	fbg = 文字の背景色
+	fbg:filter0 = rgb
+	fbg:default = 
+
+	fbg_alpha = 文字の背景の透過度
+	fbg_alpha:type = num
+	fbg_alpha:min  = 0
+	fbg_alpha:max  = 1
+	fbg_alpha:default = 
+
+	fpadding0 = 文字背景paddin（上下）
+	fpadding0:type = int
+	fpadding0:min  =   0
+	fpadding0:max  = 999
+	fpadding0:default = 
+	fpadding1 = 文字背景paddin（左右）
+	fpadding1:type = int
+	fpadding1:min  =   0
+	fpadding1:max  = 999
+	fpadding1:default = 
+	fbg_r = 文字の背景の丸め
+	fbg_r:type = int
+	fbg_r:min  =   0
+	fbg_r:max  =  99
+	fbg_r:default = 
+
+
+	bg = 背景色
+	bg:filter0 = rgb
+	bg:default = 
+
+	bgfile_fit = flag
+
+
+	border_c = 枠線の色
+	border_c:filter0 = rgb
+	border_c:default = 
+
+	border0 = 枠線の幅（上）
+	border0:type = int
+	border0:min  =   0
+	border0:max  =  99
+	border0:default = 
+	border1 = 枠線の幅（右）
+	border1:type = int
+	border1:min  =   0
+	border1:max  =  99
+	border1:default = 
+	border2 = 枠線の幅（下）
+	border2:type = int
+	border2:min  =   0
+	border2:max  =  99
+	border2:default = 
+	border3 = 枠線の幅（左）
+	border3:type = int
+	border3:min  =   0
+	border3:max  =  99
+	border3:default = 
+
+	margin0 = マージン上
+	margin0:type = int
+	margin0:min  =  -999
+	margin0:max  =   999
+	margin0:default = 
+	margin1 = マージン右
+	margin1:type = int
+	margin1:min  =  -999
+	margin1:max  =   999
+	margin1:default = 
+	margin2 = マージン下
+	margin2:type = int
+	margin2:min  =  -999
+	margin2:max  =   999
+	margin2:default = 
+	margin3 = マージン左
+	margin3:type = int
+	margin3:min  =  -999
+	margin3:max  =   999
+	margin3:default = 
+
+	padding0 = 文字位置上
+	padding0:type = int
+	padding0:min  =   0
+	padding0:max  = 999
+	padding0:default = 
+	padding1 = 文字位置右
+	padding1:type = int
+	padding1:min  =   0
+	padding1:max  = 999
+	padding1:default = 
+	padding2 = 文字位置下
+	padding2:type = int
+	padding2:min  =   0
+	padding2:max  = 999
+	padding2:default = 
+	padding3 = 文字位置左
+	padding3:type = int
+	padding3:min  =   0
+	padding3:max  = 999
+	padding3:default = 
+<$end>
+<$ifbreak(form_error())>
+
+<$fam = h.font_f>
+<$replace(fam, '".*?"', '')>		<@> "xxx" → 除去
+<$ifset(match(fam, '"'), h.font_f, '')>	<@> まだ " が残ってる
+
+<@> ファイル無効化
+<$v.void_plugin_images(h, form)>
+
+<@> ファイルアップロード処理
+<$v.plugin_upload_images(h, name, form, begin_array)>
+	titleimg
+	bgfile
+<$end>
+<$ifbreak(form_error())>
+
+
+<$return(h)>

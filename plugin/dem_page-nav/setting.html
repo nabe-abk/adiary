@@ -1,15 +1,15 @@
 <@6>
-<@local(s)>
-<$s=argv#0>
+<@local(ps)>
+<$ps=argv#0>
 
 	<table class="blog-setting">
 	<tbody>
 	<tr><th>表示位置</th>
 		<td>
-			<input type="radio" name="align" value="left"  <@if(s.align eq 'left',' checked')>><label>左寄せ</label>
-			<input type="radio" name="align" value="center"<@if(s.align eq 'center',' checked')>><label>中央</label>
-			<input type="radio" name="align" value="right" <@if(s.align eq 'right',' checked')>><label>右寄せ</label><br>
-			<input type="radio" name="align" value=""<@if(s.align eq '',' checked')>><label>指定しない</label>
+			<input type="radio" name="align" value="left"  <@if(ps.align eq 'left',' checked')>><label>左寄せ</label>
+			<input type="radio" name="align" value="center"<@if(ps.align eq 'center',' checked')>><label>中央</label>
+			<input type="radio" name="align" value="right" <@if(ps.align eq 'right',' checked')>><label>右寄せ</label><br>
+			<input type="radio" name="align" value=""<@if(ps.align eq '',' checked')>><label>指定しない</label>
 		</td>
 	</tr>
 	</tbody>

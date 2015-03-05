@@ -1,73 +1,101 @@
 <@6>
-<@local(s)>
-<$s=argv#0>
+<@local(ps)>
+<$ps=argv#0>
 
 	<table class="blog-setting">
 	<tbody>
 	<tr><th>ログイン表示の消去<span class="help" data-help="画面右上（等）に表示されるログインリンクを見えなくします。見えないだけ（空白文字になるだけ）でリンク自体は残ります。">?</span></th>
 		<td>
-		<input type="checkbox" name="erase_login" value="1"<@if(s.erase_login, ' checked')>><label>「ログイン」を見えなくする</label>
+		<input type="checkbox" name="erase_login" value="1"<@if(ps.erase_login, ' checked')>><label>「ログイン」を見えなくする</label>
 		</td>
 	</tr>
 	<tr><th>ログインヘッダの文字</th>
 		<td>
-		<input type="checkbox" name="bf" value="1"<@if(s.bf, ' checked')>><label>太字にする</label>
-		</td>
-	</tr>
-	<tr><th>全体の横幅を設定する<span class="help" data-help="横幅がフリー設定（ウィンドウに合わせる）になっているテーマに対し、表示領域の横幅を固定で設定します。">?</span></th>
-		<td>
-			<input type="number" class="int w60" name="width" value="<@s.width || 800>" min="600" max="2000" id="width"> &nbsp;
-			<input type="checkbox" class="js-disable" data-target="#width"<@if(!s.width,' checked')>><label>変更しない</label>
-		</td>
-	</tr>
-	<tr><th>全体の背景<span class="help" data-help="ウィンドウ全体のベースとなる背景を指定します。">?</span></th>
-		<td>
-			<input type="text" id="bg" name="bg" value="<@s.bg || '#ffffff'>" class="color-picker w60">
-			<input type="checkbox" class="js-disable" data-target="#bg"<@if(s.bg eq '',' checked')>><label>変更しない</label>
-		</td>
-	</tr>
-	<tr><th>表示領域の背景<span class="help" data-help="実際の表示領域の背景を指定します。">?</span></th>
-		<td>
-			<input type="text" id="body-bg" name="body_bg" value="<@s.body_bg || '#ffffff'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#body-bg"<@if(s.body_bg eq '',' checked')>><label>変更しない</label>
-		</td>
-	</tr>
-	<tr><th>ヘッダ領域の背景<span class="help" data-help="ログインヘッダやタイトル部分の背景を指定します。">?</span></th>
-		<td>
-			<input type="text" id="head-bg" name="head_bg" value="<@s.head_bg || '#ffffff'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#head-bg"<@if(s.head_bg eq '',' checked')>><label>変更しない</label><br>
-		</td>
-	</tr>
-	<tr><th>ヘッダの背景画像<span class="help" data-help="背景に使う画像をアップロードします。IE8/9では設定できません。">?</span></th>
-		<td>
-			<input type="file" class="js-fileup" id="head-file" name="bgfile"><br>
-			<input type="checkbox" name="bgfile_fit" value="1"<@if(s.bgfile_fit,' checked')>><label>ヘッダの高さを画像にフィットさせる</label>
-			<span class="help" data-help="画像がヘッダがより大きい場合のみ有効になります。">?</span><br>
-			<input type="checkbox" name="bgfile_rep" value="1"<@if(s.bgfile_rep,' checked')>><label>画像をリピート表示する</label>
-			<span class="help" data-help="画像を繰り返し表示します。画像がヘッダより小さい場合のみ意味があります。">?</span><br>
-			<@ifexec(s.bgfile, begin)>
-			<input type="checkbox" name="bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
-			<$end>
+		<input type="text" id="font-c"  name="font_c"  value="<@ps.font_c  || '#000000'>" class="color-picker"> &nbsp;
+		リンク <input type="text" id="font-ca" name="font_ca" value="<@ps.font_ca || '#000000'>" class="color-picker"> &nbsp;
+		<input type="checkbox" class="js-disable" data-target="#font-c,#font-ca"<@if(ps.font_c eq '',' checked')>><label>変更しない</label><br>
+		<input type="checkbox" name="bf" value="1"<@if(ps.bf, ' checked')>><label>太字にする</label>
 		</td>
 	</tr>
 	<tr>
 		<th>マージン</th>
 		<td>
-			上<input type="number" class="int w50" name="margin0" value="<@s.margin0 || 0>" min="-999" max="999" id="margin0"> 
-			右<input type="number" class="int w50" name="margin1" value="<@s.margin1 || 0>" min="-999" max="999" id="margin1"> 
-			下<input type="number" class="int w50" name="margin2" value="<@s.margin2 || 0>" min="-999" max="999" id="margin2"> 
-			左<input type="number" class="int w50" name="margin3" value="<@s.margin3 || 0>" min="-999" max="999" id="margin3"> &nbsp;
-			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(s.margin0 eq '',' checked')>><label>変更しない</label>
+			上<input type="number" class="int w50" name="margin0" value="<@ps.margin0 || 0>" min="-999" max="999" id="margin0"> 
+			右<input type="number" class="int w50" name="margin1" value="<@ps.margin1 || 0>" min="-999" max="999" id="margin1"> 
+			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
+			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>padding</th>
 		<td>
-			上<input type="number" class="int w50" name="padding0" value="<@s.padding0 || 0>" min="-999" max="999" id="padding0"> 
-			右<input type="number" class="int w50" name="padding1" value="<@s.padding1 || 0>" min="-999" max="999" id="padding1"> 
-			下<input type="number" class="int w50" name="padding2" value="<@s.padding2 || 0>" min="-999" max="999" id="padding2"> 
-			左<input type="number" class="int w50" name="padding3" value="<@s.padding3 || 0>" min="-999" max="999" id="padding3"> &nbsp;
-			<input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(s.padding0 eq '',' checked')>><label>変更しない</label>
+			上<input type="number" class="int w50" name="padding0" value="<@ps.padding0 || 0>" min="0" max="999" id="padding0"> 
+			右<input type="number" class="int w50" name="padding1" value="<@ps.padding1 || 0>" min="0" max="999" id="padding1"> 
+			下<input type="number" class="int w50" name="padding2" value="<@ps.padding2 || 0>" min="0" max="999" id="padding2"> 
+			左<input type="number" class="int w50" name="padding3" value="<@ps.padding3 || 0>" min="0" max="999" id="padding3"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(ps.padding0 eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<p>ヘッダ領域全体の表示設定</p>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>全体の横幅<span class="help" data-help="横幅がフリー設定（ウィンドウに合わせる）になっているテーマに対し、表示領域の横幅を固定で設定します。">?</span></th>
+		<td>
+			<input type="number" class="int w60" name="width" value="<@ps.width || 800>" min="600" max="2000" id="width"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#width"<@if(!ps.width,' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>全体の背景<span class="help" data-help="ウィンドウ全体のベースとなる背景を指定します。">?</span></th>
+		<td>
+			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
+			<input type="checkbox" class="js-disable" data-target="#bg"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>表示領域の背景<span class="help" data-help="実際の表示領域の背景を指定します。">?</span></th>
+		<td>
+			<input type="text" id="body-bg" name="body_bg" value="<@ps.body_bg || '#ffffff'>" class="color-picker">
+			<input type="checkbox" class="js-disable" data-target="#body-bg"<@if(ps.body_bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>ヘッダ領域の背景<span class="help" data-help="ログインヘッダやタイトル部分の背景を指定します。">?</span></th>
+		<td>
+			<input type="text" id="head-bg" name="head_bg" value="<@ps.head_bg || '#ffffff'>" class="color-picker">
+			<input type="checkbox" class="js-disable" data-target="#head-bg"<@if(ps.head_bg eq '',' checked')>><label>変更しない</label><br>
+		</td>
+	</tr>
+	<tr><th>ヘッダの画像<span class="help" data-help="背景に使う画像をアップロードします。IE8/9ではアップロードできません。">?</span></th>
+		<td>
+			<input type="file" class="js-fileup" id="head-file" name="bgfile"><br>
+			<input type="checkbox" name="bgfile_fit" value="1"<@if(ps.bgfile_fit,' checked')>><label>ヘッダの高さを画像にフィットさせる</label>
+			<span class="help" data-help="画像がヘッダがより大きい場合のみ有効になります。">?</span><br>
+			<@ifexec(ps.bgfile, begin)>
+			<input type="checkbox" name="bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<$end>
+		</td>
+	</tr>
+	<tr>
+		<th>ヘッダのマージン</th>
+		<td>
+			上<input type="number" class="int w50" name="margin4" value="<@ps.margin4 || 0>" min="-999" max="999" id="margin4"> 
+			右<input type="number" class="int w50" name="margin5" value="<@ps.margin5 || 0>" min="-999" max="999" id="margin5"> 
+			下<input type="number" class="int w50" name="margin6" value="<@ps.margin6 || 0>" min="-999" max="999" id="margin6"> 
+			左<input type="number" class="int w50" name="margin7" value="<@ps.margin7 || 0>" min="-999" max="999" id="margin7"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#margin4,#margin5,#margin6,#margin7"<@if(ps.margin4 eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>ヘッダのpadding</th>
+		<td>
+			上<input type="number" class="int w50" name="padding0" value="<@ps.padding4 || 0>" min="0" max="999" id="padding4"> 
+			右<input type="number" class="int w50" name="padding1" value="<@ps.padding5 || 0>" min="0" max="999" id="padding5"> 
+			下<input type="number" class="int w50" name="padding2" value="<@ps.padding6 || 0>" min="0" max="999" id="padding6"> 
+			左<input type="number" class="int w50" name="padding3" value="<@ps.padding7 || 0>" min="0" max="999" id="padding7"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#padding4,#padding5,#padding6,#padding7"<@if(ps.padding4 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 
@@ -77,47 +105,75 @@
 <script>
 $(function(){
 // デフォルト値を設定する
+var obj   = $f('#nav-header');
 var body  = $f('#body');
 var abody = $f('#adiary-body');
 var head  = $f('#header');
+if (!  obj.length) return;
 if (! body.length) return;
 if (!abody.length) return;
 if (! head.length) return;
 
+// 文字
+if ('<@ps.font_c>' == '') {
+	var col = parse_color( obj.css('color') );
+	if (col) $('#font-c').val(col);
+	var col = parse_color( obj.find('a:not(.welcome-prefix)').css('color') );
+	if (col) $('#font-ca').val(col);
+}
+
 // 全体の横幅
-if ('<@s.width>' == '') {
+if ('<@ps.width>' == '') {
 	$('#width').val( abody.width() );
 }
-if ('<@s.bg>' == '') {
+if ('<@ps.bg>' == '') {
 	var col = parse_color( body.css('background-color') );
 	if (col) $('#bg').val(col);
 }
-if ('<@s.body_bg>' == '') {
+if ('<@ps.body_bg>' == '') {
 	var col = parse_color( abody.css('background-color') );
 	if (col) $('#body-bg').val(col);
 }
-if ('<@s.head_bg>' == '') {
+if ('<@ps.head_bg>' == '') {
 	var col = parse_color( head.css('background-color') );
 	if (col) $('#head-bg').val(col);
 }
 
 // マージンとpadding
-if ('<@s.margin0>' == '')
-	$('#margin0').val( parse_px( head.css('margin-top') ) );
-if ('<@s.margin1>' == '')
-	$('#margin1').val( parse_px( head.css('margin-right') ) );
-if ('<@s.margin2>' == '')
-	$('#margin2').val( parse_px( head.css('margin-bottom') ) );
-if ('<@s.margin3>' == '')
-	$('#margin3').val( parse_px( head.css('margin-left') ) );
-if ('<@s.padding0>' == '')
-	$('#padding0').val( parse_px( head.css('padding-top') ) );
-if ('<@s.padding1>' == '')
-	$('#padding1').val( parse_px( head.css('padding-right') ) );
-if ('<@s.padding2>' == '')
-	$('#padding2').val( parse_px( head.css('padding-bottom') ) );
-if ('<@s.padding3>' == '')
-	$('#padding3').val( parse_px( head.css('padding-left') ) );
+if ('<@ps.margin0>' == '')
+	$('#margin0').val( parse_px( obj.css('margin-top') ) );
+if ('<@ps.margin1>' == '')
+	$('#margin1').val( parse_px( obj.css('margin-right') ) );
+if ('<@ps.margin2>' == '')
+	$('#margin2').val( parse_px( obj.css('margin-bottom') ) );
+if ('<@ps.margin3>' == '')
+	$('#margin3').val( parse_px( obj.css('margin-left') ) );
+if ('<@ps.padding0>' == '')
+	$('#padding0').val( parse_px( obj.css('padding-top') ) );
+if ('<@ps.padding1>' == '')
+	$('#padding1').val( parse_px( obj.css('padding-right') ) );
+if ('<@ps.padding2>' == '')
+	$('#padding2').val( parse_px( obj.css('padding-bottom') ) );
+if ('<@ps.padding3>' == '')
+	$('#padding3').val( parse_px( obj.css('padding-left') ) );
+
+// ヘッダのマージンとpadding
+if ('<@ps.margin4>' == '')
+	$('#margin4').val( parse_px( head.css('margin-top') ) );
+if ('<@ps.margin5>' == '')
+	$('#margin5').val( parse_px( head.css('margin-right') ) );
+if ('<@ps.margin6>' == '')
+	$('#margin6').val( parse_px( head.css('margin-bottom') ) );
+if ('<@ps.margin7>' == '')
+	$('#margin7').val( parse_px( head.css('margin-left') ) );
+if ('<@ps.padding4>' == '')
+	$('#padding4').val( parse_px( head.css('padding-top') ) );
+if ('<@ps.padding5>' == '')
+	$('#padding5').val( parse_px( head.css('padding-right') ) );
+if ('<@ps.padding6>' == '')
+	$('#padding6').val( parse_px( head.css('padding-bottom') ) );
+if ('<@ps.padding7>' == '')
+	$('#padding7').val( parse_px( head.css('padding-left') ) );
 
 //-----------------------------------------------------------------------------
 });

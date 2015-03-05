@@ -1,12 +1,12 @@
 <@6>
-<@local(s)>
-<$s=argv#0>
-	<$txt = s.footer_txt><$ifexec(s.lf2br,begin)><$replace(txt, '<br>', "\n")><$end>
+<@local(ps)>
+<$ps=argv#0>
+	<$txt = ps.footer_txt><$ifexec(ps.lf2br, begin)><$replace(txt, '<br>', "\n")><$end>
 	<textarea class="w512" rows="4" name="footer_txt"><@esc(txt)></textarea>
 	<a href="<@v.myself>?etc/allow_tags&amp;n=usertext" target="_blank">※使用可能なHTMLタグ</a><br>
 
 	<ul class="checkbox">
-	<li><input type="checkbox" name="lf2br" value="1"<@if(s.lf2br,' checked')>><label>改行を有効にする</label></li>
-	<li><input type="checkbox" name="outver" value="1"<@if(s.outver || s.outver eq '',' checked')>><label>「<a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")>」を出力する</label></li>
+	<li><input type="checkbox" name="lf2br" value="1"<@if(ps.lf2br,' checked')>><label>改行を有効にする</label></li>
+	<li><input type="checkbox" name="outver" value="1"<@if(ps.outver || ps.outver eq '',' checked')>><label>「<a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")>」を出力する</label></li>
 	</ul>
 

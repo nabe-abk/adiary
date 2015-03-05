@@ -1,0 +1,198 @@
+<@6>
+<@local(ps)>
+<$ps=argv#0>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>文字</th><td>
+			<input type="text" id="font-c" name="font_c" value="<@ps.font_c || '#000000'>" class="color-picker"> &nbsp;
+			<input type="number" class="int w40" name="font_s" value="<@ps.font_s || 16>" min="0" max="999" id="font-s">px 
+			<input type="checkbox" class="js-disable" data-target="#font-c,#font-s,#font-trans"<@if(ps.font_c eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>フォントの変更<span class="help" data-help="フォント名等を「,」区切りで記述します。詳しくは「font-family」で検索してください。">?</span></th><td>
+			<input type="text" class="int w300" name="font_f" id="font-f" value="<@esc(ps.font_f)>">
+		</td>
+	</tr>
+	<tr><th>文字の装飾<span class="help" data-help="CSS3を使用するため、IE8/9は非対応のため装飾されない状態で表示されます。">?</span></th>
+		<td>
+			<select id="s-mode" name="s_mode">
+				<option value="">使用しない</option>
+				<option value="shadow_rb"  <@if(ps.s_mode eq 'shadow_rb' ,'selected')>>右下にシンプルな影</option>
+				<option value="shadow_rt"  <@if(ps.s_mode eq 'shadow_rt' ,'selected')>>右上にシンプルな影</option>
+				<option value="shadow_all" <@if(ps.s_mode eq 'shadow_all','selected')>>全体に影</option>
+				<option value="light_lt"   <@if(ps.s_mode eq 'light_lt'  ,'selected')>>左上からのハイライト</option>
+				<option value="light_lb"   <@if(ps.s_mode eq 'light_lb'  ,'selected')>>左下からのハイライト</option>
+				<option value="light_all"  <@if(ps.s_mode eq 'light_all' ,'selected')>>全体をハイライト</option>
+			</select>
+			幅<input type="number" class="int w40" name="s_w"  value="<@ps.s_w  || 0>" min="0" max="99" id="sw">px
+			ぼかし<input type="number" class="int w40" name="s_bl" value="<@ps.s_bl || 4>" min="0" max="99" id="sw">px
+			<br>
+			ハイライト <input type="text" name="s_c1" value="<@ps.s_c1 || '#ffffff'>" class="color-picker"> &nbsp;
+			影         <input type="text" name="s_c0" value="<@ps.s_c0 || '#000000'>" class="color-picker"> &nbsp;
+			<br>
+			縁取り色 <input type="text" name="s_oc" value="<@ps.s_oc || '#dddddd'>" class="color-picker"> &nbsp;
+			縁取り幅 <input type="number" class="int w50" name="s_ow" value="<@ps.s_ow || 0>" min="0" max="9">px
+		</td>
+	</tr>
+	<tr><th>タイトル画像<span class="help" data-help="タイトル文字の代わりに画像を表示します。背景透過のPNG画像を推奨します。">?</span></th>
+		<td>
+			<input type="file" class="js-fileup" id="head-file" name="titleimg"><br>
+			<@ifexec(ps.titleimg, begin)>
+			<input type="checkbox" name="titleimg_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<$end>
+		</td>
+	</tr>
+	<tr>
+		<th>文字の背景色<td>
+			<input type="text" id="fbg" name="fbg" value="<@ps.fbg || '#ffffff'>" class="color-picker">
+			透過<input type="number" class="w50" name="fbg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.fbg_alpha || 1>" id="fbg-alpha">(0=透明) &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#fbg,#fbg-alpha"<@if(ps.fbg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>padding<td>
+			上下<input type="number" class="int w50" name="fpadding0" value="<@ps.fpadding0 || 0>" min="0" max="999" id="fpadding0"> 
+			左右<input type="number" class="int w50" name="fpadding1" value="<@ps.fpadding1 || 0>" min="0" max="999" id="fpadding1"> 
+			丸め量 <input type="number" class="int w50" name="fbg_r" value="<@ps.fbg_r || 0>" min="0" max="99" id="fbg-r">
+			<input type="checkbox" class="js-disable" data-target="#fpadding0,#fpadding1,#fbg-r"<@if(ps.fpadding0 eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tbody>
+	</table>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>領域の高さ</th>
+		<td>
+			<input type="number" class="int w60" name="height" value="<@ps.height || 32>" min="0" max="999" id="height">px &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>背景色</th>
+		<td>
+			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
+			<input type="checkbox" class="js-disable" data-target="#bg"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>背景画像<span class="help" data-help="背景に使う画像をアップロードします。IE8/9ではアップロードできません。">?</span></th>
+		<td>
+			<input type="file" class="js-fileup" id="head-file" name="bgfile"><br>
+			<input type="checkbox" name="bgfile_fit" value="1"<@if(ps.bgfile_fit,' checked')>><label>領域の高さを画像にフィットさせる</label>
+			<span class="help" data-help="画像がタイトル領域がより大きい場合のみ有効になります。">?</span><br>
+			<@ifexec(ps.bgfile, begin)>
+			<input type="checkbox" name="bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<$end>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>枠線の色<span class="help" data-help="テーマによって下線や枠線などが表示される場合、この項目から変更することができます。">?</span></th>
+		<td>
+			<input type="text" id="border-c" name="border_c" value="<@ps.border_c || '#000080'>" class="color-picker">
+			<input type="checkbox" class="js-disable" data-target="#border-c"<@if(ps.border_c eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>枠線の表示<span class="help" data-help="テーマによって下線や枠線などが表示される場合、この項目から変更することができます。">?</span></th>
+		<td>
+			上<input type="number" class="int w50" name="border0" value="<@ps.border0 || 0>" min="0" max="99" id="border0"> 
+			右<input type="number" class="int w50" name="border1" value="<@ps.border1 || 0>" min="0" max="99" id="border1"> 
+			下<input type="number" class="int w50" name="border2" value="<@ps.border2 || 0>" min="0" max="99" id="border2"> 
+			左<input type="number" class="int w50" name="border3" value="<@ps.border3 || 0>" min="0" max="99" id="border3"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#border0,#border1,#border2,#border3"<@if(ps.border0 eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>マージン</th>
+		<td>
+			上<input type="number" class="int w50" name="margin0" value="<@ps.margin0 || 0>" min="-999" max="999" id="margin0"> 
+			右<input type="number" class="int w50" name="margin1" value="<@ps.margin1 || 0>" min="-999" max="999" id="margin1"> 
+			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
+			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>文字位置<span class="help" data-help="文字表示位置を変えたい場合は特に「上」と「左」を変更してください。">?</span></th>
+		<td>
+			上<input type="number" class="int w50" name="padding0" value="<@ps.padding0 || 0>" min="0" max="999" id="padding0"> 
+			右<input type="number" class="int w50" name="padding1" value="<@ps.padding1 || 0>" min="0" max="999" id="padding1"> 
+			下<input type="number" class="int w50" name="padding2" value="<@ps.padding2 || 0>" min="0" max="999" id="padding2"> 
+			左<input type="number" class="int w50" name="padding3" value="<@ps.padding3 || 0>" min="0" max="999" id="padding3"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(ps.padding0 eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+<script>
+$(function(){
+// デフォルト値を設定する
+var  obj = $f('#page-title');
+var aobj = obj.children('a');
+if (!obj.length || !aobj.length) return;
+
+// フォント設定
+if ('<@ps.font_c>' == '') {
+	var col = parse_color( obj.css('color') );
+	if (col) $('#font-c').val(col);
+	var px  = parse_px( aobj.css('font-size') );
+	if (px)  $('#font-s').val(px);
+}
+/*	// フォントの種類
+if ('<@ps.font_f>' == '') {
+	var fam = aobj.css('font-family');
+	if (fam) $('#font-f').val( fam );
+}
+*/
+// 高さ
+if ('<@ps.height>' == '') {
+	$('#height').val( obj.height() );
+}
+// 背景色
+if ('<@ps.bg>' == '') {
+	obj.addClass('hoverstop');
+	delay_color_setting('#bg', obj, 'background-color', 'hoverstop');
+}
+// borderの色
+if ('<@ps.border_c>' == '') {
+	var col = get_border_color( obj );
+	if (col) $('#border-c').val(col);
+}
+
+// border
+if ('<@ps.border0>' == '')
+	$('#border0').val(  parse_px( obj.css('border-top-width')    ) );
+if ('<@ps.border1>' == '')
+	$('#border1').val(  parse_px( obj.css('border-right-width')  ) );
+if ('<@ps.border2>' == '')
+	$('#border2').val(  parse_px( obj.css('border-bottom-width') ) );
+if ('<@ps.border3>' == '')
+	$('#border3').val(  parse_px( obj.css('border-left-width')   ) );
+// マージンとpadding
+if ('<@ps.margin0>' == '')
+	$('#margin0').val(  parse_px( obj.css('margin-top')    ) );
+if ('<@ps.margin1>' == '')
+	$('#margin1').val(  parse_px( obj.css('margin-right')  ) );
+if ('<@ps.margin2>' == '')
+	$('#margin2').val(  parse_px( obj.css('margin-bottom') ) );
+if ('<@ps.margin3>' == '')
+	$('#margin3').val(  parse_px( obj.css('margin-left')   ) );
+if ('<@ps.padding0>' == '')
+	$('#padding0').val( parse_px( obj.css('padding-top')   ) );
+if ('<@ps.padding1>' == '')
+	$('#padding1').val( parse_px( obj.css('padding-right') ) );
+if ('<@ps.padding2>' == '')
+	$('#padding2').val( parse_px( obj.css('padding-bottom')) );
+if ('<@ps.padding3>' == '')
+	$('#padding3').val( parse_px( obj.css('padding-left')  ) );
+
+//-----------------------------------------------------------------------------
+});
+</script>

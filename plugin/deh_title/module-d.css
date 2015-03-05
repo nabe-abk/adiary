@@ -1,0 +1,135 @@
+<@6>
+<@local(name,id,ps,x,y,a)>
+<$name = argv#0>
+<$id = '#' . argv#1>
+<$ps = v.load_plgset(name)>
+/**************************************************
+ * "<@name>" module's setting. <@Timestamp>
+ **************************************************/
+<@> <h1 id="page-title">
+<@> 	<a href="#">ブログのタイトル</a>
+<@> </h1>
+<@>------------------------------------------------
+<@ifexec(ps.font_c ne '', begin)>
+#page-title a,
+#page-title a:link,
+#page-title a:visited {
+	color:			<@ps.font_c)>;
+}
+<$end>
+#page-title a {
+<@ifexec(ps.font_s ne '', begin)>
+	font-size:		<@ps.font_s)>px;
+	line-height:		100%;
+<$end>
+<@ifexec(ps.font_f ne '', begin)>
+	font-family:		<@ps.font_f>;
+<$end>
+<@>------------------------------------------------
+<@> 影付け
+<@>------------------------------------------------
+<@ifexec((ps.s_mode ne '' && ps.s_w) || ps.s_ow, begin)>
+	text-shadow:
+	<@> 縁取り
+	<$x = ps.s_ow>
+	<@ifexec(x, begin)>
+		 <@x>px  <@x>px 1px <@ps.s_oc>,
+		 <@x>px -<@x>px 1px <@ps.s_oc>,
+		-<@x>px  <@x>px 1px <@ps.s_oc>,
+		-<@x>px -<@x>px 1px <@ps.s_oc>,
+	<$end>
+	<@>
+	<@> 影付け
+	<@>
+	<$a = 0.6>
+	<$x = ps.s_w>
+	<$y = ps.s_bl>
+	<@ifexec(ps.s_mode eq 'shadow_rb', begin)>
+		<@x+1>px  <@x>px <@y>px rgba(<@v.hex2rgb( ps.s_c0 )>, <@a>),
+	<$end>
+	<@ifexec(ps.s_mode eq 'shadow_rt', begin)>
+		<@x+1>px -<@x>px <@y>px rgba(<@v.hex2rgb( ps.s_c0 )>, <@a>),
+	<$end>
+	<@ifexec(ps.s_mode eq 'shadow_all', begin)>
+		0 0 <@y*2>px	<@ps.s_c0>,
+		0 0 <@y  >px	<@ps.s_c0>,
+		0 0 <@y/2>px	<@ps.s_c0>,
+		0 0 0.5px	<@ps.s_c0>,
+	<$end>
+	<@ifexec(ps.s_mode eq 'light_lt', begin)>
+		     -1px    -1px 0px <@ps.s_c1>,
+		      1px     1px 0px <@ps.s_c0>,
+		-<@x+1>px -<@x>px <@y>px rgba(<@v.hex2rgb( ps.s_c1 )>, <@a>),
+		 <@x+1>px  <@x>px <@y>px rgba(<@v.hex2rgb( ps.s_c0 )>, <@a>),
+	<$end>
+	<@ifexec(ps.s_mode eq 'light_lb', begin)>
+		     -1px     1px 0px <@ps.s_c1>,
+		      1px    -1px 0px <@ps.s_c0>,
+		-<@x+1>px  <@x>px <@y>px rgba(<@v.hex2rgb( ps.s_c1 )>, <@a>),
+		 <@x+1>px -<@x>px <@y>px rgba(<@v.hex2rgb( ps.s_c0 )>, <@a>),
+	<$end>
+	<@ifexec(ps.s_mode eq 'light_all', begin)>
+		0 0 <@y*2>px	<@ps.s_c1>,
+		0 0 <@y  >px	<@ps.s_c1>,
+		0 0 <@y/2>px	<@ps.s_c1>,
+		0 0 0.5px	<@ps.s_c1>,
+	<$end>
+		0px 0px 0px rgba(0, 0, 0, 0);
+<$end>
+<@>------------------------------------------------
+<@ifexec(ps.titleimg, begin)>
+	display:		inline-block;
+	background-image:	url('<@v.plugin_image_path(ps.titleimg)>?<@TM>');
+	background-position:	0 0;
+	padding:		0;
+	border:			0;
+	height:			<@ps.titleimg_h>px;
+	width:			<@ps.titleimg_w>px;
+	font-size:		1px;
+	text-indent:		-99999px;
+<$end>
+<@ifexec(ps.fbg ne '', begin)>
+	background-color:	rgba(<@v.hex2rgb(ps.fbg)>, <@ps.fbg_alpha>);
+<$end>
+<@ifexec(ps.fpadding0 ne '', begin)>
+	padding:		<@ps.fpadding0>px <@ps.fpaddding1>;
+	border-radius:		<@ps.fbg_r>px;
+<$end>
+}
+<@>
+<@>------------------------------------------------
+<@>
+#page-title {
+<@ifexec(ps.height ne '', begin)>
+	height:			<@ps.height>px;
+<$end>
+<@ifexec(ps.bg ne '', begin)>
+	background-color:	<@ps.bg>;
+<$end>
+<@ifexec(ps.bgfile, begin)>
+	background-image:	url('<@v.plugin_image_path(ps.bgfile)>?<@TM>');
+	background-position:	center;
+	<@ifexec(ps.bgfile_fit && ps.bgfile_h, begin)>
+	min-height:		<@ps.bgfile_h - ps.padding0 - ps.padding2>px;
+	padding:		0;
+	background-repeat:	repeat-x;
+	<$end>
+<$end>
+<@ifexec(ps.border_c ne '', begin)>
+	border-color:		<@ps.border_c>;
+<$end>
+<@ifexec(ps.border0 ne '', begin)>
+	border-width:		<@ps.border0>px <@ps.border1>px <@ps.border2>px <@ps.border3>px;
+<$end>
+<@ifexec(ps.margin0 ne '', begin)>
+	margin:			<@ps.margin0>px <@ps.margin1>px <@ps.margin2>px <@ps.margin3>px;
+<$end>
+<@ifexec(ps.padding0 ne '', begin)>
+	padding:		<@ps.padding0>px <@ps.padding1>px <@ps.padding2>px <@ps.padding3>px;
+<$end>
+}
+
+
+
+
+
