@@ -126,7 +126,7 @@ $(function(){
 	}
 	// アイコンのロード
 	var css = '.ui-icon, a.pnavi:before, a.pnavi:after { background-image: '
-		+ 'url("' + ThemeDir + '_ui-icon/' + file + '.png") }';
+		+ 'url("' + PubdistDir + 'ui-icon/' + file + '.png") }';
 	var style = $('<style>').attr('type','text/css');
 	$('head').append(style);
 	if (IE8)
@@ -1467,7 +1467,7 @@ function load_SyntaxHighlight() {
 $(function(){
 	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
 	$.getScript(ScriptDir + 'highlight.pack.js', function(){
-		append_css_file(ThemeDir + '_highlight/'+ syntax_highlight_css +'.css');
+		append_css_file(PubdistDir + 'highlight/'+ syntax_highlight_css +'.css');
 		$('pre.syntax-highlight').each(function(i, block) {
 			hljs.highlightBlock(block);
 		});

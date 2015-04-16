@@ -16,8 +16,8 @@
 <meta name="author" content="<@v.blogid>">
 <@>
 <@if(v.system_mode || v.no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
-<link rel="stylesheet" href="<@Basepath><@v.theme_dir>_jquery-ui/jquery-ui.custom.css" id="jquery-ui-css">
-<link rel="stylesheet" href="<@Basepath><@v.theme_dir>_lightbox/lightbox.css" id="lightbox-css">
+<link rel="stylesheet" href="<@Basepath><@v.pubdist_dir>jquery-ui/jquery-ui.custom.css" id="jquery-ui-css">
+<link rel="stylesheet" href="<@Basepath><@v.pubdist_dir>lightbox/lightbox.css" id="lightbox-css">
 <@>
 <@forexec(t, v.load_jscss('css'), begin)>
 <link rel="stylesheet" href="<@Basepath><@t>">
@@ -127,8 +127,8 @@
 <script>
 var Vmyself='<@v.myself>';	// = Blogpath
 var Vmyself2='<@v.myself2>';
-var ScriptDir='<@Basepath><@v.script_dir>';
-var ThemeDir ='<@Basepath><@v.theme_dir>';
+var ScriptDir ='<@Basepath><@v.script_dir>';
+var PubdistDir ='<@Basepath><@v.pubdist_dir>';
 <@ifexec(!v.system_mode && s.gaid, begin)>
 // Google Analytics
 var _gaq = _gaq || [];
