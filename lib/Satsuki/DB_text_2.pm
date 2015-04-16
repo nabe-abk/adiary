@@ -720,7 +720,7 @@ sub save_index {
 	# 2行目 = ランダム値
 	push(@lines, "R" . $ROBJ->{TM} . rand(1) . "\n");	# random signature
 	# 3行目 = シリアル値（現在の最大値）
-	# 	★★★仕様変更字は generate_pkey も編集のこと★★★
+	# 	★★★仕様変更時は generate_pkey も編集のこと★★★
 	push(@lines, "00000$serial\n");	# 00付加必須
 	# 4行目 = 全カラム名
 	push(@lines, join("\t", sort(keys(%{ $self->{"$table.cols"} }))). "\n");

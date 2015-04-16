@@ -2,6 +2,9 @@ lib/SatsukiApp/default.pm
 lib/SatsukiApp/ping_server.pm
 lib/SatsukiApp/form.pm
 lib/SatsukiApp/form_2.pm
+lib/SatsukiApp/parse.pm
+
 
 theme/satsuki2/cocoa/
 theme/satsuki2/cute/
+theme/satsuki2/ayaka/

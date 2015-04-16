@@ -1323,7 +1323,7 @@ function form_dialog(h) {
 		var inp = $('<input>').attr({
 			type: x.type || 'text',
 			name: x.name,
-			value: x.val,
+			value: x.val
 		});
 		inp.addClass( x.dclass || 'w80p');
 		form.append( inp );
@@ -1385,7 +1385,7 @@ function adiary_session(_btn, opt){
 	// セッション初期化
 	$.post( load_session, {
 			action: 'etc/init_session',
-			csrf_check_key: opt.csrf_key || $('#csrf-key').val(),
+			csrf_check_key: opt.csrf_key || $('#csrf-key').val()
 		}, function(data) {
 			var reg = data.match(/snum=(\d+)/);
 			if (reg) {

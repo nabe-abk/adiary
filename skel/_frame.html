@@ -1,5 +1,5 @@
 <@6>
-<@local(s,ps,tm,bpath,file)>
+<@local(s,ps,tm,t,file)>
 <$inframe = argv#0>
 <@>
 <$ifset(v.title eq '', v.title, 'adiary')>
@@ -23,16 +23,18 @@
 <link rel="stylesheet" href="<@Basepath><@t>">
 <$end>
 <@>
-<!--[if IE 8]> <@> for IE8 @import bug
+<!--[if IE 8]> <@> for IE8 CSS @import bug
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir>satsuki2/base.css">
 <![endif]-->
 <@> テーマとユーザーCSSは最後に読み込む
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css" id="theme-css">
 <@>
-<@if(s.theme_custom && s.theme eq v.theme, #'<link rel="stylesheet" href="<@Basepath><@s.theme_custom>" id="theme-custom-css">\n')>
+<@if(!v.special_system_mode && s.theme_custom && s.theme eq v.theme, #'<link rel="stylesheet" href="<@Basepath><@s.theme_custom>" id="theme-custom-css">\n')>
 <@>
 <$file = "<@v.blogpub_dir>dynamic.css">
-<@if(!v.system_mode && file_size(file), #'<link rel="stylesheet" href="<@Basepath><@file>" id="user-css">\n')>
+<@ifexec(!v.system_mode && file_size(file), begin)>
+<link rel="stylesheet" href="<@Basepath><@file>?<@get_lastmodified(file)>" id="user-css">
+<$end>
 <@>
 <@if(canonical_url, #'<link rel="canonical" href="<@canonical_url>">\n')>
 <@>

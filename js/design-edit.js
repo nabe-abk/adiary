@@ -306,8 +306,8 @@ function module_setting(obj, mode) {
 				//成功
 				formdiv.dialog( 'close' );
 				// モジュールHTMLをサーバからロード？
-				if (mode == 'css') return load_module_css( obj );
-				if (obj.data('load-module-html')) return load_module_html( obj );
+				if (mode == 'css') load_module_css( obj );
+				if (obj.data('load-module-html')) load_module_html( obj );
 				return ;
 			}
 			errmsg.attr('title', data);

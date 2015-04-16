@@ -1,7 +1,7 @@
 use strict;
 #-------------------------------------------------------------------------------
 # ブログシステム - adiary
-#					(C)2006-2014 nabe@abk / ABK project
+#					(C)2006-2015 nabe@abk / ABK project
 #-------------------------------------------------------------------------------
 package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
@@ -9,7 +9,7 @@ use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION = '2.94';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'beta4';
+our $SUBVERSION = 'beta4.x';
 our $DATA_VERSION = 2.94;
 ###############################################################################
 # ■システム内部イベント
@@ -777,7 +777,7 @@ sub load_articles {
 	if (!$opt->{load_draft}) {
 		$q{not_null} = ['tm'];
 	}
-	if ($opt->{blog_only}) {
+	if ($opt->{blog_only} && $ret{mode} ne 'search') {
 		$q{match}->{ctype} = '';
 	}
 
@@ -1454,7 +1454,7 @@ sub load_theme {
 
 	# スケルトンテンプレートの登録
 	if (-r "${dir}_skel") {
-		$ROBJ->regist_skeleton($dir, $self->{theme_skeleton_level});
+		$ROBJ->regist_skeleton("${dir}_skel/", $self->{theme_skeleton_level});
 	} else {
 		$ROBJ->delete_skeleton($self->{theme_skeleton_level});
 	}

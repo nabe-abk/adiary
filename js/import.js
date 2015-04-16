@@ -21,6 +21,7 @@ var ajax = window.FormData;
 if (location.search.indexOf('&ajax=0') > 0) ajax=0; // for debug
 $('#input-ajax').val( ajax ? 1 : 0 );
 if (!ajax) {
+	$('#no-ajax-link').remove();
 	//$('button,input').prop('disabled', true);
 	//show_error('#js-no-FormData');
 	// IE8-9用

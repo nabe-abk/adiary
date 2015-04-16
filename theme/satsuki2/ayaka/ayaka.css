@@ -1,0 +1,871 @@
+@charset "UTF-8";
+/*****************************************************************************
+あやかテーマ(仮)
+*****************************************************************************/
+@import url("../base.css");
+/*--------------------------------------------------------------------
+■初期設定
+---------------------------------------------------------------------*/
+/* ブラウザデフォルト値上書き */
+* {
+	margin:					0;
+    padding:					0;
+    font-family:            sans-serif;
+    color:					black;
+}
+
+/* 入力要素 */
+input, select {
+    font-size:              15px;
+	vertical-align:			top;
+}
+
+/* テキストボックス類 */
+select, input[type="text"], input[type="search"],
+input[type="date"], input[type="password"], input[type="file"] {
+    background-color:       white;
+	border:					1px solid #ccc;
+    min-height:             18px;
+    margin:                 0 8px 8px 0;
+    max-width:              calc(100% - 18px);
+}
+/* フォーカス時 */
+select:focus, input[type="text"]:focus, input[type="search"]:focus,
+input[type="date"]:focus, input[type="password"]:focus,
+input[type="file"]:focus {
+}
+
+/* ボタン類 */
+input[type="button"], input[type="submit"] {
+    padding:                1px 3px;
+    font-size:              13px;
+    min-height:             18px;
+    line-height:            18px;
+    vertical-align:         middle;
+}
+
+
+textarea {
+	width:					calc(100% - 15px);
+	font-size:              13px;
+    font-family:            monospace;
+    line-height:            15px;
+    padding:                0.5em;
+    background-color:       white;
+    margin:                 10px 0;
+	border:					1px solid #ccc;
+}
+textarea:focus {
+}
+  
+
+/*--------------------------------------------------------------------
+■ 要素配置
+---------------------------------------------------------------------*/
+/* ブラウザ描画領域 -------------------------------------------------*/
+/* ブラウザ描画領域全体 */
+html {
+}
+
+body {
+	background-color:		#f6f6f6;
+}
+
+/* ブラウザ描画領域上部 */
+body:before {
+}
+
+/* ブラウザ描画領域下部 */
+/* バージョン */
+body:after {
+}
+
+/* 本文部 ----------------------------------------------------------*/
+/* 管理メニュー + ブログタイトル + サイドバー + 記事部 */
+#adiary-body {
+	min-width:				760px;
+    margin:                 0 auto;
+}
+
+
+/* ヘッダー部 ------------------------------------------------------*/
+/* 管理メニュー + ブログタイトル + ヘッダーモジュール */
+header {
+    padding:                0;
+}
+
+/* 管理メニュー部 */
+#nav-header {
+	width:					320px;
+	left:					calc(100% - 330px);
+    margin:                 0 auto;
+    text-align:             right;
+    font-size:              13px;
+    height:                 16px;
+    padding:                2px 10px 2px 0;
+    text-align:             right;
+	position:				absolute;
+	z-index:					2;
+}
+
+/* ブログタイトル部 */
+h1 {
+	line-height:				32px;
+	padding:					8px 12px 0 12px;
+	margin-bottom:			8px;
+	vertical-align:			top;
+	position:				relative;
+	z-index:					1;
+	margin-right:			330px;
+}
+
+/* フリーテキストモジュール */
+div.dem-module {
+	margin: 				5px 0;
+	padding:				0 12px;
+	font-size:				15px;
+}
+
+
+/* 記事部 ----------------------------------------------------------*/
+/* 記事部全体 */
+div.main {
+    width:                  calc(100% - 180px);
+    float:                  right;
+    padding:                0;
+
+	border-right:			none;
+	border-bottom:			none;
+	margin:					0;
+}
+
+/* 記事部のみ */
+#articles, article {
+	border:					1px solid #a7d7f9;
+	border-right:			none;
+	background-color:		white;
+	padding:					10px 15px;
+}
+
+#articles {
+	padding-bottom:			0;
+	margin-bottom:			0;
+}
+
+#articles article {
+	/* 1ページに複数の記事を表示する場合 */
+	border:					none;
+	padding:					0;
+}
+
+/* 1つの記事 */
+
+
+/* サイドバー部 */
+#sidebar { /* 幅: 180px (160px + padding 10px */
+    width:                  160px;
+    float:                  left;
+    padding:                0 10px;
+	font-size:				13px;
+	margin-right:			0px;
+	padding-bottom:			25px;
+}
+
+/* 記事/サイドバーの高さにかかわらずadiary-bodyの背景描画を行わせる小細工
+ * 
+ * これにより記事部とサイドバーの高さが異なる場合にhtml要素で指定した背景が
+ * 描画されるのを防ぐ */
+#adiary-body:after {
+    display:                block;
+    content:                " ";
+    clear:                  both;
+    height:                 0px;
+}
+
+
+/*---------------------------------------------------------------------------------------------
+■ 基本設定
+---------------------------------------------------------------------------------------------*/
+/* ◆ リンク配色
+---------------------------------------------------------------------------------------------*/
+a:link {
+    color:					#0645ad;
+    text-decoration:			none;
+}
+
+a:visited {
+    color:                  #0b0080;
+    text-decoration:        none;
+}
+
+    
+a:hover {
+    text-decoration:        underline;
+}
+
+a img {
+}
+
+
+/* ◆ フォントサイズ基本設定
+---------------------------------------------------------------------------------------------*/
+.xx-large					{ font-size: 200%; }
+.x-large,	.huge			{ font-size: 150%; }
+.large						{ font-size: 130%; }
+.medium,    .nomalsize		{ font-size: 100%; }
+.small						{ font-size: 90%; }
+.x-small,   .tiny			{ font-size: 80%; }
+.xx-small,	.scriptsize		{ font-size: 50%; }
+
+/*  ◆ フォントファミリー基本設定
+----------------------------------------------------------------------------------------------*/
+.mono,  .pre					{ font-family: monospace; }
+
+/* ◆ フォント装飾基本設定
+----------------------------------------------------------------------------------------------*/
+.it,    .italic				{ font-style: italic; }
+.bf,    .bold				{ font-weight: bold; }
+.u,     .underline			{ text-decoration: underline; }
+
+/* ◆ divボックス基本設定
+---------------------------------------------------------------------------------------------*/
+div.left						{ text-align: left; }
+div.center					{ text-align: center; }
+div.right					{ text-align: right; }
+
+/* ◆ リスト基本設定
+---------------------------------------------------------------------*/
+ul                          { list-style-position: inside;
+                              list-style-type: disc;
+                              margin: 0 0 0.2em 0.5em; }
+ol							{ list-style-position: inside;
+							  list-style-type: decimal;
+							  margin: 0 0 0.2em 0.5em; }
+div.main ul, div.main ol		{ padding-left: 0.5em; }
+ul.none, ol.none				{ list-style: none; }
+
+/* 定義済みリスト */
+dl                          { margin: 0.3em 0; }
+dt                          { font-weight: bold; }
+dd                          { padding-left: 1.5em;
+                              padding-bottom: 0.5em; }
+
+
+/* ----------------------------------------------------------*/
+/* ヘッダ
+-------------------------------------------------------------*/
+#nav-header a {
+    margin:                 0 0.1em 0 0.1em;
+    color:                  #0645ad;
+}
+
+#nav-header span {
+    margin:					0 0.1em 0 0.1em;
+}
+
+#nav-header a:hover {
+    text-decoration:			none;
+}
+
+
+
+/* ------------------------------------------------------------
+ * ■ 見出し (日記帳タイトル)
+ * --------------------------------------------------------- */
+h1 a:link, h1 a:hover, h1 a:visited {
+    color:					black;
+    text-decoration:			none;
+    font-size:				28px;
+	line-height:				32px;
+	vertical-align:			baseline;
+}
+
+/* ------------------------------------------------------------
+ * ■ ナビゲーション (前のページ/次のページ)
+ * --------------------------------------------------------- */
+nav.page-nav {
+    font-size:              10pt;
+    line-height:            100%;
+    padding:                0 10px;
+	margin:					10px 0 10px 0;
+}
+
+div.main nav.page-nav:first-child {
+	margin-top:				0;
+}
+
+nav.page-nav a {
+    display:                inline-block;
+}
+nav.page-nav a:first-child {
+    margin-right:           1em;
+}
+nav.page-nav a:last-child {
+    margin-left:            1em;
+}
+
+/* アイコン */
+a.prev-page:before,
+a.upnode-page:before,
+a.next-page:after {
+    display:                inline-block;
+    width:                  16px;
+    height:                 16px;
+    background-image:       url(ui-icons.png);
+    content:                " ";
+    vertical-align:         bottom;
+}
+
+a.prev-page:before {
+    background-position:    -208px -16px;
+    margin-right:           0.4em;
+}
+a.upnode-page:before {
+    background-position:    -224px -16px;
+    margin-right:           0.4em;
+}
+a.next-page:after {
+    background-position:    -240px -16px;
+    margin-left:            0.4em;
+}
+
+/* 記事部上部のマージン調整 */
+div.main nav.page-nav {
+/* 	margin-top:				0; */
+}
+
+/*--------------------------------------------------------------------
+■ 記事部 (本文)
+---------------------------------------------------------------------*/
+#articles article.article+article.article {
+    margin-top:				2.5em;
+}
+#articles article.article:last-child {
+	padding-bottom:			1em;
+}
+
+
+/* 記事タイトル部 */
+/* コメント入力部タイトル */
+/*------------------------------------------------------------------*/
+h2 {
+	border-bottom:			1px solid #aaaaaa;
+	font-size:				28px;
+}
+
+h2 a:link, h2 a:visited, h2 a:hover,
+div.caption span {
+    color:					black;
+    font-weight:				normal;
+    text-decoration:			none;
+}
+
+h2 a.date {
+	font-size:				20px;
+    margin-right:           0.5em;
+}
+
+/* 本文部 */
+/*------------------------------------------------------------------*/
+/* 本文ヘッダ部 */
+div.body-header {
+    font-size:              12px;
+    line-height:            14px;
+    text-align:             right;
+    margin:                 4px 0;
+}
+div.body-header span {
+    margin-left:            1em;
+}
+
+div.body-header a:link, div.body-header a:visited, 
+div.body-header a:hover {
+    color:                  #0645ad;
+}
+
+div.body-main {
+	margin:					4px 0;
+    padding:                0 0 1em 0;
+    font-size:              14px;
+    line-height:            22px;
+    min-height:             80px;
+}
+
+div.body-main section {
+}
+
+div.body-main section p {
+    padding:                0;
+}
+
+/* 本文フッタ部 */
+div.body-footer {
+    font-size:              13px;
+    line-height:            18px;
+    text-align:             right;
+    margin:					0;
+    color:                  #0645ad;
+}
+
+div.body-footer span, div.body-footer a:visited,
+div.body-footer a:hover {
+    color:                  #0645ad;
+}
+
+/*-------------------------------------------------------------
+● 記事：基本設定
+-------------------------------------------------------------*/
+/* 見出し */
+article h3 {
+    line-height:				30px;
+	margin:					20px 0 6px 0;
+    font-size:				22px;
+	font-weight:				normal;
+    border-bottom:			1px solid #aaaaaa;
+}
+
+h3 span {
+}
+
+h3 a:link, h3 a:visited, h3 a:hover {
+    color:                  black;
+	margin:					0;
+}
+
+h3 span.sanchor {
+    margin-right:           0;
+    color:                  black;
+}
+
+h3 span.timestamp {
+    font-size:              18px;
+    color:                  black;
+}
+
+/* 小見出し */
+div.body-main h4 {
+    line-height:            24px;
+    font-size:              18px;
+	padding:					0;
+    margin:                 15px 0 6px 0;
+    color:                  black;
+}
+
+h4 a:link, h4 a:visited, h4 a:hover {
+    color:                  black;
+}
+
+h4 span {
+    color:                  black;
+}
+
+h4 span.sanchor {
+    margin-right:           0;
+}
+
+h4 span.timestamp {
+    font-size:              15px;
+	font-weight:				normal;
+}
+
+/* 小々見出し */
+div.body h5 {
+    font-size:				16px;
+    line-height:				22px;
+    font-weight:            bold;
+    margin:                 10px 0 6px 0;
+}
+
+/*--------------------------------------------------------------------
+● 記事: ブロック記法
+---------------------------------------------------------------------*/
+div.body-main blockquote,
+div.body-main pre,
+div.body-main div.box {
+    font-size:				14px;
+    line-height:				19px;
+    margin:             10px;
+    padding:            13px;
+    display:            block;
+    border:					1px solid #aaaaaa;
+}
+
+/* 引用記法 */
+/*-------------------------------------------------------------------*/
+div.body-main blockquote {
+    display:                block;
+    position:               relative;
+}
+
+blockquote p {
+    margin:                 0;
+    padding:                0;
+}
+
+/* pとpの間 */
+blockquote p+p {
+    margin-top:				1em;
+}
+
+/* pre記法 */
+/*-------------------------------------------------------------------*/
+div.body-main pre {
+    font-family:            monospace;
+    display:                block;
+    position:               relative;
+    z-index:                0;
+	background-color:		#eeeeee;
+}
+
+pre span.comment {
+    color:                  #4da619;
+    font-family:            monospace;
+}
+
+pre strong.comment {
+    font-family:            monospace;
+    font-weight:            bold;
+}
+
+/*--------------------------------------------------------------------
+● 記事: 脚注処理
+---------------------------------------------------------------------*/
+/* 注釈へのリンク */
+span.footnote a {
+    color:                  #0645ad;
+    font-size:              11px;
+    line-height:            11px;
+    vertical-align:         top;
+}
+
+/* 注釈処理 */
+section footer {
+    font-size:              12px;
+    line-height:            16px;
+    border-top:             1px dashed #aaaaaa;
+    margin:                 1em 0 0 4em;
+    padding:                0.6em 0 0.6em 0;
+}
+
+section footer p.footnote {
+    line-height:            16px;
+    margin:                 0;
+}
+
+
+section footer a:link, section footer a:visited,
+section footer a:hover {
+    color:                  #0645ad;
+    margin-left:            -1em;
+}
+
+/*--------------------------------------------------------------------
+● 記事: 本文内リスト
+---------------------------------------------------------------------*/
+div.body-main ul, div.body-main ol, div.body-main dl {
+    margin:                 0.5em 0 0.5em 0.5em;
+}
+
+div.body-main li {
+    margin:                 1px 0;
+}
+
+div.body-main ul ul, div.body-main ol ol, 
+div.body-main ul ol, div.body-main ol ul {
+    margin:                 0 0 0 0.5em;
+}
+
+/*--------------------------------------------------------------------
+● 記事: 保護色 (hidden)
+---------------------------------------------------------------------*/
+/* 記事テキストの保護色。背景色と同一にすること */
+.hidden {
+    color:                  white;
+    background-color:       white;
+}
+
+/*--------------------------------------------------------------------
+● 記事：テーブル
+---------------------------------------------------------------------*/
+div.body-main table, article.system table {
+    font-size:              14px;
+    line-height:            18px;
+    margin:                 10px;
+    border-collapse:        collapse;
+    border-spacing:         0;
+    empty-cells:            show;
+    border:					1px solid #aaaaaa;
+}    
+
+div.body-main table td, div.body-main table th,
+article.system table td, article.system table th{
+    padding:                3px 0.4em;
+	border:					1px solid #aaaaaa;
+}
+
+/* 見出しセル */
+div.body-main table th, article.system table th {
+	background-color:		#eeeeee;
+}
+
+/* クラス指定記法による配置 */
+th.left, td.left, th.l, td.l {
+    text-align:             left;
+}
+
+th.center, td.center, th.c, td.c {
+    text-align:             center;
+}
+
+th.right, td.right, th.r, td.r {
+    text-align:             right;
+}
+
+div.body table.small {
+    font-size:              10px;
+    line-height:            15px;
+}
+
+div.body table.small {
+    font-size:              10px;
+    line-height:            15px;
+}
+
+/*---------------------------------------------------------------------------------------------
+■ コメント タイトル部
+---------------------------------------------------------------------------------------------*/
+div.caption {
+/*     margin-bottom:          18px; */
+    line-height:				30px;
+	margin:					20px 0 6px 0;
+    font-size:				22px;
+	font-weight:				normal;
+    border-bottom:			1px solid #aaaaaa;
+
+}
+
+div.caption .ui-icon {
+        /*  base.cssのオーバーライド */
+    display:                inline;
+}
+
+div.caption span.com-num {
+    font-size:              18px;
+    margin-left:            0.2em;
+}
+
+div.commentbody {
+    font-size:              13px;
+    line-height:            15px;
+    padding:                0 10px;
+}
+
+div.comment-one {
+    margin:                 0.8em 0;
+}
+
+div.commentator {
+    margin-bottom:          4px;
+}
+
+form.comment span {
+    font-size:              13px;
+    line-height:            15px;
+}
+
+
+hr#com-form-separator {
+    border:                 none;
+}
+
+.comment form {
+    margin-top:             0.5em;
+    margin-bottom:          -1em;
+}
+
+.comment label {
+    font-size:              13px;
+    line-height:            15px;
+    padding-left:           0.3em;
+}
+
+.comment input[type="submit"] {
+    padding:                0 0.4em;
+}
+
+form.comment {
+    margin-top:             2em;
+}
+
+form textarea {
+    margin:                 6px 0 24px 0;
+    width:                  calc(100% - 20px);
+}
+
+
+/*--------------------------------------------------------------------
+■ サイドバー
+---------------------------------------------------------------------*/
+/*■ 以下、サイドバー内の配置設定
+---------------------------------------------------------------------*/
+/* サイドバーの１項目 */
+#sidebar {
+	margin-top:				-3px;
+}
+
+div.hatena-module {
+    padding:                0 0 3px 0;
+    margin:					3px 0;
+	padding-top:				8px;
+	border-bottom:			1px solid #ccc;
+}
+div#side-b div.hatena-module:last-child {
+	border:					none;
+}
+
+div.hatena-moduletitle {
+    padding:                0;
+    margin:                 0;
+}
+
+div.hatena-modulebody {
+	margin-left:				10px;
+}
+
+div.hatena-modulebody ul {
+    overflow:               hidden;
+}
+
+div.hatena-module:not(.system-module) ul {
+	padding-bottom:         2px;
+    list-style-type:        none;
+	margin:					0;
+}
+
+/* コンテンツの子要素 */
+div.hatena-module:not(.system-module) ul ul {
+    margin-bottom:      0px;
+    margin-left:        0.7em;
+}
+
+div.hatena-module:not(.system-module) li {
+    list-style-type:    none;
+    list-style-position:outside;    /* for IE(type:none のとき必須) */
+    min-height:         15px;
+    padding:            0;
+}
+
+/*-------------------------------------------------------------
+● sidebar：検索
+-------------------------------------------------------------*/
+#side-search {
+	top:						24px;
+/* 	left:					0; */
+	left: 					calc(100% - 330px);
+	width:					320px;
+	margin:					0;
+	z-index:				2;
+	position: 				absolute;
+	padding:					0 10px 0 0;
+	font-size:				13px;
+	right:					0;
+	text-align: 			right;
+	border:					none;
+}
+
+#side-search div.hatena-moduletitle {
+	display: none;
+}
+#side-search div.hatena-modulebody { 
+}
+#side-search div.hatena-modulebody br {
+	display:				none;
+}
+
+#side-search * {
+
+	font-size:				12px;
+	padding:				0;
+	margin:					0;
+	line-height:			0;
+}
+
+#side-search-textbox {
+	width:					140px;
+	padding:					0 40px 0 5px;
+	margin-right:			-34px;
+	border:					1px solid #ccc;
+}
+
+#side-search-submit {
+	line-height:			16px;
+	border:					none;
+	width:					30px;
+	font-size:				12;
+	padding:				0;
+	margin:					0;
+	line-height:			0;
+}
+
+#side-search label {
+	margin-left:			3px;
+}
+
+/*---------------------------------------------------------------------------------------------
+● sidebar：カレンダー
+---------------------------------------------------------------------------------------------*/
+#side-calendar div.hatena-modulebody {
+    padding:				0 0 4px 0;
+	margin:				0;
+}
+
+#side-calendar table {
+    width:              160px;
+    font-size:          12px;
+    line-height:        16px;
+    border-collapse:    collapse;
+    border-spacing:     0;
+    border:             none;
+    text-align:         center;
+}
+
+/* 先月 */
+#side-calendar table td.calendar-prev-month {
+    text-align:         left;
+    padding-left:       0.5em;
+    border:             none;
+}
+
+/* 今月 */
+#side-calendar table td.calendar-current-month {
+    border:             none;
+}
+/* 来月 */
+#side-calendar table td.calendar-next-month {
+    text-align:         right;
+    padding-right:      0.5em;
+    border:             none;
+}
+
+#side-calendar table td {
+    border:             none;
+}
+
+/* 土曜日 */
+#side-calendar table td.w6, #side-calendar table th.w6 {
+    background-color:   #dbdbff;
+}
+
+#side-calendar td.w0, #side-calendar th.w0,
+#side-calendar td.holiday {
+    background-color:   #ffdbed;
+}
+
+/*--------------------------------------------------------------------
+● フッター (adiary Version 〜)
+---------------------------------------------------------------------*/
+footer#footer {
+    font-size:          13px;
+    text-align:         center;
+	margin:				6px 0;
+}

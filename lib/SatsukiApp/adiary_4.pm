@@ -1,1054 +1,1440 @@
 use strict;
 #-------------------------------------------------------------------------------
-# adiary_4.pm (C)2014 nabe@abk
+# adiary_4.pm (C)2015 nabe@abk
 #-------------------------------------------------------------------------------
+# ・プラグイン管理関連
+# ・デザイン関連
 use SatsukiApp::adiary ();
 use SatsukiApp::adiary_2 ();
 use SatsukiApp::adiary_3 ();
 package SatsukiApp::adiary;
 ###############################################################################
-# ■ブログの作成と削除
+# ■ユーザー定義記法タグ、ユーザーCSSの設定
 ###############################################################################
 #------------------------------------------------------------------------------
-# ●ブログを作る
+# ●ユーザー定義タグファイルのロード
 #------------------------------------------------------------------------------
-sub blog_create {
+sub load_usertag {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $DB   = $self->{DB};
+
+	my $file = $ROBJ->get_filepath( $self->{blog_dir} . 'usertag.txt' );
+	if (!-e $file) { $file = $self->{default_usertag_file}; }
+	return join('', @{ $ROBJ->fread_lines($file) });
+}
+
+#------------------------------------------------------------------------------
+# ●ユーザー定義タグの保存
+#------------------------------------------------------------------------------
+sub save_usertag {
+	my ($self, $tag_txt) = @_;
+	my $ROBJ = $self->{ROBJ};
 	my $auth = $ROBJ->{Auth};
-	my $id   = shift;
-	if (! $auth->{ok}) { $ROBJ->message('Not login'); return 1; }
-	if ($self->{sys}->{blog_create_root_only} && ! $auth->{isadmin}) {
-		$ROBJ->message('Operation not permitted');
-		return 5;
-	}
-	if (! $auth->{isadmin}) {
-		$id = $auth->{id};
-	}
-	# blogidの確認
-	if (! $auth->{isadmin}) {
-		$id = $auth->{id};
-	} elsif ($id =~ /[^a-z0-9_]/ || $id !~ /^[a-z]/) {
-		$ROBJ->message("Can't allow character used");
-		return 9;
-	}
-	if ($self->find_blog($id)) {
-		$ROBJ->message('Blog `%s` already existed',$id);
-		return 10;
-	}
+	if (! $self->{allow_edit}) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	# データベーステーブル生成
-	my $r = $self->create_tables($id);
+	my $r = $ROBJ->fwrite_lines( $self->{blog_dir} . 'usertag.txt', $tag_txt );
 	if ($r) {
-		$ROBJ->message('Blog create failed');
-		$self->drop_tables($id);
-	} else {
-		# ディレクトリの作成
-		$ROBJ->mkdir( "$self->{data_dir}blog/" );
-		$ROBJ->mkdir( $self->blog_dir   ( $id ) );
-		$ROBJ->mkdir( $self->blogpub_dir( $id ) );
-		# キャッシュ除去
-		delete $self->{_cache_find_blog}->{$id};
+		$ROBJ->message('Save failed');
+		return 1;
 	}
-	return $r;
-}
-
-#------------------------------------------------------------------------------
-# ●ブログの削除
-#------------------------------------------------------------------------------
-sub blog_drop {
-	my ($self) = @_;
-	my $ROBJ   = $self->{ROBJ};
-	my $blogid = $self->{blogid};
-	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
-
-	my $r = $self->drop_tables($blogid);
-	if ($r) { $ROBJ->message('Blog delete failed'); return $r; }
-
-	# 内部変数の初期化
-	delete $self->{_cache_find_blog}->{$blogid};
-	$self->set_and_select_blog('');
-
-	# ユーザーディレクトリの消去
-	$ROBJ->dir_delete($self->blog_dir   ($blogid));
-	$ROBJ->dir_delete($self->blogpub_dir($blogid));
-
 	return 0;
 }
 
 #------------------------------------------------------------------------------
-# ●すべての記事の削除
+# ●ユーザーCSSファイルのロード
 #------------------------------------------------------------------------------
-sub blog_clear {
-	my ($self) = @_;
-	my $ROBJ   = $self->{ROBJ};
-	my $DB     = $self->{DB};
-	my $blogid = $self->{blogid};
-	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
-
-	# テーブルから記事などの削除
-	$DB->delete_match("${blogid}_com");
-	$DB->delete_match("${blogid}_log");
-	$DB->delete_match("${blogid}_tagart");
-	$DB->delete_match("${blogid}_tag");
-	$DB->delete_match("${blogid}_art");
-
-	# イベント処理
-	$self->call_event('BLOG_CLEAR');
-	$self->call_event('ARTICLE_STATE_CHANGE');
-	$self->call_event('COMMENT_STATE_CHANGE');
-	$self->call_event('ARTCOM_STATE_CHANGE');
-
-	return 0;
-}
-
-###############################################################################
-# ■再構築機能
-###############################################################################
-#------------------------------------------------------------------------------
-# ●ブログの全記事の再構築
-#------------------------------------------------------------------------------
-sub rebuild_blog {
+sub load_usercss {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $DB   = $self->{DB};
-	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	my $blogid = $self->{blogid};
-	my $arts = $DB->select_match("${blogid}_art", '*cols', ['pkey', '_text', 'parser', 'yyyymmdd', 'tm', 'link_key']);
+	my $file = $ROBJ->get_filepath( $self->dynamic_css_file('_usercss') );
+	if (!-r $file) { $file = $self->{default_usercss_file}; }
+	return join('', @{ $ROBJ->fread_lines($file) });
+}
 
-	my $r=0;
-	my %update;
-	foreach(@$arts) {
-		my $parser_name = $_->{parser};
-		if ($parser_name eq '') { next; }
+#------------------------------------------------------------------------------
+# ●ユーザーCSSの保存
+#------------------------------------------------------------------------------
+sub save_usercss {
+	my ($self, $css_txt) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $auth = $ROBJ->{Auth};
+	if (! $self->{allow_edit}) { $ROBJ->message('Operation not permitted'); return 5; }
 
-		my $parser = $self->load_parser( $parser_name );
-		if (! ref($parser)) {
-			$ROBJ->message("Load parser '%s' failed", $parser);
-			$r++;
+	if ($css_txt =~ /^\s*$/s) {
+		return $self->delete_dynamic_css( '_usercss' );
+	}
+	# XSS対策チェック
+	if (! $self->{trust_mode}) { $css_txt = $self->css_escape( \$css_txt ); }
+
+	return $self->save_dynamic_css( '_usercss', $css_txt );
+}
+
+#------------------------------------------------------------------------------
+# ●スタイルシートのエスケープ処理（XSS対策）
+#------------------------------------------------------------------------------
+sub css_escape {
+	my ($self, $_css) = @_;
+	my $css;
+	if (ref($_css) eq 'ARRAY')  { $_css = join('', @$_css); }
+	if (ref($_css) eq 'SCALAR') { $css = $_css; } else { $css = \$_css; }
+
+	# tab lf 以外の制御文字を除去
+	$$css =~ s/[\x00-\x08\x0b-\x1f]//g;
+	# コメントの退避
+	my @comment;
+	$$css =~ s|/\*(.*?)\*/ ? ?|push(@comment, $1), "\x01$#comment\x01"|seg;
+	# 文字列退避
+	my @str;
+	$$css =~ s/(['"])((?:\\.|.)*?)\1/push(@str, $2), "\x02$#str\x02"/seg;
+	foreach(@str) {
+		$_ =~ s/\x0a//g;	# 改行除去
+		$_ =~ s/\\"|"/\\22/g;
+		$_ =~ s/\\'|'/\\27/g;
+		if (ord(substr($_, -1)) > 0x7f) { $_ = $_ . ' '; }
+	}
+	# \ による実体参照の防止
+	$$css =~ s/\\([^"'\*\#])/$1/g;
+	# 全角文字を除去
+	$$css =~ s/[\x80-\xff]//g;
+	# 危険文字の除去
+	$$css =~ s/\@//g;
+	while($$css =~ m[/\*|\*/&#|script|behavior|behaviour|java|exp|eval|cookie|include]i) {	# 危険記号の除去
+		$$css =~ s[/\*|\*/&#|script|behavior|behaviour|java|exp|eval|cookie|include][]ig;
+	}
+	my $check = $$css;
+	$check =~ s/[\x02-\x1f]//g;	# 制御記号除去
+	if ($check =~ m[/\*|\*/&#|script|behavior|behaviour|java|exp|eval|cookie|include]i) {	# 危険記号あり
+		$$css =~ s/([\x02-\x1f])/ $1/g;	# space追加
+	}
+	# url() の確認
+	$$css =~ s#url\(\s*(.*?)\s*\)#
+		my $x  = $1;
+		$x =~ s/'/%27/g;
+		$x =~ s/"/%22/g;
+		$x =~ s|\x02(\d+)\x02|$str[$1]|;
+		if (substr($x,0,7) ne 'http://' && substr($x,0,8) ne 'http://' && substr($x,0,1) ne '/' && substr($x,0,2) ne './' && substr($x,0,3) ne '../') {
+			$x = "./$x";
+		}
+		"url('$x')";
+		#sieg;
+	# 文字列の復元
+	$$css =~ s|\x02(\d+)\x02|"$str[$1]"|g;
+	# コメントの復元
+	$$css =~ s|\x01(\d+)\x01|/*$comment[$1]*/  |g;
+
+	return $$css;
+}
+
+###############################################################################
+# ■動的CSS 管理機構
+###############################################################################
+#------------------------------------------------------------------------------
+# ●CSSの保存
+#------------------------------------------------------------------------------
+sub save_dynamic_css {
+	my $self = shift;
+	my $name = shift;
+	my $css  = shift;
+	my $ROBJ = $self->{ROBJ};
+	if ($name =~ /[^\w\-,]/ || $name =~ /^\s*$/g) { return 1; }
+	if (ref($css)) { $css = join('', @$css); }
+
+	if ($css =~ /^\s$/s) {	# 中身がからっぽ
+		$css = '';	# 0byte でファイルを置いておかないと矛盾が起こる
+	}
+
+	# 中身があるかチェック / usercssを除く
+	if ($name !~ /^_/ && !$self->check_css_content($css)) {
+		$css = '';
+	}
+
+	my $dir = $self->dynamic_css_dir();
+	$ROBJ->mkdir($dir);
+	my $file = $self->dynamic_css_file($name);
+	$ROBJ->fwrite_lines($file, $css);
+
+	return $self->update_dynamic_css();
+}
+
+#------------------------------------------------------------------------------
+# ●CSSの削除
+#------------------------------------------------------------------------------
+sub delete_dynamic_css {
+	my $self = shift;
+	my $name = shift;
+	my $ROBJ = $self->{ROBJ};
+	if ($name =~ /[^\w\-,]/ || $name =~ /^\s*$/g) { return 1; }
+
+	my $file = $self->dynamic_css_file($name);
+	$ROBJ->file_delete( $file );
+
+	return $self->update_dynamic_css();
+}
+
+#------------------------------------------------------------------------------
+# ●動的CSSをまとめて1つのCSSに出力
+#------------------------------------------------------------------------------
+sub update_dynamic_css {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir = $self->dynamic_css_dir();
+	my $files = $ROBJ->search_files($dir, {ext => '.css'});
+
+	# 名前順ソート。ただし _ で始まるファイルを最後に処理する
+	$files = [ sort {
+			my ($x,$y) = ($a,$b);
+			$x =~ tr/a-z/A-Z/;
+			$y =~ tr/a-z/A-Z/;
+			$x cmp $y;
+	} @$files ];
+
+	my @ary;
+	foreach(@$files) {
+		my $css = join('', @{ $ROBJ->fread_lines("$dir$_") });
+		if (!$self->check_css_content($css)) {
+			next;			# 中身のないファイルを無視
+		}
+		push(@ary, "\n/* from '$_' */\n\n");
+		push(@ary, $css);
+	}
+
+	my $file = $self->{blogpub_dir} . 'dynamic.css';
+	$ROBJ->fwrite_lines($file, \@ary);
+	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●動的CSSの存在確認
+#------------------------------------------------------------------------------
+sub check_dynamic_css {
+	my $self = shift;
+	my $name = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $file = $self->dynamic_css_file( $name );
+	return (-r $ROBJ->get_filepath( $file )) ? 1 : 0;
+}
+
+#------------------------------------------------------------------------------
+# ●動的CSS保管領域
+#------------------------------------------------------------------------------
+sub dynamic_css_dir {
+	my $self = shift;
+	return $self->{blogpub_dir} . 'css.d/';
+}
+sub dynamic_css_file {
+	my $self = shift;
+	my $name = shift;
+	return $self->dynamic_css_dir() . $name . '-d.css';
+}
+
+#------------------------------------------------------------------------------
+# ●CSSが中身があるか確認する
+#------------------------------------------------------------------------------
+sub check_css_content {
+	my $self = shift;
+	my $css  = shift;
+	$css =~ s|/\*(.*?)\*/||sg;				# コメント除去
+	$css =~ s/(['"])(?:\\.|.)*?\1/str/sg;			# 文字列を置換
+	$css =~ s|[\w\-\[\]=,\.*>~:\s\(\)\#]*\{\s*\}||sg;	# 中身のない定義を除去
+	if ($css =~ /^\s*$/s) {					# 残りが空白だけ
+		return 0;
+	}
+	return 1;
+}
+###############################################################################
+# ■プラグインの設定
+###############################################################################
+#------------------------------------------------------------------------------
+# ●plugin/以下のプラグイン情報取得
+#------------------------------------------------------------------------------
+sub load_modules_info {
+	my $self = shift;
+	return $self->load_plugins_info(1);
+}
+sub load_plugins_info {
+	my $self = shift;
+	my $modf = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir = $ROBJ->get_filepath( $self->{plugin_dir} );
+	my $files = $ROBJ->search_files($dir, {dir_only => 1});
+	my @ary;
+	foreach( sort @$files ) {
+		my $f = ($_ =~ /^de[smha]_/);		# デザインモジュール？
+		if (!$modf && $f || $modf && !$f) { next; }
+		# load
+		push(@ary, $self->load_plugin_info($_, $dir));
+	}
+	return \@ary;
+}
+
+sub load_plugins_dat {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	return $ROBJ->fread_hash_cached( $self->{blog_dir} . 'plugins.dat', {NoError => 1} );
+}
+
+#------------------------------------------------------------------------------
+# ●プラグインがインストール中か調べる
+#------------------------------------------------------------------------------
+sub check_installed_plugin {
+	my $self = shift;
+	my $name = shift;
+	my $pd = $self->load_plugins_dat();
+	return $pd->{$name};
+}
+
+#------------------------------------------------------------------------------
+# ●ひとつのプラグイン情報取得
+#------------------------------------------------------------------------------
+sub load_module_info {
+	return &load_plugin_info(@_);
+}
+sub load_plugin_info {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $name = shift;
+	my $dir  = shift || $ROBJ->get_filepath( $self->{plugin_dir} );
+
+	# キャッシュ
+	my $cache = $self->{"_plugin_info_cache"} ||= {};
+	if ($cache->{"$dir$name"}) { return $cache->{"$dir$name"}; }
+
+	if (substr($name,-1) eq '/') { chop($name); }
+	my $n = $self->plugin_name_check( $name );
+	if (!$n) { return; }		# プラグイン名, $name=プラグインのインストール名
+
+	my $h = $ROBJ->fread_hash_no_error( "$dir$n/plugin.info" );
+	if (!$h || !%$h) { next; }
+	$h->{readme} = -r "$dir$n/README.txt" ? 'README.txt' : undef;
+	$h->{name} = $name;
+
+	# sample.html/module.htmlが存在する
+	if (-r "$dir$n/sample.html") {
+		$h->{sample_html} ||= join('', @{ $ROBJ->fread_lines("$dir$n/sample.html") });
+	}
+	if (-r "$dir$n/module.html") {
+		$h->{module_html} ||= join('', @{ $ROBJ->fread_lines("$dir$n/module.html") });
+	}
+
+	# <@this>, <@id>の置換
+	my $id = $self->plugin_name_id( $name );
+	$h->{files}  =~ s/<\@this>/$name/g;
+	$h->{events} =~ s/<\@this>/$name/g;
+	my @ary = grep { /^module\w*_html$/ } keys(%$h);
+	push(@ary, 'sample_html');
+	foreach(@ary) {
+		$h->{$_} =~ s/<\@this>/$name/g;
+		$h->{$_} =~ s/<\@id>/$id/g;
+	}
+
+	# タグの除去
+	foreach(keys(%$h)) {
+		if (substr($_,-4) eq 'html') { next; }
+		$ROBJ->tag_escape($h->{$_});
+	}
+
+	# setting.html
+	$h->{module_setting} = -r "$dir$n/setting.html";
+	# デザイン設定ファイル
+	$h->{css_setting}    = -r "$dir$n/css_setting.html";
+
+	# 動的CSSファイル
+	my $dcss = $h->{module_dcss} = -r "$dir$n/module-d.css";
+	if ($dcss) {
+		if ($h->{events} ne '' ) {
+			$h->{events}  =~ s/\r?\n?$/\n/;
+		}
+		$h->{events} .= <<DCSS_EVENT;
+INSTALL=skel/_sub/module_css_generate
+SETTING=skel/_sub/module_css_generate
+UNINSTALL=skel/_sub/module_css_delete
+DCSS_EVENT
+		chomp($h->{events});
+	}
+
+	# キャッシュ
+	$cache->{"$dir$name"} = $h;
+
+	return $h;
+}
+
+#------------------------------------------------------------------------------
+# ●使用するプラグイン設定を保存する
+#------------------------------------------------------------------------------
+sub save_use_modules {
+	my $self = shift;
+	return $self->save_use_plugins($_[0], 1);
+}
+sub save_use_plugins {
+	my $self = shift;
+	my $form = shift;
+	my $modf = shift;
+	my $blog = $self->{blog};
+	my $ROBJ = $self->{ROBJ};
+	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	my $pd      = $self->load_plugins_dat();
+	my $plugins = $self->load_plugins_info($modf);
+	my $ary = $plugins;
+	if ($modf) {
+		# モジュールの場合
+		# ※1つのモジュールを複数配置することがあるので、その対策。
+		# 　その場合 $name:"des_name,1", $n:"des_name" となる
+		my %pl = map { $_->{name} => $_ } @$plugins;
+		my %common;
+		$ary=[];
+		foreach(keys(%$form)) {
+			my $n = $self->plugin_name_check( $_ );
+			if (!$n || !$pl{$n}) { next; }
+			if ($n eq $_) {
+				push(@$ary, $pl{$_});
+				next;
+			}
+
+			# エイリアスを保存
+			my %h = %{ $pl{$n} };
+			$h{name} = $_;
+			push(@$ary, \%h);
+			$common{$n} = $form->{$n} ||= $form->{$_};
+		}
+		foreach(keys(%common)) {
+			# エイリアスのコモン名のinstall/uninstall設定
+			if ($form->{$_}) {
+				unshift(@$ary, $pl{$_});	# install
+			} else {
+				push(@$ary, $pl{$_});		# unisntall
+			}
+		}
+	}
+	my $err = 0;
+	my $flag= 0;
+	my %fail;
+	my @install_plugins;
+	foreach(@$ary) {
+		my $name = $_->{name};
+		my $inst = $form->{$name} ? 1 : 0;
+		if ($_->{adiary_version} > $self->{VERSION}) { $inst=0; }	# 非対応バージョン
+		if ($pd->{$name} == $inst) { next; }				# 変化なし
+
+		# 状態変化あり
+		my $func = $inst ? 'plugin_install' : 'plugin_uninstall';
+		my $msg  = $inst ? 'Install'        : 'Uninstall';
+
+		# $cname:コモン名、$name:インストール名
+		my $cname = $self->plugin_name_check( $name );
+
+		# アンインストールイベント
+		if (!$inst) {
+			my $r = $self->call_event("UNINSTALL:$name");
+			if ($r) {
+				$ROBJ->message("[plugin:%s] Uninstall event failed", $name);
+				# アンインストールイベント処理に失敗しても、
+				# アンインストール処理は継続させる。
+				# $fail{$cname}=1;
+				# next;
+			}
+		}
+
+		# 多重インストール処理
+		if ($cname ne $name) {
+			if ($inst) {
+				# install
+				if ($fail{$cname}) { $fail{$name}=1; next; }
+
+				$pd->{"$name"} = 1;
+				$pd->{"$name:events"} = $_->{events};
+				push(@install_plugins, $name);
+
+				# common名でのイベント登録を削除
+				delete $pd->{"$cname:events"};
+			} else {
+				# uninstall
+				delete $pd->{"$name"};
+				delete $pd->{"$name:events"};
+			}
+			$flag=1;
 			next;
 		}
-		# プリプロセッサはブログ環境で処理内容が異なることはないので
-		# 再構築時は実行しない。
 
-		# パース準備
-		$self->post_process_link_key( $_ );
-		$parser->{thisurl}  = $self->get_blog_path( $blogid ) . $_->{elink_key};
-		$parser->{thispkey} = $_->{pkey};
-		my ($text, $text_s) = $parser->text_parser( $_->{_text} );
-		if ($text eq $text_s) { $text_s=""; }
-
-		# 許可タグ以外の除去処理
-		my $escape = $self->load_tag_escaper( 'article' );
-		$text   = $escape->escape($text);
-		$text_s = $escape->escape($text_s);
-
-		# 値保存
-		my %h;
-		$h{text}   = $text;
-		$h{text_s} = $text_s;	# 短いtext
-		$update{ $_->{pkey} } = \%h;
+		# install/uninstall 実行
+		my $r = $fail{$name} ? 100 : $self->$func( $pd, $_ );
+		$err += $r;
+		if ($r) {
+			$fail{$name}=1;
+			$ROBJ->message("[plugin:%s] $msg failed", $name);
+			next;
+		}
+		$flag=1;
+		if (! $self->{stop_plugin_install_msg}) {
+			$ROBJ->message("[plugin:%s] $msg success", $name);
+		}
+		if ($inst) { push(@install_plugins, $name); }
 	}
-	#-----------------------------------------------
-	# DBに対するupdateを一気に発行する
-	#-----------------------------------------------
-	$DB->begin();
-	foreach(keys(%update)) {
-		$DB->update_match("${blogid}_art", $update{$_}, 'pkey', $_);
+	# 状態変更があった？
+	if ($flag) {
+		# プラグイン情報の保存
+		$ROBJ->fwrite_hash($self->{blog_dir} . 'plugins.dat', $pd);
+
+		# イベント情報の登録
+		$self->set_event_info($self->{blog}, $pd);
+
+		# インストールイベントの呼び出し
+		foreach(@install_plugins) {
+			$self->call_event("INSTALL:$_");
+		}
 	}
-	$r += $DB->commit();
-
-	# イベント処理
-	$self->call_event('BLOG_REBUILD');
-	$self->call_event('ARTICLE_STATE_CHANGE');
-	$self->call_event('COMMENT_STATE_CHANGE');
-	$self->call_event('ARTCOM_STATE_CHANGE');
-
-	return $r;
+	return wantarray ? (0, \%fail) : 0;
 }
 
 #------------------------------------------------------------------------------
-# ●全ブログの再構築
+# ●プラグインのインストール
 #------------------------------------------------------------------------------
-sub rebuild_all_blogs {
+sub plugin_install {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $auth = $ROBJ->{Auth};
-	if (! $auth->{isadmin} ) { $ROBJ->message('Operation not permitted'); return 5; }
+	my ($pd, $plugin) = @_;
 
-	my $blogs = $self->load_all_blogid();
-	my $cur_blogid = $self->{blogid};
-	foreach(@$blogs) {
-		$self->set_and_select_blog($_);
-		$self->rebuild_blog();
+	my $files  = $plugin->{files};
+	my $events = $plugin->{events};
+	my $name   = $plugin->{name};			# インストール名
+	my $n      = $self->plugin_name_check( $name );	# プラグイン名
+
+	# インストールディレクトリ
+	my $func_dir = $self->{blog_dir} . 'func/';
+	my $skel_dir = $self->{blog_dir} . 'skel/';
+	my $js_dir   = $self->{blogpub_dir} . 'js/';
+	my $css_dir  = $self->{blogpub_dir} . 'css/';
+	my $cssd_dir = $self->{blogpub_dir} . 'css.d/';	# 自動ロードcss
+	my $plg_dir  = $self->plugin_name_dir($n);	# plugin/ : 読み込み用
+
+	my $copy = $self->{plugin_symlink} ? 'file_symlink' : 'file_copy';
+
+	# 必要なディレクトリの作成
+	$ROBJ->mkdir( $func_dir );
+	$ROBJ->mkdir( $skel_dir );
+	$ROBJ->mkdir( $js_dir   );
+	$ROBJ->mkdir( $css_dir  );
+	$ROBJ->mkdir( $cssd_dir );
+
+	# ファイルのインストール
+	my $err=0;
+	my $cssd;
+	my @copy_files;
+	foreach(split("\n",$files)) {
+		# 親ディレクトリ参照などの防止
+		$ROBJ->clean_path($_);
+
+		# 最初のディレクトリ名分離
+		my ($dir, $file) = $self->split_equal($_, '/');
+		if ($dir eq '') { next; }
+
+		# タイプ別のフィルタ
+		my $des;
+		if ($dir eq 'func') {
+			$des = $func_dir . $file;
+		}
+		if ($dir eq 'js') {
+			$des = $js_dir . $file;
+		}
+		if ($dir eq 'css') {
+			$des = $css_dir . $file;
+		}
+		if ($dir eq 'css.d') {
+			$des = $cssd_dir . $file;
+			$cssd=1;
+		}
+		if ($dir eq 'skel') {
+			$self->mkdir_with_filepath( $skel_dir, $file );
+			$des = $skel_dir . $file;
+		}
+		if (!$des) {
+			$ROBJ->error("[plugin:%s] Not allow directory name : %s", $name, $_);
+			$err++;
+			next;
+		}
+		if (! -r $ROBJ->get_filepath("$plg_dir$_")) {
+			$ROBJ->error("[plugin:%s] Original file not exists : %s", $name, $_);
+			$err++;
+			next;
+		}
+
+		# 既にファイルが存在している場合はエラー
+		$des = $ROBJ->get_filepath($des);
+		if (-e $des) {
+			$ROBJ->error("[plugin:%s] File already exists : %s", $name, $des);
+			$err++;
+			next;
+		}
+
+		# ファイルをコピーしてインストール
+		if ($err) { next; }	# エラーがあればコピーはしない
+		my $r = $ROBJ->$copy( "$plg_dir$_", $des);
+		if ($r || !-e $des) {
+			$err++;
+			next;
+		}
+
+		# インストールしたファイルを記録
+		push(@copy_files, $des);
 	}
-	$self->set_and_select_blog($cur_blogid);
+	if ($cssd) { $self->update_dynamic_css(); }
+
+	if ($err) {
+		foreach(@copy_files) {
+			$ROBJ->file_delete( $_ );
+		}
+		return $err;
+	}
+
+	# 情報の登録
+	$pd->{$name} = 1;
+	$pd->{"$name:version"} = $plugin->{version};
+	$pd->{"$name:files"}   = join("\n", @copy_files);
+	$pd->{"$name:events"}  = $plugin->{events};
+
+	return 0;
+}
+#------------------------------------------------------------------------------
+# ●プラグインのアンインストール
+#------------------------------------------------------------------------------
+sub plugin_uninstall {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my ($pd, $plugin) = @_;
+
+	my $name = ref($plugin) ? $plugin->{name} : $plugin;
+	my $files = $pd->{"$name:files"};
+	my $err=0;
+	my $cssd=0;
+	foreach(split("\n", $files)) {
+		my $r = $ROBJ->file_delete( $_ );
+		if ($r) {	# 成功
+			if ($_ =~ m|/css\.d/|) { $cssd=1; }
+			next;
+		}
+		$err++;
+		$ROBJ->error("[plugin:%s] File delete failed : %s", $name, $_);
+	}
+	if ($cssd && !$plugin->{module_dcss}) {
+		$self->update_dynamic_css();
+	}
+	if ($err) { return $err; }
+
+	# 情報の削除
+	my $len = length("$name:");
+	foreach(keys(%$pd)) {
+		if (substr($_,0,$len) ne "$name:") { next; }
+		delete $pd->{$_};
+	}
+	delete $pd->{$name};
 	return 0;
 }
 
 #------------------------------------------------------------------------------
-# ●付加情報の再生成
+# ●パスを辿ってmkdir
 #------------------------------------------------------------------------------
-sub blogs_info_rebuild {
-	my $self   = shift;
-	my $blogid = shift;
+sub mkdir_with_filepath {
+	my $self = shift;
+	my ($dir, $file) = @_;
 	my $ROBJ = $self->{ROBJ};
-	my $auth = $ROBJ->{Auth};
-	if ($blogid eq '' && ! $auth->{isadmin}
-	 || $blogid ne '' && ! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	my @ary = ($blogid);
-	if ($blogid eq '') {
-		@ary = [ $self->load_all_blogid() ];
+	my @ary = split('/', $file);
+	pop(@ary);	# ファイル名を捨てる
+	while(@ary) {
+		$dir .= shift(@ary) . '/';
+		$ROBJ->mkdir( $dir );
+	}
+}
+
+#------------------------------------------------------------------------------
+# ●プラグイン情報からイベントを登録
+#------------------------------------------------------------------------------
+my %SPECIAL_EVENTS = (	# イベント名が「INSTALL:plugin_name」のようになるもの
+	INSTALL => 1,
+	UNINSTALL => 1,
+	SETTING => 1
+);
+sub set_event_info {
+	my $self = shift;
+	my ($blog, $pd) = @_;
+
+	my @plugins = sort(grep { index($_, ':')<0 } keys(%$pd));
+	my %evt;
+	my %js_evt;
+	foreach my $name (@plugins) {
+		foreach( split("\n", $pd->{"$name:events"})) {
+			my ($k,$v) = $self->split_equal($_);
+			if ($k eq '') { next; }
+			if ($SPECIAL_EVENTS{$k}) {
+				$k .= ":$name";
+			}
+			# JSイベントは多重呼び出ししない
+			if ($k =~ /^JS/) {
+				my $cname = $self->plugin_name_check( $name );
+				$js_evt{$k}->{$cname} = $v;
+				next;
+			}
+			$evt{$k} ||= [];
+			push(@{ $evt{$k} }, "$name=$v");
+		}
 	}
 
-	my $cur_blogid = $self->{blogid};
-	foreach(@ary) {
-		# ブログ選択
-		$self->set_and_select_blog($_);
-
-		# イベント処理
-		$self->call_event('BLOG_INFO_REBUILD');
-		$self->call_event('ARTICLE_STATE_CHANGE');
-		$self->call_event('COMMENT_STATE_CHANGE');
-		$self->call_event('ARTCOM_STATE_CHANGE');
+	# JSイベントを重複を避けて登録
+	foreach my $k (keys(%js_evt)) {
+		$evt{$k} = [];
+		my $h = $js_evt{$k};
+		foreach(keys(%$h)) {
+			push(@{ $evt{$k} }, "$_=$h->{$_}");
+		}
 	}
-	$self->set_and_select_blog($cur_blogid);
+
+	# 登録済イベントを初期化
+	foreach(keys(%$blog)) {
+		if (substr($_,0,6) ne 'event:') { next; }
+		delete $blog->{$_};
+	}
+
+	# イベントの登録
+	foreach(keys(%evt)) {
+		$blog->{"event:$_"} = join("\n", @{ $evt{$_} });
+	}
+	$self->update_blogset($blog);
 
 	return 0;
 }
 
 #------------------------------------------------------------------------------
-# ●全ブログの全プラグインを再インストール
+# ●プラグインの設定を保存
 #------------------------------------------------------------------------------
-sub reinstall_all_plugins {
+sub save_plugin_setting {
 	my $self = shift;
+	my $form = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $auth = $ROBJ->{Auth};
-	if (! $auth->{isadmin} ) { $ROBJ->message('Operation not permitted'); return 5; }
+	my $name = $form->{module_name};
 
-	my $blogs = $self->load_all_blogid();
-	my $cur_blogid = $self->{blogid};
-	$self->{stop_plugin_install_msg} = 1;
-	foreach(@$blogs) {
-		$self->set_and_select_blog($_);
-		$self->reinstall_plugins();
+	my $mode = $form->{setting_mode};
+	if ($mode ne 'css') { $mode = ''; }
+	if ($mode ne '') { $mode .= '_'; }
+
+	my $n = $self->plugin_name_check($name);	# $n = プラグイン名
+	if (!$n) { return 1; }
+
+	my $dir = $ROBJ->get_filepath($self->{plugin_dir} . $n);
+	my $ret;
+	my $pm = "$dir/${mode}validator.pm";
+	if (-r $pm) {
+		my $func = $self->load_plugin_function( $pm, $pm );
+		$ret = &$func($self, $form, $name);
+	} else {
+		$ret = $ROBJ->_call("$dir/${mode}validator.html", $form, $name);
 	}
-	$self->{stop_plugin_install_msg} = 0;
-	$self->set_and_select_blog($cur_blogid);
+	if (ref($ret) ne 'HASH') { return; }
+
+	$self->update_plgset($name, $ret);
+	$self->call_event("SETTING:$name");
 	return 0;
 }
 
 #------------------------------------------------------------------------------
-# ●全ブログidのロード
+# ●プラグイン名のチェックとalias番号の分離
 #------------------------------------------------------------------------------
-sub load_all_blogid {
+sub plugin_name_check {
 	my $self = shift;
-	my $DB   = $self->{DB};
-	my $blogs = $DB->select_match($self->{bloglist_table}, '*cols', 'id');
-	$blogs = [ map { $_->{id} } @$blogs ];
-	return $blogs;
+	return ($_[0] =~ /^([A-Za-z][\w\-]*)(?:,\d+)?$/) ? $1 : undef;
 }
-
-###############################################################################
-# ■プラグインの再インストール
-###############################################################################
-sub reinstall_plugins {
+sub plugin_num {
 	my $self = shift;
-	my $pd = $self->load_plugins_dat();
-
-	$self->reinstall_normal_plugins($pd);
-	$self->reinstall_design_plugins($pd);
+	return ($_[0] =~ /^(?:[A-Za-z][\w\-]*),(\d+)$/) ? $1 : undef;
 }
-#------------------------------------------------------------------------------
-# ●通常プラグインの再インストール
-#------------------------------------------------------------------------------
-sub reinstall_normal_plugins {
+sub plugin_name_id {
 	my $self = shift;
-	my $pd   = shift;
-	my $plgs = $self->load_plugins_info();
-
-	my %h;
-	foreach(@$plgs) {
-		$h{ $_->{name} } = 0;	# uninstall
-	}
-	$self->save_use_plugins(\%h);
-	foreach(@$plgs) {
-		$h{ $_->{name} } = $pd->{ $_->{name} } ? 1 : 0;	# reinstall
-	}
-	return $self->save_use_plugins(\%h);
+	my $name = shift;
+	if ($name !~ /,/) { return ''; }	# 多重インストールモジュールではない
+	$name =~ s/,//g;
+	$name =~ tr/_/-/;
+	return $name;
+}
+sub plugin_name_dir {
+	my $self = shift;
+	my $name = $self->plugin_name_check(shift);
+	return $self->{plugin_dir} . "$name/";
 }
 
 #------------------------------------------------------------------------------
-# ●デザインモジュールの再インストール
+# ●プラグインのための画像アップロード処理（一括）
 #------------------------------------------------------------------------------
-sub reinstall_design_plugins {
+sub plugin_upload_images {
 	my $self = shift;
-	my $pd   = shift;
+	my $ret  = shift;
+	my $name = shift;	# プラグイン名
+	my $form = shift;
+	my $ary  = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $plgs = $self->load_plugins_info();
 
-	# デザインモジュールの現在の状態をロードしておく
-	my $des = $self->load_design_info();
-	if ($des->{side_info} < 5) {
-		return -1;	# 情報がないので再インストール不可
+	my $dir = $ROBJ->get_filepath( $self->plugin_image_dir() );
+	foreach(@$ary) {
+		if (!ref($form->{$_})) { next; }
+		if (! $form->{$_}->{file_size}) { next; }	# サイズ0は無視
+		my $r = $self->upload_image_for_plugin($name, $_, $form->{$_});
+		if ($r) { next; }
+
+		# アップロード成功
+		my $file = $ret->{$_} = $form->{$_}->{file_name};
+
+		# サイズ取得
+		my $img = $self->load_image_magick();
+		if (!$img) { next; }
+		eval {
+			$img->Read( "$dir$file" );
+			$img = $img->[0];
+			$ret->{"${_}_w"} = $img->Get('width');
+			$ret->{"${_}_h"} = $img->Get('height');
+		};
 	}
-
-	# uninstall
-	$self->reset_design();
-
-	# reinistall
-	return $self->save_design({
-		side_a_ary => [ split(/\n/, $des->{side_a}) ],
-		side_b_ary => [ split(/\n/, $des->{side_b}) ],
-		main_a_ary => [ split(/\n/, $des->{main_a}) ],
-		main_b_ary => [ split(/\n/, $des->{main_b}) ],
-		header_ary => [ split(/\n/, $des->{header}) ]
-	});
 }
 
-###############################################################################
-# ■データベースがらみサブルーチン
-###############################################################################
 #------------------------------------------------------------------------------
-# ●記事テーブルの作成
+# ●プラグインのための画像アップロード
 #------------------------------------------------------------------------------
-sub create_tables {
-	my ($self, $table) = @_;
-	my $DB = $self->{DB};
-	my $r=0;
-
-  { # 記事テーブル
-	my %info;
-	$info{text}    = [ qw(title parser tags name id ip host agent link_key ctype) ];
-	$info{ltext}   = [ qw(text text_s _text) ];
-	$info{int}     = [ qw(yyyymmdd tm update_tm coms coms_all revision upnode priority) ];
-	$info{flag}    = [ qw(enable com_ok hcom_ok) ];
-	$info{idx}     = [ qw(title name tags id link_key ctype upnode yyyymmdd tm update_tm coms coms_all revision enable priority) ];
-	$info{unique}  = [ qw(link_key) ];
-	$info{notnull} = [ qw(enable com_ok hcom_ok coms coms_all yyyymmdd link_key) ];
-	$info{ref}     = { };	# upnode => "${table}_art.pkey" をすると記事が削除できなくなる
-	$r = $DB->create_table_wrapper("${table}_art", \%info);
-	if ($r) { return 100 + $r; }
-  }
-
-  { # タグテーブル
-	my %info;
-	$info{text}    = [ qw(name) ];
-	$info{int}     = [ qw(qt upnode priority) ];
-	$info{idx}     = [ qw(name qt upnode priority) ];
-	$info{unique}  = [ qw(name) ];
-	$info{notnull} = [ qw(name qt priority) ];
-	$info{ref}     = { upnode => "${table}_tag.pkey" };
-	$r = $DB->create_table_wrapper("${table}_tag", \%info);
-	if ($r) { return 200 + $r; }
-  }
-
-  { # タグマッチングテーブル
-	my %info;
-	$info{int}     = [ qw(a_pkey t_pkey) ];
-	$info{flag}    = [ qw(a_enable) ];
-	$info{idx}     = [ qw(a_pkey t_pkey a_enable) ];
-	$info{notnull} = [ qw(a_pkey t_pkey a_enable) ];
-	$info{ref}     = { a_pkey => "${table}_art.pkey", t_pkey => "${table}_tag.pkey"  };
-	$r = $DB->create_table_wrapper("${table}_tagart", \%info);
-	if ($r) { return 300 + $r; }
-  }
-
-  { # リビジョン管理テーブル
-	my %info;
-	$info{text}    = [ qw(title parser note name id ip host agent) ];
-	$info{ltext}   = [ qw(text _text) ];
-	$info{int}     = [ qw(tm a_pkey) ];
-	$info{flag}    = [ qw(elock) ];
-	$info{idx}     = [ qw(title id tm a_pkey elock) ];
-	$info{unique}  = [ qw() ];
-	$info{notnull} = [ qw(a_pkey elock tm) ];
-	$info{ref}     = { a_pkey => "${table}_art.pkey" };
-	$r = $DB->create_table_wrapper("${table}_log", \%info);
-	if ($r) { return 400 + $r; }
-  }
-
-  { # コメントテーブル
-	my %info;
-	$info{text}    = [ qw(text email url name id ip host agent a_title a_elink_key) ];
-	$info{int}     = [ qw(tm num a_pkey a_yyyymmdd) ];
-	$info{flag}    = [ qw(enable hidden) ];
-	$info{idx}     = [ qw(name id ip enable hidden num tm a_pkey a_yyyymmdd) ];
-	$info{unique}  = [ ];
-	$info{notnull} = [ qw(enable hidden text tm a_pkey a_yyyymmdd) ];
-	$info{ref}     = { a_pkey => "${table}_art.pkey" };
-	$r = $DB->create_table_wrapper("${table}_com", \%info);
-	if ($r) { return 800 + $r; }
-  }
-
-	# ブログリストに登録
-	$self->insert_bloglist($table);
-
-	return 0;
-} # End of create_tanble
-
-#------------------------------------------------------------------------------
-# ●記事テーブルの削除
-#------------------------------------------------------------------------------
-sub drop_tables {
-	my ($self, $table) = @_;
-	my $DB = $self->{DB};
-
-	my $r = 0;
-	$r += $DB->drop_table("${table}_com");
-	$r += $DB->drop_table("${table}_log");
-	$r += $DB->drop_table("${table}_tagart");
-	$r += $DB->drop_table("${table}_tag");
-	$r += $DB->drop_table("${table}_art");
-
-	# ブログリストから削除
-	$self->delete_bloglist($table);
-
-	return $r;
-}
-
-###############################################################################
-# ■ブログ管理テーブル
-###############################################################################
-#------------------------------------------------------------------------------
-# ●ブログ管理テーブルへ追加
-#------------------------------------------------------------------------------
-sub insert_bloglist {
-	my ($self, $blogid) = @_;
-	my $DB = $self->{DB};
-
-	if (!$DB->find_table($self->{bloglist_table})) {
-		my $r = $self->create_bloglist_table();
-		if ($r) { return 1; }		# error
+sub upload_image_for_plugin {
+	my $self = shift;
+	my $pname= shift;	# プラグイン名
+	my $fname= shift;	# ファイル名
+	my $file = shift;
+	my $ROBJ = $self->{ROBJ};
+	if (!$file) {
+		$ROBJ->form_error('file', "File data error.");
+		return -1;
 	}
-
-	my $ROBJ = $self->{ROBJ};
-	my $auth = $ROBJ->{Auth};
-	my %h;
-	$h{tm}        = $ROBJ->{TM};
-	$h{create_tm} = $ROBJ->{TM};
-	$h{id}        = $blogid;
-
-	# 初期値 = 0
-	$h{arts}   = $h{coms}   = 0;
-	$h{art_tm} = $h{com_tm} = 0;
-	$h{private} = 0;
-
-	# ディフォルトのブログ情報の取得
-	my $blog = $self->load_blogset('*');
-	$h{blog_name} = $blog->{blog_name};
-	$h{private}   = $blog->{private};
-	my $r  = $DB->insert($self->{bloglist_table}, \%h);
-
-	if (!$r) { return 2; }
-	return 0;		# 成功
-}
-
-#------------------------------------------------------------------------------
-# ●ブログ管理テーブルから削除
-#------------------------------------------------------------------------------
-sub delete_bloglist {
-	my ($self, $blogid) = @_;
-	my $DB = $self->{DB};
-	return $DB->delete_match($self->{bloglist_table}, 'id', $blogid);
-}
-
-#------------------------------------------------------------------------------
-# ●ブログ管理テーブルの作成
-#------------------------------------------------------------------------------
-sub create_bloglist_table {
-	my ($self) = @_;
-	my $DB = $self->{DB};
-
-	my %cols;
-	$cols{text}    = [ qw(id blog_name newest_title) ];
-	$cols{int}     = [ qw(arts coms art_tm com_tm tm create_tm) ];
-	$cols{flag}    = [ qw(private) ];
-	$cols{idx}     = [ qw(id arts coms art_tm com_tm tm private) ];
-	$cols{unique}  = [ qw(id) ];
-	$cols{notnull} = [ qw(id tm) ];
-	return $DB->create_table_wrapper($self->{bloglist_table}, \%cols);
-}
-
-###############################################################################
-# ■データインポータ
-###############################################################################
-sub art_import {
-	my ($self, $form) = @_;
-	my $ROBJ = $self->{ROBJ};
-	my $DB   = $self->{DB};
-	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
-	my $blogid = $self->{blogid};
-
-	#-------------------------------------------------------------
-	# セッション開始
-	#-------------------------------------------------------------
-	my $session = $self->open_session( $form->{snum} );
-
-	# データ形式
-	my $type = $form->{type};
-	$type =~ s/\W//g;
-	my $importer;
-	eval { $importer = $ROBJ->loadapp("adiary::Import$type"); };
-	if ($@) {
-		$ROBJ->message($@);
-		$session->msg('Data type error (%s)', $type);
+	if ($file->{file_name} =~ /(\.\w+)$/) {
+		$fname .= $1;
+	}
+	if (!$self->is_image($fname)) {
+		$ROBJ->form_error('file', "File is not image : %s", $file->{file_name});
 		return -1;
 	}
 
-	# ファイル選択チェック
-	if (! ref($form->{file}) || ! $form->{file}->{file_size}) {
-		$session->msg('Not selected file'); return -2;
-	}
-	$session->msg("Import file size: %f KB", int($form->{file}->{file_size}/1024 + 0.5));
+	# アップロード
+	my $dir = $self->plugin_image_dir();
+	$self->init_image_dir();
+	$ROBJ->mkdir( $dir );
 
-	# クラスオプション（$type:xxx=val を xxx=val として取り出す）
-	my %opt;
-	{
-		my %h;
-		my $class = ($form->{class} || $type) . ':';
-		my $len   = length($class);
-		foreach(keys(%$form)) {
-			if (index($_,':')<0) {	# クラス表記を含まない
-				$h{$_}=$opt{$_}=$form->{$_};
-				next;
-			}
-			if (substr($_,0,$len) ne $class) { next; }
-			my $x = substr($_,$len);
-			$opt{$x} = $form->{$_};
-			$h{$x}   = $form->{$_};
-		}
-		delete $h{file};
-		delete $h{action};
-		delete $h{ajax};
-		delete $h{csrf_check_key};
-		delete $h{class};
-		foreach(sort(keys(%h))) {
-			$session->say("[option] $_=$h{$_}");
-		}
+	$file->{file_name} = $pname . '-' . $fname;
+	$file->{overwrite} = 1;
+	return $self->do_upload( $dir, $file );
+}
+#------------------------------------------------------------------------------
+# ●プラグインのための画像ファイル名取得
+#------------------------------------------------------------------------------
+sub void_plugin_images {
+	my $self = shift;
+	my $h    = shift;
+	my $form = shift;
+	foreach(keys(%$form)) {
+		if ($_ !~ /^(\w+)_void$/) { next; }
+		if (! $form->{$_}) { next; }
+		my $n = $1;
+		$h->{$n} = undef
+		$h->{"${n}_w"} = undef
+		$h->{"${n}_h"} = undef
 	}
-	$form = 'undef';	# 間違って -> で参照しないように文字列を入れる
-
-	# 付加タグとデフォルトタグをtrimしておく
-	$ROBJ->trim( $opt{append_tags}, $opt{default_tags} );
-
-	# キー重複チェック用
-	{
-		my $cols = ['pkey', 'link_key'];
-		my $data = $DB->select("${blogid}_art", {cols => $cols});
-		$opt{unique_pkeys} = { map { $_->{pkey}     => 1 } @$data };
-	}
-
-	#-------------------------------------------------------------
-	# インポートの実行
-	#-------------------------------------------------------------
-	$opt{import_arts} = 0;
-	$opt{find_arts}   = 0;
-	$opt{a_pkeys} = [];
-	$opt{c_pkeys} = [];
-	# インポート時のupnode対応用
-	$opt{pkey2pkey} = {};
-	$opt{upnodes}   = [];
-
-	$ROBJ->{Timer} && $ROBJ->{Timer}->start('import');
-	my $tr = ! $opt{stop_transaction};	# トランザクションを使用し、高速処理
-	if ($tr) {
-		$session->say("[DB] BEGIN");
-		$DB->begin();
-	}
-	my $r = $importer->import_arts($self, \%opt, $session);
-	if ($r) {
-		$session->msg("Error exit(%d)", $r);
-		$session->close();
-	}
-	# upnode対応処理
-	my $p2p = $opt{pkey2pkey};
-	foreach(@{$opt{upnodes}}) {
-		my $pkey   = $_->{pkey};
-		my $upnode = $_->{upnode};
-		my $up_pkey = $p2p->{$upnode};
-		if ($upnode != $up_pkey && $up_pkey) {
-			$DB->update_match("${blogid}_art", {upnode => $up_pkey}, 'pkey', $pkey);
-		}
-	}
-	if ($tr) {
-		if ($DB->commit()) {
-			$session->say("[DB] ROLLBACK");
-			$opt{import_arts} = 0;	# インポート件数=0
-		} else {
-			$session->say("[DB] COMMIT");
-		}
-	}
-	$session->msg("Import %d articles (find %d articles)", $opt{import_arts}, $opt{find_arts});
-
-	#-------------------------------------------------------------
-	# イベント処理
-	#-------------------------------------------------------------
-	if ($opt{import_arts}) {
-		$self->call_event('IMPORT_AFTER',         $opt{a_pkeys}, $opt{c_pkeys});
-		$self->call_event('ARTICLE_STATE_CHANGE', $opt{a_pkeys}, $opt{c_pkeys});
-		$self->call_event('COMMENT_STATE_CHANGE', $opt{a_pkeys}, $opt{c_pkeys});
-		$self->call_event('ARTCOM_STATE_CHANGE' , $opt{a_pkeys}, $opt{c_pkeys});
-	}
-
-	#-------------------------------------------------------------
-	# インポート終了
-	#-------------------------------------------------------------
-	$session->msg("Import finish");
-	if ($ROBJ->{Timer}) {
-		$session->msg("Import time %.2f sec", $ROBJ->{Timer}->stop('import'));
-		$session->msg("Total time %.2f sec",  $ROBJ->{Timer}->check());
-	}
-	$session->close();
-
-	return wantarray ? ($r, $opt{import_arts}) : $r;
 }
 
 #------------------------------------------------------------------------------
-# ●記事を１件保存する
+sub plugin_image_dir {
+	my $self = shift;
+	return $self->image_folder_to_dir( '@system/' );
+}
+sub plugin_image_path {
+	my $self = shift;
+	my $file = shift;
+	return $self->{ROBJ}->{Basepath} . $self->plugin_image_dir() . $file;
+}
+
+###############################################################################
+# ■デザインモジュールの設定
+###############################################################################
 #------------------------------------------------------------------------------
-# $self->save_article(\%art, \@coms, \@tbs, \%opt, $session);
-# Ret:	0:成功  0以外:失敗
-#
-#※変更点メモ
-#・カテゴリ→タグ
-#
-#
-# $art->{enable}	1:表示許可 0:表示不可
-# $art->{ctype}		コンテンツのタイプ（通常は指定不要）
-# $art->{year}		1980～（年）
-# $art->{mon}		1～12（月）
-# $art->{day}		1～31（日）
-# $art->{tm}		書き込み日時（UTC）
-# $art->{tags}		タグ(「,」区切り）
-# $art->{title}		タイトル
-# $art->{name}		執筆者（$art->{author} ではないので注意）
-# $art->{text}		記事本文（※必須）
-# $art->{parser}	パーサー指定
-#
-# $art->{com_ok}	コメント受け付け
-# $art->{hcom_ok}	非公開コメント受け付け
-# $art->{allow_com}	※コメント受け付け（互換性のため）
-# $art->{allow_hcom}	※非公開コメント受け付け（互換性のため）
-#
-# $art->{ctype}		コンテンツタイプ
-# $art->{priority}	優先度, 重要度（整数値）
-# $art->{upnode}	親記事
-# $art->{link_key}	コンテンツキー
-#
-# $art->{ip}		IPアドレス
-# $art->{host}		HOST名
-# $art->{agent}		USER AGENT
-#
-# $art->{pkey}		記事ID(pkey)
-# $art->{save_pkey}	1:pkeyを保持してimportする 0:pkeyを保持しない
-#
-#
-# $c = $coms->[$n]	$n 番目の書き込み
-# $c->{enable}		コメントが有効か？ 1:enable 0:disable（省略時:1）
-# $c->{hidden}		非公開コメント？   1:非公開 0:公開   （省略時:0）
-# $c->{name}		名前（※必須）
-# $c->{text}		コメント本文（※必須） ※タグ無効、改行→<br>に変換される
-# $c->{tm}		コメントが投稿された日時（UTC）
-# $c->{email}		メールアドレス
-# $c->{url}		URL
-# $c->{ip}		IPアドレス(optional)
-# $c->{host}		HOST名(optional)
-# $c->{agent}		USER AGENT(optional)
-#
-#
-# $tb=$tbs->[$n]	$n 番目のトラックバック
-# $tb->{enable}		トラックバックが有効か？
-# $tb->{blog_name}	トラックバック元のblog名
-# $tb->{title}		トラックバックのタイトル
-# $tb->{url}		トラックバック元URL（※必須）
-# $tb->{tm}		TBが送信された日時（UTC）
-# $tb->{author}		元記事の執筆者
-# $tb->{excerpt}	概要  ※タグ無効
-# $tb->{ip}		IPアドレス
-# $tb->{host}		HOST名
-# $tb->{agent}		USER AGENT
-#
-# ※タグを入力する必要のない（入力できない）カラムでは、
-# 　&gt; &lt; &quot; を < > " に戻す必要はない。
-#
-sub save_article {
-	my ($self, $art, $coms, $tbs, $opt, $session) = @_;
+# ●デザインの保存
+#------------------------------------------------------------------------------
+sub save_design {
+	my $self = shift;
+	my $form = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $DB   = $self->{DB};
-	my $auth = $ROBJ->{Auth};
+	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	my $blog   = $self->{blog};
-	my $blogid = $self->{blogid};
-	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
+	my @side_a = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{side_a_ary} || []};
+	my @side_b = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{side_b_ary} || []};
+	my @main_a = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{main_a_ary} || []};
+	my @main_b = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{main_b_ary} || []};
+	my @header = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{header_ary} || []};
 
-	# コメントをインポートしない？
-	if ($opt->{no_comment}) { $coms = []; }
+	my %use_f = map {$_ => 1} (@side_a,@side_b,@main_a,@main_b,@header);
+	my $pd = $self->load_plugins_dat();
+	my @multi;
+	foreach(keys(%$pd)) {	# 現在のinstall状態確認
+		if (index($_,':')>0) { next; }
+		if ($pd->{$_} && !$use_f{$_}) { $use_f{$_}=0; }	# uninstall
 
-	# トラックバックをコメントとしてインポート？
-	if (!$opt->{tb_as_comment}) { $tbs = []; }
-
-	# 記事発見数
-	$opt->{find_arts}++;
-
-	##############################################################
-	# データ整形処理
-	##############################################################
-	my $now_tm = $ROBJ->{TM};
-	$art->{parser} ||= 'default_p1';
-	$art->{tm}     ||= $now_tm;
-	$art->{name}   ||= $auth->{name};
-	$art->{id}       = $auth->{id};
-
-	# 投稿者を強制的に自分にする
-	if ($opt->{force_author}) {
-		$art->{name} = $auth->{name};
+		# マルチインストールモジュールの抽出
+		my $n = $self->plugin_name_check($_);
+		if ($_ eq $n) { next; }
+		push(@multi, $n);
+	}
+	# マルチインストールモジュールは common名 に対する操作を無視させる
+	foreach(@multi) {
+		delete $use_f{$_};
 	}
 
-	# タグを設定する
-	if ($opt->{force_tag} || $art->{tags} eq '') {
-		$art->{tags} = $opt->{default_tags};
-	}
-	# インポート記事付加タグ
-	if ($opt->{append_tags}) {
-		$art->{tags} = $art->{tags} eq '' ? $opt->{append_tags} : "$art->{tags},$opt->{append_tags}" ;
-	}
+	# プラグイン状況を保存
+	my ($ret, $fail) = $self->save_use_modules(\%use_f);
+	if ($ret) { return $ret; }	# error
 
-	# コメントの投稿時刻
-	foreach(@$coms) { $_->{tm} ||= $now_tm; }
+	# そのブログ専用のスケルトンとして保存する準備
+	my $dir = $self->{blog_dir} . 'skel/';
+	$ROBJ->mkdir($dir);
+	my $ret = 0;
 
-	#-------------------------------------------------------------
-	# 日付の確認
-	#-------------------------------------------------------------
+	#-------------------------------------------------------------------
+	# _sidebar.html を生成
+	#-------------------------------------------------------------------
 	{
-		$art->{tm} = int( $art->{tm} );
-		my $year = int( $art->{year} );
-		my $mon  = int( $art->{mon}  );
-		my $day  = int( $art->{day}  );
-		my $err = $self->check_date($year, $mon, $day);
-		if ($err ne '') {	# エラーあり
-			my $h = $ROBJ->time2timehash( $art->{tm} );
-			$art->year = $h->{year};
-			$art->mon  = $h->{mon};
-			$art->day  = $h->{day};
+		my $file = '_sidebar';
+		my $h = $self->parse_original_skeleton($file);
+		my @html;
+		push(@html, @{$h->{HEADER} || []});
+		foreach(@side_a) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{SEPARATOR} || []});
+		foreach(@side_b) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{FOOTER} || []});
+
+		my $r = $ROBJ->fwrite_lines("$dir$file.html", \@html);
+		if ($r) {
+			$ret++;
+			$ROBJ->message('Design save failed : %s', "$file.html");
 		}
 	}
 
-	#-------------------------------------------------------------
-	# pkey, link_key の重複チェック
-	#-------------------------------------------------------------
-	my $pkey  = $opt->{save_pkey} && $art->{pkey};
-	my $pkeys = $opt->{unique_pkeys};
-	{
-		my $ctype    = $art->{ctype};
-		my $priority = int( $art->{priority} );
-		my $upnode   = $art->{upnode};
-		if ($priority && $ctype eq '') { $art->{ctype}=$ctype='wiki'; }
-
-		# save pkey
-		$pkey = ($pkey<1 || ($pkeys->{$pkey} && $opt->{avoid_pkey_collision})) ? 0 : $pkey;
-		if ($pkey) {
-			if ($pkeys->{$pkey}) {
-				$session->msg("'%s' is duplicate : %s", 'pkey', $pkey);
-				return 10;
-			}
-			$pkeys->{$pkey}=1;
+	#-------------------------------------------------------------------
+	# _header.html を生成
+	#-------------------------------------------------------------------
+	if (! $form->{sidebar_only}) {
+		my $file = '_header';
+		my $h = $self->parse_original_skeleton($file);
+		my @html;
+		push(@html, @{$h->{HEADER} || []});
+		foreach(@header) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{FOOTER} || []});
+		
+		my $r = $ROBJ->fwrite_lines("$dir$file.html", \@html);
+		if ($r) {
+			$ret++;
+			$ROBJ->message('Design save failed : %s', "$file.html");
 		}
 	}
 
-	#-------------------------------------------------------------
-	# フラグチェック
-	#-------------------------------------------------------------
-	$art->{com_ok}  = defined $art->{com_ok}  ? $art->{com_ok}  : $art->{allow_com};
-	$art->{hcom_ok} = defined $art->{hcom_ok} ? $art->{hcom_ok} : $art->{allow_hcom};
+	#-------------------------------------------------------------------
+	# _article.html を生成
+	#-------------------------------------------------------------------
+	if (! $form->{sidebar_only}) {
+		my $file = '_article';
+		my $h = $self->parse_original_skeleton($file);
 
-	my @flags = qw(enable com_ok hcom_ok);
-	foreach(@flags) {
-		if (!defined $art->{$_}) { $art->{$_} = $blog->{$_}; }
-	}
-
-	#-------------------------------------------------------------
-	# 記事の書き込み処理
-	#-------------------------------------------------------------
-	{
-		my %op;
-		$op{save_pkey} = $pkey;
-		$op{iha_default} = {
-			ip    => $art->{ip},
-			host  => $art->{host},
-			agent => $art->{agent}
-		};
-		$op{tm} = $art->{tm};
-		my $ret = $self->regist_article( $self->{blogid}, $art, \%op );
-		if (!ref($ret)) {
-			$session->msg("Save article failed(%d) : %s", $ret, $art->{title} );
-			return 11;
+		my @html;
+		push(@html, @{$h->{HEADER} || []});
+		foreach(@main_a) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
 		}
-		$pkey = $ret->{pkey};
-		$pkeys->{ $pkey } = 1;
-		push(@{ $opt->{a_pkeys} }, $pkey);
-
-		# upnode対策用の処理
-		if ($ret->{ctype} && $art->{pkey}) {
-			$opt->{pkey2pkey}->{ $art->{pkey}     } = $pkey;
-			$opt->{pkey2pkey}->{ $art->{link_key} } = $pkey;
-			push(@{$opt->{upnodes}}, {pkey=>$pkey, upnode=>$art->{upnode}});
+		push(@html, @{$h->{ARTICLE} || []});
+		foreach(@main_b) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
 		}
+		push(@html, @{$h->{FOOTER} || []});
 
-		# 書込済記事データに置き換える
-		$art = $ret;
+		my $r = $ROBJ->fwrite_lines("$dir$file.html", \@html);
+		if ($r) {
+			$ret++;
+			$ROBJ->message('Design save failed : %s', "$file.html");
+		}
 	}
-	#-------------------------------------------------------------
-	# 記事保存メッセージ
-	#-------------------------------------------------------------
-	$session->msg("[import] %s", $art->{title});
-	$opt->{import_arts}++;
 
-	my %info;
-	##############################################################
-	# コメント、トラックバックの処理
-	##############################################################
-	#---------------------------------------------------
-	# コメントとトラックバックを混ぜる
-	#---------------------------------------------------
-	my @ary = @$coms;
-	foreach(@$tbs){
-		$_->{_tb}=1;
-		push(@ary, $_);
-	}
-	if (@$tbs) {
-		# まぜた場合は時刻でソートする
-		@ary = sort {$a->{tm} cmp $b->{tm}} @ary;
+	#-------------------------------------------------------------------
+	# _main.html を生成
+	#-------------------------------------------------------------------
+	if (! $form->{sidebar_only}) {
+		my $file = '_main';
+		my $h = $self->parse_original_skeleton($file);
+
+		my @html;
+		push(@html, @{$h->{HEADER} || []});
+		foreach(@main_a) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{ARTICLE} || []});
+		foreach(@main_b) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{FOOTER} || []});
+
+		my $r = $ROBJ->fwrite_lines("$dir$file.html", \@html);
+		if ($r) {
+			$ret++;
+			$ROBJ->message('Design save failed : %s', "$file.html");
+		}
 	}
 	
-	#---------------------------------------------------
-	# 取り込み処理
-	#---------------------------------------------------
-	my $com_flag;
-	foreach(@ary) {
-		if ($_->{_tb}) {
-			$_->{name} = $_->{author} ne '' ? $_->{author} : '(trackback)';
-			my $text = '[Trackback]';
-			if ($_->{title} ne '') {
-				$text .= ' ' . $_->{title};
-			}
-			if ($_->{blog_name} ne '') {
-				$text .= ' from ' . $_->{blog_name};
-			}
-			$_->{text} = $text . "\n\n" . $_->{excerpt};
-		}
-		# 公開設定処理
-		$_->{enable} = $_->{enable} ne '' ? $_->{enable} : 1;
-		# コメント投稿名
-		
-		$_->{name} = $_->{name} ne '' ? $_->{name} : '(no name)';
+	#-------------------------------------------------------------------
+	# デザイン情報を保管（再構築時用）
+	#-------------------------------------------------------------------
+	$self->update_design_info({
+		side_a => join("\n", @side_a),
+		side_b => join("\n", @side_b),
+		main_a => join("\n", @main_a),
+		main_b => join("\n", @main_b),
+		header => join("\n", @header),
+		side_info => 5
+	});	# ※reinstall_design_plugins() と対応させること！
+		# 　項目追加時は side_info の数値を増加させる
 
-		#---------------------------------------------------
-		# オプション構成
-		#---------------------------------------------------
-		my %opt;
-		$opt{ip}    = $_->{ip};
-		$opt{host}  = $_->{host};
-		$opt{agent} = $_->{agent};
-		$opt{tm}    = $_->{tm};
-		$opt{num}   = $_->{num};
+	return $ret;
+}
+#------------------------------------------------------------------------------
+# ●オリジナルデザインのパース
+#------------------------------------------------------------------------------
+sub parse_original_skeleton {
+	my $self = shift;
+	my $name = shift;
+	my $ROBJ = $self->{ROBJ};
 
-		#---------------------------------------------------
-		# 投稿処理
-		#---------------------------------------------------
-		my ($r,$c_pkey) = $self->regist_comment( $blogid, $_, $art, \%opt );
-		if ($r) {
-			my $type = $_->{_tb} ? 'Trackback' : 'Comment';
-			$session->msg("$type import failed(%d) : %s", $r, "$art->{yyyymmdd} - $pkey");
-		} else {
-			# 成功
-			push(@{ $opt->{c_pkeys} }, $c_pkey);
-			$com_flag = 1;
-		}
+	# ユーザーレベルスケルトンの無効化して読み込む
+	my $dir   = $ROBJ->delete_skeleton($self->{user_skeleton_level});
+	my $lines = $ROBJ->fread_skeleton( $name );
+	if ($dir ne '') {
+		 $ROBJ->regist_skeleton($dir, $self->{user_skeleton_level});
 	}
 
-	if ($com_flag) {
-		# 記事のコメント数キャッシュを書き換え
-		$self->calc_comments($blogid, $art->{pkey});
+	# セパレーター探し
+	my %h;
+	my %in;
+	foreach(@$lines) {
+		if ($_ =~ /^<\@>\$PASTE=(.*)/s) {
+			$_ = $1;
+		}
+		if ($_ =~ /^<\@>\$(\w+)\$/) {
+			$in{$1} = 1;
+			$h{$1} = [];
+			next;
+		}
+		if ($_ =~ /^<\@>\$(\w+):END\$/i) {
+			delete $in{$1};
+			next;
+		}
+		foreach my $k (keys(%in)) {
+			push(@{ $h{$k} }, $_);
+		}
+	}
+	return \%h;
+}
+
+#------------------------------------------------------------------------------
+# ●モジュールHTMLの生成
+#------------------------------------------------------------------------------
+sub load_module_html {
+	my $self = shift;
+	my $name = shift;
+	my $target = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	# generatorの有無はファイルの存在で確認
+	my $dir = $self->plugin_name_dir( $name );
+	my $pm  = $ROBJ->get_filepath( $dir . 'html_generator.pm' );
+	if (! -r $pm) {
+		my $h = $self->load_plugin_info($name) || {};
+		return $h->{"module${target}_html"} || $h->{"module_html"};
+	}
+
+	my $func = $self->load_plugin_function( $pm, $pm );
+	if (ref($func) ne 'CODE') {
+		return ;
+	}
+
+	my $ret;
+	eval {
+		$ret = &$func($self, $name, $target);
+	};
+	if ($@ || !defined $ret) {
+		$ROBJ->error("[plugin:%s] Module's html generate failed : %s", $name, $@);
+		return '';
+	}
+	return $ret;
+}
+
+#------------------------------------------------------------------------------
+# ●モジュールHTMLのロードと実行
+#------------------------------------------------------------------------------
+sub load_and_call_module_html {
+	my $self = shift;
+	my $name = shift;
+	my $ROBJ = $self->{ROBJ};
+	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	# モジュールHTMLのロードが許可されているか？
+	my $info = $self->load_plugin_info($name);
+	if (!$info->{load_module_html_in_edit}) { return; }
+
+	# インストールファイルがあるときはinstallされているか確認
+	if ($info->{files}) {
+		my $pd = $self->load_plugins_dat();
+		if (!$pd->{$name}) { return; }
+	}
+
+	my $html = $self->load_module_html( $name );
+	if (!$html) { return; }
+
+	# ファイル展開して呼び出す
+	my $file = "$self->{blog_dir}_call_module_html-$name.tmp";
+	$ROBJ->fwrite_lines( $file, $html );
+	my $ret = $ROBJ->_call( $file );
+	$ROBJ->file_delete( $file );
+	return $ret;
+}
+
+#------------------------------------------------------------------------------
+# ●デザインの初期化
+#------------------------------------------------------------------------------
+sub reset_design {
+	my $self = shift;
+	my $all  = shift;
+	my $ROBJ = $self->{ROBJ};
+	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	my %reset;
+	my $pd = $ROBJ->fread_hash_cached( $self->{blog_dir} . 'plugins.dat', {NoError => 1} );
+	foreach(keys(%$pd)) {
+		if (index($_, ':') > 0) { next; }
+		$reset{$_}=0;	# uninstall
+	}
+	my $ret = $self->save_use_modules(\%reset);
+
+	# 生成スケルトンを消す
+	$ROBJ->file_delete($self->{blog_dir} . 'skel/_header.html');
+	$ROBJ->file_delete($self->{blog_dir} . 'skel/_sidebar.html');
+	$ROBJ->file_delete($self->{blog_dir} . 'skel/_article.html');
+	$ROBJ->file_delete($self->{blog_dir} . 'skel/_main.html');
+
+	# 個別の設定もすべて消す
+	if ($all) {
+		my $blog = $self->{blog};
+		foreach(keys(%$blog)) {
+			if ($_ !~ /p:de\w_/) { next; }
+			delete $blog->{$_};
+		}
+		$self->update_blogset($blog);
 	}
 
 	return 0;
 }
 
+###############################################################################
+# ■プラグインの動的CSS処理
+###############################################################################
 #------------------------------------------------------------------------------
-# ●インポートエラー
+# ●モジュールCSSの生成
 #------------------------------------------------------------------------------
-sub import_error {
+sub generate_module_css {
 	my $self = shift;
-	my $head = shift;
-	my $msg  = shift;
+	my $name = shift;
 	my $ROBJ = $self->{ROBJ};
-	if (ref $self->{import_error} ne 'ARRAY') { $self->{import_error}=[]; }
-	$msg = $ROBJ->message_translate($msg, @_);
-	$ROBJ->tag_escape($msg);
-	$ROBJ->error("$head $msg");
+
+	my $dir = $self->plugin_name_dir( $name );
+	my $css = $ROBJ->get_filepath( $dir . "module-d.css" );
+	if (! -r $css) { return; }
+
+	# 動的生成CSSがある？
+	my $id = $self->plugin_name_id( $name );
+	return $ROBJ->chain_array( $ROBJ->_call($css, $name, $id) );
+}
+
+#------------------------------------------------------------------------------
+# ●モジュールCSSの保存
+#------------------------------------------------------------------------------
+sub generate_and_save_module_css {
+	my $self = shift;
+	my $name = shift;
+	my $css  = $self->generate_module_css( $name );
+	return $self->save_dynamic_css($name, $css);
+}
+
+# 削除
+sub delete_module_css {
+	&delete_dynamic_css(@_);
 }
 
 ###############################################################################
-# ■データエクスポート
+# ■テーマ選択
 ###############################################################################
 #------------------------------------------------------------------------------
-# ●エクスポート実行
+# ●テンプレートリストのロード
 #------------------------------------------------------------------------------
-sub art_export {
+sub load_templates {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	# テンプレートdir
+	my $theme_dir  = $self->{theme_dir};
+	my $dirs = $ROBJ->search_files($theme_dir, { dir_only => 1 });
+	$dirs = [ grep(/^[A-Za-z]/, @$dirs) ];
+
+	# satsuki で始まるテンプレートを優先的に表示
+	$dirs  = [ sort {( (!index($b,'satsuki')) <=> (!index($a,'satsuki')) ) || $a cmp $b} @$dirs ];
+	return $dirs;
+}
+
+#------------------------------------------------------------------------------
+# ●テーマリストの作成
+#------------------------------------------------------------------------------
+sub load_themes {
+	my ($self, $template) = @_;
+	my $ROBJ = $self->{ROBJ};
+
+	# テンプレートdir選択
+	$template =~ s/[^\w\-]//g;
+	if ($template eq '') { return; }
+	my $dir = $ROBJ->get_filepath( "$self->{theme_dir}$template/" );
+
+	# テーマリストの取得
+	my @files = sort map { chop($_);$_ } @{ $ROBJ->search_files($dir, { dir_only => 1 }) };
+	my @ary;
+	foreach(@files) {
+		if (substr($_,0,1) eq '_') { next; }	# 先頭 _ を無視
+		my %h;
+		$h{name}   = $_;
+		$h{readme} = (-r "$dir$_/README" || -r "$dir$_/README.txt") ? 1 : 0;
+		push(@ary, \%h);
+	}
+	return \@ary;
+}
+
+#------------------------------------------------------------------------------
+# ●テーマリストの作成
+#------------------------------------------------------------------------------
+sub save_theme {
 	my ($self, $form) = @_;
+	my $blog = $self->{blog};
 	my $ROBJ = $self->{ROBJ};
-	my $DB   = $self->{DB};
-	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
-	my $blogid = $self->{blogid};
+	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	# 出力形式確認
-	my $type  = $form->{type};
-	$type =~ s/\W//g;
-	if ($type eq '') {
-		$ROBJ->message('Please select export type');
-		return 11;
+	my $theme = $form->{theme};
+	if ($theme !~ m|^[\w-]+/[\w-]+/?$|) {
+		return 1;
 	}
 
-	# オプション
-	my %opt;
-	my $class = $form->{class};
+	# テーマ保存
+	$self->update_blogset($blog, 'theme', $theme);
+	$self->update_blogset($blog, 'theme_custom', '');
+	$self->update_blogset($blog, 'sysmode_notheme', $form->{sysmode_notheme_flg});
+
+	# テーマカスタマイズ情報の保存
+	if (!$form->{custom}) { return 0; }
+	my ($c,$css) = $self->load_theme_colors( $theme );
+	if (!$css) { return 0; }
+	my $file = $self->get_theme_custom_css($theme);
+	if (!$file) { return 0; }
+
+	my %col;
+	my $diff;
 	foreach(keys(%$form)) {
-		my $x = index($_, ':');
-		if ($x<0) { $opt{$_}=$form->{$_}; next; }
-		if (substr($_,0,$x) ne $class) { next; }
-		$opt{ substr($_,$x+1) } = $form->{$_};
+		if ($_ !~ /^c_(\w+)/) { next; }
+		my $name = $1;
+		my $val = $form->{$_};
+		if ($val !~ /(#[0-9A-Fa-f]{6})/) { next; }
+		$col{$name} = $1;
+		if ($c->{$name} ne $col{$name}) { $diff=1; }
+	}
+	if (!$diff) {	# カスタマイズしてない
+		$ROBJ->file_delete( $file );
+		return 0;
 	}
 
-	#-------------------------------------------------------------
-	# 取得する記事の条件生成
-	#-------------------------------------------------------------
-	my %q;
-	my $filename = $self->{blogid};
-	if ($opt{enable_only}) {
-		$q{flag} = {enable => 1};
+	# CSS書き換え
+	my @ary = split(/\n/, $css);
+	foreach(@ary) {
+		$_ .= "\n";
+		if ($_ !~ /\$c=(\w+)/) { next; }
+		my $name = $1;
+		$_ =~ s/#[0-9A-Fa-f]+/$col{$name}/g;
 	}
-	{
-		#------------------------------------
-		# 日付指定
-		#------------------------------------
-		my $year = $opt{year};
-		if ($year =~ /^\d\d\d\d$/) {
-			$q{min} = {yyyymmdd => "${year}0000"};
-			$q{max} = {yyyymmdd => "${year}1231"};
-			$filename .= "-$year";
-		} elsif ($year =~ m|^(\d\d\d\d)[/-]?(\d?\d)$|) {	# YYYYMM
-			my $mon = sprintf("%02d", $2);
-			$q{min} = {yyyymmdd => "$1${mon}00"};
-			$q{max} = {yyyymmdd => "$1${mon}31"};
-			$filename .= "-$1$mon";
-		} elsif ($year =~ m|^(\d\d\d\d)(\d\d)(\d\d)$|
-		      || $year =~ m|^(\d\d\d\d)[/-](\d?\d)[/-](\d?\d)$|) {	# YYYYMMDD
-			my $yyyymmdd = sprintf("$1%02d%02d", $2, $3);
-			$q{match}->{yyyymmdd} = $yyyymmdd;
-			$filename .= "-$yyyymmdd";
-		}
-	}
-	if ($opt{tag} ne '') {
-		#------------------------------------
-		# タグ指定
-		#------------------------------------
-		my $taglist = $self->load_tag_cache($blogid);
-		my $name2pkey = $taglist->[0];
-		my $tag = $taglist->[ $name2pkey->{ $opt{tag} } ];
+	$ROBJ->fwrite_lines($file, \@ary);
 
-		# そのタグを持つ記事一覧
-		my $arts = $tag->{arts};
-		$q{match}->{pkey} = $arts ? $arts : -1;
-	}
-
-	# コンテンツタイプ
-	if ($opt{article_type} ne '*all*') {
-		$q{match}->{ctype} = $opt{article_type};
-	}
-
-	#-------------------------------------------------------------
-	# 記事の取得
-	#-------------------------------------------------------------
-	$q{sort} = ['yyyymmdd', 'tm'];	# ソート
-
-	my $logs = $DB->select("${blogid}_art", \%q);
-	if ($#$logs == -1) {
-		$ROBJ->message('Not exists article');
-		return 12;
-	}
-
-	#-------------------------------------------------------------
-	# エクスポートの実行
-	#-------------------------------------------------------------
-	$opt{base_filename} = $filename;
-	$opt{aobj} = $self;
-	$ROBJ->call( $self->{skel_dir} . "_export/$type", $logs, \%opt );
-
-	return $ROBJ->{export_return};
+	# カスタマイズ情報の保存
+	$self->update_blogset($blog, 'theme_custom', $file);
+	return 0;
 }
 
 #------------------------------------------------------------------------------
-# ●textの分割・加工処理（エクスポート処理から呼ばれる）
+# ●テーマの色カスタム情報ロード
 #------------------------------------------------------------------------------
-sub text_split_for_mt {
+sub load_theme_info {
+	my ($self, $theme, $rec) = @_;
+	my $ROBJ = $self->{ROBJ};
+	if ($theme !~ m|^([\w-]+)/([\w-]+)/?$|) {
+		return 1;
+	}
+	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	# テーマ色情報のロード
+	my ($col, $css) = $self->load_theme_colors($theme);
+	if (!$css) { return $col; }
+
+	# カスタマイズ情報のロード
+	my $file = $ROBJ->get_filepath( $self->get_theme_custom_css($theme) );
+	if (-r $file) {
+		my $lines = $ROBJ->fread_lines( $file );
+		foreach(@$lines) {
+			if ($_ !~ /(#[0-9A-Fa-f]+).*\$c=(\w+)/) { next; }
+			$col->{"$2-cst"} = $1;
+		}
+	}
+	return ($col, $css);
+}
+
+#------------------------------------------------------------------------------
+# ●テーマの色情報ロード
+#------------------------------------------------------------------------------
+sub load_theme_colors {
+	my ($self, $theme, $rec) = @_;
+	my $ROBJ = $self->{ROBJ};
+	if ($theme !~ m|^([\w-]+)/([\w-]+)/?$|) {
+		return 1;
+	}
+	my $template = $1;
+	$theme = $2;
+
+	my $lines = $ROBJ->fread_lines( "$self->{theme_dir}$template/$theme/$theme.css" );
+	my %col;
+	my $sel  = '';
+	my $attr = '';
+	my $in_com;
+	my $in_attr;
+	my @ary;
+	foreach(@$lines) {
+		$_ =~ s/\r\n?/\n/;
+		if ($in_com) {	# コメント中
+			if ($_ !~ m|\*/(.*)|) { next; }
+			$_ = $1;
+			$in_com = 0;
+		}
+		if (!$rec && $_ =~ /\$color_info\s*=\s*([\w\-]+)/) {	# /* $color_info = satsuki2 */
+			# 色設定情報は、他ファイル参照
+			return $self->load_theme_colors("$template/$1", 1);
+		}
+		if ($_ =~ /^\s*\@/) { next; }
+		if ($_ =~ /\$c=([\w]+)/) {	# /* $c=main */ 等
+			my $name = $1;
+			$_ =~ s/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])([^0-9A-Fa-f])/#$1$1$2$2$3$3$4/g;
+			if ($name =~ /^_/) {
+				# 色は持たないけども属性値として保存する
+				$_ =~ s|\s*/\*.*?\*/[\t ]*||g;
+
+			} elsif ($_ =~ /(#[0-9A-Fa-f]+)/) {
+				$col{$name} = $1;
+
+				# border: 1px solid #ffffff; → border-color:
+				if ($_ =~ /^(.*border[\w\-]*?)(?:-color)*\s*:[^\}]*?(}?\s*\/\*.*)/i) {
+					$_ = $1 . "-color:\t" . $col{$name} . ";$2\n";
+				}
+			}
+			if (!$in_attr && $_ =~ /{.*}/) {
+				push(@ary, $sel, $_);
+				$sel='';
+				next;
+			}
+			$attr .= $_;
+			next;
+		}
+		# その行だけのコメントを除去
+		$_ =~ s|\s*/\*.*?\*/[\t ]*||g;
+		if ($_ =~ m|(.*?)/\*|) {	# コメント開始
+			$_ = $1;
+			$in_com = 1;
+		}
+		if ($_ =~ /^\s*\n?$/) { next; }	# 空行
+		if ($_ =~ /}/) {
+			if ($attr ne '') {
+				push(@ary, $sel, $attr, $_);
+			}
+			$sel = $attr = '';
+			$in_attr=0;
+			next;
+		}
+		if ($in_attr) { next; }		# 一般属性値は無視
+		if ($_ =~ /{/ && $_ !~ /{.*}/) {
+			$in_attr=1;
+		}
+		# セレクタ
+		$sel .= $_;
+	}
+	return (\%col, join('',@ary));
+}
+
+#------------------------------------------------------------------------------
+# ●テーマカスタムファイルの取得
+#------------------------------------------------------------------------------
+sub get_theme_custom_css {
+	my ($self, $theme) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $dir = $self->{blogpub_dir} . 'css/';
+	$ROBJ->mkdir($dir);
+	$theme =~ s|/|.|g;
+	return $dir . $theme . '.css';
+}
+
+###############################################################################
+# ■デザイン情報の管理
+###############################################################################
+#------------------------------------------------------------------------------
+# ●デザイン情報のロード
+#------------------------------------------------------------------------------
+sub load_design_info {
 	my $self = shift;
-	my $h    = shift;
-
-	my $parser = $h->{parser};
-	if ($parser =~ /^simple/) {
-		my $text = $h->{_text};
-		my $append;
-		if ($text =~ /^(.*?)\n====*\n(.*)/s) {
-			$text   = $1;
-			$append = $2;
-		}
-		$h->{body}    = $text;
-		$h->{ex_body} = $append;
-		$h->{convert_breaks} = 0;
-		if ($parser eq 'simple_p' || $parser eq 'simple_br') {
-			$h->{convert_breaks} = 1;
-		}
-	} else {
-		my $text = $h->{text};
-
-		# 記事内リンクの処理
-		if ($parser =~ /^default/) {
-			$self->post_process_link_key( $h );
-			my $thisurl = $self->{myself2} . $h->{elink_key};
-			$text =~ s!(<a\b[^>]*?href=)"([^"]*?)#!
-					if (index($2, $thisurl)==0) {
-						"$1\"#";	# PATH除去
-					} else {
-						"$1\"$2#";	# そのまま
-					}
-				!eg;
-		}
-
-		# 続きを読む、処理
-		my $append;
-		if ($text =~ /^(.*?)<!--%SeeMore%-->(.*)$/s) {	# Seemore
-			$text   = $1;
-			$append = $2;
-
-			if ($text =~ m|^.*<section>(.*)$|si && index($1, '</section>')<=0) {
-				$text .= "\n</section>";
-			}
-			if ($append =~ m|^(.*?)</section>.*$|si && index($1, '<section>')<=0) {
-				$append = "<section>\n$append";
-			}
-		}
-		$h->{body}    = $text;
-		$h->{ex_body} = $append;
-		$h->{convert_breaks} = 0;
-	}
-	
-	# タグの分割
-	$h->{tags_ary} = [ split(',', $h->{tags}) ];
-	return $h;
+	my $ROBJ = $self->{ROBJ};
+	return $ROBJ->fread_hash_cached( $self->{blog_dir} . 'design.dat', {NoError => 1} );
 }
+
+#------------------------------------------------------------------------------
+# ●デザイン情報の保存
+#------------------------------------------------------------------------------
+sub save_design_info {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	return $ROBJ->fwrite_hash( $self->{blog_dir} . 'design.dat', @_ );
+}
+
+#------------------------------------------------------------------------------
+# ●デザイン情報の更新
+#------------------------------------------------------------------------------
+sub update_design_info {
+	my $self = shift;
+	my $h = $self->load_design_info();
+	$self->update_hash( $h, @_ );
+	return $self->save_design_info($h);
+}
+
 
 1;
