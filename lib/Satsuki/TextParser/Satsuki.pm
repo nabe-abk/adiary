@@ -48,6 +48,7 @@ sub new {
 	$self->{br_mode} = 1;
 	$self->{ls_mode} = 1;
 	$self->{chain_line} = 1;
+	$self->{section_hnum} =  3;	# section level
 
 	# シンタックスハイライト関連
 	$self->{load_SyntaxHighlighter} = '<module name="load_SyntaxHighlight">';
@@ -385,7 +386,6 @@ sub text_parser {
 	$self->{vars}         ||= {};	# タグ置換用データ。内部自由変数
 	$self->{section_count}     = int($opt->{section_count});	# section counter
 	$self->{subsection_count}  = int($opt->{subsection_count});	# sub-section counter
-	$self->{section_hnum}      = int($opt->{section_hnum}) || 3;	# section level
 
 	# ユニークリンク名の生成
 	$self->init_unique_link_name();
@@ -418,6 +418,7 @@ sub text_parser {
 
 	# 内部変数の復元
 	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
+	$self->{vars_}= $self->{vars};
 	$self->{vars} = \%backup_vars;
 	$self->restore_unique_link_name();
 
@@ -740,11 +741,14 @@ sub blocks_and_section {
 	$self->{table_rows}       = undef;	# table buffer
 
 	# 先頭が見出しでない場合、section を開始する
-	my $top = $lines->[0];
-	if (ref($top)) { shift(@$lines); $top=$lines->[0]; }	# 行頭改行無視
-	if (@$lines && substr($top, 0, 1) ne '*' || substr($top, 0, 2) eq '**') {
-		$self->{in_section} = 1;
-		push(@ary, "<section>\n");
+	if (ref($lines->[0])) { shift(@$lines); }	# 行頭改行無視
+	foreach(@$lines) {
+		if ($_ =~ /^::/ || $_ eq "" || ref($_)) { next; }
+		if (substr($_, 0, 1) ne '*' || substr($_, 0, 2) eq '**') {
+			$self->{in_section} = 1;
+			push(@ary, "<section>\n");
+		}
+		last;
 	}
 
 	my $in_table;

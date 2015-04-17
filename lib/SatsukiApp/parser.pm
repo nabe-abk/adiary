@@ -5,7 +5,7 @@ use strict;
 # パーサー呼び出し
 #					(C)2015 nabe@abk / ABK project
 #-------------------------------------------------------------------------------
-package SatsukiApp::parse;
+package SatsukiApp::parser;
 use Satsuki::AutoLoader;
 #-------------------------------------------------------------------------------
 our $VERSION = '1.00';
@@ -47,6 +47,7 @@ sub _main {
 		$ROBJ->message("Load parser '%s' failed", $parser);
 		return ;
 	}
+	$parser->{section_hnum} = $self->{section_hnum};
 
 	my $argv = $ROBJ->{ARGV};
 	if (!@$argv) {
@@ -54,7 +55,7 @@ sub _main {
 		return ;
 	}
 
-	my $frame = $self->{frame_skel};
+	my $frame = $self->{format_skel};
 	foreach(@$argv) {
 		my $file = $_ . '.html';
 		if ($_ =~ /^(.*?)\.\w+$/) {
@@ -66,12 +67,17 @@ sub _main {
 		# パーサーで処理
 		my $text = $ROBJ->fread_lines( $_ );
 		map { s/\r\n|\r/\n/g } @$text;
+		$text = join('', @$text);
 
 		# preprocessoer
 		if ($parser->{use_preprocessor} && $text ne '') {
 			$parser->preprocessor( $text );
 		}
+
 		my ($text, $text_s) = $parser->text_parser( $text );
+
+		# パーサー内変数を埋め込む
+		$ROBJ->{vars} = $parser->{vars_} || {};
 
 		# フレームに埋め込む
 		my $out = $ROBJ->call( $frame, $text );

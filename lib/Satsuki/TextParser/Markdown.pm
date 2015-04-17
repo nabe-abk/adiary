@@ -20,7 +20,7 @@ sub new {
 	my $self = bless({}, shift);
 	$self->{ROBJ} = shift;
 
-	$self->{h_start} = 3;		# H3から使用する
+	$self->{section_hnum} = 3;	# H3から使用する
 	$self->{tab_width} = 4;		# タブの幅
 
 	$self->{lf_patch} = 1;		# 日本語のpタグ中の改行を消す
@@ -207,7 +207,7 @@ sub parse_special_block {
 		if ($x =~ /^(#+)\s*(.*?)\s*\#*$/) {
 			if (!$newblock) { push(@ary,''); }
 			my $level = length($1);
-			my $n = $self->{h_start} + $level - 1;
+			my $n = $self->{section_hnum} + $level - 1;
 			if ($n>6) { $n=6; }
 			if ($level == 1 && $sectioning) {
 				push(@ary, "</section>\x02");
@@ -263,7 +263,7 @@ sub parse_special_block {
 		# [M] 2個以上の連なりで文末にスペース以外の文字がない
 		if ($x =~ /^===*\s*$/ && !$newblock) {
 			my $prev = pop(@ary);
-			my $n = $self->{h_start};
+			my $n = $self->{section_hnum};
 			push(@ary, '');
 			if ($sectioning) {
 				push(@ary, "</section>\x02");
@@ -280,7 +280,7 @@ sub parse_special_block {
 		# [M] 2個以上の連なりで文末にスペース以外の文字がない
 		if ($x =~ /^---*\s*$/ && !$newblock) {
 			my $prev = pop(@ary);
-			my $n = $self->{h_start}+1;
+			my $n = $self->{section_hnum}+1;
 			push(@ary, '');
 			push(@ary,"<h$n>$prev</h$n>\x01");
 			push(@ary, '');
