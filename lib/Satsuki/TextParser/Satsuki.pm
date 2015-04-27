@@ -24,7 +24,9 @@ my $INFO_END_MARK   = '#---end';
 my %allow_override = (asid => 1, chain_line => 2,
  timestamp_date => 1, timestamp_time => 1, 
  anchor_basename =>1, footnote_basename => 1, unique_linkname => 1,
- section_count => 2, subsection_count => 2, section_anchor => 1, subsection_anchor => 1,
+ toc_anchor => 2, toc_level => 2,
+ section_count => 2, subsection_count => 2, subsubsection_count => 2,
+ section_anchor => 1, subsection_anchor => 1, subsubsection_anchor => 1,
  http_target  => 1, http_class  => 1, http_rel  => 1,
  image_target => 1, image_class => 1, image_rel => 1,
  autolink => 2, br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
@@ -48,7 +50,8 @@ sub new {
 	$self->{br_mode} = 1;
 	$self->{ls_mode} = 1;
 	$self->{chain_line} = 1;
-	$self->{section_hnum} =  3;	# section level
+	$self->{section_hnum} = 3;	# section level
+	$self->{toc_level}    = 1;	# toc は level 0-1 を出力
 
 	# シンタックスハイライト関連
 	$self->{load_SyntaxHighlighter} = '<module name="load_SyntaxHighlight">';
@@ -381,7 +384,8 @@ sub text_parser {
 
 	# 初期設定
 	$self->{sections}       = [];	# 空のarray
-	$self->{subsections}    = [];	# セクション番号ごとにデータ格納
+	$self->{subsections}    = [];
+	$self->{subsubsections} = [];
 	$self->{options}        = {};	# 空のhash
 	$self->{vars}         ||= {};	# タグ置換用データ。内部自由変数
 	$self->{section_count}     = int($opt->{section_count});	# section counter
@@ -513,7 +517,7 @@ sub block_parser {
 			# $line =~ tr/\x01/&/;	# \x01 を & に戻す
 			$line =~ s/\x01#(\d+);/chr($1)/eg;	# { } を戻す
 			# マクロ展開
-			$line =~ s#\[\*toc(?:|:(.*?))\]#<toc>$1</toc>\n#g;
+			$line =~ s#\[\*toc(\d*)(?:|:(.*?))\]#<toc>level=$1:$2</toc>\n#g;
 			$line =~ s/\[\*(.*?)\]/ $macros->{$1} && unshift(@$lines, @{ $macros->{$1} }), ''/eg;
 		}
 		#-------------------------------------------------
@@ -718,6 +722,7 @@ my %marks;
 $marks{'*'}     = \&section;
 $marks{'**'}    = \&subsection;
 $marks{'***'}   = \&subsubsection;
+$marks{'****'}  = \&subsubsubsection;
 $marks{'|'}     = \&table;
 $marks{'='}     = \&dummy;
 $marks{'=='}    = \&dummy;
@@ -887,17 +892,19 @@ sub blocks_and_section {
 	}
 
 	# セクションタイトルのタグの処理
-	foreach(@{ $self->{sections} }) {
-		$_->{title} = $self->parse_tag( $_->{title} );	# タグ処理
-		$_->{title} =~ s/\(\(.*?\)\)//g;		# 注釈の削除
-		my $subs = $self->{subsections}->[ $_->{section_count} ];
-		if ($subs) {
-			foreach(@$subs) {
-				$_->{title} = $self->parse_tag( $_->{title} );	# タグ処理
-				$_->{title} =~ s/\(\(.*?\)\)//g;		# 注釈の削除
-			}
+	my $func;
+	$func = sub {
+		my $ary = shift;
+		foreach(@$ary) {
+			$_->{title} = $self->parse_tag( $_->{title} );	# タグ処理
+			$_->{title} =~ s/\(\(.*?\)\)//g;		# 注釈の削除
+			my $subs = $_->{children};
+			if (!$subs || !@$subs) { next; }
+			&$func($subs);
 		}
-	}
+	};
+	&$func($self->{sections});
+
 	return \@ary;
 }
 
@@ -996,13 +1003,14 @@ sub section {
 	$self->{in_section} = 1;
 
 	# セクションカウンタの処理
-	my $sec_count = $self->{section_count} += 1;
+	my $sec_c = $self->{section_count} += 1;
 	$self->{subsection_count} = 0;
+	$self->{subsubsection_count} = 0;
 
 	# 見出しの処理
 	$line = substr($line, 1);
 	my $anchor =  $self->{section_anchor};
-	my $name   = ($self->{anchor_basename} || "$self->{unique_linkname}p") . $sec_count;
+	my $name   = ($self->{anchor_basename} || "$self->{unique_linkname}p") . $sec_c;
 	if ($line =~ /^([\w\-\.\d]+)(:[^\*]+)?\*(.*)/s) {
 		$name = $1;
 		$line = $3;
@@ -1020,10 +1028,17 @@ sub section {
 		}
 	}
 
-	$anchor =~ s/%n/$sec_count/g;
+	$anchor =~ s/%n/$sec_c/g;
 	$self->{now_anchor_name} = $name;
+	$self->{subsections} = [];
 	# セクション情報の保存
-	push(@{ $self->{sections} }, {name => $name, title => $line, anchor => $anchor, section_count => $sec_count});
+	push(@{ $self->{sections} }, {
+		name => $name,
+		title => $line,
+		anchor => $anchor,
+		section_count => $sec_c,
+		children => $self->{subsections}
+	});
 
 	my $hnum = $self->{section_hnum};
 	push(@ary, "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\"><span class=\"sanchor\">$anchor</span>$line</a></h$hnum>\n");
@@ -1035,18 +1050,19 @@ sub section {
 #--------------------------------------------------------------------
 sub subsection {
 	my ($self, $line) = @_;
-	$line =~ /^(\*+)/;
-	my $level = length($1) +2;
-	$line = substr($line, $level-2);
+	$line = substr($line, 2);
 
 	# セクションカウント
-	my $sec_count    = $self->{section_count};
-	my $subsec_count = $self->{subsection_count} += 1;
+	my $sec_c    = $self->{section_count};
+	my $subsec_c = $self->{subsection_count} += 1;
+	$self->{subsubsection_count} = 0;
+
 	my $anchor = $self->{subsection_anchor};
 	my $name   = $self->{now_anchor_name};
-	$name .= '.' . $subsec_count;
-	$anchor =~ s/%n/$sec_count/g;
-	$anchor =~ s/%s/$subsec_count/g;
+	$name .= '.' . $subsec_c;
+	$self->{now_subanchor_name} = $name;
+	$anchor =~ s/%n/$sec_c/g;
+	$anchor =~ s/%s/$subsec_c/g;
 	if ($line =~ /^([\w\-\.\d]+)(:[^\*]+)?\*(.*)/s) {
 		$name = $1;
 		$line = $3;
@@ -1064,20 +1080,60 @@ sub subsection {
 		}
 	}
 	# セクション情報の保存
-	my $subsections = $self->{subsections}->[$sec_count] ||= [];
-	push(@$subsections, {name => $name, title => $line, anchor => $anchor, section_count => $sec_count, subsection_count => $subsec_count});
+	$self->{subsubsections} = [];
+	push(@{$self->{subsections}}, {
+		name => $name,
+		title => $line,
+		anchor => $anchor,
+		section_count => $sec_c,
+		subsection_count => $subsec_c,
+		children => $self->{subsubsections}
+	});
 
 	my $hnum = $self->{section_hnum} +1;
 	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\"><span class=\"sanchor\">$anchor</span>$line</a></h$hnum>\n";
 }
 
 #--------------------------------------------------------------------
-# ***subsubsection_title
+# ***subsubsection
 #--------------------------------------------------------------------
 sub subsubsection {
 	my ($self, $line) = @_;
+	$line = substr($line, 3);
+
+	# セクションカウント
+	my $sec_c     = $self->{section_count};
+	my $subsec_c  = $self->{subsection_count};
+	my $sub2sec_c = $self->{subsubsection_count} += 1;
+
+	my $anchor = $self->{subsubsection_anchor};
+	$anchor =~ s/%n/$sec_c/g;
+	$anchor =~ s/%s/$subsec_c/g;
+	$anchor =~ s/%t/$sub2sec_c/g;
+	my $name = ($self->{now_subanchor_name} || "$self->{now_anchor_name}.$subsec_c")  . ".$sub2sec_c";
+
+	# セクション情報の保存
+	push(@{$self->{subsubsections}}, {
+		name => $name,
+		title => $line,
+		anchor => $anchor,
+		section_count => $sec_c,
+		subsection_count => $subsec_c,
+		sub2section_count => $sub2sec_c
+	});
+
+	my $hnum = $self->{section_hnum} +2;
+	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\"><span class=\"sanchor\">$anchor</span>$line</a></h$hnum>\n";
+}
+
+#--------------------------------------------------------------------
+# ***subsubsection
+#--------------------------------------------------------------------
+sub subsubsubsection {
+	my ($self, $line) = @_;
 	$line =~ /^\*(\*+)(.*)/s;
 	my $level = length($1) + $self->{section_hnum};
+	if (6<$level) { $level=6; }
 	return "<h$level>$2</h$level>\n";
 }
 
@@ -1679,35 +1735,51 @@ sub post_process {
 	while ($$r_data =~ m|<toc>(.*?)</toc>|) {
 		my %h;
 		my $thisurl = $self->{thisurl};
-		map { $h{$_}=1; } split(':', $1);
-		if ($self->{section_anchor} =~ /%n/ && $self->{subsection_anchor} =~ /%s/) {
-			$h{anchor} = 1;
-		}
-		my $class="toc";
-		my $sec_format = sub { "<li><a href=\"$thisurl#$_->{name}\">$_->{title}</a>" };
-		if ($h{anchor}) {
-			$sec_format = sub { "<li><span class=\"sanchor\">$_->{anchor}</span><a href=\"$thisurl#$_->{name}\">$_->{title}</a>" };
-		}
-		if ($h{none} || $h{anchor}) { $class .= " none"; }
-		# 項目をリスト作成
-		my @ary;
-		push(@ary, "<ul class=\"$class\">\n");
-		foreach(@{ $self->{sections} }) {
-			my $subs = $self->{subsections}->[ $_->{section_count} ];
-			if ($subs && @$subs) {
-				push(@ary, "\t" . &$sec_format() . "\n");
-				push(@ary, "\t<ul class=\"$class\">\n");
-				foreach(@$subs) {
-					push(@ary, "\t\t" . &$sec_format() . "\n");
-				}
-				push(@ary, "\t</ul></li>\n");
-			} else {
-				push(@ary, "\t" . &$sec_format() . "\n");
+		foreach(split(':', $1)) {
+			if ($_ =~ /^(\w+)=(.*)$/) {
+				$h{$1} = $2;
+				next;
 			}
+			$h{$_}=1;
 		}
-		push(@ary, "</ul>\n");
-		my $str = join('', @ary);
-		$$r_data =~ s|<toc>(.*?)</toc>\n?|$str|;
+		$h{anchor} ||= $self->{toc_anchor};
+
+		my $class="toc";
+		if ($h{none} || $h{anchor}) { $class .= " none"; }
+		if ($h{class} ne '') { $class .= " $h{class}"; }
+
+		my $sec_format = sub { "<a href=\"$thisurl#$_->{name}\">$_->{title}</a>" };
+		if ($h{anchor}) {
+			$sec_format = sub { "<span class=\"sanchor\">$_->{anchor}</span><a href=\"$thisurl#$_->{name}\">$_->{title}</a>" };
+		}
+
+		# 項目をリスト作成
+		my @out;
+		my $level = ($h{level} eq '') ? $self->{toc_level} : int($h{level});
+		my $func;
+		$func = sub {
+			my $out = shift;
+			my $ary = shift;
+			my $t   = shift;
+			if (length($t) > $level) { return; }
+			$t .= "\t";
+
+			push(@$out, "<ul class=\"$class\">\n");
+			foreach(@$ary) {
+				my $subs = $_->{children};
+				if (!$subs || !@$subs) {
+					push(@$out, "$t<li>" . &$sec_format() . "</li>\n");
+					next;
+				}
+				push(@$out, "$t<li>" . &$sec_format() . "\n");
+				&$func($out, $subs, $t);
+				push(@$out, "</li>\n");
+			}
+			push(@$out, "</ul>");
+		};
+		&$func(\@out, $self->{sections});
+		my $str = join('', @out);
+		$$r_data =~ s|<toc>(.*?)</toc>|$str|;
 	}
 }
 

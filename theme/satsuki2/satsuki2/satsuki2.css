@@ -368,7 +368,7 @@ div.body h3 {
 	background-color:	#e8e8ff;		/* $c=h3bg */
 
 	border-radius:		0 6px 6px 0;
-	box-shadow:		4px 4px 4px 4px rgba(0,0,0, 0.4);
+	box-shadow:		4px 4px 2px 2px rgba(0,0,0, 0.4);
 }
 div.body h3 span.timestamp {
 	font-size:		100%;

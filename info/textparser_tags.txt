@@ -2,7 +2,7 @@
 ###############################################################################
 # Satsuki/TextParser/Satsuki.pm用 タグ定義ファイル
 ###############################################################################
-# Last-Update : 2013/06/06
+# Last-Update : 2015/04/28
 #
 #（注意）
 #　・先頭 '#' はコメント。空行は無視。
@@ -19,8 +19,21 @@ load textparser_site_tags.txt
 # マクロ設定（空行で一区切り）
 #------------------------------------------------------------------------------
 *section_number
+::toc_anchor=1
 ::section_anchor=%n
 ::subsection_anchor=%n.%s
+
+*section_number0
+::toc_anchor=1
+::toc_level=0
+::section_anchor=%n
+
+*section_number2
+::toc_anchor=1
+::toc_level=2
+::section_anchor=%n
+::subsection_anchor=%n.%s
+::subsubsection_anchor=%n.%s.%t
 
 #------------------------------------------------------------------------------
 # http プラグイン

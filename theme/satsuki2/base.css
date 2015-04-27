@@ -55,7 +55,7 @@ header {
 ●記法関連
 ---------------------------------------------------------------------*/
 /* セクションアンカー */
-h3 span.sanchor, h4 span.sanchor {
+span.sanchor {
 	margin-right:	0.3em;
 }
 
