@@ -1615,8 +1615,9 @@ sub notice {
 sub _message {
 	my $self = shift;
 	my $class= shift;
-	my $msg  = $self->message_translate(@_);
+	if ($self->{Message_stop}) { return []; }
 
+	my $msg  = $self->message_translate(@_);
 	my $ary = $self->{Message};
 	$self->tag_escape($class,$msg);
 	push(@$ary, "<div class=\"$class\">$msg</div>");

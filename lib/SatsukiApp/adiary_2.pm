@@ -1408,6 +1408,12 @@ sub regist_comment {
 	$com{a_elink_key}= $art->{link_key};
 	$self->link_key_encode( $com{a_elink_key} );
 
+	# save_pkey
+	if ($opt->{save_pkey}) {
+		my $pkey = int($form->{pkey});
+		if ($pkey) { $com{pkey} = $pkey; }
+	}
+
 	my $com_pkey = $DB->insert("${blogid}_com", \%com);
 	if (!$com_pkey) {
 		$ROBJ->message('Comment post failed');

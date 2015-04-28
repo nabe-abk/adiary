@@ -589,10 +589,7 @@ sub art_import {
 	# イベント処理
 	#-------------------------------------------------------------
 	if ($opt{import_arts}) {
-		$self->call_event('IMPORT_AFTER',         $opt{a_pkeys}, $opt{c_pkeys});
-		$self->call_event('ARTICLE_STATE_CHANGE', $opt{a_pkeys}, $opt{c_pkeys});
-		$self->call_event('COMMENT_STATE_CHANGE', $opt{a_pkeys}, $opt{c_pkeys});
-		$self->call_event('ARTCOM_STATE_CHANGE' , $opt{a_pkeys}, $opt{c_pkeys});
+		$self->import_events( \%opt );
 	}
 
 	#-------------------------------------------------------------
@@ -608,18 +605,22 @@ sub art_import {
 	return wantarray ? ($r, $opt{import_arts}) : $r;
 }
 
+sub import_events {
+	my $self = shift;
+	my $opt  = shift;
+	$self->call_event('IMPORT_AFTER',         $opt->{a_pkeys}, $opt->{c_pkeys});
+	$self->call_event('ARTICLE_STATE_CHANGE', $opt->{a_pkeys}, $opt->{c_pkeys});
+	$self->call_event('COMMENT_STATE_CHANGE', $opt->{a_pkeys}, $opt->{c_pkeys});
+	$self->call_event('ARTCOM_STATE_CHANGE' , $opt->{a_pkeys}, $opt->{c_pkeys});
+}
+
 #------------------------------------------------------------------------------
 # ●記事を１件保存する
 #------------------------------------------------------------------------------
 # $self->save_article(\%art, \@coms, \@tbs, \%opt, $session);
 # Ret:	0:成功  0以外:失敗
 #
-#※変更点メモ
-#・カテゴリ→タグ
-#
-#
 # $art->{enable}	1:表示許可 0:表示不可
-# $art->{ctype}		コンテンツのタイプ（通常は指定不要）
 # $art->{year}		1980～（年）
 # $art->{mon}		1～12（月）
 # $art->{day}		1～31（日）
@@ -643,9 +644,6 @@ sub art_import {
 # $art->{ip}		IPアドレス
 # $art->{host}		HOST名
 # $art->{agent}		USER AGENT
-#
-# $art->{pkey}		記事ID(pkey)
-# $art->{save_pkey}	1:pkeyを保持してimportする 0:pkeyを保持しない
 #
 #
 # $c = $coms->[$n]	$n 番目の書き込み
@@ -732,9 +730,9 @@ sub save_article {
 		my $err = $self->check_date($year, $mon, $day);
 		if ($err ne '') {	# エラーあり
 			my $h = $ROBJ->time2timehash( $art->{tm} );
-			$art->year = $h->{year};
-			$art->mon  = $h->{mon};
-			$art->day  = $h->{day};
+			$art->{year} = $h->{year};
+			$art->{mon}  = $h->{mon};
+			$art->{day}  = $h->{day};
 		}
 	}
 
@@ -753,7 +751,7 @@ sub save_article {
 		$pkey = ($pkey<1 || ($pkeys->{$pkey} && $opt->{avoid_pkey_collision})) ? 0 : $pkey;
 		if ($pkey) {
 			if ($pkeys->{$pkey}) {
-				$session->msg("'%s' is duplicate : %s", 'pkey', $pkey);
+				$session && $session->msg("'%s' is duplicate : %s", 'pkey', $pkey);
 				return 10;
 			}
 			$pkeys->{$pkey}=1;
@@ -785,7 +783,7 @@ sub save_article {
 		$op{tm} = $art->{tm};
 		my $ret = $self->regist_article( $self->{blogid}, $art, \%op );
 		if (!ref($ret)) {
-			$session->msg("Save article failed(%d) : %s", $ret, $art->{title} );
+			$session && $session->msg("Save article failed(%d) : %s", $ret, $art->{title} );
 			return 11;
 		}
 		$pkey = $ret->{pkey};
@@ -805,7 +803,7 @@ sub save_article {
 	#-------------------------------------------------------------
 	# 記事保存メッセージ
 	#-------------------------------------------------------------
-	$session->msg("[import] %s", $art->{title});
+	$session && $session->msg("[import] %s", $art->{title});
 	$opt->{import_arts}++;
 
 	my %info;
@@ -844,26 +842,28 @@ sub save_article {
 		# 公開設定処理
 		$_->{enable} = $_->{enable} ne '' ? $_->{enable} : 1;
 		# コメント投稿名
-		
 		$_->{name} = $_->{name} ne '' ? $_->{name} : '(no name)';
 
 		#---------------------------------------------------
 		# オプション構成
 		#---------------------------------------------------
-		my %opt;
-		$opt{ip}    = $_->{ip};
-		$opt{host}  = $_->{host};
-		$opt{agent} = $_->{agent};
-		$opt{tm}    = $_->{tm};
-		$opt{num}   = $_->{num};
+		my %op;
+		$op{ip}    = $_->{ip};
+		$op{host}  = $_->{host};
+		$op{agent} = $_->{agent};
+		$op{tm}    = $_->{tm};
+		$op{num}   = $_->{num};
+		if ($opt->{save_com_pkey} && !$_->{_tb}) {
+			$opt->{save_pkey} = 1;
+		}
 
 		#---------------------------------------------------
 		# 投稿処理
 		#---------------------------------------------------
-		my ($r,$c_pkey) = $self->regist_comment( $blogid, $_, $art, \%opt );
+		my ($r,$c_pkey) = $self->regist_comment( $blogid, $_, $art, \%op );
 		if ($r) {
 			my $type = $_->{_tb} ? 'Trackback' : 'Comment';
-			$session->msg("$type import failed(%d) : %s", $r, "$art->{yyyymmdd} - $pkey");
+			$session && $session->msg("$type import failed(%d) : %s", $r, "$art->{yyyymmdd} - $pkey");
 		} else {
 			# 成功
 			push(@{ $opt->{c_pkeys} }, $c_pkey);

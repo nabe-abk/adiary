@@ -1,0 +1,82 @@
+<@6>
+<@local(s,err,h)>
+<$err=FormError>
+
+<!--========================================================================-->
+<@> システムモード
+<$v.system_mode("Version2からの移行")>
+
+<@> 管理者確認
+<$ifredirect(! Auth.isadmin, Myself)>
+<$ifjump_clear(! v.v2conf, '_sub/error_message', '<$v.v2conf> が設定されていません。')>
+
+<@> 設定ロード
+<$ifjump_clear(! v.v2conf, '_sub/error_message', '<$v.v2conf> が設定されていません。')>
+<$h = v.parse_adiary_conf_cgi( v.v2conf )>
+<$ifjump_clear(! h, '_sub/error_message', "<@v.v2conf> が読み込めません。")>
+
+<@> 現存ブログリスト
+<$list = v.load_blog_list()>
+<@ifcall(list && @list, '_sub/error_message', "すでにブログが存在します。重複したblog idは移行できません。")>
+
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<p><strong class="warning">移行済の場合は、adiary.conf.cgi の「&lt;$v.v2conf&gt;」設定を削除してください。</strong></p>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>conf file</th>
+		<td class="pre"><@v.v2conf></td>
+	</tr>
+	<tr>
+		<th>文字コード</th>
+		<td><select name="lang">
+			<option value="euc-jp"<@if(h.lang eq 'euc-jp', ' selected')>>euc-jp</option>
+			<option value="utf8"<@if(h.lang eq 'utf8', ' selected')>>utf8</option>
+		</select>
+	</tr>
+	<tr>
+		<th>Auth</th>
+		<td>
+			<@if(!Auth.auto, "すでにアカウント登録されているためアカウント情報は移行できません。<br>")>
+			<input type="hidden" name="conv_users" value="<@Auth.auto>">
+			<input class="mono w400" type="text" name="auth_dir" value="<@esc(h.dir . h.auth_dir)>"<@if(!Auth.auto, ' disabled')>>
+		</td>
+	</tr>
+	<tr>
+		<th>DB</th>
+		<td><input class="mono w400" type="text" name="db" value="<@esc(h.db)>"></td>
+	</tr>
+	<tr>
+		<th>ブロク設定dir</th>
+		<td><input class="mono w400" type="text" name="setting_dir" value="<@esc(h.setting_dir)>"></td>
+	</tr>
+	<tr>
+		<th>ユーザータグdir</th>
+		<td><input class="mono w400" type="text" name="usertag_dir" value="<@esc(h.usertag_dir)>"></td>
+	</tr>
+	<tr>
+		<th>ブログ画像dir</th>
+		<td><input class="mono w400" type="text" name="image_dir" value="<@esc(h.image_dir)>"></td>
+	</tr>
+	<tr>
+		<th>トラックバック<span class="help" data-help="現在のadiaryはトラックバック機能を持たないため標準ではトラックバックは無視されます。">?</span></th>
+		<td><input type="checkbox" name="import_tb" value="1"><label>トラックバックをコメントとして取り込む</label></td>
+	</tr>
+	</tbody>
+	</table>
+
+	<input type=submit name="submit" value="移行処理を行う"><br>
+	</form>
+</div>
+</article>
+
+

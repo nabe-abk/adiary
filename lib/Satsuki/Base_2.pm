@@ -463,7 +463,7 @@ sub _file_copy {
 	if ( !sysopen($fh, $src, O_RDONLY) ) { $self->error("File can't read '%s'", $src); return 1; }
 	$self->read_lock($fh);
 	my $size = (stat($fh))[7];
-	read($fh, $data, $size);
+	sysread($fh, $data, $size);
 	close($fh);
 
 	# Write

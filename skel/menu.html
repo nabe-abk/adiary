@@ -1,5 +1,5 @@
 <@6>
-<$ifjump_clear(! Auth.ok, '_sub/error_message_403', 0, 'ログインしていません')>
+<$ifjump_clear(! Auth.ok, '_sub/error_message_403', 'ログインしていません')>
 <$ifredirect(v.exists_my_blog && v.blogid eq '', v.myself3 . '?menu')>
 
 <@> システムモード
@@ -10,12 +10,19 @@
 	<$v.update_sysdat('myself2', Myself2)>
 <$end>
 
+<@> Version2からの移行処理
+<$ifredirect(!Develop && v.v2conf,  Myself . '?system/v2conv')>
+
 <@> 階層ツリー
 <@call("<@v.skel_dir>_dir_tree")>
 <!--========================================================================-->
 <article class="system">
 <h2><@v.title></h2>
 <div class="body">
+	<@ifexec(v.v2conf, begin)>
+		<p><a href="<@Myself>?system/v2conv">Version2からの移行ツール</a></p>
+	<$end>
+
 	<@ifexec(Auth.isadmin && v.require_update, begin)>
 		<p><strong class="warning">すぐに<a href="<@v.myself>?system/update">アップデート処理</a>を実行してください。</strong></p>
 	<$end>

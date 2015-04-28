@@ -1085,6 +1085,10 @@ sub poland_to_eval {
 							$x = shift(@ary);
 							if ($inline_if{$y} == 2 && $ary[1] ne '') {	# ifxxx(exp, A, B)
 								$x = "\$R->$func($x ? $ary[0] : $ary[1])";
+							} elsif ($last_op && $cmd_flag eq '@') {
+								$line_info |= $l_no_change;
+								$x = "($x && push(\@\$O, \$R->$func(" . join(',', @ary) . ")));";
+								$arc_last = 1;
 							} else {
 								$x = "($x && \$R->$func(" . join(',', @ary) . "))";
 								$arc_last = 1;

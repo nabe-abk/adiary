@@ -269,6 +269,7 @@ $r = $self->user_edit(\%form);
 
 	form.disable		ユーザーをログイン不可にする
 	form.disable_pass	1を設定するとパスワードを初期化（ログイン不可）にする
+	form.crypted_pass	crypt済のパスワード文字列
 
 	汚染されたフォームのデータを直接渡して呼び出してよい。
 	ID に使用出来る文字列は [A-Za-z0-9_] のみ。

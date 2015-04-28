@@ -1,0 +1,15 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(! Auth.isadmin)>
+
+<@> 設定更新
+<$action_return = v.v2convert(Form)>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("移行処理が完了しました。")>
+	<$reload_stop = 1>
+	<$jump('_sub/reload_message', Myself)>
+<$end>
+
+
