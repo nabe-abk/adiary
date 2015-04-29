@@ -1276,7 +1276,7 @@ sub save_theme {
 	my @ary = split(/\n/, $css);
 	foreach(@ary) {
 		$_ .= "\n";
-		if ($_ !~ /\$c=(\w+)/) { next; }
+		if ($_ !~ /\$c=\s*(\w+)/) { next; }
 		my $name = $1;
 		$_ =~ s/#[0-9A-Fa-f]+/$col{$name}/g;
 	}
@@ -1307,7 +1307,7 @@ sub load_theme_info {
 	if (-r $file) {
 		my $lines = $ROBJ->fread_lines( $file );
 		foreach(@$lines) {
-			if ($_ !~ /(#[0-9A-Fa-f]+).*\$c=(\w+)/) { next; }
+			if ($_ !~ /(#[0-9A-Fa-f]+).*\$c=\s*(\w+)/) { next; }
 			$col->{"$2-cst"} = $1;
 		}
 	}
@@ -1345,7 +1345,13 @@ sub load_theme_colors {
 			return $self->load_theme_colors("$template/$1", 1);
 		}
 		if ($_ =~ /^\s*\@/) { next; }
-		if ($_ =~ /\$c=([\w]+)/) {	# /* $c=main */ 等
+
+		# /* $c=xxxcol=main */
+		if ($_ =~ /\$c=\s*([\w]+)\s*=\s*([\s\w\+\-\*\/\.#]*)\*\//) {
+			$col{"$1-rel"} = $2;
+		}
+
+		if ($_ =~ /\$c=\s*([\w]+)/) {	# /* $c=main */ 等
 			my $name = $1;
 			$_ =~ s/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])([^0-9A-Fa-f])/#$1$1$2$2$3$3$4/g;
 			if ($name =~ /^_/) {

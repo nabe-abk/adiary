@@ -122,11 +122,13 @@ div.iblk {
 <input type="hidden" name="custom" value="" id="custom-flag">
 <button type="button" id="btn-reset">リセット</button>
 <button type="button" id="btn-super-reset">テーマ初期値に</button>
+<input type="checkbox" class="js-switch" data-target="#custom-colors-detail" id="detail-mode"><label>詳細</label>
 <div class="iblk">H <div id="h-slider" class="silder"></div></div>
 <div class="iblk">S <div id="s-slider" class="silder"></div></div>
 <div class="iblk">V <div id="v-slider" class="silder"></div></div>
 </div>
 <div id="custom-colors"></div>
+<div id="custom-colors-detail"></div>
 </div>
 </form>
 
@@ -150,7 +152,8 @@ com=コメント
 icon=アイコン
 arrow=矢印
 hover=選択中
-dd=DDメニュー
+dd=dropdown-menu
 fix=*
 </textarea>
+<span id="css-exp-error">CSSで指定されている色式が正しくありません。<br>%s</span>
 </div>

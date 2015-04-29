@@ -117,27 +117,27 @@ a.welcome-name { margin: 0px 4px 0px 4px; }
 /* 背景色（非選択色） */
 .dropdown-menu,
 .dropdown-menu>ul li {
-	background-color:	#ccccff;	/* $c=ddbg */
+	background-color:	#ccccff;	/* $c=ddbg=main2 */
 }
 /* 選択色 */
 .dropdown-menu>ul li:hover,
 .dropdown-menu>ul li.hover {
-	background-color:	#f0f0ff;	/* $c=ddhover */
+	background-color:	#f0f0ff;	/* $c=ddhover=main2 + #222  */
 }
 /* 枠線 */
 .dropdown-menu>ul li {
-	border-color:		#aac;	/* $c=ddborder */
+	border-color:		#aac;	/* $c=ddborder=main2 - #222 */
 }
 /* 文字 */
 .dropdown-menu a,
 .dropdown-menu a:link,
 .dropdown-menu a:visited
 {
-	color:			#33f;	/* $c=ddfont */
+	color:			#33f;	/* $c=ddfont=link */
 }
 /* 矢印の色 */
 .dropdown-menu li ul li ul:before {
-	border-left-color:	#338;	/* $c=ddarrow */
+	border-left-color:	#338;	/* $c=ddarrow=link/2 */
 }
 .dropdown-menu li:last-child ul li ul:before {
 	border-left-color:	transparent;
@@ -221,7 +221,7 @@ article h2 a.date {
 
 /* 記事本文 */
 article div.body {
-	background-color:	#fff;			/* $c=artbg */
+	background-color:	#fff;			/* $c=fixartbg */
 	font-size:		90%;
 	line-height:		140%;
 	margin:			0px;
@@ -254,7 +254,7 @@ article section {
 section footer {
 	font-size:		90%;
 	margin:			1.5em 1em 0 1em;
-	background-color:	#e3efff;		/* $c=footnotebg */
+	background-color:	#e3efff;		/* $c=footnotebg=prebg */
 }
 /* 脚注 */
 section footer p.footnote {
@@ -365,7 +365,7 @@ div.body h3 {
 	font-weight:		bold;
 	padding:		4px 0px 4px 8px;
 	border-left:		6px solid #2133a9;	/* $c=border */
-	background-color:	#e8e8ff;		/* $c=h3bg */
+	background-color:	#e8e8ff;		/* $c=h3bg=main2+#181818 */
 
 	border-radius:		0 6px 6px 0;
 	box-shadow:		4px 4px 2px 2px rgba(0,0,0, 0.4);
@@ -474,7 +474,7 @@ dt { font-weight:	bold; }
 
 	border-radius:		8px;
 	border:			2px solid #2133a9;	/* $c=border */
-	background-color:	#f1f1ff;		/* $c=combg */
+	background-color:	#f4f4ff;		/* $c=combg=wikibg */
 	box-shadow:		4px 4px 4px 4px rgba(0,0,0, 0.3);
 }
 #com div.caption a {
@@ -660,8 +660,8 @@ button
 	border:			1px solid #66c;		/* $c=btnborder */
 	border-radius:		6px;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#ddf,			/* $c=btnbg0 */
-				#aaf);			/* $c=btnbg1 */
+				#ddf,			/* $c=btnbg0=main2 + #111 */
+				#aaf);			/* $c=btnbg1=main2 - #222 */
 }
 input[type="reset"]:hover,
 input[type="submit"]:hover,
@@ -671,8 +671,8 @@ button:hover
 	border-radius:		6px;
 	cursor:			pointer;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#eef,			/* $c=btnbg2 */
-				#ccf);			/* $c=btnbg3 */
+				#eef,			/* $c=btnbghover0=main2 + #222 */
+				#ccf);			/* $c=btnbghover1=main2 */
 
 }
 
@@ -683,7 +683,7 @@ button:disabled
 {
 	color:			#666;
 	background-image:	none;
-	background-color:	#aac;			/* $c=btnbg4 */
+	background-color:	#aac;			/* $c=btndisable=main2 - #222 */
 }
 
 /*--------------------------------------------------------------------
@@ -691,7 +691,7 @@ button:disabled
 ---------------------------------------------------------------------*/
 #ui-icon-autoload {
 	display:		none;
-	background-color:	#0000ff;		/* $c=uiicon */
+	background-color:	#0000ff;		/* $c=uiicon=link */
 }
 .ui-icon {
 /*	background-image:	url(ui-icons.png);	*/
@@ -1041,7 +1041,7 @@ article h3.ui-accordion-header {
 }
 .ui-corner-left {
 	padding:		1px 0 0 1px;
-	background-color:	#aac;			/* $c=btnbg4 */
+	background-color:	#aac;			/* $c=btndisable */
 } 
 
 

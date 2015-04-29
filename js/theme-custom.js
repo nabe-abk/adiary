@@ -84,9 +84,14 @@ iframe.on('load', function(){
 //////////////////////////////////////////////////////////////////////////////
 // ●カスタマイズ機能
 //////////////////////////////////////////////////////////////////////////////
-	var custom_form = $('#custom-form');
-	var custom_cols = $('#custom-colors');
+	var custom_form  = $('#custom-form');
+	var custom_cols  = $('#custom-colors');
+	var custom_detail= $('#custom-colors-detail');
+	var detail_mode  = $('#detail-mode');
+
 	var input_cols;
+	var rel_col;
+	var rel_pol;
 
 	var cols;
 	var css_text;
@@ -117,6 +122,7 @@ function init_custmize(name) {
 function custom_form_empty() {
 	custom_form.hide();
 	custom_cols.empty();
+	custom_detail.empty();
 	input_cols = [];
 	iframe_resize();
 	$('#custom-flag').val('');
@@ -138,6 +144,7 @@ function init_custom_form(data) {
 	}
 	for(var k in data) {
 		if (k.rsubstr(4) == '-cst') continue;
+		if (k.rsubstr(4) == '-rel') continue;
 		cols.push({name: k, val: data[k], priority: get_priority(k) });
 	}
 	cols = cols.sort(function(a, b) {
@@ -148,17 +155,22 @@ function init_custom_form(data) {
 
 	// フォームの生成
 	custom_cols.empty();
-	var div = $('<div>');
+	custom_detail.empty();
+	input_cols = [];
+	rel_col = [];
+	rel_pol = [];
 	for(var i=0; i<cols.length; i++) {
 		var name = cols[i].name;
 		var val  = cols[i].val;
 		var cval = data[name+'-cst'] || val; // 初期値
+		var rel  = data[name+'-rel'];	// 他に連動
 		var msg  = name2msg(name);
 
 		var span = $('<span>').addClass('color-box');
 		span.text(msg);
 		var inp = $('<input>').addClass('color-picker no-enter-submit').attr({
 			type: 'text',
+			id: 'inp-' + name,
 			name: 'c_' + name,
 			value: cval
 		});
@@ -171,19 +183,49 @@ function init_custom_form(data) {
 		});
 		(function(){
 			var iobj = inp;		// クロージャ
+			var n = name;
 			iobj.data('onChange', function(hsb, hex, rgb) {
 				iobj.data('val', '#' + hex);
+				relation_colors(n);
 				update_css();
 				iobj.removeData('val');
 			});
 		})();
 		span.append(inp);
+		input_cols.push(inp);
+		if (rel) {
+			rel_col[name] = rel;
+			var p = exp_to_poland(rel);
+			if (p)	rel_pol[name] = p;	// 連動色？
+			else	show_error('#css-exp-error', {s: rel});
+		}
+
+		// 要素を追加
+		var div = rel ? custom_detail : custom_cols;
+		if (name.substr(0,3) == 'fix'
+		 && name != 'fixbg' && name != 'fixartbg' && name != 'fixfont')
+			div = custom_detail;
 		div.append(span);
 	}
-	custom_cols.append(div);
-	input_cols = custom_cols.find('input');
+	input_cols = $(input_cols);
 	custom_form.show();
 	iframe_resize();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●値連動処理
+//////////////////////////////////////////////////////////////////////////////
+function relation_colors(name) {
+	if (detail_mode.prop('checked')) return;
+	for(var k in rel_pol) {
+		var v = exec_poland( rel_pol[k] );
+		if (!v) {
+			show_error('#css-exp-error', {s: rel_col[k]});
+			continue;
+		}
+		var obj = $('#inp-' + k);
+		set_color(obj, v);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -240,7 +282,7 @@ $('#btn-super-reset').click( function() {
 
 
 //////////////////////////////////////////////////////////////////////////////
-// ●色見本を設定
+// ●色を設定
 //////////////////////////////////////////////////////////////////////////////
 function set_color(obj, rgb) {
 	obj.val( rgb );
@@ -412,6 +454,154 @@ function name2msg(name) {
 	for(var n in n2msg)
 		name = name.replace(n, n2msg[n]);
 	return name;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●逆ポーランドに変換
+//////////////////////////////////////////////////////////////////////////////
+// 演算子優先度
+var oph = {
+	'(': 1,
+	')': 1,
+	'+': 10,
+	'-': 10,
+	'*': 20,
+	'/': 20
+};
+
+function exp_to_poland(exp) {
+	exp = exp.replace(/^\s*(.*?)\s*$/, "$1");
+	exp = exp.replace(/\s*([\+\-\(\)\*])\s*/g, "$1");
+	exp = exp.replace(/^\-/,  '0-');
+	exp = exp.replace(/\(-/g,'(0-');
+	exp = exp.replace(/\s+/g, ' ');
+	exp = '(' + exp + ')';
+
+	var ary = [];
+	while(exp.length) {
+		var re = exp.match(/^(.*?)([ \+\-\(\)\*\/])(.*)/);
+		if (!re) return;		// error
+		if (re[2] == ' ') return;	// error
+		if (re[1] != '') {
+			var x = re[1].replace(/^\#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/, "#$1$1$2$2$3$3");
+			if (!( x.match(/^\#[0-9a-fA-F]{6}$/)
+			    || x.match(/^\d+(?:\.\d+)?$/)
+			    || x.match(/^[A-Za-z]\w*$/)
+			   ) ) return ;			// error;
+			ary.push(x);
+		}
+		ary.push(re[2]);
+		exp = re[3];
+	}
+
+	// 変換処理
+	var st = [];
+	var out= [];
+	for(var i=0; i<ary.length; i++) {
+		var x = ary[i];
+		if (! x.match(/[\+\-\(\)\*\/]/)) {
+			out.push(x);
+			continue;
+		}
+		// 演算子
+		var xp = oph[x];	// そのまま積む
+		if (x == '(' || st.length == 0 || oph[ st[st.length-1] ]<xp) {
+			if (x == ')') return;	// error
+			st.push(x);
+			continue;
+		}
+		// 優先度の低い演算子が出るまでスタックから取り出す
+		while(st.length) {
+			var y  = st.pop();
+			var yp = oph[y];
+			if (yp < xp)  break;
+			if (y == '(') break;
+			out.push(y);
+		}
+		if (x != ')') st.push(x);
+	}
+	if (st.length) return;	// error
+	return out;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●逆ポーランド式を実行
+//////////////////////////////////////////////////////////////////////////////
+function exec_poland(p) {
+	var st = [];
+	// console.log(p.join(' '));
+	
+	for(var i=0; i<p.length; i++) {
+		var op = p[i];
+		if (!oph[op]) {
+			var x = op;
+			if (x.substr(0,1) == '#')
+				x = parse_rgb(x);
+			else if (x.match(/^[A-Za-z]\w*$/)) {
+				var obj = $('#inp-'+x);
+				x = parse_rgb( obj.data('val') || obj.val() );
+			} 
+			if (x == '') return;	// error
+			st.push(x);
+			continue;
+		}
+		// 演算子
+		var y = st.pop();
+		var x = st.pop();
+		var xary = x instanceof Array;
+		var yary = y instanceof Array;
+		if (x == '' || y == '') return;	// error
+
+		if (op == '+' || op == '-') {
+			var func = (op=='+')
+				 ? function(a,b) { return a+b; }
+				 : function(a,b) { return a-b; }
+			if (!xary && !yary)
+				x = func(x,y);
+			else if (xary && yary)
+				for(var i=0; i<3; i++)
+					x[i] = func(x[i], y[i]);
+			else return;	// error
+		}
+
+		if (op == '*' || op == '/') {
+			var func = (op=='*')
+				 ? function(a,b) { return a*b; }
+				 : function(a,b) { return a/b; }
+			if (!xary && !yary)
+				x = func(x,y);
+			else if (xary && !yary)
+				for(var i=0; i<3; i++)
+					x[i] = func(x[i], y);
+			else if (!xary && yary)
+				for(var i=0; i<3; i++)
+					x[i] = func(x, y[i]);
+			else return;	// error
+		}
+
+		st.push(x);
+	}
+	if (st.length != 1 || !st[0] instanceof Array) return;	// error
+	return rgb2hex( st[0] );
+}
+
+function parse_rgb(rgb) {
+	var ma = rgb.match(/#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})/);
+	if (!ma) return ;
+	return [parseInt('0x' + ma[1]), parseInt('0x' + ma[2]), parseInt('0x' + ma[3])];
+}
+
+function rgb2hex(ary) {
+	for(var i=0; i<3; i++) {
+		ary[i] = Math.round(ary[i]);
+		if (ary[i]<   0) ary[i]=0;
+		if (ary[i]>0xff) ary[i]=0xff;
+	}
+	// 文字列変換
+	var r = (ary[0]<16 ? '0' : '') + ary[0].toString(16);
+	var g = (ary[1]<16 ? '0' : '') + ary[1].toString(16);
+	var b = (ary[2]<16 ? '0' : '') + ary[2].toString(16);
+	return '#' + r + g + b;
 }
 
 //############################################################################
