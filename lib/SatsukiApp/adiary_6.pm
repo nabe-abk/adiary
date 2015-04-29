@@ -303,7 +303,7 @@ sub v2convert {
 		}
 
 		# 対応テーマがあるときはそれを選択
-		$s->{theme} =~ s/^satsuki/satsuki2/;
+		$s->{theme} =~ s/^satsuki\w+/satsuki2/;
 		if ($s->{template} eq 'satsuki' && $themes{ $s->{theme} }) {
 			$self->save_theme({
 				theme => 'satsuki2/' . $s->{theme}
@@ -347,6 +347,7 @@ sub v2convert {
 				my $pkey = $_->{pkey};
 				my $art = {
 					pkey 	=> $pkey,
+					enable  => $_->{enable},
 					year 	=> substr($_->{yyyymmdd}, 0, 4),
 					mon 	=> substr($_->{yyyymmdd}, 4, 2),
 					day 	=> substr($_->{yyyymmdd}, 6, 2),
