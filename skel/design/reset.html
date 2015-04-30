@@ -8,7 +8,7 @@
 
 <@><!--========================================================================-->
 <@> システムモード
-<$v.special_system_mode("テーマ選択")>
+<$v.special_system_mode("デザインの初期化")>
 
 <$v.append_header(exec(begin))>
 <style>
@@ -67,7 +67,7 @@ ul {
 <form id="form" action="<@v.myself>?<@v.skeleton>" method="POST">
 <input type="hidden" name="action" value="<@v.skeleton>">
 <input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
-デサインの初期化
+<@v.title> 
 <div id="custom-form">
 	<ul class="none">
 	<li><input type="checkbox" name="all" value="1"><label>モジュール個別の設定もすべてリセットする</label></li>

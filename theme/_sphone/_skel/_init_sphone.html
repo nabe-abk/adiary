@@ -1,0 +1,9 @@
+<@20>
+<@> スマホ用初期化ファイル。テーマ選択で対応。
+
+<$v.regist_postcss( "<@v.theme_dir>_sphone/satsuki2-smp/satsuki2-smp.css" )>
+
+<$ifbreak(v.theme eq 'satsuki2/satsuki2')>
+<$ifbreak(v.theme eq 'satsuki2/satsuki2-multiside')>
+
+<$v.load_theme('satsuki2/satsuki2')>

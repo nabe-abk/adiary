@@ -1,0 +1,27 @@
+<!--ヘッダ部================================================================-->
+<header id="sp-header">
+<nav id="sp-nav-header" data-module-name="deh_login" data-fix="1">
+	<@ifexec(Auth.ok, begin)><span class="welcome"><a href="<@if(v.subdomain_mode , "http://<@v.subdomain_mode>/" ,Myself)>" class="welcome-prefix">ようこそ</a><a<@if(v.exists_my_blog, #' href="<@v.myself3>"')> class="welcome-name"><@Auth.name></a><span class="welcome-postfix">さん</span></span><$end>
+
+	<span class="admin-links">
+	<@ifexec(v.allow_edit, begin)>
+		<a class="adminmenu edit" href="<@v.myself>?edit">書く</a>
+	<$end>
+	<@ifexec(Auth.ok, begin, begin)>
+		<a class="adminmenu admin<@if(v.allow_edit && v.blog.newcom_flag,' newcom')>" href="<@v.myself>?menu">管理</a>
+		<a class="adminmenu logout" href="<@v.thisurl>?logout">ログアウト</a>
+	<$else>
+		<@ifexec(v.load_plgset('deh_login', 'erase_login'), begin, begin)>
+		<a class="adminmenu login erase-login" href="<@v.thisurl>?login" rel="nofollow">&nbsp;</a>
+		<$else>
+		<a class="adminmenu login" href="<@v.thisurl>?login" rel="nofollow">ログイン</a>
+		<$end>
+	<$end>	</span>
+</nav>
+
+<!--タイトル部==============================================================-->
+<h1 id="sp-page-title" data-module-name="deh_title">
+	<a href="<@v.myself>"><@if(v.title_h1, v.title_h1, v.title)></a>
+</h1>
+
+</header>

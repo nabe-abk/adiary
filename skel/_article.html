@@ -175,7 +175,7 @@
 		<@ifexec(Auth.ok, begin, begin)><span class="comment-author"><@Auth.name></span><$else><input type="text" name="name" class="w160 comment-author" value="<@esc(Form.name)>" required><$end>
 		<@if(t.hcom_ok, '&nbsp;<input type="checkbox" name="hidden" value="1"><label>非公開コメント</label>')>
 		<input type="submit" name="post" id="post-comment" value="投稿"><br>
-		<textarea name="comment_txt" cols="60" rows="3" required><@esc(Form.comment_txt)></textarea>
+		<textarea class="comment-txt" name="comment_txt" class="w600" rows="3" required><@esc(Form.comment_txt)></textarea>
 		<@ifexec(s.com_email, begin)>
 		<span class="caption-email">E-Mail(任意/非公開)</span><span class="separater">:</span><input class="w300" type="email" name="email" value="<@esc(Form.email)>"><br>
 		<$end>

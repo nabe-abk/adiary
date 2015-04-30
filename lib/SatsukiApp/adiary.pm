@@ -51,6 +51,12 @@ sub new {
 	# 現在の日時設定（日付変更時間対策）
 	$self->{now} = $ROBJ->{Now};
 
+	# スマホ判別
+	my $ua = $ENV{HTTP_USER_AGENT};
+	if (0<index($ua,'iPhone') || 0<index($ua,'iPod') || 0<index($ua,'Android')) {
+		$self->{sphone} = 1;
+	}
+
 	# Cache環境向け Timer のロード
 	if ($ROBJ->{CGI_cache} && $ENV{Timer} ne '0' && !$Satsuki::Timer::VERSION) {
 		require Satsuki::Timer;
@@ -70,6 +76,7 @@ blog_cache_unit  => 100,	# ブログ記事キャッシュ保存時の分割単�
 dir_postfix_len  => 8,
 theme_skeleton_level => 10,
 user_skeleton_level  => 20,
+sphone_skeleton_level => 100,
 default_tag_priority => 100000,
 default_wiki_priority=> 100000,
 bloglist_table  => '_bloglist',	# DBのブログ管理テーブル
@@ -109,11 +116,14 @@ sub main {
 	# Cookieログイン処理
 	$self->authorization();
 
-	# pinfoとブログの選択
+	# pinfoとブログの選択。テーマ選択
 	my $blogid = $self->blogid_and_pinfo();
 
 	# Query/Form処理（ログイン処理より後にすること！）
 	$self->read_query_form();
+
+	# スマホ向け処理
+	if ($self->{sphone}) { $self->init_for_sphone(); }
 
 	# 表示スケルトン選択
 	$self->select_skeleton( $ROBJ->{Query}->{_} || $self->{query0} );
@@ -273,6 +283,20 @@ sub blogid_and_pinfo {
 		$self->{others_blog} = ($blogid ne $authid) ? 1 : 0;
 	}
 
+}
+
+#------------------------------------------------------------------------------
+# ●スマホ向け処理
+#------------------------------------------------------------------------------
+sub init_for_sphone {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir = $self->{theme_dir} . '_sphone/_skel/';
+	$ROBJ->regist_skeleton($dir, $self->{sphone_skeleton_level});
+
+	# スマホ用初期化ルーチンを呼ぶ
+	$ROBJ->call( '_init_sphone' );
 }
 
 #------------------------------------------------------------------------------
@@ -1588,6 +1612,10 @@ sub regist_js {
 sub regist_css {
 	my $self = shift;
 	push(@{ $self->{cssfiles} ||=[] }, @_);
+}
+sub regist_postcss {
+	my $self = shift;
+	push(@{ $self->{postcssfiles} ||=[] }, @_);
 }
 sub load_jscss {
 	my $self = shift;
