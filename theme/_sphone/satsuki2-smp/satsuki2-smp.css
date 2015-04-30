@@ -31,10 +31,10 @@ div.main {
 	margin:			0px;
 	font-weight:		bold;
 	text-shadow:
-		-1px -1px 0px #ccc,
-		 1px -1px 0px #ccc,
-		 1px  1px 0px #ccc,
-		-1px  1px 0px #ccc,
+		-1px -1px 0px #ddd,
+		 1px -1px 0px #ddd,
+		 1px  1px 0px #ddd,
+		-1px  1px 0px #ddd,
 		 3px  3px 2px #999;
 }
 

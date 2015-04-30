@@ -66,6 +66,11 @@
 			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
+	<tr>
+		<th>検索ボックスの幅</th>
+		<td>
+			  <input type="number" class="int w50" name="box_w" value="<@ps.box_w || 0>" min="0" max="999" id="box-w">px  &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#box-w"<@if(ps.box_w eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -119,11 +124,16 @@ if ('<@ps.border_c>' == '') {
 	var col = get_border_color( obj );
 	if (col) $('#border-c').val(col);
 }
+
 // 幅と高さ
 if ('<@ps.width>' == '')
 	$('#width').val(  obj.outerWidth()  );
 if ('<@ps.height>' == '')
 	$('#height').val( obj.outerHeight() );
+if ('<@ps.box_w>' == '') {
+	var box = obj.find('input.search');
+	if (box.length) $('#box-w').val( box.widtht() );
+}
 
 // マージンとpadding
 if ('<@ps.margin0>' == '')

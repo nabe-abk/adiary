@@ -1,17 +1,19 @@
 ######################################################################
 title=月別の記事リスト
-version=1.00
+version=1.01
 #					(C)2013 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=2.94
+adiary_version=2.941
 module_type=sidebar
 
+module_id=side-month-list
+
 *sample_html=<<HTML
-<div class="hatena-module" id="side-month-list">
+<div class="hatena-module" id="<@id>">
 <div class="hatena-moduletitle">過去ログ</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">
@@ -44,7 +46,7 @@ HTML
 
 *module_html=<<HTML
 <!--月別記事数リスト=====================================-->
-<div class="hatena-module" id="side-month-list" data-module-name="<@this>">
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
 <div class="hatena-moduletitle">過去ログ</div>
 <div class="hatena-modulebody">
 <@v.load_plgset('<@this>', 'html')>

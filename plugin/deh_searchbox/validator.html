@@ -1,0 +1,10 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	title_none = flag
+	all = flag
+	br  = flag
+<$end>
+
+<$ifbreak(form_error())>
+<$return(h)>

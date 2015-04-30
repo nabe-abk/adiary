@@ -6,7 +6,7 @@
 /**************************************************
  * "<@name>" module's setting. <@Timestamp>
  **************************************************/
-#nav-header {
+<@id> {
 <@ifexec(ps.font_c, begin)>
 	color:			<@ps.font_c>;
 <$end>

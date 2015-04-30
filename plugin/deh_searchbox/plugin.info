@@ -1,6 +1,6 @@
 ######################################################################
 title=検索ボックス
-version=1.11
+version=1.10
 #					(C)2013-2015 nabe@abk
 ######################################################################
 author=nabe@abk
@@ -8,42 +8,37 @@ url=https://twitter.com/nabe_abk
 license=WTFPL
 
 adiary_version=2.941
-module_type=sidebar
+module_type=header
 load_module_html_in_edit=1
 
-module_id=side-search
+module_id=head-search
 
 *sample_html=<<HTML
-<div class="hatena-module" id="<@id>" data-module-name="<@this>">
-<div class="hatena-moduletitle">検索</div>
-<div class="hatena-modulebody">
+<div id="<@id>" data-module-name="<@this>">
 <form method="GET" action="./" onsubmit="return false;">
+<span class="title">検索</span>
 <input type="search" class="search-box w80" name="q" value="" required>
-<input type="submit" class="search-button" value="検索"><br>
+<input type="submit" class="search-button" value="検索">
 <span class="search-radio">
 <input class="search-title" type="radio" name="all" value="0" checked><label>タイトル</label>
 <input class="search-text"  type="radio" name="all" value="1"><label>全文</label>
 </span>
 </form>
-</div> <!-- hatena-modulebody -->
-</div> <!-- hatena-module -->
+</div>
 HTML
 
 *module_html=<<HTML
-<!--検索====================================================-->
 <$ps = v.load_plgset('<@this>')>
-<div class="hatena-module" id="<@id>" data-module-name="<@this>">
-<@if(!ps.title_none, '<div class="hatena-moduletitle">検索</div>')>
-<div class="hatena-modulebody">
+<div id="<@id>" data-module-name="<@this>">
 <form method="GET" action="<@v.myself>">
+<@if(!ps.title_none, '<span class="title">検索</span>')>
 <input type="search" class="search-box w80" name="q" value="<@tag_escape(x = Query.q)>" required>
-<input type="submit" class="search-button" value="検索"><br>
+<input type="submit" class="search-button" value="検索"><@if(ps.br, '<br>')>
 <$ifset(exists(Query.all), all, Query.all, ps.all)>
 <span class="search-radio">
 <input class="search-title" type="radio" name="all" value="0" <@if(!all, "checked")>><label>タイトル</label>
 <input class="search-text"  type="radio" name="all" value="1" <@if( all, "checked")>><label>全文</label>
 </span>
 </form>
-</div> <!-- hatena-modulebody -->
-</div> <!-- hatena-module -->
+</div>
 HTML

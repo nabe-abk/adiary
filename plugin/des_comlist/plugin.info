@@ -1,18 +1,20 @@
 ######################################################################
 title=最近のコメント一覧
-version=1.00
+version=1.01
 #					(C)2013 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=2.94
+adiary_version=2.941
 module_type=sidebar
 load_module_html_in_edit=1
 
+module_id=side-recent-comment
+
 *sample_html=<<HTML
-<div class="hatena-module" id="side-recent-comment">
+<div class="hatena-module" id="<@id>">
 <div class="hatena-moduletitle">最近のコメント</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">
@@ -28,7 +30,7 @@ HTML
 
 *module_html=<<HTML
 <!--最近のコメント=======================================-->
-<div class="hatena-module" id="side-recent-comment" data-module-name="<@this>">
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
 <div class="hatena-moduletitle">最近のコメント</div>
 <div class="hatena-modulebody">
 <@v.load_plgset('<@this>', 'html')>

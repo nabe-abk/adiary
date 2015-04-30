@@ -8,7 +8,8 @@
 		<th>文字</th><td>
 			<input type="text" id="font-c" name="font_c" value="<@ps.font_c || '#000000'>" class="color-picker"> &nbsp;
 			<input type="number" class="int w40" name="font_s" value="<@ps.font_s || 16>" min="0" max="999" id="font-s">px 
-			<input type="checkbox" class="js-disable" data-target="#font-c,#font-s,#font-trans"<@if(ps.font_c eq '',' checked')>><label>変更しない</label>
+			<input type="checkbox" name="font_bf" id="font-bf" value="1"><label>太字</label>
+			<input type="checkbox" class="js-disable" data-target="#font-c,#font-s,#font-bf,#font-trans"<@if(ps.font_c eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -53,11 +54,10 @@
 		</td>
 	</tr>
 	<tr>
-		<th>padding<td>
-			上下<input type="number" class="int w50" name="fpadding0" value="<@ps.fpadding0 || 0>" min="0" max="999" id="fpadding0"> 
-			左右<input type="number" class="int w50" name="fpadding1" value="<@ps.fpadding1 || 0>" min="0" max="999" id="fpadding1"> 
-			丸め量 <input type="number" class="int w50" name="fbg_r" value="<@ps.fbg_r || 0>" min="0" max="99" id="fbg-r">
-			<input type="checkbox" class="js-disable" data-target="#fpadding0,#fpadding1,#fbg-r"<@if(ps.fpadding0 eq '',' checked')>><label>変更しない</label>
+		<th>文字の位置<td>
+			上<input type="number" class="int w50" name="top"  value="<@ps.top  || 0>" min="0" max="999" id="top">px 
+			左<input type="number" class="int w50" name="left" value="<@ps.left || 0>" min="0" max="999" id="left">px 
+			<input type="checkbox" class="js-disable" data-target="#left,#top"<@if(ps.left eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tbody>
 	</table>
@@ -92,12 +92,14 @@
 	<table class="blog-setting">
 	<tbody>
 	<tr>
-		<th>枠線の色<span class="help" data-help="テーマによって下線や枠線などが表示される場合、この項目から変更することができます。">?</span></th>
+		<th>枠線<span class="help" data-help="テーマによって下線や枠線などが表示される場合、この項目から変更することができます。">?</span></th>
 		<td>
-			<input type="text" id="border-c" name="border_c" value="<@ps.border_c || '#000080'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#border-c"<@if(ps.border_c eq '',' checked')>><label>変更しない</label>
+			色 <input type="text" id="border-c" name="border_c" value="<@ps.border_c || '#000080'>" class="color-picker">
+			角の丸め<input type="number" class="int w50" name="bdr" value="<@ps.border_r || 0>" min="0" max="99" id="border-r">px
+			<input type="checkbox" class="js-disable" data-target="#border-c,#border-r"<@if(ps.border_c eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
+
 	<tr>
 		<th>枠線の表示<span class="help" data-help="テーマによって下線や枠線などが表示される場合、この項目から変更することができます。">?</span></th>
 		<td>
@@ -118,16 +120,6 @@
 			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
-	<tr>
-		<th>文字位置<span class="help" data-help="文字表示位置を変えたい場合は特に「上」と「左」を変更してください。">?</span></th>
-		<td>
-			上<input type="number" class="int w50" name="padding0" value="<@ps.padding0 || 0>" min="0" max="999" id="padding0"> 
-			右<input type="number" class="int w50" name="padding1" value="<@ps.padding1 || 0>" min="0" max="999" id="padding1"> 
-			下<input type="number" class="int w50" name="padding2" value="<@ps.padding2 || 0>" min="0" max="999" id="padding2"> 
-			左<input type="number" class="int w50" name="padding3" value="<@ps.padding3 || 0>" min="0" max="999" id="padding3"> &nbsp;
-			<input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(ps.padding0 eq '',' checked')>><label>変更しない</label>
-		</td>
-	</tr>
 	</tbody>
 	</table>
 
@@ -145,12 +137,26 @@ if ('<@ps.font_c>' == '') {
 	var px  = parse_px( aobj.css('font-size') );
 	if (px)  $('#font-s').val(px);
 }
+if (1) { //'<@ps.font_bf>' == '') {
+	var bold = (400 < aobj.css('font-weight'));
+	$('#font-bf').prop('checked', bold);
+}
 /*	// フォントの種類
 if ('<@ps.font_f>' == '') {
 	var fam = aobj.css('font-family');
 	if (fam) $('#font-f').val( fam );
 }
 */
+
+// 文字の位置
+if ('<@ps.top>' == '') {
+	var px = parse_px(obj.css('padding-top')) + parse_px(obj.css('top'));
+	if (px) $('#top').val(px);
+}
+if ('<@ps.left>' == '') {
+	var px = parse_px(obj.css('padding-left')) + parse_px(obj.css('left'));
+	if (px) $('#left').val(px);
+}
 // 高さ
 if ('<@ps.height>' == '') {
 	$('#height').val( obj.height() );
@@ -164,6 +170,10 @@ if ('<@ps.bg>' == '') {
 if ('<@ps.border_c>' == '') {
 	var col = get_border_color( obj );
 	if (col) $('#border-c').val(col);
+}
+if ('<@ps.border_r>' == '') {
+	var px  = parse_px( obj.css('border-top-left-radius') );
+	if (px)  $('#border-r').val(px);
 }
 
 // border
@@ -184,14 +194,6 @@ if ('<@ps.margin2>' == '')
 	$('#margin2').val(  parse_px( obj.css('margin-bottom') ) );
 if ('<@ps.margin3>' == '')
 	$('#margin3').val(  parse_px( obj.css('margin-left')   ) );
-if ('<@ps.padding0>' == '')
-	$('#padding0').val( parse_px( obj.css('padding-top')   ) );
-if ('<@ps.padding1>' == '')
-	$('#padding1').val( parse_px( obj.css('padding-right') ) );
-if ('<@ps.padding2>' == '')
-	$('#padding2').val( parse_px( obj.css('padding-bottom')) );
-if ('<@ps.padding3>' == '')
-	$('#padding3').val( parse_px( obj.css('padding-left')  ) );
 
 //-----------------------------------------------------------------------------
 });

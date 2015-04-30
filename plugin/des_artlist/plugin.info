@@ -11,8 +11,10 @@ adiary_version=2.94
 module_type=sidebar
 load_module_html_in_edit=1
 
+module_id=side-recent-article
+
 *sample_html=<<HTML
-<div class="hatena-module" id="side-recent-article">
+<div class="hatena-module" id="<@id>">
 <div class="hatena-moduletitle">最近の記事</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">
@@ -29,7 +31,7 @@ HTML
 
 *module_html=<<HTML
 <!--最近の記事=======================================-->
-<div class="hatena-module" id="side-recent-article" data-module-name="<@this>">
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
 <div class="hatena-moduletitle">最近の記事</div>
 <div class="hatena-modulebody">
 <@v.load_plgset('<@this>', 'html')>

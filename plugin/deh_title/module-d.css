@@ -11,16 +11,19 @@
 <@> </h1>
 <@>------------------------------------------------
 <@ifexec(ps.font_c ne '', begin)>
-#page-title a,
-#page-title a:link,
-#page-title a:visited {
+<@id> a,
+<@id> a:link,
+<@id> a:visited {
 	color:			<@ps.font_c)>;
 }
 <$end>
-#page-title a {
+<@id> a {
 <@ifexec(ps.font_s ne '', begin)>
 	font-size:		<@ps.font_s)>px;
 	line-height:		100%;
+<$end>
+<@ifexec(ps.font_bf, begin)>
+	font-weight:		bold;
 <$end>
 <@ifexec(ps.font_f ne '', begin)>
 	font-family:		<@ps.font_f>;
@@ -91,15 +94,17 @@
 <@ifexec(ps.fbg ne '', begin)>
 	background-color:	rgba(<@v.hex2rgb(ps.fbg)>, <@ps.fbg_alpha>);
 <$end>
-<@ifexec(ps.fpadding0 ne '', begin)>
-	padding:		<@ps.fpadding0>px <@ps.fpaddding1>;
-	border-radius:		<@ps.fbg_r>px;
+<@ifexec(ps.top ne '', begin)>
+	position:		absolute;
+	margin:			0;
+	top:			<@ps.top>px;
+	left:			<@ps.left>px;
 <$end>
 }
 <@>
 <@>------------------------------------------------
 <@>
-#page-title {
+<@id> {
 <@ifexec(ps.height ne '', begin)>
 	height:			<@ps.height>px;
 <$end>
@@ -124,8 +129,8 @@
 <@ifexec(ps.margin0 ne '', begin)>
 	margin:			<@ps.margin0>px <@ps.margin1>px <@ps.margin2>px <@ps.margin3>px;
 <$end>
-<@ifexec(ps.padding0 ne '', begin)>
-	padding:		<@ps.padding0>px <@ps.padding1>px <@ps.padding2>px <@ps.padding3>px;
+<@ifexec(ps.top ne '', begin)>
+	padding:		0;
 <$end>
 }
 

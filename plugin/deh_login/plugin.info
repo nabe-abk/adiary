@@ -7,11 +7,12 @@ author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=2.94
+adiary_version=2.941
 module_type=header
+module_id=nav-header
 
 *sample_html=<<HTML
-<nav id="nav-header" data-module-name="<@this>" data-fix="1">
+<nav id="<@id>" data-module-name="<@this>" data-fix="1">
 	<span class="welcome"><span class="welcome-prefix"><a href="#">ようこそ</a></span><span class="welcome-name"><a href="#">ユーザー</a></span><span class="welcome-postfix">さん</span></span>
 	<span class="admin-links">
 		<a class="adminmenu edit" href="#">書く</a>

@@ -1,18 +1,20 @@
 ######################################################################
 title=ブログの基本情報
-version=1.00
+version=1.01
 #					(C)2013 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=2.94
+adiary_version=2.941
 module_type=sidebar
 load_module_html_in_edit=1
 
+module_id=side-information
+
 *sample_html=<<HTML
-<div class="hatena-module" id="side-information">
+<div class="hatena-module" id="<@id>">
 <div class="hatena-moduletitle">Information</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">

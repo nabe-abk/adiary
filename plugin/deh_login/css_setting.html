@@ -40,7 +40,7 @@
 	</tbody>
 	</table>
 
-	<p>ヘッダ領域全体の表示設定</p>
+	<p>画面全体の設定</p>
 
 	<table class="blog-setting">
 	<tbody>
@@ -56,6 +56,15 @@
 			<input type="checkbox" class="js-disable" data-target="#bg"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
+	</tbody>
+	</table>
+
+
+
+	<p>ヘッダ領域全体の表示設定</p>
+
+	<table class="blog-setting">
+	<tbody>
 	<tr><th>表示領域の背景<span class="help" data-help="実際の表示領域の背景を指定します。">?</span></th>
 		<td>
 			<input type="text" id="body-bg" name="body_bg" value="<@ps.body_bg || '#ffffff'>" class="color-picker">

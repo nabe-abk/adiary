@@ -13,6 +13,8 @@
 	font_s:min  =   0
 	font_s:max  = 999
 	font_s:default = 
+	
+	font_bf = flag
 
 	font_f = フォントの種類
 	font_f:filter0 = trim
@@ -62,33 +64,30 @@
 	fbg_alpha:max  = 1
 	fbg_alpha:default = 
 
-	fpadding0 = 文字背景paddin（上下）
-	fpadding0:type = int
-	fpadding0:min  =   0
-	fpadding0:max  = 999
-	fpadding0:default = 
-	fpadding1 = 文字背景paddin（左右）
-	fpadding1:type = int
-	fpadding1:min  =   0
-	fpadding1:max  = 999
-	fpadding1:default = 
-	fbg_r = 文字の背景の丸め
-	fbg_r:type = int
-	fbg_r:min  =   0
-	fbg_r:max  =  99
-	fbg_r:default = 
-
+	top = 文字の位置（上）
+	top:type = int
+	top:min  =   0
+	top:max  = 999
+	top:default = 
+	left = 文字の位置（左）
+	left:type = int
+	left:min  =   0
+	left:max  = 999
+	left:default = 
 
 	bg = 背景色
 	bg:filter0 = rgb
 	bg:default = 
-
 	bgfile_fit = flag
-
 
 	border_c = 枠線の色
 	border_c:filter0 = rgb
 	border_c:default = 
+	border_r = 枠線の丸め量
+	border_r:type = int
+	border_r:min  =   0
+	border_r:max  =  99
+	border_r:default = 
 
 	border0 = 枠線の幅（上）
 	border0:type = int
@@ -131,27 +130,6 @@
 	margin3:min  =  -999
 	margin3:max  =   999
 	margin3:default = 
-
-	padding0 = 文字位置上
-	padding0:type = int
-	padding0:min  =   0
-	padding0:max  = 999
-	padding0:default = 
-	padding1 = 文字位置右
-	padding1:type = int
-	padding1:min  =   0
-	padding1:max  = 999
-	padding1:default = 
-	padding2 = 文字位置下
-	padding2:type = int
-	padding2:min  =   0
-	padding2:max  = 999
-	padding2:default = 
-	padding3 = 文字位置左
-	padding3:type = int
-	padding3:min  =   0
-	padding3:max  = 999
-	padding3:default = 
 <$end>
 <$ifbreak(form_error())>
 

@@ -34,8 +34,8 @@ h1
 	font-size:		20pt;
 	font-weight:		normal;
 	border-bottom:		2px solid #2133a9;	/* $c=border */
-	padding:		4px 1em 4px 0.5em;
-	margin:			0.5em 0 0 0;
+	padding:		4px 0.5em;
+	margin:			0.6em 0 0 0;
 }
 h1 a, h1 a:link, h1 a:visited {
 	color:			inherit;
@@ -97,7 +97,7 @@ div.main {
 	font-size:		10pt;
 	line-height:		100%;
 	display:		block;
-	margin:			1px 0 1em 0;
+	margin:			1px 0 0 0;
 }
 
 #nav-header a, #nav-header a:link, #nav-header a:visited {

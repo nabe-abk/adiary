@@ -1,18 +1,20 @@
 ######################################################################
 title=タグリスト
-version=1.00
-#					(C)2013 nabe@abk
+version=1.01
+#					(C)2015 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=2.94
+adiary_version=2.941
 module_type=sidebar
 load_module_html_in_edit=1
 
+module_id=side-tag-list
+
 *sample_html=<<HTML
-<div class="hatena-module" id="side-tag-list">
+<div class="hatena-module" id="<@id>">
 <div class="hatena-moduletitle">タグ</div>
 <div class="hatena-modulebody">
 <ul id="sidetag-root" class="hatena-section">
@@ -35,7 +37,7 @@ HTML
 
 *module_html=<<HTML
 <!--タグリスト=====================================-->
-<div class="hatena-module" id="side-tag-list" data-module-name="<@this>">
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
 <div class="hatena-moduletitle">タグ</div>
 <div class="hatena-modulebody">
 <@v.load_plgset('<@this>', 'html')>

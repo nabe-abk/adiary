@@ -1,17 +1,19 @@
 ######################################################################
 title=System info
-version=1.00
-#					(C)2013 nabe@abk
+version=1.01
+#					(C)2015 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=2.94
+adiary_version=2.941
 module_type=sidebar
 
+module_id=side-system-info
+
 *sample_html=<<HTML
-<div class="hatena-module" id="side-system-info">
+<div class="hatena-module" id="<@id>">
 <div class="hatena-moduletitle">System info</div>
 <div class="hatena-modulebody">
 Total time : 99.9 ms<br>
@@ -23,7 +25,8 @@ RDBMS : Text-DB<br>
 HTML
 
 *module_html=<<HTML
-<div class="hatena-module" id="side-system-info" data-module-name="<@this>">
+<!--ƒVƒXƒeƒ€î•ñ============================================-->
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
 <div class="hatena-moduletitle">System info</div>
 <div class="hatena-modulebody">
 <@ifexec(Timer, begin)>

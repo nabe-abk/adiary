@@ -64,11 +64,13 @@
 <div class="hatena-module" id="side-search" data-module-name="des_searchbox">
 <div class="hatena-moduletitle">検索</div>
 <div class="hatena-modulebody">
-<form method="GET" action="<@v.myself>" id="side-search-form">
-<input type="search" class="w80" name="q" value="<@tag_escape(x = Query.q)>" id="side-search-text" required>
-<button type="submit" id="side-search-submit">検索</button><br>
-<input type="radio" name="all" value="0" <@if(!Query.all, "checked")>><label>タイトル</label>
-<input type="radio" name="all" value="1" <@if( Query.all, "checked")>><label>全文</label>
+<form method="GET" action="<@v.myself>">
+<input type="search" class="search-box w80" name="q" value="<@tag_escape(x = Query.q)>" required>
+<input type="submit" class="search-button" value="検索"><br>
+<span class="search-radio">
+<input class="search-title" type="radio" name="all" value="0" <@if(!all, "checked")>><label>タイトル</label>
+<input class="search-text"  type="radio" name="all" value="1" <@if( all, "checked")>><label>全文</label>
+</span>
 </form>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->

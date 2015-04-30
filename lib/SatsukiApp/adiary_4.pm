@@ -320,7 +320,7 @@ sub load_plugin_info {
 	}
 
 	# <@this>, <@id>の置換
-	my $id = $self->plugin_name_id( $name );
+	my $id = $h->{module_id} || $self->plugin_name_id( $name, 1 );
 	$h->{files}  =~ s/<\@this>/$name/g;
 	$h->{events} =~ s/<\@this>/$name/g;
 	my @ary = grep { /^module\w*_html$/ } keys(%$h);
@@ -752,7 +752,12 @@ sub plugin_num {
 sub plugin_name_id {
 	my $self = shift;
 	my $name = shift;
-	if ($name !~ /,/) { return ''; }	# 多重インストールモジュールではない
+	my $stop = shift;
+	if ($name !~ /,/) {	# 多重インストールモジュールではない
+		if ($stop) { return ''; }
+		my $h = $self->load_plugin_info($name) || {};
+		return $h->{module_id};
+	}
 	$name =~ s/,//g;
 	$name =~ tr/_/-/;
 	return $name;
@@ -1058,7 +1063,7 @@ sub parse_original_skeleton {
 sub load_module_html {
 	my $self = shift;
 	my $name = shift;
-	my $target = shift;
+	my $target = shift;	# _article, _main 等が入る
 	my $ROBJ = $self->{ROBJ};
 
 	# generatorの有無はファイルの存在で確認

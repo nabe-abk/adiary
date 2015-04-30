@@ -11,9 +11,10 @@ adiary_version=2.94
 module_type=main
 
 load_module_html_in_edit=1
+module_id=footer
 
 *sample_html=<<HTML
-<footer id="footer" data-fix="1"><!--フッタ-->
+<footer id="<@id>" data-fix="1"><!--フッタ-->
 <span class="adiary"><a href="http://adiary.org/">adiary</a> Version 3.00</span>
 </footer>
 HTML
@@ -22,7 +23,7 @@ HTML
 *module_html=<<HTML
 <$ps = v.load_plgset('<@this>')>
 <$stop_footer = 1>
-<footer id="footer" data-module-name="<@this>" data-fix="1"><!--フッタ-->
+<footer id="<@id>" data-module-name="<@this>" data-fix="1"><!--フッタ-->
 <@ps.footer_txt>
 <@ifexec(ps.outver ne '0', begin)>
 <div class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></div>
