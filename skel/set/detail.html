@@ -45,7 +45,7 @@
 		<input type="checkbox" name="edit_by_author_only" value="1"<@if(s.edit_by_author_only, ' checked')>><label>他人の記事は編集できないようにする。</label></td>
 	</tr>
 	<tr>
-		<th>ブログ<em>閲覧</em>権限を付与<span class="help" data-help="管理権限・編集権限をもつ人は自動的に閲覧権限を持ちます。">?</span></th>
+		<th>ブログ<em>表示</em>権限を付与<span class="help" data-help="管理権限・編集権限をもつ人は自動的に表示権限を持ちます。">?</span></th>
 		<td>
 		<@ifexec(v.blog.private, begin, begin)>
 		ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="viewers" class="w320" value="<@s.viewers>">
@@ -53,6 +53,18 @@
 		<input type="text" name="viewers" class="w320" value="<@s.viewers>" disabled><br>
 		※プライベートモード時のみ設定できます
 		<$end>
+		</td>
+	</tr>
+	<tr>
+		<th>ブログ表示パスワード<span class="help" data-help="この項目を設定するとパスワード入力画面が出るため、ブログ(id)の存在自体は知られてしまいます。">?</span></th>
+		<td>
+			<@ifexec(v.blog.private, begin, begin)>
+			全角文字も使用できます。<br>
+			<input type="text" name="view_pass" class="w320" value="<@s.view_pass>">
+			<$else>
+			<input type="text" name="view_pass" class="w320" value="<@s.view_pass>" disabled><br>
+			※プライベートモード時のみ設定できます
+			<$end>
 		</td>
 	</tr>
 	</tbody>
@@ -66,6 +78,7 @@
 		<td>
 		<$x=s.rss_items_int>
 		<select name="rss_items_int" class="int">
+			<option value="0" <@if(x == 0, ' selected')>>配信しない</option>
 			<option value="1" <@if(x == 1, ' selected')>>1件</option>
 			<option value="2" <@if(x == 2, ' selected')>>2件</option>
 			<option value="3" <@if(x == 3, ' selected')>>3件</option>
@@ -94,7 +107,7 @@
 	<tr><th>RSSにコメントを含めない</th>
 		<td>
 		<input type="hidden" name="checkbox.info" value="rss_no_comment">
-		<input type="checkbox" name="rss_no_comment" value="1"<@if(s.rss_no_comment, ' checked')>><label>コメントを含めない</label></td>
+		<input type="checkbox" name="rss_no_comment" value="1"<@if(s.rss_no_comment, ' checked')>><label>コメントを含めない</label>
 		</td>
 	</tr>
 	<tr><th rowspan="3">2つ目のRSS配信</th>
@@ -112,7 +125,7 @@
 	<tr>
 		<td>
 		<input type="hidden" name="checkbox.info" value="rss2_no_comment">
-		<input type="checkbox" name="rss2_no_comment" value="1"<@if(s.rss2_no_comment, ' checked')>><label>コメントを含めない</label></td>
+		<input type="checkbox" name="rss2_no_comment" value="1"<@if(s.rss2_no_comment, ' checked')>><label>コメントを含めない</label>
 		</td>
 	</tr>
 	</tbody>

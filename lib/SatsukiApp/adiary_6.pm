@@ -14,6 +14,7 @@ package SatsukiApp::adiary;
 my @update_versions = (
 	{ ver => 2.93, func => 'sys_update_293', rebuild=>1, plugin=>1 },
 	{ ver => 2.94, func => 'sys_update_294' },
+	{ ver => 2.95, plugin=>1 },
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート

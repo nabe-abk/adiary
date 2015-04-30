@@ -128,6 +128,9 @@ sub main {
 	# 表示スケルトン選択
 	$self->select_skeleton( $ROBJ->{Query}->{_} || $self->{query0} );
 
+	# 表示パスワードチェック
+	if ($self->{view_pass}) { $self->check_view_pass(); }
+
 	#-------------------------------------------------------------
 	# pop タイマー処理
 	#-------------------------------------------------------------
@@ -329,6 +332,26 @@ sub select_default_skeleton {
 }
 
 #------------------------------------------------------------------------------
+# ●表示パスワード機能
+#------------------------------------------------------------------------------
+sub check_view_pass {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $pass = $self->{view_pass};
+	my $ckey = 'view-pass-' . $self->{blogid};
+
+	# cookie
+	my $cpass = $ROBJ->get_cookie()->{$ckey};
+	if ($pass eq $cpass) { return; }
+
+	# パスワード要求
+	$ROBJ->{POST} = 0;
+	$ROBJ->{Form} = {};
+	$self->{skeleton} = '_sub/input_view_pass';
+	$self->{view_pass_key} = $ckey;
+}
+
+#------------------------------------------------------------------------------
 # ●HTMLの生成と出力
 #------------------------------------------------------------------------------
 sub output_html {
@@ -431,9 +454,12 @@ sub set_and_select_blog {
 	my $blog = $self->load_blogset( $blogid );
 	if (!$blog || !%$blog || $blogid eq '*') { return; }	# blogidが存在しない
 
-	# 権限設定
+	# 表示権限
 	my $view_ok = $self->set_blog_permission($self, $blog);
-	if (!$view_ok) { return; }	# プライベートモードのブログの閲覧権限がない
+	if (!$view_ok) {	# プライベートモードのブログの閲覧権限がない
+		if ($blog->{view_pass} eq '') { return; }
+		$self->{view_pass} = $blog->{view_pass};
+	}
 
 	# ブログ情報設定
 	$self->{blogid} = $blogid;

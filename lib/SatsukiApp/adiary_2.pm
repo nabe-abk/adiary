@@ -1141,20 +1141,26 @@ sub generate_rss {
 	#-----------------------------------------------
 	# RSS生成
 	#-----------------------------------------------
-	my $rss = $ROBJ->call_and_chain( $self->{rss_skeleton}, {
-		no_comment => $blog->{rss_no_comment},
-		items => $blog->{rss_items_int}
-	});
-	$jcode->from_to($rss, $ROBJ->{System_coding}, 'UTF-8');
-
-	# ファイルに書き込み
+	my $ret;
+	my @files;
 	my $file = $self->{blogpub_dir} . "rss.xml";
-	my $ret =  $ROBJ->fwrite_lines($file, $rss);
+	if ($blog->{rss_items_int}) {
+		my $rss = $ROBJ->call_and_chain( $self->{rss_skeleton}, {
+			no_comment => $blog->{rss_no_comment},
+			items => $blog->{rss_items_int}
+		});
+		$jcode->from_to($rss, $ROBJ->{System_coding}, 'UTF-8');
+
+		# ファイルに書き込み
+		$ret = $ROBJ->fwrite_lines($file, $rss);
+		push(@files, 'rss.xml');
+	} else {
+		$ROBJ->file_delete($file);
+	}
 
 	#-----------------------------------------------
 	# 2つ目のRSS生成
 	#-----------------------------------------------
-	my $rss_files = 'rss.xml';
 	my $file2 = $self->{blogpub_dir} . "rss2.xml";
 	if ( $blog->{rss2_tag} ne '' ) {
 		my $rss = $ROBJ->call_and_chain( $self->{rss_skeleton}, {
@@ -1165,13 +1171,13 @@ sub generate_rss {
 		});
 		$jcode->from_to($rss, $ROBJ->{System_coding}, 'UTF-8');
 		$ROBJ->fwrite_lines($file2, $rss);
-		$rss_files .= ",rss2.xml";
+		push(@files, 'rss2.xml');
 	} else {
 		$ROBJ->file_delete($file2);
 	}
 
 	# RSSファイル情報記録（,区切り）
-	$self->update_blogset($blog, 'rss_files', $rss_files);
+	$self->update_blogset($blog, 'rss_files', join(',', @files));
 
 	return $ret;
 }

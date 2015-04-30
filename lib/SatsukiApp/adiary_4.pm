@@ -350,6 +350,8 @@ sub load_plugin_info {
 		$h->{events} .= <<DCSS_EVENT;
 INSTALL=skel/_sub/module_css_generate
 SETTING=skel/_sub/module_css_generate
+PRIVATE_MODE_ON=skel/_sub/module_css_generate
+PRIVATE_MODE_OFF=skel/_sub/module_css_generate
 UNINSTALL=skel/_sub/module_css_delete
 DCSS_EVENT
 		chomp($h->{events});

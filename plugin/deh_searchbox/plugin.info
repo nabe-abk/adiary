@@ -17,7 +17,7 @@ module_id=head-search
 <div id="<@id>" data-module-name="<@this>">
 <form method="GET" action="./" onsubmit="return false;">
 <span class="title">検索</span>
-<input type="search" class="search-box w80" name="q" value="" required>
+<input type="search" class="search-box w100" name="q" value="" required>
 <input type="submit" class="search-button" value="検索">
 <span class="search-radio">
 <input class="search-title" type="radio" name="all" value="0" checked><label>タイトル</label>
@@ -32,7 +32,7 @@ HTML
 <div id="<@id>" data-module-name="<@this>">
 <form method="GET" action="<@v.myself>">
 <@if(!ps.title_none, '<span class="title">検索</span>')>
-<input type="search" class="search-box w80" name="q" value="<@tag_escape(x = Query.q)>" required>
+<input type="search" class="search-box w100" name="q" value="<@tag_escape(x = Query.q)>" required>
 <input type="submit" class="search-button" value="検索"><@if(ps.br, '<br>')>
 <$ifset(exists(Query.all), all, Query.all, ps.all)>
 <span class="search-radio">

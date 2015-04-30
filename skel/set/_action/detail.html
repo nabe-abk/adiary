@@ -12,14 +12,16 @@
 	editors:filter0 = reg_del:[^\*\w,]
 	editors:filter1 = trim
 
-	viewers = 閲覧権限を与えるユーザー
+	viewers = 表示権限を与えるユーザー
 	viewers:filter0 = reg_del:[^\*\w,]
 	viewers:filter1 = trim
-
 	edit_by_author_only = flag
 
+	view_pass = ブログ表示パスワード
+	view_pass:filter0 = trim
+
 	rss_items_int = RSSの配信件数
-	rss_items_int:min =  1
+	rss_items_int:min =  0
 	rss_items_int:max = 30
 	rss_no_comment = flag
 
@@ -31,8 +33,6 @@
 	rss2_title:filter1 = tag
 
 	rss2_no_comment = flag
-
-
 <$end>
 <$ifbreak(form_error())>
 
