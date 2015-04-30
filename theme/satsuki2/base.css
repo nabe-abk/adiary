@@ -541,7 +541,7 @@ figure {
 }
 
 /*--------------------------------------------------------------------
-●jQuery UI, popup-info/dialog
+●jQuery UI, popup-info/dialog/tabs
 ---------------------------------------------------------------------*/
 .ui-dialog {
 	background-color:	#f8f8ff;
@@ -557,7 +557,9 @@ figure {
 .ui-dialog ul {
 	margin:			1em 0em 1em 2em;
 }
-
+.body div.ui-tabs-panel {
+	padding:		12px 0;
+}
 
 /*--------------------------------------------------------------------
 ●その他

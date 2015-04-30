@@ -769,7 +769,6 @@ sub change_blogpub_dir_postfix {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 	my ($blogid, $len) = @_;
-	$len = int($len) || 6;
 
 	my $postfix = '';
 	if ($len > 0) {

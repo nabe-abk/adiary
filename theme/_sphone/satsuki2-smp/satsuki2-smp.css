@@ -9,6 +9,15 @@
 div.main {
 	margin-left:		0px;
 	margin-right:		0px;
+	padding:		0px;
+}
+#adiary-body {
+	width:			auto;
+}
+#hatena-body {
+	margin:			0 8px 0 6px;
+	width:			auto;
+	max-height:		auto;
 }
 #sidebar, #side-a, #side-b {
 	margin:			0px;
@@ -48,6 +57,12 @@ div.main {
 #sidebar {
 	font-size:		12pt;
 }
+span.switch-icon {
+	margin-right:		1em;
+}
+#sidebar ul.hatena-section {
+	line-height:		200%;
+}
 
 /*--------------------------------------------------------------------
 ■コメント欄
@@ -63,4 +78,42 @@ div.main {
 	width:			340px;
 }
 
+/*--------------------------------------------------------------------
+■スマホ向け設定
+---------------------------------------------------------------------*/
+#body img,
+#body figure {
+	max-width:		100%;
+	height:			auto;
+	float:			none;
+}
+#body textarea,
+#body input,
+#body video,
+#body audio {
+	max-width:		100%;
+}
+
+article ul,
+article ol {
+	padding-left:		2em;
+}
+article ul ul,
+article ol ol {
+	padding-left:		1em;
+}
+article div.body {
+	padding-left:		12px;
+	padding-right:		12px;
+}
+article .body table {
+	margin-left:		1em;
+	margin-right:		1em;
+}
+article pre {
+	margin:			0;
+	padding:		4px;
+
+	overflow-x:		scroll;
+}
 

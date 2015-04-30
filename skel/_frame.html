@@ -27,7 +27,7 @@
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir>satsuki2/base.css">
 <![endif]-->
 <@> テーマとユーザーCSSは最後に読み込む
-<meta name="viewport" content="width=device-width">
+<@if(v.sphone, #'<meta name="viewport" content="width=device-width">\n')>
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css" id="theme-css">
 <@>
 <@if(!v.special_system_mode && s.theme_custom && s.theme eq v.theme, #'<link rel="stylesheet" href="<@Basepath><@s.theme_custom>" id="theme-custom-css">\n')>
