@@ -1,0 +1,27 @@
+<@6>
+<$v.frame_skeleton = ''>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="<@System_coding>">
+<title>表示パスワード入力</title>
+</head>
+<body>
+
+表示パスワードを入力してください。<br>
+<input type="text" value="" id="pass" size="30">
+<button id="btn">送信</button>
+<@>-------------------------------------------------------------
+<script>
+document.getElementById('btn').onclick = function(){
+	var pass = document.getElementById('pass').value;
+
+	exp=new Date();
+	exp.setTime(exp.getTime()+1000*60*60*24 * 365);	// 1年
+	document.cookie = "<@v.view_pass_key>=" + encodeURIComponent(pass) + "; expires=" + exp.toGMTString();
+
+	location.reload();
+};
+</script>
+</body>
+</html>
