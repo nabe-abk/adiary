@@ -1,9 +1,13 @@
 <@20>
-<@> スマホ用初期化ファイル。テーマ選択で対応。
+<@local(css)>
+<@> スマホ用初期化ファイル。
 
-<$v.regist_postcss( "<@v.theme_dir>_sphone/satsuki2-smp/satsuki2-smp.css" )>
+<@> スマホ対応テーマか確認する。
+<$css = "<@v.theme_dir><@v.theme>/sphone.css">
+<$ifexec(!file_readable(css), begin)>
+	<$v.load_theme('satsuki2/satsuki2')>
+	<$css = "<@v.theme_dir><@v.theme>/sphone.css">
+<$end>
 
-<$ifbreak(v.theme eq 'satsuki2/satsuki2')>
-<$ifbreak(v.theme eq 'satsuki2/satsuki2-multiside')>
-
-<$v.load_theme('satsuki2/satsuki2')>
+<@> スマホ用CSSの読み込み
+<$v.regist_postcss( css )>
