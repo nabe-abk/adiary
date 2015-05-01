@@ -57,6 +57,19 @@
 			<input type="checkbox" name="create_blog_only_admin" value="1"<@if( s.create_blog_only_admin, ' checked')>><label>管理者のみ</label>
 		</td>
 	</tr>
+	<tr>
+		<th>メンテナンスモード<span class="help" data-help="管理者アカウント以外では一切アクセスできなくなり、メンテナンスメッセージが表示されます。">?</span></th>
+		<td>
+			<input type="checkbox" name="mainte_mode" value="1"<@if(s.mainte_mode, ' checked')>><label>メンテナンスモード</label>
+		</td>
+	</tr>
+	<tr>
+		<th>メンテナンスメッセージ</th>
+		<td>
+			<textarea name="mainte_txt" class="w400 small" cols="50" rows="3" wrap="soft"><@replace(x = s.mainte_txt, "<br>", "\n")></textarea>
+			改行有効。<a href="<@v.myself>?etc/allow_tags&amp;n=description" target="_blank">使用可能なHTMLタグ</a><br>
+		</td>
+	</tr>
 	</tbody>
 	</table>
 

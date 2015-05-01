@@ -131,6 +131,9 @@ sub main {
 	# 表示パスワードチェック
 	if ($self->{view_pass}) { $self->check_view_pass(); }
 
+	# メンテナンスモード
+	if ($self->{sys}->{mainte_mode}) { $self->mainte_mode(); }
+
 	#-------------------------------------------------------------
 	# pop タイマー処理
 	#-------------------------------------------------------------
@@ -329,26 +332,6 @@ sub select_default_skeleton {
 		return $self->{article_skeleton};
 	}
 	return $self->{main_skeleton};
-}
-
-#------------------------------------------------------------------------------
-# ●表示パスワード機能
-#------------------------------------------------------------------------------
-sub check_view_pass {
-	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $pass = $self->{view_pass};
-	my $ckey = 'view-pass-' . $self->{blogid};
-
-	# cookie
-	my $cpass = $ROBJ->get_cookie()->{$ckey};
-	if ($pass eq $cpass) { return; }
-
-	# パスワード要求
-	$ROBJ->{POST} = 0;
-	$ROBJ->{Form} = {};
-	$self->{skeleton} = '_sub/input_view_pass';
-	$self->{view_pass_key} = $ckey;
 }
 
 #------------------------------------------------------------------------------

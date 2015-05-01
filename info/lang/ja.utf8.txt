@@ -169,6 +169,7 @@ Blog not found=ブログがみつかりません
 Blog '%s' not found=ブログ「%s」がみつかりません
 Security error. Please repost.=セキュリティーエラー。再度投稿してください。
 Article '0%d' not found=記事番号「0%d」が見つかりません
+Now maintenance mode=現在メンテナンスモードで動作中です。
 
 # プラグイン関連
 [plugin=%s] Load error=[plugin=%s] プラグインのロードに失敗しました

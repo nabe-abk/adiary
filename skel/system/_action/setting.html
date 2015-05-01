@@ -8,6 +8,14 @@
 	VERSION:type = num
 	VERSION:min = 2.90
 
+	mainte_mode = flag
+	mainte_txt  = メンテナンスメッセージ
+	mainte_txt:max_chars = 2048
+	mainte_txt:filter0     = reg_rep:[\r?\n]
+	mainte_txt:filter0_opt = <br>
+	mainte_txt:filter1     = file:<@v.allow_tags_head>description.txt
+	mainte_txt:filter1_opt = <@v.trust_mode>
+
 	ping_servers_txt = Pingサーバーの設定
 	ping_servers_txt:filter0 = tag
 	ping_servers_txt:filter1 = trim

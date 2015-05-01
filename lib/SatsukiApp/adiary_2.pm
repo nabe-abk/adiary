@@ -1743,6 +1743,54 @@ sub special_system_mode {
 }
 
 #------------------------------------------------------------------------------
+# ●表示パスワード機能
+#------------------------------------------------------------------------------
+sub check_view_pass {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $pass = $self->{view_pass};
+	my $ckey = 'view-pass-' . $self->{blogid};
+
+	# cookie
+	my $cpass = $ROBJ->get_cookie()->{$ckey};
+	if ($pass eq $cpass) { return; }
+
+	# パスワード要求
+	$ROBJ->{POST} = 0;
+	$ROBJ->{Form} = {};
+	$self->{skeleton} = '_sub/input_view_pass';
+	$self->{view_pass_key} = $ckey;
+}
+
+#------------------------------------------------------------------------------
+# ●メンテナンスモード
+#------------------------------------------------------------------------------
+sub mainte_mode {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $auth = $ROBJ->{Auth};
+
+	# 管理者
+	if ($auth->{isadmin}) {
+		if (!$ROBJ->{POST}) { $ROBJ->message('Now maintenance mode'); }
+		return ;
+	}
+	if ($self->{skeleton} !~ /^login\w*$/) {
+		$self->{skeleton} = '_sub/maintenance_msg';
+	} else {
+		$self->set_and_select_blog('', 1);
+	}
+	if (!$ROBJ->{POST}) { return; }
+
+	# POST
+	my $form = $ROBJ->{Form};
+	if ($form->{action} ne 'login') {
+		$ROBJ->{POST} = 0;
+		$ROBJ->{Form} = {};
+	}
+}
+
+#------------------------------------------------------------------------------
 # ●hash/arrayツリーからjsonを生成する
 #------------------------------------------------------------------------------
 sub generate_json {
