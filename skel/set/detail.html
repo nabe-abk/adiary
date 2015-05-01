@@ -34,6 +34,30 @@
 
 	<table class="blog-setting">
 	<tbody>
+	<tr><th>ブログトップの記事表示</th>
+		<td>
+		<$x=s.load_items || 5>
+		<select name="load_items" class="int">
+			<option value="1" <@if(x == 1, ' selected')>>1件</option>
+			<option value="2" <@if(x == 2, ' selected')>>2件</option>
+			<option value="3" <@if(x == 3, ' selected')>>3件</option>
+			<option value="4" <@if(x == 4, ' selected')>>4件</option>
+			<option value="5" <@if(x == 5, ' selected')>>5件</option>
+			<option value="6" <@if(x == 6, ' selected')>>6件</option>
+			<option value="7" <@if(x == 7, ' selected')>>7件</option>
+			<option value="8" <@if(x == 8, ' selected')>>8件</option>
+			<option value="9" <@if(x == 9, ' selected')>>9件</option>
+			<option value="10"<@if(x ==10, ' selected')>>10件</option>
+		</select>
+		</td>
+	</tr>
+	<tr><th>wikiコンテンツの扱い</th>
+		<td>
+			<input type="hidden" name="checkbox.info" value="separate_blog">
+			<input type="checkbox" name="separate_blog" value="1"<@if(s.separate_blog, ' checked')>><label>ブログとwikiコンテンツ等を分離して扱う</label><span class="help" data-help="この設定を行うとコンテンツページは「最近の記事数件」「次の記事へのリンク」「ページ送り」「RSS」等で表示されなくなります。検索や記事一覧では表示されます。">?</span>
+
+		</td>
+	</tr>
 	<tr>
 		<th>ブログ<em>管理</em>権限を付与</th>
 		<td>ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="admin_users" class="w320" value="<@s.admin_users>"></td>

@@ -260,8 +260,9 @@ sub reinstall_plugins {
 	my $self = shift;
 	my $pd = $self->load_plugins_dat();
 
-	$self->reinstall_normal_plugins($pd);
-	$self->reinstall_design_plugins($pd);
+	my $r1 = $self->reinstall_normal_plugins($pd);
+	my $r2 = $self->reinstall_design_plugins($pd);
+	return ($r1 || $r2);
 }
 #------------------------------------------------------------------------------
 # ●通常プラグインの再インストール
@@ -293,21 +294,38 @@ sub reinstall_design_plugins {
 
 	# デザインモジュールの現在の状態をロードしておく
 	my $des = $self->load_design_info();
-	if ($des->{side_info} < 5) {
-		return -1;	# 情報がないので再インストール不可
-	}
+	if (! %$des) { return 0; }
 
+	# reinistall
+	my $h = $self->parse_design_dat( $des );
+	if ($des->{version}<6) {
+		$h->{save_ary} = [ '_sidebar', '_header' ];
+		if (!$des->{header}) { return -1; }
+	}
 	# uninstall
 	$self->reset_design();
 
-	# reinistall
-	return $self->save_design({
-		side_a_ary => [ split(/\n/, $des->{side_a}) ],
-		side_b_ary => [ split(/\n/, $des->{side_b}) ],
-		main_a_ary => [ split(/\n/, $des->{main_a}) ],
-		main_b_ary => [ split(/\n/, $des->{main_b}) ],
-		header_ary => [ split(/\n/, $des->{header}) ]
-	});
+	return $self->save_design($h);
+}
+
+#------------------------------------------------------------------------------
+# ●design.datの解析
+#------------------------------------------------------------------------------
+sub parse_design_dat {
+	my $self = shift;
+	my $dat  = shift;
+	return {
+		version    => $dat->{version},
+		side_a_ary => [ split(/\n/, $dat->{side_a}) ],
+		side_b_ary => [ split(/\n/, $dat->{side_b}) ],
+		main_a_ary => [ split(/\n/, $dat->{main_a}) ],
+		main_b_ary => [ split(/\n/, $dat->{main_b}) ],
+		header_ary => [ split(/\n/, $dat->{header}) ],
+		art_h_ary  => [ split(/\n/, $dat->{art_h})  ],
+		art_f_ary  => [ split(/\n/, $dat->{art_f})  ],
+		com_ary    => [ split(/\n/, $dat->{com})    ],
+		save_ary   => [ split(/\n/, $dat->{save})   ],
+	};
 }
 
 ###############################################################################

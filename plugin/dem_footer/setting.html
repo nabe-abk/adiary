@@ -2,6 +2,7 @@
 <@local(ps)>
 <$ps=argv#0>
 	<$txt = ps.footer_txt><$ifexec(ps.lf2br, begin)><$replace(txt, '<br>', "\n")><$end>
+	フッターに出力する内容。<br>
 	<textarea class="w512" rows="4" name="footer_txt"><@esc(txt)></textarea>
 	<a href="<@v.myself>?etc/allow_tags&amp;n=usertext" target="_blank">※使用可能なHTMLタグ</a><br>
 

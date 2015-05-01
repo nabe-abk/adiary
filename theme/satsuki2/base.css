@@ -515,6 +515,9 @@ figure {
 .design-module-edit {
 	min-height:		18px;
 }
+.main div.design-module-edit {
+	width:			100%;
+}
 .design-module-edit {
 	position:		relative;
 }

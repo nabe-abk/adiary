@@ -9,7 +9,7 @@ yyyymmdd = 20141231
 year  = 2014
 mon   = 12
 day   = 31
-text  = <section>この記事はダミーです。<br>なるべく記事を用意してから行ってください。<br></section>
+text  = <section>果物のリスト。<br><ul><li>りんご</li><li>バナナ</li><li>パイナップル</li></ul>この記事はダミーです。<br></section>
 priority=0
 hcom_ok=1
 ip=192.168.1.1
@@ -31,6 +31,7 @@ agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0
 	<$(logs,ret) = v.load_articles_current_blog('',{}, { load_items => 1 })>
 	<$t = logs#0>
 	<$ifset(!t, t, art_dummy)>
+	<$t.com_ok=1>
 <$end>
 
 <$page_nav_force = begin_string>

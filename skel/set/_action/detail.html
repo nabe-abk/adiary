@@ -4,6 +4,13 @@
 <$ifbreak(csrf_check())>
 
 <$h = validator(begin_hash, Form)>
+	separate_blog = flag
+
+	load_items = ブログトップの記事表示件数
+	load_items:type = int
+	load_items:min  =  1
+	load_items:max  = 10
+
 	admin_users = 管理権限を与えるユーザー
 	admin_users:filter0 = reg_del:[^\*\w,]
 	admin_users:filter1 = trim

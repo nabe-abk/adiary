@@ -14,7 +14,6 @@ $(function(){
 	var module_data_id   = '#design-modules-data';
 	var module_selector  = '[data-module-name]';
 	var not_sortable     = ':not([data-fix])';
-	var module_name_attr = 'data-module-name';
 
 	var btn_save = $('#save-btn');
 	var btn_close_title   = $('#btn-close').text()   || 'delete';
@@ -79,16 +78,34 @@ iframe.on('load', function(){
 	f_main.sortable({ items: selector + ', #article, #articles' });
 	f_head.sortable({ items: selector });
 
+	// 記事本体
+	var artbody = $f('#article-body>div.body');
+	var arthead = artbody.children('div.body-header');
+	var artfoot = artbody.children('div.body-footer');
+	var artmain = artbody.children('div.body-main');
+	artfoot.sortable({ items: selector });
+	if (artmain.height() > 300)
+		artmain.css({
+			'height':	'300px',
+			'overflow-y':	'hidden',
+			'margin-bottom':'12px',
+			'border-bottom':'2px dashed #900'
+		});
+	// コメント欄
+	var combody = $f('#com>div.commentbody');
+	var comview = combody.children('div.comemntview');
+	comview.hide(0);
+
 	// iframe内のリンク書き換え
 	$f('a').each(function(idx,dom) {
 		var obj = $(dom);
 		var url = obj.attr('href');
 		if (!url) return;
 
-		if (url.substr(0, if_cw.Vmyself.length) != if_cw.Vmyself
-		 || url.indexOf('?&')<0 && 0<url.indexOf('?')) {
+		// if (url.substr(0, if_cw.Vmyself.length) != if_cw.Vmyself
+		//  || url.indexOf('?&')<0 && 0<url.indexOf('?')) {
 			obj.attr('target', '_top');
-		}
+		//}
 	});
 
 //////////////////////////////////////////////////////////////////////////////
@@ -109,7 +126,10 @@ mod_type.change(function(evt){
 		var id = mod.children().attr('id');
 		if (id) {
 			if ($f('#' + id).data('fix')) continue;	// 固定要素は無視
+		} else {
+			if ($f('[data-module-name="' + name + '"]').data('fix')) continue;
 		}
+
 		// 追加
 		sel.append( $('<option>')
 			.attr('value', name)
@@ -170,6 +190,8 @@ $('#add-module').change(function(evt){
 	var type = mod_type.val();
 	if (type == 'header') {
 		f_head.append(obj);
+	} else if (type == 'article') {
+		artfoot.append(obj);
 	} else {
 		var place = (type == 'main') ? f_main : side_a;
 		place.prepend(obj);
@@ -398,17 +420,20 @@ btn_save.click(function(){
 		obj.each( function(idx,dom){
 			var name = $(dom).data('module-name');
 			if (!name || name == '') return;
-			var inp1 = $('<input>');
-			inp1.addClass('js-value');
-			inp1.attr('type', 'hidden');
-			inp1.attr('name',  key);
-			inp1.attr('value', name);
+			var inp1 = $('<input>').addClass('js-value');
+			inp1.attr({
+				type: 'hidden',
+				name:  key,
+				value: name
+			});
+			// console.log(key + '=' + name);
 			form.append(inp1);
-			var inp2 = $('<input>');
-			inp2.addClass('js-value');
-			inp2.attr('type', 'hidden');
-			inp2.attr('name',  name + '_int');
-			inp2.attr('value', i++);
+			var inp2 = $('<input>').addClass('js-value');
+			inp2.attr({
+				type: 'hidden',
+				name: name + '_int',
+				value: i++
+			});
 			form.append(inp2);
 		});
 	};
@@ -434,6 +459,12 @@ btn_save.click(function(){
 
 	form_append('main_a_ary', $(main_a_ary));
  	form_append('main_b_ary', $(main_b_ary));
+
+	// 記事本体とコメント欄
+	form_append('art_h_ary', arthead.children(module_selector));
+	form_append('art_f_ary', artfoot.children(module_selector));
+	form_append('com_ary'  , combody.children(module_selector));
+
 	form.submit();
 });
 

@@ -264,14 +264,15 @@ section footer p.footnote {
 
 /* 記事フッタ */
 div.body-footer {
-	line-height:		100%;
-	font-size:		90%;
-	margin:			0 0 0 0.5em;
-	vertical-align:		middle;
 }
 
 /* ソーシャルアイコン */
 div.social-buttons {
+	line-height:		100%;
+	font-size:		90%;
+	margin:			0 0 0 0.5em;
+	vertical-align:		middle;
+
 	margin-left:		1em;
 	display:		inline-block;
 }
@@ -441,6 +442,11 @@ dt { font-weight:	bold; }
 	border-collapse:	separate;
 	border-spacing:		2px;
 	empty-cells:		show;
+}
+.body blockquote table,
+.body div.box table {
+	margin-left:		0;
+	margin-right:		0;
 }
 .body table tr,
 .ui-dialog table tr {

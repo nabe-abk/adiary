@@ -262,7 +262,7 @@ sub load_plugins_info {
 	my $files = $ROBJ->search_files($dir, {dir_only => 1});
 	my @ary;
 	foreach( sort @$files ) {
-		my $f = ($_ =~ /^de[smha]_/);		# デザインモジュール？
+		my $f = ($_ =~ /^de[smhac]_/);		# デザインモジュール？
 		if (!$modf && $f || $modf && !$f) { next; }
 		# load
 		push(@ary, $self->load_plugin_info($_, $dir));
@@ -878,8 +878,12 @@ sub save_design {
 	my @main_a = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{main_a_ary} || []};
 	my @main_b = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{main_b_ary} || []};
 	my @header = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{header_ary} || []};
+	my @art_h  = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{art_h_ary}  || []};
+	my @art_f  = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{art_f_ary}  || []};
+	my @com    = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{com_ary}    || []};
+	my %save   = map {$_ => 1} @{$form->{save_ary} || []};
 
-	my %use_f = map {$_ => 1} (@side_a,@side_b,@main_a,@main_b,@header);
+	my %use_f  = map {$_ => 1} (@side_a,@side_b,@main_a,@main_b,@header,@art_h,@art_f,@com);
 	my $pd = $self->load_plugins_dat();
 	my @multi;
 	foreach(keys(%$pd)) {	# 現在のinstall状態確認
@@ -905,10 +909,16 @@ sub save_design {
 	$ROBJ->mkdir($dir);
 	my $ret = 0;
 
+	# 書き込み前に消す
+	$ROBJ->file_delete($dir . '_header.html');
+	$ROBJ->file_delete($dir . '_sidebar.html');
+	$ROBJ->file_delete($dir . '_article.html');
+	$ROBJ->file_delete($dir . '_main.html');
+
 	#-------------------------------------------------------------------
 	# _sidebar.html を生成
 	#-------------------------------------------------------------------
-	{
+	if (!%save || $save{_sidebar}) {
 		my $file = '_sidebar';
 		my $h = $self->parse_original_skeleton($file);
 		my @html;
@@ -934,7 +944,7 @@ sub save_design {
 	#-------------------------------------------------------------------
 	# _header.html を生成
 	#-------------------------------------------------------------------
-	if (! $form->{sidebar_only}) {
+	if (!%save || $save{_header}) {
 		my $file = '_header';
 		my $h = $self->parse_original_skeleton($file);
 		my @html;
@@ -955,7 +965,7 @@ sub save_design {
 	#-------------------------------------------------------------------
 	# _article.html を生成
 	#-------------------------------------------------------------------
-	if (! $form->{sidebar_only}) {
+	if (!%save || $save{_article}) {
 		my $file = '_article';
 		my $h = $self->parse_original_skeleton($file);
 
@@ -965,7 +975,25 @@ sub save_design {
 			if ($fail->{$_}) { next; }
 			push(@html, $self->load_module_html($_, $file) . "\n");
 		}
-		push(@html, @{$h->{ARTICLE} || []});
+		#---記事表示部------------------------------
+		push(@html, @{$h->{ARTICLE_TOP} || []});
+		foreach(@art_h) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{ARTICLE_MIDDLE} || []});
+		foreach(@art_f) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{ARTICLE_BOTTOM} || []});
+		push(@html, @{$h->{COMMENT_TOP}    || []});
+		foreach(@com) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{COMMENT_BOTTOM} || []});
+		#-------------------------------------------
 		foreach(@main_b) {
 			if ($fail->{$_}) { next; }
 			push(@html, $self->load_module_html($_, $file) . "\n");
@@ -982,7 +1010,7 @@ sub save_design {
 	#-------------------------------------------------------------------
 	# _main.html を生成
 	#-------------------------------------------------------------------
-	if (! $form->{sidebar_only}) {
+	if (!%save || $save{_main}) {
 		my $file = '_main';
 		my $h = $self->parse_original_skeleton($file);
 
@@ -992,7 +1020,12 @@ sub save_design {
 			if ($fail->{$_}) { next; }
 			push(@html, $self->load_module_html($_, $file) . "\n");
 		}
-		push(@html, @{$h->{ARTICLE} || []});
+		push(@html, @{$h->{ARTICLE_TOP} || []});
+		foreach(@art_h) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{ARTICLE_BOTTOM} || []});
 		foreach(@main_b) {
 			if ($fail->{$_}) { next; }
 			push(@html, $self->load_module_html($_, $file) . "\n");
@@ -1010,14 +1043,18 @@ sub save_design {
 	# デザイン情報を保管（再構築時用）
 	#-------------------------------------------------------------------
 	$self->update_design_info({
+		version => 6,
 		side_a => join("\n", @side_a),
 		side_b => join("\n", @side_b),
 		main_a => join("\n", @main_a),
 		main_b => join("\n", @main_b),
 		header => join("\n", @header),
-		side_info => 5
+		art_h  => join("\n", @art_h),
+		art_f  => join("\n", @art_f),
+		com    => join("\n", @com),
+		save   => join("\n", keys(%save))
 	});	# ※reinstall_design_plugins() と対応させること！
-		# 　項目追加時は side_info の数値を増加させる
+		# 　項目追加時は version の数値を増加させる
 
 	return $ret;
 }
@@ -1144,6 +1181,9 @@ sub reset_design {
 	$ROBJ->file_delete($self->{blog_dir} . 'skel/_sidebar.html');
 	$ROBJ->file_delete($self->{blog_dir} . 'skel/_article.html');
 	$ROBJ->file_delete($self->{blog_dir} . 'skel/_main.html');
+
+	# インストール情報を消す
+	$self->save_design_info({});
 
 	# 個別の設定もすべて消す
 	if ($all) {

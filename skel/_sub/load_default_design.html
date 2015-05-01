@@ -1,14 +1,10 @@
 <@20>
-<@local(id,h,form)>
+<@local(id,h)>
 <$id = argv#0>
 <$replace(id, '\W', '')>
 <$v.set_and_select_blog(id)>
 <$ifbreak(v.blogid eq '')>
 
-<$h = fread_hash(v.default_design_file)>
-
-<$form.side_a_ary = split("\n", h.side_a)>
-<$form.side_b_ary = split("\n", h.side_b)>
-<$form.sidebar_only = 1>
-<$v.save_design(form)>
+<$h = v.parse_design_dat( fread_hash(v.default_design_file) )>
+<$v.save_design( h )>
 

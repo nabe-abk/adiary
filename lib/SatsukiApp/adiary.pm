@@ -995,7 +995,6 @@ sub post_process_article {
 
 	# wiki関連
 	my $key = $dat->{link_key};
-	if ($key ne "0$dat->{pkey}") { $dat->{wiki}=1; }
 	$dat->{elink_key} = $key;
 	$self->link_key_encode( $dat->{elink_key} );
 
@@ -1655,6 +1654,14 @@ sub load_jscss {
 sub append_header {
 	my $self = shift;
 	push(@{ $self->{extra_header} ||=[] }, @_);
+}
+
+#------------------------------------------------------------------------------
+# ●htmlの登録
+#------------------------------------------------------------------------------
+sub regist_posthtml {
+	my $self = shift;
+	push(@{ $self->{posthtml} ||=[] }, @_);
 }
 #------------------------------------------------------------------------------
 # ●記事編集権限チェック

@@ -32,8 +32,6 @@
 <@>記事タイトル
 <$v.subtitle = t.title>
 
-<@>ソーシャルボタンの準備
-<$call('_sub/social_buttons')>
 <@>$HEADER:END$----------------------------------------------------------------
 
 <@><!--========================================================================-->
@@ -54,6 +52,7 @@
 </nav>
 <$end.page>
 <@>$ARTICLE$-------------------------------------------------------------------
+<@>$ARTICLE_TOP$---------------------------------------------------------------
 
 <!--========================================================================-->
 <$permalink = if(t.link_key eq s.frontpage, v.myself, "<@v.myself2><@t.elink_key>")>
@@ -61,20 +60,17 @@
 <$canonical_url = url>
 <$encode_uricom(url)>
 <@>
-<article id="article" class="article<@if(t.ctype ne '', " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
+<article id="article" class="article<@if(t.priority, " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
 <div id="article-body">
-<h2 id="art-<@t.pkey>"><@if(!t.wiki, #'<a class="date" href="<@permalink>"><@t.year>/<@t.mon>/<@t.day>(<@t.wday_name>)</a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
+<h2 id="art-<@t.pkey>"><@if(!t.priority, #'<a class="date" href="<@permalink>"><@t.year>/<@t.mon>/<@t.day>(<@t.wday_name>)</a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
 <div class="body" id="s<@t.pkey>">
-	<div class="body-header">
-		<@ifexec(s.disp_hatena_bicon, begin)>
-		<a class="http-bookmark" href="http://b.hatena.ne.jp/entry/<@url>"><img src="http://b.st-hatena.com/entry/image/<@url>" alt="はてブ数"></a>
-		<$end>
-		<$x = if(t.wiki, s.wiki_tm, s.disp_tmdate)>
-		<@ifexec(x, begin)><span class="write-date"><@tm_printf('%Y/%m/%d %J:%M ', if(x==1, t.tm, t.update_tm))></span><$end>
-		<@ifexec(t.tags, begin)><span class="tags"><@v.make_taglinks(t.tags)></span><$end>
-		<@ifexec(s.disp_author, begin)><span class="author" title="<@t.id>"><@t.name></span><$end>
+<div class="body-header">
+<@>$ARTICLE_TOP:END$-----------------------------------------------------------
+	<div class="art-info" data-module-name="dea_art-info" data-fix="1">
 		<@ifexec(v.check_editor(t), begin)><a href="<@v.myself2>0<@t.pkey>?edit" class="edit-article">（編集）</a><$end>
 	</div>
+<@>$ARTICLE_MIDDLE$------------------------------------------------------------
+</div>
 <div class="body-main">
 	<@if( t.draft,  '<strong class="warning">【この記事は下書きです】</strong><br>' )>
 	<@if(!t.draft && !t.enable, '<strong class="warning">【この記事は非公開です】</strong><br>')>
@@ -82,8 +78,11 @@
 	<@ifexec(t.ctype eq 'link', begin)>
 	<$x=esc(t.link_key)><p class="link"><a href="<@x>"><@x></a></p>
 	<$end>
-<@>----------------------------------------------------
+</div><!-- body-main -->
+<div class="body-footer">
+<@>$ARTICLE_MIDDLE:END$--------------------------------------------------------
 <@>記事リスト・関連記事
+<div data-module-name="dea_node-list">
 <@ifexec(node.children, begin)>
 <h3>記事リスト</h3>
 <ul class="art-list art-children">
@@ -100,28 +99,27 @@
 <$end>
 </ul>
 <$end>
-<@>----------------------------------------------------
 </div>
-	<$coms = if(v.allow_edit, t.coms_all, t.coms)>
-	<div class="body-footer">
-<@>ソーシャルボタンの呼び出し
-<@exec(social_func, url)>
-	</div>
+<@>$ARTICLE_BOTTOM$------------------------------------------------------------
+</div> <!-- body-footer -->
 </div> <!-- body -->
 </div> <!-- article-body -->
+<@>$ARTICLE_BOTTOM:END$--------------------------------------------------------
 
-
+<@>$COMMENT_TOP$---------------------------------------------------------------
+<$coms = if(v.allow_edit, t.coms_all, t.coms)>
 <@ifexec(t.com_ok || coms, begin)>
 <$view = if(Query.c ne 'all', s.disp_coms_int)>
 <$secure_id  = make_secure_id( v.blogid . t.pkey )>
 <$secure_ary = string2ordary( secure_id )>
 <aside class="comment" id="com">
 	<div class="caption js-switch" data-target="#c<@t.pkey>n-block"><span class="caption-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span></div>
-	<@ifexec(view && coms>view, begin)>
+	<@ifexec(view && view<coms, begin)>
 	<p class="abbr-msg"><a href="<@permalink>?&amp;c=all#com">※古いメッセージが省略されています（すべて表示）</a></p>
 	<$end>
 	<div class="commentbody" id="c<@t.pkey>n-block">
 	<@ifexec(coms && v.allow_edit, begin)>
+	<div class="comemntview">
 	<form method="POST" action="<@permalink>" class="js-form-check" data-target="#com .pkey-ary">
 	<input type="hidden" name="action" value="comments_edit">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
@@ -161,12 +159,14 @@
 	<input type="checkbox" name="del_check" class="js-enable" data-target="#del-submit"><label>削除確認</label>
 	</form>
 	<@if(t.com_ok && v.allow_com, '<hr id="com-form-separator">')>
+	</div><!-- end of comemntview -->
 	<$end>
+<@>$COMMENT_TOP:END$-----------------------------------------------------------
 
 	<@ifexec(t.com_ok && v.allow_com, begin)>
 	<form method="POST" action="<@permalink>" class="comment" onsubmit="put_sid('sid<@t.pkey>',74, <@\>
 	<@forexec(c, secure_ary, begin)><@c ^ 93>,<@c>,<$end> <@\>
-	20); return true;">
+	20); return true;" data-module-name="dec_comment-form" data-fix="1">
 		<input type="hidden" name="action" value="comment_post">
 		<@if(Auth.ok, #'\t\t<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">\n')>
 		<input type="hidden" name="a_pkey" value="<@t.pkey>">
@@ -175,19 +175,15 @@
 		<@ifexec(Auth.ok, begin, begin)><span class="comment-author"><@Auth.name></span><$else><input type="text" name="name" class="w160 comment-author" value="<@esc(Form.name)>" required><$end>
 		<@if(t.hcom_ok, '&nbsp;<input type="checkbox" name="hidden" value="1"><label>非公開コメント</label>')>
 		<input type="submit" name="post" id="post-comment" value="投稿"><br>
-		<textarea class="comment-txt" name="comment_txt" class="w600" rows="3" required><@esc(Form.comment_txt)></textarea>
-		<@ifexec(s.com_email, begin)>
-		<span class="caption-email">E-Mail(任意/非公開)</span><span class="separater">:</span><input class="w300" type="email" name="email" value="<@esc(Form.email)>"><br>
-		<$end>
-		<@ifexec(s.com_url, begin)>
-		<span class="caption-url">URL(任意)</span><span class="separater">:</span><input class="w300" type="url" name="url" value="<@esc(Form.url)>"><br>
-		<$end>
+		<textarea class="comment-txt w600" name="comment_txt" rows="3" required><@esc(Form.comment_txt)></textarea>
 	</form> <!-- comment form -->
 	<$end>
+<@>$COMMENT_BOTTOM$------------------------------------------------------------
 	</div> <!-- commentbody -->
 </aside> <!-- comment -->
 <$end>
 </article>
+<@>$COMMENT_BOTTOM:END$--------------------------------------------------------
 <@>$ARTICLE:END$---------------------------------------------------------------
 
 
@@ -198,4 +194,3 @@
 <$end.page>
 
 <@>$FOOTER$--------------------------------------------------------------------
-<@exec(social_script_func)>

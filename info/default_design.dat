@@ -1,3 +1,7 @@
+
+version=6
+save=_sidebar
+
 *side_a=<<LIST
 des_information-ja
 des_taglist
