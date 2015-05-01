@@ -1,0 +1,20 @@
+<!-- 関連記事 -->
+<$ps = v.load_plgset('<@this>')>
+<div data-module-name="<@this>">
+<@ifexec(node.children, begin)>
+<h3>記事リスト</h3>
+<ul class="art-list art-children">
+<@forexec(t2, node.children, begin)>
+	<li><a href="<@v.myself2><@t2.elink_key>"><@t2.title></a></li>
+<$end>
+</ul>
+<$end>
+<@ifexec(!node.children && node.family, begin)>
+<h3>関連記事</h3>
+<ul class="art-list art-family">
+<@forexec(t2, load_from_ary(node.family, ps.displays || 5), begin)>
+	<li><a href="<@v.myself2><@t2.elink_key>"><@t2.title></a></li>
+<$end>
+</ul>
+<$end>
+</div>

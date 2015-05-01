@@ -1,0 +1,20 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	lf2br = flag
+	email = flag
+	url   = flag
+
+	msg = 出力テキスト
+	msg:filter0     = trim
+	msg:filter1     = file:<@v.allow_tags_head>usertext.txt
+	msg:filter1_opt = <@v.trust_mode>
+<$end>
+
+<$ifbreak(form_error())>
+
+<$ifexec(h.lf2br, begin)>
+	<$replace(h.msg, '[\r\n]', '<br>')>
+<$end>
+
+<$return(h)>

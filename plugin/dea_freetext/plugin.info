@@ -1,0 +1,26 @@
+######################################################################
+title=フリー入力
+version=1.00
+#					(C)2015 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+adiary_version=2.94
+module_type=article
+load_module_html_in_edit=1
+
+*sample_html=<<HTML
+<div class="dem-module">
+テキストやHTMLを自由に入力できます。
+</div>
+HTML
+
+
+*module_html=<<HTML
+<$ps = v.load_plgset('<@this>')>
+<div class="dem-module" data-module-name="<@this>" id="<@id>">
+<@if(ps.free_txt ne '', ps.free_txt, 'テキストやHTMLを自由に入力できます。')>
+</div> <!-- End of module -->
+HTML

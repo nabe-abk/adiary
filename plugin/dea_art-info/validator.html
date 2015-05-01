@@ -1,0 +1,16 @@
+<@40.is_function>
+<@local(h)>
+<$h = validator(begin_hash, argv#0) )>
+	tmdate = flag
+	author = flag
+	hatena_bicon = flag
+
+	wiki_tm = コンテンツの時刻表示
+	wiki_tm:type = int
+	wiki_tm:min  = 0
+	wiki_tm:max  = 2
+<$end>
+
+<$ifbreak(form_error())>
+
+<$return(h)>

@@ -1,0 +1,21 @@
+######################################################################
+title=ソーシャルボタン
+version=1.00
+#					(C)2015 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+adiary_version=2.941
+module_type=article
+module_id=social-buttons
+
+*sample_html=<<HTML
+<div class="social-buttons" data-module-name="<@this>">
+	<button>ブックマーク</button>
+	<button>いいね！</button>
+	<button>ツイート</button>
+</div>
+HTML
+

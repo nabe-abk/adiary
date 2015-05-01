@@ -1,0 +1,23 @@
+######################################################################
+title=コンテンツ関連記事
+version=1.00
+#					(C)2015 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+adiary_version=2.94
+module_type=article
+
+*sample_html=<<HTML
+<div data-module-name="<@this>">
+<h3>関連記事</h3>
+<ul class="art-list art-family">
+	<li><a href="#">関連記事1</a></li>
+	<li><a href="#">関連記事2</a></li>
+	<li><a href="#">関連記事3</a></li>
+</ul>
+</div>
+HTML
+

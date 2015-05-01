@@ -1,0 +1,24 @@
+######################################################################
+title=コメントフォーム
+version=1.00
+#					(C)2015 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+adiary_version=2.94
+module_type=comment
+
+*sample_html=<<HTML
+	<form method="POST" action="./" onsubmit="return false;" data-module-name="<@this>" data-fix="1">
+		<input type="hidden" name="action" value="comment_post">
+		<input type="hidden" name="a_pkey" value="33">
+		<input type="hidden" name="secure_id" value="" id="sid33">
+		<span class="caption-name">名前</span><span class="separater">:</span>
+		<input type="text" name="name" class="w160 comment-author" value="" required>&nbsp;<input type="checkbox" name="hidden" value="1"><label>非公開コメント</label>
+		<input type="submit" name="post" id="post-comment" value="投稿"><br>
+		<textarea class="comment-txt w600" name="comment_txt" rows="3" required></textarea>
+	</form> <!-- comment form -->
+HTML
+

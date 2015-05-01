@@ -1,0 +1,30 @@
+<@6>
+<@local(ps)>
+<$ps=argv#0>
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>投稿日時の表示<span class="help" data-help="記事が最初に公開された日時を表示します">?</span></th>
+		<td>
+			<input type="checkbox" name="tmdate" value="1"<@if(ps.tmdate, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	<tr><th>投稿者の表示<span class="help" data-help="記事を最初に投稿した人を表示します">?</span></th>
+		<td>
+			<input type="checkbox" name="author" value="1"<@if(ps.author, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	<tr><th>コンテンツの日時表示</th>
+		<td>
+			<input type="radio" name="wiki_tm" value="1"<@if(ps.wiki_tm==1, ' checked')>><label>投稿日時を表示</label>
+			<input type="radio" name="wiki_tm" value="2"<@if(ps.wiki_tm==2, ' checked')>><label>更新日時を表示</label>
+			<input type="radio" name="wiki_tm" value="0"<@if(ps.wiki_tm==0, ' checked')>><label>表示しない</label>
+		</td>
+	</tr>
+	<tr><th>はてなブックマーク数<span class="help" data-help="はてなブックマーク数（赤字数字アイコン）を表示します。ひとつもブックマークされてないときは何も表示されません。">?</span></th>
+		<td colspan="2">
+			<input type="checkbox" name="hatena_bicon" value="1"<@if(ps.hatena_bicon, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+

@@ -1,0 +1,134 @@
+<@6>
+<@local(ps,name,id)>
+<$ps=argv#0>
+<$name=argv#1>
+<$id  = v.plugin_name_id( name )>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>背景色<td>
+			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
+			透過<input type="number" class="w50" name="bg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.bg_alpha || 1>" id="bg-alpha">(0=透明) &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#bg,#bg-alpha"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>文字</th><td>
+			<input type="text" id="font-c" name="font_c" value="<@ps.font_c || '#000000'>" class="color-picker"> &nbsp;
+			<input type="number" class="int w50" name="font_s" value="<@ps.font_s || 16>" min="0" max="999" id="font-s">px 
+			行間<input type="number" class="int w50" name="line_h" value="<@ps.line_h || 100>" min="0" max="999" id="line-h">% 
+			
+			<input type="checkbox" class="js-disable" data-target="#font-c,#font-s,#line-h"<@if(ps.font_c eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>枠線の色</th><td>
+			<input type="text" id="border-c" name="border_c" value="<@ps.border_c || '#000080'>" class="color-picker">
+
+			<input type="checkbox" class="js-disable" data-target="#border-c"<@if(ps.border_c eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>枠線の表示<span class="help" data-help="全体を枠線で囲みます。">?</span></th>
+		<td>
+			太さ   <input type="number" class="int w50" name="border_w" value="<@ps.border_w || 0>" min="0" max="99" id="border-w">px &nbsp;
+			丸め量 <input type="number" class="int w50" name="border_r" value="<@ps.border_r || 0>" min="0" max="99" id="border-r">px
+		</td>
+	</tr>
+	<tr>
+		<th>全体の影</th><td>
+			幅     <input type="number" class="int w50" name="shadow_b"  value="<@ps.shadow_b  || 0>" min="0" max="99" id="shadow-b">px &nbsp;
+			ぼかし <input type="number" class="int w50" name="shadow_bb" value="<@ps.shadow_bb || 0>" min="0" max="99" id="shadow-bb">px
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<p>位置調整</p>
+
+	<table class="blog-setting">
+	<tr>
+		<th>領域の高さ</th>
+		<td>
+			<input type="number" class="int w50" name="height" value="<@ps.height || 0>" min="0" max="999" id="height">px 
+			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+		</td>
+	</tr>
+	<tr>
+		<th>マージン<span class="help" data-help="表示位置の調整などに使用します。テーマによって左右マージンが効かないことがあります。">?</span></th>
+		<td>
+			上<input type="number" class="int w50" name="margin0" value="<@ps.margin0 || 0>" min="-999" max="999" id="margin0"> 
+			右<input type="number" class="int w50" name="margin1" value="<@ps.margin1 || 0>" min="-999" max="999" id="margin1"> 
+			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
+			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr>
+		<th>padding</th>
+		<td>
+			上<input type="number" class="int w50" name="padding0" value="<@ps.padding0 || 0>" min="0" max="999" id="padding0"> 
+			右<input type="number" class="int w50" name="padding1" value="<@ps.padding1 || 0>" min="0" max="999" id="padding1"> 
+			下<input type="number" class="int w50" name="padding2" value="<@ps.padding2 || 0>" min="0" max="999" id="padding2"> 
+			左<input type="number" class="int w50" name="padding3" value="<@ps.padding3 || 0>" min="0" max="999" id="padding3"> &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(ps.padding0 eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<p>※さらに凝った表示設定は<a href="<@v.myself>?design/usercss" target="_blank">ユーザーCSS</a>より、各自記述してください。</p>
+
+
+<!-- JavaScript ==========================================================-->
+<script>$(function(){
+// 設定中のモジュールを探し、デフォルト値を設定する
+var obj = $f('#<@id>');
+if (!obj.length) return;
+
+if ('<@ps.bg>' == '') {
+	obj.addClass('hoverstop');
+	delay_color_setting('#bg', obj, 'background-color', 'hoverstop');
+}
+if ('<@ps.font_c>' == '') {
+	var col = parse_color( obj.css('color') );
+	if (col) $('#font-c').val(col);
+	var px  = parse_px( obj.css('font-size') );
+	if (px) {
+		$('#font-s').val(px);
+		var lh  = parse_px_float( obj.css('line-height') );
+		var par = Math.round(100*lh/px);
+		if (par)  $('#line-h').val(par);
+	}
+}
+if ('<@ps.border_c>' == '') {
+	var col = get_border_color( obj );
+	if (col) $('#border-c').val(col);
+}
+// 高さ
+if ('<@ps.height>' == '')
+	$('#height').val( obj.outerHeight() );
+
+// マージンとpadding
+if ('<@ps.margin0>' == '')
+	$('#margin0').val( parse_px( obj.css('margin-top') ) );
+if ('<@ps.margin1>' == '')
+	$('#margin1').val( parse_px( obj.css('margin-right') ) );
+if ('<@ps.margin2>' == '')
+	$('#margin2').val( parse_px( obj.css('margin-bottom') ) );
+if ('<@ps.margin3>' == '')
+	$('#margin3').val( parse_px( obj.css('margin-left') ) );
+if ('<@ps.padding0>' == '')
+	$('#padding0').val( parse_px( obj.css('padding-top') ) );
+if ('<@ps.padding1>' == '')
+	$('#padding1').val( parse_px( obj.css('padding-right') ) );
+if ('<@ps.padding2>' == '')
+	$('#padding2').val( parse_px( obj.css('padding-bottom') ) );
+if ('<@ps.padding3>' == '')
+	$('#padding3').val( parse_px( obj.css('padding-left') ) );
+
+//-----------------------------------------------------------------------------
+});</script>

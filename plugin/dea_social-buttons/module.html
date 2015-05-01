@@ -1,0 +1,53 @@
+	<@> url = 記事URL
+	<$ps = v.load_plgset('<@this>')>
+	<div class="social-buttons" data-module-name="<@this>">
+	<@>############################################
+	<@> はてなブックマーク 
+	<@> http://b.hatena.ne.jp/guide/bbutton
+	<@>############################################
+	<@ifexec(ps.hatena_btn, begin)>
+		<a href="http://b.hatena.ne.jp/entry/<@url>" class="hatena-bookmark-button" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="はてブ" width="20" height="20" style="border: none;" /></a>
+	<$end>
+	<@>############################################
+	<@> mixiチェック
+	<@> http://developer.mixi.co.jp/connect/mixi_plugin/mixi_check/spec_mixi_check/
+	<@>############################################
+	<@ifexec(ps.mixi_check, begin)>
+		 <a href="http://mixi.jp/share.pl" class="mixi-check-button" data-url="<@url>" data-button="button-6" data-show-count="false">mixiチェック</a>
+	<$end>
+	<@>############################################
+	<@> Facebook
+	<@>############################################
+	<@ifexec(ps.fb_btn, begin)>
+		<iframe src="http://www.facebook.com/plugins/like.php?href=<@url>&amp;layout=button_count&amp;show_faces=false&amp;width=100&amp;action=like&amp;height=20" class="facebook-like-button" style="border:none; overflow:hidden; width:100px; height:20px;"></iframe>
+	<$end>
+	<@>############################################
+	<@> twitter
+	<@>############################################
+	<@ifexec(ps.twitter_btn, begin)>
+		<a href="https://twitter.com/share" class="twitter-share-button" data-lang="ja"<@if(ps.twitter_id, #' data-via="<@ps.twitter_id>"')><@if(ps.twitter_follow, #' data-related="<@ps.twitter_follow>"')><@if(ps.twitter_follow, #' data-hashtags="<@ps.twitter_hash>"')>></a>
+	<$end>
+	<@>##################################################################
+	</div>
+
+<$v.regist_posthtml( exec(begin) )>
+<@>############################################
+<@> はてなブックマーク
+<@>############################################
+<@ifexec(ps.hatena_btn, begin)>
+<script async="async" type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8"></script>
+<$end>
+<@>############################################
+<@> mixiチェック
+<@>############################################
+<@ifexec(ps.mixi_check, begin)>
+<script async="async" type="text/javascript" src="http://static.mixi.jp/js/share.js"></script>
+<$end>
+<@>############################################
+<@> twitter
+<@>############################################
+<@ifexec(ps.twitter_btn, begin)>
+<script>
+$(!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs"));</script>
+<$end>
+<$end>
