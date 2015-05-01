@@ -1,0 +1,42 @@
+<@20>
+<@local(h)>
+<$ifbreak(! v.blog_admin && ! Auth.isadmin)>
+<$ifbreak(csrf_check())>
+
+<$h = validator(begin_hash, Form)>
+	admin_users = 管理権限を与えるユーザー
+	admin_users:filter0 = reg_del:[^\*\w,]
+	admin_users:filter1 = trim
+
+	editors = 編集権限を与えるユーザー
+	editors:filter0 = reg_del:[^\*\w,]
+	editors:filter1 = trim
+
+	viewers = 表示権限を与えるユーザー
+	viewers:filter0 = reg_del:[^\*\w,]
+	viewers:filter1 = trim
+	edit_by_author_only = flag
+
+	view_pass = ブログ表示パスワード
+	view_pass:filter0 = trim
+<$end>
+<$ifbreak(form_error())>
+
+後処理
+<$replace(h.admin_users, '\s*,\s*', ', ')>
+<$replace(h.edit_users,  '\s*,\s*', ', ')>
+
+
+<$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<@>RSS再生成
+	<$v.generate_rss()>
+
+	<$message("設定を保存しました")>
+	<$url = v.myself .'?'. v.query0 . if(Query.blogid eq '*', '&amp;blogid=*')>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+

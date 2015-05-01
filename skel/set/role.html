@@ -1,0 +1,84 @@
+<@6>
+<@local(s, err, default)>
+<$err=FormError>
+<$default = if(Query.blogid eq '*' && Auth.isadmin, 1, 0)>
+
+<@> システムモード
+<$v.system_mode("ブログの権限設定")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<$s = set>
+<$ifexec(POST, begin)>
+	<$s = Form>
+	<$tag_escape(s.admin_users, s.edit_users, s.asid, s.gadid)>
+<$end>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<@ifexec(Auth.isadmin, begin)>
+	<@ifexec(default, begin, begin)>
+		<p><a href="<@v.myself>?<@v.skeleton>">&gt;ブログ固有の設定に戻る</a></p>
+	<$else>
+		<p><a href="<@v.myself>?<@v.skeleton>&amp;blogid=*">&gt;標準設定を変更する</a></p>
+	<$end>
+	<$end>
+
+	<form action="<@v.myself>?<@v.skeleton><@if(default, '&amp;blogid=*')>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>ブログ<em>管理</em>権限を付与</th>
+		<td>ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="admin_users" class="w320" value="<@s.admin_users>"></td>
+	</tr>
+	<tr>
+		<th>ブログ<em>編集</em>権限を付与<span class="help" data-help="管理権限をもつ人は自動的に編集権限を持ちます。">?</span></th>
+		<td>ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="editors"  class="w320" value="<@s.editors>"><br>
+		<input type="hidden" name="checkbox.info" value="edit_by_author_only">
+		<input type="checkbox" name="edit_by_author_only" value="1"<@if(s.edit_by_author_only, ' checked')>><label>他人の記事は編集できないようにする。</label></td>
+	</tr>
+	<tr>
+		<th>ブログ<em>表示</em>権限を付与<span class="help" data-help="管理権限・編集権限をもつ人は自動的に表示権限を持ちます。">?</span></th>
+		<td>
+		<@ifexec(v.blog.private, begin, begin)>
+		ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="viewers" class="w320" value="<@s.viewers>">
+		<$else>
+		<input type="text" name="viewers" class="w320" value="<@s.viewers>" disabled><br>
+		※プライベートモード時のみ設定できます
+		<$end>
+		</td>
+	</tr>
+	<tr>
+		<th>ブログ表示パスワード<span class="help" data-help="この項目を設定するとパスワード入力画面が出るため、ブログ(id)の存在自体は知られてしまいます。">?</span></th>
+		<td>
+			<@ifexec(v.blog.private, begin, begin)>
+			全角文字も使用できます。<br>
+			<input type="text" name="view_pass" class="w320" value="<@s.view_pass>">
+			<$else>
+			<input type="text" name="view_pass" class="w320" value="<@s.view_pass>" disabled><br>
+			※プライベートモード時のみ設定できます
+			<$end>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+
+
+	<input type=submit name="submit" value="この設定を保存する"><br>
+	</form>
+</div>
+</article>
+
+<script>$(function(){
+	load_taglist( '#tag-select' );
+});</script>
+
+

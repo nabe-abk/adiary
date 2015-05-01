@@ -3,6 +3,9 @@
 <$ifbreak(! v.blog_admin && ! Auth.isadmin)>
 <$ifbreak(csrf_check())>
 
+前処理
+<$ifset(Form.allow_com_sel ne '' , Form.allow_com_users, Form.allow_com_sel)>
+
 <$h = validator(begin_hash, Form)>
 	separate_blog = flag
 
@@ -11,21 +14,13 @@
 	load_items:min  =  1
 	load_items:max  = 10
 
-	admin_users = 管理権限を与えるユーザー
-	admin_users:filter0 = reg_del:[^\*\w,]
-	admin_users:filter1 = trim
+	allow_com_users = コメント許可対象
+	allow_com_users:filter0 = reg_del:[^\*\w,]
 
-	editors = 編集権限を与えるユーザー
-	editors:filter0 = reg_del:[^\*\w,]
-	editors:filter1 = trim
-
-	viewers = 表示権限を与えるユーザー
-	viewers:filter0 = reg_del:[^\*\w,]
-	viewers:filter1 = trim
-	edit_by_author_only = flag
-
-	view_pass = ブログ表示パスワード
-	view_pass:filter0 = trim
+	defer_com = コメント保留機能
+	defer_com:type = int
+	defer_com:min = 0
+	defer_com:max = 2
 
 	rss_items_int = RSSの配信件数
 	rss_items_int:min =  0
@@ -43,18 +38,10 @@
 <$end>
 <$ifbreak(form_error())>
 
-後処理
-<$replace(h.admin_users, '\s*,\s*', ', ')>
-<$replace(h.edit_users,  '\s*,\s*', ', ')>
-
-
 <$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>
 
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
-	<@>RSS再生成
-	<$v.generate_rss()>
-
 	<$message("設定を保存しました")>
 	<$url = v.myself .'?'. v.query0 . if(Query.blogid eq '*', '&amp;blogid=*')>
 	<$jump('_sub/reload_message', url)>

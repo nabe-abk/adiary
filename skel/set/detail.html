@@ -4,7 +4,7 @@
 <$default = if(Query.blogid eq '*' && Auth.isadmin, 1, 0)>
 
 <@> システムモード
-<$v.system_mode("ブログの詳細設定")>
+<$v.system_mode("詳細/コメント設定")>
 
 <!--========================================================================-->
 <@> 階層ツリー、初期処理
@@ -13,7 +13,7 @@
 <$s = set>
 <$ifexec(POST, begin)>
 	<$s = Form>
-	<$tag_escape(s.admin_users, s.edit_users, s.asid, s.gadid)>
+	<$tag_escape(s.allow_com_users)>
 <$end>
 
 <!--========================================================================-->
@@ -58,37 +58,19 @@
 
 		</td>
 	</tr>
-	<tr>
-		<th>ブログ<em>管理</em>権限を付与</th>
-		<td>ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="admin_users" class="w320" value="<@s.admin_users>"></td>
-	</tr>
-	<tr>
-		<th>ブログ<em>編集</em>権限を付与<span class="help" data-help="管理権限をもつ人は自動的に編集権限を持ちます。">?</span></th>
-		<td>ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="editors"  class="w320" value="<@s.editors>"><br>
-		<input type="hidden" name="checkbox.info" value="edit_by_author_only">
-		<input type="checkbox" name="edit_by_author_only" value="1"<@if(s.edit_by_author_only, ' checked')>><label>他人の記事は編集できないようにする。</label></td>
-	</tr>
-	<tr>
-		<th>ブログ<em>表示</em>権限を付与<span class="help" data-help="管理権限・編集権限をもつ人は自動的に表示権限を持ちます。">?</span></th>
+	<tr><th>コメント許可対象</th>
 		<td>
-		<@ifexec(v.blog.private, begin, begin)>
-		ユーザーIDを「<span class="mono">,</span>」区切りで。「<span class="mono">*</span>」で全ユーザー<br><input type="text" name="viewers" class="w320" value="<@s.viewers>">
-		<$else>
-		<input type="text" name="viewers" class="w320" value="<@s.viewers>" disabled><br>
-		※プライベートモード時のみ設定できます
-		<$end>
+		<input type="radio" class="js-enable" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="*"<@if(s.allow_com_users eq '*', ' checked')>><label>誰でも</label>&nbsp;
+		<input type="radio" class="js-enable" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="user*"<@if(s.allow_com_users eq 'user*', ' checked')>><label>ユーザーのみ</label><span class="help" data-help="ログインできる人のみに限定します">?</span>&nbsp;
+		<input type="radio" class="js-enable" data-change="0" data-target="#allow-com-users" name="allow_com_sel" value=""<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', ' checked')>><label>ID指定（「,」区切り）</label><br>
+		<input type="text" name="allow_com_users" id="allow-com-users" class="w320"  value="<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', s.allow_com_users)>">
 		</td>
 	</tr>
-	<tr>
-		<th>ブログ表示パスワード<span class="help" data-help="この項目を設定するとパスワード入力画面が出るため、ブログ(id)の存在自体は知られてしまいます。">?</span></th>
+	<tr><th>コメント保留<span class="help" data-help="コメントを確認するまで表示させないSPAM対策機能です。">?</span></th>
 		<td>
-			<@ifexec(v.blog.private, begin, begin)>
-			全角文字も使用できます。<br>
-			<input type="text" name="view_pass" class="w320" value="<@s.view_pass>">
-			<$else>
-			<input type="text" name="view_pass" class="w320" value="<@s.view_pass>" disabled><br>
-			※プライベートモード時のみ設定できます
-			<$end>
+		<input type="radio" name="defer_com" value="1"<@if( s.defer_com == 1, ' checked')>><label>すべて保留する</label><span class="help" data-help="ブログ管理者（と編集権限のある人）のコメントは保留されません">?</span>&nbsp;
+		<input type="radio" name="defer_com" value="2"<@if( s.defer_com == 2, ' checked')>><label>ユーザー以外を保留</label><span class="help" data-help="ログインしてない人を保留します">?</span>&nbsp;
+		<input type="radio" name="defer_com" value="0"<@if(!s.defer_com     , ' checked')>><label>OFF</label>
 		</td>
 	</tr>
 	</tbody>
@@ -155,14 +137,9 @@
 	</tbody>
 	</table>
 
-
 	<input type=submit name="submit" value="この設定を保存する"><br>
+
+
 	</form>
 </div>
 </article>
-
-<script>$(function(){
-	load_taglist( '#tag-select' );
-});</script>
-
-
