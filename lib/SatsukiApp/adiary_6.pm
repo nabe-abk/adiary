@@ -169,6 +169,22 @@ sub parse_adiary_conf_cgi {
 			next;
 		}
 	}
+
+	my $lines = $ROBJ->fread_lines( $dir . 'uploader.conf.cgi' );
+	foreach(@$lines) {
+		$_ =~ s/"/'/g;
+		# <$v.image_dir = "public/image/">
+		if ($_ =~ /<\$v.image_dir\s*=\s*'([^']*)'\s*>/) {
+			$h{image_dir} = $dir . $1;
+			next;
+		}
+
+		# <$v.thumbnail_dir = '.thumbnail/'>
+		if ($_ =~ /<\$v.(?:upload_|)thumbnail_dir\s*=\s*'([^']*)'\s*>/) {
+			$h{thumbnail_dir} = $1;
+			next;
+		}
+	}
 	return \%h;
 }
 
@@ -394,6 +410,7 @@ sub v2convert {
 		# 画像アルバムの移行
 		my $src_dir = $ROBJ->get_filepath( $h->{image_dir} . $id . '/' );
 		my $des_dir = $ROBJ->get_filepath( $self->blogimg_dir() );
+		my $thumb   = $h->{thumbnail_dir} || '.thumbnail/';
 
 		sub copy_dir {
 			my ($ROBJ, $src, $des) = @_;
@@ -403,7 +420,8 @@ sub v2convert {
 			foreach(@$files) {
 				my $file = $src . $_;
 				&conv_code($_);
-				if (-d $file) {
+				if (substr($file,-1) eq '/') {
+					if ($_ eq $thumb) { $_ = '.thumbnail/'; }
 					$c += &copy_dir($ROBJ, "$file", "$des$_");
 				} else {
 					$c += $ROBJ->_file_copy($file, "$des$_") ? 0 : 1;
