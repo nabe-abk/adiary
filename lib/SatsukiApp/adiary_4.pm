@@ -760,8 +760,7 @@ sub plugin_name_id {
 		my $h = $self->load_plugin_info($name) || {};
 		return $h->{module_id};
 	}
-	$name =~ s/,//g;
-	$name =~ tr/_/-/;
+	$name =~ tr/_,/--/;
 	return $name;
 }
 sub plugin_name_dir {

@@ -41,7 +41,7 @@
 <@if(v.theme_js, #'<script async src="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.js"></script>\n')>
 	<title><@v.header_title_add><@v.title></title>
 </head>
-<body id="body" class="<@if(v.blog_admin, 'blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system-mode')><@v.mode_class>">
+<body id="body" class="">
 <@>bodyにブラウザ別クラスを設定するためのスクリプト呼び出し
 <script>set_browser_class_into_body();</script>
 <div id="adiary-body">
@@ -55,13 +55,9 @@
 </nav>
 
 <!--タイトル部==============================================================-->
-<div id="page-title">
-<@ifexec(v.blogid, begin, begin)>
-<h1><@if(! v.system_mode && v.blog.blog_image, #'<a href="<@v.myself2>index"><img src="<@v.blog.blog_image>" alt="<@v.title>"></a>', #'<a href="<@v.myself2>index"><@v.title></a>')></h1>
-<$else>
-<h1><a href="<@v.myself2>index"><@if(v.title_h1, v.title_h1, v.title)></a></h1>
-<$end>
-</div>
+<h1 id="page-title" data-module-name="deh_title">
+	<a href="<@v.myself>"><@if(v.title_h1, v.title_h1, v.title)></a>
+</h1>
 </header>
 
 <!--Start of body ==========================================================-->
@@ -73,9 +69,8 @@
 <@inframe>
 
 <footer id="footer"><!--フッタ-->
-<@if(s.user_footer, "<@s.user_footer><br>")>
 <span class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></span>
-<!-- Blog system "adiary" Copyright (C)2006-2014 nabe@abk.
+<!-- Blog system "adiary" Copyright (C)2006-2015 nabe@abk.
      This system is licensed under AGPLv3 or later.-->
 </footer>
 </div> <!-- End of main -->
@@ -100,7 +95,7 @@ var ThemeDir ='<@Basepath><@v.theme_dir>';
 $('#system-info-total-time').text('<@int(Timer.check()*10000 + 0.5)/10>');
 $('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');
 <$end>
-<@ifexec(!v.system_mode && s.gaid && option.gaid, begin)>
+<@ifexec(s.gaid && option.gaid, begin)>
 // Google Analytics
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', '<@s.gaid>']);

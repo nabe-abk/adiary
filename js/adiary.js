@@ -72,10 +72,10 @@ function set_browser_class_into_body() {
 	// スマホ
 	var smp=true;
 	     if (ua.indexOf('Android') != -1) x.push('android');
-	else if (ua.indexOf('iPhone')  != -1) x.push('iphone apple');
-	else if (ua.indexOf('iPod')    != -1) x.push('ipod apple');
-	else if (ua.indexOf('iPad')    != -1) x.push('ipad apple');
-	else if (ua.indexOf('BlackBerry') != -1) x.push('berry');
+	else if (ua.indexOf('iPhone')  != -1) x.push('iphone');
+	else if (ua.indexOf('iPad')    != -1) x.push('iphone');
+	else if (ua.indexOf('BlackBerry')    != -1) x.push('berry');
+	else if (ua.indexOf('Windows Phone') != -1) x.push('wp');
 	else smp=false;
 	if (smp) x.push('smp');
 

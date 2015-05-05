@@ -129,7 +129,6 @@ a.welcome-name { margin: 0px 4px 0px 4px; }
 	border-color:		#aac;	/* $c=ddborder=main2 - #222 */
 }
 /* 文字 */
-.dropdown-menu a,
 .dropdown-menu a:link,
 .dropdown-menu a:visited
 {

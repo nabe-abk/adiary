@@ -53,7 +53,8 @@ sub new {
 
 	# スマホ判別
 	my $ua = $ENV{HTTP_USER_AGENT};
-	if (0<index($ua,'iPhone') || 0<index($ua,'iPod') || 0<index($ua,'Android')) {
+	if (0<index($ua,'iPhone') || 0<index($ua,'iPod') || 0<index($ua,'Android')
+	 || 0<index($ua,'BlackBerry') || 0<index($ua,'Windows Phone')) {
 		$self->{sphone} = 1;
 	}
 
@@ -549,11 +550,10 @@ sub save_blogset_sys {
 # ●システムモードへ
 #------------------------------------------------------------------------------
 sub system_mode {
-	my ($self, $title, $mode_class) = @_;
+	my ($self, $title) = @_;
 	my $ROBJ = $self->{ROBJ};
 	$self->{system_mode} = 1;
 	if ($title ne '') { $self->{title} = $title; }
-	if ($mode_class ne '') { $self->{mode_class} = ' ' . $mode_class; }
 
 	if ($self->{blog}->{sysmode_notheme}){
 		# デフォルトテーマの選択
