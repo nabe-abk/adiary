@@ -1756,6 +1756,7 @@ sub check_view_pass {
 	if ($pass eq $cpass) { return; }
 
 	# パスワード要求
+	$ROBJ->set_status(403);
 	$ROBJ->{POST} = 0;
 	$ROBJ->{Form} = {};
 	$self->{skeleton} = '_sub/input_view_pass';
@@ -1775,19 +1776,19 @@ sub mainte_mode {
 		if (!$ROBJ->{POST}) { $ROBJ->message('Now maintenance mode'); }
 		return ;
 	}
-	if ($self->{skeleton} !~ /^login\w*$/) {
-		$self->{skeleton} = '_sub/maintenance_msg';
-	} else {
-		$self->set_and_select_blog('', 1);
-	}
-	if (!$ROBJ->{POST}) { return; }
-
-	# POST
+	# POSTはログインのみ許可
 	my $form = $ROBJ->{Form};
 	if ($form->{action} ne 'login') {
 		$ROBJ->{POST} = 0;
 		$ROBJ->{Form} = {};
 	}
+	if (!$ROBJ->{POST} && $self->{skeleton} !~ /^login\w*$/) {
+		$ROBJ->set_status(503);
+		$self->{skeleton} = '_sub/maintenance_msg';
+	} else {
+		$self->set_and_select_blog('', 1);
+	}
+	return;
 }
 
 #------------------------------------------------------------------------------

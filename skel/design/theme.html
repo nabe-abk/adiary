@@ -115,7 +115,7 @@ div.iblk {
 &nbsp;
 <button type="button" id="readme-button" class="js-info" data-title="README" data-url="" data-class="pre">README表示</button>
 <input type="hidden" name="checkbox.info" value="sysmode_notheme_flg">
-<input type="checkbox" name="sysmode_notheme_flg" value="1"<@if(s.sysmode_notheme, ' checked')>><label class="small">管理画面は標準テーマを使用</label>
+<input type="checkbox" name="sysmode_notheme_flg" id="sysmode-no" data-orig="<@s.sysmode_notheme>" value="1"<@if(s.sysmode_notheme, ' checked')>><label class="small">管理画面は標準テーマを使用</label>
 
 <div id="custom-form">
 <div id="custom-functions">
@@ -156,4 +156,5 @@ dd=dropdown-menu
 fix=*
 </textarea>
 <span id="css-exp-error">CSSで指定されている色式が正しくありません。<br>%s</span>
+<span id="sysmode-no-warning">このテーマは管理画面非対応です。表示が崩れることがあるかもしれません。それでも管理画面で使用しますか？</span>
 </div>

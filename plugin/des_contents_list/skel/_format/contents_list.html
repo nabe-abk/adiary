@@ -15,7 +15,7 @@
 <$sub = begin.function>
 <@local(t, p, node, tree, depth, x)>
 <$node  = argv#0>
-<$tree  = node.children>
+<$tree  = node.children || []>
 <$depth = argv#1><@>prefix
 <$p = "\t" %x depth>
 <@p><ul id="sidecon<@num>-<@if(node.root,'root',node.pkey)>"<@if(!depth, ' class="hatena-section"')><@if(depth && nclose, ' style="display: none"')>>

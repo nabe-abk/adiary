@@ -105,6 +105,7 @@
 <@>------------------------------------------------
 <@>
 <@id> {
+	position:		relative;
 <@ifexec(ps.height ne '', begin)>
 	height:			<@ps.height>px;
 <$end>
