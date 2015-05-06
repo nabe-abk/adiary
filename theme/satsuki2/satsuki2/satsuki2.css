@@ -33,8 +33,9 @@ h1
 {
 	font-size:		20pt;
 	font-weight:		normal;
+	line-height:		100%;
 	border-bottom:		2px solid #2133a9;	/* $c=border */
-	padding:		4px 0.5em;
+	padding:		0 0.5em;
 	margin:			0.6em 0 0 0;
 }
 h1 a, h1 a:link, h1 a:visited {
