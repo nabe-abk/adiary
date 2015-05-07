@@ -386,13 +386,14 @@ sub save_use_plugins {
 		# ※1つのモジュールを複数配置することがあるので、その対策。
 		# 　その場合 $name:"des_name,1", $n:"des_name" となる
 		my %pl = map { $_->{name} => $_ } @$plugins;
+		my %names;
 		my %common;
-		$ary=[];
+		$ary = [];
 		foreach(keys(%$form)) {
 			my $n = $self->plugin_name_check( $_ );
 			if (!$n || !$pl{$n}) { next; }
 			if ($n eq $_) {
-				push(@$ary, $pl{$_});
+				$names{$_}=1;
 				next;
 			}
 
@@ -402,6 +403,10 @@ sub save_use_plugins {
 			push(@$ary, \%h);
 			$common{$n} = $form->{$n} ||= $form->{$_};
 		}
+		foreach(keys(%common)) {
+			delete $names{$_};
+		}
+		unshift(@$ary, map { $pl{$_} } keys(%names));
 		foreach(keys(%common)) {
 			# エイリアスのコモン名のinstall/uninstall設定
 			if ($form->{$_}) {

@@ -881,15 +881,19 @@ $( function(){
 	var hbody = $('#hatena-body');
 	if ( hbody.css('max-height') != '99999px' ) return;
 
-	var height = 0;
-	var ary = ['#main-first', '#sidebar', '#side-a', '#side-b'];
-	for(var i=0; i<ary.length; i++) {
-		var h = parseInt( $(ary[i]).outerHeight() );
-		if (isNaN(h)) continue;
-		if (height < h) height=h;
+	function fix_height() {
+		var height = 0;
+		var ary = ['#main-first', '#sidebar', '#side-a', '#side-b'];
+		for(var i=0; i<ary.length; i++) {
+			var h = parseInt( $(ary[i]).outerHeight() );
+			if (isNaN(h)) continue;
+			if (height < h) height=h;
+		}
+		if (!h) return;
+		hbody.css('min-height', height);
 	}
-	if (!h) return;
-	hbody.css('min-height', height);
+	setTimeout(fix_height, 1000);
+	fix_height();
 });
 
 //############################################################################

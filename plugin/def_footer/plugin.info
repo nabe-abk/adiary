@@ -22,7 +22,6 @@ HTML
 
 *module_html=<<HTML
 <$ps = v.load_plgset('<@this>')>
-<$stop_footer = 1>
 <footer id="<@id>" data-module-name="<@this>" data-fix="1"><!--フッタ-->
 <@ps.footer_txt>
 <@ifexec(ps.outver ne '0', begin)>

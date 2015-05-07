@@ -78,6 +78,7 @@ div.main {
 {
 	border-top:		2px solid #2133a9;	/* $c=border */
 	text-align:		right;
+	margin:			2em 0;
 	padding-right:		1em;
 	font-size:		10pt;
 	line-height:		120%;
