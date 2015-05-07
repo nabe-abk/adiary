@@ -262,7 +262,7 @@ sub load_plugins_info {
 	my $files = $ROBJ->search_files($dir, {dir_only => 1});
 	my @ary;
 	foreach( sort @$files ) {
-		my $f = ($_ =~ /^de[smhac]_/);		# デザインモジュール？
+		my $f = ($_ =~ /^de[smhacf]_/);		# デザインモジュール？
 		if (!$modf && $f || $modf && !$f) { next; }
 		# load
 		push(@ary, $self->load_plugin_info($_, $dir));

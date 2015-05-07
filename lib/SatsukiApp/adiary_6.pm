@@ -14,7 +14,8 @@ package SatsukiApp::adiary;
 my @update_versions = (
 	{ ver => 2.93, func => 'sys_update_293', rebuild=>1, plugin=>1 },
 	{ ver => 2.94, func => 'sys_update_294' },
-	{ ver => 2.95, plugin=>1 },
+	{ ver => 2.95,  plugin=>1 },
+	{ ver => 2.96, func => 'sys_update_296', plugin=>1 }
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
@@ -94,6 +95,20 @@ sub sys_update_294 {
 	}
 }
 
+#------------------------------------------------------------------------------
+# ●システムアップデート for Ver2.96
+#------------------------------------------------------------------------------
+sub sys_update_296 {
+	my $self  = shift;
+	my $blogs = shift;
+	my $ROBJ = $self->{ROBJ};
+	foreach(@$blogs) {
+		$self->update_blogset($_, 'bgfile_fit');
+		$self->update_blogset($_, 'bgfile_w');
+		$self->update_blogset($_, 'bgfile_h');
+		$self->update_blogset($_, 'bgfile');
+	}
+}
 ###############################################################################
 # ■Version2 to 3 移行ルーチン
 ###############################################################################

@@ -305,6 +305,9 @@ sub reinstall_design_plugins {
 	# uninstall
 	$self->reset_design();
 
+	# dem_footer を無効にする
+	$h->{main_b_ary} = [ grep {$_ != 'dem_footer'} @{$h->{main_b_ary}} ];
+
 	return $self->save_design($h);
 }
 

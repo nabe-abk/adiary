@@ -618,7 +618,7 @@ function parse_px(m) {
 	return Math.round( parse_px_float(m) );
 }
 function parse_px_float(m) {
-	var ma = m.match(/^(-?\d+(?:\.\d+)?)\s*(?:px)$/);
+	var ma = m && m.match(/^(-?\d+(?:\.\d+)?)\s*(?:px)$/);
 	if (ma) return ma[1];
 	return 0;
 }

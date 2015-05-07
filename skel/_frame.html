@@ -97,18 +97,8 @@
 
 <!--内容====================================================================-->
 <div class="main" id="main-first">
-
 <@inframe>
-
-<@ifexec(!stop_footer, begin)>
-<footer id="footer" data-module-name="dem_footer" data-fix="1"><!--フッタ-->
-<span class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></span>
-</footer>
-<$end>
-<!-- Blog system "adiary" Copyright (C)2006-2015 nabe@abk.
-     This system is licensed under AGPLv3 or later.-->
 </div> <!-- End of main -->
-
 
 <@>-----------------------------------------------------------------------------
 <@> sidebar
@@ -119,8 +109,13 @@
 <@ifcall(Develop && (@Error || @Debug || @Warning) || ENV_print, '_sub/debug')>
 <!--End of body ============================================================-->
 </div> <!-- End of #hatena-body -->
+
+<footer id="footer" data-module-name="def_footer" data-fix="1"><!--フッタ-->
+<span class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></span>
+</footer>
 </div> <!-- End of #adiary-body -->
 <$end.sp_sysmode>
+
 
 <@> adiary.js用のメッセージ
 <div style="display: none">
@@ -139,11 +134,11 @@ var PubdistDir ='<@Basepath><@v.pubdist_dir>';
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', '<@s.gaid>']);
 _gaq.push(['_trackPageview']);
-(function() {
+$(function() {
 var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
 ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
+});
 <$end>
 <@ifexec(Timer, begin)>
 $('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');
@@ -151,5 +146,7 @@ $('#system-info-total-time').text('<@int(Timer.check()*10000 + 0.5)/10>');
 <$end>
 </script>
 <@v.posthtml>
+<!-- Blog system "adiary" Copyright (C)2006-2015 nabe@abk.
+     This system is licensed under AGPLv3 or later.-->
 </body>
 </html>

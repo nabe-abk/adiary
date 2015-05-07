@@ -25,40 +25,43 @@
 	color:			<@ps.font_ca>;
 }
 <$end>
-<@>
-<@ifexec(ps.width ne '', begin)>
+<@>----------------------------------------------------------------------------
+#body {
+<@ifexec(ps.bg ne '', begin)>
+	background-color:	<@ps.bg>;
+	background-image:	none;
+<$end>
+<@ifexec(ps.bgfile ne '', begin)>
+	background-image:	url('<@v.plugin_image_path(ps.bgfile)>?<@TM>');
+<$end>
+}
+<@>----------------------------------------------------------------------------
 #adiary-body {
+<@ifexec(ps.width ne '', begin)>
 	margin-left:		auto;
 	margin-right:		auto;
 	width:			<@ps.width>px;
-}
 <$end>
-<@>
-<@ifexec(ps.bg ne '', begin)>
-#body {
-	background-color:	<@ps.bg>;
-	background-image:	none;
-}
-<$end>
-<@>
 <@ifexec(ps.body_bg ne '', begin)>
-#adiary-body {
 	background-color:	<@ps.body_bg>;
 	background-image:	none;
-}
 <$end>
-<@>
+<@ifexec(ps.body_bgfile ne '', begin)>
+	background-image:	url('<@v.plugin_image_path(ps.body_bgfile)>?<@TM>');
+<$end>
+}
+<@>----------------------------------------------------------------------------
 #header {
 <@ifexec(ps.head_bg ne '', begin)>
 	background-color:	<@ps.head_bg>;
 	background-image:	none;
 <$end>
 <@>
-<@ifexec(ps.bgfile, begin)>
-	background-image:	url('<@v.plugin_image_path(ps.bgfile)>?<@TM>');
+<@ifexec(ps.head_bgfile, begin)>
+	background-image:	url('<@v.plugin_image_path(ps.head_bgfile)>?<@TM>');
 	background-position:	center;
-	<@ifexec(ps.bgfile_fit && ps.bgfile_h, begin)>
-	min-height:		<@ps.bgfile_h - ps.padding0 - ps.padding2>px;
+	<@ifexec(ps.head_bgfile_fit && ps.head_bgfile_h, begin)>
+	min-height:		<@ps.head_bgfile_h - ps.padding0 - ps.padding2>px;
 	padding:		0;
 	background-repeat:	repeat-x;
 	<$end>

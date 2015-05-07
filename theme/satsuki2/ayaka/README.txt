@@ -6,4 +6,6 @@ Charset: UTF-8
 System-mode: no
 JavaScript: no
 
+※IE8非対応
+
 ChangeLog

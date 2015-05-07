@@ -20,7 +20,7 @@ HTML
 
 *module_html=<<HTML
 <$ps = v.load_plgset('<@this>')>
-<div class="dem-module" data-module-name="<@this>" id="<@id>">
+<div class="dem-module" data-module-name="<@this>">
 <@if(ps.free_txt ne '', ps.free_txt, 'テキストやHTMLを自由に入力できます。')>
 </div> <!-- End of module -->
 HTML

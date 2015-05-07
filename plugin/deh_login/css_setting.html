@@ -9,12 +9,12 @@
 		<input type="checkbox" name="erase_login" value="1"<@if(ps.erase_login, ' checked')>><label>「ログイン」を見えなくする</label>
 		</td>
 	</tr>
-	<tr><th>ログインヘッダの文字</th>
+	<tr><th>ログインの文字</th>
 		<td>
-		<input type="text" id="font-c"  name="font_c"  value="<@ps.font_c  || '#000000'>" class="color-picker"> &nbsp;
-		リンク <input type="text" id="font-ca" name="font_ca" value="<@ps.font_ca || '#000000'>" class="color-picker"> &nbsp;
-		<input type="checkbox" class="js-disable" data-target="#font-c,#font-ca"<@if(ps.font_c eq '',' checked')>><label>変更しない</label><br>
-		<input type="checkbox" name="bf" value="1"<@if(ps.bf, ' checked')>><label>太字にする</label>
+		<input type="text" id="font-c"  name="font_c"  value="<@ps.font_c  || '#000000'>" class="color-picker"> 
+		リンク<input type="text" id="font-ca" name="font_ca" value="<@ps.font_ca || '#000000'>" class="color-picker"> 
+		<input type="checkbox" name="bf" value="1"<@if(ps.bf, ' checked')> id="font-bf"><label>太字</label> 
+		<input type="checkbox" class="js-disable" data-target="#font-c,#font-ca,#font-bf"<@if(ps.font_c eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -44,16 +44,38 @@
 
 	<table class="blog-setting">
 	<tbody>
-	<tr><th>全体の横幅<span class="help" data-help="横幅がフリー設定（ウィンドウに合わせる）になっているテーマに対し、表示領域の横幅を固定で設定します。">?</span></th>
-		<td>
-			<input type="number" class="int w60" name="width" value="<@ps.width || 800>" min="600" max="2000" id="width"> &nbsp;
-			<input type="checkbox" class="js-disable" data-target="#width"<@if(!ps.width,' checked')>><label>変更しない</label>
-		</td>
-	</tr>
 	<tr><th>全体の背景<span class="help" data-help="ウィンドウ全体のベースとなる背景を指定します。">?</span></th>
 		<td>
 			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
 			<input type="checkbox" class="js-disable" data-target="#bg"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>全体の背景画像</th>
+		<td>
+			<input type="file" class="js-fileup" name="bgfile"><span class="help js-ie9" data-help="IE8/9ではアップロードできません。">?</span><br>
+			<@ifexec(ps.bgfile, begin)>
+			<input type="checkbox" name="bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<$end>
+		</td>
+	</tr>
+	<tr><th>表示領域の横幅<span class="help" data-help="横幅がフリー設定（ウィンドウに合わせる）になっているテーマに対し、表示領域の横幅を固定で設定します。">?</span></th>
+		<td>
+			<input type="number" class="int w60" name="width" value="<@ps.width || 800>" min="600" max="2000" id="width">px &nbsp;
+			<input type="checkbox" class="js-disable" data-target="#width"<@if(!ps.width,' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>表示領域の背景<span class="help" data-help="実際の表示領域の背景を指定します。">?</span></th>
+		<td>
+			<input type="text" id="body-bg" name="body_bg" value="<@ps.body_bg || '#ffffff'>" class="color-picker">
+			<input type="checkbox" class="js-disable" data-target="#body-bg"<@if(ps.body_bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>表示領域の背景画像</th>
+		<td>
+			<input type="file" class="js-fileup" name="body_bgfile"><span class="help js-ie9" data-help="IE8/9ではアップロードできません。">?</span><br>
+			<@ifexec(ps.body_bgfile, begin)>
+			<input type="checkbox" name="body_bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<$end>
 		</td>
 	</tr>
 	</tbody>
@@ -61,29 +83,23 @@
 
 
 
-	<p>ヘッダ領域全体の表示設定</p>
+	<p>ヘッダ領域の表示設定</p>
 
 	<table class="blog-setting">
 	<tbody>
-	<tr><th>表示領域の背景<span class="help" data-help="実際の表示領域の背景を指定します。">?</span></th>
-		<td>
-			<input type="text" id="body-bg" name="body_bg" value="<@ps.body_bg || '#ffffff'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#body-bg"<@if(ps.body_bg eq '',' checked')>><label>変更しない</label>
-		</td>
-	</tr>
 	<tr><th>ヘッダ領域の背景<span class="help" data-help="ログインヘッダやタイトル部分の背景を指定します。">?</span></th>
 		<td>
 			<input type="text" id="head-bg" name="head_bg" value="<@ps.head_bg || '#ffffff'>" class="color-picker">
 			<input type="checkbox" class="js-disable" data-target="#head-bg"<@if(ps.head_bg eq '',' checked')>><label>変更しない</label><br>
 		</td>
 	</tr>
-	<tr><th>ヘッダの画像<span class="help" data-help="背景に使う画像をアップロードします。IE8/9ではアップロードできません。">?</span></th>
+	<tr><th>ヘッダの背景画像</th>
 		<td>
-			<input type="file" class="js-fileup" id="head-file" name="bgfile"><br>
-			<input type="checkbox" name="bgfile_fit" value="1"<@if(ps.bgfile_fit,' checked')>><label>ヘッダの高さを画像にフィットさせる</label>
+			<input type="file" class="js-fileup" name="head_bgfile"><span class="help js-ie9" data-help="IE8/9ではアップロードできません。">?</span><br>
+			<input type="checkbox" name="head_bgfile_fit" value="1"<@if(ps.head_bgfile_fit,' checked')>><label>ヘッダの高さを画像にフィットさせる</label>
 			<span class="help" data-help="画像がヘッダがより大きい場合のみ有効になります。">?</span><br>
-			<@ifexec(ps.bgfile, begin)>
-			<input type="checkbox" name="bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<@ifexec(ps.head_bgfile, begin)>
+			<input type="checkbox" name="head_bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
 			<$end>
 		</td>
 	</tr>
@@ -100,10 +116,10 @@
 	<tr>
 		<th>ヘッダのpadding</th>
 		<td>
-			上<input type="number" class="int w50" name="padding0" value="<@ps.padding4 || 0>" min="0" max="999" id="padding4"> 
-			右<input type="number" class="int w50" name="padding1" value="<@ps.padding5 || 0>" min="0" max="999" id="padding5"> 
-			下<input type="number" class="int w50" name="padding2" value="<@ps.padding6 || 0>" min="0" max="999" id="padding6"> 
-			左<input type="number" class="int w50" name="padding3" value="<@ps.padding7 || 0>" min="0" max="999" id="padding7"> &nbsp;
+			上<input type="number" class="int w50" name="padding4" value="<@ps.padding4 || 0>" min="0" max="999" id="padding4"> 
+			右<input type="number" class="int w50" name="padding5" value="<@ps.padding5 || 0>" min="0" max="999" id="padding5"> 
+			下<input type="number" class="int w50" name="padding6" value="<@ps.padding6 || 0>" min="0" max="999" id="padding6"> 
+			左<input type="number" class="int w50" name="padding7" value="<@ps.padding7 || 0>" min="0" max="999" id="padding7"> &nbsp;
 			<input type="checkbox" class="js-disable" data-target="#padding4,#padding5,#padding6,#padding7"<@if(ps.padding4 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>

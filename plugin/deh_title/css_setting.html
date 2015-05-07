@@ -76,9 +76,9 @@
 			<input type="checkbox" class="js-disable" data-target="#bg"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
-	<tr><th>背景画像<span class="help" data-help="背景に使う画像をアップロードします。IE8/9ではアップロードできません。">?</span></th>
+	<tr><th>背景画像</th>
 		<td>
-			<input type="file" class="js-fileup" id="head-file" name="bgfile"><br>
+			<input type="file" class="js-fileup" id="head-file" name="bgfile"><span class="help" data-help="IE8/9ではアップロードできません。">?</span><br>
 			<input type="checkbox" name="bgfile_fit" value="1"<@if(ps.bgfile_fit,' checked')>><label>領域の高さを画像にフィットさせる</label>
 			<span class="help" data-help="画像がタイトル領域がより大きい場合のみ有効になります。">?</span><br>
 			<@ifexec(ps.bgfile, begin)>

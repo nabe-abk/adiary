@@ -33,7 +33,7 @@
 	head_bg:filter0 = rgb
 	head_bg:default = 
 
-	bgfile_fit = flag
+	head_bgfile_fit = flag
 
 	margin0 = マージン上
 	margin0:type = int
@@ -78,47 +78,47 @@
 	padding3:default = 
 
 
-	margin0 = ヘッダのマージン上
-	margin0:type = int
-	margin0:min  =  -999
-	margin0:max  =   999
-	margin0:default = 
-	margin1 = ヘッダのマージン右
-	margin1:type = int
-	margin1:min  =  -999
-	margin1:max  =   999
-	margin1:default = 
-	margin2 = ヘッダのマージン下
-	margin2:type = int
-	margin2:min  =  -999
-	margin2:max  =   999
-	margin2:default = 
-	margin3 = ヘッダのマージン左
-	margin3:type = int
-	margin3:min  =  -999
-	margin3:max  =   999
-	margin3:default = 
+	margin4 = ヘッダのマージン上
+	margin4:type = int
+	margin4:min  =  -999
+	margin4:max  =   999
+	margin4:default = 
+	margin5 = ヘッダのマージン右
+	margin5:type = int
+	margin5:min  =  -999
+	margin5:max  =   999
+	margin5:default = 
+	margin6 = ヘッダのマージン下
+	margin6:type = int
+	margin6:min  =  -999
+	margin6:max  =   999
+	margin6:default = 
+	margin7 = ヘッダのマージン左
+	margin7:type = int
+	margin7:min  =  -999
+	margin7:max  =   999
+	margin7:default = 
 
-	padding0 = ヘッダのpadding上
-	padding0:type = int
-	padding0:min  =   0
-	padding0:max  = 999
-	padding0:default = 
-	padding1 = ヘッダのpadding右
-	padding1:type = int
-	padding1:min  =   0
-	padding1:max  = 999
-	padding1:default = 
-	padding2 = ヘッダのpadding下
-	padding2:type = int
-	padding2:min  =   0
-	padding2:max  = 999
-	padding2:default = 
-	padding3 = ヘッダのpadding左
-	padding3:type = int
-	padding3:min  =   0
-	padding3:max  = 999
-	padding3:default = 
+	padding4 = ヘッダのpadding上
+	padding4:type = int
+	padding4:min  =   0
+	padding4:max  = 999
+	padding4:default = 
+	padding5 = ヘッダのpadding右
+	padding5:type = int
+	padding5:min  =   0
+	padding5:max  = 999
+	padding5:default = 
+	padding6 = ヘッダのpadding下
+	padding6:type = int
+	padding6:min  =   0
+	padding6:max  = 999
+	padding6:default = 
+	padding7 = ヘッダのpadding左
+	padding7:type = int
+	padding7:min  =   0
+	padding7:max  = 999
+	padding7:default = 
 <$end>
 <$ifbreak(form_error())>
 
@@ -128,6 +128,8 @@
 <@> ファイルアップロード処理
 <$v.plugin_upload_images(h, name, form, begin_array)>
 	bgfile
+	body_bgfile
+	head_bgfile
 <$end>
 <$ifbreak(form_error())>
 

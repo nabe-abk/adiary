@@ -1,5 +1,5 @@
 ######################################################################
-title=フリー入力
+title=ブログの説明
 version=1.00
 #					(C)2015 nabe@abk
 ######################################################################
@@ -8,19 +8,20 @@ url=https://twitter.com/nabe_abk
 license=WTFPL
 
 adiary_version=2.94
-module_type=main,header
+module_type=header
+module_id=head-description
+
 load_module_html_in_edit=1
 
 *sample_html=<<HTML
-<div class="dem-module">
-テキストやHTMLを自由に入力できます。
+<div class="dem-module" id="<@id>">
+ブログの説明が入ります。
 </div>
 HTML
 
 
 *module_html=<<HTML
-<$ps = v.load_plgset('<@this>')>
-<div class="dem-module" data-module-name="<@this>">
-<@if(ps.free_txt ne '', ps.free_txt, 'テキストやHTMLを自由に入力できます。')>
+<div class="dem-module" data-module-name="<@this>" id="<@id>">
+<@s.description_txt || '（ブログの説明が設定されていません。）'>
 </div> <!-- End of module -->
 HTML
