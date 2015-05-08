@@ -44,7 +44,10 @@ header {
 /* 「ようこそ」のリンクで文字色を変えない */
 #nav-header a.welcome-prefix,
 #nav-header a.welcome-prefix:link,
-#nav-header a.welcome-prefix:visited {
+#nav-header a.welcome-prefix:visited,
+#sp-nav-header a.welcome-prefix,
+#sp-nav-header a.welcome-prefix:link,
+#sp-nav-header a.welcome-prefix:visited {
 	color:			inherit;
 	font-weight:		inherit;
 	text-decoration:	none;

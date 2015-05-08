@@ -1,54 +1,73 @@
 @charset "UTF-8";
 /*****************************************************************************
-  patch to Satsuki2 for smart phone
+  patch to hatena2-like for smart phone
 					2015/05 (C)nabe@abk.nu
 *****************************************************************************/
 /*--------------------------------------------------------------------
 ■全体配置
 ---------------------------------------------------------------------*/
+body {
+	width:			auto;
+	min-width:		none;
+	max-width:		none;
+	margin:			0 2px;
+}
 div.main {
 	margin-left:		0px;
 	margin-right:		0px;
-	padding:		0px;
+	padding:		0 8px;
+	width:			auto;
+	float:			none;
 }
 #adiary-body {
 	width:			auto;
 }
 #hatena-body {
-	margin:			0 8px 0 6px;
+	margin:			0;
 	width:			auto;
 	max-height:		auto;
 }
-#sidebar, #side-a, #side-b {
-	margin:			0px;
+#sidebar {
+	float:			none;
+	margin:			0;
+	padding:		0;
 	width:			auto;
-	position:		relative;
-	left:			0px;
-	top:			0px;
+	border:			none;
 }
 
 /*--------------------------------------------------------------------
 ■ヘッダ
 ---------------------------------------------------------------------*/
+#sp-header {
+	color:			#fff;
+	background-color:	#7697d6;
+}
 #sp-nav-header {
 	font-size:		10pt;
 	text-align:		right;
 	vertical-align:		top;
 }
-
+#sp-nav-header a,
+#sp-nav-header a:link,
+#sp-nav-header a:visited {
+	color:			#fff;	/* $c=link */
+}
 #sp-page-title {
 	margin:			0px;
 	font-weight:		bold;
 	text-shadow:
-		-1px -1px 0px #ddd,
-		 1px -1px 0px #ddd,
-		 1px  1px 0px #ddd,
-		-1px  1px 0px #ddd,
-		 3px  3px 2px #999;
+		-1px -1px 0px #666,
+		 1px -1px 0px #666,
+		 1px  1px 0px #666,
+		-1px  1px 0px #666,
+		 3px  3px 2px #222;
 }
-
-#footer {
-	margin-bottom:		1em;
+h1
+{
+	font-weight:		normal;
+	line-height:		100%;
+	padding:		20px 6px;
+	margin:			0;
 }
 
 /*--------------------------------------------------------------------
@@ -117,9 +136,17 @@ article div.body {
 /*--------------------------------------------------------------------
 ○table, blockquote, pre
 ---------------------------------------------------------------------*/
+#body article.system {
+	padding:		6px;
+}
+article.system div.body {
+	padding-left:		0;
+	padding-right:		0;
+}
 .body table {
 	margin-left:		1em;
 	margin-right:		1em;
+
 }
 .body blockquote table,
 .body div.box table {

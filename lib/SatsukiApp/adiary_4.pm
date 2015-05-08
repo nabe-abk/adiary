@@ -1384,7 +1384,9 @@ sub load_theme_colors {
 	my $in_com;
 	my $in_attr;
 	my @ary;
+	my $line_c=0;
 	foreach(@$lines) {
+		$line_c++;
 		$_ =~ s/\r\n?/\n/;
 		if ($in_com) {	# コメント中
 			if ($_ !~ m|\*/(.*)|) { next; }
@@ -1399,6 +1401,9 @@ sub load_theme_colors {
 
 		# /* $c=xxxcol=main */
 		if ($_ =~ /\$c=\s*([\w]+)\s*=\s*([\s\w\+\-\*\/\.#]*)\*\//) {
+			if ($col{"$1-rel"} && $col{"$1-rel"} ne $2) {
+				$col{"-err-$1"} = "[$line_c]$_<br> &nbsp; &nbsp;$1=" . $col{"$1-rel"};
+			}
 			$col{"$1-rel"} = $2;
 		}
 
@@ -1410,6 +1415,9 @@ sub load_theme_colors {
 				$_ =~ s|\s*/\*.*?\*/[\t ]*||g;
 
 			} elsif ($_ =~ /(#[0-9A-Fa-f]+)/) {
+				if ($col{$name} && $col{$name} ne $1) {
+					$col{"-err-$name"} = "[$line_c]$_<br> &nbsp; &nbsp;" . $col{$name};
+				}
 				$col{$name} = $1;
 
 				# border: 1px solid #ffffff; → border-color:

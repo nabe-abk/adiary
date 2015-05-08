@@ -110,7 +110,7 @@
 <@>$COMMENT_TOP$---------------------------------------------------------------
 <$coms = if(v.allow_edit, t.coms_all, t.coms)>
 <@ifexec(t.com_ok || coms, begin)>
-<$view = if(Query.c ne 'all', s.view_coms)>
+<$view = if(Query.c ne 'all', s.view_coms || 20)>
 <$secure_id  = make_secure_id( v.blogid . t.pkey )>
 <$secure_ary = string2ordary( secure_id )>
 <aside class="comment" id="com">
@@ -154,8 +154,8 @@
 		</div> <!-- comment-one -->
 	<$end>
 	<@ifexec(coms && v.allow_edit, begin)>
-	<@ifexec(t.enable, begin)>
 	<div class="com-buttons">
+	<@ifexec(t.enable, begin)>
 	<input type="submit" name="enable"  class="js-form-check" data-confirm="" value="表示に設定"><span class="help" data-help="非公開コメントを表示することはできません">?</span>
 	<input type="submit" name="disable" class="js-form-check" data-confirm="" value="非表示に設定">
 	<$end>

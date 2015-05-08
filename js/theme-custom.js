@@ -192,11 +192,17 @@ function init_custom_form(data) {
 			if (name.indexOf( priority[i] ) == 0) return i;
 		return 999;
 	}
+	var err='';
 	for(var k in data) {
+		if (k.substr(0,5) == '-err-') {
+			err += '<div>' + data[k] + '</div>';
+			continue;
+		}
 		if (k.rsubstr(4) == '-cst') continue;
 		if (k.rsubstr(4) == '-rel') continue;
 		cols.push({name: k, val: data[k], priority: get_priority(k) });
 	}
+	if (err.length) show_error({msg: err});
 	cols = cols.sort(function(a, b) {
 		if (a.priority < b.priority) return -1;
 		if (a.priority > b.priority) return  1;
