@@ -49,11 +49,32 @@ header {
 	font-weight:		inherit;
 	text-decoration:	none;
 }
+
+/* 英単語の途中改行 */
+body {
+	word-wrap:		break-word;
+}
+/* section, article */
+section, article {
+	display:		block;
+}
 /*--------------------------------------------------------------------
 ●互換性維持
 ---------------------------------------------------------------------*/
 #footer {
 	clear:			both;
+}
+
+/*--------------------------------------------------------------------
+●コメント欄
+---------------------------------------------------------------------*/
+#com span.abbr-msg {
+	margin-left:		2em;
+}
+/* 投稿者情報 */
+#com div.ip-host-agent {
+	text-align:		right;
+	margin-right:		1em;
 }
 
 /*--------------------------------------------------------------------
@@ -424,6 +445,7 @@ ul.menu {
 	margin:			1px;
 	display:		inline-block;
 }
+
 /* サムネイル表示 */
 #album-folder-view img {
 	border:			3px solid transparent;
@@ -473,7 +495,20 @@ ul.menu {
 #album-dnd-name-view span {
 	display:		block;
 }
+#folder-tree ul {
+	line-height:		110%;
+}
+#folder-tree li * {
+	vertical-align:		middle;
+}
 
+/* アルバムタイトル */
+#album h2 * {
+	vertical-align:		middle;
+}
+#current-folder {
+	margin-left:		4px;
+}
 
 /* アルバムヘッダ */
 #album-header, #album-header select {

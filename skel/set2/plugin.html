@@ -34,7 +34,7 @@
 		<td><span class="plg-title"><@t.title></span></td>
 		
 		<@ifexec(t.adiary_version <= v.VERSION, begin, begin)>
-		<td>
+		<td class="nowrap">
 			<input type="radio" name="<@t.name>" value="1"<@if( pd.(t.name),' checked')>><label>ON</label>
 			<input type="radio" name="<@t.name>" value="0"<@if(!pd.(t.name),' checked')>><label>OFF</label>
 		</td>

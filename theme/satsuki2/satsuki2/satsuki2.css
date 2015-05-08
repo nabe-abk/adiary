@@ -5,12 +5,6 @@
 *****************************************************************************/
 @import url("../base.css");
 /*--------------------------------------------------------------------
-■初期設定
----------------------------------------------------------------------*/
-section, article {
-	display:		block;
-}
-/*--------------------------------------------------------------------
 ■全体配置
 ---------------------------------------------------------------------*/
 body
@@ -25,10 +19,6 @@ body
 	line-height:		130%;
 }
 /* 見出し */
-header {
-	position:		relative;
-	margin-bottom:		1em;
-}
 h1
 {
 	font-size:		20pt;
@@ -78,8 +68,8 @@ div.main {
 {
 	border-top:		2px solid #2133a9;	/* $c=border */
 	text-align:		right;
-	margin:			2em 0;
-	padding-right:		1em;
+	margin:			30px 0 10px 0;
+	padding:		0 1em;
 	font-size:		10pt;
 	line-height:		120%;
 }
@@ -488,7 +478,7 @@ dt { font-weight:	bold; }
 	text-decoration:	none;
 }
 
-#com p.abbr-msg {
+#com div.swiches {
 	font-size:		10pt;
 	margin:			0 0 0 2em;
 	padding:		0;
@@ -929,7 +919,7 @@ article.edit span.tag:after {
 }
 
 /*--------------------------------------------------------------------
-●jQuery UI, タブ表示
+●jQuery UI, タブ表示（ブログ一覧画面）
 ---------------------------------------------------------------------*/
 article.jqueryui-tabs {
 	box-shadow:		none;

@@ -14,6 +14,7 @@
 	<$art_day  = t.day>
 <$else>
 	<$(t,ret) = v.load_article_current_blog(if(v.pinfo ne '', v.pinfo, s.frontpage))>
+	<$ifset(v.pinfo eq '', frontpage, 1)>
 	<$art_year = ret.year>
 	<$art_mon  = ret.mon>
 	<$art_day  = ret.day>
@@ -30,7 +31,7 @@
 <$ifjump_clear(!t || @Message, "_sub/error_message_404")>
 
 <@>記事タイトル
-<$v.subtitle = t.title>
+<$ifset(frontpage, v.subtitle, s.fp_title, t.title)>
 
 <@>$HEADER:END$----------------------------------------------------------------
 
@@ -61,7 +62,7 @@
 <$encode_uricom(url)>
 <@>
 <article id="article" class="article<@if(t.priority, " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
-<div id="article-body">
+<div class="article-body" id="article-body">
 <h2 id="art-<@t.pkey>"><@if(!t.priority, #'<a class="date" href="<@permalink>"><span class="y"><@t.year></span><span class="sep">/</span><span class="m"><@t.mon></span><span class="sep">/</span><span class="d"><@t.day></span><span class="wd">(<@t.wday_name>)</span></a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
 <div class="body" id="s<@t.pkey>">
 <div class="body-header">
@@ -109,23 +110,25 @@
 <@>$COMMENT_TOP$---------------------------------------------------------------
 <$coms = if(v.allow_edit, t.coms_all, t.coms)>
 <@ifexec(t.com_ok || coms, begin)>
-<$view = if(Query.c ne 'all', s.disp_coms_int)>
+<$view = if(Query.c ne 'all', s.view_coms)>
 <$secure_id  = make_secure_id( v.blogid . t.pkey )>
 <$secure_ary = string2ordary( secure_id )>
 <aside class="comment" id="com">
-	<div class="caption js-switch" data-target="#c<@t.pkey>n-block"><span class="caption-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span></div>
+	<div class="caption js-switch" data-target="#c<@t.pkey>n-block"><span class="caption-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span>
 	<@ifexec(view && view<coms, begin)>
-	<p class="abbr-msg"><a href="<@permalink>?&amp;c=all#com">※古いメッセージが省略されています（すべて表示）</a></p>
+	<span class="abbr-msg"><a href="<@permalink>?&amp;c=all#com">※古いコメントもすべて表示</a></span>
 	<$end>
+	</div>
 	<div class="commentbody" id="c<@t.pkey>n-block">
 	<@ifexec(coms && v.allow_edit, begin)>
 	<div class="comemntview">
 	<form method="POST" action="<@permalink>" class="js-form-check" data-target="#com .pkey-ary">
 	<input type="hidden" name="action" value="comments_edit">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
-	<p class="abbr-msg">
+	<div class="swiches">
 	<input type="checkbox" name="view_ip_host_agent" class="js-switch" data-target="#com div.ip-host-agent"><label>投稿者情報の表示</label>&nbsp;
-	<input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary"><label>すべて選択</label></p>
+	<input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary"><label>すべて選択</label>
+	</div>
 	<$end>
 	<@forexec(c, v.load_comments_current_blog(t, view), begin)>
 	<div class="comment-one<@if(!c.enable, ' hidden')>" id="c<@c.num>">
@@ -152,11 +155,13 @@
 	<$end>
 	<@ifexec(coms && v.allow_edit, begin)>
 	<@ifexec(t.enable, begin)>
+	<div class="com-buttons">
 	<input type="submit" name="enable"  class="js-form-check" data-confirm="" value="表示に設定"><span class="help" data-help="非公開コメントを表示することはできません">?</span>
 	<input type="submit" name="disable" class="js-form-check" data-confirm="" value="非表示に設定">
 	<$end>
 	<input type="submit" name="delete"  class="js-form-check" id="del-submit" value="削除" data-confirm="%c件のコメントを削除しますか？">
 	<input type="checkbox" name="del_check" class="js-enable" data-target="#del-submit"><label>削除確認</label>
+	</div>
 	</form>
 	<@if(t.com_ok && v.allow_com, '<hr id="com-form-separator">')>
 	</div><!-- end of comemntview -->

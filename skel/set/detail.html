@@ -51,11 +51,34 @@
 		</select>
 		</td>
 	</tr>
+	<tr><th>コメントの表示件数</th>
+		<td>
+		<$x=s.view_coms || 50>
+		<select name="view_coms" class="int">
+			<option value="5"  <@if(x ==  5, ' selected')>> 5件</option>
+			<option value="10" <@if(x == 10, ' selected')>>10件</option>
+			<option value="20" <@if(x == 20, ' selected')>>20件</option>
+			<option value="30" <@if(x == 30, ' selected')>>30件</option>
+			<option value="40" <@if(x == 40, ' selected')>>40件</option>
+			<option value="50" <@if(x == 50, ' selected')>>50件</option>
+			<option value="60" <@if(x == 60, ' selected')>>60件</option>
+			<option value="70" <@if(x == 70, ' selected')>>70件</option>
+			<option value="80" <@if(x == 80, ' selected')>>80件</option>
+			<option value="90" <@if(x == 90, ' selected')>>90件</option>
+			<option value="100"<@if(x ==100, ' selected')>>100件</option>
+		</select>
+		</td>
+	</tr>
 	<tr><th>wikiコンテンツの扱い</th>
 		<td>
 			<input type="hidden" name="checkbox.info" value="separate_blog">
 			<input type="checkbox" name="separate_blog" value="1"<@if(s.separate_blog, ' checked')>><label>ブログとwikiコンテンツ等を分離して扱う</label><span class="help" data-help="この設定を行うとコンテンツページは「最近の記事数件」「次の記事へのリンク」「ページ送り」「RSS」等で表示されなくなります。検索や記事一覧では表示されます。">?</span>
 
+		</td>
+	</tr>
+	<tr><th>FrontPageのタイトル<span class="help" data-help="コンテンツのFrontPage機能を使ってトップページを固定したときに、HTMLタイトルに出力する文字列を設定します。CMSとして使用したときのサイトトップのタイトルになります。">?</span></th>
+		<td>
+		<input type="text" name="fp_title" class="w400"  value="<@s.fp_title>">
 		</td>
 	</tr>
 	<tr><th>コメント許可対象</th>

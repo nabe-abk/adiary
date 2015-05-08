@@ -155,6 +155,7 @@
 <@forexec(t, logs, begin)>
 <!--========================================================================-->
 <article class="article<@if(t.priority, " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
+<div class="article-body">
 <h2 id="art-<@t.pkey>"><@if(!t.priority, #'<a class="date" href="<@v.myself2><@t.elink_key>"><span class="y"><@t.year></span><span class="sep">/</span><span class="m"><@t.mon></span><span class="sep">/</span><span class="d"><@t.day></span><span class="wd">(<@t.wday_name>)</span></a>')><a href="<@v.myself2><@t.elink_key>" class="title"><@t.title></a></h2>
 <div class="body" id="s<@t.pkey>">
 <div class="body-header">
@@ -175,6 +176,7 @@
 	<$end>
 	</div>
 </div> <!-- end of body -->
+</div> <!-- end of article-body -->
 </article>
 <$end>
 </div>

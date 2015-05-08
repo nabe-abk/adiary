@@ -44,10 +44,10 @@
 	<@forexec(t, list, begin)>
 	<tr>
 		<td><a href="<@t.url>"><@t.id></a><@if(t.private, "【非公開】")></td>
-		<td class="r"><span class="large"><@t.arts></span></td>
-		<td class="c"><@if(t.arts, tm_printf('%Y/%m/%d %H:%M', t.art_tm, 0), '-')></td>
-		<td class="r"><span class="large"><@t.coms></span></td>
-		<td class="c"><@if(t.coms, tm_printf('%Y/%m/%d %H:%M', t.com_tm, 0), '-')></td>
+		<td class="r large"><@t.arts></td>
+		<td class="c"><@if(t.arts, tm_printf('%Y/%m/%d <span class="hhmm">%H:%M</span>', t.art_tm, 0), '-')></td>
+		<td class="r large"><@t.coms></td>
+		<td class="c"><@if(t.coms, tm_printf('%Y/%m/%d <span class="hhmm">%H:%M</span>', t.com_tm, 0), '-')></td>
 		<@if(isadmin, #'<td><a href="<@t.url>?menu">管理</a>・<a href="<@t.url>?mainte/blog_drop">削除</a></td>')>
 	</tr>
 	<$end>

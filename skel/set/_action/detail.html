@@ -7,12 +7,21 @@
 <$ifset(Form.allow_com_sel ne '' , Form.allow_com_users, Form.allow_com_sel)>
 
 <$h = validator(begin_hash, Form)>
-	separate_blog = flag
-
 	load_items = ブログトップの記事表示件数
 	load_items:type = int
 	load_items:min  =  1
 	load_items:max  = 10
+
+	view_coms = コメントの表示件数
+	view_coms:type = int
+	view_coms:min  =   5
+	view_coms:max  = 100
+
+	separate_blog = flag
+
+	fp_title = FrontPageタイトル
+	fp_title:filter0 = trim
+	fp_title:filter1 = tag
 
 	allow_com_users = コメント許可対象
 	allow_com_users:filter0 = reg_del:[^\*\w,]

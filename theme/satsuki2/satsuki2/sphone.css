@@ -82,7 +82,7 @@ span.switch-icon {
 ¡‹L–•”‚Ìİ’è
 ---------------------------------------------------------------------*/
 #body {
-	word-break:		break-all;
+	word-wrap:		break-word;
 }
 
 #body img,
@@ -133,3 +133,23 @@ pre {
 	margin-right:		0;
 	overflow-x:		scroll;
 }
+
+
+/*--------------------------------------------------------------------
+¡ƒuƒƒOˆê——
+---------------------------------------------------------------------*/
+#table-view table {
+	margin-left:		4px;
+	margin-right:		4px;
+}
+#table-view table th {
+	font-size:		9pt;
+}
+#table-view table .large {
+	font-size:		100%;
+}
+#table-view table .hhmm {
+	display:		none;
+}
+
+
