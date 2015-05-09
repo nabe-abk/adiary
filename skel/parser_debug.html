@@ -25,10 +25,10 @@
 <$encode_uricom(url)>
 <@>
 <article class="article<@if(t.priority, ' wiki')>">
-<h2 id="art-<@t.pkey>"><@if(!t.wiki, #'<a class="date" href="<@permalink>"><@t.year>/<@t.mon>/<@t.day>(<@t.wday_name>)</a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
+<h2 id="art-<@t.pkey>"><@if(!t.priority, #'<a class="date" href="<@permalink>"><@t.year>/<@t.mon>/<@t.day>(<@t.wday_name>)</a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
 <div class="body" id="s<@t.pkey>">
 	<div class="body-header">
-		<@ifexec(t.wiki && t.tm, begin)><span class="write-date"><@tm_printf('%Y/%m/%d %J:%M ', t.tm)></span><$end>
+		<@ifexec(t.priority && t.tm, begin)><span class="write-date"><@tm_printf('%Y/%m/%d %J:%M ', t.tm)></span><$end>
 		<@ifexec(t.tags, begin)><span class="tags"><@v.make_taglinks(t.tags)></span><$end>
 		<span class="author" title="<@t.id>"><@t.name></span>
 		<@ifexec(v.check_editor(t), begin)><a href="<@v.myself2>0<@t.pkey>?edit" class="edit-article">（編集）</a><$end>

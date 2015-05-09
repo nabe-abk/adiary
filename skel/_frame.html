@@ -70,7 +70,7 @@
 <$end>
 <script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">
-<@if(!v.system_mode && file_size(file), #'<script async src="<@Basepath><@file>"></script>\n')>
+<@if(!js_stop && !v.system_mode && file_size(file), #'<script async src="<@Basepath><@file>"></script>\n')>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
 <@v.extra_header>
 </head>
@@ -93,7 +93,7 @@
 <@> main
 <@>-----------------------------------------------------------------------------
 <!--Start of body ==========================================================-->
-<div id="hatena-body">
+<div id="hatena-body"><div>
 
 <!--内容====================================================================-->
 <div class="main" id="main-first">
@@ -108,7 +108,7 @@
 
 <@ifcall(Develop && (@Error || @Debug || @Warning) || ENV_print, '_sub/debug')>
 <!--End of body ============================================================-->
-</div> <!-- End of #hatena-body -->
+</div></div> <!-- End of #hatena-body -->
 
 <$ps = v.load_plgset('def_footer')>
 <footer id="footer" data-module-name="def_footer" data-fix="1"><!--フッタ-->
@@ -138,15 +138,12 @@ var PubdistDir ='<@Basepath><@v.pubdist_dir>';
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', '<@s.gaid>']);
 _gaq.push(['_trackPageview']);
-$(function() {
-var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
-var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-});
 <$end>
 <@ifexec(Timer, begin)>
+$(function(){
 $('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');
 $('#system-info-total-time').text('<@int(Timer.check()*10000 + 0.5)/10>');
+});
 <$end>
 </script>
 <@v.posthtml>

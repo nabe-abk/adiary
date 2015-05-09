@@ -1,7 +1,8 @@
 @charset "UTF-8";
 /*****************************************************************************
-  Hatena2 like
-					2015/05/08 (C)nabe@abk
+  forest - nature like
+					2015/05/09 (C)nabe@abk
+					Original (C)http://k52.org/
 *****************************************************************************/
 @import url("../base.css");
 /*--------------------------------------------------------------------
@@ -9,66 +10,64 @@
 ---------------------------------------------------------------------*/
 body
 {
-	background-color:	#6d819c;	/* $c=bg */
 	color:			#000;		/* $c=fixfont */
 	font-size:		12pt;
 	line-height:		150%;
 
 	padding:		0;
-	margin:			0 auto;
+	margin:			0;
 
-	width:			90%;
-	min-width:		320px;
-	max-width:		1024px;
-
-	border-right:		1px solid #4a5973;	/* $c=border2 */
-	border-left:		1px solid #4a5973;	/* $c=border2 */
-}
-#adiary-body {
-	background-color:	#fff;
+	background-color:	#343;		/* $c=ddbg = titlebg */
+	background-image:	url("slant-tile.gif");
 }
 #hatena-body {
-	margin:			0 0 1em 14px;
-	padding-bottom:		2em;
-}
-/* 記事部 */
-.main {
-	float:			left;
-	width:			calc(100% - 235px);
-	margin-right:		235px;
-}
-.main > article:first-child {
-	margin-top:		1em;
-}
+	margin:			0 auto;
+	padding-bottom:		3em;
+	width:			100%;
+	min-width:		800px;
+	background-color:	#d4d4c4;		/* $c=main */
 
-/* 左側にメニューを配置 */
-#sidebar
-{
-	width:			220px;
-	margin-left:		-221px;
-
-	float:			right;
-	font-size:		10pt;
-	line-height:		150%;
-
-	border-left:		1px solid #a5bce7;	/* $c=border */
-	border-bottom:		1px solid #a5bce7;	/* $c=border */
+	border-top:		2px solid #aa9;	/* $c=fixbodyborder */
+	border-bottom:		2px solid #aa9;	/* $c=fixbodyborder */
 }
-/* フッタの配置 */
-#footer
-{
-	background-color:	#5e7cb4;	/* $c=footerbg = headerbg */
-
-	text-align:		center;
-	margin:			30px 0 0 0;
-	padding:		14px 1em;
-	font-size:		10pt;
-	line-height:		120%;
+#hatena-body>div,
+#header, #footer {
+	padding:		0;
+	margin:			0 auto;
+	min-width:		600px;
+	max-width:		960px;
 }
 #hatena-body:after {
 	content:		"";
 	clear:			both;
 	display:		block;
+}
+
+/* 記事部 */
+.main {
+	float:			left;
+	width:			calc(100% - 240px);
+}
+
+/* 左側にメニューを配置 */
+#sidebar
+{
+	float:			right;
+	width:			220px;
+	margin:			0;
+	padding-top:		1em;
+
+	font-size:		10pt;
+	line-height:		150%;
+}
+
+/* フッタの配置 */
+#footer
+{
+	text-align:		right;
+	padding:		10px 1em;
+	font-size:		10pt;
+	line-height:		120%;
 }
 #footer, #footer a:link, #footer a:visited {
 	color:			#fff;		/* $c=fixfooterfont */
@@ -80,47 +79,39 @@ body
 /*--------------------------------------------------------------------
 ○for IE8 bugs
 ---------------------------------------------------------------------*/
-body.IE8 {
-	width:			800px;
-}
-.IE8 #hatena-body {
-	margin-top:		-16px;
-	position:		relative;
-	max-height:		99999px;	/* adiary.jsで高さを自動フィットさせる指定 */
+.IE8 #hatena-body>div,
+.IE8 #header,.IE8 #footer {
+	margin:			0 auto;
+	width:			920px;
 }
 .IE8 .main {
-	float:			none;
-	width:			555px;
-	padding-top:		1px;
+	float:			left;
+	width:			680px;
 }
-.IE8 #sidebar {
-	float:			none;
-	position:		absolute;
-	top:			-1em;
-	left:			0;
-	margin-left:		565px;
+.IE8 #nav-header {
+	margin:			0;
 }
-.IE8 #sidebar div:first-child {
-	margin-top:		0;
-}
+
+/*--------------------------------------------------------------------
+■リンク配色
+---------------------------------------------------------------------*/
+a:link		{ color: #228800; }	/* $c=link */
+a:visited	{ color: #334400; }	/* $c=linkvisited */
+a:hover		{ color: #cc9900; }	/* $c=linkhover */
+a img		{ border: none; }
 
 /*--------------------------------------------------------------------
 ■ヘッダ部
 ---------------------------------------------------------------------*/
 #header, #sp-header {
 	color:			#fff;		/* $c=fixheaderfont */
-	background-color:	#7697d6;	/* $c=titlebg */
 }
 #nav-header {
-	color:			#ccc;
-	background-color:	#5e7cb4;	/* $c=headerbg */
-
 	text-align:		right;
 	font-size:		10pt;
 	line-height:		100%;
 	padding:		2px 0;
 	display:		block;
-	margin:			0;
 }
 
 #header a, #header a:link, #header a:visited {
@@ -135,7 +126,7 @@ h1
 	font-size:		20pt;
 	font-weight:		bold;
 	line-height:		110%;
-	padding:		60px 20px;
+	padding:		60px 10px;
 	margin:			0;
 }
 h1 a, h1 a:link, h1 a:visited {
@@ -150,12 +141,10 @@ h1 img, h1 a img {
 #head-description {
 	position:		absolute;
 	top:			102px;
-	left:			20px;
+	left:			10px;
 	font-size:		10pt;
 }
-#head-description br {
-	display:		none;
-}
+
 
 /*--------------------------------------------------------------------
 ■ドロップダウンメニュー
@@ -166,16 +155,20 @@ h1 img, h1 a img {
 /* 背景色（非選択色） */
 .dropdown-menu,
 .dropdown-menu>ul li {
-	background-color:	#7697d6;	/* $c=ddbg = titlebg */
+	background-color:	transparent;
+}
+.dropdown-menu>ul>li li {
+	background-color:	#343;		/* $c=ddbg = titlebg */
+	background-image:	url("slant-tile.gif");
 }
 /* 選択色 */
 .dropdown-menu>ul li:hover,
 .dropdown-menu>ul li.hover {
-	background-color:	#5e7cb4;	/* $c=ddhover = headerbg */
+	background-color:	#228800;	/* $c=ddhover = link */
 }
 /* 枠線 */
 .dropdown-menu>ul li {
-	border-color:		#aac;		/* $c=ddborder */
+	border-color:		#aaa;		/* $c=fixddborder */
 }
 /* 文字 */
 .dropdown-menu a:link,
@@ -185,15 +178,15 @@ h1 img, h1 a img {
 }
 /* 矢印の色 */
 .dropdown-menu li ul li ul:before {
-	border-left-color:	#338;		/* $c=ddarrow = link/2 */
+	border-left-color:	#393;		/* $c=ddarrow = link/2 */
 }
 .dropdown-menu li:last-child ul li ul:before {
 	border-left-color:	transparent;
-	border-right-color:	#338;		/* $c=ddarrow */
+	border-right-color:	#393;		/* $c=ddarrow */
 }
 /* 設定画面に矢印の色を自動取得させるための指定 */
 .dropdown-menu {
-	color:			#338;	/* $c=ddarrow */
+	color:			#393;		/* $c=ddarrow */
 }
 /* 影をつける */
 .dropdown-menu>ul li:hover ul {
@@ -235,7 +228,6 @@ h1 img, h1 a img {
 nav.page-nav {
 	font-size:	10pt;
 	line-height:	100%;
-	text-align:	right;
 	margin:		1em 0;
 }
 nav.page-nav a {
@@ -266,42 +258,59 @@ a.upnode-page:before {
 a.next-page:after {
 	background-position: -240px -16px;
 }
+
 /*--------------------------------------------------------------------
 ■記事のデザイン配置（本文）
 ---------------------------------------------------------------------*/
 /* 1つの記事 */
-#article {
-	margin-bottom:		2em;
+article {
+	margin:			1em 0;
+}
+article + article {
+	margin-top:		2em;
 }
 .article-body {
-	padding:		8px;
-	margin-bottom:		3em;
+	background-color:	#fff;			/* $c=artbg */
+	border:			1px solid #ccc;		/* $c=artborder */
+	border-radius:		8px;
+	padding:		1.5em 1.5em 1em 1.5em;
 }
-
+article.wiki .article-body {
+	background-color:	#fafaf8;		/* $c=wikibg */
+}
 /* 記事タイトル */
 article h2 {
-	padding:		0 0.5em 0.2em 0;
+	color:			#650;		/* $c=h2font */
+	font-size:		100%;
+	line-height:		100%;
+	border-left:		5px solid #966;
 
-	font-size:		130%;
-	font-family:		"times new roman", "geogia", serif;
-	line-height:		110%;
-	margin:			0 0 10px 0;
-
-	border-bottom:		1px solid #a5bce7;	/* $c=border */
+	margin:			0 0 1em 0;
+	padding:		0.5em 0 0.5em 0.3em;
 }
-article h2,
-article h2 a,
+article h2 a.title {
+	font-size:		120%;
+	line-height:		100%;
+	display:		block;
+}
 article h2 a:link,
 article h2 a:visited
 {
-	color:			#7697d6;		/* $c=h2font = titlebg */
+	color:			#650;		/* $c=h2font */
 	text-decoration:	none;
 }
+article h2 a:hover {
+	text-decoration:	underline;
+}
 
-article h2 a.date {
+article h2 a.date,
+article h2 .body-header {
 	font-size:		80%;
-	text-decoration:	none;
-	margin-right:		1em;
+	line-height:		100%;
+	font-weight:		normal;
+}
+article h2 * {
+	display:		inline;
 }
 
 /* 記事本文 */
@@ -311,22 +320,8 @@ article div.body {
 	margin:			0;
 	padding:		0;
 }
-article:not(.wiki) div.body {
-	background-color:	#fff;			/* $c=artbg */
-}
-/* コンテンツ記事 */
-.wiki .article-body {
-	background-color:	#f4f4ff;		/* $c=wikibg */
-	border-radius:		4px;
-}
-/* 記事ヘッダ */
-div.body-header {
-	text-align:		right;
-	line-height:		100%;
-	font-size:		90%;
-	padding:		0;
-	margin:			0 0.2em 0 0;
-}
+
+
 
 /* 記事中のセクション */
 article section {
@@ -340,7 +335,7 @@ section footer {
 	padding:		2px 4px;
 	margin:			1.5em 1em 0 1em;
 
-	background-color:	#e9eff8;		/* $c=footnotebg=prebg */
+	background-color:	#f0f0e0;		/* $c=footnotebg = main + #1c1c1c */
 	border-radius:		2px;
 }
 /* 脚注 */
@@ -372,40 +367,31 @@ div.body-footer div.social-buttons:first-child {
 ---------------------------------------------------------------------*/
 /* sidebar の 1項目 */
 div.hatena-module {
+	margin-bottom:		1.3em;
 }
 div.hatena-moduletitle {
-	color:			#fff;		/* $c=fixmodulebg */
+	font-size:		12pt;
+	color:			#333;
 	font-weight:		bold;
-	text-align:		center;
+	letter-spacing:		3px;
 
-	padding:		3px 0.5em 3px 0.7em;
-	background-color:	#a5bce7;	/* $c=sidetitlebg = border */
-
-	margin:			0;
-	padding:		2px 0 2px 0;
+	text-shadow:		 1px -1px 1px #f8f8f8,
+				 1px  1px 1px #f8f8f8,
+				-1px  1px 1px #f8f8f8,
+				-1px -1px 1px #f8f8f8,
+				4px 2px 2px rgba(0,0,0,0.6);
 }
 div.hatena-modulebody {
-	margin:			5px;
+	padding:		0 4px;
 }
 div.hatena-module a {
-	text-decoration:	none;
 }
 
 /* タイトル一覧など */
 ul.hatena-section {
 	list-style-type:	none;
-	margin:			0.3em 0em 0.3em 0.3em;
+	margin:			2px 0em 0.3em 0.3em;
 	padding:		0px;
-}
-.hatena-module:not(.side-contents-list) ul.hatena-section li
-{
-	border-bottom:		1px solid #e5ebfa;	/* $c=moduleborder = border+#303030 */
-	margin:			4px 0;
-	padding-bottom:		3px;
-	line-height:		130%;
-}
-ul.hatena-section li:last-child {
-	border-bottom:		none;
 }
 /* 2段目のリスト */
 ul.hatena-section ul {
@@ -427,6 +413,7 @@ div#side-calendar div.hatena-modulebody table {
 div.hatena-moduletitle a,
 div.hatena-moduletitle a:link,
 div.hatena-moduletitle a:visited {
+	text-decoration:	none;
 	color:			inherit;
 }
 
@@ -435,12 +422,10 @@ div.hatena-moduletitle a:visited {
 	line-height:		160%;
 }
 
-
-/*--------------------------------------------------------------------
-■リンク配色
----------------------------------------------------------------------*/
-a:link		{ color: #0022cc; }	/* $c=link */
-a:visited	{ color: #7888dc; }	/* $c=linkvisited */
+/* Informationのタイトルを出さない */
+body:not(.system-mode) #side-information div.hatena-moduletitle {
+	display:		none;
+}
 
 /****************************************************************************/
 /****************************************************************************/
@@ -472,8 +457,9 @@ span.tag:not(:last-child):after {
 	font-size:		110%;
 	font-weight:		bold;
 
-	padding:		10px 0px 8px 8px;
-	border-left:		9px solid #7697D6;	/* $c=h3border = link */
+	padding:		6px 0 6px 3px;
+	margin-top:		1em;
+	border-left:		4px solid #ccc;		/* $c=h3border = artborder */
 }
 .body h3 span.timestamp {
 	font-size:		90%;
@@ -513,7 +499,7 @@ div.body p {
 blockquote, pre, div.box {
 	margin:			0.5em 2em 0.5em 2em;
 	padding:		0.3em 1em 0.3em 1em;
-	border:			1px solid #d2deee;	/* $c=preborder */
+	border:			1px solid #aaa;		/* $c=preborder */
 	border-radius:		4px;
 }
 div.body blockquote p {
@@ -522,7 +508,7 @@ div.body blockquote p {
 pre {
 	font-family:		monospace;
 	display:		block;
-	background-color:	#e9eff8;		/* $c=prebg */
+	background-color:	#eee;			/* $c=fixprebg */
 }
 
 /* pre 中コメント */
@@ -564,15 +550,15 @@ dt { font-weight:	bold; }
 .ui-dialog table td {
 	margin:			0px;
 	padding:		3px 5px;
-	border:			1px solid #d2deee;	/* $c=tableborder = preborder */
+	border:			1px solid #aaa;		/* $c=tableborder = preborder */
 }
 .body table th,
 .ui-dialog table th {
 	font-weight:		bold;
 	margin:			0px;
 	padding:		3px 5px;
-	border:			1px solid #d2deee;	/* $c=tableborder = preborder */
-	background-color:	#e9e9f8;		/* $c=thbg = combg */
+	border:			1px solid #aaa;		/* $c=tableborder = preborder */
+	background-color:	#ddd;			/* $c=fixtablebg */
 }
 
 /****************************************************************************/
@@ -580,14 +566,14 @@ dt { font-weight:	bold; }
 ■コメント欄
 ---------------------------------------------------------------------*/
 #com {
-	margin-top:		0.5em;
-	padding:		1em 6px;
 	font-size:		10.5pt;
 	line-height:		150%;
+	margin:			1em 0;
+	padding:		1.5em 1.5em 1em 1.5em;
 
-	border:			1px solid #d2deee;	/* $c=comborder = preborder */
-	border-radius:		4px;
-	background-color:	#e9e9f8;		/* $c=combg */
+	background-color:	#fafaf8;		/* $c=combg     = wikibg */
+	border:			1px solid #ccc;		/* $c=comborder = artborder */
+	border-radius:		8px;
 }
 #com div.caption a {
 	font-weight:		bold;
@@ -599,10 +585,9 @@ dt { font-weight:	bold; }
 	padding:		0;
 }
 div.comment-one {
-	margin:			4px 0;
+	margin:			12px 0;
 	padding:		0.5em 2px;
-	background-color:	#fff;			/* $c=combg2 = artbg */
-	border-radius:		4px;
+	border-top:		1px solid #ccc;		/* $c=comborder */
 }
 div.com-buttons {
 	margin-top:		1em;
@@ -701,7 +686,6 @@ table.calendar {
 	margin:			0px auto;
 	font-size:		95%;
 	line-height:		100%;
-	border-collapse:	collapse;
 }
 table.calendar td.calendar-prev-month    { text-align: left;  margin-left:  0.5em; }
 table.calendar td.calendar-current-month { text-align: center; }
@@ -710,33 +694,31 @@ table.calendar td {
 	text-align:		right;
 }
 table.calendar td.calendar-weekday {
-	background-color:	#DFDFDF;
+	background-color:	#ccc;
 }
 table.calendar td.calendar-day a {
 	text-decoration:	underline;
 }
 table.calendar tr.calendar-wdayname td {
 	text-align:		center;
-	border:			1px solid #d2deee;
 }
 table.calendar tbody td {
 	padding:		1px 4px;
-	border:			1px solid #d2deee;
 }
 /* 土曜日 */
 table.calendar td.w6, table.calendar th.w6 {
-	background-color: 	#D3EAF2;
+	background-color: 	#ccf;
 }
 /* 日曜日、祝日 */
 table.calendar td.w0, table.calendar th.w0,
 table.calendar td.holiday {
-	background-color: 	#EBD9D9;
+	background-color: 	#fcc;
 }
 /* 今日 */
 table.calendar td.day-today      { font-weight: bold; }
 /* 選択した日付 */
 table.calendar td.day-selected {
-	text-decoration:	underline;
+	border:			1px solid #228800;	/* $c=link */
 }
 table.calendar td a,
 table.calendar td a:link {
@@ -775,13 +757,13 @@ input[type="submit"],
 input[type="button"],
 button
 {
-	color:			#000;			/* $c=fixfont */
+	color:			#000;			/* $c=fixbtnfont */
 	font-weight:		bold;
-	border:			1px solid #66c;		/* $c=btnborder */
+	border:			1px solid #aaa;		/* $c=btnborder = preborder */
 	border-radius:		6px;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#ddf,			/* $c=btnbg0=btnbg1 + #333 */
-				#aaf);			/* $c=btnbg1 */
+				#f4f4e4,			/* $c=btnbg0 =main + #202020 */
+				#d4d4c4);			/* $c=btnbg1 =main */
 }
 input[type="reset"]:hover,
 input[type="submit"]:hover,
@@ -791,8 +773,8 @@ button:hover
 	border-radius:		6px;
 	cursor:			pointer;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#eef,			/* $c=btnbghover0=btnbg1 + #444 */
-				#ccf);			/* $c=btnbghover1=btnbg1 + #222 */
+				#e4e4d4,			/* $c=btnbghover0 = main + #101010 */
+				#c4c4b4);			/* $c=btnbghover1 = main - #101010 */
 
 }
 
@@ -803,7 +785,7 @@ button:disabled
 {
 	color:			#666;
 	background-image:	none;
-	background-color:	#aac;			/* $c=btndisable=btnbg1 - #222 */
+	background-color:	#b4b4a4;			/* $c=btndisable = main - #202020 */
 }
 
 /*--------------------------------------------------------------------
@@ -811,7 +793,7 @@ button:disabled
 ---------------------------------------------------------------------*/
 #ui-icon-autoload {
 	display:		none;
-	background-color:	#8080c0;		/* $c=uiicon=link */
+	background-color:	#880;				/* $c=uiicon = linkvisited*2 */
 }
 .ui-icon {
 /*	background-image:	url(ui-icons.png);	*/
@@ -821,7 +803,7 @@ button:disabled
 }
 
 .ui-icon.ui-button {
-	border:                 1px solid #016;		/* $c=uiborder = link/2 */
+	border:                 1px solid #140;			/* $c=uiborder = link/2 */
 	border-radius:		4px;
 	background-color:       #eee;
 	margin:			0 1px;

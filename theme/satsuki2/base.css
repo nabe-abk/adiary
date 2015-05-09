@@ -814,9 +814,13 @@ h3.ui-accordion-header {
 .IE8 .ui-icon {
 	display:	inline-block;
 }
-.IE8 header {
-	margin-top:	0;
+.IE8 header,
+.IE8 nav,
+.IE8 footer,
+.IE8 aside {
+	margin:		0;
 }
+
 /*--------------------------------------------------------------------
 ●デバッグ
 ---------------------------------------------------------------------*/

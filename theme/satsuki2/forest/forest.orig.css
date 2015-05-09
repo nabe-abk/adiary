@@ -1,0 +1,587 @@
+@charset "UTF-8";
+/*****************************************************************************
+  forest - nature
+					(C)http://k52.org/
+*****************************************************************************/
+@import url("../satsuki/base.css");
+/*--------------------------------------------------------------------
+■全体配置
+---------------------------------------------------------------------*/
+body
+{
+	background-color: #ddc;
+	color: #333;
+	font-family:Verdana, Arial, "ＭＳ Ｐゴシック";
+	margin: 0;
+	padding: 0;
+	font-size:100%;
+	line-height: 1.5;
+	letter-spacing: 0;
+
+	/* for IE */
+	text-align: center;
+	_word-break:		break-all;
+	_word-wrap:		break-word;
+}
+/* ヘッダ */
+div#header {
+	width: 100%;
+	padding: 10px 0;
+	background: #343 url("slant-tile.gif") repeat;
+	border-bottom: 3px solid #aa9;
+	line-height: 1.3;
+	color: #fff;
+}
+/* 本体 */
+div.hatena-body {
+	position: relative;
+	margin: 1.5em auto 0 auto;
+	width: 920px;
+	color: #333;
+	text-align: left;
+}
+/* 日記部 */
+div.main {
+	width: 680px;
+	float: left;
+	padding: 0;
+}
+/* サイドバー */
+div.sidebar {
+	float: left;
+	width: 220px;
+	margin-left: 20px;
+	font-size: 80%;
+}
+/* フッタ */
+div#footer {
+	clear: both;
+	width: 100%;
+	padding: 0;
+	line-height: 1.2;
+	background: #343 url("slant-tile.gif") repeat;
+	border-top: 3px solid #aa9;
+	color: #fff;
+}
+
+/*--------------------------------------------------------------------
+■タグの基本設定
+---------------------------------------------------------------------*/
+a img { border: none; }
+hr { margin: 0; }
+a:link { color: #228800; }
+a:visited { color: #334400; }
+a:hover { color:#cc9900; }
+a:active { color:#99cc66; }
+
+/*--------------------------------------------------------------------
+■ヘッダ
+---------------------------------------------------------------------*/
+div.adminmenu {
+	text-align:		right;
+	font-size:		80%;
+	width: 920px;
+	margin: 0 auto;
+	letter-spacing: 2px;
+}
+div.adminmenu a, div.adminmenu a:link, div.adminmenu a:visited {
+	color: #9c6;
+}
+/* ようこそ */
+span.welcome-prefix { }
+/* ○○さん */
+span.welcome      { }
+span.welcome-name { }
+span.welcome a, span.welcome a:link, span.welcome a:visited { }
+/* 新着一発表示マーク */
+div.adminmenu a.newcome-mark {
+	color: #966;
+}
+/* 見出し */
+div.page-title {
+	text-align: left;
+	width: 880px;
+	margin: 0 auto;
+	padding: 1.5em 0;
+}
+h1 {
+	font-size: 150%;
+	font-weight: bold;
+	letter-spacing: 0.1em;
+	margin: 0;
+	padding: 0;
+}
+div.page-title a, div.page-title a:link, div.page-title a:visited {
+	color: #fff;
+	text-decoration: none;
+}
+div.page-title a:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+div.description {
+	font-size: 80%;
+}
+
+/*--------------------------------------------------------------------
+■ページ送り
+---------------------------------------------------------------------*/
+a.prev-page:before { }
+a.next-page:after { }
+
+/*--------------------------------------------------------------------
+■記事のデザイン配置（本文）
+---------------------------------------------------------------------*/
+/* 1つの記事 */
+div.day {
+	background-color:	#fff;
+	border:1px solid #ccc;
+	padding: 1.5em 1.5em 1.0em 1.5em;
+	margin: 0 0 20px 0em;
+}
+/* 記事タイトル */
+h2 {
+	margin: 0 0 1em 0;
+	border-left:5px solid #966;
+	padding: 0.5em 0 0.5em 0.3em;
+	color:#650;
+	font-size:100%;
+	font-weight:bold;
+	line-height: 1.3;
+}
+h2 span.entry-toolbar {
+	font-size: 80%;
+	font-weight:normal;
+}
+h2 a, h2 a:link, h2 a:visited {
+	color: #650;
+	text-decoration: none;
+}
+h2 a:hover {
+	color: #650;
+	text-decoration: underline;
+}
+
+/* 記事本文 */
+div.day div.body {
+	font-size:95%;
+}
+
+/* 記事ヘッダ */
+div.body div.body-header {
+	text-align:		right;
+	font-size:		90%;
+}
+
+/* 記事中のセクション */
+div.section { }
+div.day form { }
+
+/* 記事フッタ */
+div.day-footer {
+	margin-top: 2em;
+	text-align: right;
+	font-size: 80%;
+	color: #999;
+}
+p.sectionfooter { }
+p.sectionfooter a img { }
+
+/*--------------------------------------------------------------------
+■記事のデザイン配置（コメント、トラックバック）
+---------------------------------------------------------------------*/
+/* コメント */
+div.comment {
+	font-size: 80%;
+}
+div.day-single div.comment {
+	border-top: 1px solid #ccc;
+	margin-top: 0.5em;
+	padding-top: 0.5em;
+	font-size: 80%;
+}
+/* コメントタイトル */
+div.day div.comment div.caption { }
+/* 短文表示モード */
+div.commentshort { }
+div.commentshort p {
+	margin: 0.2em 0 0.2em 0;
+}
+/* 全文表示モード */
+div.commentbody {
+	font-size: 110%;
+}
+div.comment-one { }
+div.commentbody span.author { }
+div.commentbody span.comment-date {
+	color: #666;
+}
+div.comment-text {
+	margin: 0 0 0 2em;
+}
+div.comment form {
+	margin: 0 0 2em 0;
+}
+
+/* トラックバック */
+div.tb {
+	font-size: 80%;
+}
+/* トラックバックタイトル */
+div.day div.tb div.caption { }
+div.tb ul {
+	margin: 0.5em 0 0.5em 2em;
+	padding: 0;
+	font-size: 90%;
+}
+ul.tb li {
+	list-style:	none;
+}
+div.tb div.excerpt {
+/*	margin:		0.5em 0em 0.5em 3em;	*/
+}
+
+/*--------------------------------------------------------------------
+■開閉式スイッチ
+---------------------------------------------------------------------*/
+a.switch, a.switch:link, a.switch:visited {
+	display: none;
+}
+li a.switch, li a.switch:link, li a.switch:visited {
+	display: inline;
+}
+span.open { }
+span.close { }
+
+/*--------------------------------------------------------------------
+■サイドバー
+---------------------------------------------------------------------*/
+/* sidebar の 1項目 */
+div.hatena-module {
+	margin: 0 0 1.3em 0;
+	padding: 0;
+}
+div.hatena-moduletitle {
+	font-weight: bold;
+	margin: 0 0 0 0;
+	padding: 2px 0 2px 0;
+	letter-spacing: 0.5em;
+	color: #666;
+}
+div.hatena-modulebody {
+	margin: 0.3em 0.5em 0.3em 0.5em;
+}
+div#side-calendar div.hatena-modulebody {
+	_text-align:		center;
+}
+div#side-calendar div.hatena-modulebody table {
+	font-size:		100%;
+	margin:			0.3em auto;
+}
+/* Informationのタイトルを出さない */
+div#side-information div.hatena-moduletitle {
+	display:		none;
+}
+
+/* コンテンツ */
+div.side-contents-list div.hatena-moduletitle a {
+	text-decoration:	none;
+}
+
+div.side-contents-list div.hatena-moduletitle {
+	background-color:	inherit;
+	text-align:		left;
+	vertical-align:		bottom;
+
+	border-bottom:		2px solid black;
+	font-weight:		bold;
+	padding:		0 0 0 0.1em;
+}
+/* 一覧など */
+ul.hatena-section,
+ul.sub-category,
+ul.hatena-recentcomment {
+	list-style-type:	none;
+	margin:			0.3em 0em 0.3em 0.3em;
+	padding:		0px;
+}
+div#side-login,
+div#side-system-info {
+	display: none;
+}
+
+/* RSS */
+li.rss {
+	padding-left: 20px;
+	background: url("icon-rss.gif") no-repeat 0 center;
+}
+
+/*--------------------------------------------------------------------
+■フッタ
+---------------------------------------------------------------------*/
+div#footer-inner {
+	text-align:		right;
+	font-size:		80%;
+	width: 920px;
+	margin: 0 auto;
+	background: url("footer-icon.gif") no-repeat right center;
+	padding: 10px 32px 10px 0px;
+	letter-spacing: 2px;
+}
+div#footer-inner a:link, div#footer-inner a:visited {
+	color: #9c6;
+}
+
+/****************************************************************************/
+/****************************************************************************/
+/*--------------------------------------------------------------------
+●記事：基本設定
+---------------------------------------------------------------------*/
+/* アンカー */
+a.linkall span.sanchor {
+	margin-right:	0.3em;
+}
+/* 見出し */
+div.body h3 {
+	font-size: 100%;
+	font-weight: bold;
+	color: #666;
+	border-left: 3px solid #ccc;
+	padding-left: 0.5em;
+	margin-top: 1.5em;
+}
+div.body h3 span.timestamp {
+	font-size:		100%;
+	font-weight:		normal;
+}
+div.body h3 a.linkall {
+	color: #666;
+	text-decoration:	none;
+}
+/* 小見出し */
+div.body h4 {
+	font-size:		100%;
+	font-weight:		bold;
+}
+div.body h5 {
+	font-size:		100%;
+	font-weight:		bold;
+}
+/* 小見出しへのリンク */
+div.body h4 a, div.body h5 a {
+	font-size:		inherit;
+	color:			inherit;
+	text-decoration:	inherit;
+}
+
+div.body p {
+	text-indent:		1em;
+	margin:			0.7em 0.5em 0.7em 0;
+}
+
+blockquote, pre, div.box {
+	margin:			0.5em 2em 0.5em 2em;
+	padding:		0.3em 1em 0.3em 1em;
+	background-color:	#eee;
+	_width:			100%;	/* for IE Peek-a-boo bug */
+}
+div.body blockquote cite {
+	font-style: normal;
+}
+div.body blockquote p {
+	margin:			0.2em 0.5em 0.2em 0;
+}
+pre {
+	font-family:		monospace;
+	display:		block;
+	background-color:	#eee;
+/*	overflow:		auto;	*/	/* はみ出した部分は scroll bar */
+	/* for IE */
+	_overflow:		inherit;
+	_width:			90%;
+}
+
+/* pre 中コメント */
+pre span.comment	{ color: #343; }
+pre strong.comment	{ color: #343; font-weight: bold; }
+
+
+/* 記事テキストの保護色。背景色と同一にすること */
+div.day .hidden, div.day .hidden a,
+.hidden strong, .hidden em {
+	color:			#fff;
+	background-color:	#fff;
+}
+/* 強調 */
+em {
+	font-style:		normal;
+	text-decoration:	underline;
+}
+
+/*--------------------------------------------------------------------
+●記事：リスト
+---------------------------------------------------------------------*/
+dt { font-weight:	bold; }
+
+/*--------------------------------------------------------------------
+●記事：テーブル
+---------------------------------------------------------------------*/
+div.body table {
+	font-size:		inherit;
+	margin:			0.5em 1em 0.5em 1em;
+	border-collapse:	separate;
+	border-spacing:		2px;
+	empty-cells:		show;
+}
+div.body table tr {
+	margin:			0px;
+	padding:		0px;
+}
+div.body table td {
+	margin:			0px;
+	padding:		2px;
+	border-bottom:		1px dashed #000;
+}
+div.body table th {
+	font-weight:		bold;
+	margin:			0px;
+	padding:		2px;
+	border-bottom:		1px solid #000;
+	background-color:	#ddd;
+}
+
+/*--------------------------------------------------------------------
+●脚注処理
+---------------------------------------------------------------------*/
+/* 脚注へのリンク */
+span.footnote a {
+	font-size:		90%;
+}
+
+/* 脚注全体 */
+div.footnote {
+	font-size:		85%;
+	margin:			1.5em 0 0 1em;
+	padding:		0.1em 1em 0.1em 0.5em;
+	background-color:	#ddc;
+}
+/* 脚注１つ */
+div.footnote p.footnote {
+	padding:		0;
+	margin:			0.2em 0 0.2em 0;
+}
+
+
+/*--------------------------------------------------------------------
+ システムメッセージ関連（日記本文表示で使用）
+---------------------------------------------------------------------*/
+strong.error, strong.warning {
+	font-size: 100%;
+	font-weight: bold;
+	color: #a30;
+}
+/* 表示無効、非公開 の表示 */
+strong.void, strong.hidden-com {
+	font-size: 100%;
+	font-weight: bold;
+	color: inherit;
+}
+
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
+/* ここより下は管理メニュー内でのみ使用するクラス                           */
+/*		システムメニューに対応しないテーマでは定義不要              */
+/****************************************************************************/
+body.system {
+	background-color: #ddd;
+}
+/* ヘッダ */
+body.system div#header {
+	background-color: #333;
+}
+body.system div.page-title {
+	padding: 0;
+}
+/* フッタ */
+body.system div#footer {
+	background-color: #333;
+}
+
+/*--------------------------------------------------------------------
+●フォーム／日記の編集画面
+---------------------------------------------------------------------*/
+form input {
+	margin: 0 2px 0 2px;
+}
+div.edit table {
+	margin-left: 0;
+	width: 100%;
+}
+div.edit table th {
+	background-color: #eee;
+	border-bottom: 1px solid #ccc;
+	padding: 6px 12px;
+}
+div.edit table td {
+	border-bottom: 1px dotted #ccc;
+}
+
+div.diary-edit form textarea, div.diary-edit input.edit-files {
+	width:			96%;
+	margin:			0em 2em 0em 0em;
+	_width:			auto;		/* IE bugs */
+}
+div.comment form textarea {
+	width:			90%;
+	_width:			auto;		/* IE bugs */
+}
+div.diary-edit div.writer {
+	font-weight:		bold;
+	margin:			0.5em 0em 0em 0em;
+}
+
+/*--------------------------------------------------------------------
+ システム関連
+---------------------------------------------------------------------*/
+ul.system-menu {
+	list-style-type:	none;
+	margin:			0.5em 0.2em 0.5em 0.2em;
+	padding:		0px;
+}
+
+/*--------------------------------------------------------------------
+ 編集画面
+---------------------------------------------------------------------*/
+div.diary-edit div.body, div.edit div.body {
+	font-size: 90%;
+}
+div.edit div.body div.margin {
+	margin-left: 2em;
+}
+div.diary-edit div.body input.filed {
+	padding: 0px;
+}
+div.diary-edit div.body textarea {
+	margin-left: 0px;
+	padding: 0px 4px 0px 0px;
+}
+textarea { font-size: 100%; }
+div.diary-edit  textarea { font-size: 110%; }
+div.design-edit textarea { font-size:  95%; }
+
+form input.int, form select.int, input.int, select.int {
+	text-align:		right;
+}
+
+/* コメント・TBの編集 */
+span.edit-checkbox {
+	font-size:		120%;
+}
+
+/* IP/HOST/AGENT */
+div.http_env {
+	font-size:		95%;
+	text-align:		right;
+}
+

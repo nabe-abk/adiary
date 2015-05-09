@@ -3,8 +3,7 @@
 <$s = v.blog>
 
 <@> システムモード
-<$v.system_mode()>
-<$v.title ="記事を書く - " . s.blog_name>
+<$v.system_mode("記事の編集")>
 
 <@>CSRFチェック
 <$if_post_csrf_check()>
@@ -89,7 +88,7 @@
 
 <!--記事の編集=============================================================-->
 <article class="system edit" id="edit">
-<h2>記事の編集</h2>
+<h2><@v.title></h2>
 <div class="body">
 
 <form method="POST" name="edit" class="no-enter-submit">

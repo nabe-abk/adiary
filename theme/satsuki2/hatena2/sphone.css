@@ -40,17 +40,16 @@ div.main {
 ---------------------------------------------------------------------*/
 #sp-header {
 	color:			#fff;
-	background-color:	#7697d6;
 }
 #sp-nav-header {
 	font-size:		10pt;
 	text-align:		right;
 	vertical-align:		top;
 }
-#sp-nav-header a,
-#sp-nav-header a:link,
-#sp-nav-header a:visited {
-	color:			#fff;	/* $c=link */
+#sp-header a,
+#sp-header a:link,
+#sp-header a:visited {
+	color:			#fff;
 }
 #sp-page-title {
 	margin:			0px;
@@ -66,7 +65,7 @@ h1
 {
 	font-weight:		normal;
 	line-height:		100%;
-	padding:		20px 6px;
+	padding:		30px 6px;
 	margin:			0;
 }
 

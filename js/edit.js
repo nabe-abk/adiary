@@ -491,7 +491,7 @@ $secure('#btn-quote').click( function(evt) {
 		callback: function(h) {
 			var start = obj.data('start-base');
 			if (h.url.match(/^(https?:\/\/)(.+)/i))
-				start += '[' + h.url + ']';
+				start += '[&' + h.url + ']';
 
 			obj.data('start', start);
 			block_tag_btn(evt);

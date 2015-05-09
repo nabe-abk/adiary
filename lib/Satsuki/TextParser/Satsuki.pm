@@ -597,7 +597,7 @@ sub block_parser {
 				$cite="";
 				my $class  = ($line_opt ne '' ? $line_opt : substr($line, $len) . $dc);
 				my $add_attr;
-				if ($block_tag eq 'blockquote' && $class =~ m|^(\[(https?://[^:\"\]]*)[^\]]*\])(.*)|) {	# タグ指定？
+				if ($block_tag eq 'blockquote' && $class =~ m|^(\[(&?https?://[^:\"\]]*)[^\]]*\])(.*)|) {	# タグ指定？
 					$add_attr = " cite=\"$2\"";
 					$cite  = "<cite>$1</cite>";
 					$class = $3;
@@ -1252,9 +1252,9 @@ sub table_output {
 	# caption & summary
 	$self->tag_syntax_escape($summary);		# 記法タグも escape
 	$ROBJ->tag_escape($caption);
-	if ($summary ne '') { $summary=" summary=\"$summary\""; }
+	if ($summary ne '') { $summary="<!-- summary=$summary -->"; }
 	# 出力
-	push(@$out, "<table$class$summary>\n");
+	push(@$out, "<table$class>$summary\n");
 	if ($caption ne '') { push(@$out, "<caption>$caption</caption>\n"); }
 	my $thead_flag;
 	if (1 < $#$rows) {

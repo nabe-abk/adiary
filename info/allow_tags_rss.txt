@@ -25,6 +25,7 @@ footer
 aside
 nav
 details
+summary
 
 blockquote	cite
 pre
@@ -55,7 +56,7 @@ dl
 dd
 
 ### テーブル ####################
-table		alt, summary
+table		alt
 caption
 thead
 tfoot

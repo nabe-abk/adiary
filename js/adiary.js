@@ -14,13 +14,22 @@ var IE9=false;
 var Vmyself;	// _frame.html で設定される
 var Storage;
 var SettedBrowserClass;
+var _gaq;
 //////////////////////////////////////////////////////////////////////////////
 //●初期化処理
 //////////////////////////////////////////////////////////////////////////////
 $(function(){
 	if(Vmyself) Storage=load_PrefixStorage( Vmyself );
 	if (!SettedBrowserClass) set_browser_class_into_body();
+
+	// Google Analytics
+	if (_gaq) {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	}
 });
+
 //////////////////////////////////////////////////////////////////////////////
 //●RSSからの参照リンクURLの細工を消す
 //////////////////////////////////////////////////////////////////////////////
@@ -1376,7 +1385,6 @@ function form_dialog(h) {
 	});
 }
 
-
 //############################################################################
 // ■adiary用 Ajaxライブラリ
 //############################################################################
@@ -1602,4 +1610,5 @@ function DOMStorageDummy() {
 		}
 	}
 }
+
 
