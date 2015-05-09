@@ -591,12 +591,16 @@ function exec_poland(p) {
 		var op = p[i];
 		if (!oph[op]) {
 			var x = op;
-			if (x.substr(0,1) == '#')
-				x = parse_rgb(x);
-			else if (x.match(/^[A-Za-z]\w*$/)) {
-				var obj = $('#inp-'+x);
-				x = parse_rgb( obj.data('val') || obj.val() );
-			} 
+			try {
+				if (x.substr(0,1) == '#')
+					x = parse_rgb(x);
+				else if (x.match(/^[A-Za-z]\w*$/)) {
+					var obj = $('#inp-'+x);
+					x = parse_rgb( obj.data('val') || obj.val() );
+				}
+			} catch(e) {
+				return;
+			}
 			if (x == '') return;	// error
 			st.push(x);
 			continue;

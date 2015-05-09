@@ -414,11 +414,6 @@ ul.hatena-section ul {
 	padding:		0px;
 }
 
-/* カレンダー */
-div#side-calendar div.hatena-modulebody table {
-	font-size:		100%;
-	margin:			0.3em auto;
-}
 #sidebar p {
 	margin-top:		0.5em;
 	margin-bottom:		0.5em;
@@ -970,9 +965,9 @@ article.edit span.tag:after {
 	font-size:		11pt;
 	/* font-weight:		bold; */
 
-	border:			2px solid #4a5973;	/* $c=border2 */
+	border:			2px solid #2133a9;	/* $c=fixhelpborder */
 	border-radius:		10px;
-	box-shadow:		4px 4px 4px 2px rgba(60,60,20,0.75);
+	box-shadow:		4px 4px 4px 2px rgba(60,60,60,0.75);
 }
 #popup-help:before {
 	content:		"HELP";

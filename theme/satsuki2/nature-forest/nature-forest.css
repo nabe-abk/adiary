@@ -17,7 +17,7 @@ body
 	padding:		0;
 	margin:			0;
 
-	background-color:	#343;		/* $c=ddbg = titlebg */
+	background-color:	#343;		/* $c=titlebg */
 	background-image:	url("slant-tile.gif");
 }
 #hatena-body {
@@ -97,7 +97,7 @@ body
 ---------------------------------------------------------------------*/
 a:link		{ color: #228800; }	/* $c=link */
 a:visited	{ color: #334400; }	/* $c=linkvisited */
-a:hover		{ color: #cc9900; }	/* $c=linkhover */
+a:hover		{ color: #cc9900; }	/* $c=fixlinkhover */
 a img		{ border: none; }
 
 /*--------------------------------------------------------------------
@@ -276,27 +276,28 @@ article + article {
 	padding:		1.5em 1.5em 1em 1.5em;
 }
 article.wiki .article-body {
-	background-color:	#fafaf8;		/* $c=wikibg */
+	background-color:	#fafaf2;		/* $c=wikibg */
 }
 /* 記事タイトル */
 article h2 {
-	color:			#650;		/* $c=h2font */
+	color:			#650;			/* $c=h2font */
 	font-size:		100%;
 	line-height:		100%;
-	border-left:		5px solid #966;
+	border-left:		5px solid #966;		/* $c=h2border */
 
 	margin:			0 0 1em 0;
-	padding:		0.5em 0 0.5em 0.3em;
+	padding:		0.5em 0 0.5em 8px;
 }
 article h2 a.title {
 	font-size:		120%;
 	line-height:		100%;
 	display:		block;
+	margin-left:		-1px;
 }
 article h2 a:link,
 article h2 a:visited
 {
-	color:			#650;		/* $c=h2font */
+	color:			#650;			/* $c=h2font */
 	text-decoration:	none;
 }
 article h2 a:hover {
@@ -371,8 +372,9 @@ div.hatena-module {
 }
 div.hatena-moduletitle {
 	font-size:		12pt;
-	color:			#333;
+	color:			#000;		/* $c=fixfont */
 	font-weight:		bold;
+	font-weight:		900;
 	letter-spacing:		3px;
 
 	text-shadow:		 1px -1px 1px #f8f8f8,
@@ -400,11 +402,6 @@ ul.hatena-section ul {
 	padding:		0px;
 }
 
-/* カレンダー */
-div#side-calendar div.hatena-modulebody table {
-	font-size:		100%;
-	margin:			0.3em auto;
-}
 #sidebar p {
 	margin-top:		0.5em;
 	margin-bottom:		0.5em;
@@ -457,7 +454,7 @@ span.tag:not(:last-child):after {
 	font-size:		110%;
 	font-weight:		bold;
 
-	padding:		6px 0 6px 3px;
+	padding:		6px 0 6px 6px;
 	margin-top:		1em;
 	border-left:		4px solid #ccc;		/* $c=h3border = artborder */
 }
@@ -508,7 +505,7 @@ div.body blockquote p {
 pre {
 	font-family:		monospace;
 	display:		block;
-	background-color:	#eee;			/* $c=fixprebg */
+	background-color:	#eee;			/* $c=prebg */
 }
 
 /* pre 中コメント */
@@ -842,18 +839,32 @@ table.plugins button { margin: 0; }
 }
 article.system div.body,
 .IE8 article.system div.body {
-	background-color:	#eeeeff;		/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysartbg */
 }
 article.system:not(.ui-tabs) {
-	background-color:	#eeeeff;		/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysartbg */
 	margin:			1em 0;
 	padding:		1em;
-	border:			1px solid #2133a9;	/* $c=sysborder */
+	border:			1px solid #aa9;		/* $c=sysborder */
 	border-radius:		6px;
 }
 article.system h2 {
-	color:			#000;
+	color:			#000;			/* $c=fixfont */
 }
+
+/*--------------------------------------------------------------------
+●アルバム
+---------------------------------------------------------------------*/
+#folder-tree {
+	padding:		6px 2px;
+	background-color:	#f8f8e8;		/* $c=sysartbg */
+	border:			1px solid #aa9;		/* $c=sysborder */
+	border-radius:		4px;
+}
+#folder-tree .hatena-moduletitle {
+	margin-bottom:		2px;
+}
+
 /*--------------------------------------------------------------------
 ●フォームの一般設定
 ---------------------------------------------------------------------*/
@@ -861,10 +872,10 @@ ul.checkbox {
 	list-style-type:	none;
 }
 article.system th {
-	background-color:	#ccf;			/* $c=sysbg */
+	background-color:	#ddb;			/* $c=sysdarkbg */
 }
 article.system td {
-	background-color:	#f8f8ff;		/* $c=systd = sysbg + #343434 */
+	background-color:	#fff;			/* $c=fixsystd */
 }
 
 /* エラー */
@@ -878,7 +889,7 @@ th.error input, td.error input {
 
 /* フォーカス */
 th.focus, td.focus {
-	background-color:	#ffffcc;	/* $c=fixfocusbg1 */
+	background-color:	#ffffcc;		/* $c=fixfocusbg1 */
 }
 input[type="text"]:focus,
 input[type="date"]:focus,
@@ -889,7 +900,7 @@ input[type="url"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
 .setting textarea:focus {
-	background-color:	#ffeeee;	/* $c=fixfocusbg2 */
+	background-color:	#ffeeee;		/* $c=fixfocusbg2 */
 }
 textarea#editarea:focus {
 	background-color:	#fff;
@@ -924,7 +935,7 @@ span.edit-caption {
 article.edit span.tag {
 	font-size:		9pt;
 	color:			#600;
-	background-color:	#ccf;		/* $c=sysbg */
+	background-color:	#ddb;		/* $c=sysdarkbg */
 	border-radius:		6px;
 	padding:		0px 4px;
 	margin-right:		0.5em;
@@ -952,9 +963,9 @@ article.edit span.tag:after {
 	font-size:		11pt;
 	/* font-weight:		bold; */
 
-	border:			2px solid #4a5973;	/* $c=border2 */
+	border:			2px solid #2133a9;	/* $c=fixhelpborder */
 	border-radius:		10px;
-	box-shadow:		4px 4px 4px 2px rgba(60,60,20,0.75);
+	box-shadow:		4px 4px 4px 2px rgba(60,60,60,0.75);
 }
 #popup-help:before {
 	content:		"HELP";
@@ -982,8 +993,8 @@ article.edit span.tag:after {
 ●jQuery UI, popup-info/dialog（プラグインのREADME/設定画面）
 ---------------------------------------------------------------------*/
 .ui-dialog {
-	background-color:	#eeeeff;		/* $c=sysartbg */
-	border:			2px solid #2133a9;	/* $c=sysborder */
+	background-color:	#f8f8e8;		/* $c=sysartbg */
+	border:			2px solid #aa9;		/* $c=sysborder */
 	border-radius:		10px;
 	box-shadow:		4px 4px 4px 4px rgba(60,60,100,0.75);
 	padding:		0;
@@ -992,7 +1003,7 @@ article.edit span.tag:after {
 	line-height:		130%;
 }
 .ui-dialog .ui-widget-header {
-	background-color:	#ccf;		/* $c=sysbg */
+	background-color:	#ddb;		/* $c=sysdarkbg */
 	font-weight:		bold;
 	font-size:		12pt;
 
@@ -1043,38 +1054,38 @@ article.edit span.tag:after {
 ---------------------------------------------------------------------*/
 
 article.jqueryui-tabs div.body {
-	border:			2px solid #2133a9;	/* $c=sysborder */
+	border:			1px solid #aa9;		/* $c=sysborder */
 	border-radius:		10px;
 	padding:		6px;
 }
 .ui-tabs .ui-tabs-nav {
 	padding-left:	1em;
-	margin-bottom:	-2px;
+	margin-bottom:	-1px;
 }
 .ui-tabs .ui-tabs-nav li a {
-	color:		#000;
+	color:		#000;				/* $c=fixfont */
 	padding:	6px 6px 0 6px;
 	font-size:	12pt;
 }
 .ui-tabs .ui-tabs-nav li {
 	border-radius:		10px 10px 0 0;
-	border:			2px solid #66c;		/* $c=btnborder */
-	border-bottom:		2px solid #2133a9;	/* $c=sysborder */
-	background-color:	#ccf;			/* $c=sysbg */
+	border:			1px solid #aaa;		/* $c=btnborder */
+	border-bottom:		1px solid #aa9;		/* $c=sysborder */
+	background-color:	#ddb;			/* $c=sysdarkbg */
 	margin-right:		0.4em;
 }
 .ui-tabs .ui-tabs-nav li:hover {
-	background-color:	#ddf;			/* $c=btnbg0 */
-	border-color:		#2133a9;		/* $c=sysborder */
+	background-color:	#d4d4c4;		/* $c=btnbg1 */
+	border-color:		#aa9;			/* $c=sysborder */
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active {
 	margin-bottom:	-1px;
 	padding:	0px;
 	z-index:	999;
 
-	border:			2px solid #2133a9;	/* $c=sysborder */
-	border-bottom:		3px solid #eeeeff;	/* $c=sysartbg */
-	background-color:	#eeeeff;		/* $c=sysartbg */
+	border:			1px solid #aa9;		/* $c=sysborder */
+	border-bottom:		2px solid #f8f8e8;	/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysartbg */
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active a {
 	color:			black;
@@ -1091,11 +1102,11 @@ nav.tree {
 	line-height:		100%;
 	display:		block;
 
-	border:			1px solid #2133a9;	/* $c=sysborder */
+	border:			1px solid #aa9;		/* $c=sysborder */
 	margin-bottom:		1.5em;
 	padding:		0.5em 1em 0.5em 1.5em;
 
-	background-color:	#eeeeff;		/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysartbg */
 }
 
 /*--------------------------------------------------------------------
@@ -1122,9 +1133,8 @@ article h3.ui-accordion-header {
 	padding:		0;
 	margin:			0;
 
-	font-weight:		normal;
-	color:			#fff;
-	background-color:	#a5bce7;		/* $c=sidetitlebg */
+	font-weight:		bold;
+	background-color:	#ddb;		/* $c=sysdarkbg */
 }
 .ui-accordion-header-icon {
 	display:		none;
@@ -1137,7 +1147,7 @@ article h3.ui-accordion-header {
 	padding:		0;
 	margin:			0.5em 0;
 	max-width:		400px;
-	border:			1px solid #2133a9;	/* $c=sysborder */
+	border:			1px solid #aa9;		/* $c=sysborder */
 	position:		relative;
 	background-color:	#fff;
 }
@@ -1159,7 +1169,7 @@ article h3.ui-accordion-header {
 }
 .ui-corner-left {
 	padding:		1px 0 0 1px;
-	background-color:	#aac;			/* $c=btndisable */
+	background-color:	#b4b4a4;		/* $c=btndisable */
 } 
 
 

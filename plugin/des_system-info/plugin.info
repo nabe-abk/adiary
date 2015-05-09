@@ -25,7 +25,7 @@ RDBMS : Text-DB<br>
 HTML
 
 *module_html=<<HTML
-<!--ƒVƒXƒeƒ€î•ñ============================================-->
+<!--ã‚·ã‚¹ãƒ†ãƒ æƒ…å ±============================================-->
 <div class="hatena-module" id="<@id>" data-module-name="<@this>">
 <div class="hatena-moduletitle">System info</div>
 <div class="hatena-modulebody">

@@ -1041,7 +1041,8 @@ sub section {
 	});
 
 	my $hnum = $self->{section_hnum};
-	push(@ary, "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\"><span class=\"sanchor\">$anchor</span>$line</a></h$hnum>\n");
+	if ($anchor ne '') { $anchor="<span class=\"sanchor\">$anchor</span>"; }
+	push(@ary, "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$anchor$line</a></h$hnum>\n");
 	return \@ary;
 }
 
@@ -1091,7 +1092,8 @@ sub subsection {
 	});
 
 	my $hnum = $self->{section_hnum} +1;
-	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\"><span class=\"sanchor\">$anchor</span>$line</a></h$hnum>\n";
+	if ($anchor ne '') { $anchor="<span class=\"sanchor\">$anchor</span>"; }
+	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$anchor$line</a></h$hnum>\n";
 }
 
 #--------------------------------------------------------------------
@@ -1123,7 +1125,8 @@ sub subsubsection {
 	});
 
 	my $hnum = $self->{section_hnum} +2;
-	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\"><span class=\"sanchor\">$anchor</span>$line</a></h$hnum>\n";
+	if ($anchor ne '') { $anchor="<span class=\"sanchor\">$anchor</span>"; }
+	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$anchor$line</a></h$hnum>\n";
 }
 
 #--------------------------------------------------------------------

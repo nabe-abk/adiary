@@ -1,12 +1,12 @@
-Title: forest
+Title: sky - nature
 Template: satsuki2
 Author: nabe@abk
 Access: https://twitter.com/nabe_abk
-Original Author: nihonyamori, http://k52.org/
+Original: nihonyamori, http://k52.org/adiary/
 License: GPL
 Charset: UTF-8
+Smartphone: yes
 System-mode: yes
-
 
 ChangeLog
 2009/08/04 var1.0 (by nihonyamori)

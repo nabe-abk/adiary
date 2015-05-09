@@ -1,64 +1,79 @@
 @charset "UTF-8";
 /*****************************************************************************
-  patch to Satsuki2 for smart phone
+  patch for smart phone
 					2015/05 (C)nabe@abk.nu
 *****************************************************************************/
 /*--------------------------------------------------------------------
 ■全体配置
 ---------------------------------------------------------------------*/
+body {
+	width:			auto;
+	margin:			0 2px;
+}
 div.main {
-	margin-left:		0;
-	margin-right:		0;
+	margin-left:		0px;
+	margin-right:		0px;
+	padding:		0 8px;
+	width:			auto;
+	float:			none;
+}
+#hatena-body,
+#hatena-body>div,
+#footer {
+	margin:			0;
+	width:			auto;
+	min-width:		1px;	/* for GC bugs */
+	max-width:		auto;
+}
+
+
+#sidebar {
+	float:			none;
+	margin:			0 4px;
 	padding:		0;
-}
-#adiary-body {
 	width:			auto;
-}
-#hatena-body {
-	margin:			0 8px 0 6px;
-	width:			auto;
-	max-height:		auto;
-}
-#sidebar, #side-a, #side-b {
-	margin:			0px;
-	width:			auto;
-	position:		relative;
-	left:			0px;
-	top:			0px;
+	border:			none;
 }
 
 /*--------------------------------------------------------------------
 ■ヘッダ
 ---------------------------------------------------------------------*/
 #sp-header {
-	margin-bottom:		1em;
+	color:			#fff;
 }
-
 #sp-nav-header {
 	font-size:		10pt;
 	text-align:		right;
 	vertical-align:		top;
 }
-
+#sp-header a,
+#sp-header a:link,
+#sp-header a:visited {
+	color:			#fff;
+}
 #sp-page-title {
 	margin:			0px;
 	font-weight:		bold;
 	text-shadow:
-		-1px -1px 0px #ddd,
-		 1px -1px 0px #ddd,
-		 1px  1px 0px #ddd,
-		-1px  1px 0px #ddd,
-		 3px  3px 2px #999;
+		-1px -1px 0px #666,
+		 1px -1px 0px #666,
+		 1px  1px 0px #666,
+		-1px  1px 0px #666,
+		 3px  3px 2px #222;
 }
-
-#footer {
-	margin-bottom:		1em;
+h1
+{
+	font-weight:		normal;
+	line-height:		100%;
+	padding:		30px 6px;
+	margin:			0;
 }
 
 /*--------------------------------------------------------------------
 ■サイドバー
 ---------------------------------------------------------------------*/
 #sidebar {
+	margin-top:		3em;
 	font-size:		12pt;
 }
 span.switch-icon {
@@ -67,11 +82,12 @@ span.switch-icon {
 #sidebar ul.hatena-section {
 	line-height:		200%;
 }
-#side-search {
-	text-align:		center;
-}
 #side-search input.search-box {
 	width:			180px;
+}
+
+table.calendar {
+	margin:			0 8px;
 }
 
 /*--------------------------------------------------------------------
@@ -124,9 +140,20 @@ article div.body {
 /*--------------------------------------------------------------------
 ○table, blockquote, pre
 ---------------------------------------------------------------------*/
+#body article.system {
+	padding:		6px;
+}
+.article-body {
+	padding:		10px 6px;
+}
+article.system div.body {
+	padding-left:		0;
+	padding-right:		0;
+}
 .body table {
 	margin-left:		1em;
 	margin-right:		1em;
+
 }
 .body blockquote table,
 .body div.box table {
