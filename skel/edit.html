@@ -100,20 +100,20 @@
 	<div class="float-r" id="edit-disp-pkey"><@edit_pkey></div>
 <$end>
 	<span class="element" id="edit-yyyymmdd">
-	<span class="edit-caption">日付</span> <input type="date" name="ymd" class="w120" value="<@if(art_year, "<@art_year>-<@art_mon>-<@art_day>", "<@v.now.year>-<@v.now.mon>-<@v.now.day>")>" min="1980-01-01" max="2999-12-31" required></span>
+	<span class="edit-caption">日付</span><input type="date" name="ymd" class="w120" value="<@if(art_year, "<@art_year>-<@art_mon>-<@art_day>", "<@v.now.year>-<@v.now.mon>-<@v.now.day>")>" min="1980-01-01" max="2999-12-31" required></span>
 
-	<span class="element" id="edit-tags"><span class="edit-caption">タグ</span> 
+	<span class="element" id="edit-tags"><span class="edit-caption">タグ</span>
 	<span id="tags"><$tags = split(',', art.tags)>
 	<@forexec(t, tags, begin)><span class="tag"><@t><input type="hidden" name="tag_ary" value="<@t>"></span><$end>
-	</span></span>
+	</span>
 	
 	<select name="taglist" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json">
-		<option value="" class="special">【追加するタグを選択】</option>
+		<option value="" class="special">【タグを追加】</option>
 		<option value="*" class="special" data-new="1">【新規に登録】</option>
-	</select><br>
+	</select></span><br>
 	<br>
 
-	<span class="element" id="edit-title"><span class="edit-caption">タイトル</span> <input class="w360 no-enter-submit" type="text" name="title" value="<@art.title>"></span> 
+	<span class="element" id="edit-title"><span class="edit-caption">タイトル</span><input class="w360 no-enter-submit" type="text" name="title" value="<@art.title>"></span> 
 	<span class="element edit-writer"><span class="edit-caption">投稿者</span> <@art.name></span>
 	<div id="edit-helper">
 	<button class="helper" type="button" id="btn-strong" data-msg="太字にしたい文字列を入力" data-start="[bf:" data-end="]">太字</button>
@@ -225,7 +225,7 @@
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="delete_pkey_int_ary" value="<@edit_pkey>">
 	<input type="hidden" name="title" value="<@art.title>">
-	<input type="submit" name="delete" id="del-submit" value="この記事を削除する">
+	<button type="submit" name="delete" id="del-submit">この記事を削除する</button>
 </form>
 <$end>
 </div> <!-- end of body -->

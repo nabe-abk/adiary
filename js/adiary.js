@@ -11,6 +11,7 @@ var popup_offset_y = 10;
 var IE67=false;
 var IE8=false;
 var IE9=false;
+var SP;
 var Vmyself;	// _frame.html で設定される
 var Storage;
 var SettedBrowserClass;
@@ -79,14 +80,17 @@ function set_browser_class_into_body() {
 	if (m && m[1]<10) IE9=true;
 
 	// スマホ
-	var smp=true;
+	SP=true;
 	     if (ua.indexOf('Android') != -1) x.push('android');
 	else if (ua.indexOf('iPhone')  != -1) x.push('iphone');
 	else if (ua.indexOf('iPad')    != -1) x.push('iphone');
 	else if (ua.indexOf('BlackBerry')    != -1) x.push('berry');
 	else if (ua.indexOf('Windows Phone') != -1) x.push('wp');
-	else smp=false;
-	if (smp) x.push('smp');
+	else SP=false;
+	if (SP) {
+		x.push('SP');
+		DialogWidth = 360;
+	}
 
 	// bodyにクラス設定する
 	$('#body').addClass( x.join(' ') );

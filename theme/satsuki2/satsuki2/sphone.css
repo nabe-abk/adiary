@@ -41,7 +41,7 @@ div.main {
 }
 
 #sp-page-title {
-	margin:			0px;
+	margin:			10px 0 0 0;
 	font-weight:		bold;
 	text-shadow:
 		-1px -1px 0px #ddd,
@@ -160,6 +160,21 @@ pre {
 }
 #table-view table .hhmm {
 	display:		none;
+}
+
+/*--------------------------------------------------------------------
+■システムモード
+---------------------------------------------------------------------*/
+article.edit span.element {
+	display:		block;
+}
+#edit-tags + br {
+	display:		none;
+}
+article.edit button,
+article.edit select {
+	margin-top:		6px;
+	margin-bottom:		6px;
 }
 
 

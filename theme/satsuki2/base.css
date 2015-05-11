@@ -668,7 +668,7 @@ h3.ui-accordion-header {
 .dropdown-menu>ul a:after {
 	content:	"";
 	display:	inline-block;
-	height:		100%;
+	height:		108%;
 	vertical-align:	middle;
 }
 /* 表示位置調整 */
@@ -864,7 +864,7 @@ h3.ui-accordion-header {
 .dropdown-menu.sp>ul>li ul>li:first-child {
 	border-top-width:	1px;
 }
-.dropdown-menu.sp li.open>ul>li:last-child {
+.dropdown-menu.sp li>ul>li:last-child {
 	margin-bottom:		-1px;
 }
 
@@ -885,6 +885,11 @@ h3.ui-accordion-header {
 }
 .dropdown-menu.sp>ul>li>ul li.open {
 	height:		auto;
+}
+
+/* 影を多重に重ねないように */
+.dropdown-menu.sp>ul>li>ul>li ul {
+	box-shadow:	none;
 }
 
 /*--------------------------------------------------------------------
