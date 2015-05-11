@@ -852,10 +852,6 @@ h3.ui-accordion-header {
 .dropdown-menu.sp>ul>li>ul>li>ul>li>ul:before {
 	left:		35px;
 }
-.dropdown-menu.sp li.open ul:before {
-	border
-
-}
 
 /* border調整 */
 .dropdown-menu.sp>ul li {
@@ -865,7 +861,7 @@ h3.ui-accordion-header {
 .dropdown-menu.sp>ul>li ul>li:first-child {
 	border-top-width:	1px;
 }
-.dropdown-menu.sp ul>li:last-child {
+.dropdown-menu.sp>ul>li.open ul>li:last-child {
 	margin-bottom:		-1px;
 }
 
