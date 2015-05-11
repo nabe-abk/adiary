@@ -854,14 +854,17 @@ h3.ui-accordion-header {
 }
 
 /* border調整 */
-.dropdown-menu.sp>ul li {
+.dropdown-menu.sp>ul li {	
 	border-width:		0;
 	border-bottom-width:	1px;
+}
+.dropdown-menu.sp>ul>li:not(.open) {	/* top要素 */
+	border-bottom-width:	0;
 }
 .dropdown-menu.sp>ul>li ul>li:first-child {
 	border-top-width:	1px;
 }
-.dropdown-menu.sp>ul>li.open ul>li:last-child {
+.dropdown-menu.sp li.open>ul>li:last-child {
 	margin-bottom:		-1px;
 }
 
