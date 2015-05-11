@@ -66,6 +66,21 @@ HTML
 </div>
 HTML
 
+
+#--------------------------------------------
+# スマホ画面にも出力（type=_header のみ有効）
+#--------------------------------------------
+*module_sp_header_html=<<HTML
+<$ps=v.load_plgset('<@this>')>
+<!--ドロップダウンメニュー=====================================-->
+<div class="dropdown-menu sp js-auto-width-stop js-alt-hover" data-module-name="<@this>">
+<ul><li><a href="#"><@if(ps.sp_menu ne '', ps.sp_menu, 'メニュー')></a>
+<@ps.html>
+</li></ul>
+</div>
+HTML
+
+
 *files=<<FILES
 func/<@this>.pm
 func/<@this>-uninstall.pm

@@ -50,7 +50,12 @@ HTML
 	<li class="http-bookmark icons"><a class="http-bookmark" href="http://b.hatena.ne.jp/entry/<@v.server_url><@v.myself>"><img src="http://b.st-hatena.com/entry/image/<@v.server_url><@v.myself>" alt="はてブ数"></a></li>
 HTML
 	$modules{rssicon} = <<'HTML';
-	<li class="rss-icon icons"><img alt="RSS" src="<@Basepath><@v.pubdist_dir>rss-icon.png"></li>
+	<li class="rss-icon icons">
+	<@ifexec(s.rss_files, begin)>
+	<a href="<@Basepath><@v.blogpub_dir><@v.load_rss_files()#0>">
+	<$end>
+	<img alt="RSS" src="<@Basepath><@v.pubdist_dir>rss-icon.png">
+	<@if(s.rss_files, '</a>')></li>
 HTML
 	$modules{free_txt} = $modules{freebr_txt} =<<'HTML';
 	<li class="free-text"><#val></li>

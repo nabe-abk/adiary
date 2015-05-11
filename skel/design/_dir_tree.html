@@ -8,8 +8,10 @@
  <span class="items">
  <span class="item-start">[</span>
   <@if(v.skel_name eq 'index', '<span class="select">メニュー</span>',       #'<a href="<@v.myself>?<@v.skel_dir>index">メニュー</a>')>, 
+<@ifexec(!v.sphone, begin)>
   <@if(v.skel_name eq 'theme', '<span class="select">テーマ選択</span>',     #'<a href="<@v.myself>?<@v.skel_dir>theme">テーマ選択</a>')>, 
   <@if(v.skel_name eq 'edit',  '<span class="select">デザイン編集</span>',   #'<a href="<@v.myself>?<@v.skel_dir>edit">デザイン編集</a>')>, 
+<$end>
   <@if(v.skel_name eq 'reset', '<span class="select">デザイン初期化</span>', #'<a href="<@v.myself>?<@v.skel_dir>reset">デザイン初期化</a>')>,
   <@if(v.skel_name eq 'usercss','<span class="select">ユーザーCSS</span>',   #'<a href="<@v.myself>?<@v.skel_dir>usercss">ユーザーCSS</a>')>
  <span class="item-end">]</span>

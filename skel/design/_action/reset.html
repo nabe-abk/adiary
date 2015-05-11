@@ -9,6 +9,6 @@ POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
 	<$message('デザインをリセットしました')>
 	<$ifcall(Form.load_design, '_sub/load_default_design', v.blogid)>
-	<$url = v.myself .'?'. v.query0>
+	<$url = v.myself .'?'. v.skel_dir . 'index'>
 	<$jump('_sub/reload_message', url)>
 <$end>

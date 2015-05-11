@@ -833,11 +833,35 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
+//●スマホ用の処理。hover代わり
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R){
+	var ary = R.findx('.js-alt-hover li ul').parent();
+	ary.addClass('node');
+	ary = ary.children('a');
+	ary.click(function(evt) {
+		var obj = $(evt.target).parent();
+		if (obj.hasClass('open')) {
+			obj.removeClass('open');
+			obj.find('.open').removeClass('open')
+		} else
+			obj.addClass('open');
+		// リンクを飛ぶ処理をキャンセル
+		evt.preventDefault();
+	});
+	ary.dblclick(function(evt) {
+		location.href = $(evt.target).attr('href');
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
 //●要素の幅を中身を参照して自動設定する（最後に処理すること）
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	R.findx('.js-auto-width').each(function(idx,dom) {
 		var obj = $(dom);
+		if (obj.parents('.js-auto-width-stop').length) return;
+
 		var ch = obj.children();
 		var width = 0;
 		for(var i=0; i<ch.length; i++)

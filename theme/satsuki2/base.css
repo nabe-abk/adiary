@@ -406,7 +406,7 @@ ul.menu {
 
 
 /*--------------------------------------------------------------------
-●UIアイコン
+●UIアイコン, RSSアイコン
 ---------------------------------------------------------------------*/
 .sw-show .ui-icon.switch-icon {
 	background-position:	-224px 0px;
@@ -424,6 +424,12 @@ ul.menu {
 }
 .ui-icon.next-page {
 	background-position: -240px -16px;
+}
+.rss-icon img {
+	vertical-align:		middle;
+}
+.rss-icon a img {
+	border:			none;
 }
 
 /*--------------------------------------------------------------------
@@ -618,27 +624,27 @@ h3.ui-accordion-header {
 }
 
 /*--------------------------------------------------------------------
-●ドロップダウンメニュー（旧:コンテンツバー）
+●ドロップダウンメニュー（コンテンツリスト）
 ---------------------------------------------------------------------*/
 /**************************************************/
 /* プルダウンメニュー、ギミック部（通常変更不要） */
 /**************************************************/
 .dropdown-menu {
-	position:	relative;
-	width:		100%;
-	z-index:	990;
-	font-weight:	bold;
+	position:		relative;
+	width:			100%;
+	z-index:		990;
+	font-weight:		bold;
 }
 .dropdown-menu>ul, .dropdown-menu>ul * {	/* 全称セレクタ */
-	margin:		0px;
-	padding:	0px;
-	list-style:	none;
+	margin:			0px;
+	padding:		0px;
+	list-style:		none;
 }
 .dropdown-menu>ul {
-	margin:		0px auto;
+	margin:			0px auto;
 }
 .dropdown-menu>ul li {
-	border-style:	solid;
+	border-style:		solid;
 }
 .dropdown-menu>ul>li {
 	border-width:		0px;
@@ -659,7 +665,7 @@ h3.ui-accordion-header {
 	width:		100%;
 }
 /* 項目文字列を上下中央揃えする細工 */
-.dropdown-menu>ul a:before {
+.dropdown-menu>ul a:after {
 	content:	"";
 	display:	inline-block;
 	height:		100%;
@@ -669,20 +675,20 @@ h3.ui-accordion-header {
 .dropdown-menu>ul li a {
 	height:		100%;
 }
-.dropdown-menu>ul>li {
+.dropdown-menu:not(.sp)>ul>li {
 	float:		left;
 }
-.dropdown-menu>ul li ul {
+.dropdown-menu:not(.sp)>ul li ul {
 	position:	relative;
 }
-.dropdown-menu>ul>li li {
+.dropdown-menu:not(.sp)>ul>li li {
 	margin-top:	-1px;
 }
-.dropdown-menu>ul>li ul>li:first-child {
+.dropdown-menu:not(.sp)>ul>li ul>li:first-child {
 	margin-top:	0;
 }
 /* ３階層目 */
-.dropdown-menu>ul ul ul {
+.dropdown-menu:not(.sp)>ul ul ul {
 	left:		100%;
 	margin-top:	-2px;
 }
@@ -690,7 +696,7 @@ h3.ui-accordion-header {
 .dropdown-menu>ul li {
  	overflow:	hidden;
 }
-.dropdown-menu>ul li:hover {
+.dropdown-menu:not(.sp)>ul li:hover {
 	overflow:	visible;
 }
 /* アニメーションのための細工 */
@@ -702,13 +708,14 @@ h3.ui-accordion-header {
 }
 
 /* 階層リンクの矢印 */
-.dropdown-menu li ul li ul:before {
+.dropdown-menu li ul li ul:before,
+.dropdown-menu.sp    li ul:before {
 	position:	absolute;
 	content:	"";
 	left:		-12px;
 	border:		5px solid transparent;
 }
-.dropdown-menu li:last-child ul li ul:before {
+.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	margin-left:	 2px;
 }
 
@@ -720,39 +727,40 @@ h3.ui-accordion-header {
 	font-size:	11pt;
 }
 /* 高さの設定 */
-.dropdown-menu,
-.dropdown-menu>ul>li {
+.dropdown-menu:not(.sp),
+.dropdown-menu:not(.sp)>ul>li {
 	height:		30px;	/* Y */
 }
-.dropdown-menu>ul>li a,
-.dropdown-menu>ul li:hover>ul>li {
+.dropdown-menu:not(.sp)>ul>li>a,
+.dropdown-menu:not(.sp)>ul li:hover>ul>li {
 	height:		28px;	/* = Y-2 */
 }
-.dropdown-menu>ul ul ul {
+.dropdown-menu:not(.sp)>ul ul ul {
 	top:		-27px;	/* = 3-Y */
 }
-.dropdown-menu li ul li ul:before {
+.dropdown-menu li ul li ul:before,
+.dropdown-menu.sp    li ul:before {
 	top:		10px;	/* = (Y-10)/2 */
 }
 /* 項目の文字位置 */
-.dropdown-menu li {
+.dropdown-menu:not(.sp) li {
 	text-align:	center;
 }
 /* 項目の幅の設定 */
-.dropdown-menu>ul>li {
+.dropdown-menu:not(.sp)>ul>li {
 	width:		108px;	/* X1 = 実際の幅 -2 */
 }
-.dropdown-menu>ul>li>ul,
-.dropdown-menu>ul>li>ul li {
+.dropdown-menu:not(.sp)>ul>li>ul,
+.dropdown-menu:not(.sp)>ul>li>ul li {
 	width:		200px;	/* X2 = 実際の幅 -2 */
 }
-.dropdown-menu>ul>li:last-child>ul {
+.dropdown-menu:not(.sp)>ul>li:last-child:not(:first-child)>ul {
 	left:		-92px;	/* = X1-X2 */
 }
-.dropdown-menu>ul>li:last-child>ul ul {
+.dropdown-menu:not(.sp)>ul>li:last-child:not(:first-child)>ul ul {
 	left:		-200px;	/* = -X2 */
 }
-.dropdown-menu>ul>li:last-child ul li ul:before {
+.dropdown-menu:not(.sp)>ul>li:last-child:not(:first-child) ul li ul:before {
 	left:		200px;	/* = X2 */
 }
 /* 左右padding */
@@ -786,13 +794,15 @@ h3.ui-accordion-header {
 }
 */
 /* 矢印の色 */
-.dropdown-menu li ul li ul:before {
+.dropdown-menu li ul li ul:before,
+.dropdown-menu.sp li ul:before {
 	border-left-color:	#338;
 }
-.dropdown-menu li:last-child ul li ul:before {
+.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
 	border-right-color:	#338;
 }
+
 /* 設定画面に矢印の色を自動取得させるための指定 */
 .dropdown-menu {
 	color:			#338;
@@ -803,6 +813,80 @@ h3.ui-accordion-header {
 	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
 }
 */
+
+/*--------------------------------------------------------------------
+●スマホ用ドロップダウンメニュー
+---------------------------------------------------------------------*/
+/* PC用の設定解除 */
+.dropdown-menu.sp>ul>li {
+	border-left:	none;
+	border-right:	none;
+}
+/* on/offギミック */
+.dropdown-menu.sp>ul li.open {
+	overflow:	visible;
+}
+/* ul階層表示 */
+.dropdown-menu.sp>ul>li>a {
+	padding-left:	15px;
+}
+.dropdown-menu.sp>ul>li>ul>li>a {
+	padding-left:	30px;
+}
+.dropdown-menu.sp>ul>li>ul>li>ul>li>a {
+	padding-left:	45px;
+}
+.dropdown-menu.sp>ul>li>ul>li>ul>li>ul>li>a {
+	padding-left:	60px;
+}
+/* 矢印 */
+.dropdown-menu.sp li {
+	position:	relative;
+}
+.dropdown-menu.sp>ul>li>ul:before {
+	left:		5px;
+}
+.dropdown-menu.sp>ul>li>ul>li>ul:before {
+	left:		20px;
+}
+.dropdown-menu.sp>ul>li>ul>li>ul>li>ul:before {
+	left:		35px;
+}
+.dropdown-menu.sp li.open ul:before {
+	border
+
+}
+
+/* border調整 */
+.dropdown-menu.sp>ul li {
+	border-width:		0;
+	border-bottom-width:	1px;
+}
+.dropdown-menu.sp>ul>li ul>li:first-child {
+	border-top-width:	1px;
+}
+.dropdown-menu.sp ul>li:last-child {
+	margin-bottom:		-1px;
+}
+
+/* 表示サイズ（横幅） */
+.dropdown-menu.sp>ul li {
+	width:		100%;
+}
+.dropdown-menu.sp>ul>li {
+	width:		66%;
+}
+
+/* 高さの設定 */
+.dropdown-menu.sp,
+.dropdown-menu.sp>ul>li,
+.dropdown-menu.sp>ul>li a,
+.dropdown-menu.sp>ul li.open>ul>li {
+	height:		30px;	/* Y */
+}
+.dropdown-menu.sp>ul>li>ul li.open {
+	height:		auto;
+}
 
 /*--------------------------------------------------------------------
 ●IE8バグ対応

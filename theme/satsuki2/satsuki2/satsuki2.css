@@ -126,10 +126,11 @@ a.welcome-name { margin: 0px 4px 0px 4px; }
 	color:			#33f;	/* $c=ddfont=link */
 }
 /* 矢印の色 */
-.dropdown-menu li ul li ul:before {
+.dropdown-menu li ul li ul:before,
+.dropdown-menu.sp li ul:before {
 	border-left-color:	#338;	/* $c=ddarrow=link/2 */
 }
-.dropdown-menu li:last-child ul li ul:before {
+.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
 	border-right-color:	#338;	/* $c=ddarrow */
 }

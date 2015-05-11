@@ -24,4 +24,5 @@
 	<a href="<@v.myself>"><@if(v.title_h1, v.title_h1, v.title)></a>
 </h1>
 
+<@ifcall(!v.system_mode && check_skeleton('_sp_add_header'), '_sp_add_header')>
 </header>

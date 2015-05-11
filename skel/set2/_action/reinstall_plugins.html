@@ -2,7 +2,7 @@
 <$ifbreak(csrf_check())>
 <$ifbreak(!v.blog_admin)>
 
-<$action_return = v.reinstall_plugins( Form )>
+<$action_return = v.reinstall_plugins( )>
 
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>

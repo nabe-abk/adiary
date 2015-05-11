@@ -1336,16 +1336,8 @@ sub replace_original_tag {
 			next;
 		}
 
-		# autolink
 		if ($autolink && $_ =~ /https?:|ftp:/) {
-			my @ary;
-			$_ =~ s/(<\w(?:[^>"']|[=\s]".*?\"|[=\s]'.*?')*?>)/push(@ary, $1), "\x00$#ary\x00"/esg;
-			$_ =~ s!(\G|\n|[^\"\[:])(https?|ftp):(//[\w\./\#\@\?\&\~\=\+\-%\[\]:;,\!*]+)!
-					my $x="$1\[$2:"; my $y=$3;
-					$y =~ s/([\[\]:])/"&#" . ord($1) . ';'/eg;
-					"$x$y]";
-			       !eg;
-			$_ =~ s/\x00(\d+)\x00/$ary[$1]/sg;
+			$_ = $self->do_autolink( $_ );
 		}
 
 		# タグ処理
@@ -1358,6 +1350,20 @@ sub replace_original_tag {
 	}
 
 	return \@ary;
+}
+
+# markdowm.pm からも呼ばれる
+sub do_autolink {
+	my ($self, $line) = @_;
+	my @ary;
+	$line =~ s/(<\w(?:[^>"']|[=\s]".*?\"|[=\s]'.*?')*?>)/push(@ary, $1), "\x00$#ary\x00"/esg;
+	$line =~ s!(\G|\n|[^\"\[:])(https?|ftp):(//[\w\./\#\@\?\&\~\=\+\-%\[\]:;,\!*]+)!
+			my $x="$1\[$2:"; my $y=$3;
+			$y =~ s/([\[\]:])/"&#" . ord($1) . ';'/eg;
+			"$x$y]";
+	       !eg;
+	$line =~ s/\x00(\d+)\x00/$ary[$1]/sg;
+	return $line;
 }
 
 #--------------------------------------------------------------------

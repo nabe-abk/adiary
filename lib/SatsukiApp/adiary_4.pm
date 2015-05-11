@@ -913,11 +913,8 @@ sub save_design {
 	$ROBJ->mkdir($dir);
 	my $ret = 0;
 
-	# 書き込み前に消す
-	$ROBJ->file_delete($dir . '_header.html');
-	$ROBJ->file_delete($dir . '_sidebar.html');
-	$ROBJ->file_delete($dir . '_article.html');
-	$ROBJ->file_delete($dir . '_main.html');
+	# 書き込み前にスケルトンを消す
+	$self->delete_design_skeleton( $dir );
 
 	#-------------------------------------------------------------------
 	# _sidebar.html を生成
@@ -949,6 +946,7 @@ sub save_design {
 	# _header.html を生成
 	#-------------------------------------------------------------------
 	if (!%save || $save{_header}) {
+		my @sp_add;
 		my $file = '_header';
 		my $h = $self->parse_original_skeleton($file);
 		my @html;
@@ -956,6 +954,11 @@ sub save_design {
 		foreach(@header) {
 			if ($fail->{$_}) { next; }
 			push(@html, $self->load_module_html($_, $file) . "\n");
+
+			# スマホ用処理
+			my $pi = $self->load_plugin_info($_);
+			if (!$pi || !$pi->{'module_sp_header_html'}) { next; }
+			push(@sp_add, $self->load_module_html($_, '_sp_header') . "\n");
 		}
 		push(@html, @{$h->{FOOTER} || []});
 		
@@ -963,6 +966,15 @@ sub save_design {
 		if ($r) {
 			$ret++;
 			$ROBJ->message('Design save failed : %s', "$file.html");
+		}
+
+		if (@sp_add) {	# スマホ用追加ヘッダ
+			my $file = '_sp_add_header';
+			my $r = $ROBJ->fwrite_lines("$dir$file.html", \@sp_add);
+			if ($r) {
+				$ret++;
+				$ROBJ->message('Design save failed : %s', "$file.html");
+			}
 		}
 	}
 
@@ -1070,12 +1082,8 @@ sub parse_original_skeleton {
 	my $name = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	# ユーザーレベルスケルトンの無効化して読み込む
-	my $dir   = $ROBJ->delete_skeleton($self->{user_skeleton_level});
-	my $lines = $ROBJ->fread_skeleton( $name );
-	if ($dir ne '') {
-		 $ROBJ->regist_skeleton($dir, $self->{user_skeleton_level});
-	}
+	# ユーザーレベルスケルトンを無効化して読み込む
+	my $lines = $ROBJ->fread_skeleton( $name, $self->{theme_skeleton_level} );
 
 	# セパレーター探し
 	my %h;
@@ -1181,10 +1189,7 @@ sub reset_design {
 	my $ret = $self->save_use_modules(\%reset);
 
 	# 生成スケルトンを消す
-	$ROBJ->file_delete($self->{blog_dir} . 'skel/_header.html');
-	$ROBJ->file_delete($self->{blog_dir} . 'skel/_sidebar.html');
-	$ROBJ->file_delete($self->{blog_dir} . 'skel/_article.html');
-	$ROBJ->file_delete($self->{blog_dir} . 'skel/_main.html');
+	$self->delete_design_skeleton($self->{blog_dir} . 'skel/');
 
 	# インストール情報を消す
 	$self->save_design_info({});
@@ -1201,6 +1206,22 @@ sub reset_design {
 
 	return 0;
 }
+
+#------------------------------------------------------------------------------
+# ●デザイン詳細で生成するスケルトン消去
+#------------------------------------------------------------------------------
+sub delete_design_skeleton {
+	my $self = shift;
+	my $dir  = shift;
+	my $ROBJ = $self->{ROBJ};
+	$ROBJ->file_delete($dir . '_header.html');
+	$ROBJ->file_delete($dir . '_sidebar.html');
+	$ROBJ->file_delete($dir . '_article.html');
+	$ROBJ->file_delete($dir . '_main.html');
+	# スマホ用追加ヘッダ
+	$ROBJ->file_delete($dir . '_sp_add_header.html');
+}
+
 
 ###############################################################################
 # ■プラグインの動的CSS処理

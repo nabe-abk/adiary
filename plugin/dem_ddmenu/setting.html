@@ -34,6 +34,12 @@
 			<input type="checkbox" name="no_centering" value="1"<@if(ps.no_centering,' checked')>><label>左寄せで表示する</label>
 		</td>
 	</tr>
+	<tr>
+		<th>スマホ表示時のメニュー名<span class="help" data-help="スマホ表示用メニューのタイトルを指定します。ヘッダ配置時のみ有効。">?</span></th>
+		<td>
+			<input type="text" name="sp_menu" value="<@if(ps.sp_menu eq '', 'メニュー', ps.sp_menu)>" class="w200">
+		</td>
+	</tr>
 	</tbody>
 	</table>
 

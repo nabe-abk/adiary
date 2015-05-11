@@ -579,7 +579,7 @@ sub parse_inline {
 	my ($self, $lines) = @_;
 
 	# さつき記法のタグを処理する？
-	my $satsuki_parser = $self->{satsuki_tags} ? $self->{satsuki_obj} : undef;
+	my $satsuki = $self->{satsuki_tags} ? $self->{satsuki_obj} : undef;
 
 	my $links = $self->{links};
 	foreach(@$lines) {
@@ -635,15 +635,18 @@ sub parse_inline {
 		}eg;
 
 		# [S] さつき記法のタグ処理
-		if ($satsuki_parser) {
+		if ($satsuki) {
 			my $post_process = sub {
 				# 強調タグ処理避け
 				my $s = shift;
 				$s =~ s/([\*\~\`_])/"\x03E". ord($1) ."\x03"/eg;
 				return $s;
 			};
-			$_ = $satsuki_parser->parse_tag( $_, $post_process );
-			$satsuki_parser->un_escape( $_ );
+			if ($satsuki->{autolink} && $_ =~ /https?:|ftp:/) {
+				$_ = $satsuki->do_autolink( $_ );
+			}
+			$_ = $satsuki->parse_tag( $_, $post_process );
+			$satsuki->un_escape( $_ );
 		}
 
 		# 強調

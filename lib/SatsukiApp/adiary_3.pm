@@ -688,7 +688,7 @@ sub save_blogset {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $auth = $ROBJ->{Auth};
-	my ($new_set, $blogid) = @_;
+	my ($new_set, $blogid, $opt) = @_;
 
 	# 権限確認
 	my $blog;

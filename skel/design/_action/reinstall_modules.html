@@ -1,0 +1,14 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.blog_admin)>
+
+<$action_return = v.reinstall_design_plugins( )>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("デザインモジュールを再インストールしました。")>
+	<$url = v.myself .'?'. v.query0>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+<$message("デザインモジュールの再インストールに失敗しました。")>

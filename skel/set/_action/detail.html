@@ -47,7 +47,10 @@
 <$end>
 <$ifbreak(form_error())>
 
-<$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>
+<$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'), flag('rss_update'))>
+
+# RSS再生成
+<$v.generate_rss()>
 
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>

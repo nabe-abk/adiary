@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 var $f;
 var $fsec;
+var loading_css_flag;
 $(function(){
 	var iframe = $('#iframe');
 	var module_data_id   = '#design-modules-data';
