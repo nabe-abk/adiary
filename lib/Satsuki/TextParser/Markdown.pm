@@ -151,8 +151,8 @@ sub restore_unique_link_name {
 # ●[01] 特殊ブロックのパースと空行の整形
 #------------------------------------------------------------------------------
 sub parse_special_block {
-	my ($self, $lines, $sectioning) = @_;
-	$sectioning = defined $sectioning ? $sectioning : $self->{sectioning};
+	my ($self, $lines, $nest) = @_;
+	my $sectioning = $nest ? 0 : $self->{sectioning};
 
 	my @ary;
 	#
@@ -178,13 +178,12 @@ sub parse_special_block {
 	push(@$lines, '');
 	while(@$lines) {
 		my $x = shift(@$lines);
-		if ($x =~ /^\s*$/) { $x = ''; }
 
 		# [M] TAB to SPACE 4つ
 		$x =~ s/(.*?)\t/$1 . (' ' x ($tw - (length($1) % $tw)))/eg;
 
 		# HTMLブロック
-		if ($x =~ /<($block_tags)\b[^>]*>/i) {
+		if (!$nest && $x =~ /^<($block_tags)\b[^>]*>/i) {
 			my $tagend = qr|</$1\s*>\s*$|;
 			my $endmark = "\x02";
 			if ($self->{md_in_htmlblk} && $x =~ /markdown\s*=\s*"1"/) {
@@ -334,16 +333,25 @@ sub parse_block {
 	if ($lines->[$#$lines] ne '') { push(@$lines, ''); }
 	my $links = $self->{links};
 	my @p_block;
+
+	my $next_blank=1;
 	while(@$lines) {
+		my $blank = $next_blank;
+		$next_blank = 0;
+
 		my $x = shift(@$lines);
+		if ($x =~ /^\s*$/) { $x = ''; }
+
 		if (ord(substr($x, -1)) < 3) {
 			$self->p_block_end(\@ary, \@p_block);
 			push(@ary, $x);
+			$next_blank = 1;
 			next;
 		}
 		if ($x eq '') {
 			$self->p_block_end(\@ary, \@p_block);
 			push(@ary, $x);
+			$next_blank = 1;
 			next;
 		}
 
@@ -405,9 +413,9 @@ sub parse_block {
 					push(@ary, $p{$li} ? "<li><p>$li->[0]</p></li>" : "<li>$li->[0]</li>");
 					next;
 				}
-				# [M] リストネスト時は先頭スペースを最大1つ除去する
+				# [M] リストネスト時は先頭スペースを最大4つ除去する
 				foreach(@$li) {
-					$_ =~ s/ //;
+					$_ =~ s/    //;
 				}
 				my $blk = $self->parse_block($li, 1);
 				if ($blk->[$#$blk] eq '') { pop(@$blk); }
@@ -435,7 +443,7 @@ sub parse_block {
 				$x = shift(@$lines);
 			}
 			# [M] 入れ子処理する
-			my $blk = $self->parse_block( $self->parse_special_block(\@block, 0) );
+			my $blk = $self->parse_block( $self->parse_special_block(\@block, 1) );
 			push(@ary, @$blk);
 			push(@ary, '</blockquote>');
 			push(@ary, '');
@@ -445,7 +453,7 @@ sub parse_block {
 		#----------------------------------------------
 		# [M] コードブロック
 		#----------------------------------------------
-		if ($x =~ /^    (.*)/) {
+		if ($blank && $x =~ /^    (.*)/) {
 			$self->p_block_end(\@ary, \@p_block);
 			my @code;
 			unshift(@$lines, $x);
@@ -567,6 +575,7 @@ sub p_block_end {
 		push(@$ary, $line);
 		$line = $x;
 	}
+	$self->escape_without_html_tag($line);
 	push(@$ary, $line . '</p>');
 	push(@$ary, '');
 	@$blk = ();
@@ -664,15 +673,6 @@ sub parse_inline {
 			$self->escape_in_code($s);
 			"<code>$s</code>";
 		|eg;
-
-		# タグ以外の &amp; やタグ以外の<>のエスケープ
-		$_ =~ s{<([A-Za-z][\w]*(?:\s*[A-Za-z_][\w\-]*(?:=".*?"|='.*?'|[^\s>]*))*\s*/?)>}{\x03E60\x03$1\x03E62\x03}g;
-		$_ =~ s{<(/[A-Za-z][\w]*\s*)>}{\x03E60\x03$1\x03E62\x03}g;
-		$_ =~ s/&(\w+|\#\d+|\#[Xx][\dA-Fa-f]+);/\x00$1;/g;
-		$_ =~ s/</&lt;/g;
-		$_ =~ s/>/&gt;/g;
-		$_ =~ s/&/&amp;/g;
-		$_ =~ tr/\x00/&/;
 	}
 	
 	#-----------------------------------------------
@@ -705,6 +705,23 @@ sub escape_in_code {
 		$_ =~ s/&/&amp;/g;
 		$_ =~ s/</&lt;/g;
 		$_ =~ s/>/&gt;/g;
+	}
+	return $_[0];
+}
+
+#------------------------------------------------------------------------------
+# ●HTMLタグをそのままにしたまま、タグエスケープ
+#------------------------------------------------------------------------------
+sub escape_without_html_tag {
+	my $self = shift;
+	foreach(@_) {
+		$_ =~ s{<([A-Za-z][\w]*(?:\s*[A-Za-z_][\w\-]*(?:=".*?"|='.*?'|[^\s>]*))*\s*/?)>}{\x03E60\x03$1\x03E62\x03}g;
+		$_ =~ s{<(/[A-Za-z][\w]*\s*)>}{\x03E60\x03$1\x03E62\x03}g;
+		$_ =~ s/&(\w+|\#\d+|\#[Xx][\dA-Fa-f]+);/\x00$1;/g;
+		$_ =~ s/&/&amp;/g;
+		$_ =~ s/</&lt;/g;
+		$_ =~ s/>/&gt;/g;
+		$_ =~ tr/\x00/&/;
 	}
 	return $_[0];
 }
