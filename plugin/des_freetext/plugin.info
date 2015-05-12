@@ -23,7 +23,7 @@ HTML
 
 *module_html=<<HTML
 <$ps = v.load_plgset('<@this>')>
-<div class="<@if(ps.class eq '', 'hatena-module')>" data-title="<@ps.title>" data-module-name="<@this>">
+<div class="<@if(ps.class eq '', 'hatena-module', ps.class)>" data-title="<@ps.title>" data-module-name="<@this>">
 <@ifexec(!ps.title_none, begin)>
 <div class="hatena-moduletitle"><@if(ps.title ne '',ps.title ,'フリー入力')></div>
 <$end>
