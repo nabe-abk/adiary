@@ -13,11 +13,12 @@
 -テーマを書きやすくするため、HTMLの出力構造を微修正しました。
 -【Markdown】[https://help.github.com/articles/github-flavored-markdown:GitHub Flavored Markdown]のテーブル記法等に対応しました。
 -【Markdown】自動リンクをonにした場合、自動リンクするように変更しました。
--【Markdown】コードブロックの開始条件として、本家では手前が空行である必要があったので、それに合わせて修正しました。
+-【Markdown】本家では、コードブロックの開始条件として手前が空行である必要があったので、その仕様に準拠しました。
+-【Markdown】本家では、コードブロックの途中に空行を挟んでもokだったので、その仕様に準拠しました。
 -【Markdown】【fix】HTMLブロック開始条件が間違っていた（行頭スペースを許可していた）。
 -【Markdown】【fix】HTMLブロックの後ろに余計な空行が付いてしまう。
 -【Markdown】【fix】文中に{{>}}等の記号があったときのエスケープ処理が正しくなかった。
--【Markdown】【fix】Satsuki.pmの見出し記法の内部仕様変更に追従していなかった。
+-【Markdown】【fix】Satsuki.pmの目次記法の内部仕様変更に追従していなかった。
 -【parser】見出し記法で、アンカーが存在しないときは{{<span class="sanchor">}}を出力しないようにしました。((テーマのCSS書いてて邪魔でしょうがなかった（苦笑）))
 -【design】全体の背景画像を設定できるように変更。
 -【design】ヘッダ用の「ブログの説明」プラグインを追加。

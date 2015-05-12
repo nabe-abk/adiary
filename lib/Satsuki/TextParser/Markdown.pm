@@ -454,12 +454,18 @@ sub parse_block {
 		#----------------------------------------------
 		if ($blank && $x =~ /^    (.*)/) {
 			$self->p_block_end(\@ary, \@p_block);
-			my @code;
-			unshift(@$lines, $x);
-			while(substr($lines->[0],0,4) eq '    ') {
-				$x = substr(shift(@$lines),4);
+			my @code = ($x);
+			while(substr($lines->[0],0,4) eq '    ' || $lines->[0] =~ /^\s*$/) {
+				push(@code, shift(@$lines));
+			}
+			# 最後の空行を無視
+			while (@code && $code[$#code] =~ /^\s*$/) {
+				unshift(@$lines, pop(@code));
+			}
+			foreach(@code) {
+				$x = substr($_, 4);
 				$self->escape_in_code($x);
-				push(@code, "$x\x02");
+				$_ = "$x\x02";
 			}
 			my $first = shift(@code);
 			push(@ary, "<pre><code>$first\x02");
