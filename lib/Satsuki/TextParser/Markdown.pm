@@ -4,7 +4,7 @@ use strict;
 #                                              (C)2014-2015 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
 # コメント中に [M] とあるものは、Markdown.pl 準拠。
-# [GitHub] とあるものは、GitHub Flavored Markdown 準拠。
+# [GMF] とあるものは、GitHub Flavored Markdown 準拠。
 # [S] とあるものは、adiary拡張（Satsuki記法互換機能）
 #
 package Satsuki::TextParser::Markdown;
@@ -26,6 +26,7 @@ sub new {
 	$self->{lf_patch} = 1;		# 日本語のpタグ中の改行を消す
 	$self->{md_in_htmlblk} = 1;	# Markdown Inside HTML Blocksを許可する
 	$self->{sectioning}   = 1;	# sectionタグを適時挿入する
+	$self->{gmf_ext}      = 1;	# GitHub Flavored Markdown拡張を使用する
 
 	$self->{span_sanchor} = 0;	# 見出し先頭に span.sanchor を挿入する
 	$self->{section_link} = 0;	# 見出しタグにリンクを挿入する
@@ -197,7 +198,6 @@ sub parse_special_block {
 				$x = shift(@$lines);
 			}
 			push(@ary, $x . ($endmark ? $endmark : "\x01"));
-			push(@ary,'');
 			$newblock=1;
 			next;
 		}
@@ -470,9 +470,9 @@ sub parse_block {
 		}
 
 		#----------------------------------------------
-		# [GitHub] シンタックスハイライト
+		# [GMF] シンタックスハイライト
 		#----------------------------------------------
-		if ($x =~ /^```([^`]*?)\s*$/) {
+		if ($self->{gmf_ext} && $x =~ /^```([^`]*?)\s*$/) {
 			$self->p_block_end(\@ary, \@p_block);
 			my ($lang,$file) = split(':', $1, 2);
 			my @code;
@@ -497,6 +497,73 @@ sub parse_block {
 			push(@ary, "</pre></div>$add\x02");
 			next;
 		}
+
+		#----------------------------------------------
+		# [GMF] テーブル
+		#----------------------------------------------
+		if ($self->{gmf_ext} && $blank
+		 && $x =~ /|/
+		 && $lines->[0] =~ /^[\s\|\-:]+$/
+		 && $lines->[0] =~ /\|\s*---|---\s*\|/
+		) {
+			$self->p_block_end(\@ary, \@p_block);
+
+			my @buf = ($x);
+			while(@$lines && $lines->[0] =~ /\|/) {
+				push(@buf, shift(@$lines));
+			}
+			my @tbl = @buf;	# copy
+
+			# 行頭と行末の | と空白を除去
+			foreach(@tbl) {
+				$_ =~ s/^\s*\|?//;
+				$_ =~ s/\|?\s*$//;
+			}
+			my @th = split(/\s*\|\s*/, shift(@tbl));	# 1行目
+			my @hr = split(/\s*\|\s*/, shift(@tbl));	# 2行目
+			my $err = ($#th > $#hr);			# [GMF] カラム数不一致
+			my @class;
+			foreach(@hr) {
+				if ($#class >= $#th) { next; }		# [GMF] thの分しか読み込まない
+				if ($_ !~ /^(:)?----*(:)?/) { $err=1; last; }
+
+				my $c;
+				if ($1 && $2) {
+					$c = 'c';
+				} elsif ($1) {
+					$c = 'l';
+				} elsif ($2) {
+					$c = 'r';
+				}
+				push(@class, $c);
+			}
+
+			# 書式が正しくない時は無効
+			if ($err) {
+				shift(@buf);
+				unshift(@$lines, @buf);
+			} else {
+				# テーブル展開
+				push(@ary, "<table><thead><tr>\x02");
+				push(@ary, "\t<th>" . join("</th>\n\t<th>", @th) . "</th>");
+				push(@ary, "</tr></thead>\x02");
+				if (@tbl) { push(@ary, "<tbody>\x02"); }
+				foreach(@tbl) {
+					my @cols = split(/\s*\|\s*/, $_);
+					push(@ary, "<tr>\x02");
+					foreach(@class) {
+						my $t = shift(@cols);
+						my $c = $_ ? " class=\"$_\"" : '';
+						push(@ary, "\t<td$c>$t</td>");
+					}
+					push(@ary, "</tr>\x02");
+				}
+				if (@tbl) { push(@ary, "</tbody>\x02"); }
+				push(@ary, "</table>\x02");
+				next;
+			}
+		}
+
 
 		#----------------------------------------------
 		# 続きを読む記法
@@ -662,11 +729,18 @@ sub parse_inline {
 		$_ =~ s|\*\*(.*?)\*\*|<strong>$1</strong>|xg;
 		$_ =~ s|  __(.*?)__  |<strong>$1</strong>|xg;
 		$_ =~ s| \*([^\*]*)\*|<em>$1</em>|xg;
-		$_ =~ s|  _( [^_]*)_ |<em>$1</em>|xg;
 
-		# [GitHub] Strikethrough
-		$_ =~ s|~~(.*?)~~|<del>$1</del>|xg;
-		
+		if ($self->{gmf_ext}) {
+			$_ =~ s#(^|\W)_([^_]*)_(\W|$)#$1<em>$2</em>$3#g;		# [GMF]
+		} else {	
+			$_ =~ s|_( [^_]*)_ |<em>$1</em>|xg;				# [M]
+		}
+
+		# [GMF] Strikethrough
+		if ($self->{gmf_ext}) {
+			$_ =~ s|~~(.*?)~~|<del>$1</del>|xg;
+		}
+
 		# inline code
 		$_ =~ s|(`+)(.+?)\1|
 			my $s = $2;

@@ -11,9 +11,11 @@
 -コメント表示数の設定項目がなかったので修正。
 -FrontPageのタイトル設定機能を追加。
 -テーマを書きやすくするため、HTMLの出力構造を微修正しました。
+-【Markdown】[https://help.github.com/articles/github-flavored-markdown:GitHub Flavored Markdown]のテーブル記法等に対応しました。
 -【Markdown】自動リンクをonにした場合、自動リンクするように変更しました。
 -【Markdown】コードブロックの開始条件として、本家では手前が空行である必要があったので、それに合わせて修正しました。
 -【Markdown】【fix】HTMLブロック開始条件が間違っていた（行頭スペースを許可していた）。
+-【Markdown】【fix】HTMLブロックの後ろに余計な空行が付いてしまう。
 -【Markdown】【fix】文中に{{>}}等の記号があったときのエスケープ処理が正しくなかった。
 -【parser】見出し記法で、アンカーが存在しないときは{{<span class="sanchor">}}を出力しないようにしました。((テーマのCSS書いてて邪魔でしょうがなかった（苦笑）))
 -【design】全体の背景画像を設定できるように変更。
