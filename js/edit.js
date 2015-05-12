@@ -224,6 +224,7 @@ function start_edit(){
 
 	// ページを離れるときにunlock	※IE8では無効
 	$(window).bind('unload', function(){
+		console.log('ajax_unlock');
 		ajax_edit_lock('ajax_lock', function(){}, 1);
 	});
 }

@@ -455,7 +455,7 @@ sub parse_block {
 		if ($blank && $x =~ /^    (.*)/) {
 			$self->p_block_end(\@ary, \@p_block);
 			my @code = ($x);
-			while(substr($lines->[0],0,4) eq '    ' || $lines->[0] =~ /^\s*$/) {
+			while(@$lines && (substr($lines->[0],0,4) eq '    ' || $lines->[0] =~ /^\s*$/)) {
 				push(@code, shift(@$lines));
 			}
 			# 最後の空行を無視
