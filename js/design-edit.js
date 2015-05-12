@@ -329,8 +329,10 @@ function module_setting(obj, mode) {
 				//成功
 				formdiv.dialog( 'close' );
 				// モジュールHTMLをサーバからロード？
-				if (mode == 'css') load_module_css( obj );
-				if (obj.data('load-module-html')) load_module_html( obj );
+				if (mode == 'css')
+					load_module_css ( obj, load_module_html );
+				else
+					load_module_html( obj );
 				return ;
 			}
 			errmsg.attr('title', data);
@@ -495,43 +497,56 @@ function load_module_html(obj) {
 //////////////////////////////////////////////////////////////////////////////
 // ●CSSをロードして置き換える
 //////////////////////////////////////////////////////////////////////////////
-function load_module_css(obj) {
+function load_module_css(obj, call) {
+	var callback = function(){
+		if (!call) return;
+		call(obj);
+	};
+
 	var name = obj.data('module-name');
-	if (!obj.data('css-setting')) return;
+	if (!obj.data('css-setting')) return callback();
 
 	var form = $secure('#load-module-form');
 	$('#js-load-module-name').val( name );
 	var url = form.attr('action');
 	var data= form.serialize() + '&mode=css';
 
-	$.post(url, data, function(data){
-		// モジュールのstyleを削除
-		$f(module_selector).removeAttr('style');
-		if (data.match(/^\s*reload=1\s*$/)) {
-			if (!$f('#user-css').length) {	// usercssが読み込まれてない
-				var style = $('<link>').attr({
-					id: 'user-css',
-					rel: 'stylesheet',
-					href: $('#user-css-url').data('url')
-				});
-				$f('head').append(style);
-				return ;
-			}
-			// インストール済の時は、CSS強制リロード
-			var r = if_cw.reload_user_css();
-			if (!r) return;	// 成功
-		}
-		if (IE8) return;	// 以下が動かない
+	$.ajax({
+		type: 'POST',
+		url:  url,
+		data: data,
+		dataType: 'text',
+		complete: callback,
 
-		// CSSテキストを適用
-		var id = 'js-css-' + name.replace(/[_,]/g, '-');
-		$f('#' + id).remove();
-		var css = $('<style>').attr({
-			id: id,
-			type: 'text/css'
-		});
-		css.html(data);
-		$f('head').append(css);
+		success: function(data){
+			// モジュールのstyleを削除
+			$f(module_selector).removeAttr('style');
+			if (data.match(/^\s*reload=1\s*$/)) {
+				if (!$f('#user-css').length) {	// usercssが読み込まれてない
+					var style = $('<link>').attr({
+						id: 'user-css',
+						rel: 'stylesheet',
+						href: $('#user-css-url').data('url')
+					});
+					$f('head').append(style);
+					return ;
+				}
+				// インストール済の時は、CSS強制リロード
+				var r = if_cw.reload_user_css();
+				if (!r) return;	// 成功
+			}
+			if (IE8) return;	// 以下が動かない	
+
+			// CSSテキストを適用
+			var id = 'js-css-' + name.replace(/[_,]/g, '-');
+			$f('#' + id).remove();
+			var css = $('<style>').attr({
+				id: id,
+				type: 'text/css'
+			});
+			css.html(data);
+			$f('head').append(css);
+		}
 	});
 }
 
