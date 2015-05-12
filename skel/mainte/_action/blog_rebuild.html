@@ -3,7 +3,7 @@
 
 <$ifexec(Form.only_blog_info, begin, begin)>
 	付加情報の再生成
-	<$action_return = v.blogs_info_rebuild( v.blogid )>
+	<$action_return = v.blog_info_rebuild()>
 
 	POST成功時の処理
 	<$ifexec(action_return eq '0', begin)>

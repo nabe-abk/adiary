@@ -901,6 +901,10 @@ sub tag_edit {
 		my $tag = join(',', @tag);
 		$DB->update_match("${blogid}_art", {tags => $tag}, 'pkey', $a_pkey);
 	}
+	if (%e_art) {
+		my $artkeys = keys(%e_art);
+		$self->call_event('ARTICLE_STATE_CHANGE', $artkeys);
+	}
 	$self->update_taglist();
 
 	return 0;

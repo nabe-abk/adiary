@@ -1610,6 +1610,10 @@ sub update_blogset {
 	$self->update_hash( $blog, $k, $v );
 	$blog->{_update}=1;
 }
+sub update_cur_blogset {
+	my $self = shift;
+	$self->update_blogset( $self->{blog}, @_ );
+}
 
 #------------------------------------------------------------------------------
 # ●プラグイン用の設定を保存
@@ -1618,7 +1622,7 @@ sub update_plgset {
 	my ($self,$name,$h,$val) = @_;
 	if (!$h) { return; }
 	if (ref($h) ne 'HASH') {	# $h is key
-		return $self->update_blogset($self->{blog}, "p:$name:$h", $val);
+		return $self->update_cur_blogset("p:$name:$h", $val);
 	}
 
 	my $head = "p:$name";
@@ -1627,9 +1631,7 @@ sub update_plgset {
 		$up{"$head:$_"} = $h->{$_};
 	}
 	delete $up{_blogid};
-
-	my $blogid = $h->{_blogid} || $self->{blog};
-	$self->update_blogset($blogid, \%up);
+	$self->update_cur_blogset(\%up);
 }
 
 ###############################################################################
@@ -1969,5 +1971,13 @@ sub open_session_for_load {
 	my $session = $ROBJ->loadpm("Base::SessionFile", $ROBJ->{Cookie}->{session}->{sid}, int($snum));
 }
 
+#------------------------------------------------------------------------------
+# ●コールバックの登録
+#------------------------------------------------------------------------------
+sub regist_end_callback {
+	my $self = shift;
+	my $k = shift;
+	$self->{end_callback}->{$k} = shift;
+}
 
 1;

@@ -10,7 +10,6 @@
 	<tr>
 		<th>タイトル表示</th>
 		<td>
-			<input type="hidden" name="checkbox.info" value="title_none">
 			<input type="checkbox" name="title_none" value="1"<@if(ps.title_none,' checked')>><label>非表示にする</label>
 		</td>
 	</tr>
@@ -53,22 +52,16 @@
 	</tr>
 	<tr><th>非表示設定</th>
 		<td>
-			<input type="hidden" name="checkbox.info" value="noheader">
 			<input type="checkbox" name="noheader" value="1"<@if(ps.noheader || ps.noheader eq '', ' checked')>>
 			<label>ヘッダーを非表示</label><br>
-			<input type="hidden" name="checkbox.info" value="nofooter">
 			<input type="checkbox" name="nofooter" value="1"<@if(ps.nofooter, ' checked')>>
 			<label>フッター（ツイートボックス）を非表示</label><br>
-			<input type="hidden" name="checkbox.info" value="noborders">
 			<input type="checkbox" name="noborders" value="1"<@if(ps.noborders, ' checked')>>
 			<label>ボーダー（境界線）を非表示</label><br>
-			<input type="hidden" name="checkbox.info" value="noscrollbar">
 			<input type="checkbox" name="noscrollbar" value="1"<@if(ps.noscrollbar, ' checked')>>
 			<label>スクロールバーを非表示</label><br>
-			<input type="hidden" name="checkbox.info" value="noactions">
 			<input type="checkbox" name="noactions" value="1"<@if(ps.noactions || ps.noactions eq '', ' checked')>>
 			<label>ツイートアクションを非表示</label><br>
-			<input type="hidden" name="checkbox.info" value="transparent">
 			<input type="checkbox" name="transparent" value="1"<@if(ps.transparent, ' checked')>>
 			<label>背景を透明にする</label><br>
 		</td>

@@ -43,6 +43,7 @@
 	<$art.wiki    = s.wiki>
 	<$art.parser  = s.parser>
 <$end>
+<$ifset(!edit_pkey, v.title, '記事の作成')>
 
 <@> エラーなら表示して終了
 <$ifjump_clear(@Message, '_sub/error_message', undef, 'ブラウザの戻るボタンで戻ってください')>

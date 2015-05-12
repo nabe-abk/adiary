@@ -19,7 +19,7 @@ module_id=side-search
 <div class="hatena-modulebody">
 <form method="GET" action="./" onsubmit="return false;">
 <input type="search" class="search-box w80" name="q" value="" required>
-<input type="submit" class="search-button" value="検索"><br>
+<input type="submit" class="search-btn" value="検索"><br>
 <span class="search-radio">
 <input class="search-title" type="radio" name="all" value="0" checked><label>タイトル</label>
 <input class="search-text"  type="radio" name="all" value="1"><label>全文</label>
@@ -37,7 +37,7 @@ HTML
 <div class="hatena-modulebody">
 <form method="GET" action="<@v.myself>">
 <input type="search" class="search-box w80" name="q" value="<@tag_escape(x = Query.q)>" required>
-<input type="submit" class="search-button" value="検索"><br>
+<input type="submit" class="search-btn" value="検索"><br>
 <$ifset(exists(Query.all), all, Query.all, ps.all)>
 <span class="search-radio">
 <input class="search-title" type="radio" name="all" value="0" <@if(!all, "checked")>><label>タイトル</label>

@@ -20,11 +20,23 @@ $SysEvt{ARTICLE_STATE_CHANGE} = [qw(
 	update_taglist
 	update_contents_list
 )];
+$SysEvt{_ARTICLE_STATE_CHANGE} = [qw(
+	genereate_spmenu
+)];
 $SysEvt{COMMENT_STATE_CHANGE} = [qw(
 	update_bloginfo_comment
 )];
 $SysEvt{ARTCOM_STATE_CHANGE} = [qw(
 	generate_rss
+)];
+$SysEvt{_TAG_STATE_CHANGE} = [qw(
+	genereate_spmenu
+)];
+$SysEvt{PLUGIN_SETTING} = [qw(
+	genereate_spmenu
+)];
+$SysEvt{EDIT_DESIGN} = [qw(
+	genereate_spmenu
 )];
 
 ###############################################################################
@@ -43,7 +55,6 @@ sub new {
 
 	# ディフォルト値の設定
 	$self->SetDefaultValue();
-	$ROBJ->{secure_id_len} ||= 6;
 	$self->{_loaded_bset} = {};
 	$self->{server_url} = $ROBJ->{Server_url};
 	$self->{http_agent} = "adiary $VERSION on Satsuki-system $ROBJ->{VERSION}";
@@ -1105,14 +1116,17 @@ sub call_event {
 		return -99;
 	}
 
-	my $evt    = $self->{stop_all_plugins} ? '' : $blog->{"event:$evt_name"};
-	my $sysevt = $SysEvt{$evt_name} || [];
-	if (!$evt && !@$sysevt) { return 0; }
+	my $evt = $self->{stop_all_plugins} ? '' : $blog->{"event:$evt_name"};
+	my @evt = split(/\r?\n/, $evt);
+	my $sys = $SysEvt{$evt_name}    || [];
+	my $sys2= $SysEvt{"_$evt_name"} || [];
+	my @ary = (@$sys, @evt, @$sys2);
+	if (!@ary) { return 0; }
 
 	my $ret=0;
 	$evt_name =~ s/^([^:]*):.*$/$1/;	# : 以降を除去
 	local($self->{event_name}) = $evt_name;
-	foreach(@$sysevt,split(/\r?\n/, $evt)) {
+	foreach(@ary) {
 		# plugin_name=(value)
 		my $x = index($_, '=');
 		if ($x == -1) {
@@ -1230,7 +1244,7 @@ sub load_jscss_events {
 }
 
 #------------------------------------------------------------------------------
-# ●プラグイン用の設定をロード
+# ●プラグインの設定をロード
 #------------------------------------------------------------------------------
 sub load_plgset {
 	my ($self,$name,$key) = @_;
@@ -1360,6 +1374,7 @@ sub load_arts_postprocessor {
 	my ($self, $ary) = @_;
 	my %h;
 	foreach(@$ary) {
+		chomp($_);
 		my @a=split("\t", $_);
 		$h{$a[0]} = { pkey=>$a[0], prev=>$a[1], next=>$a[2], title=>$a[3] };
 	}
@@ -1399,6 +1414,7 @@ sub load_contents_postprocessor {
 	my ($ROBJ, $ary) = @_;
 	my %h;
 	foreach(@$ary) {
+		chomp($_);
 		my @a=split("\t", $_);
 		$h{$a[0]} = {
 			pkey      => $a[0],

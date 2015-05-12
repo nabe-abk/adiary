@@ -341,12 +341,17 @@ sub load_plugin_info {
 	# デザイン設定ファイル
 	$h->{css_setting}    = -r "$dir$n/css_setting.html";
 
+	#--------------------------------------------------
+	# 表示用イベント情報
+	#--------------------------------------------------
+	$h->{events_display} = $h->{events};
+	if ($h->{events} ne '' ) {
+		$h->{events}  =~ s/\r?\n?$/\n/;
+	}
+
 	# 動的CSSファイル
 	my $dcss = $h->{module_dcss} = -r "$dir$n/module-d.css";
 	if ($dcss) {
-		if ($h->{events} ne '' ) {
-			$h->{events}  =~ s/\r?\n?$/\n/;
-		}
 		$h->{events} .= <<DCSS_EVENT;
 INSTALL=skel/_sub/module_css_generate
 SETTING=skel/_sub/module_css_generate
@@ -354,8 +359,10 @@ PRIVATE_MODE_ON=skel/_sub/module_css_generate
 PRIVATE_MODE_OFF=skel/_sub/module_css_generate
 UNINSTALL=skel/_sub/module_css_delete
 DCSS_EVENT
-		chomp($h->{events});
 	}
+
+	# イベントの末尾改行除去
+	chomp($h->{events});
 
 	# キャッシュ
 	$cache->{"$dir$name"} = $h;
@@ -492,6 +499,9 @@ sub save_use_plugins {
 		foreach(@install_plugins) {
 			$self->call_event("INSTALL:$_");
 		}
+
+		# イベント
+		$self->call_event('PLUGIN_STATE_CHANGE');
 	}
 	return wantarray ? (0, \%fail) : 0;
 }
@@ -742,6 +752,7 @@ sub save_plugin_setting {
 
 	$self->update_plgset($name, $ret);
 	$self->call_event("SETTING:$name");
+	$self->call_event('PLUGIN_SETTING', $name);
 	return 0;
 }
 
@@ -946,7 +957,6 @@ sub save_design {
 	# _header.html を生成
 	#-------------------------------------------------------------------
 	if (!%save || $save{_header}) {
-		my @sp_add;
 		my $file = '_header';
 		my $h = $self->parse_original_skeleton($file);
 		my @html;
@@ -954,27 +964,13 @@ sub save_design {
 		foreach(@header) {
 			if ($fail->{$_}) { next; }
 			push(@html, $self->load_module_html($_, $file) . "\n");
-
-			# スマホ用処理
-			my $pi = $self->load_plugin_info($_);
-			if (!$pi || !$pi->{'module_sp_header_html'}) { next; }
-			push(@sp_add, $self->load_module_html($_, '_sp_header') . "\n");
 		}
 		push(@html, @{$h->{FOOTER} || []});
-		
+
 		my $r = $ROBJ->fwrite_lines("$dir$file.html", \@html);
 		if ($r) {
 			$ret++;
 			$ROBJ->message('Design save failed : %s', "$file.html");
-		}
-
-		if (@sp_add) {	# スマホ用追加ヘッダ
-			my $file = '_sp_add_header';
-			my $r = $ROBJ->fwrite_lines("$dir$file.html", \@sp_add);
-			if ($r) {
-				$ret++;
-				$ROBJ->message('Design save failed : %s', "$file.html");
-			}
 		}
 	}
 
@@ -1071,6 +1067,9 @@ sub save_design {
 		save   => join("\n", keys(%save))
 	});	# ※reinstall_design_plugins() と対応させること！
 		# 　項目追加時は version の数値を増加させる
+
+	# イベント
+	$self->call_event('EDIT_DESIGN');
 
 	return $ret;
 }
@@ -1218,8 +1217,6 @@ sub delete_design_skeleton {
 	$ROBJ->file_delete($dir . '_sidebar.html');
 	$ROBJ->file_delete($dir . '_article.html');
 	$ROBJ->file_delete($dir . '_main.html');
-	# スマホ用追加ヘッダ
-	$ROBJ->file_delete($dir . '_sp_add_header.html');
 }
 
 
@@ -1308,7 +1305,6 @@ sub load_themes {
 #------------------------------------------------------------------------------
 sub save_theme {
 	my ($self, $form) = @_;
-	my $blog = $self->{blog};
 	my $ROBJ = $self->{ROBJ};
 	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
@@ -1318,16 +1314,15 @@ sub save_theme {
 	}
 
 	# テーマ保存
-	$self->update_blogset($blog, 'theme', $theme);
-	$self->update_blogset($blog, 'theme_custom', '');
-	$self->update_blogset($blog, 'sysmode_notheme', $form->{sysmode_notheme_flg});
+	$self->update_cur_blogset('theme', $theme);
+	$self->update_cur_blogset('theme_custom', '');
+	$self->update_cur_blogset('sysmode_notheme', $form->{sysmode_notheme_flg});
 
 	# テーマカスタマイズ情報の保存
 	if (!$form->{custom}) { return 0; }
 	my ($c,$css) = $self->load_theme_colors( $theme );
 	if (!$css) { return 0; }
 	my $file = $self->get_theme_custom_css($theme);
-	if (!$file) { return 0; }
 
 	my %col;
 	my $diff;
@@ -1345,18 +1340,28 @@ sub save_theme {
 	}
 
 	# CSS書き換え
+	my $ary = $self->css_rewrite($css, \%col);
+	$ROBJ->fwrite_lines($file, $ary);
+
+	# カスタマイズ情報の保存
+	$self->update_cur_blogset('theme_custom', $file);
+	return 0;
+}
+
+# remake_theme_custom_css から呼ばれる
+sub css_rewrite {
+	my $self = shift;
+	my $css  = shift;
+	my $col  = shift;
+
 	my @ary = split(/\n/, $css);
 	foreach(@ary) {
 		$_ .= "\n";
 		if ($_ !~ /\$c=\s*(\w+)/) { next; }
 		my $name = $1;
-		$_ =~ s/#[0-9A-Fa-f]+/$col{$name}/g;
+		$_ =~ s/#[0-9A-Fa-f]+/$col->{$name}/g;
 	}
-	$ROBJ->fwrite_lines($file, \@ary);
-
-	# カスタマイズ情報の保存
-	$self->update_blogset($blog, 'theme_custom', $file);
-	return 0;
+	return \@ary;
 }
 
 #------------------------------------------------------------------------------
@@ -1392,13 +1397,21 @@ sub load_theme_info {
 sub load_theme_colors {
 	my ($self, $theme, $rec) = @_;
 	my $ROBJ = $self->{ROBJ};
-	if ($theme !~ m|^([\w-]+)/([\w-]+)/?$|) {
-		return 1;
-	}
-	my $template = $1;
-	$theme = $2;
 
-	my $lines = $ROBJ->fread_lines( "$self->{theme_dir}$template/$theme/$theme.css" );
+	my $lines;
+	my $template;
+	if (ref($theme)) {
+		$lines = $theme;
+		$rec = 1;	# 他ファイル参照無効
+	} else {
+		if ($theme !~ m|^([\w-]+)/([\w-]+)/?$|) {
+			return 1;
+		}
+		$template = $1;
+		$theme = $2;
+		$lines = $ROBJ->fread_lines( "$self->{theme_dir}$template/$theme/$theme.css" );
+	}
+
 	my %col;
 	my $sel  = '';
 	my $attr = '';
@@ -1522,5 +1535,165 @@ sub update_design_info {
 	return $self->save_design_info($h);
 }
 
+###############################################################################
+# ■スマホ画面の設定
+###############################################################################
+#------------------------------------------------------------------------------
+# ●スマホメニュー要素ロード
+#------------------------------------------------------------------------------
+sub load_spmenu_items {
+	my $self = shift;
+	my $set = $self->{blog};
+	if (!$set) { return; }
+
+	my @ary;
+	my %names;
+	foreach(keys(%$set)) {
+		if ($_ !~ /^p:([\w\,]+):html$/) { next; }
+		my $name = $1;
+		my $pi = $self->load_plugin_info($name);
+		if (! $pi->{sphone_menu}) { next; }
+
+		my ($html, $title) = $self->parse_html_for_spmenu( $set->{$_} );
+		if (!$html) { next; }
+		# save
+		my $h = {
+			title=> $title,
+			name => $name,
+			html => $html
+		};
+		push(@ary, $h);
+		$names{$name}=$h;
+	}
+	if (!@ary) { return; }
+
+	my $iary = $self->load_spmenu_info();
+	my @iary = grep { $names{ $_->{name}} } @$iary;
+	foreach(@iary) {
+		my $title = $_->{title};
+		$_ = $names{ $_->{name} };
+		$_->{title} = $title;
+		$_->{on}    = 1;
+	}
+
+	my %n = map { $_->{name} => 1 } @iary;
+	@ary = grep { ! $n{ $_->{name} }} @ary;
+	@ary = sort { $a->{name} cmp $b->{name} } @ary;
+
+	push(@iary, @ary);
+	return \@iary;
+}
+
+#------------------------------------------------------------------------------
+# ●メニュー用に要素を加工
+#------------------------------------------------------------------------------
+sub parse_html_for_spmenu {
+	my $self = shift;
+	my $html = shift;
+	my $title;
+
+	# モジュールタイトル除去
+	$html =~ s|<div\s*class="\s*hatena-moduletitle\s*">(.*?)</div>|$title=$1,''|eg;
+
+	my $escaper = $self->load_tag_escaper( 'spmenu' );
+	$html = $escaper->escape( $html );
+	$html =~ s|</a>(.*?)</li>|$1</a></li>|g;
+
+	$html =~ s/^[\s\n\r]+//;
+	$html =~ s/[\s\n\r]+$//;
+	if ($html !~ m|^<ul>|) { return; }
+	if ($html !~ m|</ul>$|) { return; }
+
+	return wantarray ? ($html, $title) : $html;
+}
+
+#------------------------------------------------------------------------------
+# ●スマホメニュー要素のセーブ
+#------------------------------------------------------------------------------
+sub save_spmenu_items {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $ary = $form->{mod_ary} || [];
+	my $info='';
+	foreach(@$ary) {
+		my $title = $form->{$_} || $_;
+		$ROBJ->trim($title);
+		$ROBJ->tag_escape($title);
+		$info .= "$_=$title\n";
+	}
+	chomp($info);
+	$self->update_cur_blogset('spmenu_info', $info);
+
+	# タイトル保存
+	my $title = $form->{spmenu_title};
+	$ROBJ->trim($title);
+	$ROBJ->tag_escape($title);
+	$self->update_cur_blogset('spmenu_title', $title);
+
+	return $self->genereate_spmenu();
+}
+
+#------------------------------------------------------------------------------
+# ●保存してあるスマホメニュー情報を分解
+#------------------------------------------------------------------------------
+sub load_spmenu_info {
+	my $self = shift;
+	my $blog = $self->{blog};
+	my $info = $blog->{spmenu_info};
+
+	my @ary = split("\n", $info);
+	my @ary2;
+	my $f;
+	foreach(@ary) {
+		my ($name,$title) = split(/=/, $_, 2);
+		chomp($title);		# $_に処理しないように
+		if (!$blog->{"p:$name:html"}) {
+			$f=1;
+			$_='';
+			next;
+		}
+		push(@ary2, {
+			name  => $name,
+			title => $title
+		});
+	}
+	if ($f) {	# 消えているモジュールがある
+		$info = join('', @ary);
+		$self->update_cur_blogset('spmenu_info', $info);
+	}
+	return \@ary2;
+}
+
+#------------------------------------------------------------------------------
+# ●スマホメニューの生成
+#------------------------------------------------------------------------------
+sub genereate_spmenu {
+	my $self = shift;
+	my $blog = $self->{blog};
+
+	my $ary = $self->load_spmenu_info();
+	if (! @$ary) {
+		$self->update_cur_blogset('spmenu', '');
+		return ;
+	}
+
+	# 要素がある
+	my $out = "<ul>\n";
+	foreach(@$ary) {
+		my $title = $_->{title};
+		my $html  = $blog->{"p:$_->{name}:html"};
+		$html = $self->parse_html_for_spmenu($html);
+		$out .= "<li><a href=\"#\">$title</a>\n$html\n</li>\n";
+	}
+	$out .= "</ul>\n";
+	if ($#$ary > 0) {
+		my $title = $blog->{spmenu_title} || 'menu';
+		$out = "<ul><li><a href=\"#\">$title</a>\n$out</li></ul>\n";
+	}
+	$self->update_cur_blogset('spmenu', $out);
+	return 0;
+}
 
 1;

@@ -1,7 +1,7 @@
 @charset "UTF-8";
 /*****************************************************************************
   Satsuki skeleton base CSS
-							(C)2013 nabe@abk
+							(C)2015 nabe@abk
 *****************************************************************************/
 /*--------------------------------------------------------------------
 ●ルール
@@ -828,9 +828,36 @@ h3.ui-accordion-header {
 */
 
 /*--------------------------------------------------------------------
+●スマホ用検索ボックス
+---------------------------------------------------------------------*/
+#sp-head-search {
+	position:		relative;
+	z-index:		1010;
+	float:			right;
+
+	padding:		4px;
+	margin-right:		2px;
+	border-radius:		4px;
+	background-color:	rgba(255,255,255,0.6);
+}
+#sp-head-search .search-btn {
+	padding:		0;
+	margin:			0 0 0 2px;
+	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
+}
+#sp-head-search .search-box {
+	width:			100px;
+	margin:			0;
+}
+
+/*--------------------------------------------------------------------
 ●スマホ用ドロップダウンメニュー
 ---------------------------------------------------------------------*/
 /* PC用の設定解除 */
+.dropdown-menu.sp>ul {
+	margin-right:	0;
+}
+
 .dropdown-menu.sp>ul>li {
 	border-left:	none;
 	border-right:	none;
@@ -886,7 +913,7 @@ h3.ui-accordion-header {
 	width:		100%;
 }
 .dropdown-menu.sp>ul>li {
-	width:		66%;
+	width:		60%;
 }
 
 /* 高さの設定 */

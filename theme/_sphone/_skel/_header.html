@@ -1,3 +1,7 @@
+<@6>
+<@local(s,ps)>
+<$s=v.blog>
+
 <!--ヘッダ部================================================================-->
 <header id="sp-header">
 <nav id="sp-nav-header" data-module-name="deh_login" data-fix="1">
@@ -24,5 +28,26 @@
 	<a href="<@v.myself>"><@if(v.title_h1, v.title_h1, v.title)></a>
 </h1>
 
-<@ifcall(!v.system_mode && check_skeleton('_sp_add_header'), '_sp_add_header')>
+<@>----------------------------------------------------------------------------
+<@> スマホ画面用拡張
+<@>----------------------------------------------------------------------------
+<@ifexec(v.blogid && !v.system_mode, begin)>
+<!--検索ボックス============================================================-->
+<div id="sp-head-search">
+<form method="GET" action="<@v.myself>">
+<input type="search" class="search-box" name="q" value="" required><span type="submit" class="search-btn ui-icon ui-icon-search ui-button"></span>
+<input type="hidden" name="all" value="1">
+</form>
+</div>
+
+<@ifexec(v.blogid && s.spmenu, begin)>
+<!--ドロップダウンメニュー=====================================-->
+<div class="dropdown-menu sp js-auto-width-stop js-alt-hover">
+<@s.spmenu>
+</div>
+<$end>
+
+<$end>
+<@>----------------------------------------------------------------------------
+
 </header>

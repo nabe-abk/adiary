@@ -13,7 +13,8 @@
   <@if(v.skel_name eq 'edit',  '<span class="select">デザイン編集</span>',   #'<a href="<@v.myself>?<@v.skel_dir>edit">デザイン編集</a>')>, 
 <$end>
   <@if(v.skel_name eq 'reset', '<span class="select">デザイン初期化</span>', #'<a href="<@v.myself>?<@v.skel_dir>reset">デザイン初期化</a>')>,
-  <@if(v.skel_name eq 'usercss','<span class="select">ユーザーCSS</span>',   #'<a href="<@v.myself>?<@v.skel_dir>usercss">ユーザーCSS</a>')>
+  <@if(v.skel_name eq 'usercss','<span class="select">ユーザーCSS</span>',   #'<a href="<@v.myself>?<@v.skel_dir>usercss">ユーザーCSS</a>')>, 
+  <@if(v.skel_name eq 'spmenu','<span class="select">スマホメニュー</span>', #'<a href="<@v.myself>?<@v.skel_dir>spmenu">スマホメニュー</a>')>
  <span class="item-end">]</span>
  </span>
 </nav>

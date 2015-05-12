@@ -1,6 +1,5 @@
-Title: adiaryÉ¸½à°õºşÍÑ¥Æ¡¼¥Ş
+Title: adiaryæ¨™æº–å°åˆ·ç”¨ãƒ†ãƒ¼ãƒ
 Base: Satsuki2
-JavaScript: no
 
 Author: nabe@abk
 Access: https://twitter.com/nabe_abk
@@ -9,4 +8,4 @@ Charset: UTF-8
 Comment: 
 
 ChangeLog
-2013/08/01 ½éÈÇ
+2013/08/01 åˆç‰ˆ

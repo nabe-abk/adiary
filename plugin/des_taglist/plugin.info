@@ -13,6 +13,9 @@ load_module_html_in_edit=1
 
 module_id=side-tag-list
 
+# スマホメニューに使える
+sphone_menu=1
+
 *sample_html=<<HTML
 <div class="hatena-module" id="<@id>">
 <div class="hatena-moduletitle">タグ</div>

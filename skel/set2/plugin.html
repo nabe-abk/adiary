@@ -56,8 +56,8 @@
 		<@ifexec(t.files, begin)>
 		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</button>
 		<$end)>
-		<@ifexec(t.events, begin)>
-		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events>">登録イベント</button>
+		<@ifexec(t.events_display, begin)>
+		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events_display>">登録イベント</button>
 		<$end>
 		<@ifexec(t.readme, begin)>
 		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>
@@ -116,8 +116,8 @@
 		<@ifexec(t.files, begin)>
 		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</button>
 		<$end)>
-		<@ifexec(t.events, begin)>
-		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events>">登録イベント</button>
+		<@ifexec(t.events_display, begin)>
+		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events_display>">登録イベント</button>
 		<$end>
 		<@ifexec(t.readme, begin)>
 		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>

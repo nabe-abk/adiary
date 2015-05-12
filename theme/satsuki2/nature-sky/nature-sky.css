@@ -179,15 +179,15 @@ h1 img, h1 a img {
 /* 矢印の色 */
 .dropdown-menu li ul li ul:before,
 .dropdown-menu.sp li ul:before {
-	border-left-color:	#349;		/* $c=ddarrow = linkvisited */
+	border-left-color:	#ccc;		/* $c=fixddarrow */
 }
 .dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
-	border-right-color:	#349;		/* $c=ddarrow */
+	border-right-color:	#ccc;		/* $c=fixddarrow */
 }
 /* 設定画面に矢印の色を自動取得させるための指定 */
 .dropdown-menu {
-	color:			#349;		/* $c=ddarrow */
+	color:			#ccc;		/* $c=fixddarrow */
 }
 /* 影をつける */
 .dropdown-menu>ul li:hover ul {

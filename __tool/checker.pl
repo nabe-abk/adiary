@@ -66,7 +66,7 @@ print "---adiary Release checker-------------------------------------------\n";
 # 文字コードcheck
 #------------------------------------------------------------------------------
 {
-	open(my $fh, "find skel/ js/ lib/ info/ plugin/|");
+	open(my $fh, "find skel/ js/ lib/ info/ plugin/ theme/|");
 	my @files = <$fh>;
 	close($fh);
 

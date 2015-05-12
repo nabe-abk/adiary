@@ -11,6 +11,9 @@ adiary_version=2.94
 module_type=main,header
 load_module_html_in_edit=1
 
+# スマホメニューに使える
+sphone_menu=1
+
 *sample_html=<<HTML
 <div class="dropdown-menu">
 <ul class="js-auto-width">
@@ -63,20 +66,6 @@ HTML
 <!--ドロップダウンメニュー=====================================-->
 <div class="dropdown-menu" data-module-name="<@this>" id="<@id>">
 <@v.load_plgset('<@this>', 'html')>
-</div>
-HTML
-
-
-#--------------------------------------------
-# スマホ画面にも出力（type=_header のみ有効）
-#--------------------------------------------
-*module_sp_header_html=<<HTML
-<$ps=v.load_plgset('<@this>')>
-<!--ドロップダウンメニュー=====================================-->
-<div class="dropdown-menu sp js-auto-width-stop js-alt-hover" data-module-name="<@this>">
-<ul><li><a href="#"><@if(ps.sp_menu ne '', ps.sp_menu, 'メニュー')></a>
-<@ps.html>
-</li></ul>
 </div>
 HTML
 

@@ -166,96 +166,31 @@ sub rebuild_blog {
 	$self->call_event('ARTICLE_STATE_CHANGE');
 	$self->call_event('COMMENT_STATE_CHANGE');
 	$self->call_event('ARTCOM_STATE_CHANGE');
-
 	return $r;
-}
-
-#------------------------------------------------------------------------------
-# ●全ブログの再構築
-#------------------------------------------------------------------------------
-sub rebuild_all_blogs {
-	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $auth = $ROBJ->{Auth};
-	if (! $auth->{isadmin} ) { $ROBJ->message('Operation not permitted'); return 5; }
-
-	my $blogs = $self->load_all_blogid();
-	my $cur_blogid = $self->{blogid};
-	foreach(@$blogs) {
-		$self->set_and_select_blog($_);
-		$self->rebuild_blog();
-	}
-	$self->set_and_select_blog($cur_blogid);
-	return 0;
 }
 
 #------------------------------------------------------------------------------
 # ●付加情報の再生成
 #------------------------------------------------------------------------------
-sub blogs_info_rebuild {
-	my $self   = shift;
-	my $blogid = shift;
+sub blog_info_rebuild {
+	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $auth = $ROBJ->{Auth};
-	if ($blogid eq '' && ! $auth->{isadmin}
-	 || $blogid ne '' && ! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
+	if (!$self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	my @ary = ($blogid);
-	if ($blogid eq '') {
-		@ary = [ $self->load_all_blogid() ];
-	}
-
-	my $cur_blogid = $self->{blogid};
-	foreach(@ary) {
-		# ブログ選択
-		$self->set_and_select_blog($_);
-
-		# イベント処理
-		$self->call_event('BLOG_INFO_REBUILD');
-		$self->call_event('ARTICLE_STATE_CHANGE');
-		$self->call_event('COMMENT_STATE_CHANGE');
-		$self->call_event('ARTCOM_STATE_CHANGE');
-	}
-	$self->set_and_select_blog($cur_blogid);
-
+	# イベント処理
+	$self->call_event('BLOG_INFO_REBUILD');
+	$self->call_event('ARTICLE_STATE_CHANGE');
+	$self->call_event('COMMENT_STATE_CHANGE');
+	$self->call_event('ARTCOM_STATE_CHANGE');
 	return 0;
 }
 
-#------------------------------------------------------------------------------
-# ●全ブログの全プラグインを再インストール
-#------------------------------------------------------------------------------
-sub reinstall_all_plugins {
-	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $auth = $ROBJ->{Auth};
-	if (! $auth->{isadmin} ) { $ROBJ->message('Operation not permitted'); return 5; }
-
-	my $blogs = $self->load_all_blogid();
-	my $cur_blogid = $self->{blogid};
-	$self->{stop_plugin_install_msg} = 1;
-	foreach(@$blogs) {
-		$self->set_and_select_blog($_);
-		$self->reinstall_plugins();
-	}
-	$self->{stop_plugin_install_msg} = 0;
-	$self->set_and_select_blog($cur_blogid);
-	return 0;
-}
-
-#------------------------------------------------------------------------------
-# ●全ブログidのロード
-#------------------------------------------------------------------------------
-sub load_all_blogid {
-	my $self = shift;
-	my $DB   = $self->{DB};
-	my $blogs = $DB->select_match($self->{bloglist_table}, '*cols', 'id');
-	$blogs = [ map { $_->{id} } @$blogs ];
-	return $blogs;
-}
-
 ###############################################################################
-# ■プラグインの再インストール
+# ■プラグイン/デザイン関連
 ###############################################################################
+#------------------------------------------------------------------------------
+# ●全プラグインの再インストール
+#------------------------------------------------------------------------------
 sub reinstall_plugins {
 	my $self = shift;
 	my $pd = $self->load_plugins_dat();
@@ -329,6 +264,106 @@ sub parse_design_dat {
 		com_ary    => [ split(/\n/, $dat->{com})    ],
 		save_ary   => [ split(/\n/, $dat->{save})   ],
 	};
+}
+
+#------------------------------------------------------------------------------
+# ●テーマカスタム情報の再生成
+#------------------------------------------------------------------------------
+sub remake_theme_custom_css {
+	my $self  = shift;
+	my $theme = shift || $self->{blog}->{theme};
+	my $ROBJ  = $self->{ROBJ};
+	if (!$theme) { return 0; }
+
+	my $file = $ROBJ->get_filepath( $self->get_theme_custom_css($theme) );
+	if (!-r $file) { return 0; }	# カスタムファイルが無い
+
+	my $lines = $ROBJ->fread_lines( $file );
+	my ($col,$x) = $self->load_theme_colors( $lines );
+	# $col = 現在の設定状況（hash）
+
+	# 再度書き換える
+	my ($c,$css) = $self->load_theme_colors( $theme );
+	if (!$css) { return; }
+
+	my $ary = $self->css_rewrite($css, $col);
+	$ROBJ->fwrite_lines($file, $ary);
+	return 0;
+}
+
+###############################################################################
+# ■全ブログに対する処理
+###############################################################################
+#------------------------------------------------------------------------------
+# 全ブログの再構築
+#------------------------------------------------------------------------------
+sub rebuild_all_blogs {
+	my $self = shift;
+	return $self->do_all_blogs('rebuild_blog');
+}
+
+#------------------------------------------------------------------------------
+# 全ブログ付加情報の再構築
+#------------------------------------------------------------------------------
+sub rebuild_all_blogs_info {
+	my $self = shift;
+	return $self->do_all_blogs('blog_info_rebuild');
+}
+
+#------------------------------------------------------------------------------
+# 全ブログの全プラグインを再インストール
+#------------------------------------------------------------------------------
+sub reinstall_all_plugins {
+	my $self = shift;
+
+	$self->{stop_plugin_install_msg} = 1;
+	my $r = $self->do_all_blogs('reinstall_plugins');
+	$self->{stop_plugin_install_msg} = 0;
+
+	return $r;
+}
+
+#------------------------------------------------------------------------------
+# 全ブログのカスタムCSS再設定
+#------------------------------------------------------------------------------
+sub remake_all_custom_css {
+	my $self = shift;
+	return $self->do_all_blogs('remake_theme_custom_css');
+}
+
+#------------------------------------------------------------------------------
+# ●全ブログに対する処理
+#------------------------------------------------------------------------------
+sub do_all_blogs {
+	my $self = shift;
+	my $func = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $auth = $ROBJ->{Auth};
+	if (! $auth->{isadmin} ) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	my $blogs = $self->load_all_blogid();
+	my $cur_blogid = $self->{blogid};
+	foreach(@$blogs) {
+		$self->set_and_select_blog($_);
+		if (ref($func)) {
+			&$func($self);
+		} else {
+			$self->$func();
+		}
+	}
+	$self->set_and_select_blog($cur_blogid);
+	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●全ブログidのロード
+#------------------------------------------------------------------------------
+sub load_all_blogid {
+	my $self = shift;
+	my $DB   = $self->{DB};
+	my $blogs = $DB->select_match($self->{bloglist_table}, '*cols', 'id');
+	$blogs = [ map { $_->{id} } @$blogs ];
+	return $blogs;
 }
 
 ###############################################################################

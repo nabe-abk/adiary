@@ -14,8 +14,8 @@ package SatsukiApp::adiary;
 my @update_versions = (
 	{ ver => 2.93, func => 'sys_update_293', rebuild=>1, plugin=>1 },
 	{ ver => 2.94, func => 'sys_update_294' },
-	{ ver => 2.95,  plugin=>1 },
-	{ ver => 2.96, func => 'sys_update_296', plugin=>1 }
+	{ ver => 2.95, plugin=>1 },
+	{ ver => 2.96, func => 'sys_update_296', plugin=>1, theme=>1 }
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
@@ -36,6 +36,8 @@ sub system_update {
 		$ROBJ->message("System update for Ver %s", $h->{ver});
 		$opt{rebuild} ||= $h->{rebuild};	# 全記事再構築
 		$opt{plugin}  ||= $h->{plugin};		# プラグイン更新
+		$opt{theme}   ||= $h->{theme};		# テーマカスタムCSS更新
+		$opt{info}    ||= $h->{info};		# ブログ付加情報更新
 
 		my $func = $h->{func};
 		if ($func) {
@@ -49,11 +51,22 @@ sub system_update {
 	if ($opt{rebuild}) {
 		$ROBJ->message("Rebuild all blogs");
 		$self->rebuild_all_blogs();
+		$opt{info} = 0;
 	}
 	# プラグイン再インストール
 	if ($opt{plugin}) {
 		$ROBJ->message("Reinstall all plugins");
 		$self->reinstall_all_plugins();
+	}
+	# テーマカスタムCSS更新
+	if ($opt{theme}) {
+		$ROBJ->message("Remake all custom css");
+		$self->remake_all_custom_css();
+	}
+	# ブログ付加情報の再構築
+	if ($opt{info}) {
+		$ROBJ->message("Reinstall all blogs infomation");
+		$self->rebuild_all_blogs_info();
 	}
 
 	$self->update_sysdat('VERSION', $cur);
