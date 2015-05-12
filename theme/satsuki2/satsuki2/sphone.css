@@ -165,10 +165,31 @@ pre {
 /*--------------------------------------------------------------------
 ■システムモード
 ---------------------------------------------------------------------*/
+article.system div.body {
+	padding-left:		6px;
+	padding-right:		6px;
+}
+article.system div.body table {
+	margin-left:		0px;
+	margin-right:		0px;
+}
+
+nav.tree {
+	line-height:		200%;
+}
+nav.tree span.items {
+	display:		block;
+}
+#body .main input,
+#body .main textarea {
+	max-width:		100%;
+}
+
 article.edit span.element {
 	display:		block;
 }
-#edit-tags + br {
+#edit-tags + br,
+#edit-tags + br + br {
 	display:		none;
 }
 article.edit button,
@@ -176,5 +197,6 @@ article.edit select {
 	margin-top:		6px;
 	margin-bottom:		6px;
 }
-
-
+article.edit span.edit-writer {
+	display:		none;
+}

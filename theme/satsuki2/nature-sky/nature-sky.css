@@ -426,7 +426,7 @@ div.hatena-moduletitle a:visited {
 }
 
 /* Informationのタイトルを出さない */
-body:not(.system-mode) #side-information div.hatena-moduletitle {
+body:not(.system) #side-information div.hatena-moduletitle {
 	display:		none;
 }
 
@@ -839,7 +839,7 @@ table.plugins button { margin: 0; }
 /*--------------------------------------------------------------------
 ●システム画面
 ---------------------------------------------------------------------*/
-.system-mode .main {
+.system .main {
 	padding-top:		1em;
 }
 article.system div.body,

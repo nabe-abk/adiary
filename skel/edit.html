@@ -160,15 +160,14 @@
 	<select name="parser" id="select-parser">
 		<@forexec_hash(ROBJ, v.parsers, begin)><option value="<@key>"<@if(art.parser eq key, ' selected')>><@val></option>
 		<$end>
-	</select></span>
+	</select>
+	<@ifexec(Develop && !v.sphone, begin)>
+		<input type="checkbox" class="js-switch" data-target="#-dummy-" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug">デバッグ</label>
+	<$end></span>
 	<@ifexec(!edit_pkey || art.draft, begin)>
 	<button type="submit" name="draft" value="1" id="save-draft">下書き保存</button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
 	<$end>
 	<button type="submit" name="edit" id="save-normal" value="1"><@if(edit_pkey, '編集内容を保存', '新規に保存')></button>
-	<@ifexec(Develop, begin)>
-		<input type="checkbox" class="js-switch" data-target="#-dummy-" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug">パーサーのデバッグ</label>
-	<$end>
-
 
 	<!--===============================================================-->
 	<input type="hidden" name="checkbox.info" value="enable">
