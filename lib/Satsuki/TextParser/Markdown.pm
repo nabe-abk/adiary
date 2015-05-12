@@ -100,7 +100,6 @@ sub text_parser {
 	my $all = join("\n", @$lines);
 	if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
 		$sobj->{sections} = $self->{sections};
-		$sobj->{subsections} = $self->{subsections};
 		$sobj->post_process( \$all );
 	}
 
@@ -160,9 +159,8 @@ sub parse_special_block {
 	# セクション情報
 	#
 	my @sections;
-	my @subsections;
+	my $subsections = [];
 	$self->{sections} = \@sections;
-	$self->{subsections} = \@subsections;
 	#
 	# 連続する空行を1つの空行にする。特殊ブロックをブロックとして切り出す。
 	#
@@ -220,11 +218,13 @@ sub parse_special_block {
 				my $scount = $#sections+2;
 				my $name   = "$self->{unique_linkname}p" . $scount;
 				$anchor =~ s/%n/$scount/g;
+				$subsections = [];
 				push(@sections, {
 					name => $name,
-					title => $text,
+					title => $self->parse_oneline($text),
 					anchor => $anchor,
-					section_count => $scount
+					section_count => $scount,
+					children => $subsections
 				});
 				if ($self->{span_sanchor}) {
 					$text = "<span class=\"sanchor\">$anchor</span>$text";
@@ -234,15 +234,14 @@ sub parse_special_block {
 				}
 			} elsif ($level==2) {	# [S] h4
 				my $anchor = $self->{subsection_anchor};
-				my $scount = $#sections+1;
-				my $ss_ary = $subsections[$scount] ||= [];
-				my $sscount= $#$ss_ary +2;
+				my $scount = $#sections     +1;
+				my $sscount= $#$subsections +2;
 				my $name   = "$self->{unique_linkname}p" . "$scount.$sscount";
 				$anchor =~ s/%n/$scount/g;
 				$anchor =~ s/%s/$sscount/g;
-				push(@$ss_ary, {
+				push(@$subsections, {
 					name => $name,
-					title => $text,
+					title => $self->parse_oneline($text),
 					anchor => $anchor,
 					section_count => $scount,
 					subsection_count => $sscount
@@ -568,7 +567,7 @@ sub parse_block {
 		#----------------------------------------------
 		# 続きを読む記法
 		#----------------------------------------------
-		if ($seemore && $self->{satsuki_seemore} && ($x eq '====' || $x eq '=====')) {
+		if ($blank && $seemore && $self->{satsuki_seemore} && ($x eq '====' || $x eq '=====')) {
 			$self->p_block_end(\@ary, \@p_block);
 			push(@ary, <<TEXT);
 <p class="seemore"><a class="seemore" href="$self->{thisurl}">$self->{seemore_msg}</a></p><!--%SeeMore%-->\x02
@@ -651,6 +650,12 @@ sub p_block_end {
 #------------------------------------------------------------------------------
 # ●[03] インライン記法の処理
 #------------------------------------------------------------------------------
+sub parse_oneline {
+	my ($self, $text) = @_;
+	my $lines = $self->parse_inline( [$text] );
+	return $lines->[0];
+}
+
 sub parse_inline {
 	my ($self, $lines) = @_;
 

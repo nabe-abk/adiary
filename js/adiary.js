@@ -856,6 +856,9 @@ initfunc.push( function(R){
 	ary.dblclick(function(evt) {
 		location.href = $(evt.target).attr('href');
 	});
+	R.findx('.js-alt-hover li a').bind("touchmove", function(evt) {
+		location.href = $(evt.target).attr('href');
+	});
 });
 
 //////////////////////////////////////////////////////////////////////////////
