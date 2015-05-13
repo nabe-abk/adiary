@@ -1,0 +1,96 @@
+<@6>
+<@>----------------------------------------------------------------------------
+<@>スマホ用アルバム画面
+<@>----------------------------------------------------------------------------
+
+<!-- フォルダツリー ========================================================-->
+<article class="system" id="sp-album-folder">
+<h2 class="dynatree-ico-ef">フォルダ</span><span class="help" data-help="スワイプでフォルダ名を変更できます。キャンセル時はフォルダ一覧の外をタップしてください。">?</span></h2>
+<div class="body">
+	<div id="album-folder-tree"  data-url="<@Basepath><@v.blogpub_dir>images.json" data-url-base="<@Basepath><@v.blogimg_dir()>"></div>
+	<button type="button" id="album-new-folder">フォルダ作成</button>
+	<button type="button" id="album-move-folder">フォルダ移動</button>
+	<button type="button" id="album-clear-trashbox">ゴミ箱を空に</button>
+</div>
+</article>
+
+<@>----------------------------------------------------------------------------
+
+<article class="system" id="sp-album">
+<h2 class="dynatree-ico-ef"><span id="folder-icon"></span><span id="current-folder">(no load)</span></h2>
+<div class="body">
+	<div id="album-header">
+		<div>
+			<span class="help" data-help="ダブルタップすると大きな画像を見ることができます。">?</span>
+			<input type="checkbox" id="all-select"><label>全選択</label>
+		</div>
+		<div class="view-option">
+			<span class="option-item">最大サイズ
+			<select id="thumb-maxsize" class="r js-save">
+				<option value=" 20"> 20px</option>
+				<option value=" 40"> 40px</option>
+				<option value=" 60" selected> 60px</option>
+				<option value=" 80"> 80px</option>
+				<option value="100">100px</option>
+				<option value="120">120px</option>
+				<option value="160">160px</option>
+				<option value="200">200px</option>
+			</select>
+			</span>
+		</div>
+		<input type="hidden" id="view-type" value="thumb">
+		<input type="hidden" id="sort-type" value="name">
+		<input type="hidden" id="sort-rev"  value="0">
+	</div>
+	<div id="album-folder-view"></div>
+
+	<form action="<@v.myself>?edit" method="POST" id="paste-form" data-tag="[file:%e:%d:%f:%f]" data-exif-tag=":#[exif:%d:%f:<@if(v.blog.exif_tag, v.blog.exif_tag, '%271 %272 / %37386mm F%33437 %33434sec ISO%34855')>]">
+	<input type="hidden" name="action" value="etc/dummy">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<input type="hidden" name="paste_txt" value="" id="paste-txt">
+	<button type="submit" id="paste-thumbnail" data-tag="[image:S:%d:%f:%f%c]">サムネイルを記事に</button>
+	<button type="submit" id="paste-original"  data-tag="[image:L:%d:%f:%f%c]">元画像を記事に</button><br><br>
+	<button type="button" id="remake-thumbnail">サムネ再生成</button><span class="help" data-help="選択した画像のサムネイルを、下で指定したサイズで再生成します。「Exifの削除」がチェックされていれば、同時にExif削除も行います。">?</span>
+	<button type="submit" id="album-move-files" data-tag="[image:S:%d:%f:%f%c]">ファイルを移動</button>
+	</form>
+
+	<section>
+	<!--========================================================================-->
+	<h3>アップロード</h3>
+	<div class="messages" id="upload-messages" style="display: none;"><@join("\n", Message)></div>
+
+	<form action="<@v.myself>?etc/ajax_dummy" method="POST" enctype="multipart/form-data" id="upload-form" target="form_response">
+	<input type="hidden" name="action" value="<@v.skel_dir>upload_form">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<input type="hidden" name="folder" value="" id="upload-folder">
+	<div id="dnd-files"></div><div id="file-elements"><input type="file" name="file0_ary" multiple id="file"></div>
+	<button type="submit" id="upload">upload</button>
+	サムネイル<select id="thumbnail-size" class="r js-save">
+			<option value=" 60"> 60px</option>
+			<option value="100">100px</option>
+			<option value="120" selected>120px</option>
+			<option value="160">160px</option>
+			<option value="240">240px</option>
+			<option value="320">320px</option>
+			<option value="400">400px</option>
+			<option value="480">480px</option>
+	</select>
+	<span id="delete-exif-box"><input type="checkbox" id="delete-exif" class="js-save" name="del_exif" value="1"><label>Exif削除</label><span class="help" data-help="アップロード時、JPEG画像に含まれるExifなどの情報を削除します。またサムネイル再生成時にもExif削除を行えます。">?</span></span>
+	</form>
+	</section>
+
+	<!-- 許可拡張子 -->
+	<br>
+	<input type="checkbox" class="js-switch" data-target="#upload-information"><label>最大サイズ、拡張子情報</label>
+	<section id="upload-information">
+	<div>最大サイズ : <@(v.uplaod_files_max>>20)>MB</div>
+	<div>画像拡張子 : <@join(' ', sort_str(keys(v.album_image_ext)))></div>
+	<$call('album/_load_extensions')>
+	<$x = copy(v.album_allow_ext)><$delete(x.('.'))><$delete(x.('..'))>
+	<div>許可拡張子 : <@join(' ', sort_str(keys(x)))></div>
+	</section>
+</div>
+</article>
+
+<div style="display: none" id="move-dialog" data-title="移動先を選択" data-ok="移動する" data-cancel="キャンセル">
+</div>

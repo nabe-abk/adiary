@@ -16,6 +16,8 @@
 //	date	UTC
 //	isImg	画像ファイルか？ true/false
 //
+var DialogWidth;	// adiary.jsの参照
+
 $( function(){
 	var main = $('#album');
 	var form = $secure('#album-form');
@@ -50,15 +52,22 @@ $( function(){
 	var dnd_div  = $('#dnd-files');
 	var upfiles  = [];
 
+	// スマホ画面用
+	var view_check  = $('#view-check');
+	var move_dialog = $('#move-dialog');
+
 	var isMac = /Mac/.test(navigator.platform);
 	var isIE8 = ('IE'.substr(-1) === 'IE');
 	if (isIE8) thumb_size.prop('disabled', true);
 	if (isIE8) $('#auto-upload-box').hide();
 
+	var isSphone = $('#sp-alubm').length;
+
 //////////////////////////////////////////////////////////////////////////////
 // ●初期化処理
 //////////////////////////////////////////////////////////////////////////////
 tree.dynatree({
+	autoFocus: false,
 	persist: true,
 	cookieId: 'album:' + Vmyself,
 	minExpandLevel: 2,
@@ -80,6 +89,10 @@ tree.dynatree({
 			data.title    = get_title(data);
 			data.expand   = true;
 			data.isFolder = true;
+			
+			$(node.span).on("mydbltap", function(evt) {
+				edit_node(node);
+			});
 		});
 		var rnodes = rootNode.getChildren();
 		if (!rnodes) return;	// エラー回避
@@ -261,7 +274,7 @@ function edit_node( node ) {
 	if (node.data.fix) return;	// root and ゴミ箱
 
 	var ctree = node.tree;
-	ctree.$widget.unbind();		// Disable dynatree mouse - and key handling
+	ctree.$widget.unbind();			// ツリーのバインドを外す
 	var name = node.data.name;
 	name = name.substr(0, name.length-1);	// 201201/ to 201201
 
@@ -314,7 +327,7 @@ function edit_node( node ) {
 //-------------------------------------------
 function rename_folder(obj, node, name) {
 	if (name.rsubstr(1) != '/') name += '/';
-	if (node.data.name === name) {
+	if (name == '' || node.data.name === name) {
 		obj.blur();	// 変更なし
 		return;
 	};
@@ -535,7 +548,7 @@ function update_selected_files() {
 	$('#paste-thumbnail' ).prop('disabled', bool);
 	$('#paste-original'  ).prop('disabled', bool);
 	$('#remake-thumbnail').prop('disabled', bool);
-	
+	$('#album-move-files').prop('disabled', bool);
 }
 
 //----------------------------------------------------------------------------
@@ -825,6 +838,9 @@ function update_view(flag, selected) {
 		});
 		img.click( img_click );
 		img.dblclick( img_dblclick );
+		img.on('mydbltap', img_dblclick );	// ダブルタップ
+		img.data('isimg', file.isImg);
+
 		if (selected[file.name]) img.addClass('selected');
 		link.append(img);
 		view.append(link);
@@ -866,6 +882,8 @@ function update_view(flag, selected) {
 		span.click( img_click );
 		span.data('href', link.attr('href') );	// for CTRL + click
 		span.dblclick( img_dblclick );
+		span.data('isimg', file.isImg);
+
 		if (selected[file.name]) span.addClass('selected');
 		link.append(span);
 		view.append(link);
@@ -874,6 +892,12 @@ function update_view(flag, selected) {
 		span.draggable( img_draggable_option );
 		span.draggable( { opacity: img_draggable_option.opacity_text } );
 	  }
+	}
+	// file not found.
+	if (cur_files.length == 0) {
+		var div = $('<div>').addClass('file-not-found');
+		div.text('(File not found)')
+		view.append( div );
 	}
 
 	//-----------------------------------------------
@@ -889,6 +913,13 @@ function update_view(flag, selected) {
 			dbl_click = false;
 			return;
 		}
+
+		// スマホ用見るボタン
+		if (view_check.prop('checked')) {
+			evt.preventDefault()
+			return img_dblclick(evt);
+		}
+
 		if (evt.ctrlKey) {
 			// download させる
 			evt.stopPropagation();
@@ -950,7 +981,9 @@ function update_view(flag, selected) {
 	// 画像のダブルクリック
 	//-----------------------------------------------
 	function img_dblclick(evt) {
+		console.log("image dobule click");
 		var obj = $(evt.target);
+		if (!obj.data('isimg')) return;
 		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
 		dbl_click = true;
 		obj.click();
@@ -969,7 +1002,7 @@ if (thumb_size.val() != 120) thumb_size_change();
 var apeend_style;
 function thumb_size_change() {
 	var size = Number( thumb_size.val() );
-	if (size<60 || 320<size) return;
+	if (size<20 || 320<size) return;
 	if (IE8) return;
 
 	if (apeend_style) apeend_style.remove();
@@ -1106,6 +1139,42 @@ $('#select-exifjpeg').click(function(){
 });
 
 //############################################################################
+// ■スマホ関連処理
+//############################################################################
+//////////////////////////////////////////////////////////////////////////////
+// ●ドラッグ＆ドロップ
+//////////////////////////////////////////////////////////////////////////////
+$('#album-move-folder').click(function(){
+
+});
+
+$('#album-move-files').click(function(){
+	var div = move_dialog;
+	var buttons = {};
+
+
+		
+		
+		
+		
+
+	buttons[ div.data('ok')     ] = function(){
+		
+	};
+	buttons[ div.data('cancel') ] = function(){
+		div.dialog('close');
+	};
+
+	div.dialog({
+		modal: true,
+		minWidth:  240,
+		minHeight: 100,
+		title: div.data('title'),
+		buttons: buttons
+	});
+});
+
+//############################################################################
 // ■ファイルアップロード関連
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
@@ -1203,18 +1272,15 @@ input_change();
 // ●ファイルアップロード : submit
 //////////////////////////////////////////////////////////////////////////////
 upform.submit(function(){
-	// ajaxで処理？
-	if (upfiles.length) {
-		for(var i=0; i<upfiles.length; i++)
-			if (upfiles[i]) return ajax_upload();
-	}
-
 	// ファイルがセットされているか確認
-	var flag = false;
+	var flag = upfiles.length;	// upfiles = DnDでのファイル
 	inputs.each(function(num, obj){
 		if ($(obj).val() != '') flag=true;
 	});
 	if (!flag) return false;
+
+	// ajaxで処理
+	if (window.FormData) return ajax_upload();
 
 	// submit処理
 	iframe.unbind();
@@ -1254,6 +1320,8 @@ function ajax_upload() {
 		if (!upfiles[i]) continue;
 		fd.append('file_ary', upfiles[i]);
 	}
+	// for IE bug。これをしないとフォームからのみファイルupしたとき失敗する
+	fd.append('dummy', 'dummy');
 
 	// submit処理
 	$.ajax(upform.attr('action'), {

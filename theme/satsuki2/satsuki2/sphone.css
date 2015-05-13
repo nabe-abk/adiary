@@ -6,27 +6,30 @@
 /*--------------------------------------------------------------------
 ■全体配置
 ---------------------------------------------------------------------*/
+#body {
+	min-width:		0;
+}
 div.main {
 	margin-left:		0;
 	margin-right:		0;
 	padding:		0;
 }
-#adiary-body {
-	width:			auto;
-}
 #hatena-body {
+	position:		static;
 	margin:			0 8px 0 6px;
 	width:			auto;
-	max-height:		auto;
+	max-height:		none;
 }
 #sidebar, #side-a, #side-b {
-	margin:			0px;
+	position:		static;
+	margin:			0;
+	left:			auto;
+	top:			auto;
 	width:			auto;
-	position:		relative;
-	left:			0px;
-	top:			0px;
 }
-
+#sidebar {
+	margin-top:		2em;
+}
 /*--------------------------------------------------------------------
 ■ヘッダ、フッタ
 ---------------------------------------------------------------------*/
@@ -49,11 +52,16 @@ div.main {
 		 3px  3px 2px #999;
 }
 /* 検索ボックスボタン */
+#sp-head-search {
+	padding:		3px 4px 4px 4px;
+	border-radius:		4px;
+	background-color:	rgba(255,255,255,0.4);
+}
 #sp-head-search .search-btn {
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
 }
 
-
+/* フッター */
 #footer {
 	margin-bottom:		1em;
 }
@@ -94,20 +102,20 @@ span.switch-icon {
 /*--------------------------------------------------------------------
 ■記事部の設定
 ---------------------------------------------------------------------*/
-#body {
+#adiary-body {
 	word-wrap:		break-word;
 }
 
-#body img,
-#body figure {
+#adiary-body img,
+#adiary-body figure {
 	max-width:		100%;
 	height:			auto;
 	float:			none;
 }
-#body textarea,
-#body input,
-#body video,
-#body audio {
+#adiary-body textarea,
+#adiary-body input,
+#adiary-body video,
+#adiary-body audio {
 	max-width:		100%;
 }
 
@@ -183,8 +191,8 @@ nav.tree {
 nav.tree span.items {
 	display:		block;
 }
-#body .main input,
-#body .main textarea {
+#adiary-body .main input,
+#adiary-body .main textarea {
 	max-width:		100%;
 }
 

@@ -243,7 +243,7 @@ function start_edit(){
 	$('#edit').find('form, button:not(.helper), input, select').prop('disabled', false);
 
 	// ページを離れるときにunlock	※IE8では無効
-	$(window).bind('unload', function(){
+	$(window).on('unload', function(){
 		console.log('ajax_unlock');
 		ajax_edit_lock('ajax_lock', function(){}, 1);
 	});

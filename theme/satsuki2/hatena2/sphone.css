@@ -120,20 +120,20 @@ span.switch-icon {
 /*--------------------------------------------------------------------
 ■記事部の設定
 ---------------------------------------------------------------------*/
-#body {
+#adiary-body {
 	word-wrap:		break-word;
 }
 
-#body img,
-#body figure {
+#adiary-body img,
+#adiary-body figure {
 	max-width:		100%;
 	height:			auto;
 	float:			none;
 }
-#body textarea,
-#body input,
-#body video,
-#body audio {
+#adiary-body textarea,
+#adiary-body input,
+#adiary-body video,
+#adiary-body audio {
 	max-width:		100%;
 }
 
@@ -153,7 +153,7 @@ article div.body {
 /*--------------------------------------------------------------------
 ○table, blockquote, pre
 ---------------------------------------------------------------------*/
-#body article.system {
+#adiary-body article.system {
 	padding:		6px;
 }
 article.system div.body {

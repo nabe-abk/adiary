@@ -61,7 +61,7 @@
 <@> スクリプトをロード
 <$v.regist_js("<@v.script_dir>edit.js")>
 
-<@ifexec(!edit_pkey, begin)>
+<@ifexec(!edit_pkey && !form_.paste_txt, begin)>
 <@><!--下書きのロード=======================================================-->
 <$logs2 = v.load_arts_list( { draft_only => 1} )>
 <$logs = []>

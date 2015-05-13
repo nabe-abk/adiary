@@ -74,7 +74,7 @@
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
 <@v.extra_header>
 </head>
-<body id="body" class="<@if(v.blog_admin, 'blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system')>">
+<body id="body" class="<@if(v.blog_admin, 'blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system')><@if(v.sphone,' sp')>">
 <@>bodyにブラウザ別クラスを設定するためのスクリプト呼び出し
 <script>set_browser_class_into_body();</script>
 <@>

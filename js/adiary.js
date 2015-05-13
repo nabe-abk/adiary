@@ -5,14 +5,15 @@
 //[TAB=8]  require jQuery
 'use strict';
 var DialogWidth = 640;
-var default_show_speed = 300;
-var popup_offset_x = 15;
-var popup_offset_y = 10;
+var DefaultShowSpeed = 300;
+var DoubleTapTime = 400;
+var PopupOffsetX  = 15;
+var PopupOffsetY  = 10;
 var IE67=false;
 var IE8=false;
 var IE9=false;
-var SP;
-var Vmyself;	// _frame.html で設定される
+var SP;		// adiary内部がスマホモード
+var Vmyself;	// _frame.html で設定される 
 var Storage;
 var SettedBrowserClass;
 var _gaq;
@@ -64,6 +65,8 @@ if (!String.prototype.trim ) String.prototype.trim = function(){
 //////////////////////////////////////////////////////////////////////////////
 // この関数は、いち早く設定するためにHTMLから直接呼び出す
 function set_browser_class_into_body() {
+	SettedBrowserClass=true;
+
 	var x = [];
 	var ua = navigator.userAgent;
 
@@ -80,21 +83,24 @@ function set_browser_class_into_body() {
 	if (m && m[1]<10) IE9=true;
 
 	// スマホ
-	SP=true;
+	var sp=true;
 	     if (ua.indexOf('Android') != -1) x.push('android');
 	else if (ua.indexOf('iPhone')  != -1) x.push('iphone');
 	else if (ua.indexOf('iPad')    != -1) x.push('iphone');
 	else if (ua.indexOf('BlackBerry')    != -1) x.push('berry');
 	else if (ua.indexOf('Windows Phone') != -1) x.push('wp');
-	else SP=false;
-	if (SP) {
-		x.push('SP');
-		DialogWidth = 360;
+	else sp=false;
+	if (sp) x.push('SP');
+
+	// adiary内部のスマホモード検出
+	var body = $('#body');
+	if (body.hasClass('sp')) {
+		SP = 1;
+		DialogWidth = 320;
 	}
 
 	// bodyにクラス設定する
-	$('#body').addClass( x.join(' ') );
-	SettedBrowserClass=true;
+	body.addClass( x.join(' ') );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -152,24 +158,24 @@ $(function(){
 //############################################################################
 //■jQuery拡張
 //############################################################################
+$.fn.extend({
 //////////////////////////////////////////////////////////////////////////////
 //●[jQuery] ディレイ付showとhide
 //////////////////////////////////////////////////////////////////////////////
-$.fn.delay_show = function(){
+delay_show: function(){
 	var args = Array.prototype.slice.call(arguments);
-	args[0] = (args[0] == undefined) ? default_show_speed : args[0];
+	args[0] = (args[0] == undefined) ? DefaultShowSpeed : args[0];
 	return $.fn.show.apply(this, args);
-};
-$.fn.delay_hide = function(){
+},
+delay_hide: function(){
 	var args = Array.prototype.slice.call(arguments);
-	args[0] = (args[0] == undefined) ? default_show_speed : args[0];
+	args[0] = (args[0] == undefined) ? DefaultShowSpeed : args[0];
 	return $.fn.hide.apply(this, args);
-};
-
+},
 //////////////////////////////////////////////////////////////////////////////
-//●[jQuery] 自分自身と子要素から探す findx という拡張をする
+//●[jQuery] 自分自身と子要素から探す findx
 //////////////////////////////////////////////////////////////////////////////
-$.fn.findx = function(sel){
+findx: function(sel){
 	var x = $.fn.filter.apply(this, arguments);
 	var y = $.fn.find.apply  (this, arguments);
 	x = x.add(y);
@@ -184,8 +190,33 @@ $.fn.findx = function(sel){
 		r.push(x[i]);
 	}
 	return $(r);
+},
+//////////////////////////////////////////////////////////////////////////////
+});
+//////////////////////////////////////////////////////////////////////////////
+//●[jQuery] ダブルタップイベント
+//////////////////////////////////////////////////////////////////////////////
+$.event.special.mydbltap = {
+	setup: function(){
+		var flag;
+		var mouse;
+		$(this).on('click', function(){
+			if (flag) {
+				flag = false;
+				// タッチイベントが起きてない時は
+				// マウスダブルクリックの可能性があるので発火しない
+				if (mouse) return;
+				return $(this).trigger('mydbltap');
+			}
+			flag  = true;
+			mouse = true;
+			setTimeout( function(){ flag = false; }, DoubleTapTime);
+		});
+		$(this).on('touchstart', function(){
+			mouse = false;
+		});
+	}
 };
-
 //////////////////////////////////////////////////////////////////////////////
 //●[jQuery] find でのエラーを無視する
 //////////////////////////////////////////////////////////////////////////////
@@ -276,12 +307,12 @@ function easy_popup(evt) {
 	var do_popup = function(evt) {
 		if (div.is(":animated")) return;
 		func(obj, div);
-	  	div.css("left", evt.pageX +popup_offset_x);
-	  	div.css("top" , evt.pageY +popup_offset_y);
+	  	div.css("left", evt.pageX +PopupOffsetX);
+	  	div.css("top" , evt.pageY +PopupOffsetY);
 		div.delay_show();
 	};
 
-	var delay = obj.data('delay') || default_show_speed;
+	var delay = obj.data('delay') || DefaultShowSpeed;
 	if (!delay) return do_popup(evt);
 	obj.data('timer', setTimeout(function(){ do_popup(evt) }, delay));
 }
@@ -458,7 +489,7 @@ initfunc.push( function(R){
 		var target = myfind(id);
 		if (!target.length || !target.is) return false;
 		var speed  = btn.data('switch-speed');
-		speed = (speed === undefined) ? default_show_speed : parseInt(speed);
+		speed = (speed === undefined) ? DefaultShowSpeed : parseInt(speed);
 		speed = init ? 0 : speed;
 
 		// スイッチの状態を保存する
@@ -565,10 +596,10 @@ initfunc.push( function(R){
 			});
 			obj.ColorPickerSetColor( obj.val() );
 		});
-		cp.bind('keyup', function(evt){
+		cp.on('keyup', function(evt){
 			$(evt.target).ColorPickerSetColor(evt.target.value);
 		});
-		cp.bind('keydown', function(evt){
+		cp.on('keydown', function(evt){
 			if (evt.keyCode != 27) return;
 			$(evt.target).ColorPickerHide();
 		});
@@ -866,8 +897,8 @@ initfunc.push( function(R){
 	ary.dblclick(function(evt) {
 		location.href = $(evt.target).attr('href');
 	});
-	// スワイプ操作でリンクを開く
-	R.findx('.js-alt-hover li a').bind("touchmove", function(evt) {
+	// タブルタップでリンクを開く
+	R.findx('.js-alt-hover li a').on('mydbltap', function(evt) {
 		location.href = $(evt.target).attr('href');
 	});
 });
@@ -904,8 +935,8 @@ $( function(){
 
 		link.mouseover(function() {
 			popup.html( com.html() );
-		  	popup.css("top" , link.offset().top  +popup_offset_y);
-		  	popup.css("left", link.offset().left +popup_offset_x);
+		  	popup.css("top" , link.offset().top  +PopupOffsetY);
+		  	popup.css("left", link.offset().left +PopupOffsetX);
 			popup.delay_show();
 		});
 		link.mouseout(function() {

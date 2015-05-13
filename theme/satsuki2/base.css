@@ -317,6 +317,11 @@ div.body-footer {
 	line-height:	120%;
 }
 
+/* lightbox */
+#lightbox-min-width {
+	width:		480px;
+}
+
 /*--------------------------------------------------------------------
 ●リサイズ用の部品
 ---------------------------------------------------------------------*/
@@ -522,6 +527,12 @@ ul.menu {
 }
 #folder-tree li * {
 	vertical-align:		middle;
+}
+/* ファイルなし */
+#album-folder-view div.file-not-found {
+	font-size:		12pt;
+	font-weight:		bold;
+	padding: 		1em 1em 0 1em;
 }
 
 /* アルバムタイトル */
@@ -826,6 +837,28 @@ h3.ui-accordion-header {
 	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
 }
 */
+
+/*####################################################################
+●スマホ全般
+####################################################################*/
+/* システムモードでは sidebar 非表示 */
+.system.sp #sidebar {
+	display:		none;
+}
+/* lightbox 最小画像サイズ */
+.sp #lightbox-min-width {
+	display:		none;
+	width:			300px;
+}
+
+/* 画像アルバム */
+#sp-album-folder #album-folder-tree > ul {
+	min-height:		0;
+}
+#sp-album #album-folder-view {
+	min-height:		60px;
+}
+
 
 /*--------------------------------------------------------------------
 ●スマホ用検索ボックス

@@ -196,7 +196,7 @@ sub make_thumbnail_for_image {
 	my $ROBJ = $self->{ROBJ};
 
 	# リサイズ
-	if ($size < 64)  { $size= 64; }
+	if ($size <  60) { $size= 60; }
 	if (800 < $size) { $size=800; }
 
 	# print "0\n";
