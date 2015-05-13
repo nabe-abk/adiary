@@ -43,7 +43,11 @@
 	<$art.wiki    = s.wiki>
 	<$art.parser  = s.parser>
 <$end>
+
+<@> 画面タイトル
 <$ifset(!edit_pkey, v.title, '記事の作成')>
+<@> 保存ボタンの名前
+<$save_btn_name = if(edit_pkey, '編集内容を保存', '新規に保存')>
 
 <@> エラーなら表示して終了
 <$ifjump_clear(@Message, '_sub/error_message', undef, 'ブラウザの戻るボタンで戻ってください')>
@@ -57,11 +61,12 @@
 <@> スクリプトをロード
 <$v.regist_js("<@v.script_dir>edit.js")>
 
+
 <@><!--下書きのロード=======================================================-->
 <$logs2 = v.load_arts_list( { draft_only => 1} )>
 <$logs = []>
 <$forexec(t, logs2, begin)>
-	<$ifpush(v.check_editor(t), logs, t)>
+	<$ifpush(edit_pkey != t.pkey && v.check_editor(t), logs, t)>
 <$end>
 <@ifexec(@logs, begin)>
 <article class="system notice" id="draft-notice">
@@ -168,7 +173,7 @@
 	<@ifexec(!edit_pkey || art.draft, begin)>
 	<button type="submit" name="draft" value="1" id="save-draft">下書き保存</button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
 	<$end>
-	<button type="submit" name="edit" id="save-normal" value="1"><@if(edit_pkey, '編集内容を保存', '新規に保存')></button>
+	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_name></button>
 
 	<!--===============================================================-->
 	<input type="hidden" name="checkbox.info" value="enable">
@@ -203,7 +208,7 @@
 		<li><a href="<@v.myself>?etc/allow_tags&amp;n=article" target="_blank">※使用可能なHTMLタグ一覧</a></li>
 	</ul>
 
-	<button type="submit" name="edit" id="save-last" value="1"><@if(edit_pkey, '編集内容を保存', '新規に保存')></button>
+	<button type="submit" name="edit" id="save-last" value="1"><@save_btn_name></button>
 </form>
 <@ifexec(edit_pkey, begin)>
 	<ul class="checkbox">

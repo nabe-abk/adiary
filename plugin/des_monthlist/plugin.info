@@ -12,7 +12,7 @@ module_type=sidebar
 
 module_id=side-month-list
 
-# スマホメニューに使える
+# スマホメニュー対応
 sphone_menu=1
 
 *sample_html=<<HTML

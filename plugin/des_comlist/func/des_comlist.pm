@@ -24,7 +24,12 @@ sub {
 		$_->{day}  = substr($ymd, 6, 2);
 	}
 
+	# スケルトンの実行と保存
 	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/recent_comment', $name, $ary));
+
+	# spmenu再生成
+	$self->generate_spmenu( $name );
+
 	return 0;
 }
 

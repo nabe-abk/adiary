@@ -11,7 +11,7 @@ adiary_version=2.94
 module_type=main,header
 load_module_html_in_edit=1
 
-# スマホメニューに使える
+# スマホメニュー対応
 sphone_menu=1
 
 *sample_html=<<HTML

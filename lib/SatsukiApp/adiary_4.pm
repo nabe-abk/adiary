@@ -1632,7 +1632,7 @@ sub save_spmenu_items {
 	$ROBJ->tag_escape($title);
 	$self->update_cur_blogset('spmenu_title', $title);
 
-	return $self->genereate_spmenu();
+	return $self->generate_spmenu();
 }
 
 #------------------------------------------------------------------------------
@@ -1647,29 +1647,44 @@ sub load_spmenu_info {
 	my @ary2;
 	my $f;
 	foreach(@ary) {
+		chomp($_);		# $_に処理しないように
 		my ($name,$title) = split(/=/, $_, 2);
-		chomp($title);		# $_に処理しないように
-		if (!$blog->{"p:$name:html"}) {
-			$f=1;
-			$_='';
-			next;
-		}
 		push(@ary2, {
 			name  => $name,
 			title => $title
 		});
 	}
+	return \@ary2;
+}
+
+#------------------------------------------------------------------------------
+# ●スマホメニューの項目が消えていないか確認
+#------------------------------------------------------------------------------
+sub check_spmenu_items {
+	my $self = shift;
+	my $blog = $self->{blog};
+
+	my $ary = $self->load_spmenu_info();
+	my $f;
+	my $info='';
+	foreach(@$ary) {
+		my $n = $_->{name};
+		if (!$blog->{"p:$n:html"}) {
+			$f=1;
+			next;
+		}
+		$info .= "$n=$_->{title}\n";
+	}
 	if ($f) {	# 消えているモジュールがある
-		$info = join('', @ary);
+		chomp($info);
 		$self->update_cur_blogset('spmenu_info', $info);
 	}
-	return \@ary2;
 }
 
 #------------------------------------------------------------------------------
 # ●スマホメニューの生成
 #------------------------------------------------------------------------------
-sub genereate_spmenu {
+sub generate_spmenu {
 	my $self = shift;
 	my $blog = $self->{blog};
 

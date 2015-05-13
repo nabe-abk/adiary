@@ -13,7 +13,7 @@ load_module_html_in_edit=1
 
 module_id=side-tag-list
 
-# スマホメニューに使える
+# スマホメニュー対応
 sphone_menu=1
 
 *sample_html=<<HTML
@@ -57,6 +57,7 @@ FILES
 *events=<<EVENTS
 TAG_STATE_CHANGE=func/<@this>.pm
 SETTING=func/<@this>.pm
+SETTING=skel/_sub/generate_spmenu
 INSTALL=func/<@this>.pm
 UNINSTALL=func/<@this>-uninstall.pm
 EVENTS

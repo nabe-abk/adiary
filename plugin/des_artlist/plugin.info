@@ -13,7 +13,7 @@ load_module_html_in_edit=1
 
 module_id=side-recent-article
 
-# スマホメニューに使える
+# スマホメニュー対応
 sphone_menu=1
 
 *sample_html=<<HTML

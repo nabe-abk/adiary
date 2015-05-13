@@ -24,7 +24,7 @@ h1
 	font-size:		20pt;
 	font-weight:		normal;
 	line-height:		100%;
-	border-bottom:		2px solid #2133a9;	/* $c=border */
+	border-bottom:		2px solid #6b75b8;	/* $c=border */
 	padding:		0 0.5em;
 	margin:			0.6em 0 0 0;
 }
@@ -66,7 +66,7 @@ div.main {
 /* フッタの配置 */
 #footer
 {
-	border-top:		2px solid #2133a9;	/* $c=border */
+	border-top:		2px solid #6b75b8;	/* $c=border */
 	text-align:		right;
 	margin:			30px 0 10px 0;
 	padding:		0 1em;
@@ -187,7 +187,7 @@ a.next-page:after {
 article, #article-body {
 	margin-bottom:		1.5em;
 	border-radius:		8px;
-	box-shadow:		4px 4px 4px 4px rgba(0,0,0, 0.3);
+	box-shadow:		4px 4px 3px 3px rgba(0,0,0, 0.3);
 }
 #article {
 	box-shadow:		none;
@@ -195,12 +195,12 @@ article, #article-body {
 
 /* 記事タイトル */
 article h2 {
-	background-color:	#93b3ff;		/* $c=main */
+	background-color:	#adb8ff;		/* $c=main */
 	padding:		2px 8px 2px 8px;
 	font-size:		100%;
 	margin:			0px;
 
-	border:			2px solid #2133a9;	/* $c=border */
+	border:			2px solid #6b75b8;	/* $c=border */
 	border-bottom:		none;
 	border-radius:		8px 8px 0 0;
 }
@@ -218,7 +218,7 @@ article div.body {
 	margin:			0px;
 	padding:		0.5em 1em 0.5em 1.5em;
 
-	border:			2px solid #2133a9;	/* $c=border */
+	border:			2px solid #6b75b8;	/* $c=border */
 	border-top:		none;
 	border-radius:		0 0 8px 8px;
 }
@@ -285,8 +285,8 @@ div.hatena-moduletitle {
 	margin:			0 0 0 0;
 	padding:		2px 0 2px 0;
 	text-align:		center;
-	background-color:	#93b3ff;		/* $c=main */
-	border-bottom:		1px solid #2133a9;	/* $c=border */
+	background-color:	#adb8ff;		/* $c=main */
+	border-bottom:		1px solid #6b75b8;	/* $c=border */
 	border-radius:		4px 4px 0px 0px;
 }
 div.hatena-modulebody {
@@ -356,7 +356,7 @@ div.body h3 {
 	font-size:		120%;
 	font-weight:		bold;
 	padding:		4px 0px 4px 8px;
-	border-left:		6px solid #2133a9;	/* $c=border */
+	border-left:		6px solid #6b75b8;	/* $c=border */
 	background-color:	#e8e8ff;		/* $c=h3bg=main2+#181818 */
 
 	border-radius:		0 6px 6px 0;
@@ -373,7 +373,7 @@ div.body h3 a.linkall {
 div.body h4 {
 	font-size:		100%;
 	font-weight:		bold;
-	border-bottom:		1px solid #2133a9;	/* $c=border */
+	border-bottom:		1px solid #6b75b8;	/* $c=border */
 }
 div.body h5 {
 	font-size:		100%;
@@ -396,7 +396,7 @@ div.body p {
 blockquote, pre, div.box {
 	margin:			0.5em 2em 0.5em 2em;
 	padding:		0.3em 1em 0.3em 1em;
-	border:			1px solid #2133a9;	/* $c=border */
+	border:			1px solid #6b75b8;	/* $c=border */
 	border-radius:		4px;
 }
 div.body blockquote p {
@@ -470,9 +470,9 @@ dt { font-weight:	bold; }
 	line-height:		150%;
 
 	border-radius:		8px;
-	border:			2px solid #2133a9;	/* $c=border */
+	border:			2px solid #6b75b8;	/* $c=border */
 	background-color:	#f4f4ff;		/* $c=combg=wikibg */
-	box-shadow:		4px 4px 4px 4px rgba(0,0,0, 0.3);
+	box-shadow:		4px 4px 3px 3px rgba(0,0,0, 0.3);
 }
 #com div.caption a {
 	font-weight:		bold;
@@ -490,7 +490,7 @@ div.comment-one {
 
 }
 div.commentator {
-	border-bottom:		1px solid #2133a9;	/* $c=border */
+	border-bottom:		1px solid #6b75b8;	/* $c=border */
 }
 div.comment-text {
 	margin-left:		2em;
@@ -828,12 +828,12 @@ article.edit span.tag:after {
 	padding:		0.5em 1em;
 
 	background-color:	#fff;
-	color:			#2133a9;		/* $c=fixhelpfont */
+	color:			#6b75b8;		/* $c=fixhelpfont */
 
 	font-size:		11pt;
 	/* font-weight:		bold; */
 
-	border:			2px solid #2133a9;	/* $c=border */
+	border:			2px solid #6b75b8;	/* $c=border */
 	border-radius:		10px;
 	box-shadow:		2px 2px 2px 2px rgba(60,60,60,0.75);
 }
@@ -864,16 +864,16 @@ article.edit span.tag:after {
 ---------------------------------------------------------------------*/
 .ui-dialog {
 	background-color:	#eeeeff;		/* $c=sysartbg */
-	border:			2px solid #2133a9;	/* $c=border */
+	border:			2px solid #6b75b8;	/* $c=border */
 	border-radius:		10px;
-	box-shadow:		4px 4px 4px 4px rgba(60,60,100,0.75);
+	box-shadow:		8px 8px 4px 4px rgba(60,60,100,0.75);
 	padding:		0;
 
 	font-size:		10.5pt;
 	line-height:		130%;
 }
 .ui-dialog .ui-widget-header {
-	background-color:	#93b3ff;		/* $c=main */
+	background-color:	#adb8ff;		/* $c=main */
 	font-weight:		bold;
 	font-size:		12pt;
 
@@ -926,7 +926,7 @@ article.jqueryui-tabs {
 	box-shadow:		none;
 }
 article.jqueryui-tabs div.body {
-	border-top:		2px solid #2133a9;	/* $c=border */
+	border-top:		2px solid #6b75b8;	/* $c=border */
 	border-radius:		10px;
 	box-shadow:		8px 8px 8px 8px rgba(0,0,0, 0.3);
 }
@@ -942,20 +942,20 @@ article.jqueryui-tabs div.body {
 .ui-tabs .ui-tabs-nav li {
 	border-radius:		10px 10px 0 0;
 	border:			2px solid #66c;		/* $c=btnborder */
-	border-bottom:		2px solid #2133a9;	/* $c=border */
+	border-bottom:		2px solid #6b75b8;	/* $c=border */
 	background-color:	#ccf;			/* $c=main2 */
 	margin-right:		0.4em;
 }
 .ui-tabs .ui-tabs-nav li:hover {
 	background-color:	#ddf;			/* $c=btnbg0 */
-	border-color:		#2133a9;		/* $c=border */
+	border-color:		#6b75b8;		/* $c=border */
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active {
 	margin-bottom:	-1px;
 	padding:	0px;
 	z-index:	999;
 
-	border:			2px solid #2133a9;	/* $c=border */
+	border:			2px solid #6b75b8;	/* $c=border */
 	border-bottom:		3px solid #eeeeff;	/* $c=sysartbg */
 	background-color:	#eeeeff;		/* $c=sysartbg */
 }
@@ -974,7 +974,7 @@ nav.tree {
 	line-height:		100%;
 	display:		block;
 
-	border:			1px solid #2133a9;	/* $c=border */
+	border:			1px solid #6b75b8;	/* $c=border */
 	margin-bottom:		1.5em;
 	padding:		0.5em 1em 0.5em 1.5em;
 
@@ -1016,7 +1016,7 @@ article h3.ui-accordion-header {
 	padding:		0;
 	margin:			0.5em 0;
 	max-width:		400px;
-	border:			1px solid #2133a9;	/* $c=border */
+	border:			1px solid #6b75b8;	/* $c=border */
 	position:		relative;
 	background-color:	#fff;
 }

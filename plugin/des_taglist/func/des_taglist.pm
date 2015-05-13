@@ -17,8 +17,12 @@ sub {
 	my $ary = $DB->select_match("${blogid}_art", 'tags', '', '*cols', 'pkey');
 	my $notag_arts = @$ary;
 
-	# スケルトンの実行
+	# スケルトンの実行と保存
 	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/taglist', $name, $tree, $notag_arts));
+
+	# spmenu再生成
+	$self->generate_spmenu( $name );
+
 	return 0;
 }
 

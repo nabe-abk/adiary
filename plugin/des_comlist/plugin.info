@@ -13,6 +13,9 @@ load_module_html_in_edit=1
 
 module_id=side-recent-comment
 
+# スマホメニュー対応
+sphone_menu=1
+
 *sample_html=<<HTML
 <div class="hatena-module" id="<@id>">
 <div class="hatena-moduletitle">最近のコメント</div>
@@ -49,6 +52,7 @@ FILES
 COMMENT_STATE_CHANGE=func/<@this>.pm
 INSTALL=func/<@this>.pm
 SETTING=func/<@this>.pm
+SETTING=skel/_sub/generate_spmenu
 UNINSTALL=func/<@this>-uninstall.pm
 EVENTS
 

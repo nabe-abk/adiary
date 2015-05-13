@@ -21,7 +21,7 @@ $SysEvt{ARTICLE_STATE_CHANGE} = [qw(
 	update_contents_list
 )];
 $SysEvt{_ARTICLE_STATE_CHANGE} = [qw(
-	genereate_spmenu
+	generate_spmenu
 )];
 $SysEvt{COMMENT_STATE_CHANGE} = [qw(
 	update_bloginfo_comment
@@ -29,14 +29,9 @@ $SysEvt{COMMENT_STATE_CHANGE} = [qw(
 $SysEvt{ARTCOM_STATE_CHANGE} = [qw(
 	generate_rss
 )];
-$SysEvt{_TAG_STATE_CHANGE} = [qw(
-	genereate_spmenu
-)];
-$SysEvt{PLUGIN_SETTING} = [qw(
-	genereate_spmenu
-)];
 $SysEvt{EDIT_DESIGN} = [qw(
-	genereate_spmenu
+	check_spmenu_items
+	generate_spmenu
 )];
 
 ###############################################################################
@@ -300,7 +295,6 @@ sub blogid_and_pinfo {
 		$self->{path_blogid} = $blogid;
 		$self->{others_blog} = ($blogid ne $authid) ? 1 : 0;
 	}
-
 }
 
 #------------------------------------------------------------------------------
