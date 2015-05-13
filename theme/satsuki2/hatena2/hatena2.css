@@ -819,12 +819,12 @@ button:disabled
 .ui-icon.ui-button {
 	border:                 1px solid #016;		/* $c=uiborder = link/2 */
 	border-radius:		4px;
-	background-color:       #eee;
+	background-color:       #ddf;			/* $c=btnbg0 */
 	margin:			0 1px;
 }
 
 .ui-icon.ui-button:hover {
-	background-color:       #bbb;
+	background-color:       #eef;			/* $c=btnbghover0 */
 	cursor:			pointer;
 }
 

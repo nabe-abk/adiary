@@ -35,14 +35,14 @@
 <!--検索ボックス============================================================-->
 <div id="sp-head-search">
 <form method="GET" action="<@v.myself>">
-<input type="search" class="search-box" name="q" value="" required><span type="submit" class="search-btn ui-icon ui-icon-search ui-button"></span>
+<input type="search" class="search-box" name="q" value="<@esc(Query.q)>" required><span class="search-btn ui-icon ui-icon-search ui-button js-submit"></span>
 <input type="hidden" name="all" value="1">
 </form>
 </div>
 
 <@ifexec(v.blogid && s.spmenu, begin)>
 <!--ドロップダウンメニュー=====================================-->
-<div class="dropdown-menu sp js-auto-width-stop js-alt-hover">
+<div class="dropdown-menu sp js-alt-hover">
 <@s.spmenu>
 </div>
 <$end>

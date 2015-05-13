@@ -25,8 +25,6 @@ div.main {
 	min-width:		1px;	/* for GC bugs */
 	max-width:		auto;
 }
-
-
 #sidebar {
 	float:			none;
 	margin:			0 4px;
@@ -65,8 +63,20 @@ h1
 {
 	font-weight:		normal;
 	line-height:		100%;
-	padding:		30px 6px;
+	padding:		30px 6px 24px 6px;
 	margin:			0;
+}
+
+/* 検索ボックス */
+#sp-head-search {
+	padding:		3px 4px 4px 4px;
+	border-radius:		4px;
+	background-color:	rgba(255,255,255,0.4);
+}
+#sp-header:after {
+	content:		"";
+	display:		block;
+	clear:			both;
 }
 
 /*--------------------------------------------------------------------

@@ -778,6 +778,16 @@ initfunc.push( function(R){
 	});
 });
 
+//////////////////////////////////////////////////////////////////////////////
+//●なんでもsubmitボタン
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R){
+	R.findx('.js-submit').click( function(evt){
+		var form = $(evt.target).parents('form');
+		$(form[0]).submit();
+	});
+});
+
 
 //////////////////////////////////////////////////////////////////////////////
 //●タブ機能
@@ -856,6 +866,7 @@ initfunc.push( function(R){
 	ary.dblclick(function(evt) {
 		location.href = $(evt.target).attr('href');
 	});
+	// スワイプ操作でリンクを開く
 	R.findx('.js-alt-hover li a').bind("touchmove", function(evt) {
 		location.href = $(evt.target).attr('href');
 	});
@@ -867,8 +878,6 @@ initfunc.push( function(R){
 initfunc.push( function(R){
 	R.findx('.js-auto-width').each(function(idx,dom) {
 		var obj = $(dom);
-		if (obj.parents('.js-auto-width-stop').length) return;
-
 		var ch = obj.children();
 		var width = 0;
 		for(var i=0; i<ch.length; i++)
