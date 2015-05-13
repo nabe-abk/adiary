@@ -47,7 +47,7 @@
 <@> 画面タイトル
 <$ifset(!edit_pkey, v.title, '記事の作成')>
 <@> 保存ボタンの名前
-<$save_btn_name = if(edit_pkey, '編集内容を保存', '新規に保存')>
+<$save_btn_text = '<span class="save-btn-title">編集して</span>' . if(edit_pkey, '保存', '作成')>
 
 <@> エラーなら表示して終了
 <$ifjump_clear(@Message, '_sub/error_message', undef, 'ブラウザの戻るボタンで戻ってください')>
@@ -61,7 +61,7 @@
 <@> スクリプトをロード
 <$v.regist_js("<@v.script_dir>edit.js")>
 
-
+<@ifexec(!edit_pkey, begin)>
 <@><!--下書きのロード=======================================================-->
 <$logs2 = v.load_arts_list( { draft_only => 1} )>
 <$logs = []>
@@ -81,6 +81,7 @@
 	<button type="button" id="open-template">テンプレートとして開く</button><span class="help" data-help="テンプレートとして開くと、編集・保存しても元にした下書きは残り続けます。">?</span>
 </div>
 </article>
+<$end>
 <$end>
 
 <@><!--下書きのロード=======================================================-->
@@ -173,7 +174,7 @@
 	<@ifexec(!edit_pkey || art.draft, begin)>
 	<button type="submit" name="draft" value="1" id="save-draft">下書き保存</button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
 	<$end>
-	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_name></button>
+	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_text></button>
 
 	<!--===============================================================-->
 	<input type="hidden" name="checkbox.info" value="enable">
@@ -185,7 +186,7 @@
 	<input type="hidden" name="checkbox.info" value="tw_ping">
 	<input type="hidden" name="checkbox.info" value="wiki">
 	<ul class="checkbox">
-		<li><input type="checkbox" name="enable" value="1"<@if(art.enable, ' checked')>><label>記事を公開</label><span class="help" data-help="公開設定に関わらず、下書きは公開されません">?</span></li>
+		<li><input type="checkbox" name="enable" value="1"<@if(art.enable, ' checked')> id="enable-chk" data-on="公開して" data-off="非公開で"><label>記事を公開</label><span class="help" data-help="公開設定に関わらず、下書きは公開されません">?</span></li>
 		<li><input type="checkbox" name="com_ok" value="1"<@if(art.com_ok, ' checked')>><label>コメントを受け付ける</label></li>
 		<li><input type="checkbox" name="hcom_ok" value="1"<@if(art.hcom_ok, ' checked')>><label>非公開コメントを許可する</label></li>
 	<@ifexec(!s.private && (art.draft || !edit_pkey), begin)>
@@ -203,12 +204,12 @@
 		</ul>
 		</li>
 		<@ifexec(!art.draft && edit_pkey, begin)>
-		<li><input type="checkbox" name="draft" value="1"<@if(art.draft, ' checked')>><label>この記事を下書きとして保存する</label><span class="help" data-help="初公開日時の情報も消去されます。">?</span></li>
+		<li><input type="checkbox" name="draft" value="1"<@if(art.draft, ' checked')> id="draft-chk" data-on='下書き'><label>この記事を下書きとして保存する</label><span class="help" data-help="初公開日時の情報も消去されます。">?</span></li>
 		<$end>
 		<li><a href="<@v.myself>?etc/allow_tags&amp;n=article" target="_blank">※使用可能なHTMLタグ一覧</a></li>
 	</ul>
 
-	<button type="submit" name="edit" id="save-last" value="1"><@save_btn_name></button>
+	<button type="submit" name="edit" id="save-last" value="1"><@save_btn_text></button>
 </form>
 <@ifexec(edit_pkey, begin)>
 	<ul class="checkbox">

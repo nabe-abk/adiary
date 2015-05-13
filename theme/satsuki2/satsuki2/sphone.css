@@ -48,6 +48,12 @@ div.main {
 		-1px  1px 0px #ddd,
 		 3px  3px 2px #999;
 }
+/* 検索ボックスボタン */
+#sp-head-search .search-btn {
+	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
+}
+
+
 #footer {
 	margin-bottom:		1em;
 }

@@ -133,6 +133,26 @@ function parser_change() {
 }
 
 //############################################################################
+// ■公開状態の変更
+//############################################################################
+var echk = $('#enable-chk');
+var dchk = $('#draft-chk');
+echk.change( echk_change );
+dchk.change( echk_change );
+echk_change();
+
+function echk_change() {
+	if (dchk.prop('checked')) {	// 下書き
+		$('.save-btn-title').text( dchk.data('on') );
+		return;
+	}
+	if (echk.prop('checked'))
+		$('.save-btn-title').text( echk.data('on') );
+	else
+		$('.save-btn-title').text( echk.data('off') );
+}
+
+//############################################################################
 // ■upnodeの変更 / link_keyの設定
 //############################################################################
 var upsel = $('#upnode-select');
