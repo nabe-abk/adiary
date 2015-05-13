@@ -261,18 +261,26 @@ function edit_node( node ) {
 	if (node.data.fix) return;	// root and ゴミ箱
 
 	var ctree = node.tree;
-	ctree.$widget.unbind();		// Disable dynatree mouse- and key handling
+	ctree.$widget.unbind();		// Disable dynatree mouse - and key handling
 	var name = node.data.name;
 	name = name.substr(0, name.length-1);	// 201201/ to 201201
+
+	// ノードの選択中表示を解除する
+	var span = $(node.span);
+	span.removeClass('dynatree-active');
 
 	// タイトルを <input> 要素に置き換える
 	var inp = $('<input>').attr({
 		type:  'text',
 		value: name
 	});
-	var title = $(".dynatree-title", node.span);
-	title.empty();
-	title.append( inp );
+	// aタグ内にinputを入れると不可思議な動作をするので、
+	// 変わりの span box を作り置き換える。
+	var item = span.find( ".dynatree-title" );	// aタグ
+	var box = $('<span>');
+	box.addClass( item.attr('class') );
+	box.append( inp );
+	item.replaceWith( box );
 
 	// Focus <input> and bind keyboard handler
 	inp.focus();

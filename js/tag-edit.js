@@ -12,6 +12,8 @@ $( function(){
 	var submit = $('#submit');
 	var reset  = $('#reset');
 
+	var base_url = tree.data('base-url');
+
 	var select_node;
 	var dels = [];
 	var tag_priority_step = 10;
@@ -57,6 +59,12 @@ tree.dynatree({
 		}
 		var rootNode = tree.dynatree("getRoot");
 		rootNode.visit(function(node){
+			var data  = node.data;
+			data.name = data.title;
+			data.href = base_url + data.title;
+			set_node_title(node);
+
+			// ツリーを開く
 			node.expand(true);
 		});
 		var ch = rootNode.getChildren();
@@ -91,24 +99,48 @@ tree.dynatree({
 });
 
 //////////////////////////////////////////////////////////////////////////////
+// ●データからタイトルを設定
+//////////////////////////////////////////////////////////////////////////////
+function set_node_title(node) {
+	var data  = node.data;
+	var title = data.name + ' (' + data.qt + ')';
+	data.title = title;
+	node.setTitle( title );
+
+	// リンク停止
+	var atag = $(node.span).find('a');
+	atag.click( link_stop );
+	atag.dblclick( link_stop );
+}
+function link_stop(evt) {
+	evt.preventDefault();
+}
+
+//////////////////////////////////////////////////////////////////////////////
 // ●タグの名称編集
 //////////////////////////////////////////////////////////////////////////////
 function editNode( node ) {
-	var prev_title = node.data.title;
-	var tree = node.tree;
-
 	// Disable dynatree mouse- and key handling
-	tree.$widget.unbind();
+	node.tree.$widget.unbind();
 
 	// Replace node with <input>
 	var inp = $('<input>').attr({
 		type:  'text',
-		value: tag_decode(prev_title)
+		value: tag_decode(node.data.name)
 	});
-	var title = $(".dynatree-title", node.span);
-	title.empty();
-	title.append( inp );
-	
+
+	// ノードの選択中表示を解除する
+	var span = $(node.span);
+	span.removeClass('dynatree-active');
+
+	// aタグ内にinputを入れると不可思議な動作をするので、
+	// 変わりの span box を作り置き換える。
+	var item = span.find( ".dynatree-title" );	// aタグ
+	var box = $('<span>');
+	box.addClass( item.attr('class') );
+	box.append( inp );
+	item.replaceWith( box );
+
 	// Focus <input> and bind keyboard handler
 	inp.focus();
 	inp.select();
@@ -118,16 +150,14 @@ function editNode( node ) {
 				$(this).blur();
 				break;
 			case 13: // [enter]
-				var title = inp.val();
-				title = tag_esc(title);
-				node.setTitle(title);
+				node.data.name = tag_esc( inp.val() );
 				$(this).blur();
 				break;
 		}
 	});
 	inp.blur(function(evt){
-		node.setTitle(prev_title);
-		tree.$widget.bind();
+		set_node_title(node);
+		node.tree.$widget.bind();
 		node.focus();
 	});
 }
@@ -152,6 +182,8 @@ join.click(function(){
 	search_nodes(select_node);
 
 	select_node.data.joinkeys = ary;
+	select_node.data.qt       = '?';
+	set_node_title( select_node );
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -195,7 +227,7 @@ form.submit(function(){
 		var ch = node.getChildren();
 		for(var i=0; i<ch.length; i++) {
 			var data = ch[i].data;
-			var val = data.key + ',' + upnode + ',' + cnt + ',' + data.title;
+			var val = data.key + ',' + upnode + ',' + cnt + ',' + data.name;
 			cnt += tag_priority_step;
 			var inp = $('<input>').attr({
 				type: 'hidden',

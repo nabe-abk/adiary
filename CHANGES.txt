@@ -12,6 +12,7 @@
 -コメント表示数の設定項目がなかったので修正。
 -FrontPageのタイトル設定機能を追加。
 -テーマを書きやすくするため、HTMLの出力構造を微修正しました。
+-タグの編集、コンテンツ一覧の編集画面を少し使いやすくしました。
 -【Markdown】[https://help.github.com/articles/github-flavored-markdown:GitHub Flavored Markdown]のテーブル記法等に対応しました。
 -【Markdown】自動リンクをonにした場合、自動リンクするように変更しました。
 -【Markdown】本家では、コードブロックの開始条件として手前が空行である必要があったので、その仕様に準拠しました。

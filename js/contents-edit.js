@@ -7,9 +7,10 @@
 $( function(){
 	var form = $secure('#form');
 	var tree = $('#tree');
-	var open　 = $('#open');
 	var submit = $('#submit');
 	var reset  = $('#reset');
+
+	var base_url = tree.data('base-url');
 
 	var select_node;
 	var dels = [];
@@ -44,7 +45,6 @@ tree.dynatree({
 	},
 	onPostInit: function(isReloading, isError) {
 		if (isError) {
-			open.prop  ('disabled', true);
 			submit.prop('disabled', true);
 			reset.prop ('disabled', true);
 			$('#load-error').show();
@@ -52,6 +52,10 @@ tree.dynatree({
 		}
 		var rootNode = tree.dynatree("getRoot");
 		rootNode.visit(function(node){
+			var data  = node.data;
+			data.href = base_url + data.link_key;
+
+			// ツリーを開く
 			node.expand(true);
 		});
 		var ch = rootNode.getChildren();
@@ -61,7 +65,6 @@ tree.dynatree({
 	},
 	onActivate: function(node) {
 		select_node = node;
-		open.prop('disabled', false);
 	},
 	// ノードの編集
 	onClick: function(node, event) {
@@ -84,25 +87,33 @@ tree.dynatree({
 	}
 });
 //////////////////////////////////////////////////////////////////////////////
-// ●タグの名称編集
+// ●コンテンツキーの編集
 //////////////////////////////////////////////////////////////////////////////
 function editNode( node ) {
 	var link_key = node.data.link_key;
 	var title = node.data.title;
-	var tree = node.tree;
 
 	// Disable dynatree mouse- and key handling
-	tree.$widget.unbind();
+	node.tree.$widget.unbind();
 
 	// Replace node with <input>
 	var inp = $('<input>').attr({
 		type:  'text',
 		value: tag_decode(link_key)
 	});
-	var item = $(".dynatree-title", node.span);
-	item.empty();
-	item.append( inp );
-	
+
+	// ノードの選択中表示を解除する
+	var span = $(node.span);
+	span.removeClass('dynatree-active');
+
+	// aタグ内にinputを入れると不可思議な動作をするので、
+	// 変わりの span box を作り置き換える。
+	var item = span.find( ".dynatree-title" );	// aタグ
+	var box = $('<span>');
+	box.addClass( item.attr('class') );
+	box.append( inp );
+	item.replaceWith( box );
+
 	// Focus <input> and bind keyboard handler
 	inp.focus();
 	inp.keydown(function(evt){
@@ -118,19 +129,10 @@ function editNode( node ) {
 	});
 	inp.blur(function(evt){
 		node.setTitle(title);
-		tree.$widget.bind();
+		node.tree.$widget.bind();
 		node.focus();
 	});
 }
-
-//////////////////////////////////////////////////////////////////////////////
-// ●タグの削除
-//////////////////////////////////////////////////////////////////////////////
-open.click(function(){
-	var link_key = link_key_encode( select_node.data.link_key );
-	var base_url = tree.data('base-url');
-	window.open( base_url + link_key );
-});
 
 //////////////////////////////////////////////////////////////////////////////
 // ●送信前のデータ整形
