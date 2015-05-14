@@ -204,6 +204,9 @@ sub read_query_form {
 		$query =~ m|^([\w/=]+)|;
 		$self->{query0} = index($1,'=')<0 ? $1 : '';	# 検索Queryをスケルトン指定と誤解しないため
 	}
+	if ($q->{sphone}==1) {
+		$self->{sphone}=1;	# 強制スマホ表示
+	}
 }
 
 #------------------------------------------------------------------------------
@@ -573,7 +576,7 @@ sub load_articles_current_blog {
 	my ($self, $mode, $query, $opt) = @_;
 	my $blog = $self->{blog};
 
-	$opt->{pagemode}=1;
+	$opt->{pagemode}  = 1;
 	$opt->{loads}     = $opt->{load_items} || $blog->{load_items};
 	$opt->{blog_only} = $blog->{separate_blog};
 

@@ -1554,13 +1554,13 @@ sub load_spmenu_items {
 		my $pi = $self->load_plugin_info($name);
 		if (! $pi->{sphone_menu}) { next; }
 
-		my ($html, $title) = $self->parse_html_for_spmenu( $set->{$_} );
-		if (!$html) { next; }
+		my $h = $self->parse_html_for_spmenu( $set->{$_} );
+		if (!$h->{html}) { next; }
 		# save
 		my $h = {
-			title=> $title,
-			name => $name,
-			html => $html
+			title=> $h->{title},
+			html => $h->{html},
+			name => $name
 		};
 		push(@ary, $h);
 		$names{$name}=$h;
@@ -1590,21 +1590,29 @@ sub load_spmenu_items {
 sub parse_html_for_spmenu {
 	my $self = shift;
 	my $html = shift;
-	my $title;
+	my $ROBJ = $self->{ROBJ};
 
-	# モジュールタイトル除去
-	$html =~ s|<div\s*class="\s*hatena-moduletitle\s*">(.*?)</div>|$title=$1,''|eg;
+	my %h;
+	my $title;
+	$html =~ s|<div\s*class="\s*hatena-moduletitle\s*">(.*?)</div>|$title=$1,''|e;
+	if ($title =~ /<a.*? href\s*=\s*"([^"]+)"/) {
+		$h{url} = $2;
+	}
+	$ROBJ->tag_delete($title);
 
 	my $escaper = $self->load_tag_escaper( 'spmenu' );
-	$html = $escaper->escape( $html );
-	$html =~ s|</a>(.*?)</li>|$1</a></li>|g;
+	$title = $escaper->escape( $title );
+	$html  = $escaper->escape( $html  );
 
+	$html =~ s|</a>(.*?)</li>|$1</a></li>|g;
 	$html =~ s/^[\s\n\r]+//;
 	$html =~ s/[\s\n\r]+$//;
 	if ($html !~ m|^<ul>|) { return; }
 	if ($html !~ m|</ul>$|) { return; }
 
-	return wantarray ? ($html, $title) : $html;
+	$h{html}  = $html;
+	$h{title} = $title;
+	return \%h;
 }
 
 #------------------------------------------------------------------------------
@@ -1699,8 +1707,9 @@ sub generate_spmenu {
 	foreach(@$ary) {
 		my $title = $_->{title};
 		my $html  = $blog->{"p:$_->{name}:html"};
-		$html = $self->parse_html_for_spmenu($html);
-		$out .= "<li><a href=\"#\">$title</a>\n$html\n</li>\n";
+		my $h = $self->parse_html_for_spmenu($html);
+		my $url = $h->{url} || '#';
+		$out .= "<li><a href=\"$url\">$title</a>\n$h->{html}\n</li>\n";
 	}
 	$out .= "</ul>\n";
 	if ($#$ary > 0) {
