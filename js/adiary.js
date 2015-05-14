@@ -6,6 +6,7 @@
 'use strict';
 var DialogWidth = 640;
 var DefaultShowSpeed = 300;
+var TouchDnDTime  = 700;
 var DoubleTapTime = 400;
 var PopupOffsetX  = 15;
 var PopupOffsetY  = 10;
@@ -190,6 +191,100 @@ findx: function(sel){
 		r.push(x[i]);
 	}
 	return $(r);
+},
+//////////////////////////////////////////////////////////////////////////////
+//●[jQuery] スマホでDnDをエミュレーションする
+//////////////////////////////////////////////////////////////////////////////
+dndEmulation: function(){
+	var self = this[0];
+
+	// mouseイベント作成
+	function make_mouse_event(name, evt, touch) {
+		var e = $.Event(name);
+		e.altKey   = evt.altKey;
+		e.metaKey  = evt.metaKey;
+		e.ctrlKey  = evt.ctrlKey;
+		e.shiftKey = evt.shiftKey;
+		e.clientX = touch.clientX;
+		e.clientY = touch.clientY;
+		e.screenX = touch.screenX;
+		e.screenY = touch.screenY;
+		e.pageX   = touch.pageX;
+		e.pageY   = touch.pageY;
+		e.which   = 1;
+		return e;
+	}
+	// 自分自身を含めた親要素をすべて取得
+	function get_par_elements(dom) {
+		var ary  = [];
+		while(dom) {
+			ary.push( dom );
+			if (dom == self) break;
+			dom = dom.parentNode;
+		}
+		return ary;
+	}
+
+	// クロージャ変数
+	var prev;
+	var flag;
+
+	// mousedownエミュレーション
+	self.addEventListener('touchstart', function(evt){
+		prev = evt.target;
+		var e = make_mouse_event('mousedown', evt, evt.touches[0]);
+		$( prev ).trigger(e);
+		
+		// ある程度時間が経過しないときは処理を無効化する。
+		flag = false;
+		setTimeout(function(){
+			flag=true;
+		}, TouchDnDTime)
+	});
+
+	// mouseupエミュレーション
+	self.addEventListener('touchend', function(evt){
+		var e = make_mouse_event('mouseup', evt, evt.changedTouches[0]);
+		$( evt.target ).trigger(e);
+	});
+
+	// ドラッグエミュレーション
+	self.addEventListener('touchmove', function(evt){
+
+		// 一定時間立たなければ、処理を開始しない
+		if (!flag) return;
+
+		var touch = evt.changedTouches[0];
+		var dom   = document.elementFromPoint(touch.clientX, touch.clientY);
+		var enter = get_par_elements(dom);
+
+		// マウス移動イベント
+		var e = make_mouse_event('mousemove', evt, touch);
+		$(enter).trigger(e);
+
+		// 要素移動がなければこれで終了
+		evt.preventDefault();
+		if (dom == prev) return;
+
+		// 要素移動があれば leave と enter イベント生成
+		var leave = get_par_elements(prev);
+
+		// 重複要素を除去
+		while(leave.length && enter.length
+		   && leave[leave.length -1] == enter[enter.length -1]) {
+			leave.pop();
+			enter.pop();
+		}
+
+		// イベント発火
+		var e_leave = make_mouse_event('mouseleave', evt, touch);
+		var e_enter = make_mouse_event('mouseenter', evt, touch);
+		$(leave).trigger( e_leave );
+		$(leave).trigger( e_enter );
+
+		// 新しい要素を保存
+		prev=dom;
+	});
 },
 //////////////////////////////////////////////////////////////////////////////
 });

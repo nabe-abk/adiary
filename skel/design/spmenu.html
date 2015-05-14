@@ -12,7 +12,7 @@
 <$items = v.load_spmenu_items()>
 <$ifjump(!items, '_sub/error_message', '利用可能なデザインモジュール（コンテンツリスト等）がインストールされていません。')>
 
-<$v.append_header(begin_string)>
+<$v.append_header(exec(begin))>
 <style>
 #body table.blog-setting td {
 	padding:	2px 6px;
@@ -31,11 +31,27 @@
 	font-size:	10pt;
 	line-height:	100%;
 }
+<@ifexec(v.sphone, begin)>
+#body table.blog-setting td {
+	padding:	2px;
+}
+#body table.blog-setting th {
+	font-size:	9pt;
+}
+#body table.blog-setting td,
+#body table.blog-setting td input {
+	font-size:	8pt;
+}
+#body table.blog-setting td.html ul {
+	max-width:	100px;
+}
+<$end>
 </style>
 <script>
 $(function(){
 	var tbody = $('#sortable-body');
 	tbody.sortable({ items: '>tr', cancel: '.no-drag' });
+	tbody.dndEmulation();	// for スマホ
 });
 </script>
 <$end>
@@ -52,7 +68,7 @@ $(function(){
 
 	<table class="blog-setting">
 	<thead><tr>
-		<th>利用状態</th>
+		<th>使用</th>
 		<th>項目タイトル</th>
 		<th>モジュール名</th>
 		<th>内容表示</th>
@@ -60,10 +76,10 @@ $(function(){
 	<@forexec(t, items, begin)><$pi=v.load_plugin_info(t.name)>
 	<tr>
 		<td class="nowrap no-drag">
-			<input type="checkbox" name="mod_ary" value="<@t.name>"<@if(t.on, ' checked')>><label>使用する</label>
+			<input type="checkbox" name="mod_ary" value="<@t.name>"<@if(t.on, ' checked')>>
 		</td>
 		<td class="no-drag">
-			<input type="text" class="w140" name="<@t.name>" value="<@t.title || pi.title>">
+			<input type="text" class="<@if(v.sphone, 'w80', 'w140')>" name="<@t.name>" value="<@t.title || pi.title>">
 		</td>
 		<td><@t.name></td>
 		<td class="html"><@t.html></td>

@@ -152,10 +152,12 @@ tree.dynatree({
 			logMsg("tree.onDragStart(%o)", node);
 			return true;	// Return false to cancel dragging of node.
 		},
-		autoExpandMS: 1000,
+		autoExpandMS: 400,
 		preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
 		onDragEnter: function(node, srcNode) {
-			 return true;
+			
+			
+			return true;
 		},
 		onDragOver: function(node, srcNode, hitMode) {
 			if (hitMode==='before' || hitMode==='after') return false;
@@ -1163,6 +1165,8 @@ dnd_body.on('dragover', function(evt) {
 	return false;
 });
 dnd_body.on("drop", function(evt) {
+	if (!evt.originalEvent.dataTransfer) return;
+
 	evt.stopPropagation();
 	evt.preventDefault();
 	var dnd_files = evt.originalEvent.dataTransfer.files;
@@ -1268,7 +1272,7 @@ upform.submit(function(){
 
 	// submit処理
 	iframe.unbind();
-	iframe.load( function(){
+	iframe.on('load', function(){
 		upload_post_process( iframe.contents().text() );
 	});
 	message.html('<div class="message uploading">' + $('#uploading-msg').text() + '</div>');
@@ -1350,6 +1354,11 @@ function encode_link(str){
 //############################################################################
 // ■スマホ関連処理
 //############################################################################
+
+// スマホ用のDnDエミュレーション
+tree.dndEmulation();
+view.dndEmulation();
+
 //////////////////////////////////////////////////////////////////////////////
 // ●フォルダの移動
 //////////////////////////////////////////////////////////////////////////////
