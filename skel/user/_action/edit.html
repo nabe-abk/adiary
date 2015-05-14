@@ -8,6 +8,6 @@
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
 	<$message("ユーザー <@Form.id> を編集しました")>
-	<$url = Myself .'?'. v.skel_dir>
+	<$url = v.myself .'?'. v.skel_dir>
 	<$jump('_sub/reload_message', url)>
 <$end>

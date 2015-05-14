@@ -38,6 +38,7 @@ __tool/__*
 lib/SatsukiApp/form.pm
 lib/SatsukiApp/form_2.pm
 info/textparser_site_tags.txt
+js/lightbox.js
 
 #--------------------------------------
 # sample files for develop

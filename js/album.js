@@ -19,7 +19,6 @@
 var DialogWidth;	// adiary.jsの参照
 
 $( function(){
-	var main = $('#album');
 	var form = $secure('#album-form');
 	var tree = $('#album-folder-tree');
 	var view = $('#album-folder-view');
@@ -49,6 +48,7 @@ $( function(){
 	var inputs   = filesdiv.find('input');
 
 	// Drag&Drop関連
+	var dnd_body = $('#body');
 	var dnd_div  = $('#dnd-files');
 	var upfiles  = [];
 
@@ -466,33 +466,52 @@ $('#album-clear-trashbox').click( function(){
 function drop_to_tree(node, srcNode, hitMode, ui, draggable) {
 	// フォルダの中へのドロップのみ有効
 	if (hitMode !== "over") return false;
+
 	// ファイルのドロップ？
-	if (!srcNode) return move_files(node, srcNode, hitMode, ui, draggable);
+	if (!srcNode) return drop_files_to_tree(node, srcNode, hitMode, ui, draggable);
+
+	// フォルダの移動
+	move_folder(node, srcNode);
+}
+
+function move_folder(node, srcNode) {
+	var from = srcNode.getParent().data.key;
+	var to   = node.data.key;
+	if (to.indexOf(from) == 0) return false;	// 自分自身やその子へは移動できない
 
 	ajax_submit({
 		action: 'move_files',
 		data: {
-			from: srcNode.getParent().data.key,
-			to:   node.data.key,
+			from: from,
+			to:   to,
 			file_ary: [ chop_slash(srcNode.data.name) ]
 		},
 		success: function(data) {
 			if (data.ret !== 0) error_msg('#msg-fail-mv-folder', {files: data.files});
-			srcNode.move(node, hitMode);
+			srcNode.move(node, 'over');
 			tree_reload();
 		},
 		error: function() {
 			error_msg('#msg-fail-mv-folder');
 		}
 	});
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // ●ファイルの移動
 //////////////////////////////////////////////////////////////////////////////
-function move_files(node, srcNode, hitMode, ui, draggable) {
-	// 現在のフォルダには移動できない
-	if (node.data.key === cur_node.data.key) return false;
+function drop_files_to_tree(node, srcNode, hitMode, ui, draggable) {
+	// 移動処理
+	if (! move_files(node.data.key)) return false;
+
+	// 元アイコンは非表示のままにする
+	visible_on_stop = false;
+	return true;
+}
+
+function move_files(to_folder) {
+	if (to_folder === cur_folder) return false;
 
 	var imgs = view.find('.selected');
 	var files = [];
@@ -504,7 +523,7 @@ function move_files(node, srcNode, hitMode, ui, draggable) {
 		action: 'move_files',
 		data: {
 			from: cur_folder,
-			to:   node.data.key,
+			to:   to_folder,
 			file_ary: files
 		},
 		success: function(data) {
@@ -521,9 +540,6 @@ function move_files(node, srcNode, hitMode, ui, draggable) {
 			imgs.css('visibility', 'visible');
 		}
 	});
-
-	// 元アイコンは非表示のままにする
-	visible_on_stop = false;
 	return true;
 }
 
@@ -981,7 +997,6 @@ function update_view(flag, selected) {
 	// 画像のダブルクリック
 	//-----------------------------------------------
 	function img_dblclick(evt) {
-		console.log("image dobule click");
 		var obj = $(evt.target);
 		if (!obj.data('isimg')) return;
 		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
@@ -1139,51 +1154,15 @@ $('#select-exifjpeg').click(function(){
 });
 
 //############################################################################
-// ■スマホ関連処理
-//############################################################################
-//////////////////////////////////////////////////////////////////////////////
-// ●ドラッグ＆ドロップ
-//////////////////////////////////////////////////////////////////////////////
-$('#album-move-folder').click(function(){
-
-});
-
-$('#album-move-files').click(function(){
-	var div = move_dialog;
-	var buttons = {};
-
-
-		
-		
-		
-		
-
-	buttons[ div.data('ok')     ] = function(){
-		
-	};
-	buttons[ div.data('cancel') ] = function(){
-		div.dialog('close');
-	};
-
-	div.dialog({
-		modal: true,
-		minWidth:  240,
-		minHeight: 100,
-		title: div.data('title'),
-		buttons: buttons
-	});
-});
-
-//############################################################################
 // ■ファイルアップロード関連
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
 // ●ドラッグ＆ドロップ
 //////////////////////////////////////////////////////////////////////////////
-main.on('dragover', function(evt) {
+dnd_body.on('dragover', function(evt) {
 	return false;
 });
-main.on("drop", function(evt) {
+dnd_body.on("drop", function(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
 	var dnd_files = evt.originalEvent.dataTransfer.files;
@@ -1194,8 +1173,13 @@ main.on("drop", function(evt) {
 		upfiles.push( dnd_files[i] );
 	update_upfiles();
 
-	// 自動アップロード
-	if ($('#auto-upload').prop('checked')) upform.submit();
+	// 自動アップロード。スマホの時hidden要素のため。
+	var auto = $('#auto-upload');
+	if (auto.attr('type') == 'checkbox') {
+		if (auto.prop('checked')) upform.submit();
+	} else {
+		if (auto.val()) upform.submit();
+	}
 });
 
 function update_upfiles() {
@@ -1363,7 +1347,64 @@ function encode_link(str){
 	return str.replace(/#/g, "%23");
 }
 
+//############################################################################
+// ■スマホ関連処理
+//############################################################################
+//////////////////////////////////////////////////////////////////////////////
+// ●フォルダの移動
+//////////////////////////////////////////////////////////////////////////////
+$('#album-move-folder').click(function(){
+	folder_select_dialog(function(folder){
+		var node = tree.dynatree("getTree").getNodeByKey(folder);
+		if (!node) return false;
 
+		return move_folder(node, cur_node);
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
+// ●ファイルの移動
+//////////////////////////////////////////////////////////////////////////////
+$('#album-move-files').click(function(){
+	folder_select_dialog( move_files );
+});
+
+//////////////////////////////////////////////////////////////////////////////
+// ●移動先フォルダ選択メニュー
+//////////////////////////////////////////////////////////////////////////////
+function folder_select_dialog(callback) {
+	var div = move_dialog;
+	var buttons = {};
+
+	div.empty();
+	var dtree = $('<div>').addClass('album-folder-tree');
+	dtree.dynatree({
+		imagePath: $('#icon-path').text(),
+		children: tree.dynatree("getTree").toDict()
+	});
+	div.append( dtree );
+
+	buttons[ div.data('ok') ] = function(){
+		var node = dtree.dynatree("getActiveNode");
+		if (!node || !node.data) return;
+		var folder = node.data.key;
+		if (folder == '') return;
+
+		// callback
+		if (callback(folder))
+			div.dialog('close');
+	};
+	buttons[ div.data('cancel') ] = function(){
+		div.dialog('close');
+	};
+	div.dialog({
+		modal: true,
+		minWidth:  240,
+		minHeight: 100,
+		title: div.data('title'),
+		buttons: buttons
+	});
+}
 
 //############################################################################
 });

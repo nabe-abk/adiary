@@ -453,11 +453,11 @@ ul.menu {
 /*--------------------------------------------------------------------
 ●画像アルバム
 ---------------------------------------------------------------------*/
-#album-folder-tree > ul {
+.album-folder-tree > ul {
 	min-height:		300px;
 	margin-bottom:		2px;
 }
-#album-folder-tree ul a {
+.album-folder-tree ul a {
 	font-weight:		normal;
 }
 
@@ -522,10 +522,11 @@ ul.menu {
 #album-dnd-name-view span {
 	display:		block;
 }
-#folder-tree ul {
+/* サイドバーフォルダーツリー */
+.side-folder-tree ul {
 	line-height:		110%;
 }
-#folder-tree li * {
+.side-folder-tree li * {
 	vertical-align:		middle;
 }
 /* ファイルなし */
@@ -852,13 +853,24 @@ h3.ui-accordion-header {
 }
 
 /* 画像アルバム */
-#sp-album-folder #album-folder-tree > ul {
+.sp .album-folder-tree > ul {
 	min-height:		0;
 }
 #sp-album #album-folder-view {
 	min-height:		60px;
 }
+.ui-dialog .album-folder-tree ul {
+	margin:			0;
+}
 
+
+.sp button,
+.sp input [type="button"],
+.sp input [type="submit"],
+.sp input [type="reset"] {
+	margin-top:		6px;
+	margin-bottom:		6px;
+}
 
 /*--------------------------------------------------------------------
 ●スマホ用検索ボックス

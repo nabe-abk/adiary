@@ -64,7 +64,12 @@ tree.dynatree({
 			data.href = base_url + data.title;
 			set_node_title(node);
 
-			// ツリーを開く
+			// ダブルタップで編集
+			$(node.span).on("mydbltap", function(evt) {
+				editNode(node);
+			});
+			
+			// ノードを開く
 			node.expand(true);
 		});
 		var ch = rootNode.getChildren();
@@ -97,6 +102,12 @@ tree.dynatree({
 		}
 	}
 });
+//////////////////////////////////////////////////////////////////////////////
+// ●リンクの動作を停止
+//////////////////////////////////////////////////////////////////////////////
+tree.on('click dblclick', 'a', function(evt) {
+	evt.preventDefault();
+});
 
 //////////////////////////////////////////////////////////////////////////////
 // ●データからタイトルを設定
@@ -106,21 +117,13 @@ function set_node_title(node) {
 	var title = data.name + ' (' + data.qt + ')';
 	data.title = title;
 	node.setTitle( title );
-
-	// リンク停止
-	var atag = $(node.span).find('a');
-	atag.click( link_stop );
-	atag.dblclick( link_stop );
-}
-function link_stop(evt) {
-	evt.preventDefault();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // ●タグの名称編集
 //////////////////////////////////////////////////////////////////////////////
 function editNode( node ) {
-	// Disable dynatree mouse- and key handling
+	// Disable dynatree mouse and key handling
 	node.tree.$widget.unbind();
 
 	// Replace node with <input>
@@ -133,9 +136,12 @@ function editNode( node ) {
 	var span = $(node.span);
 	span.removeClass('dynatree-active');
 
-	// aタグ内にinputを入れると不可思議な動作をするので、
-	// 変わりの span box を作り置き換える。
+	// <a>タグが消える瞬間にイベントを拾ってしまうので対策
 	var item = span.find( ".dynatree-title" );	// aタグ
+	item.removeAttr('href');
+
+	// aタグ内にinputを入れるとマウスクリックに対して
+	// 不可思議な動作をするので、span に置き換える。
 	var box = $('<span>');
 	box.addClass( item.attr('class') );
 	box.append( inp );

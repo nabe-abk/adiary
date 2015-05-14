@@ -14,6 +14,6 @@
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
 	<$message("ユーザーを削除しました")>
-	<$url = Myself .'?'. v.query0>
+	<$url = v.myself .'?'. v.query0>
 	<$jump('_sub/reload_message', url)>
 <$end>

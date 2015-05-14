@@ -15,7 +15,7 @@
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
 	<$message("ユーザー <@Form.id> を追加しました")>
-	<$url = Myself .'?'. if(Form.add_continue, v.query0, v.skel_dir)>
+	<$url = v.myself .'?'. if(Form.add_continue, v.query0, v.skel_dir)>
 	<$ifexec(Auth.auto, begin)>
 		<$message('今追加したアカウントでログインしてください')>
 	<$end>

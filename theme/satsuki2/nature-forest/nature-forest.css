@@ -856,13 +856,13 @@ article.system h2 {
 /*--------------------------------------------------------------------
 ●アルバム
 ---------------------------------------------------------------------*/
-#folder-tree {
+.side-folder-tree {
 	padding:		6px 2px;
 	background-color:	#f8f8e8;		/* $c=sysartbg */
 	border:			1px solid #aa9;		/* $c=sysborder */
 	border-radius:		4px;
 }
-#folder-tree .hatena-moduletitle {
+.side-folder-tree .hatena-moduletitle {
 	margin-bottom:		2px;
 }
 
