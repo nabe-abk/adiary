@@ -7,6 +7,7 @@
 var insert_text;	// global function
 var IE8;
 var IE9;
+var DialogWidth;
 $(function(){
 //############################################################################
 var body = $('#body');
@@ -14,6 +15,9 @@ var tagsel = $('#tag-select');
 var upsel  = $('#upnode-select');
 var parsel = $('#select-parser');
 var edit = $('#editarea');
+
+var fileup  = $('#file-upload');
+var dndbody = edit;
 
 load_taglist(tagsel);
 load_contents_list(upsel);
@@ -229,7 +233,8 @@ function edit_lock_checked(data) {
 	}, function(flag){
 		if (flag) return start_edit();	// OK
 		// CANCEL
-		$('#edit').find('form, button:not(.helper), input, select').prop('disabled', true);
+		$('#edit').find('form, button:not(.helper):not(.no-disable), input, select').prop('disabled', true);
+		$('#del-submit-check').prop('checked', false).change();
 
 		dont_edit = true;
 		display_lock_state(data);	// 編集中状態の表示
@@ -240,7 +245,7 @@ function edit_lock_checked(data) {
 function start_edit(){
 	do_edit_lock();
 	set_lock_interval();
-	$('#edit').find('form, button:not(.helper), input, select').prop('disabled', false);
+	$('#edit').find('form, button:not(.helper):not(.no-disable), input, select').prop('disabled', false);
 
 	// ページを離れるときにunlock	※IE8では無効
 	$(window).on('unload', function(){
@@ -368,6 +373,187 @@ function replace_selection( text ) {
 	if (text.substr(0,1) == "\n") { start+=1; }
 	ta.setSelectionRange(start, start + text.length );
 }
+
+//############################################################################
+// ■ファイルアップロード機能
+//############################################################################
+var paste_type;
+var dnd_files;
+//----------------------------------------------------------------------------
+// ●アップロードダイアログ
+//----------------------------------------------------------------------------
+fileup.click( function(){
+	var thumb= $('#thumbnail-info').clone().removeAttr('id');
+	var form = $('<form>').append( thumb );
+	var div  = $('<div>') .append( form  );
+	var cnt  = 0;
+
+	if (dnd_files) {
+		var dnd = $('<div>').attr('id', 'dnd-files');
+		for(var i=0; i<dnd_files.length; i++) {
+			var fs  = size_format(dnd_files[i].size);
+			var file = $('<div>').text(
+				dnd_files[i].name + ' (' + fs + ')'
+			);
+			dnd.append( file );
+		}
+		dnd.insertBefore(form);
+	}
+
+	// 設定済サムネイルサイズをロードさせるためのidの細工
+	var thsize = thumb.find('select.thumbnail-size');
+	if (thsize.length==1) thsize.attr('id', 'thumbnail-size');
+
+	function create_input_file() {
+		var inp = $('<input>').attr({
+			type: 'file',
+			name: 'file' + cnt.toString() + '_ary'
+		}).prop('multiple', true);
+		cnt++;
+		return $('<div>').append(inp);
+	}
+	function input_change() {
+		var files = form.find('input[type="file"]');
+		var flag;
+		files.each(function(num, obj){
+			if ($(obj).val() == '') flag=true;
+		});
+		if (flag) return;
+
+		// すべて使用済のとき１つ追加
+		var inp = create_input_file();
+		inp.change( input_change );
+		inp.insertBefore( thumb );
+	}
+	input_change();
+
+	// ボタンの設定
+	var buttons = {};
+	var ok_func = buttons['Upload'] = function(){
+		var flag;
+		form.find('input[type="file"]').each(function(num, obj){
+			if ($(obj).val() != '') flag=true;
+		});
+		if(!dnd_files && !flag) return;	// 1つもセットされていない
+		paste_type = form.find('select[name="paste"]').val() || '';
+		ajax_upload( form[0], dnd_files, upload_files_insert );
+		div.dialog( 'close' );
+		div.remove();
+	};
+	buttons[ $('#ajs-cancel').text() ] = function(){
+		div.dialog( 'close' );
+		div.remove();
+	};
+	div.dialog({
+		modal: true,
+		width:  DialogWidth,
+		minHeight: 200,
+		title:   fileup.data('title'),
+		buttons: buttons
+	});
+});
+//----------------------------------------------------------------------------
+// ●アップロード後の処理
+//----------------------------------------------------------------------------
+function upload_files_insert(data, folder) {
+	if (data['fail']) {
+		show_error('#msg-upload-fail', {
+			n: data['fail'] + data['success'],
+			f: data['fail'],
+			s: data['success']
+		});
+	}
+
+	// 記事に挿入
+	var img_tag  = paste_type;
+	var file_tag = $('#paste-tag').data('file');
+	var ary = data['files'];
+	if (!data['success'] || !ary) return;
+
+	var text = '';
+	var esc_dir = esc_satsuki_tag(folder);
+	for(var i=0; i<ary.length; i++) {
+		var name = ary[i].name;
+		var reg  = name.match(/\.(\w+)$/);
+		var ext  = reg ? reg[1] : '';
+		var rep  = {
+			d: esc_dir,
+			e: esc_satsuki_tag(ext),
+			f: esc_satsuki_tag(name),
+			c: ''
+		};
+		// タグ生成
+		var tag = ary[i].isImg ? img_tag : file_tag;
+		tag = tag.replace(/%([cdef])/g, function($0,$1){ return rep[$1] });
+		// 記録
+		text += tag;
+	}
+	insert_text( text );
+}
+
+//----------------------------------------------------------------------------
+// ●アップロード処理
+//----------------------------------------------------------------------------
+function ajax_upload( form_dom, upfiles, callback ) {
+	var date = $('#edit-date').val().toString() || '';
+	if (date.match(/^\d\d\d\d/)) {
+		date = date.substr(0,4);
+	} else {
+		var d = new Date();
+		date = d.getFullYear();
+	}
+	var folder = 'adiary/' + date + '/';
+
+	// FormData生成
+	var fd = new FormData( form_dom );
+	fd.append('csrf_check_key', $('#csrf-key').val());
+	fd.append('action', 'etc/ajax_upload');
+	fd.append('folder', folder);
+
+	// DnDされたファイル
+	if (upfiles) {
+		for(var i=0; i<upfiles.length; i++) {
+			if (!upfiles[i]) continue;
+			fd.append('file_ary', upfiles[i]);
+		}
+		upfiles = null;
+	}
+
+	// submit処理
+	$.ajax(Vmyself + '?etc/ajax_dummy', {
+		method: 'POST',
+		contentType: false,
+		processData: false,
+		data: fd,
+		dataType: 'json',
+		error: function(xhr) {
+			console.log('[ajax_upload()] http post fail');
+			show_error('#msg-upload-error');
+		},
+		success: function(data) {
+			console.log('[ajax_upload()] http post success');
+			if (callback) callback(data, folder);
+		}
+	});
+}
+//----------------------------------------------------------------------------
+// ●ドラッグ＆ドロップ
+//----------------------------------------------------------------------------
+dndbody.on('dragover', function(evt) {
+	return false;
+});
+dndbody.on("drop", function(evt) {
+	if (!evt.originalEvent.dataTransfer) return;
+
+	evt.stopPropagation();
+	evt.preventDefault();
+	dnd_files = evt.originalEvent.dataTransfer.files;
+	if (!dnd_files) return;
+	if (!window.FormData) return;
+
+	// ダイアログを出す
+	fileup.click();
+});
 
 //############################################################################
 // ■記法ヘルパー機能
@@ -575,14 +761,6 @@ function parse_lines_for_block(text, tag) {
 		ary[i] = tag + ary[i];
 	}
 	return ary.join("\n");
-}
-
-
-//----------------------------------------------------------------------------
-// ●さつきタグ記号のエスケープ
-//----------------------------------------------------------------------------
-function esc_satsuki_tag(str) {
-	return str.replace(/([:\[\]])/g, function(w,m){ return "\\" + m; });
 }
 
 //############################################################################

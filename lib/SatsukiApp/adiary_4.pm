@@ -1596,7 +1596,7 @@ sub parse_html_for_spmenu {
 	my $title;
 	$html =~ s|<div\s*class="\s*hatena-moduletitle\s*">(.*?)</div>|$title=$1,''|e;
 	if ($title =~ /<a.*? href\s*=\s*"([^"]+)"/) {
-		$h{url} = $2;
+		$h{url} = $1;
 	}
 	$ROBJ->tag_delete($title);
 

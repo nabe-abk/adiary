@@ -107,7 +107,7 @@
 	<div class="float-r" id="edit-disp-pkey"><@edit_pkey></div>
 <$end>
 	<span class="element" id="edit-yyyymmdd">
-	<span class="edit-caption">日付</span><input type="date" name="ymd" class="w120" value="<@if(art_year, "<@art_year>-<@art_mon>-<@art_day>", "<@v.now.year>-<@v.now.mon>-<@v.now.day>")>" min="1980-01-01" max="2999-12-31" required></span>
+	<span class="edit-caption">日付</span><input id="edit-date" type="date" name="ymd" class="w120" value="<@if(art_year, "<@art_year>-<@art_mon>-<@art_day>", "<@v.now.year>-<@v.now.mon>-<@v.now.day>")>" min="1980-01-01" max="2999-12-31" required></span>
 
 	<span class="element" id="edit-tags"><span class="edit-caption">タグ</span>
 	<span id="tags"><$tags = split(',', art.tags)>
@@ -129,7 +129,7 @@
 	<button class="helper" type="button" id="btn-list"   data-msg="箇条書きにしたい項目を１行ずつ入力" data-tag="-" data-type="lines">箇条書き</button>
 	<button class="helper" type="button" id="btn-quote"  data-msg="引用したい文章を入力" data-start-base=">>" data-end="<<" data-type="block" data-sp-msg="引用元サイトがある場合、そのURLを入力してください">引用</button>
 	<button class="helper" type="button" id="btn-annotation" data-msg="注釈にしたい文字列を入力" data-start="((" data-end="))">注釈</button>
-	<button class="helper" type="button" id="album-open" data-url="<@v.myself>?album/#edit">画像</button>
+	<button class="helper" type="button" id="album-open" data-url="<@v.myself>?album/#edit">画像</button><button type="button" id="file-upload" class="no-disable js-fileup" data-title="ファイルを選択">Upload</button><span class="help" data-help="画像アルバムからファイルを選択して貼り付けます。">?</span>
 	<select class="helper" id="select-color" title="選択した文字列に色を付けます。" data-start-base="[color:" data-end="]" data-msg="色を変更したい文字列を入力">
 		<option value="" selected>色</option>
 		<option value="#FF0000" style="color:#FF0000;">■</option>
@@ -159,6 +159,9 @@
 		<option value="xx-small">小小小</option>
 	</select>
 	<a href="http://adiary.org/v3man/Satsuki/" data-default="Satsuki/" data-markdown="Markdown/" target=_blank id="parser-help-link">記法ヘルプ</a>
+	<@ifexec(!v.trust_mode, begin)>
+	<a href="<@v.myself>?etc/allow_tags&amp;n=article" target="_blank">HTMLタグ</a>
+	<$end>
 	</div>
 
 	<textarea name="body_txt" id="editarea" cols="60" rows="16" class="edit-article"><@tag_escape_amp( txt = art._text || form_.paste_txt)></textarea>
@@ -167,14 +170,12 @@
 		<span class="edit-caption">入力記法</span><select name="parser" id="select-parser">
 		<@forexec_hash(ROBJ, v.parsers, begin)><option value="<@key>"<@if(art.parser eq key, ' selected')>><@val></option>
 		<$end>
-	</select>
-	<@ifexec(Develop && !v.sphone, begin)>
-		<input type="checkbox" class="js-switch" data-target="#-dummy-" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug">デバッグ</label>
-	<$end></span>
+	</select></span>
 	<@ifexec(!edit_pkey || art.draft, begin)>
 	<button type="submit" name="draft" value="1" id="save-draft">下書き保存</button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
 	<$end>
 	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_text></button>
+	<button type="button" id="file-upload" class="no-disable js-fileup" data-title="ファイルを選択">Upload</button><span class="help" data-help="ファイルを直接アップロードして記事に貼付けることができます。入力エリアに直接ドロップしても構いません。IE8/9非対応。">?</span>
 
 	<!--===============================================================-->
 	<input type="hidden" name="checkbox.info" value="enable">
@@ -187,13 +188,23 @@
 	<input type="hidden" name="checkbox.info" value="wiki">
 	<ul class="checkbox">
 		<li><input type="checkbox" name="enable" value="1"<@if(art.enable, ' checked')> id="enable-chk" data-on="公開して" data-off="非公開で"><label>記事を公開</label><span class="help" data-help="公開設定に関わらず、下書きは公開されません">?</span></li>
-		<li><input type="checkbox" name="com_ok" value="1"<@if(art.com_ok, ' checked')>><label>コメントを受け付ける</label></li>
-		<li><input type="checkbox" name="hcom_ok" value="1"<@if(art.hcom_ok, ' checked')>><label>非公開コメントを許可する</label></li>
-	<@ifexec(!s.private && (art.draft || !edit_pkey), begin)>
-		<@ifexec(v.sys.ping_servers_txt, begin)>
-		<li><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label><span class="help" data-help="更新通知を送ると他の人があなたの記事を見つけやすくなります。\n【送信先】\n<@v.sys.ping_servers_txt>">?</span></li>
+		<li><input type="checkbox" id="art-detail-sw" data-target="#art-detail" class="js-switch js-save"> <@\>
+		<label>詳細設定</label>
+		<ul id="art-detail" class="checkbox">
+			<li><input type="checkbox" name="com_ok" value="1"<@if(art.com_ok, ' checked')>><label>コメントを受け付ける</label></li>
+			<li><input type="checkbox" name="hcom_ok" value="1"<@if(art.hcom_ok, ' checked')>><label>非公開コメントを許可する</label></li>
+		<@ifexec(!s.private && (art.draft || !edit_pkey), begin)>
+			<@ifexec(v.sys.ping_servers_txt, begin)>
+			<li><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label><span class="help" data-help="更新通知を送ると他の人があなたの記事を見つけやすくなります。\n【送信先】\n<@v.sys.ping_servers_txt>">?</span></li>
+			<$end>
 		<$end>
-	<$end>
+		<@ifexec(!art.draft && edit_pkey, begin)>
+			<li><input type="checkbox" name="draft" value="1"<@if(art.draft, ' checked')> id="draft-chk" data-on='下書き'><label>この記事を下書きとして保存する</label><span class="help" data-help="初公開日時の情報も消去されます。">?</span></li>
+		<$end>
+		<@ifexec(Develop && !v.sphone, begin)>
+			<li><input type="checkbox" class="js-switch" data-target="#-dummy-" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug"><em>[develop]</em> パーサーのデバッグ</label></li>
+		<$end>
+		</ul></li>
 		<li><input type="checkbox" name="wiki" value="1" data-target="#wiki-block" class="js-switch"<@if(art.ctype || art.wiki, ' checked')>><label>wikiコンテンツにする</label>
 		<input type="hidden" name="priority" value="<@art.priority>">
 		<ul id="wiki-block" style="display: none">
@@ -203,17 +214,13 @@
 			<li>コンテンツkey<span class="help" data-help='"http://" や "/" ではじまるkeyを指定するとリンクになります。"FrontPage", "top", "index"のいずれかを指定するとブログトップの固定記事になります。'>?</span><input type="text" name="link_key" id="link-key" class="w240" value="<@if(art.ctype, esc(art.link_key))>" data-suggest="<@s.suggest_link_key>"></li>
 		</ul>
 		</li>
-		<@ifexec(!art.draft && edit_pkey, begin)>
-		<li><input type="checkbox" name="draft" value="1"<@if(art.draft, ' checked')> id="draft-chk" data-on='下書き'><label>この記事を下書きとして保存する</label><span class="help" data-help="初公開日時の情報も消去されます。">?</span></li>
-		<$end>
-		<li><a href="<@v.myself>?etc/allow_tags&amp;n=article" target="_blank">※使用可能なHTMLタグ一覧</a></li>
 	</ul>
 
 	<button type="submit" name="edit" id="save-last" value="1"><@save_btn_text></button>
 </form>
 <@ifexec(edit_pkey, begin)>
 	<ul class="checkbox">
-	<li><input type="checkbox" name="post_detail" data-target="#post-detail" class="js-switch"<@if(s.post_detail, ' checked')>> <@\>
+	<li><input type="checkbox" data-target="#post-detail" class="js-switch"> <@\>
 	<label>投稿情報の表示</label>
 		<ul id="post-detail"<@if(!s.post_detail, ' style="display: none"')>>
 			<@ifexec(art.tm,begin)>
@@ -224,13 +231,14 @@
 			<li>HOST <@art.host></li>
 			<li>AGENT <@art.agent></li>
 		</ul></li>
+ 	<li><input type="checkbox" id="del-submit-check" class="js-enable" data-target="#del-submit"><label>削除確認</label></li>
 	</ul>
-<form method="POST" action="<@v.myself2>" class="delete js-form-check" data-confirm="この記事を本当に削除しますか？" data-default="cancel">
+<form method="POST" action="<@v.myself2>" class="delete js-form-check" data-confirm="本当にこの記事を削除しますか？" data-default="cancel">
 	<input type="hidden" name="action" value="delete">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="delete_pkey_int_ary" value="<@edit_pkey>">
 	<input type="hidden" name="title" value="<@art.title>">
-	<button type="submit" name="delete" id="del-submit">この記事を削除する</button>
+	<button type="submit" name="delete" id="del-submit" class="no-disable">この記事を削除する</button>
 </form>
 <$end>
 </div> <!-- end of body -->
@@ -246,5 +254,27 @@
 <span id="edit-confirm">この記事を編集している人が他にいますが、編集を継続しますか？%u</span>
 <span id="msg-multiline">複数行を一度に処理できません。</span>
 <span id="msg-for-ie8">このブラウザではこの機能は使用できません。</span>
+<span id="msg-upload-error">アップロードに失敗しました。</span>
+<span id="msg-upload-fail">%n 個中 %f 個のアップロードに失敗しました。</span>
+
+<@> ファイルアップロード用データ
+<$tags = call('album/_load_tags')>
+<span id="paste-tag" data-file="<@tags.file>"></span>
+<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>" id="csrf-key">
+
+<div id="thumbnail-info"><br>
+<select name="paste">
+	<option value="<@tags.thumb>">サムネイルを貼付</option>
+	<option value="<@tags.image>">大きい画像を貼付</option>
+</select>&ensp;
+
+サムネイル<select name="size" class="r js-save thumbnail-size">
+	<option value="120" selected>120px</option>
+	<option value="160">160px</option>
+	<option value="240">240px</option>
+	<option value="320">320px</option>
+	<option value="400">400px</option>
+	<option value="480">480px</option>
+</select></div>
 </div>
 

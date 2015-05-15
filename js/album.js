@@ -19,7 +19,6 @@
 var DialogWidth;	// adiary.jsの参照
 
 $( function(){
-	var form = $secure('#album-form');
 	var tree = $('#album-folder-tree');
 	var view = $('#album-folder-view');
 	var selfiles = $('#selected-files')
@@ -90,10 +89,10 @@ tree.dynatree({
 			data.expand   = true;
 			data.isFolder = true;
 			
-			$(node.span).on("mydbltap", function(evt) {
+/*			$(node.span).on("mydbltap", function(evt) {
 				edit_node(node);
 			});
-		});
+*/		});
 		var rnodes = rootNode.getChildren();
 		if (!rnodes) return;	// エラー回避
 		var root = rnodes[1];
@@ -391,7 +390,7 @@ $('#album-reload').click( function(){
 $('#album-new-folder').click( function(){
 	var node = cur_node;
 	var ary  = node.getChildren();
-	var name = "New-folder";
+	var name = "new-folder";
 	if (ary) {
 		// フォルダ名の重複防止
 		var h = {};
@@ -420,17 +419,20 @@ $('#album-new-folder').click( function(){
 		success: function(data) {
 			if (data.ret !== 0) return error_msg('#msg-fail-create');
 			name += '/';
+			console.log(name);
 			var create = node.addChild({
 			        isFolder: true,
-				title: name
+				title: name,
+				name:  name
 			});
-			create.data.name  = name;
 			create.data.key   = cur_folder + name;
 			create.data.count = 0;
 			create.data.title = get_title( create.data );
 
 			// 名前変更モード
-			node.expand();
+			console.log(111);
+			// node.expand();
+			console.log(222);
 			edit_node(create);
 		},
 		error: function() {
@@ -759,12 +761,10 @@ function ajax_submit(opt) {
 		error: function(data) {
 			if (opt.error) opt.error(data);
 			console.log('[ajax_submit()] http post fail');
-			console.log(data);
 		},
 		success: function(data) {
 			if (opt.success) opt.success(data);
 			console.log('[ajax_submit()] http post success');
-			console.log(data);
 		},
 		traditional: true
 	});
@@ -1060,13 +1060,13 @@ function paste_button(evt) {
 		var img = $(sel[i]);
 		var tag = img.data('isimg') ? imgtag : filetag;
 
-		var name = img.data('title');
+		var name = img.data('title').toString();	// 数字のみのファイル名対策
 		var reg  = name.match(/\.(\w+)$/);
 		var ext  = reg ? reg[1] : '';
 		var rep  = {
-			d: escape_satsuki(cur_folder),
-			e: escape_satsuki(ext),
-			f: escape_satsuki(name),
+			d: esc_satsuki_tag(cur_folder),
+			e: esc_satsuki_tag(ext),
+			f: esc_satsuki_tag(name),
 			c: ''
 		};
 		if (exiftag && img.data('isimg') && name.match(/\.jpe?g$/i)) {
@@ -1087,11 +1087,6 @@ function paste_button(evt) {
 	paste_form.submit();
 
 	return false;
-}
-
-function escape_satsuki(text) {
-	return text.replace(/([:\[\]])/g, "\\$1")
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1206,24 +1201,6 @@ function update_upfiles() {
 		div.append(del);
 		dnd_div.append(div);
 	}
-}
-
-function size_format(s) {
-	function sprintf_3f(n){
-		n = n.toString();
-		var idx = n.indexOf('.');
-		var len = (0<=idx && idx<3) ? 4 : 3;
-		return n.substr(0,len);
-	}
-
-	if (s > 104857600) {	// 100MB
-		s = Math.round(s/1048576);
-		s = s.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
-		return s + ' MB';
-	}
-	if (s > 1023487) return sprintf_3f( s/1048576 ) + ' MB';
-	if (s >     999) return sprintf_3f( s/1024    ) + ' KB';
-	return s + ' Byte';
 }
 
 //////////////////////////////////////////////////////////////////////////////

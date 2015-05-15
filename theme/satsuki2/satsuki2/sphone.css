@@ -79,7 +79,7 @@ span.switch-icon {
 #sidebar ul.hatena-section {
 	line-height:		200%;
 }
-#side-search {
+not(.Fx) #side-search {		/* for Fx bug */
 	text-align:		center;
 }
 #side-search input.search-box {

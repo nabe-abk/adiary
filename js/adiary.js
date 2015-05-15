@@ -195,9 +195,10 @@ findx: function(sel){
 //////////////////////////////////////////////////////////////////////////////
 //●[jQuery] スマホでDnDをエミュレーションする
 //////////////////////////////////////////////////////////////////////////////
-dndEmulation: function(){
+dndEmulation: function(opt){
 	var self = this[0];
 	if (!self) return;
+	opt = opt || {};
 
 	// mouseイベント作成
 	function make_mouse_event(name, evt, touch) {
@@ -271,7 +272,7 @@ dndEmulation: function(){
 
 		// 要素移動がなければこれで終了
 		evt.preventDefault();
-		if (dom == prev) return;
+		if (!opt.leave || dom == prev) return;
 
 		// 要素移動があれば leave と enter イベント生成
 		var leave = get_par_elements(prev);
@@ -517,15 +518,19 @@ initfunc.push( function(R){
 
 		var flag;
 		var type=btn.attr('type').toLowerCase();
-		if (type == 'checkbox' || type == 'radio')
+		if (type == 'checkbox')
 			flag = btn.prop("checked");
-		else	flag = ! (btn.val() + '').match(/^\s*$/);
+		else if (type == 'radio') {
+			if (! btn.prop("checked")) return;
+			flag = btn.data("state");
+		} else
+			flag = ! (btn.val() + '').match(/^\s*$/);
 		if (btn.hasClass('js-disable')) flag=!flag;
 
 		// disabled設定
 		form.prop('disabled', !flag);
 	}
-	objs.click( btn_evt );
+	objs.change( btn_evt );
 	objs.each(function(idx,ele){ btn_evt({target: ele}) });
 });
 
@@ -541,6 +546,7 @@ initfunc.push( function(R){
 	var form = obj.parents('form.js-form-check');
 	if (!form.length) return;
 	form.data('confirm', obj.data('confirm') );
+	form.data('default', obj.data('default') );
   })
 });
 
@@ -575,6 +581,40 @@ initfunc.push( function(R){
 	});
 	return false;
   })
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//●フォーム値の保存	※表示、非表示よりも前に処理すること
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R) {
+	R.findx('input.js-save, select.js-save').each( function(idx, dom) {
+		var obj = $(dom);
+		var id  = obj.attr("id");
+		if (!id) return;
+		var type = obj.attr('type');
+		if (type && type.toLowerCase() == 'checkbox') {
+			obj.change( function(evt){
+				var obj = $(evt.target);
+				Storage.set(id, obj.prop('checked') ? 1 : 0);
+			});
+			if ( Storage.defined(id) )
+				obj.prop('checked', Storage.get(id) != 0 );
+			return;
+		}
+		obj.change( function(evt){
+			var obj = $(evt.target);
+			Storage.set(id, obj.val());
+		});
+		var val = Storage.get(id);
+		if (! val) return;
+		if (dom.tagName != 'SELECT') return obj.val( val );
+
+		// 記録されいてる値がない時のために、安易に val() しない
+		obj.find('option').each( function(idx, opt) {
+			if ($(opt).attr('value') != val) return;
+			obj.val( val );
+		});
+	});
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -875,33 +915,6 @@ initfunc.push( function(R){
 		label.attr('for', id);
 	});
 ///
-});
-
-//////////////////////////////////////////////////////////////////////////////
-//●フォーム値の保存
-//////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R) {
-	R.findx('input.js-save, select.js-save').each( function(idx, dom) {
-		var obj = $(dom);
-		var id  = obj.attr("id");
-		if (!id) return;
-		var type = obj.attr('type');
-		if (type && type.toLowerCase() == 'checkbox') {
-			obj.change( function(evt){
-				var obj = $(evt.target);
-				Storage.set(id, obj.prop('checked') ? 1 : 0);
-			});
-			if ( Storage.defined(id) )
-				obj.prop('checked', Storage.get(id) != 0 );
-			return;
-		}
-		obj.change( function(evt){
-			var obj = $(evt.target);
-			Storage.set(id, obj.val());
-		});
-		if ( Storage.defined(id) )
-			obj.val( Storage.get(id) );
-	});
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1430,7 +1443,7 @@ function show_error(h, _arg) {
 }
 function show_dialog(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, hash:_arg};
-	var html = h.msg || ((h.id.substr(0,1) != '#') ? h.id : myfind(h.id).html());
+	var html = h.html || ((h.id.substr(0,1) != '#') ? h.id : myfind(h.id).html());
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 	html = html.replace(/%[A-Za-z]/g, '');
 
@@ -1449,7 +1462,7 @@ function show_dialog(h, _arg) {
 // ●確認ダイアログ
 //////////////////////////////////////////////////////////////////////////////
 function my_confirm(h, callback) {
-	if (typeof(h) === 'string') h = {html: h};
+	if (typeof(h) === 'string') h = {id: h};
 	callback = callback || h.callback;
 	var html = h.html || ((h.id.substr(0,1) != '#') ? h.id : myfind(h.id).html());
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
@@ -1795,4 +1808,34 @@ function DOMStorageDummy() {
 	}
 }
 
+//############################################################################
+// ■その他jsファイル用サブルーチン
+//############################################################################
+//----------------------------------------------------------------------------
+// ●ファイルサイズ等の書式を整える
+//----------------------------------------------------------------------------
+function size_format(s) {
+	function sprintf_3f(n){
+		n = n.toString();
+		var idx = n.indexOf('.');
+		var len = (0<=idx && idx<3) ? 4 : 3;
+		return n.substr(0,len);
+	}
+
+	if (s > 104857600) {	// 100MB
+		s = Math.round(s/1048576);
+		s = s.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+		return s + ' MB';
+	}
+	if (s > 1023487) return sprintf_3f( s/1048576 ) + ' MB';
+	if (s >     999) return sprintf_3f( s/1024    ) + ' KB';
+	return s + ' Byte';
+}
+
+//----------------------------------------------------------------------------
+// ●さつきタグ記号のエスケープ
+//----------------------------------------------------------------------------
+function esc_satsuki_tag(str) {
+	return str.replace(/([:\[\]])/g, function(w,m){ return "\\" + m; });
+}
 

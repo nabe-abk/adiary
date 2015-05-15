@@ -870,7 +870,7 @@ sub update_taglist {
 	my $tree = $self->generate_tag_tree($blogid);
 
 	# JSONの生成
-	my $json = $self->generate_json($tree->{children}, ['sname', 'pkey', 'qt'], {sname=>'title', pkey=>'key'});
+	my $json = $self->generate_json($tree->{children}, ['sname', 'pkey', 'qt', 'children'], {sname=>'title', pkey=>'key'});
 	$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'taglist.json', $json);
 
 	# イベント処理
@@ -968,7 +968,7 @@ sub update_contents_list {
 	# コンテンツ情報JSON、キャッシュの生成
 	{
 		my $all = $tree->{_all};
-		my $json= $self->generate_json($tree->{children}, ['title', 'pkey', 'upnode','link_key'], {pkey=>'key'});
+		my $json= $self->generate_json($tree->{children}, ['title', 'pkey', 'upnode', 'link_key', 'children'], {pkey=>'key'});
 		$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'contents.json', $json);
 
 		# upnode, children, titleのキャッシュ
@@ -1823,18 +1823,22 @@ sub generate_json {
 			next;
 		}
 		my @a;
+		my @b;
 		my $_cols = $cols ? $cols : [ keys(%$_) ];
 		foreach my $x (@$_cols) {
 			my $k = exists($ren->{$x}) ? $ren->{$x} : $x;
-			push(@a, "\"$k\": " . &encode( $_->{$x} ));
-		}
-		if ($_->{children}) {
-			my $ch = $self->generate_json( $_->{children}, $cols, $ren, "\t$tab" );
-			push(@a, "\"children\": $ch");
+			my $v = $_->{$x};
+			if (!ref($v)) {
+				push(@a, "\"$k\": " . &encode( $v ));
+				next;
+			}
+			# 入れ子
+			my $ch = $self->generate_json( $v, $cols, $ren, "\t$tab" );
+			push(@b, "\"$k\": $ch");
 		}
 		push(@ary, $is_hash
-			? "{\n$tab\t" . join(",\n$tab\t", @a) . "\n$tab}"
-			: "$tab\t{"   . join(", "       , @a) . "}"
+			? "{\n$tab\t" . join(",\n$tab\t", @a, @b) . "\n$tab}"
+			: "$tab\t{"   . join(", "       , @a, @b) . "}"
 		);
 	}
 	return $is_hash ? $ary[0] : "[\n" . join(",\n", @ary) . "\n$tab]";

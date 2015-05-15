@@ -43,7 +43,7 @@ sub genarete_imgae_dirtree {
 	$tree->{key}  = '/';
 	$trash->{name} = '.trashbox/';
 	$trash->{key}  = '.trashbox/';
-	my $json = $self->generate_json([$tree, $trash], ['name', 'key', 'date', 'count']);
+	my $json = $self->generate_json([$tree, $trash], ['name', 'key', 'date', 'count', 'children']);
 	$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'images.json', $json);
 
 	return $tree->{count};
@@ -115,7 +115,7 @@ sub load_image_files {
 		$self->make_thumbnail($dir, $files);
 	}
 
-	my $json = $self->generate_json(\@ary, ['name', 'size', 'date', 'isImg']);
+	my $json = $self->generate_json(\@ary, ['name', 'size', 'date', 'isImg', 'children']);
 	return (0, $json);
 }
 
@@ -370,7 +370,40 @@ sub image_upload_form {
 	$self->genarete_imgae_dirtree();
 
 	# メッセージ
-	return wantarray ? ($count_s, $count_f) : $count_f;
+	return wantarray ? ($count_s, $count_f, \@files) : $count_f;
+}
+
+#------------------------------------------------------------------------------
+# ●ajax用の画像のアップロード
+#------------------------------------------------------------------------------
+sub ajax_image_upload {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	# ディレクトリ生成
+	my $dir  = $self->image_folder_to_dir( $form->{folder} ); # 値check付
+	my @ary  = split('/', $dir);
+	$dir = '';
+	foreach(@ary) {
+		$dir .= $_ . '/';
+		if (!-e $dir) { $ROBJ->mkdir($dir); }
+	}
+
+	my ($cs, $cf, $files) = $self->image_upload_form( $form );
+	my %h;
+	$h{ret}  = $cf ? 1 : 0;
+	$h{fail} = $cf;
+	$h{success} = $cs;
+	my @ary;
+	foreach(@$files) {
+		push(@ary,{
+			name => $_,
+			isImg=> $self->is_image($_)
+		});
+	}
+	$h{files} = \@ary;
+	return $self->generate_json(\%h);
 }
 
 #----------------------------------------------------------------------

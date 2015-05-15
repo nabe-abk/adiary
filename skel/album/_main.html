@@ -17,8 +17,10 @@
 				<option value="100">100px</option>
 				<option value="120" selected>120px</option>
 				<option value="160">160px</option>
-				<option value="200">200px</option>
 				<option value="240">240px</option>
+				<option value="320">320px</option>
+				<option value="400">400px</option>
+				<option value="480">480px</option>
 			</select><span class="help" data-help="サムネイルの表示最大サイズを指定します。指定サイズより小さいサムネイルはそのままです。\n※IE8以前では動作しません。">?</span>
 			</span>
 			<select id="view-type">
@@ -43,12 +45,12 @@
 	<h4 id="selected-files-title"><input type="checkbox" class="js-switch" data-target="#selected-files"><label>選択中のファイル名を表示</label><span class="help" data-help="ファイル名を変更するには「選択ファイル名の表示」から該当ファイルをダブルクリックしてください。">?</span></h4>
 	<ul id="selected-files"></ul>
 
-	<form action="<@v.myself>?edit" method="POST" id="paste-form" data-tag="[file:%e:%d:%f:%f]" data-exif-tag=":#[exif:%d:%f:<@if(v.blog.exif_tag, v.blog.exif_tag, '%271 %272 / %37386mm F%33437 %33434sec ISO%34855')>]">
+	<form action="<@v.myself>?edit" method="POST" id="paste-form" data-tag="<@tags.file>" data-exif-tag="<@tags.exif>">
 	<input type="hidden" name="action" value="etc/dummy">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="paste_txt" value="" id="paste-txt">
-	<button type="submit" id="paste-thumbnail" data-tag="[image:S:%d:%f:%f%c]">サムネイルを記事に</button>
-	<button type="submit" id="paste-original"  data-tag="[image:L:%d:%f:%f%c]">元画像を記事に</button>
+	<button type="submit" id="paste-thumbnail" data-tag="<@tags.thumb>">サムネイルを記事に</button>
+	<button type="submit" id="paste-original"  data-tag="<@tags.image>">元画像を記事に</button>
 	<button type="button" id="remake-thumbnail">サムネイル再生成</button><span class="help" data-help="選択した画像のサムネイルを、下で指定したサイズで再生成します。「Exifの削除」がチェックされていれば、同時にExif削除も行います。">?</span>
 	<button type="button" id="select-exifjpeg">Exif検索</button><span class="help" data-help="Exif情報を持つJPEGファイルを選択します。">?</span><br>
 	<input type="checkbox" id="paste-to-exif" class="js-save"><label>Exifも一緒に記事に貼り付ける</label>

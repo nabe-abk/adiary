@@ -44,12 +44,12 @@
 	</div>
 	<div id="album-folder-view"></div>
 
-	<form action="<@v.myself>?edit" method="POST" id="paste-form" data-tag="[file:%e:%d:%f:%f]" data-exif-tag=":#[exif:%d:%f:<@if(v.blog.exif_tag, v.blog.exif_tag, '%271 %272 / %37386mm F%33437 %33434sec ISO%34855')>]">
+	<form action="<@v.myself>?edit" method="POST" id="paste-form" data-tag="<@tags.file>" data-exif-tag="<@tags.exif>">
 	<input type="hidden" name="action" value="etc/dummy">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="paste_txt" value="" id="paste-txt">
-	<button type="submit" id="paste-thumbnail" data-tag="[image:S:%d:%f:%f%c]">サムネイルを記事に</button>
-	<button type="submit" id="paste-original"  data-tag="[image:L:%d:%f:%f%c]">元画像を記事に</button>
+	<button type="submit" id="paste-thumbnail" data-tag="<@tags.thumb>">サムネイルを記事に</button>
+	<button type="submit" id="paste-original"  data-tag="<@tags.image>">元画像を記事に</button><br>
 	<button type="button" id="remake-thumbnail">サムネイル再生成</button><span class="help" data-help="選択した画像のサムネイルを、下で指定したサイズで再生成します。「Exifの削除」がチェックされていれば、同時にExif削除も行います。">?</span>
 	<button type="submit" id="album-move-files" data-tag="[image:S:%d:%f:%f%c]">ファイルを移動</button>
 	</form>
@@ -65,9 +65,7 @@
 	<input type="hidden" name="folder" value="" id="upload-folder">
 	<div id="dnd-files"></div><div id="file-elements"><input type="file" name="file0_ary" multiple id="file"></div>
 	<button type="submit" id="upload">upload</button>
-	サムネイル<select id="thumbnail-size" class="r js-save">
-			<option value=" 60"> 60px</option>
-			<option value="100">100px</option>
+	サムネイル<select name="size" id="thumbnail-size" class="r js-save">
 			<option value="120" selected>120px</option>
 			<option value="160">160px</option>
 			<option value="240">240px</option>
