@@ -14,13 +14,13 @@
 	<tr>
 		<th>背景色<td>
 			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
-			透過<input type="number" class="w50" name="bg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.bg_alpha || 1>" id="bg-alpha">(0=透明) &nbsp;
+			透過<input type="number" class="w50" name="bg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.bg_alpha || 1>" id="bg-alpha">(0=透明) &ensp;
 			<input type="checkbox" class="js-disable" data-target="#bg,#bg-alpha"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>文字</th><td>
-			<input type="text" id="font-c" name="font_c" value="<@ps.font_c || '#000000'>" class="color-picker"> &nbsp;
+			<input type="text" id="font-c" name="font_c" value="<@ps.font_c || '#000000'>" class="color-picker"> &ensp;
 			<input type="number" class="int w50" name="font_s" value="<@ps.font_s || 16>" min="0" max="999" id="font-s">px 
 			行間<input type="number" class="int w50" name="line_h" value="<@ps.line_h || 100>" min="0" max="999" id="line-h">% 
 			
@@ -37,13 +37,13 @@
 	<tr>
 		<th>枠線の表示<span class="help" data-help="全体を枠線で囲みます。">?</span></th>
 		<td>
-			太さ   <input type="number" class="int w50" name="border_w" value="<@ps.border_w || 0>" min="0" max="99" id="border-w">px &nbsp;
+			太さ   <input type="number" class="int w50" name="border_w" value="<@ps.border_w || 0>" min="0" max="99" id="border-w">px &ensp;
 			丸め量 <input type="number" class="int w50" name="border_r" value="<@ps.border_r || 0>" min="0" max="99" id="border-r">px
 		</td>
 	</tr>
 	<tr>
 		<th>全体の影</th><td>
-			幅     <input type="number" class="int w50" name="shadow_b"  value="<@ps.shadow_b  || 0>" min="0" max="99" id="shadow-b">px &nbsp;
+			幅     <input type="number" class="int w50" name="shadow_b"  value="<@ps.shadow_b  || 0>" min="0" max="99" id="shadow-b">px &ensp;
 			ぼかし <input type="number" class="int w50" name="shadow_bb" value="<@ps.shadow_bb || 0>" min="0" max="99" id="shadow-bb">px
 		</td>
 	</tr>
@@ -58,7 +58,7 @@
 		<th>固定位置で表示<span class="help" data-help="ヘッダ等の領域内で固定された位置に表示します。">?</span></th>
 		<td>
 			上から<input type="number" class="int w50" name="abs_y" value="<@ps.abs_y || 0>" min="0" max="999" id="abs-y">px 
-			左から<input type="number" class="int w50" name="abs_x" value="<@ps.abs_x || 0>" min="0" max="999" id="abs-x">px &nbsp;
+			左から<input type="number" class="int w50" name="abs_x" value="<@ps.abs_x || 0>" min="0" max="999" id="abs-x">px &ensp;
 			<input type="checkbox" class="js-enable" data-target="#abs-x,#abs-y"<@if(ps.abs_x ne '',' checked')>><label>固定位置で表示する</label>
 		</td>
 	</tr>
@@ -66,7 +66,7 @@
 		<th>領域の幅と高さ</th>
 		<td>
 			  幅<input type="number" class="int w50" name="width"  value="<@ps.width  || 0>" min="0" max="1999" id="width">px 
-			<input type="checkbox" class="js-disable" data-target="#width"<@if(ps.width eq '',' checked')>><label>変更しない</label> &nbsp; 
+			<input type="checkbox" class="js-disable" data-target="#width"<@if(ps.width eq '',' checked')>><label>変更しない</label> &ensp; 
 			  高さ<input type="number" class="int w50" name="height" value="<@ps.height || 0>" min="0" max="999" id="height">px 
 			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
 		</td>
@@ -79,7 +79,7 @@
 			上<input type="number" class="int w50" name="margin0" value="<@ps.margin0 || 0>" min="-999" max="999" id="margin0"> 
 			右<input type="number" class="int w50" name="margin1" value="<@ps.margin1 || 0>" min="-999" max="999" id="margin1"> 
 			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
-			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &nbsp;
+			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &ensp;
 			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
@@ -89,7 +89,7 @@
 			上<input type="number" class="int w50" name="padding0" value="<@ps.padding0 || 0>" min="0" max="999" id="padding0"> 
 			右<input type="number" class="int w50" name="padding1" value="<@ps.padding1 || 0>" min="0" max="999" id="padding1"> 
 			下<input type="number" class="int w50" name="padding2" value="<@ps.padding2 || 0>" min="0" max="999" id="padding2"> 
-			左<input type="number" class="int w50" name="padding3" value="<@ps.padding3 || 0>" min="0" max="999" id="padding3"> &nbsp;
+			左<input type="number" class="int w50" name="padding3" value="<@ps.padding3 || 0>" min="0" max="999" id="padding3"> &ensp;
 			<input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(ps.padding0 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>

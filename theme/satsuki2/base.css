@@ -303,7 +303,7 @@ div.body-footer {
 #popup-div, #popup-help, #popup-com {
 	display:	none;
 	position:	absolute;
-	z-index:	1000;
+	z-index:	2000;
 }
 
 .ui-widget-overlay {
@@ -333,7 +333,6 @@ span.resize-parts {
 	z-index:	9990050;	/* 下3桁がinput type="text"の最小サイズ */
 
 	/* display:	none;	*/	/* リサイズ機能を無効にする */
-	/* border:	1px solid red;	*/
 }
 
 /*--------------------------------------------------------------------
@@ -391,6 +390,13 @@ em			{ font-style: normal; text-decoration: underline; }
 .w90p { width:  90%; }
 .w80p { width:  80%; }
 
+/* スマホ */
+.SP .w120 { width: 100px; }
+.SP .w160 { width: 120px; }
+.SP .w200 { width: 140px; }
+.SP .w240 { width: 160px; }
+.SP .w280 { width: 180px; }
+.SP .w300,
 .SP .w320,
 .SP .w360,
 .SP .w400,
@@ -657,7 +663,7 @@ h3.ui-accordion-header {
 .dropdown-menu {
 	position:		relative;
 	width:			100%;
-	z-index:		990;
+	z-index:		900;
 	font-weight:		bold;
 }
 .dropdown-menu>ul, .dropdown-menu>ul * {	/* 全称セレクタ */
@@ -863,7 +869,7 @@ h3.ui-accordion-header {
 	margin:			0;
 }
 
-
+/* ボタン */
 .sp button,
 .sp input [type="button"],
 .sp input [type="submit"],
@@ -872,12 +878,18 @@ h3.ui-accordion-header {
 	margin-bottom:		6px;
 }
 
+.sp #popup-div,
+.sp #popup-help,
+.sp #popup-com {
+	margin:			0 1em;
+}
+
 /*--------------------------------------------------------------------
 ●スマホ用検索ボックス
 ---------------------------------------------------------------------*/
 #sp-head-search {
 	position:		relative;
-	z-index:		1010;
+	z-index:		1000;
 	float:			right;
 
 	padding:		4px;

@@ -6,7 +6,7 @@
 	<tbody>
 	<tr>
 		<th>文字</th><td>
-			<input type="text" id="font-c" name="font_c" value="<@ps.font_c || '#000000'>" class="color-picker"> &nbsp;
+			<input type="text" id="font-c" name="font_c" value="<@ps.font_c || '#000000'>" class="color-picker"> &ensp;
 			<input type="number" class="int w40" name="font_s" value="<@ps.font_s || 16>" min="0" max="999" id="font-s">px 
 			<input type="checkbox" name="font_bf" id="font-bf" value="1"><label>太字</label>
 			<input type="checkbox" class="js-disable" data-target="#font-c,#font-s,#font-bf,#font-trans"<@if(ps.font_c eq '',' checked')>><label>変更しない</label>
@@ -31,10 +31,10 @@
 			幅<input type="number" class="int w40" name="s_w"  value="<@ps.s_w  || 0>" min="0" max="99" id="sw">px
 			ぼかし<input type="number" class="int w40" name="s_bl" value="<@ps.s_bl || 4>" min="0" max="99" id="sw">px
 			<br>
-			ハイライト <input type="text" name="s_c1" value="<@ps.s_c1 || '#ffffff'>" class="color-picker"> &nbsp;
-			影         <input type="text" name="s_c0" value="<@ps.s_c0 || '#000000'>" class="color-picker"> &nbsp;
+			ハイライト <input type="text" name="s_c1" value="<@ps.s_c1 || '#ffffff'>" class="color-picker"> &ensp;
+			影         <input type="text" name="s_c0" value="<@ps.s_c0 || '#000000'>" class="color-picker"> &ensp;
 			<br>
-			縁取り色 <input type="text" name="s_oc" value="<@ps.s_oc || '#ebebeb'>" class="color-picker"> &nbsp;
+			縁取り色 <input type="text" name="s_oc" value="<@ps.s_oc || '#ebebeb'>" class="color-picker"> &ensp;
 			縁取り幅 <input type="number" class="int w50" name="s_ow" value="<@ps.s_ow || 0>" min="0" max="9">px
 		</td>
 	</tr>
@@ -49,7 +49,7 @@
 	<tr>
 		<th>文字の背景色<td>
 			<input type="text" id="fbg" name="fbg" value="<@ps.fbg || '#ffffff'>" class="color-picker">
-			透過<input type="number" class="w50" name="fbg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.fbg_alpha || 1>" id="fbg-alpha">(0=透明) &nbsp;
+			透過<input type="number" class="w50" name="fbg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.fbg_alpha || 1>" id="fbg-alpha">(0=透明) &ensp;
 			<input type="checkbox" class="js-disable" data-target="#fbg,#fbg-alpha"<@if(ps.fbg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
@@ -66,7 +66,7 @@
 	<tbody>
 	<tr><th>領域の高さ</th>
 		<td>
-			<input type="number" class="int w60" name="height" value="<@ps.height || 32>" min="0" max="999" id="height">px &nbsp;
+			<input type="number" class="int w60" name="height" value="<@ps.height || 32>" min="0" max="999" id="height">px &ensp;
 			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
@@ -106,7 +106,7 @@
 			上<input type="number" class="int w50" name="border0" value="<@ps.border0 || 0>" min="0" max="99" id="border0"> 
 			右<input type="number" class="int w50" name="border1" value="<@ps.border1 || 0>" min="0" max="99" id="border1"> 
 			下<input type="number" class="int w50" name="border2" value="<@ps.border2 || 0>" min="0" max="99" id="border2"> 
-			左<input type="number" class="int w50" name="border3" value="<@ps.border3 || 0>" min="0" max="99" id="border3"> &nbsp;
+			左<input type="number" class="int w50" name="border3" value="<@ps.border3 || 0>" min="0" max="99" id="border3"> &ensp;
 			<input type="checkbox" class="js-disable" data-target="#border0,#border1,#border2,#border3"<@if(ps.border0 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
@@ -116,7 +116,7 @@
 			上<input type="number" class="int w50" name="margin0" value="<@ps.margin0 || 0>" min="-999" max="999" id="margin0"> 
 			右<input type="number" class="int w50" name="margin1" value="<@ps.margin1 || 0>" min="-999" max="999" id="margin1"> 
 			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
-			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &nbsp;
+			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &ensp;
 			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>

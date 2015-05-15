@@ -436,11 +436,11 @@ function link_tag_btn(evt, func) {
 $secure('#btn-link').click( function(evt) {
 	link_tag_btn(evt, function (h) {
 		if (h.str1 == '') return;
-		if (h.str2 == '') return;
+		if (h.str2 != '') h.str2 = ':' + h.str2;
 		var ma = h.str1.match(/^(https?:\/\/)(.+)/i);
 		if (! ma) return;
 		var url = ma[1] + esc_satsuki_tag(ma[2]);
-		replace_selection( '[' + url + ':' + h.str2 + ']' );
+		replace_selection( '[' + url + h.str2 + ']' );
 	});
 });
 $secure('#btn-google').click( link_tag_btn );

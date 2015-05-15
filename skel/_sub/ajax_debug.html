@@ -4,7 +4,7 @@ Error : <@error_load_and_clear("\n")>
 <$end>
 <@ifexec(@Debug, begin)>
 <$str=join("\n", Debug)>
-<$replace(str,'&nbsp;',' ')>
+<$replace(str,'&ensp;',' ')>
 <$replace(str,'<br>',"\n")>
 Debug : <@str>
 <$end>

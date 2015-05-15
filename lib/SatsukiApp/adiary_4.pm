@@ -1436,7 +1436,7 @@ sub load_theme_colors {
 		# /* $c=xxxcol=main */
 		if ($_ =~ /\$c=\s*([\w]+)\s*=\s*([\s\w\+\-\*\/\.#]*)\*\//) {
 			if ($col{"$1-rel"} && $col{"$1-rel"} ne $2) {
-				$col{"-err-$1"} = "[$line_c]$_<br> &nbsp; &nbsp;$1=" . $col{"$1-rel"};
+				$col{"-err-$1"} = "[$line_c]$_<br> &emsp; $1=" . $col{"$1-rel"};
 			}
 			$col{"$1-rel"} = $2;
 		}
@@ -1450,7 +1450,7 @@ sub load_theme_colors {
 
 			} elsif ($_ =~ /(#[0-9A-Fa-f]+)/) {
 				if ($col{$name} && $col{$name} ne $1) {
-					$col{"-err-$name"} = "[$line_c]$_<br> &nbsp; &nbsp;" . $col{$name};
+					$col{"-err-$name"} = "[$line_c]$_<br> &emsp; " . $col{$name};
 				}
 				$col{$name} = $1;
 

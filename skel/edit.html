@@ -158,13 +158,13 @@
 		<option value="x-small">小小</option>
 		<option value="xx-small">小小小</option>
 	</select>
-	<a href="http://adiary.org/v3man/Satsuki/" data-default="Satsuki/" data-markdown="Markdown/" target=_blank id="parser-help-link">記法のヘルプ</a>
+	<a href="http://adiary.org/v3man/Satsuki/" data-default="Satsuki/" data-markdown="Markdown/" target=_blank id="parser-help-link">記法ヘルプ</a>
 	</div>
 
 	<textarea name="body_txt" id="editarea" cols="60" rows="16" class="edit-article"><@tag_escape_amp( txt = art._text || form_.paste_txt)></textarea>
 
-	<span class="element" id="select-parser-span"><span class="edit-caption">パーサ</span>
-	<select name="parser" id="select-parser">
+	<span class="element" id="select-parser-span">
+		<span class="edit-caption">入力記法</span><select name="parser" id="select-parser">
 		<@forexec_hash(ROBJ, v.parsers, begin)><option value="<@key>"<@if(art.parser eq key, ' selected')>><@val></option>
 		<$end>
 	</select>

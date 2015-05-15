@@ -1635,7 +1635,7 @@ sub debug {
 	my ($self, $str, $level) = @_;
 	$self->tag_escape_amp($str);
 	$str =~ s/\n/<br>/g;
-	$str =~ s/ /&nbsp;/g;
+	$str =~ s/ /&ensp;/g;
 	my ($pack, $file, $line) = caller(int($level));
 	push(@{$self->{Debug}}, $str . "<!-- in $file line $line -->");
 }

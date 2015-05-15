@@ -83,16 +83,16 @@
 	</tr>
 	<tr><th>コメント許可対象</th>
 		<td>
-		<input type="radio" class="js-enable" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="*"<@if(s.allow_com_users eq '*', ' checked')>><label>誰でも</label>&nbsp;
-		<input type="radio" class="js-enable" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="user*"<@if(s.allow_com_users eq 'user*', ' checked')>><label>ユーザーのみ</label><span class="help" data-help="ログインできる人のみに限定します">?</span>&nbsp;
+		<input type="radio" class="js-enable" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="*"<@if(s.allow_com_users eq '*', ' checked')>><label>誰でも</label>
+		<input type="radio" class="js-enable" data-change="1" data-target="#allow-com-users" name="allow_com_sel" value="user*"<@if(s.allow_com_users eq 'user*', ' checked')>><label>ユーザーのみ</label><span class="help" data-help="ログインできる人のみに限定します">?</span>
 		<input type="radio" class="js-enable" data-change="0" data-target="#allow-com-users" name="allow_com_sel" value=""<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', ' checked')>><label>ID指定（「,」区切り）</label><br>
 		<input type="text" name="allow_com_users" id="allow-com-users" class="w320"  value="<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', s.allow_com_users)>">
 		</td>
 	</tr>
 	<tr><th>コメント保留<span class="help" data-help="コメントを確認するまで表示させないSPAM対策機能です。">?</span></th>
 		<td>
-		<input type="radio" name="defer_com" value="1"<@if( s.defer_com == 1, ' checked')>><label>すべて保留する</label><span class="help" data-help="ブログ管理者（と編集権限のある人）のコメントは保留されません">?</span>&nbsp;
-		<input type="radio" name="defer_com" value="2"<@if( s.defer_com == 2, ' checked')>><label>ユーザー以外を保留</label><span class="help" data-help="ログインしてない人を保留します">?</span>&nbsp;
+		<input type="radio" name="defer_com" value="1"<@if( s.defer_com == 1, ' checked')>><label>すべて保留する</label><span class="help" data-help="ブログ管理者（と編集権限のある人）のコメントは保留されません">?</span>
+		<input type="radio" name="defer_com" value="2"<@if( s.defer_com == 2, ' checked')>><label>ユーザー以外を保留</label><span class="help" data-help="ログインしてない人を保留します">?</span>
 		<input type="radio" name="defer_com" value="0"<@if(!s.defer_com     , ' checked')>><label>OFF</label>
 		</td>
 	</tr>

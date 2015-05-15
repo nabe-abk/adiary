@@ -25,11 +25,15 @@
 #body table.blog-setting td.html ul {
 	max-height:	40px;
 	overflow:	hidden;
-	padding:	0 0 0 20px;
+	padding:	0 0 0 12px;
 	margin:		0;
 
+	list-style:	none;
 	font-size:	10pt;
 	line-height:	100%;
+}
+#body table.blog-setting td.html>ul {
+	padding-left:	2px;
 }
 <@ifexec(v.sphone, begin)>
 #body table.blog-setting td {
@@ -39,11 +43,16 @@
 	font-size:	9pt;
 }
 #body table.blog-setting td,
-#body table.blog-setting td input {
-	font-size:	8pt;
-}
+#body table.blog-setting td input,
 #body table.blog-setting td.html ul {
+	font-size:	8pt;
+	line-height:	120%;
+}
+#body table.blog-setting td.html {
 	max-width:	100px;
+}
+#body table.blog-setting td.name {
+	word-break:	break-all;
 }
 <$end>
 </style>
@@ -58,6 +67,12 @@ $(function(){
 		var win = window.open('<@v.myself>?&sphone=1', 'spmode', 'width=360, height=600, location=yes, menubar=no, resizable=yes, scrollbars=yes');
 		win.focus();
 	});
+	
+	var test = $("#test");
+	test.on('mouseenter', function(){ console.log('enter') });
+	test.on('mouseleave', function(){ console.log('leave') });
+	test.on('mouseover',  function(){ console.log('over') });
+	test.on('mouseout',   function(){ console.log('out') });
 });
 </script>
 <$end>
@@ -70,7 +85,7 @@ $(function(){
 	<input type="hidden" name="action" value="<@v.skeleton>">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 
-	<p>使用するモジュールを選択してください。モジュール名をドラッグアップドロップすると並べ替えられます。</p>
+	<p id="test">使用するモジュールを選択してください。モジュール名をドラッグアップドロップすると並べ替えられます。</p>
 
 <@ifexec(!v.sphone, begin)>
 	<p><button type="button" id="sp-emulation">スマホ表示のサンプル</button><span class="help" data-help="リンクを辿ると通常画面に戻ります。メニューだけご確認ください。">?</span></p>
@@ -90,7 +105,7 @@ $(function(){
 		<td class="no-drag">
 			<input type="text" class="<@if(v.sphone, 'w80', 'w140')>" name="<@t.name>" value="<@t.title || pi.title>">
 		</td>
-		<td><@t.name></td>
+		<td class="name"><@t.name></td>
 		<td class="html"><@t.html></td>
 	</tr>
 	<$end>
@@ -98,7 +113,7 @@ $(function(){
 	</table>
 	
 	<p>タイトル<span class="help" data-help="使用するモジュールが2つ以上ある時、全体のタイトルとして使用されます。">?</span>
-	<input class="w300" type="text" name="spmenu_title" value="<@s.spmenu_title || 'メニュー'>"></p>
+	<input class="w160" type="text" name="spmenu_title" value="<@s.spmenu_title || 'メニュー'>"></p>
 
 
 	<button type="submit" id="submit">保存する</button>

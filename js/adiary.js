@@ -6,7 +6,7 @@
 'use strict';
 var DialogWidth = 640;
 var DefaultShowSpeed = 300;
-var TouchDnDTime  = 700;
+var TouchDnDTime  = 600;
 var DoubleTapTime = 400;
 var PopupOffsetX  = 15;
 var PopupOffsetY  = 10;
@@ -197,6 +197,7 @@ findx: function(sel){
 //////////////////////////////////////////////////////////////////////////////
 dndEmulation: function(){
 	var self = this[0];
+	if (!self) return;
 
 	// mouseイベント作成
 	function make_mouse_event(name, evt, touch) {
@@ -228,22 +229,28 @@ dndEmulation: function(){
 	// クロージャ変数
 	var prev;
 	var flag;
+	var timer;
+	var orig_touch;
 
 	// mousedownエミュレーション
 	self.addEventListener('touchstart', function(evt){
 		prev = evt.target;
+		orig_touch = evt.touches[0];
 		var e = make_mouse_event('mousedown', evt, evt.touches[0]);
 		$( prev ).trigger(e);
 		
 		// ある程度時間が経過しないときは処理を無効化する。
-		flag = false;
-		setTimeout(function(){
-			flag=true;
+		flag  = false;
+		timer = setTimeout(function(){
+			timer = false;
+			flag  = true;
 		}, TouchDnDTime)
 	});
 
 	// mouseupエミュレーション
 	self.addEventListener('touchend', function(evt){
+		if (timer) clearTimer(timer);
+		timer = false;
 		var e = make_mouse_event('mouseup', evt, evt.changedTouches[0]);
 		$( evt.target ).trigger(e);
 	});
@@ -276,11 +283,15 @@ dndEmulation: function(){
 			enter.pop();
 		}
 
-		// イベント発火
+		// イベント発火。発火順 >>leave,out,enter,over
 		var e_leave = make_mouse_event('mouseleave', evt, touch);
+		var e_out   = make_mouse_event('mouseout',   evt, touch);
 		var e_enter = make_mouse_event('mouseenter', evt, touch);
+		var e_over  = make_mouse_event('mouseover',  evt, touch);
 		$(leave).trigger( e_leave );
-		$(leave).trigger( e_enter );
+		$(prev) .trigger( e_out   );
+		$(enter).trigger( e_enter );
+		$(dom)  .trigger( e_over  );
 
 		// 新しい要素を保存
 		prev=dom;
@@ -402,8 +413,8 @@ function easy_popup(evt) {
 	var do_popup = function(evt) {
 		if (div.is(":animated")) return;
 		func(obj, div);
-	  	div.css("left", evt.pageX +PopupOffsetX);
-	  	div.css("top" , evt.pageY +PopupOffsetY);
+	  	div.css("left", (SP ? 0 : (evt.pageX +PopupOffsetX)));
+	  	div.css("top" ,            evt.pageY +PopupOffsetY);
 		div.delay_show();
 	};
 
