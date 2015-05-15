@@ -420,6 +420,10 @@ sub load_blogset {
 #------------------------------------------------------------------------------
 # ブログを選択し、内部変数に権限を設定する。
 # ブログがみつからないか閲覧できないときは undef が返る
+sub set_and_select_blog_force {
+	my ($self, $blogid) = @_;
+	$self->set_and_select_blog($blogid, 1);
+}
 sub set_and_select_blog {
 	my ($self, $blogid, $force) = @_;
 	my $ROBJ = $self->{ROBJ};
@@ -1125,6 +1129,7 @@ sub call_event {
 	local($self->{event_name}) = $evt_name;
 	foreach(@ary) {
 		# plugin_name=(value)
+		$self->debug("$self->{blogid} $_");
 		my $x = index($_, '=');
 		if ($x == -1) {
 			# system 設定のイベント処理

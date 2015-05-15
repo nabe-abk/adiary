@@ -76,14 +76,16 @@
 <$ifexec(old_d_blogid ne new_d_blogid && !v.subdomain_mode, begin)>
 	<$blogid_bak = v.blogid>
 	<$ifexec(old_d_blogid ne '', begin)>
-		<$v.set_and_select_blog( old_d_blogid )>
+		<$v.set_and_select_blog_force( old_d_blogid )>
 		<$v.rebuild_blog( )>
+		<$debug("rebuild_blog <@v.blogid>")>
 	<$end>
 	<$ifexec(new_d_blogid ne '', begin)>
-		<$v.set_and_select_blog( new_d_blogid )>
+		<$v.set_and_select_blog_force( new_d_blogid )>
 		<$v.rebuild_blog( )>
+		<$debug("rebuild_blog <@v.blogid>")>
 	<$end>
-	<$v.set_and_select_blog( blogid_bak )>
+	<$v.set_and_select_blog_force( blogid_bak )>
 <$end>
 
 <$action_return = 0>

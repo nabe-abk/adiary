@@ -1788,7 +1788,7 @@ sub mainte_mode {
 		$ROBJ->set_status(503);
 		$self->{skeleton} = '_sub/maintenance_msg';
 	} else {
-		$self->set_and_select_blog('', 1);
+		$self->set_and_select_blog_force('');
 	}
 	return;
 }

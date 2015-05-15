@@ -462,7 +462,7 @@ sub v2convert {
 			$ROBJ->notice("Copy %d images(files)", $c);
 		}
 	}
-	$self->set_and_select_blog('', 1);
+	$self->set_and_select_blog_force('');
 	return 0;
 }
 
