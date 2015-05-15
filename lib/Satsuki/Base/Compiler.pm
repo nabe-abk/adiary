@@ -1,11 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # default parser 構文解析コンパイラ
-#						(C)2006-2014 nabe@abk
+#						(C)2006-2015 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.70';
+our $VERSION = '1.71';
 #(簡易履歴)
+# 2015/05 Ver1.71  <@ifcall(cond,f)>バグ修正。begin_array等で最後の空白行を除去。
 # 2014/09 Ver1.70  begin_hash/array/string中にコマンドを書けるように。
 # 2014/08 Ver1.63  begin_hashの順序保存を標準でoffに。
 # 2013/08 Ver1.62  サブルーチン展開関連bugfix。<$break>の警告。pragma行処理bugfix
@@ -1583,10 +1584,12 @@ sub split_begin {
 				}
 			}
 			if (@$line) { push(@newary, $line); }
-			# 最初が改行だけの行なら除去
+			# 最初や最後が空白だけの行なら除去
 			if (@newary) {
 				my $x = $newary[0];
-				if ($#$x == 0 && $x->[0] =~ /^[\r\n]*$/) { shift(@newary); }
+				if ($#$x == 0 && $x->[0] =~ /^[\s\r\n]*$/) { shift(@newary); }
+				my $y = $newary[$#newary];
+				if ($#$y == 0 && $y->[0] =~ /^[\s\r\n]*$/) { pop(@newary);   }
 			}
 			$ary = \@newary;
 		}

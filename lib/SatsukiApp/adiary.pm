@@ -1128,8 +1128,7 @@ sub call_event {
 	$evt_name =~ s/^([^:]*):.*$/$1/;	# : 以降を除去
 	local($self->{event_name}) = $evt_name;
 	foreach(@ary) {
-		# plugin_name=(value)
-		$self->debug("$self->{blogid} $_");
+		# $self->debug("$self->{blogid} $_");
 		my $x = index($_, '=');
 		if ($x == -1) {
 			# system 設定のイベント処理

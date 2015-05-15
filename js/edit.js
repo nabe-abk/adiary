@@ -17,7 +17,7 @@ var parsel = $('#select-parser');
 var edit = $('#editarea');
 
 var fileup  = $('#file-upload');
-var dndbody = edit;
+var dndbody = $('#edit');
 
 load_taglist(tagsel);
 load_contents_list(upsel);
@@ -190,7 +190,7 @@ album_btn.click(function(){
 var edit_pkey = $('#edit-pkey').val();
 var el_time = $('#edit-lock-time').val();
 var el_sid;
-var dont_edit;
+var do_edit;
 
 if (edit_pkey && el_time>9) {
 	// 編集モード
@@ -233,19 +233,24 @@ function edit_lock_checked(data) {
 	}, function(flag){
 		if (flag) return start_edit();	// OK
 		// CANCEL
-		$('#edit').find('form, button:not(.helper):not(.no-disable), input, select').prop('disabled', true);
+		$('#edit').find('form, button:not(.no-disable), input, select').prop('disabled', true);
+		$('#edit').find('textarea').prop('readonly', true);
 		$('#del-submit-check').prop('checked', false).change();
 
-		dont_edit = true;
+		do_edit = false;
 		display_lock_state(data);	// 編集中状態の表示
 		set_lock_interval();
 	});
 }
 
 function start_edit(){
+	do_edit = true;
 	do_edit_lock();
 	set_lock_interval();
-	$('#edit').find('form, button:not(.helper):not(.no-disable), input, select').prop('disabled', false);
+
+	// リロード時に使えるようにするための設定
+	$('#edit').find('form, button:not(.no-disable), input, select').prop('disabled', false);
+	$('#edit').find('textarea').prop('readonly', false);
 
 	// ページを離れるときにunlock	※IE8では無効
 	$(window).on('unload', function(){
@@ -259,7 +264,7 @@ function start_edit(){
 //----------------------------------------------------------------------------
 var lock_interval;
 function set_lock_interval() {
-	lock_interval = setInterval(do_edit_lock, el_time*1000 );
+	lock_interval = setInterval(do_edit_lock, el_time*1000);
 }
 
 $('#force-lock-check').click(function(){
@@ -267,21 +272,24 @@ $('#force-lock-check').click(function(){
 	do_edit_lock();
 	set_lock_interval();
 });
+
 //----------------------------------------------------------------------------
 // ●編集中ロックをかけつつ、現在のロック状況を表示
 //----------------------------------------------------------------------------
 var lock_notice = $('#edit-lock-notice');
 var lockers_ul  = $('#edit-lockers');
 function do_edit_lock() {
-	ajax_edit_lock(dont_edit ? 'ajax_check_lock' : 'ajax_lock', display_lock_state);
+	ajax_edit_lock(do_edit ? 'ajax_lock' : 'ajax_check_lock', display_lock_state);
 }
 
 function display_lock_state(data) {
+	lockers_ul.empty();
 	if (data && data.length)
 		lock_notice.delay_show();
-	else	lock_notice.delay_hide();
-	// 編集中の人々
-	lockers_ul.empty();
+	else
+		return lock_notice.delay_hide();
+
+	// 編集中の人々を表示
 	for(var i in data) {
 		var li = $('<li>').text(data[i].id + ' (' + data[i].sid + ')');
 		lockers_ul.append(li);
@@ -543,12 +551,13 @@ dndbody.on('dragover', function(evt) {
 	return false;
 });
 dndbody.on("drop", function(evt) {
+	if (!do_edit) return;
 	if (!evt.originalEvent.dataTransfer) return;
 
 	evt.stopPropagation();
 	evt.preventDefault();
 	dnd_files = evt.originalEvent.dataTransfer.files;
-	if (!dnd_files) return;
+	if (!dnd_files || !dnd_files.length) return;
 	if (!window.FormData) return;
 
 	// ダイアログを出す

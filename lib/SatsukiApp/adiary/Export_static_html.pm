@@ -66,10 +66,9 @@ sub export {
 	$ROBJ->mkdir($dir);
 
 	#---------------------------------------------------------------------
-	# 静的出力向けスケルトンと初期化処理
+	# 初期化処理
 	#---------------------------------------------------------------------
-	$ROBJ->regist_skeleton($aobj->{theme_dir} . '_static/_skel/', 999);
-	$ROBJ->call('_static_init', $session, $option);
+	$ROBJ->exec($option->{init}, $session, $option);
 
 	# 記事データ加工のオプション
 	my %artopt;
@@ -105,7 +104,14 @@ sub export {
 			if ($url eq $aobj->{myself2}) {
 				return './index.html';
 			}
-			$url =~ s|$qr_myself2([^#]*)|./$1.html|g;
+			$url =~ s[$qr_myself2([^#]*)][
+				my $key = $1;
+				$key =~ s|/|-|g;
+				"./$key.html"
+			]eg;
+		}
+		if ($url =~ /^([^#]*)\?\d+$/) {	# 更新検出 ?time は除去
+			return $1;
 		}
 		if ($url =~ /^[^#]*\?/) {	# Queryは無視させる
 			return '#';
@@ -119,10 +125,25 @@ sub export {
 	#---------------------------------------------------------------------
 	$session->msg("\nCreate html files");
 
+	my $theme_dir = $aobj->{static_theme_dir};
 	local($ROBJ->{Basepath}) = './';
 	local($aobj->{allow_edit}) = undef;
 	local($aobj->{allow_com})  = undef;
 	local($aobj->{blog_admin}) = undef;
+	local($aobj->{script_dir})  = $theme_dir;
+	local($aobj->{blogpub_dir}) = $theme_dir;
+
+	my $set_orig = $aobj->{blog};
+	my %s = %$set_orig;
+	local($aobj->{blog}) = \%s;
+
+	if (!$option->{custom_css}) { $s{theme_custom}=0; }
+	if (!$option->{gaid}) { $s{gaid} = ''; }
+
+	$s{theme_custom} = $s{theme_custom} ? "${theme_dir}custom.css" : '';
+	$s{rss_files}    = '';
+	$session->msg("blog_dir=$aobj->{blog_dir}");
+
 
 	foreach (@$logs) {
 		# １つの記事を前処理
@@ -145,6 +166,10 @@ sub export {
 		#-------------------------------------------------------------
 		# 記事本文の生成
 		my $out = $ROBJ->call( $aobj->{article_skeleton}, $_ );
+
+		# フレームの前処理
+		$ROBJ->{canonical_url} = '';
+
 		# 外フレームの処理
 		$out = $ROBJ->call( $aobj->{frame_skeleton}, $out, $option );
 		$out = $ROBJ->chain_array($out);

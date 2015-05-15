@@ -78,12 +78,10 @@
 	<$ifexec(old_d_blogid ne '', begin)>
 		<$v.set_and_select_blog_force( old_d_blogid )>
 		<$v.rebuild_blog( )>
-		<$debug("rebuild_blog <@v.blogid>")>
 	<$end>
 	<$ifexec(new_d_blogid ne '', begin)>
 		<$v.set_and_select_blog_force( new_d_blogid )>
 		<$v.rebuild_blog( )>
-		<$debug("rebuild_blog <@v.blogid>")>
 	<$end>
 	<$v.set_and_select_blog_force( blogid_bak )>
 <$end>

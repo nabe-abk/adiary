@@ -1,10 +1,10 @@
 use strict;
 #-------------------------------------------------------------------------------
 # TAG escape module
-#						(C)2005-2006 nabe / nabe@abk
+#						(C)2005-2015 nabe / nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::TextParser::TagEscape;
-our $VERSION = '1.22';
+our $VERSION = '1.23';
 #-------------------------------------------------------------------------------
 # ●オプション一覧
 #-------------------------------------------------------------------------------
@@ -135,11 +135,11 @@ sub escape {
 	my $tag;
 	my $tag_list  = $self->{tag_allow};
 	my $mod_list  = $self->{modules};
-	my $tag_check = (! $self->{allow_anytag});
+	my $allow_any = $self->{allow_anytag};
 	my $attrs_all = $tag_list->{_base};
 	my $deny_attr = { map { $_ => 1 } @{$tag_list->{_base_deny} || []} };
 	my $protocols = $tag_list->{_protocol};
-	my $style_secure = $tag_list->{_style_secure};
+	my $style_secure = !$allow_any && $tag_list->{_style_secure};
 	# 相対パス／URI書き換え？
 	my $abs_uri  = (exists $tag_list->{_force_absolute_uri});
 	my $abs_path = (exists $tag_list->{_force_absolute_path}) || $abs_uri;
@@ -157,7 +157,7 @@ sub escape {
 
 	### コメント退避(保存) or 除去
 	my @comments;
-	if (exists $tag_list->{_comment}) {		# 退避
+	if ($allow_any || exists $tag_list->{_comment}) {		# 退避
 		# 正しくは <!(--.*?--\s*)+> だけど、ブウラザの対応がまちまちなので。
 		$inp =~ s/<!--(.*?)--\s*>/push(@comments,$1),"\x01$#comments\x01"/seg;
 		foreach(@comments) {	# security対策
@@ -180,7 +180,7 @@ sub escape {
 
 		my $y;
 		$x   =~ s[</(.+?)\s*>][
-				$y=$1; (!$tag_check || ($y=~tr/A-Z/a-z/,exists $tag_list->{$y})) && "\x02/$y\x03"
+				$y=$1; ($allow_any || ($y=~tr/A-Z/a-z/,exists $tag_list->{$y})) && "\x02/$y\x03"
 			]seg;
 		$x   =~ s/</&lt;/g;
 		$x   =~ s/>/&gt;/g;
@@ -228,10 +228,10 @@ sub escape {
 
 		# 許可されたタグか？
 		my $attrs = $tag_list->{$tag_name};
-		if ($tag_check && !defined $attrs) {
+		if (!$allow_any && !defined $attrs) {
 			if ($tag_name eq 'script') {
 				# scriptタグを見つけ出力したら閉じタグまで削除する
-				$inp =~ s|^.*?</script[^>]*>||;
+				$inp =~ s|^.*?</script[^>]*>||s;
 			}
 			next;
 		}
@@ -253,7 +253,7 @@ sub escape {
 				$_ =~ m/-([^-]*)$/;
 				$data_attr = $1;	# data-xxxx-url の最後の "url" を抽出
 			}
-			if ($tag_check && (!$attrs->{$_} || $deny_attr->{$_})) { next; }	# 属性を無視
+			if (!$allow_any && (!$attrs->{$_} || $deny_attr->{$_})) { next; }	# 属性を無視
 
 			# 値無し属性 （例）selected
 			if (!exists $at{$_}) { unshift(@y, $_); next; }
@@ -263,7 +263,7 @@ sub escape {
 
 			# リンクプロトコル確認 href, src など（XSS対策）
 			if (($PROTOCOL_CHECK{$_} || $DATA_PROTOCOL_CHECK{$data_attr})
-			 && ($tag_check || $v !~ /^javascript:/i)) {
+			 && (!$allow_any || $v !~ /^javascript:/i)) {
 				if ($url_wrapper) { $v = &$url_wrapper($_, $v); }	# URLラッパー
 				# URLの実際参照をデコード
 				my $p = &decode_ncr($v);
@@ -272,7 +272,7 @@ sub escape {
 				if ($p =~ /^([\w\+\-\.]+):/) {	# scheme by RFC2396 Sec3.1
 					my $x = $1;
 					$x =~ tr/A-Z/a-z/;
-					if ($tag_check && !$protocols->{$x}) { next; }	# 無視
+					if (!$allow_any && !$protocols->{$x}) { next; }	# 無視
 				} elsif (ord($v) == 0x23) {	# 先頭 #
 					# anchor はそのまま。$pでは判定しないこと。
 				} elsif ($abs_path) {
@@ -286,7 +286,7 @@ sub escape {
 			}
 
 			# スタイルシート指定のXSS対策
-			if ($tag_check && $style_secure && $_ eq 'style') {
+			if (!$allow_any && $style_secure && $_ eq 'style') {
 				$v =~ s|[\\\@\x00-\x1f\x80-\xff]||g;	# ASCII文字以外や危険文字を除去
 				# 危険文字の除去
 				while($v =~ m[/\*|\*/&#|script|behavior|behaviour|java|exp|eval|cookie|include]i) {
@@ -305,11 +305,11 @@ sub escape {
 		}
 		# scriptタグを見つけ出力したら閉じタグまでそのまま出力する
 		if ($tag_name eq 'script') {
-			$inp =~ s|^(.*?</script[^>]*>)||;
+			$inp =~ s|^(.*?</script[^>]*>)||s;
 			push(@out, $1);
 		}
 	}
-	$inp =~ s[</(.+?)>][(!$tag_check || exists $tag_list->{$1}) && "\x02/$1\x03"]seg;
+	$inp =~ s[</(.+?)>][($allow_any || exists $tag_list->{$1}) && "\x02/$1\x03"]seg;
 	$inp =~ s/</&lt;/g;
 	$inp =~ s/>/&gt;/g;
 	my $out = join('', @out) . $inp;

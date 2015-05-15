@@ -8,18 +8,20 @@
 <@ifexec(! logs, begin)>
 <h3 id="static">静的出力</h3>
 <div>
-	<p>コンテンツ記事を <a href="<@Basepath><@v.static_output_dir>"><@v.static_output_dir></a> に<strong>HTML化して</strong>出力します。</p>
+	<p>記事を <a href="<@Basepath><@v.static_output_dir>"><@v.static_output_dir></a> に<strong>HTML化して</strong>出力します。非公開記事は出力しません。</p>
 
 	<ul class="none">
 		<li><input type="checkbox" name="static:clear" value="1"><label>出力ディレクトリ内を初期化する</label></li>
 		<li><input type="checkbox" name="static:nocom" value="1" checked><label>コメント欄を表示しない</label></li>
-		<li><input type="checkbox" name="static:usercss" value="1"><label>ユーザーCSSを使用する</label></li>
-		<@if(v.blog.gaid, begin_array)>
+		<@ifexec(!s.theme_custom, begin)>
+		<li><input type="checkbox" name="static:custom_css" value="1" checked><label>テーマカスタムCSSを使用する</label></li>
+		<$end>
+		<@ifexec(v.blog.gaid, begin)>
 		<li><input type="checkbox" name="static:gaid" value="1"><label>Google Analyticsを埋め込む</label></li>
 		<$end>
 	</ul>
 
-	<p>※一部リンク書き換え等が完全ではありません。</p>
+	<p>※トップページ用に「index」というkeyを持つ記事を用意してください。</p>
 
 	<button type="button" name="type" value="90_static" data-class="static" id="static-export" class="export">HTML化して出力</button><br>
 
@@ -34,7 +36,6 @@ adiary_session($('#static-export'), {
 		var fd = $('#export-form').serialize();
 		fd += '&' + $.param({
 			type: btn.val(),
-			article_type: 'wiki',
 			enable_only: 1,
 			class: btn.data('class')
 		});
@@ -44,9 +45,113 @@ adiary_session($('#static-export'), {
 </script></div>
 <$break()>
 <$end>
-<@>-----------------------------------------------------------------------------
+<@>#############################################################################
 <@> 静的HTML出力 exporter
-<@>-----------------------------------------------------------------------------
+<@>#############################################################################
 <$exporter = loadapp('adiary::Export_static_html')>
 <$ifbreak(!exporter)>
+
+<@>////////////////////////////////////////////////////////////////////////////
+<@> 初期化処理（必要なファイルをコピー）
+<@>////////////////////////////////////////////////////////////////////////////
+<$opt.init = begin>
+<@local(dir, s, t, files, dirs, session, option)>
+<$s = v.blog>
+<$session = argv#0>
+<$option  = argv#1>
+
+<@>////////////////////////////////////////////////////////////////////////////
+<@> JavaScript to theme/
+<@>////////////////////////////////////////////////////////////////////////////
+<$dir = v.static_output_dir . v.static_theme_dir>
+<$session.msg("Javascript files copy to '<@dir>'")>
+<$mkdir(dir)>
+
+	<$files = begin_array>
+		adiary.js
+		jquery-2.min.js
+		jquery-1.min.js
+		jquery-ui.min.js
+		IE9.js
+		lightbox.min.js
+		highlight.pack.js
+	<$end>
+	<$forexec(t, files, begin)>
+		<$session.msg("\tcopy to '<@dir><@t>'")>
+		<$file_copy("<@v.script_dir><@t>", "<@dir><@t>")>
+	<$end>
+
+<@>////////////////////////////////////////////////////////////////////////////
+<@> テーマ to Themeのコピー
+<@>////////////////////////////////////////////////////////////////////////////
+<$dir = v.static_output_dir . v.static_theme_dir>
+<$session.msg("Theme files copy to '<@dir>'")>
+
+	<$session.msg("\tmkdir <@dir><@v.template>")>
+	<$mkdir("<@dir><@v.template>")>
+
+	<@> テンプレート内ファイルのコピー
+	<$files = search_files("<@v.theme_dir><@v.template>/")>
+	<$forexec(t, files, begin)>
+		<$session.msg("\tcopy to '<@dir><@v.template>/<@t>'")>
+		<$file_copy("<@v.theme_dir><@v.template>/<@t>", "<@dir><@v.template>/<@t>")>
+	<$end>
+
+	<@> テーマディレクトリのコピー
+	<$session.msg("\tcopy to '<@dir><@v.template>/<@v.theme>/*'")>
+	<$dir_copy("<@v.theme_dir><@v.theme>", "<@dir><@v.theme>")>
+
+	<@> テーマカスタムCSS
+	<@ifexec(option.custom_css && s.theme_custom, begin)>
+		<$session.msg("\tcopy to 'custom.css'")>
+		<$file_copy( s.theme_custom, "<@dir>custom.css")>
+	<$end>
+
+	<@> dynamic.css
+	<@ifexec(file_readable("<@v.blogpub_dir>dynamic.css"), begin)>
+		<$session.msg("\tcopy to '<@dir>dynamic.css'")>
+		<$file_copy("<@v.blogpub_dir>dynamic.css", "<@dir>dynamic.css")>
+	<$end>
+
+
+<@>////////////////////////////////////////////////////////////////////////////
+<@> pub-dist/ to pub-dist/
+<@>////////////////////////////////////////////////////////////////////////////
+<$dir = v.static_output_dir . v.pubdist_dir>
+<$session.msg("public files copy to '<@dir>'")>
+<$mkdir(dir)>
+
+	<$files = begin_array>
+		rss-icon.png
+	<$end>
+	<$forexec(t, files, begin)>
+		<$session.msg("\tcopy to '<@dir><@t>'")>
+		<$file_copy("<@v.pubdist_dir><@t>", "<@dir><@t>")>
+	<$end>
+
+	<$dirs = begin_array>
+		highlight-js/
+		jquery-ui/
+		lightbox/
+		ui-icon/
+	<$end>
+	<$forexec(t, dirs, begin)>
+		<$session.msg("\tcopy to '<@dir><@t>'")>
+		<$dir_copy("<@v.pubdist_dir><@t>", "<@dir><@t>")>
+	<$end>
+
+
+<@>////////////////////////////////////////////////////////////////////////////
+<@> アルバムデータのコピー
+<@>////////////////////////////////////////////////////////////////////////////
+
+<$dir = v.static_output_dir . v.static_files_dir>
+<$session.msg("Album files copy to '<@dir>'")>
+<$dir_copy(v.blogimg_dir(), dir)>
+
+<$dir_delete("<@dir>.trashbox/")>
+
+<$end>
+<@>////////////////////////////////////////////////////////////////////////////
+<@>////////////////////////////////////////////////////////////////////////////
 <$ajax_return = exporter.export( logs, opt )>
