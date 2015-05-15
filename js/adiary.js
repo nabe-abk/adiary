@@ -518,7 +518,7 @@ initfunc.push( function(R){
 		var flag;
 		var type=btn.attr('type').toLowerCase();
 		if (type == 'checkbox' || type == 'radio')
-			flag = btn.is(":checked");
+			flag = btn.prop("checked");
 		else	flag = ! (btn.val() + '').match(/^\s*$/);
 		if (btn.hasClass('js-disable')) flag=!flag;
 
@@ -564,7 +564,10 @@ initfunc.push( function(R){
 	if (c) confirm = confirm.replace("%c", c);
 	var btn = confrim_button;
 	confrim_button = false;
-	my_confirm(confirm, function(flag) {
+	my_confirm({
+		html: confirm,
+		default: form.data('default')
+	}, function(flag) {
 		if (!flag) return;
 		confirmed = true;
 		if (btn) return btn.click();
@@ -947,7 +950,7 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●formDataが使用できないブラウザで、ファイルアップ部分を無効にする
+//●FormDataが使用できないブラウザで、ファイルアップ部分を無効にする
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	if (window.FormData) return;
@@ -1446,9 +1449,9 @@ function show_dialog(h, _arg) {
 // ●確認ダイアログ
 //////////////////////////////////////////////////////////////////////////////
 function my_confirm(h, callback) {
-	if (typeof(h) === 'string') h = {id: h};
+	if (typeof(h) === 'string') h = {html: h};
 	callback = callback || h.callback;
-	var html = (h.id.substr(0,1) != '#') ? h.id : myfind(h.id).html();
+	var html = h.html || ((h.id.substr(0,1) != '#') ? h.id : myfind(h.id).html());
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 
 	var div = $('<div>');
@@ -1466,7 +1469,11 @@ function my_confirm(h, callback) {
 	div.dialog({
 		modal: true,
 		dialogClass: h.class_,
-		buttons: btn
+		buttons: btn,
+		open: function(){
+			if (h.default != 'cancel') return;
+			div.siblings('.ui-dialog-buttonpane').find('button:eq(1)').focus();
+		}
 	});
 }
 

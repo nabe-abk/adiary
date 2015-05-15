@@ -663,7 +663,7 @@ h3.ui-accordion-header {
 .dropdown-menu {
 	position:		relative;
 	width:			100%;
-	z-index:		900;
+	z-index:		950;		/* 900 to 999 */
 	font-weight:		bold;
 }
 .dropdown-menu>ul, .dropdown-menu>ul * {	/* 全称セレクタ */

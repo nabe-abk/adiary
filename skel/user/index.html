@@ -23,7 +23,7 @@
 <article class="system setting">
 <h2><@v.title></h2>
 <div class="body">
-	<form method="POST" action="<@v.myself>?<@v.skeleton>" class="js-form-check" data-target=".pkey-ary" data-confirm="%c件のアカウントを削除しますか？">
+	<form method="POST" action="<@v.myself>?<@v.skeleton>" class="js-form-check" data-target=".pkey-ary" data-confirm="%c件のアカウントを削除しますか？" data-default="cancel">
 	<input type="hidden" name="action" value="<@v.skel_dir>delete">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 

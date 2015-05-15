@@ -56,7 +56,7 @@
 	<tr>
 		<th>表示優先度<span class="help" data-help="表示優先度(z-index)を変更します。複数のドロップダウンメニューを配置するときのみ変更してください。">?</span></th>
 		<td>
-			<input type="number" class="int w80" name="zindex" value="<@ps.zindex || 900>" min="1" id="zindex"> &ensp;
+			<input type="number" class="int w80" name="zindex" value="<@ps.zindex || 950>" min="900" max="999" id="zindex"> &ensp;
 			<input type="checkbox" class="js-disable" data-target="#zindex"<@if(ps.zindex eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
