@@ -126,7 +126,10 @@ sub export {
 	$session->msg("\nCreate html files");
 
 	my $theme_dir = $aobj->{static_theme_dir};
+	my $auth = $ROBJ->{Auth};
 	local($ROBJ->{Basepath}) = './';
+	local($auth->{ok})         = undef;
+	local($auth->{id})         = undef;
 	local($aobj->{allow_edit}) = undef;
 	local($aobj->{allow_com})  = undef;
 	local($aobj->{blog_admin}) = undef;
@@ -140,10 +143,10 @@ sub export {
 	if (!$option->{custom_css}) { $s{theme_custom}=0; }
 	if (!$option->{gaid}) { $s{gaid} = ''; }
 
-	$s{theme_custom} = $s{theme_custom} ? "${theme_dir}custom.css" : '';
-	$s{rss_files}    = '';
+	$s{'p:deh_login:erase_login'} = 1;	# ログインを消す
+	$s{theme_custom}  = $s{theme_custom} ? "${theme_dir}custom.css" : '';
+	$s{rss_files}     = '';
 	$session->msg("blog_dir=$aobj->{blog_dir}");
-
 
 	foreach (@$logs) {
 		# １つの記事を前処理

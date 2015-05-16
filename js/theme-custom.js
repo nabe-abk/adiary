@@ -34,8 +34,14 @@ $(function(){
 //////////////////////////////////////////////////////////////////////////////
 // ●テーマ変更時の処理
 //////////////////////////////////////////////////////////////////////////////
-sel.change(function(){
+{
+var timer;
+var current_theme;
+sel.change(function(evt){
 	var theme = sel.val();
+	if (timer || current_theme == theme) return;
+	current_theme = theme;
+
 	theme_query = '?theme&n=' + theme;
 	iframe.attr('src', Vmyself + theme_query ); 
 	var opt = sel.children(':selected');
@@ -53,7 +59,22 @@ sel.change(function(){
 	init_custmize(theme);
 });
 sel.change();
+// ↑↓キーでめくる
+sel.keyup( function(evt){
+	if (evt.keyCode != 38 && evt.keyCode != 40) return;
+	if (timer) clearTimeout(timer);
+	timer = setTimeout( function(){
+		timer = null;
+		sel.change();
+	}, 300 );
+});
+// GCで標準でめくる動作（changeイベント発生）を止める
+sel.keydown( function(evt){
+	if (evt.keyCode != 38 && evt.keyCode != 40) return;
+	if (!timer) timer = setTimeout( function(){}, 100 );	// dummy
+});
 
+}
 //////////////////////////////////////////////////////////////////////////////
 // ●システムモードの対応確認
 //////////////////////////////////////////////////////////////////////////////

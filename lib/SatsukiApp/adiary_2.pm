@@ -429,6 +429,11 @@ sub regist_article {
 		$art{tm} = $opt->{tm} || $ROBJ->{TM};
 	} elsif (!$edit_pkey) {
 		$art{tm} = $opt->{tm} || $ROBJ->{TM};
+
+	} elsif (!$form->{draft} && !$art{enable} && !$old->{tm}) {
+		# 下書きを非公開で保存したとき。
+		# → 初公開してすぐ非公開にしたと解釈する。
+		$art{tm} = $opt->{tm} || $ROBJ->{TM};
 	}
 
 	#------------------------------------------------------------

@@ -251,6 +251,8 @@ function start_edit(){
 	// リロード時に使えるようにするための設定
 	$('#edit').find('form, button:not(.no-disable), input, select').prop('disabled', false);
 	$('#edit').find('textarea').prop('readonly', false);
+	if (!window.FormData) $('#edit').find('.js-fileup').prop('disabled', true);	
+	
 
 	// ページを離れるときにunlock	※IE8では無効
 	$(window).on('unload', function(){
@@ -405,6 +407,7 @@ fileup.click( function(){
 			);
 			dnd.append( file );
 		}
+		dnd.css('margin-bottom', '8px');
 		dnd.insertBefore(form);
 	}
 

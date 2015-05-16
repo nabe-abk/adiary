@@ -90,6 +90,9 @@ adiary_session($('#static-export'), {
 	<$session.msg("\tmkdir <@dir><@v.template>")>
 	<$mkdir("<@dir><@v.template>")>
 
+	<@> base.cssのコピー
+	<$file_copy("<@v.theme_dir>base.css", "<@dir>base.css")>
+
 	<@> テンプレート内ファイルのコピー
 	<$files = search_files("<@v.theme_dir><@v.template>/")>
 	<$forexec(t, files, begin)>

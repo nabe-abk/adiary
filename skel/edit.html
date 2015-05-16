@@ -172,7 +172,7 @@
 		<$end>
 	</select></span>
 	<@ifexec(!edit_pkey || art.draft, begin)>
-	<button type="submit" name="draft" value="1" id="save-draft">下書き保存</button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
+	<button type="submit" name="draft" value="1" id="save-draft">下書き<@if(edit_pkey, '保存', '作成')></button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
 	<$end>
 	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_text></button>
 	<button type="button" id="file-upload" class="js-fileup" data-title="ファイルを選択">Upload</button><span class="help" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップすることもできます。IE8/9非対応。">?</span>
@@ -187,7 +187,13 @@
 	<input type="hidden" name="checkbox.info" value="tw_ping">
 	<input type="hidden" name="checkbox.info" value="wiki">
 	<ul class="checkbox">
-		<li><input type="checkbox" name="enable" value="1"<@if(art.enable, ' checked')> id="enable-chk" data-on="公開して" data-off="非公開で"><label>記事を公開</label><span class="help" data-help="公開設定に関わらず、下書きは公開されません">?</span></li>
+		<li>
+		<@ifexec(!art.enable || art.draft || !edit_pkey, begin, begin)>
+		<input type="checkbox" name="enable" value="1" id="enable-chk" data-on="公開して" data-off="非公開で"<@if(art.enable, ' checked')>> <@\>
+		<$else>
+		<input type="checkbox" name="enable" value="1" id="enable-chk" data-on="編集して" data-off="非公開で"<@if(art.enable, ' checked')>> <@\>
+		<$end> <@\>
+		<label>記事を公開</label><span class="help" data-help="公開設定に関わらず、下書きは公開されません">?</span></li>
 		<li><input type="checkbox" id="art-detail-sw" data-target="#art-detail" class="js-switch js-save"> <@\>
 		<label>詳細設定</label>
 		<ul id="art-detail" class="checkbox">
@@ -233,7 +239,7 @@
 		</ul></li>
  	<li><input type="checkbox" id="del-submit-check" class="js-enable" data-target="#del-submit"><label>削除確認</label></li>
 	</ul>
-<form method="POST" action="<@v.myself2>" class="delete js-form-check" data-confirm="本当にこの記事を削除しますか？" data-default="cancel">
+<form method="POST" action="<@v.myself2>" class="delete js-form-check" data-confirm="本当にこの記事を削除しますか？" data-focus="cancel">
 	<input type="hidden" name="action" value="delete">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="delete_pkey_int_ary" value="<@edit_pkey>">

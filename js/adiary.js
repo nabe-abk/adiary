@@ -198,6 +198,8 @@ findx: function(sel){
 dndEmulation: function(opt){
 	var self = this[0];
 	if (!self) return;
+	if (!self.addEventListener) return; // for IE8
+
 	opt = opt || {};
 
 	// mouseイベント作成
@@ -546,7 +548,7 @@ initfunc.push( function(R){
 	var form = obj.parents('form.js-form-check');
 	if (!form.length) return;
 	form.data('confirm', obj.data('confirm') );
-	form.data('default', obj.data('default') );
+	form.data('focus',   obj.data('focus')   );
   })
 });
 
@@ -572,7 +574,7 @@ initfunc.push( function(R){
 	confrim_button = false;
 	my_confirm({
 		html: confirm,
-		default: form.data('default')
+		focus: form.data('focus')
 	}, function(flag) {
 		if (!flag) return;
 		confirmed = true;
@@ -967,10 +969,7 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	if (window.FormData) return;
-	R.findx('.js-fileup').each(function(idx,dom) {
-		var obj = $(dom);
-		obj.prop('disabled', true);
-	});
+	R.findx('.js-fileup').prop('disabled', true);
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1484,7 +1483,7 @@ function my_confirm(h, callback) {
 		dialogClass: h.class_,
 		buttons: btn,
 		open: function(){
-			if (h.default != 'cancel') return;
+			if (h.focus != 'cancel') return;
 			div.siblings('.ui-dialog-buttonpane').find('button:eq(1)').focus();
 		}
 	});
