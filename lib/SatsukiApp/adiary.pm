@@ -217,7 +217,7 @@ sub read_query_form {
 	}
 
 	# スケルトン指定解釈
-	if (%$q) {
+	if (!%$q) {
 		$self->{query} = $query;
 		$query =~ m|^([\w/=]+)|;
 		$self->{query0} = index($1,'=')<0 ? $1 : '';	# 検索Queryをスケルトン指定と誤解しないため
