@@ -1,13 +1,13 @@
-blog_name=（ブログのタイトルを入力してください）
+blog_name=（ブログのタイトルを入力）
 enable=1
 com_ok=1
 hcom_ok=1
-update_ping=1
+ping=1
 parser=default
 rss_items_int=10
 allow_com_users=*
-wiki_tm=1
 image_data=lightbox=%k
-tw_ping_txt=ブログ更新「%t」 %u
 exif_tag=%271 %272 / %37386mm F%33437 %33434秒 ISO%34855
 suggest_link_key=1
+
+p:dea_art-info:wiki_tm=3

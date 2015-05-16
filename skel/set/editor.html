@@ -42,17 +42,14 @@
 	<tbody>
 	<tr>
 		<td>
-			<input type="hidden" name="checkbox.info" value="enable">
 			<input type="checkbox" name="enable" value="1"<@if(s.enable, ' checked')>><label>記事を公開する</label>
 		</td>
 		<td>
-			<input type="hidden" name="checkbox.info" value="private">
 			<input type="checkbox" name="private" value="1"<@if(s.private, ' checked')>><label>強制OFF（プライベートモード）</label>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<input type="hidden" name="checkbox.info" value="com_ok">
 			<input type="checkbox" name="com_ok" value="1"<@if(s.com_ok, ' checked')>><label>コメントの投稿を受け付ける</label>
 		</td>
 		<td>
@@ -61,7 +58,6 @@
 	</tr>
 	<tr>
 		<td>
-			<input type="hidden" name="checkbox.info" value="hcom_ok">
 			<input type="checkbox" name="hcom_ok" value="1"<@if( s.hcom_ok, ' checked')>><label>非公開コメントを許可する</label>
 		</td>
 		<td>
@@ -70,27 +66,16 @@
 	</tr>
 	<tr>
 		<td colspan="2">
-			<input type="hidden" name="checkbox.info" value="update_ping">
 			<input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label>
 		</td>
 	</tr>
-<@ifexec(s.tw_access_token ne '', begin)>
 	<tr>
 		<td colspan="2">
-			<input type="hidden" name="checkbox.info" value="tw_ping">
-			<input type="checkbox" name="tw_ping" value="1"<@if(s.tw_ping, ' checked')>><label>Twitterに通知する</label>
-		</td>
-	</tr>
-<$end>
-	<tr>
-		<td colspan="2">
-			<input type="hidden" name="checkbox.info" value="wiki">
 			<input type="checkbox" name="wiki" value="1"<@if(s.wiki, ' checked')>><label>wikiコンテンツ</label>
 		</td>
 	</tr>
 	<tr>
 		<td colspan="2">
-			<input type="hidden" name="checkbox.info" value="suggest_link_key">
 			<input type="checkbox" name="suggest_link_key" value="1"<@if(s.suggest_link_key, ' checked')>><label>コンテンツkeyを親ノードのkeyから自動設定する</label>
 		</td>
 	</tr>
@@ -124,7 +109,6 @@
 	</tr>
 	<tr><th>URLを自動リンク<span class="help" data-help="通常は [http://adiary.org/] と書いてリンクします">?</span></th>
 		<td>
-			<input type="hidden" name="checkbox.info" value="autolink">
 			<input type="checkbox" name="autolink" value="1"<@if(s.autolink, ' checked')>><label>自動でリンクする</label>
 		</td>
 	</tr>

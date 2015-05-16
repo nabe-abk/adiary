@@ -1257,7 +1257,7 @@ sub read_query {
 	my %query;
 	foreach (@query) {
 		my ($name, $val) = split(/=/,$_,2);
-		$name =~ s/\W//g;
+		$name =~ s|[^\w\-/]||g;
 		$val =~ tr/+/ /;
 		$val =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
 

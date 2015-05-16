@@ -449,14 +449,13 @@ span.highlight4	{ background-color: #f6f; }
 /*--------------------------------------------------------------------
 ●画像アルバム
 ---------------------------------------------------------------------*/
-.album-folder-tree > ul {
+ul.dynatree-container a {
+	font-weight:		normal;
+}
+.side-folder-tree ul.dynatree-container {
 	min-height:		300px;
 	margin-bottom:		2px;
 }
-.album-folder-tree ul a {
-	font-weight:		normal;
-}
-
 #album-folder-view {
 	margin-top:		4px;
 	min-height:		260px;
@@ -653,7 +652,6 @@ h3.ui-accordion-header {
 ul.dynatree-container {
 	min-height:		20px;
 }
-
 
 
 
@@ -863,7 +861,7 @@ ul.dynatree-container {
 
 /* 画像アルバム */
 .sp .album-folder-tree > ul {
-	min-height:		0;
+	min-height:		60px;
 }
 #sp-album #album-folder-view {
 	min-height:		60px;

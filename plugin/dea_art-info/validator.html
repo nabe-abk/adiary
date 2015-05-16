@@ -1,14 +1,18 @@
 <@40.is_function>
 <@local(h)>
 <$h = validator(begin_hash, argv#0) )>
-	tmdate = flag
 	author = flag
 	hatena_bicon = flag
 
-	wiki_tm = コンテンツの時刻表示
+	tmdate = 通常記事の日時表示
+	tmdate:type = int
+	tmdate:min  = 0
+	tmdate:max  = 2
+
+	wiki_tm = コンテンツの日時表示
 	wiki_tm:type = int
 	wiki_tm:min  = 0
-	wiki_tm:max  = 2
+	wiki_tm:max  = 3
 <$end>
 
 <$ifbreak(form_error())>

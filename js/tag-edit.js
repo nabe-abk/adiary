@@ -59,9 +59,13 @@ tree.dynatree({
 		}
 		var rootNode = tree.dynatree("getRoot");
 		rootNode.visit(function(node){
+			var par   = node.getParent();
+			var path  = (par && par != rootNode) ? par.data.full + '::' : '';
 			var data  = node.data;
+
 			data.name = data.title;
-			data.href = base_url + data.title;
+			data.full = path + data.title;
+			data.href = base_url + data.full;
 			set_node_title(node);
 
 			// ダブルタップで編集
@@ -179,19 +183,21 @@ join.click(function(){
 	var ary  = select_node.data.joinkeys || [];
 	join.prop('disabled', true);
 
+	var qt=0;
 	function search_nodes(node) {
 		var ch = node.getChildren();
 		for(var i=ch.length-1; -1<i; i--) {	// removeのために逆回し
 			ary.push(ch[i].data.key);
 			if (ch[i].data.joinkeys) ary = ary.concat( ch[i].data.joinkeys );
 			if (ch[i].getChildren()) search_nodes(ch[i]);
+			qt += ch[i].data.qt;
 			ch[i].remove();
 		}
 	}
 	search_nodes(select_node);
 
 	select_node.data.joinkeys = ary;
-	select_node.data.qt       = '?';
+	select_node.data.qt       = qt;
 	set_node_title( select_node );
 });
 

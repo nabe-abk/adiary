@@ -5,6 +5,9 @@
 <$break()>
 <$end>
 
+記事のみ
+<$ifjump(Form.art_only, 'mainte/_action/blog_clear')>
+
 実際に処理を行う
 <$action_return = v.blog_drop()>
 

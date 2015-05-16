@@ -71,7 +71,6 @@
 	</tr>
 	<tr><th>wikiコンテンツの扱い</th>
 		<td>
-			<input type="hidden" name="checkbox.info" value="separate_blog">
 			<input type="checkbox" name="separate_blog" value="1"<@if(s.separate_blog, ' checked')>><label>ブログとwikiコンテンツ等を分離して扱う</label><span class="help" data-help="この設定を行うとコンテンツページは「最近の記事数件」「次の記事へのリンク」「ページ送り」「RSS」等で表示されなくなります。検索や記事一覧では表示されます。">?</span>
 
 		</td>
@@ -135,7 +134,6 @@
 	</tr>
 	<tr><th>RSSにコメントを含めない</th>
 		<td>
-		<input type="hidden" name="checkbox.info" value="rss_no_comment">
 		<input type="checkbox" name="rss_no_comment" value="1"<@if(s.rss_no_comment, ' checked')>><label>コメントを含めない</label>
 		</td>
 	</tr>
@@ -153,7 +151,6 @@
 	</tr>
 	<tr>
 		<td>
-		<input type="hidden" name="checkbox.info" value="rss2_no_comment">
 		<input type="checkbox" name="rss2_no_comment" value="1"<@if(s.rss2_no_comment, ' checked')>><label>コメントを含めない</label>
 		</td>
 	</tr>

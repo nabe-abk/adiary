@@ -38,7 +38,7 @@
 	</tr>
 	<tr>
 		<th>ブログの説明（紹介）<br>（RSSにも出力）<br><a href="<@v.myself>?etc/allow_tags&amp;n=description" target="_blank">使用可能なHTMLタグ</a></th><td><textarea name="description_txt" class="description w400" cols="50" rows="3" wrap="soft"><@replace(x = s.description_txt, "<br>", "\n")></textarea>
-		改行有効。ブログの紹介以外は<a href="<@v.myself>?design/edit">デザイン編集</a>をご利用ください。</td>
+		改行有効。紹介目的の内容以外は<a href="<@v.myself>?design/edit">デザイン編集</a>をご利用ください。</td>
 	</tr>
 	<tr>
 		<th>日付変更時間<span class="help" data-help="例えば「20日1時」を「19日深夜1時」として表示する機能です。元日と4/1は常に無効。">?</span><td>午前 
@@ -54,15 +54,18 @@
 			<option value="8"<@if(s.change_hour_int == 8, ' selected')>>8</option>
 		</select> 時</td>
 	</tr>
+	<tr><th>更新通知<span class="help" data-help="あなたが新しい記事を書いた時、検索エンジンや他の人が見つけやすくなります。">?</span></th>
+		<td>
+		<input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label>
+		</td>
+	</tr>
 	<tr><th>URLを自動リンク<span class="help" data-help="通常は [http://adiary.org/] と書いてリンクします">?</span></th>
 		<td>
-		<input type="hidden" name="checkbox.info" value="autolink">
 		<input type="checkbox" name="autolink" value="1"<@if(s.autolink, ' checked')>><label>自動でリンクする</label>
 		</td>
 	</tr>
 	<tr><th>プライベートモード<span class="help" data-help="ログインしているブログ所有者（＋書き込み権限保持者）以外にはブログ全体が非表示になるモードです。画像等はURLを直指定すれば表示されます。">?</span></th>
 		<td>
-		<input type="hidden" name="checkbox.info" value="private">
 		<input type="checkbox" name="private" value="1"<@if(s.private eq '1', ' checked')>><label>プライベートモードに設定する</label>
 		</td>
 	</tr>

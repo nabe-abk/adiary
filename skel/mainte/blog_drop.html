@@ -13,7 +13,6 @@
 <article class="system">
 <h2><@v.title></h2>
 <div class="body">
-
 	<p>このブログを削除します。</p>
 
 	<table>
@@ -30,9 +29,13 @@
 	<input type="hidden" name="action" value="<@v.skeleton>">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 
-	<p><strong class="warning">ブログに関するすべてのデータが削除されます。</strong></p>
+	<p><input type="checkbox" name="art_only" value="1" id="art-only"><label>記事データのみ削除する</label></p>
+
+	<p id="clear-msg"><strong class="warning">全ての記事データが削除されます。</strong></p>
+	<p id="drop-msg"><strong class="warning">ブログに関するすべてのデータが削除されます。</strong></p>
+
 	削除する場合は 'Yes' と入力 <input type="text" id="yes-box" name="yes" class="w60<@FormError.e_yes>"><br>
-	<input type="submit" name="submit" id="submit-btn" value="ブログを削除する"><br>
+	<input type="submit" id="submit-btn" value="ブログを削除する"><br>
 
 	</form>
 </div>
@@ -50,5 +53,18 @@ $(function(){
 		yesbox.change();
 	});
 	yesbox.change();
+
+	var art_only = $('#art-only');
+	art_only.change(function(){
+		var flag = art_only.prop('checked');
+		if (flag) {
+			$('#clear-msg').show();
+			$('#drop-msg').hide();
+		} else {
+			$('#clear-msg').hide();
+			$('#drop-msg').show();
+		}
+	});
+	art_only.change();
 });
 </script>

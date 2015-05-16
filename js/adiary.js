@@ -170,6 +170,7 @@ $(function(){
 		if (! url) return;
 		if (url.indexOf(Vmyself)!=0) return;
 		if (url.match(/\?[\w\/]+$/)) return;	// 管理画面では解除する
+		if (url.match(/\?(.+&)?_\w+=/)) return;	// すでに特殊Queryがある
 
 		var ma =  url.match(/^(.*?)(\?.*?)?(#.*)?$/);
 		if (!ma) return;
@@ -591,7 +592,7 @@ initfunc.push( function(R){
 	// 確認メッセージがある？
 	var confirm = form.data('confirm');
 	if (!confirm) return true;
-  	if (confirmed) { confirmed=false; return true; }
+  	if (confirmed) { confirmed=false; console.log(true); return true; }
 
 	// 確認ダイアログ
 	if (c) confirm = confirm.replace("%c", c);

@@ -97,6 +97,9 @@ div.iblk {
 	display:		inline-block;
 	margin-left:		4px;
 }
+.help {
+	font-size:		10pt;
+}
 </style>
 <$end>
 <!--========================================================================-->
@@ -114,7 +117,8 @@ div.iblk {
 <button type="submit">保存</button>
 <button type="button" onclick="window.location='<@v.myself>?<@v.skel_dir>'">戻る</button>
 
-&emsp;<button type="button" id="readme-button" class="js-info" data-title="README" data-url="" data-class="pre">README表示</button>
+&emsp;<button type="button" id="readme-button" class="js-info" data-title="README" data-url="" data-class="pre">README表示</button> <@\>
+<span class="help" data-help="スマホ非対応テーマを使用する場合、スマホアクセスには標準のスマホ対応テーマが使用されます。">?</span>
 <input type="hidden" name="checkbox.info" value="sysmode_notheme_flg">
 <input type="checkbox" name="sysmode_notheme_flg" id="sysmode-no" data-orig="<@s.sysmode_notheme>" value="1"<@if(s.sysmode_notheme, ' checked')>><label class="small">管理画面は標準テーマを使用</label>
 

@@ -1,2 +1,34 @@
-<@20>
-<$redirect( v.myself . '?' . v.skel_dir . 'tag_edit' )>
+<@6>
+
+<@> システムモード
+<$v.system_mode("その他の設定")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+
+	<ul class="menu">
+		<li><a href="<@v.myself>?<@v.skel_dir>tag_edit">タグの編集</a></li>
+		<li><a href="<@v.myself>?<@v.skel_dir>contents_edit">コンテンツツリーの編集</a></li>
+		<li><a href="<@v.myself>?<@v.skel_dir>usertag">記法タグの設定</a></li>
+	<@ifexec(v.blog_admin, begin)>
+		<li><a href="<@v.myself>?<@v.skel_dir>update_plugin">プラグイン更新</a></li>
+		<li><a href="<@v.myself>?<@v.skel_dir>plugin">プラグイン設定</a></li>
+	<$end>
+	</ul>
+
+	<br>
+	<form action="<@v.myself>?<@v.skeleton>" method="POST">
+	<input type="hidden" name="action" value="<@v.skel_dir>reinstall_modules">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<input type=submit name="submit" value="デザインモジュールの再インストール"><br>
+	</form>
+
+</div>
+</article>
+

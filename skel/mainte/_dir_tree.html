@@ -9,7 +9,6 @@
  <span class="item-start">[</span>
   <@if(v.skel_name eq 'index',     '<span class="select">ブログの再構築</span>', #'<a href="<@v.myself>?<@v.skel_dir>index">ブログの再構築</a>')>, 
   <@if(v.skel_name eq 'blog_drop', '<span class="select">ブログの削除</span>',   #'<a href="<@v.myself>?<@v.skel_dir>blog_drop">ブログの削除</a>')>, 
-  <@if(v.skel_name eq 'blog_clear','<span class="select">ブログのクリア</span>', #'<a href="<@v.myself>?<@v.skel_dir>blog_clear">ブログのクリア</a>')>, 
   <@if(v.skel_name eq 'import',    '<span class="select">インポート</span>',     #'<a href="<@v.myself>?<@v.skel_dir>import">インポート</a>')>, 
   <@if(v.skel_name eq 'export',    '<span class="select">エクスポート</span>',   #'<a href="<@v.myself>?<@v.skel_dir>export">エクスポート</a>')>
  <span class="item-end">]</span>

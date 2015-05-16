@@ -124,6 +124,7 @@ sub select {
 		if (!$sth || $dbh->err) {
 			$self->error($sql);
 			$self->error($dbh->errstr);
+			return [];
 		}
 		$hits = $sth->fetchrow_array;
 		$sth->finish();

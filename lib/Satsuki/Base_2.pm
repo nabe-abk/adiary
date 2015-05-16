@@ -680,7 +680,7 @@ sub make_query {
 	my $self = shift;
 	my $h = shift || $self->{Query};
 	my $q;
-	foreach my $_ (keys(%$h)) {
+	foreach(keys(%$h)) {
 		my $k = $_;
 		my $v = $h->{$k};
 		$self->encode_uricom($k);

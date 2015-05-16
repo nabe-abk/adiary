@@ -161,6 +161,7 @@ sub select {
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);
+		return [];
 	}
 	my $ret = $sth->fetchall_arrayref({});
 
@@ -176,6 +177,7 @@ sub select {
 		if (!$sth || $dbh->err) {
 			$self->error($sql);
 			$self->error($dbh->errstr);
+			return [];
 		}
 		$hits = $sth->fetchrow_array;
 	}

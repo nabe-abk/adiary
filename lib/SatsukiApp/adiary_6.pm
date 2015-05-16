@@ -279,7 +279,11 @@ sub v2convert {
 	{
 		my $ary = $self->load_themes('satsuki2');
 		foreach(@$ary) {
-			$themes{$_->{name}} = 1;
+			$themes{$_->{name}} = 'satsuki2/';
+		}
+		my $ary = $self->load_themes('satsuki2-pop');
+		foreach(@$ary) {
+			$themes{$_->{name}} = 'satsuki2-pop/';
 		}
 	}
 
@@ -329,13 +333,32 @@ sub v2convert {
 			asid            => $s->{asid},
 			load_items      => $s->{disp_diaries_int},
 			separate_blog   => $s->{contents_separate},
-			# 記事の表示設定
-			disp_tmdate     => $s->{disp_write_date},
-			disp_author     => $s->{disp_writer},
-			disp_hatena_btn => $s->{disp_hatena_bicon},
-			disp_twitter_btn=> $s->{disp_twitter_icon}
+			# 投稿日時、投稿者の表示
+			'p:dea_art-info:tmdate' => $s->{disp_write_date},
+			'p:dea_art-info:author' => $s->{disp_writer},
+			# ソーシャルアイコン
+			'p:dea_social-buttons:hatena_btn'  => $s->{disp_hatena_bicon},
+			'p:dea_social-buttons:twitter_btn' => $s->{disp_twitter_icon}
 		}, $id);
 		$ROBJ->notice("Blog create : %s : %s", $id, $s->{blog_name});
+
+		# 対応テーマがあるときはそれを選択
+		my $templ = $s->{template};	# ex)nature
+		my $theme = $s->{theme};	# ex)sky
+		if ($theme eq 'css') {
+			$templ = $s->{base_template};
+			$theme = $s->{base_theme};
+		}
+		$theme =~ s/^satsuki_\w+/satsuki2/;
+		$theme =~ s/^hatena2-.*$/hatena2/;
+		if ($templ eq 'nature') {
+			$theme = 'nature-' . $theme;
+		}
+		if ($themes{$theme}) {
+			$self->save_theme({
+				theme => $themes{$theme} . $theme
+			});
+		}
 
 		# ブログの選択
 		$self->set_and_select_blog($id);
@@ -343,19 +366,11 @@ sub v2convert {
 		# ユーザー定義タグ
 		{
 			my $utag  = $h->{usertag_dir} . $id . '.txt';
-			my $lines = $ROBJ->fread_lines($h->{auth_dir} . '#userdb.txt.cgi');
+			my $lines = $ROBJ->fread_lines( $utag );
 			if ($lines && @$lines) {
 				&conv_code(@$lines);
 				$self->save_usertag( $lines );
 			}
-		}
-
-		# 対応テーマがあるときはそれを選択
-		$s->{theme} =~ s/^satsuki\w+/satsuki2/;
-		if ($s->{template} eq 'satsuki' && $themes{ $s->{theme} }) {
-			$self->save_theme({
-				theme => 'satsuki2/' . $s->{theme}
-			});
 		}
 
 		# ブログの記事とコメントの移行
@@ -384,10 +399,10 @@ sub v2convert {
 					push(@$a, $_);
 				}
 			}
-			
 			my %opt;
 			$opt{save_pkey}     = 1;
 			$opt{save_com_pkey} = %tb ? 0 : 1;
+			$opt{tb_as_comment} = $h->{import_tb};
 
 			my $arts = $DBv2->select("${id}_diary", {sort => 'pkey'});
 			$DB->begin();
