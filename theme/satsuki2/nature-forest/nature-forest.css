@@ -509,16 +509,16 @@ pre {
 }
 
 /* pre 中コメント */
-pre span.comment	{ color: #b50; }
-pre strong.comment	{ color: #b50; font-weight: bold; }
-
-
-/* 強調 */
-article:not(.system) strong { color: #c33; }
+pre span.comment	{ color: #a20; }			/* $c=fixstrongfont */
+pre strong.comment	{ color: #a20; font-weight: bold; }	/* $c=fixstrongfont */
 em {
 	font-style:		normal;
-	text-decoration:	underline;
+	text-decoration:	none;
+	color:			#a20;				/* $c=fixstrongfont */
 }
+
+/* 強調 */
+article:not(.system) strong { color: #a20; }			/* $c=fixstrongfont */
 
 dt { font-weight:	bold; }
 
@@ -727,7 +727,7 @@ table.calendar td a:link {
 ---------------------------------------------------------------------*/
 strong.warning, strong.error, strong.notice,
 div.messages div.message {
-	color:		#e33;
+	color:		#a20;			/* $c=fixstrongfont */
 	font-weight:	bold;
 }
 div.messages div.notice {
@@ -736,10 +736,6 @@ div.messages div.notice {
 div.messages div.message + div.notice {
 	display:	block;
 	margin-top:	0.5em;
-}
-em {
-	text-decoration:	none;
-	color:			#a00;
 }
 
 .add-msg {

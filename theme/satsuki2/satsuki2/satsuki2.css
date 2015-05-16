@@ -412,6 +412,7 @@ pre {
 pre span.comment	{ color: #a20; }			/* $c=fixstrongfont */
 pre strong.comment	{ color: #a20; font-weight: bold; }	/* $c=fixstrongfont */
 em {
+	font-style:		normal;
 	text-decoration:	none;
 	color:			#a20;				/* $c=fixstrongfont */
 }
@@ -623,7 +624,7 @@ ul.hatena-section ul {
 ---------------------------------------------------------------------*/
 strong.warning, strong.error, strong.notice,
 div.messages div.message {
-	color:		#b20;			/* $c=fixstrongfont */
+	color:		#a20;			/* $c=fixstrongfont */
 	font-weight:	bold;
 }
 div.messages div.notice {
@@ -634,7 +635,7 @@ div.messages div.message + div.notice {
 	margin-top:	0.5em;
 }
 .add-msg {
-	margin:			1em 0;
+	margin:		1em 0;
 }
 
 /*--------------------------------------------------------------------

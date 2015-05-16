@@ -1463,7 +1463,7 @@ function insert_to_textarea(ta, text) {
 //////////////////////////////////////////////////////////////////////////////
 function show_error(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, hash:_arg};
-	h.dclass = h.dclass + ' error-dialog';
+	h.dclass = (h.dclass ? h.dclass : '') + ' error-dialog';
 	h.title = 'ERROR';
 	return show_dialog(h);
 }

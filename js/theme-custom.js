@@ -226,7 +226,7 @@ function init_custom_form(data) {
 		if (k.rsubstr(4) == '-rel') continue;
 		cols.push({name: k, val: data[k], priority: get_priority(k) });
 	}
-	if (err.length) show_error({msg: err});
+	if (err.length) show_error({html: err});
 	cols = cols.sort(function(a, b) {
 		if (a.priority < b.priority) return -1;
 		if (a.priority > b.priority) return  1;
