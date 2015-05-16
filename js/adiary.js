@@ -14,9 +14,12 @@ var IE67=false;
 var IE8=false;
 var IE9=false;
 var SP;		// adiary内部がスマホモード
-var Vmyself;	// _frame.html で設定される 
 var Storage;
 var SettedBrowserClass;
+
+// _frame.html で設定される
+var Vmyself;
+var SpecialQuery;
 var _gaq;
 //////////////////////////////////////////////////////////////////////////////
 //●初期化処理
@@ -154,6 +157,28 @@ $(function(){
 	else
 		style.html(css);
 
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//●特殊Queryの処理
+//////////////////////////////////////////////////////////////////////////////
+$(function(){
+  if (SpecialQuery) {
+	$('#body').find('a').each( function(idx,dom){
+		var obj = $(dom);
+		var url = obj.attr('href');
+		if (! url) return;
+		if (url.indexOf(Vmyself)!=0) return;
+		if (url.match(/\?[\w\/]+$/)) return;	// 管理画面では解除する
+
+		var ma =  url.match(/^(.*?)(\?.*?)?(#.*)?$/);
+		if (!ma) return;
+		url = ma[1] + (ma[2] ? ma[2] : '?') + SpecialQuery + (ma[3] ? ma[3] : '');
+		obj.attr('href', url);
+
+		console.log(url);
+	});
+  }
 });
 
 //############################################################################

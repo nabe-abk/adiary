@@ -126,7 +126,7 @@ sub main {
 	# pinfoとブログの選択。テーマ選択
 	my $blogid = $self->blogid_and_pinfo();
 
-	# Query/Form処理（ログイン処理より後にすること！）
+	# Query/Form処理  ※テーマ選択より後に処理
 	$self->read_query_form();
 
 	# スマホ向け処理
@@ -198,15 +198,31 @@ sub read_query_form {
 
 	$ROBJ->read_form();
 	my $query = $ENV{QUERY_STRING};
-	my $q = $ROBJ->read_query({'t'=>1});	# t= をarray扱い
-	if ($query ne '') {
+	my $q = $ROBJ->read_query({'t'=>1});
+
+	# 特殊Queryの処理
+	foreach(qw(_sphone _theme)) {
+		if (!$q->{$_}) { next; }
+		my $v = $q->{$_};
+		$v =~ s|[^\w\-/]||g;
+
+		if ($_ eq '_sphone') {		# スマホ表示
+			$self->{sphone}=1;
+		} elsif ($_ eq '_theme') {	# テーマ指定
+			$self->load_theme( $v );
+		}
+		$self->{no_robots}=1;
+		$self->{sp_query} .= "&$_=$v";
+		delete $q->{$_};
+	}
+
+	# スケルトン指定解釈
+	if (%$q) {
 		$self->{query} = $query;
 		$query =~ m|^([\w/=]+)|;
 		$self->{query0} = index($1,'=')<0 ? $1 : '';	# 検索Queryをスケルトン指定と誤解しないため
 	}
-	if ($q->{sphone}==1) {
-		$self->{sphone}=1;	# 強制スマホ表示
-	}
+
 }
 
 #------------------------------------------------------------------------------

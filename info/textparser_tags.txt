@@ -61,10 +61,9 @@ adiary:id  = ID指定
 adiary:day = 日付指定
 adiary:tag = タグ検索
 
-search  = 検索,         UTF-8,    ${myself}?all=1&q=
-title   = タイトル検索, UTF-8,    ${myself}?q=
-theme#2 = テーマ,       ASCII, 2, ${myself2}?theme&n=$1/$2
-theme   = テーマ,       ASCII,    ${myself2}?theme&n=satsuki2/
+search = 検索,         UTF-8,  ${myself}?all=1&q=
+title  = タイトル検索, UTF-8,  ${myself}?q=
+theme  = テーマ,       ASCII,  ${myself2}?_theme=
 
 category = >adiary:tag
 q  = >search

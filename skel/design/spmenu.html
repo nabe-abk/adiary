@@ -65,7 +65,7 @@ $(function(){
 
 	// スマホ表示サンプルウィンドウ
 	$('#sp-emulation').click(function(){
-		var win = window.open('<@v.myself>?&sphone=1', 'spmode', 'width=360, height=600, location=yes, menubar=no, resizable=yes, scrollbars=yes');
+		var win = window.open('<@v.myself>?&_sphone=1', 'spmode', 'width=360, height=600, location=yes, menubar=no, resizable=yes, scrollbars=yes');
 		win.focus();
 	});
 	
@@ -89,7 +89,7 @@ $(function(){
 	<p id="test">使用するモジュールを選択してください。モジュール名をドラッグアップドロップすると並べ替えられます。</p>
 
 <@ifexec(!v.sphone, begin)>
-	<p><button type="button" id="sp-emulation">スマホ表示のサンプル</button><span class="help" data-help="リンクを辿ると通常画面に戻ります。メニューだけご確認ください。">?</span></p>
+	<p><button type="button" id="sp-emulation">スマホ表示のサンプル</button></p>
 <$end>
 	<table class="blog-setting">
 	<thead><tr>
