@@ -409,16 +409,16 @@ pre {
 }
 
 /* pre 中コメント */
-pre span.comment	{ color: #a20; }			/* $c=fixstrongfont */
-pre strong.comment	{ color: #a20; font-weight: bold; }	/* $c=fixstrongfont */
+pre span.comment	{ color: #c30; }			/* $c=fixstrongfont */
+pre strong.comment	{ color: #c30; font-weight: bold; }	/* $c=fixstrongfont */
 em {
 	font-style:		normal;
 	text-decoration:	none;
-	color:			#a20;				/* $c=fixstrongfont */
+	color:			#c30;				/* $c=fixstrongfont */
 }
 
 /* 強調 */
-article:not(.system) strong { color: #a20; }			/* $c=fixstrongfont */
+article:not(.system) strong { color: #c30; }			/* $c=fixstrongfont */
 
 dt { font-weight:	bold; }
 
@@ -624,7 +624,7 @@ ul.hatena-section ul {
 ---------------------------------------------------------------------*/
 strong.warning, strong.error, strong.notice,
 div.messages div.message {
-	color:		#a20;			/* $c=fixstrongfont */
+	color:		#c30;			/* $c=fixstrongfont */
 	font-weight:	bold;
 }
 div.messages div.notice {
