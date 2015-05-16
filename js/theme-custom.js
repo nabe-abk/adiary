@@ -42,8 +42,8 @@ sel.change(function(evt){
 	if (timer || current_theme == theme) return;
 	current_theme = theme;
 
-	theme_query = '?theme&n=' + theme;
-	iframe.attr('src', Vmyself + theme_query ); 
+	theme_query = '&_theme=' + theme;
+	iframe.attr('src', Vmyself + '?' + theme_query ); 
 	var opt = sel.children(':selected');
 	if (opt.data('readme')) {
 		readme.data('url', Vmyself + '?design/theme_readme&name=' + theme);
@@ -122,6 +122,12 @@ sysmode_no.change(function(){
 // ●iframe内ロード（CSS欄追加。リンク書き換え）
 //////////////////////////////////////////////////////////////////////////////
 iframe.on('load', function(){
+	// 選択中テーマがちゃんとロードされているか確認
+	var ftheme = iframe.contents().find('#theme-css').attr('href');
+	if (!ftheme) return;
+	ftheme = ftheme.replace(/^.*\/([\w\-]+\/[\w\-]+)\/[\w\-]+\.css$/, "$1");
+	if (ftheme != current_theme) return;
+
 	if_css = $('<style>').attr('type','text/css');
 	iframe.contents().find('head').append(if_css);
 
@@ -129,25 +135,22 @@ iframe.on('load', function(){
 	iframe.contents().find('a').each(function(idx,dom) {
 		var obj = $(dom);
 		var url = obj.attr('href');
-		if (!url) return;
-		if (url.substr(0,Vmyself.length) != Vmyself) {
+		if (! url) return;
+		if (url.indexOf(Vmyself)!=0) return;
+		if (url.match(/\?(.+&)?_\w+=/)) return;	// すでに特殊Queryがある
+
+		// デザイン画面では解除
+		if (url.match(/\?design\//)) {
 			obj.attr('target', '_top');
 			return;
 		}
-		var m;
-		if (m = url.match(/(.*?)\?(&.*)/)) {
-			url = m[1] + theme_query + m[2];
-		} else if (0 < url.indexOf('?')) {
-			// obj.attr('target', '_top');
-			return;
-		} else if (m = url.match(/(.*?)(#.*)/)) {
-			url = m[1] + theme_query + m[2];
-		} else {
-			url += theme_query;
-		}
+
+		var ma =  url.match(/^(.*?)(\?.*?)?(#.*)?$/);
+		if (!ma) return;
+		url = ma[1] + (ma[2] ? ma[2] : '?') + theme_query + (ma[3] ? ma[3] : '');
 		obj.attr('href', url);
-	});	// contents
-	
+	});
+
 	if (css_text) update_css();
 });
 //############################################################################

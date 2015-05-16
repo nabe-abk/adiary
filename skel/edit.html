@@ -78,7 +78,7 @@
 	<$end>
 	</select>
 	<button type="button" id="open-draft">開く</button>
-	<button type="button" id="open-template">テンプレートとして開く</button><span class="help" data-help="テンプレートとして開くと、編集・保存しても元にした下書きは残り続けます。">?</span>
+	<button type="button" id="open-template" class="btn-help" data-help="テンプレートとして開くと、編集・保存しても元にした下書きは残り続けます。">テンプレートとして開く</button>
 </div>
 </article>
 <$end>
@@ -129,7 +129,7 @@
 	<button class="helper" type="button" id="btn-list"   data-msg="箇条書きにしたい項目を１行ずつ入力" data-tag="-" data-type="lines">箇条<@if(!v.sphone,'書き')></button>
 	<button class="helper" type="button" id="btn-quote"  data-msg="引用したい文章を入力" data-start-base=">>" data-end="<<" data-type="block" data-sp-msg="引用元サイトがある場合、そのURLを入力してください">引用</button>
 	<button class="helper" type="button" id="btn-annotation" data-msg="注釈にしたい文字列を入力" data-start="((" data-end="))">注釈</button>
-	<button class="helper" type="button" id="album-open" data-url="<@v.myself>?album/#edit">画像</button><span class="help" data-help="画像アルバムからファイルを選択して貼り付けます。">?</span>
+	<button class="helper btn-help" type="button" id="album-open" data-url="<@v.myself>?album/#edit" data-help="画像アルバムからファイルを選択して貼り付けます。">画像</button>
 	<select class="helper" id="select-color" title="選択した文字列に色を付けます。" data-start-base="[color:" data-end="]" data-msg="色を変更したい文字列を入力">
 		<option value="" selected>色</option>
 		<option value="#FF0000" style="color:#FF0000;">■</option>
@@ -167,15 +167,17 @@
 	<textarea name="body_txt" id="editarea" cols="60" rows="16" class="edit-article"><@tag_escape_amp( txt = art._text || form_.paste_txt)></textarea>
 
 	<span class="element" id="select-parser-span">
-		<span class="edit-caption">入力記法</span><select name="parser" id="select-parser">
+<@>		<span class="edit-caption">入力記法</span>
+		<select name="parser" id="select-parser">
 		<@forexec_hash(ROBJ, v.parsers, begin)><option value="<@key>"<@if(art.parser eq key, ' selected')>><@val></option>
 		<$end>
 	</select></span>
+
+	<button type="button" id="file-upload" class="btn-help js-fileup" data-title="ファイルを選択" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップすることもできます。IE8/9非対応。">Upload</button>
 	<@ifexec(!edit_pkey || art.draft, begin)>
-	<button type="submit" name="draft" value="1" id="save-draft">下書き<@if(edit_pkey, '保存', '作成')></button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
+	<button type="submit" name="draft" value="1" id="save-draft" class="btn-help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">下書き<@if(edit_pkey, '保存', '作成')></button>
 	<$end>
 	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_text></button>
-	<button type="button" id="file-upload" class="js-fileup" data-title="ファイルを選択">Upload</button><span class="help" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップすることもできます。IE8/9非対応。">?</span>
 
 	<!--===============================================================-->
 	<input type="hidden" name="checkbox.info" value="enable">

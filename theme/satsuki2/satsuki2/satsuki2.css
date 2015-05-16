@@ -409,16 +409,15 @@ pre {
 }
 
 /* pre 中コメント */
-pre span.comment	{ color: #b50; }
-pre strong.comment	{ color: #b50; font-weight: bold; }
-
+pre span.comment	{ color: #a20; }			/* $c=fixstrongfont */
+pre strong.comment	{ color: #a20; font-weight: bold; }	/* $c=fixstrongfont */
+em {
+	text-decoration:	none;
+	color:			#a20;				/* $c=fixstrongfont */
+}
 
 /* 強調 */
-article:not(.system) strong { color: #c33; }
-em {
-	font-style:		normal;
-	text-decoration:	underline;
-}
+article:not(.system) strong { color: #a20; }			/* $c=fixstrongfont */
 
 dt { font-weight:	bold; }
 
@@ -624,7 +623,7 @@ ul.hatena-section ul {
 ---------------------------------------------------------------------*/
 strong.warning, strong.error, strong.notice,
 div.messages div.message {
-	color:		#e33;
+	color:		#b20;			/* $c=fixstrongfont */
 	font-weight:	bold;
 }
 div.messages div.notice {
@@ -634,11 +633,6 @@ div.messages div.message + div.notice {
 	display:	block;
 	margin-top:	0.5em;
 }
-em {
-	text-decoration:	none;
-	color:			#a00;
-}
-
 .add-msg {
 	margin:			1em 0;
 }
@@ -827,7 +821,7 @@ article.edit span.tag:after {
 ●ポップアップヘルプ, info
 ---------------------------------------------------------------------*/
 
-.help {
+.help, .btn-help:after {
 	color:			#c3c;
 }
 

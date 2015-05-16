@@ -6,6 +6,7 @@
 'use strict';
 var DialogWidth = 640;
 var DefaultShowSpeed = 300;
+var ButtonHelpDelay = 1000;
 var TouchDnDTime  = 600;
 var DoubleTapTime = 400;
 var PopupOffsetX  = 15;
@@ -176,8 +177,6 @@ $(function(){
 		if (!ma) return;
 		url = ma[1] + (ma[2] ? ma[2] : '?') + SpecialQuery + (ma[3] ? ma[3] : '');
 		obj.attr('href', url);
-
-		console.log(url);
 	});
   }
 });
@@ -447,7 +446,9 @@ function easy_popup(evt) {
 		div.delay_show();
 	};
 
-	var delay = obj.data('delay') || DefaultShowSpeed;
+	var delay = obj.data('delay') != null ? obj.data('delay') : DefaultShowSpeed;
+	delay = evt.data.delay != null ? evt.data.delay : delay;
+
 	if (!delay) return do_popup(evt);
 	obj.data('timer', setTimeout(function(){ do_popup(evt) }, delay));
 }
@@ -466,7 +467,8 @@ initfunc.push( function(R){
 	var popup_help = $('#popup-help');
 	var imgs  = R.findx(".js-popup-img");
 	var helps = R.findx(".help[data-help]");
-	
+	var bhelps= R.findx(".btn-help[data-help]");
+
 	imgs.mouseenter( {func: function(obj,div){
 		var img = $('<img>');
 		img.attr('src', obj.data('img-url'));
@@ -475,17 +477,16 @@ initfunc.push( function(R){
 		div.append( img );
 	}, div: popup_div}, easy_popup);
 
-	helps.mouseenter( {func: function(obj,div){
+	var helpfunc = function(obj,div){
 		var text = tag_esc_br( obj.data("help") );
 		div.html( text );
-	}, div: popup_help}, easy_popup);
-	helps.each( function(idx,dom){
-		var obj = $(dom);
-		var text = tag_esc_br( obj.data("help") );
-	});
+	};
+	 helps.mouseenter( {func: helpfunc, div: popup_help}, easy_popup);
+	bhelps.mouseenter( {func: helpfunc, div: popup_help}, easy_popup);
 
-	imgs .mouseleave({div: popup_div }, easy_popup_out);
-	helps.mouseleave({div: popup_help}, easy_popup_out);
+	imgs  .mouseleave({div: popup_div }, easy_popup_out);
+	helps .mouseleave({div: popup_help}, easy_popup_out);
+	bhelps.mouseleave({div: popup_help}, easy_popup_out);
 });
 
 //////////////////////////////////////////////////////////////////////////////

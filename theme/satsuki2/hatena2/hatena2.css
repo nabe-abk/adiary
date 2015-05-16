@@ -958,7 +958,7 @@ article.edit span.tag:after {
 ●ポップアップヘルプ, info
 ---------------------------------------------------------------------*/
 
-.help {
+.help, .btn-help:after {
 	color:			#c3c;
 }
 

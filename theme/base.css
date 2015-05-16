@@ -298,6 +298,10 @@ div.body-footer {
 .help:after {
 	content:	']';
 }
+.btn-help:after {
+	margin-left:	2px;
+	content:	'[?]';
+}
 
 #popup-div, #popup-help, #popup-com {
 	display:	none;
@@ -872,6 +876,7 @@ ul.dynatree-container {
 
 /* ボタン */
 .sp button,
+.sp #edit-helper button,
 .sp input [type="button"],
 .sp input [type="submit"],
 .sp input [type="reset"] {
