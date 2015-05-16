@@ -215,3 +215,10 @@ article.edit select {
 article.edit span.edit-writer {
 	display:		none;
 }
+
+.system button {
+	padding:		2px 3px;
+}
+#edit .helper + .help {
+	margin-left:		0px;
+}

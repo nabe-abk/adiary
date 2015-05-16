@@ -15,7 +15,8 @@ body {
 div.main {
 	margin-left:		0px;
 	margin-right:		0px;
-	padding:		0 4px;
+	padding-left:		4px;
+	padding-right:		4px;
 	width:			auto;
 	float:			none;
 }
@@ -29,7 +30,7 @@ div.main {
 }
 #sidebar {
 	float:			none;
-	margin:			0;
+	margin:			3em 0 0 0;
 	padding:		0;
 	width:			auto;
 	border:			none;
@@ -65,7 +66,7 @@ h1
 {
 	font-weight:		normal;
 	line-height:		100%;
-	padding:		30px 6px 24px 6px;
+	padding:		30px 6px 22px 6px;
 	margin:			0;
 }
 
@@ -200,3 +201,51 @@ pre {
 }
 
 
+/*--------------------------------------------------------------------
+■システムモード
+---------------------------------------------------------------------*/
+article.system div.body {
+	padding-left:		6px;
+	padding-right:		6px;
+}
+article.system div.body table {
+	margin-left:		0px;
+	margin-right:		0px;
+}
+article.system ul:not(.dynatree-container) {
+	padding-left:		2em;
+}
+nav.tree {
+	font-size:		8pt;
+	line-height:		200%;
+}
+nav.tree span.items {
+	display:		block;
+}
+#adiary-body .main input,
+#adiary-body .main textarea {
+	max-width:		100%;
+}
+
+article.edit span.element {
+	display:		block;
+}
+#edit-tags + br,
+#edit-tags + br + br {
+	display:		none;
+}
+article.edit button,
+article.edit select {
+	margin-top:		6px;
+	margin-bottom:		6px;
+}
+article.edit span.edit-writer {
+	display:		none;
+}
+
+.system button {
+	padding:		2px 3px;
+}
+#edit .helper + .help {
+	margin-left:		0px;
+}

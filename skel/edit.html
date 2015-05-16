@@ -126,7 +126,7 @@
 	<button class="helper" type="button" id="btn-strong" data-msg="太字にしたい文字列を入力" data-start="[bf:" data-end="]">太字</button>
 	<button class="helper" type="button" id="btn-link"   data-msg="リンクを生成" data-msg1="リンク先" data-val1="http://" data-msg2="リンク文字列">リンク</button>
 	<button class="helper" type="button" id="btn-google" data-msg="Google検索へのリンクを生成" data-msg1="検索する言葉" data-msg2="リンク文字列" data-start="[g:" data-end="]">検索</button>
-	<button class="helper" type="button" id="btn-list"   data-msg="箇条書きにしたい項目を１行ずつ入力" data-tag="-" data-type="lines">箇条書き</button>
+	<button class="helper" type="button" id="btn-list"   data-msg="箇条書きにしたい項目を１行ずつ入力" data-tag="-" data-type="lines">箇条<@if(!v.sphone,'書き')></button>
 	<button class="helper" type="button" id="btn-quote"  data-msg="引用したい文章を入力" data-start-base=">>" data-end="<<" data-type="block" data-sp-msg="引用元サイトがある場合、そのURLを入力してください">引用</button>
 	<button class="helper" type="button" id="btn-annotation" data-msg="注釈にしたい文字列を入力" data-start="((" data-end="))">注釈</button>
 	<button class="helper" type="button" id="album-open" data-url="<@v.myself>?album/#edit">画像</button><span class="help" data-help="画像アルバムからファイルを選択して貼り付けます。">?</span>
@@ -175,7 +175,7 @@
 	<button type="submit" name="draft" value="1" id="save-draft">下書き保存</button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
 	<$end>
 	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_text></button>
-	<button type="button" id="file-upload" class="js-fileup" data-title="ファイルを選択">Upload</button><span class="help" data-help="ファイルを直接アップロードして記事に貼付けることができます。記事エリアに直接ドロップしても構いません。IE8/9非対応。">?</span>
+	<button type="button" id="file-upload" class="js-fileup" data-title="ファイルを選択">Upload</button><span class="help" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップすることもできます。IE8/9非対応。">?</span>
 
 	<!--===============================================================-->
 	<input type="hidden" name="checkbox.info" value="enable">

@@ -203,3 +203,51 @@ pre {
 }
 
 
+/*--------------------------------------------------------------------
+■システムモード
+---------------------------------------------------------------------*/
+article.system div.body {
+	padding-left:		6px;
+	padding-right:		6px;
+}
+article.system div.body table {
+	margin-left:		0px;
+	margin-right:		0px;
+}
+article.system ul:not(.dynatree-container) {
+	padding-left:		2em;
+}
+nav.tree {
+	font-size:		8pt;
+	line-height:		200%;
+}
+nav.tree span.items {
+	display:		block;
+}
+#adiary-body .main input,
+#adiary-body .main textarea {
+	max-width:		100%;
+}
+
+article.edit span.element {
+	display:		block;
+}
+#edit-tags + br,
+#edit-tags + br + br {
+	display:		none;
+}
+article.edit button,
+article.edit select {
+	margin-top:		6px;
+	margin-bottom:		6px;
+}
+article.edit span.edit-writer {
+	display:		none;
+}
+
+.system button {
+	padding:		2px 3px;
+}
+#edit .helper + .help {
+	margin-left:		0px;
+}

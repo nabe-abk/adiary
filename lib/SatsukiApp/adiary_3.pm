@@ -5,6 +5,7 @@ use strict;
 # ・画像管理
 # ・ブログの設定
 # ・記事、コメントなどの削除関連
+#-------------------------------------------------------------------------------
 use SatsukiApp::adiary ();
 use SatsukiApp::adiary_2 ();
 package SatsukiApp::adiary;

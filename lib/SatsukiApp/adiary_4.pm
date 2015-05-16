@@ -4,6 +4,8 @@ use strict;
 #-------------------------------------------------------------------------------
 # ・プラグイン管理関連
 # ・デザイン関連
+# ・テーマ関連
+#-------------------------------------------------------------------------------
 use SatsukiApp::adiary ();
 use SatsukiApp::adiary_2 ();
 use SatsukiApp::adiary_3 ();
@@ -1271,7 +1273,9 @@ sub load_templates {
 	$dirs = [ grep(/^[A-Za-z]/, @$dirs) ];
 
 	# satsuki で始まるテンプレートを優先的に表示
+	foreach(@$dirs) { chop($_); }
 	$dirs  = [ sort {( (!index($b,'satsuki')) <=> (!index($a,'satsuki')) ) || $a cmp $b} @$dirs ];
+	foreach(@$dirs) { $_ .= '/'; }
 	return $dirs;
 }
 
@@ -1699,7 +1703,7 @@ sub generate_spmenu {
 	my $ary = $self->load_spmenu_info();
 	if (! @$ary) {
 		$self->update_cur_blogset('spmenu', '');
-		return ;
+		return 0;
 	}
 
 	# 要素がある
