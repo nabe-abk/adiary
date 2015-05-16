@@ -199,6 +199,7 @@ sub read_query_form {
 	$ROBJ->read_form();
 	my $query = $ENV{QUERY_STRING};
 	my $q = $ROBJ->read_query({'t'=>1});
+	delete $q->{''};
 
 	# 特殊Queryの処理
 	foreach(qw(_sphone _theme)) {
