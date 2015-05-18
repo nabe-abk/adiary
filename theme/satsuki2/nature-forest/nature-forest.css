@@ -1048,44 +1048,30 @@ article.edit span.tag:after {
 /*--------------------------------------------------------------------
 ●jQuery UI, タブ表示（ブログ一覧画面）
 ---------------------------------------------------------------------*/
-
-article.jqueryui-tabs div.body {
+.jqueryui-tabs .body {
+	border-radius:		8px;
 	border:			1px solid #aa9;		/* $c=sysborder */
-	border-radius:		10px;
+	background-color:	#f8f8e8;		/* $c=sysartbg */
 	padding:		6px;
 }
-.ui-tabs .ui-tabs-nav {
-	padding-left:	1em;
-	margin-bottom:	-1px;
-}
-.ui-tabs .ui-tabs-nav li a {
-	color:		#000;				/* $c=fixfont */
-	padding:	6px 6px 0 6px;
-	font-size:	12pt;
-}
 .ui-tabs .ui-tabs-nav li {
-	border-radius:		10px 10px 0 0;
+	border-radius:		8px;
 	border:			1px solid #aaa;		/* $c=btnborder */
 	border-bottom:		1px solid #aa9;		/* $c=sysborder */
 	background-color:	#ddb;			/* $c=sysdarkbg */
-	margin-right:		0.4em;
-}
-.ui-tabs .ui-tabs-nav li:hover {
-	background-color:	#d4d4c4;		/* $c=btnbg1 */
-	border-color:		#aa9;			/* $c=sysborder */
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active {
-	margin-bottom:	-1px;
-	padding:	0px;
-	z-index:	999;
-
-	border:			1px solid #aa9;		/* $c=sysborder */
-	border-bottom:		2px solid #f8f8e8;	/* $c=sysartbg */
+	border-bottom:		1px solid #f8f8e8;	/* $c=sysartbg */
 	background-color:	#f8f8e8;		/* $c=sysartbg */
 }
-.ui-tabs .ui-tabs-nav li.ui-tabs-active a {
-	color:			black;
+.ui-tabs .ui-tabs-nav {
+	margin-bottom:		-1px;		/* 線の太さに合わせる */
 }
+.ui-tabs .ui-tabs-nav li:not(.ui-tabs-active):hover {
+	border-color:		#ccc;
+}
+
+
 
 /*--------------------------------------------------------------------
 ●設定ページナビゲーション

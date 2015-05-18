@@ -214,7 +214,7 @@ article.system div.body table {
 	margin-left:		0px;
 	margin-right:		0px;
 }
-article.system ul:not(.dynatree-container) {
+article.system ul:not(.dynatree-container):not(.ui-tabs-nav) {
 	padding-left:		2em;
 }
 nav.tree {
