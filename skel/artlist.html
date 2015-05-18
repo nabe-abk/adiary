@@ -117,10 +117,10 @@
 	</div>
 
 <@ifexec(v.allow_edit, begin)>
-	<input type="submit" name="enable"  class="js-form-check" data-confirm="" value="表示に設定"> <@\>
+	<button type="submit" name="enable"  class="js-form-check" data-confirm="">表示に設定</button> <@\>
 	<@if(s.edit_by_author_only && !v.blog_admin, '<span class="help" data-help="他人の記事の状態は変更できません。">?</span>')>
-	<input type="submit" name="disable" class="js-form-check" data-confirm="" value="非表示に設定">
-	<input type="submit" name="delete"  class="js-form-check" id="del-submit" value="削除" data-confirm="%c件の記事を削除しますか？" data-focus="cancel">
+	<button type="submit" name="disable" class="js-form-check" data-confirm="">非表示に設定</button>
+	<button type="submit" name="delete"  class="js-form-check" id="del-submit" data-confirm="%c件の記事を削除しますか？" data-focus="cancel">削除</button>
 	<input type="checkbox" name="del_check" class="js-enable" data-target="#del-submit"><label>削除確認</label>
 	</form>
 <$end>

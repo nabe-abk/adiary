@@ -29,7 +29,7 @@ $(document).ready( function() { $("<@if(Query.id ne '', "#pass", "#id")>").focus
 	</tr><tr>
 	<td colspan="2" class="checkbox"><input type="checkbox" name="keep_login" value="1"<@if(Query.keep || Query.keep_login || Form.keep_login, ' checked')>><label>ログイン状態を保持する</label></td>
 	</tr><tr>
-	<td colspan="2" class="button"><input type="submit" value="ログイン" id="submit"></td>
+	<td colspan="2" class="button"><button type="submit">ログイン</button></td>
 	</tr>
 	</tbody>
 	</table>

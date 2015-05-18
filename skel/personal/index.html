@@ -27,7 +27,7 @@
 		<td<@err.c_name>><input type=text name="name" class="w200" value="<@if(POST, esc(Form.name), Auth.name)>" ></td>
 	</tr>
 	</table>
-	<input type=submit name="submit" value="アカウント名を変更"><br>
+	<button type="submit">アカウント名を変更</button><br>
 	</form>
 
 
@@ -43,7 +43,7 @@
 			<strong class="warning"><@Auth.pass_min>文字</strong>以上</td></tr>
 		<tr><th>新しいパスワード確認</th><td<@err.c_pass>><input type="password" name="pass2" class="w120" value="" required>←もう一度</td></tr>
 	</table>
-	<input type=submit name="submit" value="パスワードを変更"><br>
+	<button type="submit">パスワードを変更</button><br>
 	</form>
 
 </div>

@@ -745,9 +745,6 @@ div.messages div.message + div.notice {
 /*--------------------------------------------------------------------
 ●ボタンデザイン
 ---------------------------------------------------------------------*/
-input[type="reset"],
-input[type="submit"],
-input[type="button"],
 button
 {
 	color:			#000;			/* $c=fixbtnfont */
@@ -758,9 +755,6 @@ button
 				#f4f4e4,			/* $c=btnbg0 =main + #202020 */
 				#d4d4c4);			/* $c=btnbg1 =main */
 }
-input[type="reset"]:hover,
-input[type="submit"]:hover,
-input[type="button"]:hover,
 button:hover
 {
 	border-radius:		6px;
@@ -771,9 +765,6 @@ button:hover
 
 }
 
-input[type="reset"]:disabled,
-input[type="submit"]:disabled,
-input[type="button"]:disabled,
 button:disabled
 {
 	color:			#666;

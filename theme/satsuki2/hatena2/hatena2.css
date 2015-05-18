@@ -224,7 +224,7 @@ h1 img, h1 a img {
 }
 .main .dropdown-menu>ul li:hover,
 .main .dropdown-menu>ul li.hover {
-	background-color:	#e9eff8;	/* $c=mainddhoverbg = prebg */
+	background-color:	#e9eff8;	/* $c=ddhovermain = prebg */
 }
 
 /*--------------------------------------------------------------------
@@ -758,9 +758,6 @@ div.messages div.message + div.notice {
 /*--------------------------------------------------------------------
 ●ボタンデザイン
 ---------------------------------------------------------------------*/
-input[type="reset"],
-input[type="submit"],
-input[type="button"],
 button
 {
 	color:			#000;			/* $c=fixfont */
@@ -771,9 +768,7 @@ button
 				#ddf,			/* $c=btnbg0=btnbg1 + #333 */
 				#aaf);			/* $c=btnbg1 */
 }
-input[type="reset"]:hover,
-input[type="submit"]:hover,
-input[type="button"]:hover,
+
 button:hover
 {
 	border-radius:		6px;
@@ -784,9 +779,6 @@ button:hover
 
 }
 
-input[type="reset"]:disabled,
-input[type="submit"]:disabled,
-input[type="button"]:disabled,
 button:disabled
 {
 	color:			#666;

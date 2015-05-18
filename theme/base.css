@@ -192,22 +192,11 @@ label + input[type="checkbox"]
 }
 
 /* ボタンが複数並んだ場合に間あける */
-input[type="submit"] + input[type="submit"],
-input[type="submit"] + input[type="button"],
-input[type="submit"] + button,
-input[type="botton"] + input[type="submit"],
-input[type="botton"] + input[type="button"],
-input[type="botton"] + button,
-button + input[type="submit"],
-button + input[type="button"],
 button + button
 {
 	margin-left:	1em;
 }
-
-#sidebar button,
-#sidebar input[type="submit"],
-#sidebar input[type="button"]
+#sidebar button
 {
 	margin-left:	0;
 }
@@ -876,10 +865,7 @@ ul.dynatree-container {
 
 /* ボタン */
 .sp button,
-.sp #edit-helper button,
-.sp input [type="button"],
-.sp input [type="submit"],
-.sp input [type="reset"] {
+.sp #edit-helper button {
 	margin-top:		6px;
 	margin-bottom:		6px;
 }
