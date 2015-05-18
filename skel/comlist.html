@@ -1,6 +1,6 @@
 <@6>
 <@local(logs,t,c,x,opt,s,loads,url,page_offset)>
-<$ifbreak(!v.blogid)>
+<$ifredirect(!v.blogid, v.myself)>
 
 <@> システムモード
 <$v.system_mode("コメント一覧")>
@@ -123,20 +123,22 @@
 <!-- ポップアップ表示用のデータ -->
 <div style="display: none">
 <@forexec(c, logs, begin)>
-<div id="c<@c.pkey>">
-	<div class="commentator">
-		<span class="canchor"><a href="<@v.myself><@c.a_elink_key>#c<@c.num>"><@c.num></a>:</span>
-		<span class="commentator author<@if(c.id, " login-user")>"<@if(c.id, " title=<@c.id>")>><@ifexec(c.email, begin, begin)><a href="mailto:<@c.email>"><@c.name></a><$else><@c.name><$end></span>
-		<@ifexec(c.url, begin)><span class="comment-url"><a href="<@c.url>" rel="nofollow">URL</a></span><$end>
-		<span class="comment-date"><@tm_printf('%Y年%m月%d日(%a) %p%i時%M分', c.tm)></span>
-		<@ifexec(!c.enable, begin)>
-		<@if(c.hidden, '<strong class="comment-hidden">（非公開コメント）', '<strong class="comment-disable">（非表示）')></strong>
+	<div class="comment-one<@if(!c.enable, ' hidden')>" id="c<@c.pkey>">
+		<div class="commentator">
+			<span class="canchor"><a href="#c<@c.num>"><@c.num></a>:</span>	<@\>
+			<span class="commentator author<@if(c.id, " login-user")>"<@if(c.id, " title=<@c.id>")>><@ifexec(c.email && v.allow_edit, begin, begin)><a href="mailto:<@c.email>"><@c.name></a><$else><@c.name><$end></span>
+			<@ifexec(c.url, begin)><span class="comment-url"><a href="<@c.url>" rel="nofollow">URL</a></span><$end>
+			<span class="comment-date"><@tm_printf('%Y年%m月%d日(%a) %p%i時%M分', c.tm)></span>
+			<@ifexec(!c.enable, begin)>
+			<@if(c.hidden, '<strong class="comment-hidden">（非公開コメント）', '<strong class="comment-disable">（非表示）')></strong>
+			<$end>
+		</div>
+
+		<div class="comment-text<@if(!c.enable, if(c.hidden, ' comment-hidden', ' comment-disable'))>"><@c.text></div>
+		<@ifexec(v.allow_edit, begin)>
+		<div class="ip-host-agent"><@c.host> (<@c.ip>)<br><@c.agent></div>
 		<$end>
-	</div>
-	<div class="comment-text"><@c.text></div>
-	<br>
-	<div class="ip-host-agent" style="display: block"><@c.host> (<@c.ip>)<br><@c.agent></div>
-</div>
+	</div> <!-- comment-one -->
 <$end>
 </div>
 <$end.block>

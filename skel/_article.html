@@ -155,12 +155,12 @@
 			<$end>
 			<@if(v.allow_edit, '</label>')>
 		</div>
-	
+
 		<div class="comment-text<@if(!c.enable, if(c.hidden, ' comment-hidden', ' comment-disable'))>"><@c.text></div>
 		<@ifexec(v.allow_edit, begin)>
 		<div class="ip-host-agent"><@c.host> (<@c.ip>)<br><@c.agent></div>
 		<$end>
-		</div> <!-- comment-one -->
+	</div> <!-- comment-one -->
 	<$end>
 	<@ifexec(coms && v.allow_edit, begin)>
 	<div class="com-buttons">

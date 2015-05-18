@@ -31,9 +31,16 @@
 		</td>
 	</tr>
 	<tr>
-		<th>トップの下線<span class="help" data-help="2段目がありかつ上下の区切り線を表示しているとき、トップ項目の下に線が見えます。この表示を消します。">?</span></th>
+		<th>トップの表示</th>
 		<td>
-			<input type="checkbox" name="no_underl" value="1"<@if(ps.no_underl,' checked')>><label>下線を消す</label>
+			<input type="checkbox" name="no_underl" id="no-underl" value="1"<@if(ps.no_underl,' checked')>><label>下線を消す<span class="help" data-help="2段目がありかつ上下の区切り線を表示しているとき、トップ項目の下に線が見えます。この表示を消します。">?</span></label>
+			<input type="checkbox" name="vbottom" value="1"<@if(ps.vbottom,' checked')>><label>文字位置を下にする</label>
+		</td>
+	</tr>
+	<tr>
+		<th>全体の表示位置<span class="help" data-help="メニューアイテム全体を左寄せで表示するか設定します。">?</span></th>
+		<td>
+			<input type="checkbox" name="no_centering" value="1"<@if(ps.no_centering,' checked')>><label>左寄せで表示する</label>
 		</td>
 	</tr>
 	<tr>
@@ -145,6 +152,12 @@ if ('<@ps.height>' == '') {
 if ('<@ps.zindex>' == '') {
 	$('#zindex').val( obj.css('z-index') || 990 );
 }
+if (!<@ps.no_underl>) {
+	var a = li.find('a');
+	if (li.height() == a.height()) $('#no-underl').prop('checked', true);
+}
+
+
 // マージンとpadding
 if ('<@ps.margin0>' == '')
 	$('#margin0').val( parse_px( obj.css('margin-top') ) );

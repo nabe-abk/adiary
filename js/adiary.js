@@ -387,9 +387,9 @@ function adiary_init(R) {
 var jquery_hook_stop = false;
 $(function(){
 	var body = $('#body');
-	body.append( $('<div>').attr('id', 'popup-div')    );
-	body.append( $('<div>').attr('id', 'popup-help')   );
-	body.append( $('<div>').attr('id', 'popup-com')    );
+	body.append( $('<div>').attr('id', 'popup-image') );
+	body.append( $('<div>').attr('id', 'popup-help')  );
+	body.append( $('<div>').attr('id', 'popup-com')   );
 	adiary_init(body);
 
 	//////////////////////////////////////////////////////////////////////
@@ -463,7 +463,7 @@ function easy_popup_out(evt) {
 }
 
 initfunc.push( function(R){
-	var popup_div  = $('#popup-div');
+	var popup_img  = $('#popup-image');
 	var popup_help = $('#popup-help');
 	var imgs  = R.findx(".js-popup-img");
 	var helps = R.findx(".help[data-help]");
@@ -475,7 +475,7 @@ initfunc.push( function(R){
 		img.addClass('popup-image');
 		div.empty();
 		div.append( img );
-	}, div: popup_div}, easy_popup);
+	}, div: popup_img}, easy_popup);
 
 	var helpfunc = function(obj,div){
 		var text = tag_esc_br( obj.data("help") );
@@ -484,7 +484,7 @@ initfunc.push( function(R){
 	 helps.mouseenter( {func: helpfunc, div: popup_help}, easy_popup);
 	bhelps.mouseenter( {func: helpfunc, div: popup_help}, easy_popup);
 
-	imgs  .mouseleave({div: popup_div }, easy_popup_out);
+	imgs  .mouseleave({div: popup_img }, easy_popup_out);
 	helps .mouseleave({div: popup_help}, easy_popup_out);
 	bhelps.mouseleave({div: popup_help}, easy_popup_out);
 });
@@ -1067,37 +1067,27 @@ initfunc.push( function(R){
 });
 
 //############################################################################
-// ■最初のロード時のみのサービス処理
+// ■のサービス処理
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
 //●コメント欄の >>14 等をリンクに変更する
 //////////////////////////////////////////////////////////////////////////////
 $( function(){
+	var setReplay =  function(link,div){
+		var num  = link.data('reply').toString().replace(/[^\d]/g, '');
+		var com  = $('#c' + num);
+		if (!com.length) return;
+		div.html( com.html() );
+	};
+
 	var popup=$('#popup-com');
-	var timer;
 	$('#com div.comment-text a[data-reply], #comlist-table a[data-reply]').each(function(idx,dom) {
 		var link = $(dom);
 		var num  = link.data('reply').toString().replace(/[^\d]/g, '');
 		var com  = $('#c' + num);
 		if (!com.length) return;
-
-		link.mouseover(function() {
-			popup.html( com.html() );
-		  	popup.css("top" , link.offset().top  +PopupOffsetY);
-		  	popup.css("left", link.offset().left +PopupOffsetX);
-			popup.delay_show();
-		});
-		link.mouseout(function() {
-			timer = setTimeout(function(){
-				popup.hide('fast');
-			}, 300);
-		});
-		popup.mouseover(function() {
-			clearTimeout(timer);
-		});
-		popup.mouseleave(function() {
-			popup.hide('fast');
-		});
+		link.mouseenter( {div: popup , func: setReplay}, easy_popup);
+		link.mouseleave( {div: popup                  }, easy_popup_out);
 	});
 });
 

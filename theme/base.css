@@ -297,16 +297,26 @@ div.body-footer {
 	position:	absolute;
 	z-index:	2000;
 }
+#popup-help, #popup-com {
+	background-color:	#eee;
+	padding:		6px;
+	font-size:		11pt;
+}
+#popup-com input {
+	display:		none;
+}
+#popup-com .ip-host-agent {
+	margin-top:		1em;
+}
+#popup-dialog textarea {
+	font-size:	9pt;
+	line-height:	120%;
+}
 
 .ui-widget-overlay {
 	background-color: #000;
 	filter:		alpha(opacity=25);
 	opacity:	0.25;
-}
-
-#popup-dialog textarea {
-	font-size:	9pt;
-	line-height:	120%;
 }
 
 /* lightbox */
@@ -606,7 +616,7 @@ figure {
 }
 
 /*--------------------------------------------------------------------
-●jQuery UI, popup-info/dialog/tabs
+●jQuery UI, popup-info/dialog/accordion
 ---------------------------------------------------------------------*/
 .ui-dialog {
 	background-color:	#f8f8ff;
@@ -622,9 +632,81 @@ figure {
 .ui-dialog ul {
 	margin:			1em 0em 1em 2em;
 }
-.body div.ui-tabs-panel {
-	padding:		12px 0;
+ul.dynatree-container {
+	min-height:		20px;
 }
+/* import/export画面等 */
+h3.ui-accordion-header {
+	background-color:	#ddd;
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI, tabs（ブログ一覧画面）
+---------------------------------------------------------------------*/
+/**************************************************/
+/* 変更不要部分                                   */
+/**************************************************/
+article.system.jqueryui-tabs {
+	background-color:	transparent;
+	background-image:	none;
+	border:			none;
+	padding:		0;
+}
+.jqueryui-tabs {
+	box-shadow:		none;
+}
+.ui-tabs .ui-tabs-nav {
+	padding-left:	1em;
+	margin-bottom:	-2px;
+}
+.ui-tabs .ui-tabs-nav li a {
+	color:		#000;
+	padding:	6px 6px 0 6px;
+	font-size:	12pt;
+}
+.ui-tabs .ui-tabs-nav li {
+	margin-right:		0.4em;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-active {
+	margin-bottom:	-1px;
+	padding:	0px;
+	z-index:	800;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-active a {
+	color:			black;
+}
+#body .ui-tabs-nav li {
+	border-bottom-left-radius:	0;
+	border-bottom-right-radius:	0;
+}
+
+/**************************************************/
+/* カスタマイズ部分                               */
+/**************************************************/
+.jqueryui-tabs .body {
+	border-radius:		8px;
+	border:			1px solid #ccc;
+	background-color:	#eee;
+	padding-left:		4px;
+	padding-right:		4px;
+}
+.ui-tabs .ui-tabs-nav li {
+	border-radius:		8px;
+	border:			1px solid #ccc;
+	background-color:	#ccc;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-active {
+	border-bottom:		1px solid #eee;
+	background-color:	#eee;
+}
+.ui-tabs .ui-tabs-nav {
+	margin-bottom:		-1px;		/* 線の太さに合わせる */
+}
+.ui-tabs .ui-tabs-nav li:not(.ui-tabs-active):hover {
+	border-color:		#888;
+}
+
+
 
 /*--------------------------------------------------------------------
 ●その他
@@ -638,14 +720,6 @@ ul.menu {
 #sidebar textarea {
 	width:			98%;
 }
-h3.ui-accordion-header {
-	background-color:	#ccf;
-}
-
-ul.dynatree-container {
-	min-height:		20px;
-}
-
 
 
 /*--------------------------------------------------------------------
@@ -752,8 +826,8 @@ ul.dynatree-container {
 	font-size:	11pt;
 }
 /* 高さの設定 */
-.dropdown-menu:not(.sp),
-.dropdown-menu:not(.sp)>ul>li {
+.dropdown-menu,
+.dropdown-menu>ul>li {
 	height:		30px;	/* Y */
 }
 .dropdown-menu:not(.sp)>ul>li>a,
@@ -773,11 +847,11 @@ ul.dynatree-container {
 }
 /* 項目の幅の設定 */
 .dropdown-menu:not(.sp)>ul>li {
-	width:		108px;	/* X1 = 実際の幅 -2 */
+	width:		108px;	/* １段目の幅 = X1 */
 }
 .dropdown-menu:not(.sp)>ul>li>ul,
 .dropdown-menu:not(.sp)>ul>li>ul li {
-	width:		200px;	/* X2 = 実際の幅 -2 */
+	width:		200px;	/* ２段目の幅 = X2 */
 }
 .dropdown-menu:not(.sp)>ul>li:last-child:not(:first-child)>ul {
 	left:		-92px;	/* = X1-X2 */
@@ -793,9 +867,9 @@ ul.dynatree-container {
 	padding:	0 0px
 }
 
-/**************************************************/
-/* プルダウンメニュー、カスタマイズ領域（配色）   */
-/**************************************************/
+/*--------------------------------------------------------------------
+●ドロップダウンメニュー（配色カスタマイズ）
+---------------------------------------------------------------------*/
 /* 背景色（非選択色） */
 .dropdown-menu,
 .dropdown-menu>ul li {
@@ -870,9 +944,7 @@ ul.dynatree-container {
 	margin-bottom:		6px;
 }
 
-.sp #popup-div,
-.sp #popup-help,
-.sp #popup-com {
+.sp .ajs-popup {
 	margin:			0 1em;
 }
 

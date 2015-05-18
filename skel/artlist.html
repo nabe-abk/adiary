@@ -1,6 +1,6 @@
 <@6>
 <@local(logs,t,x,opt,s,loads,url,page_offset,tag_links)>
-<$ifbreak(!v.blogid)>
+<$ifredirect(!v.blogid, v.myself)>
 
 <@> システムモード
 <$v.system_mode("記事一覧")>

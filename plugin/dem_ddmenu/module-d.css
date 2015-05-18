@@ -30,19 +30,19 @@
 <@ifexec(ps.width1 ne '' && ps.width2 ne '', begin)>
 /* 項目の幅の設定 */
 <@id>>ul>li {
-	width:		<@x1=ps.width1-2>px;	/* X1 = 実際の幅 -2 */
+	width:		<@x1=ps.width1>px;	/* １段目の幅 = X1 */
 }
 <@id>>ul>li>ul,
 <@id>>ul>li>ul li {
-	width:		<@x2=ps.width2-2>px;	/* X2 = 実際の幅 -2 */
+	width:		<@x2=ps.width2>px;	/* ２段目の幅 = X2 */
 }
-<@id>>ul>li:last-child>ul {
+:not(.IE8) <@id>>ul>li:last-child:not(:first-child)>ul {
 	left:		<@x1-x2>px;	/* = X1-X2 */
 }
-<@id>>ul>li:last-child>ul ul {
+:not(.IE8) <@id>>ul>li:last-child:not(:first-child)>ul ul {
 	left:		<@-x2>px;	/* = -X2 */
 }
-<@id>>ul>li:last-child ul li ul:before {
+:not(.IE8) <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
 	left:		<@x2>px;	/* = X2 */
 }
 <$end>
@@ -77,6 +77,11 @@
 <@ifexec(ps.no_underl, begin)>
 <@id>>ul>li a {
 	height:		100%;
+}
+<$end>
+<@ifexec(ps.vbottom, begin)>
+<@id>>ul>li>a:after {
+	vertical-align:		bottom;
 }
 <$end>
 <@>
@@ -144,7 +149,7 @@
 <@id> li ul li ul:before {
 	border-left-color:	<@ps.arrow>;
 }
-<@id> li:last-child ul li ul:before {
+<@id> li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
 	border-right-color:	<@ps.arrow>;
 }
