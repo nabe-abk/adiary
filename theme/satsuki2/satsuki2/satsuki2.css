@@ -15,7 +15,7 @@ body
 
 	margin:			0;
 	padding:		0;
-	min-width:		400px;
+	min-width:		600px;
 	line-height:		130%;
 }
 /* 見出し */
@@ -40,13 +40,12 @@ h1 img, h1 a img {
 /* 全体配置用 */
 #hatena-body {
 	position:		relative;
-	margin:			1em 1em 1em 1em;
-	width:			98%;
+	margin:			1em 0.5em;
 	max-height:		99999px;	/* adiary.jsで高さを自動フィットさせる指定 */
 }
 /* 記事部 */
 div.main {
-	margin-left:		17%;
+	margin-left:		164px;
 	padding:		0px 8px 0px 8px;
 /*	min-height:		320px;	*/
 }
@@ -56,7 +55,7 @@ div.main {
 	position:		absolute;
 	left:			0px;
 	top:			0px;
-	width:			16%;
+	width:			160px;
 	margin:			0;
 	padding:		0;
 

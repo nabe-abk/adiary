@@ -121,7 +121,6 @@
 	<br>
 
 	<span class="element" id="edit-title"><span class="edit-caption">タイトル</span><input class="w360 no-enter-submit" type="text" name="title" value="<@art.title>"></span> 
-	<span class="element edit-writer"><span class="edit-caption">投稿者</span> <@art.name></span>
 	<div id="edit-helper">
 	<button class="helper" type="button" id="btn-strong" data-msg="太字にしたい文字列を入力" data-start="[bf:" data-end="]">太字</button>
 	<button class="helper" type="button" id="btn-link"   data-msg="リンクを生成" data-msg1="リンク先" data-val1="http://" data-msg2="リンク文字列">リンク</button>
@@ -231,6 +230,7 @@
 	<li><input type="checkbox" data-target="#post-detail" class="js-switch"> <@\>
 	<label>投稿情報の表示</label>
 		<ul id="post-detail"<@if(!s.post_detail, ' style="display: none"')>>
+			<li>投稿者 <@art.name> (id=<@art.id>)</li>
 			<@ifexec(art.tm,begin)>
 			<li>投稿日時 <span title="<@art.tm>"><@tm_printf("%Y/%m/%d %J:%M:%S", art.tm)></span></li>
 			<$end>

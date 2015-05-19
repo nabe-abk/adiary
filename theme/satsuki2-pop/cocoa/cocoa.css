@@ -1157,7 +1157,7 @@ form#import-form table {
 	color:			#6b75b8;
 	font-size:		11pt;
 
-	border:			2px solid #cba;	/* $c=border */
+	border:			2px solid #cba;
 	border-radius:		10px;
 	box-shadow:		2px 2px 2px 2px rgba(60,60,60,0.75);
 }

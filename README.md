@@ -66,7 +66,7 @@ WTFPL（PDS扱い）だと助かります。
     * Color Picker (MIT / GPL)
   * Lightbox2 (Creative Commons Attribution 2.5)
   * highlight.js (BSD)
-  * respond.js (MIT / GPL2)
+  * css3-mediaqueries.js (MIT)
   * IE9.js (MIT)
 
 ## プラグインとテーマ

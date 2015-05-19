@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*****************************************************************************
-  Satsuki style
+  Satsuki2 - right sidebar style
 							(C)2013 nabe@abk.nu
 *****************************************************************************/
 @import url("../satsuki2/satsuki2.css");
@@ -8,23 +8,19 @@
 /*--------------------------------------------------------------------
 ■全体配置
 ---------------------------------------------------------------------*/
-#hatena-body {
-	margin:			1em 1em 1em 0.7em;
-}
 /* 記事部 */
 div.main {
 	margin-left:		0;
-	margin-right:		18%;
+	margin-right:		168px;
 }
 /* 左側にメニューを配置 */
 #sidebar
 {
 	position:		absolute;
+	width:			160px;
 	left:			auto;
-	right:			0.7em;
-	width:			16%;
+	right:			0;
+	top:			0;
 }
 
-#footer-move-to-end {
-	font-size:		1px;
-}
+
