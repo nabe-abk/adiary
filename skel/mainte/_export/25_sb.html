@@ -97,7 +97,7 @@
 <@>
 <@ifexec(! opt.no_comment, begin.comment )>
 <comments>
-<@forexec(t2, v.load_comments_current_blog(t, flagq(link_stop)), begin)>
+<@forexec(t2, v.load_comments_current_blog(t), begin)>
 <comment>
 <title />
 <name><@esc_xml(t2.name)></name>

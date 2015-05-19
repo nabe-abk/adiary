@@ -1050,6 +1050,7 @@ sub make_taglinks {
 # ●コメントのロードと加工
 #------------------------------------------------------------------------------
 # $a_pkey の代わりに記事のデータ（ハッシュ）を与えたほうが高速
+#
 sub load_comments_current_blog {
 	my $self = shift;
 	my $a_pkey = shift;
@@ -1073,10 +1074,12 @@ sub load_comments_current_blog {
 	# ロード
 	my $c = $self->load_comments($self->{blogid}, $a_pkey, $opt);
 
-	# >>44とかのリンクを有効に
-	if (!$opt->{link_stop}) {
+	# >>44とかのリンクを有効に。行頭半角スペースを &ensp; に。
+	# <br>は元から入ってる。
+	if ($opt->{html}) {
 		foreach(@$c) {
 			$_->{text} =~ s|&gt;&gt;(\d+)|<a href="#c$1" data-reply="$1">&gt;&gt;$1</a>|g;
+			$_->{text} =~ s/(^|<br>)(\s+)/$1 . ('&ensp;' x length($2))/eg;
 		}
 	}
 	return $c;

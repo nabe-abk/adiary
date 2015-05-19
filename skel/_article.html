@@ -139,7 +139,7 @@
 	<input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary"><label>すべて選択</label>
 	</div>
 	<$end>
-	<@forexec(c, v.load_comments_current_blog(t, view), begin)>
+	<@forexec(c, v.load_comments_current_blog(t, view, flagq(html)), begin)>
 	<div class="comment-one<@if(!c.enable, ' hidden')>" id="c<@c.num>">
 		<div class="commentator">
 			<span class="canchor"><a href="#c<@c.num>"><@c.num></a>:</span>	<@\>

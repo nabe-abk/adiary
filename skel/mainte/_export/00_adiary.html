@@ -68,7 +68,7 @@
 <@>
 <@ifexec(! opt.no_comment, begin.comment )>
 <comments>
-<@forexec(t2, v.load_comments_current_blog(t, flagq(link_stop)), begin)>
+<@forexec(t2, v.load_comments_current_blog(t), begin)>
 <comment>
 	<enable><@t2.enable></enable>
 	<hidden><@t2.hidden></hidden>

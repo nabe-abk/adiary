@@ -7,6 +7,7 @@
 
 <@ifexec(file_readable("<@v.theme_dir><@name>/README.txt"), begin)>
 	<@esc(join('', fread_lines("<@v.theme_dir><@name>/README.txt")))>
+	<$break()>
 <$end>
 
 <@ifexec(file_readable("<@v.theme_dir><@name>/README"), begin)>
