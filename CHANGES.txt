@@ -9,6 +9,8 @@
 -記事一覧画面に記事種類を出力するようにしました。（[http://adiary.blog.abk.nu/0366#com:Thanks to 手石]）
 -最近の記事一覧と過去ログに、コンテンツを含めない設定を追加しました。（[http://adiary.blog.abk.nu/0366#com:Thanks to 手石]）
 -印刷用リンクを別ページで開く設定ができるようにしました。（[http://adiary.blog.abk.nu/0366#com:Thanks to 手石]）
+-[g:respond.js]から[g:css3-mediaqueries.js]に変更しました。
+-シンタックスハイライトのテーマを変更しました。またhighlight.jsのロード方法も変更しました。
 -【テーマ】あらゆる出力から{<input type="submit">, <input type="button">}を廃止しました。
 -【テーマ】satsuki2系テーマで、サイドバーサイズを固定にしました。
 -【テーマ】satsuki2-multiside テーマを廃止してウィンドウ横幅によりマルチサイドバーにする satsuki2-resp に変更しました。

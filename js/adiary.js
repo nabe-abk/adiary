@@ -111,10 +111,7 @@ function set_browser_class_into_body() {
 //////////////////////////////////////////////////////////////////////////////
 $(function(){
 	var vals = [0, 0x80, 0xC0, 0xff];
-	var obj = $('<span>').attr('id', 'ui-icon-autoload');
-	$('#body').append(obj);
-	var color = obj.css('background-color');
-	obj.remove();
+	var color = get_value_from_css('ui-icon-autoload', 'background-color');
 	if (!color || color == 'transparent') return;
 	if (color.match(/\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0/)) return;
 
@@ -156,6 +153,28 @@ $(function(){
 	else
 		style.html(css);
 
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//●syntax highlight機能の自動ロード
+//////////////////////////////////////////////////////////////////////////////
+var alt_SyntaxHighlight = false;
+var syntax_highlight_css = 'adiary';
+function load_SyntaxHighlight() {}	// 互換性のためのダミー
+
+$(function(){
+	var codes = $('pre.syntax-highlight');
+	if (!codes.length) return;
+	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
+
+	$.getScript(ScriptDir + 'highlight.pack.js', function(){
+		$('pre.syntax-highlight').each(function(i, block) {
+			hljs.highlightBlock(block);
+		});
+	});
+
+	var css = get_value_from_css('syntax-highlight-theme') || syntax_highlight_css;
+	prepend_css_file(PubdistDir + 'highlight-js/'+ css +'.css');
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -785,7 +804,7 @@ initfunc.push( function(R){
 
 	// color pickerのロード
 	var dir = ScriptDir + 'colorpicker/';
-	append_css_file(dir + 'css/colorpicker.css');
+	prepend_css_file(dir + 'css/colorpicker.css');
 	$.getScript(dir + "colorpicker.js", initfunc);
 });
 
@@ -1370,14 +1389,14 @@ function $secure(id) {
 //////////////////////////////////////////////////////////////////////////////
 // CSSファイルの追加
 //////////////////////////////////////////////////////////////////////////////
-function append_css_file(file) {
-	$("head").append("<link>");
-	var css = $("head").children(":last");
+function prepend_css_file(file) {
+	var css = $("<link>")
 	css.attr({
 		type: "text/css",
 		rel: "stylesheet",
 		href: file
 	});
+	$("head").prepend(css);
 	return css;
 }
 
@@ -1596,6 +1615,25 @@ function form_dialog(h) {
 	});
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// ●CSSから値を取得する
+//////////////////////////////////////////////////////////////////////////////
+function get_value_from_css(id, attr) {
+	var span = $('<span>').attr('id', id).css('display', 'none');
+	$('#body').append(span);
+	if (attr) {
+		attr = span.css(attr);
+		span.remove();
+		return attr;
+	}
+	var size = span.css('font-size');	// 1pxの時のみ有効
+	var str  = span.css('font-family');
+	span.remove();
+	if (str == null || size != '1px') return '';
+	str = str.replace(/["']/g, '');
+	return str;
+}
+
 //############################################################################
 // ■adiary用 Ajaxライブラリ
 //############################################################################
@@ -1684,30 +1722,6 @@ function adiary_session(_btn, opt){
 	}
   });
 };
-
-//############################################################################
-// 外部スクリプトロード用ライブラリ
-//############################################################################
-//////////////////////////////////////////////////////////////////////////////
-// ■syntax highlight機能のロード
-//////////////////////////////////////////////////////////////////////////////
-var load_sh_flag = false;
-var alt_SyntaxHighlight = false;
-var syntax_highlight_css = 'github';
-function load_SyntaxHighlight() {
-	if (load_sh_flag) return;
-	load_sh_flag=true;
-$(function(){
-	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
-	$.getScript(ScriptDir + 'highlight.pack.js', function(){
-		append_css_file(PubdistDir + 'highlight-js/'+ syntax_highlight_css +'.css');
-		$('pre.syntax-highlight').each(function(i, block) {
-			hljs.highlightBlock(block);
-		});
-	});
-});
-///
-}
 
 //############################################################################
 // Prefix付DOM Storageライブラリ

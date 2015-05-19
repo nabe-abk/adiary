@@ -35,8 +35,6 @@ sub new {
 	$self->{satsuki_syntax_h} = 1;	# syntaxハイライトをsatsuki記法に準拠させる
 	$self->{satsuki_seemore}  = 1;	# 「続きを読む」記法を使用する
 
-	$self->{load_SyntaxHighlighter} = '<module name="load_SyntaxHighlight">';
-
 	return $self;
 }
 
@@ -488,18 +486,16 @@ sub parse_block {
 				$x = shift(@$lines);
 			}
 			my $class='';
-			my $add='';
 			if ($self->{satsuki_syntax_h}) {	# [S] Satsuki記法準拠
 				if ($lang ne '') {
 					$class = ' ' . $lang;
 				}
 				$class = " class=\"syntax-highlight$class\"";
-				$add = $self->{load_SyntaxHighlighter};
 			}
 			my $first = shift(@code);
 			push(@ary, "<div class=\"highlight\"><pre$class>$first");
 			push(@ary, @code);
-			push(@ary, "</pre></div>$add\x02");
+			push(@ary, "</pre></div>\x02");
 			next;
 		}
 

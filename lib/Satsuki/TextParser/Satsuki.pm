@@ -53,9 +53,6 @@ sub new {
 	$self->{section_hnum} = 3;	# section level
 	$self->{toc_level}    = 1;	# toc は level 0-1 を出力
 
-	# シンタックスハイライト関連
-	$self->{load_SyntaxHighlighter} = '<module name="load_SyntaxHighlight">';
-
 	$self->init_tags();
 	$self->load_plugins(@_);
 
@@ -470,7 +467,6 @@ sub block_parser {
 	my $bcom  = 0;	# ブロック中コメント有効モード
 	my $br    = 0;	# 行末、強制<br>モード
 	my $cite='';	# 閉じタグの手前（blockquoteの下部等）に付けるHTML
-	my $add ='';	# 閉じタグの後ろに付加するHTML
 	my $macros = $self->{macros};	# マクロ情報
 	my @block_stack;
 	my $in_comment = 0;
@@ -481,11 +477,11 @@ sub block_parser {
 		} elsif ($block_tag eq 'script') {
 			push(@ary, "--></script>\n\x01");
 		} elsif ($p) {
-			push(@ary, "$cite</$block_tag>$add\n");
+			push(@ary, "$cite</$block_tag>\n");
 		} else {
-			push(@ary, "$cite</$block_tag>$add\n\x01");
+			push(@ary, "$cite</$block_tag>\n\x01");
 		}
-		($block_end, $block_tag, $p, $tag, $atag, $bcom, $br, $cite, $add) = @{ pop(@block_stack)};
+		($block_end, $block_tag, $p, $tag, $atag, $bcom, $br, $cite) = @{ pop(@block_stack)};
 	};
 	while($#$lines >= 0) {
 		my $line = shift(@$lines);
@@ -540,6 +536,7 @@ sub block_parser {
 			my $dc;		# デフォルトクラス
 			my $line_opt;
 			my $len;
+			my $block_tag_add='';
 			my $s10= substr("$line ", 0, 10);
 			my $s2 = substr($s10, 0, 2);
 			my $s3 = substr($s10, 0, 3);
@@ -550,8 +547,9 @@ sub block_parser {
 			# $tag		htmlタグが有効
 			# $atag		記法タグが有効
 			# $bcom		ブロック中コメントon
+			$cite="";
 			if ($s2 eq '>|') {
-			  push(@block_stack, [$block_end, $block_tag, $p, $tag, $atag, $bcom, $br, $cite, $add]);
+			  push(@block_stack, [$block_end, $block_tag, $p, $tag, $atag, $bcom, $br, $cite]);
 			  if ($line =~ /^>\|([\w#\-]+|\?)\|(.*)/) {
 				$len = 3+length($1);
 			  	if ($1 eq 'aa')  { $new_block_end = '||<'; $block_tag='div'; $p=$tag=$atag=0; $br=1; $dc=" ascii-art"; }
@@ -560,7 +558,6 @@ sub block_parser {
 					$new_block_end = '||<'; $block_tag='pre'; $p=$tag=$atag=0; $dc=" syntax-highlight";
 					my $lang = $1;
 					if ($lang =~ /^\w[\w\-]*$/) { $dc .= ' ' . $lang; }
-					$add = $self->{load_SyntaxHighlighter};
 				}
 				$line_opt = $2;
 			  }
@@ -595,7 +592,6 @@ sub block_parser {
 			# \x01 インデント、[]タグ抑止マーク
 			if ($new_block_end) {
 				$block_end = $new_block_end;
-				$cite="";
 				my $class  = ($line_opt ne '' ? $line_opt : substr($line, $len) . $dc);
 				my $add_attr;
 				if ($block_tag eq 'blockquote' && $class =~ m|^(\[(&?https?://[^:\"\]]*)[^\]]*\])(.*)|) {	# タグ指定？
@@ -611,7 +607,7 @@ sub block_parser {
 					if ($class ne '') {	# クラス, ID指定
 						$class = $self->parse_class_id($class);
 					}
-					if ($block_tag eq 'pre') { push(@ary, "<pre$add_attr$class>\n\x01"); }
+					if ($block_tag eq 'pre') { push(@ary, "<pre$add_attr$class>$block_tag_add\x01"); }
 							    else { push(@ary, "<$block_tag$add_attr$class>\n"); }
 					next;
 				}
