@@ -232,9 +232,9 @@
 	<label>投稿情報の表示</label>
 		<ul id="post-detail"<@if(!s.post_detail, ' style="display: none"')>>
 			<@ifexec(art.tm,begin)>
-			<li>書き込み日時 <span title="<@art.tm>"><@tm_printf("%Y/%m/%d %J:%M:%S", art.tm)></span></li>
+			<li>投稿日時 <span title="<@art.tm>"><@tm_printf("%Y/%m/%d %J:%M:%S", art.tm)></span></li>
 			<$end>
-			<li>最終更新日時 <@tm_printf("%Y/%m/%d %J:%M:%S", art.update_tm)></li>
+			<li>更新日時 <@tm_printf("%Y/%m/%d %J:%M:%S", art.update_tm)></li>
 			<li>IP <@art.ip></li>
 			<li>HOST <@art.host></li>
 			<li>AGENT <@art.agent></li>

@@ -687,6 +687,10 @@ sub load_articles {
 		$q{sort}     = 'tm';
 		$q{sort_rev} = 0;
 
+		if ($opt->{blog_only}) {
+			$q{match}->{priority} = 0;
+		}
+
 	#---------------------------------------------------------------
 	# tm指定
 	#---------------------------------------------------------------
@@ -700,10 +704,12 @@ sub load_articles {
 	#---------------------------------------------------------------
 	# Query
 	#---------------------------------------------------------------
-	} elsif ($mode =~ /^(\d\d\d\d)(\d\d)?$/ || $query->{t} || $query->{q} !~ /^\s*$/) {
+	} elsif ($mode =~ /^(\d\d\d\d)(\d\d)?$/ || $query->{t} || $query->{c} || $query->{q} !~ /^\s*$/) {
 		$ret{mode} = 'search';
 
+		#--------------------------------------
 		# 年月指定 / YYYYMM
+		#--------------------------------------
 		if ($mode =~ /^(\d\d\d\d)(\d\d)?$/) {
 			if ($2) {
 				my $err = $self->check_date($1, $2);
@@ -723,9 +729,14 @@ sub load_articles {
 				$q{min} = {yyyymmdd => "${1}0101"};
 				$q{max} = {yyyymmdd => "${1}1231"};
 			}
+			if ($opt->{blog_only}) {
+				$q{match}->{priority} = 0;
+			}
 		}
 
-		# タグの指定
+		#--------------------------------------
+		# タグの検索
+		#--------------------------------------
 		if ($query->{t}) {
 			my $taglist = $self->load_tag_cache($blogid);
 			my $name2pkey = $taglist->[0];
@@ -765,7 +776,7 @@ sub load_articles {
 				}
 			}
 			if (%t) {
-				$ret{t} = \@tags_txt;
+				$ret{tags} = \@tags_txt;
 			}
 			if (%arts) {
 				my $c = @$tags;		# 指定されたタグの数
@@ -775,7 +786,15 @@ sub load_articles {
 		}
 
 		#--------------------------------------
-		# 記事の検索
+		# コンテンツタイプの検索
+		#--------------------------------------
+		if (exists($query->{c})) {
+			$q{match}->{ctype} = $query->{c};
+			$ret{ctype} = $query->{c};
+		}
+
+		#--------------------------------------
+		# 文字列検索
 		#--------------------------------------
 		if ($query->{q} !~ /^\s*$/) {
 			my $q = $query->{q};
@@ -827,6 +846,10 @@ sub load_articles {
 		$q{sort}     = ['yyyymmdd', 'tm'];
 		$q{sort_rev} = [1, 1];
 		$q{limit}    = $loads;
+
+		if ($opt->{blog_only}) {
+			$q{match}->{priority} = 0;
+		}
 	}
 
 	#---------------------------------------------------------------
@@ -838,9 +861,6 @@ sub load_articles {
 	}
 	if (!$opt->{load_draft}) {
 		$q{not_null} = ['tm'];
-	}
-	if ($opt->{blog_only} && $ret{mode} ne 'search') {
-		$q{match}->{ctype} = '';
 	}
 
 	#---------------------------------------------------------------
@@ -866,13 +886,17 @@ sub load_articles {
 		if ($hits > 1) {
 			my $taglist = $self->load_tag_cache($blogid);
 			my $name2pkey = $taglist->[0];
+			my $blog_only = $opt->{blog_only};
 			my %tags;
 			my %year;
 			my %mon;
+			my %ctype;
 			foreach(@$all) {
 				my $ymd = $_->{yyyymmdd};
-				$year{ substr($ymd,0,4) }++;
-				$mon { substr($ymd,0,6) }++;
+				if (!$blog_only || !$_->{priority}) {
+					$year{ substr($ymd,0,4) }++;
+					$mon { substr($ymd,0,6) }++;
+				}
 				my @tags = split(',', $_->{tags});
 				my %c;	# aa::b, aa::c 時、aaの重複カウント防止
 				foreach my $tag (@tags) {
@@ -884,9 +908,16 @@ sub load_articles {
 						$tags{ $t }++;
 					}
 				}
+				if ($_->{tags} eq '') {
+					$tags{''}++;
+				}
+				$ctype{ $_->{ctype} }++;
 			}
 			foreach(keys(%tags)) {
 				if ($tags{$_} == $hits) { delete $tags{$_}; }
+			}
+			foreach(keys(%ctype)) {
+				if ($ctype{$_} == $hits) { delete $ctype{$_}; }
 			}
 			foreach(keys(%year)) {
 				if ($year{$_} == $hits) { delete $year{$_}; }
@@ -895,8 +926,9 @@ sub load_articles {
 				if ($mon{$_} == $hits) { delete $mon{$_}; }
 			}
 			my %ymd = %year ? %year : %mon;
-			if (%tags) { $ret{narrow_tags} = \%tags; $tags{_order} = [ sort(keys(%tags)) ]; }
-			if (%ymd)  { $ret{narrow_ymd}  = \%ymd;  $ymd {_order} = [ sort(keys( %ymd)) ]; }
+			if (%tags)  { $ret{narrow_tags}  = \%tags;  $tags {_order} = [ sort(keys(%tags )) ]; }
+			if (%ctype) { $ret{narrow_ctype} = \%ctype; $ctype{_order} = [ sort(keys(%ctype)) ]; }
+			if (%ymd)   { $ret{narrow_ymd}   = \%ymd;   $ymd  {_order} = [ sort(keys(%ymd  )) ]; }
 		}
 
 		# 該当ページのデータだけ取り出す

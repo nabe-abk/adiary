@@ -8,11 +8,15 @@ sub {
 	my $DB   = $self->{DB};
 	my $blogid = $self->{blogid};
 
-	my $num = $self->load_plgset($name, 'displays') || 5;
-	my $ary = $DB->select("${blogid}_art",{
+	my $blog_only = $self->load_plgset($name, 'blog_only');
+	my $h = {
 		flag     => { enable => 1 },
 		cols     => [ 'yyyymmdd' ]
-	});
+	};
+	if ($blog_only) {
+		$h->{match} = { priority => 0 };
+	}
+	my $ary = $DB->select("${blogid}_art", $h);
 
 	my %yyyymm;
 	foreach(@$ary) {

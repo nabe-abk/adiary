@@ -60,6 +60,7 @@
 <@>$SEPARATOR:END$------------------------------------------------------------
 <@ifexec(v.blogid, begin)>
 <!--検索====================================================-->
+<$ps = v.load_plgset('des_searchbox')>
 <div class="hatena-module" id="side-search" data-module-name="des_searchbox">
 <div class="hatena-moduletitle">検索</div>
 <div class="hatena-modulebody">
@@ -67,8 +68,9 @@
 <input type="search" class="search-box w80" name="q" value="<@tag_escape(x = Query.q)>" required>
 <button type="submit" class="search-btn">検索</button><br>
 <span class="search-radio">
-<input class="search-title" type="radio" name="all" value="0" <@if(!all, "checked")>><label>タイトル</label>
-<input class="search-text"  type="radio" name="all" value="1" <@if( all, "checked")>><label>全文</label>
+<$ifset(exists(Query.all), all, Query.all, ps.all)>
+<input class="search-title" type="radio" name="all" value="0" <@if(all eq '0', "checked")>><label>タイトル</label>
+<input class="search-text"  type="radio" name="all" value="1" <@if(all ne '0', "checked")>><label>全文</label>
 </span>
 </form>
 </div> <!-- hatena-modulebody -->

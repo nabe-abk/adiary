@@ -9,6 +9,7 @@ license=WTFPL
 
 adiary_version=2.941
 module_type=sidebar
+load_module_html_in_edit=1
 
 module_id=side-month-list
 
@@ -67,6 +68,7 @@ FILES
 *events=<<EVENTS
 ARTICLE_STATE_CHANGE=func/<@this>.pm
 INSTALL=func/<@this>.pm
+SETTING=func/<@this>.pm
 UNINSTALL=func/<@this>-uninstall.pm
 EVENTS
 

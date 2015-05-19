@@ -61,15 +61,25 @@
 	</div>
 	
 	<@>### タグ ###
-	<@ifexec(ret.t, begin)>
+	<@ifexec(ret.tags, begin)>
 	<div class="taglist cond">
-	<span class="search-caption">検索タグ</span> <span class="tags"><@forexec(t, ret.t, begin)><span class="tag"> <@\>
-		<a href="<@v.myself>?&amp;t=<@t>"><@if(t eq '', '（タグのない記事）',t)></a> <@\>
+	<span class="search-caption">検索タグ</span> <span class="tags"><@forexec(t, ret.tags, begin)><span class="tag"> <@\>
+		<a href="<@v.myself>?&amp;t=<@t>"><@if(t eq '', '(タグなし)',t)></a> <@\>
 		<$q .= "&amp;t=<@t>"><input type="hidden" name="t" value="<@t>"> <@\>
 	</span><$end></span>
 	</div>
 	<$end>
-	
+
+	<@>### 種類 ###
+	<@ifexec(exists(ret.ctype), begin)><$t = ret.ctype>
+	<div class="ctype cond">
+	<span class="search-caption">種類</span> <span class="ctype"> <@\>
+		<a href="<@v.myself>?&amp;c=<@t>"><@if(t eq '', '通常記事', t)></a> <@\>
+		<$q .= "&amp;c=<@t>"><input type="hidden" name="c" value="<@t>"> <@\>
+	</span></span>
+	</div>
+	<$end>
+
 	<@>### 年・年月指定 ###
 	<@ifexec(ret.yyyymm || ret.day, begin)>
 	<div class="yyyymm cond">
@@ -78,13 +88,27 @@
 	<$end>
 	</form>
 
-<$url .= "?<@q>">
+	<@>-----------------------------------------
+	<@> 絞り込み
+	<@>-----------------------------------------
+	<$url .= "?<@q>">
+
 	<@>### タグ絞り込み ###
 	<@ifexec(ret.narrow_tags, begin)>
 	<div class="narrow narrow-tag">
 	<span class="search-caption">タグで絞り込み</span>
 	<@forexec_hash(t,ret.narrow_tags,begin)>
-		<a href="<@url>&amp;t=<@encode_uri(x = t.key)>"><@t.key>(<@t.val>)</a>
+		<a href="<@url>&amp;t=<@encode_uri(x = t.key)>"><@if(t.key eq '', '(タグなし)',t.key)>(<@t.val>)</a>
+	<$end>
+	</div>
+	<$end>
+
+	<@>### 種類で絞り込み ###
+	<@ifexec(ret.narrow_ctype, begin)>
+	<div class="narrow narrow-ctype">
+	<span class="search-caption">種類で絞り込み</span>
+	<@forexec_hash(t,ret.narrow_ctype,begin)>
+		<a href="<@url>&amp;c=<@t.key>"><@if(t.key eq '', '通常記事', t.key)>(<@t.val>)</a>
 	<$end>
 	</div>
 	<$end>
@@ -94,6 +118,7 @@
 	<div class="narrow narrow-ymd">
 	<span class="search-caption">日付で絞り込み</span>
 	<@forexec_hash(t,ret.narrow_ymd,begin)>
+		<@ifexec(t.key == 0, begin)><a href="<@v.myself2>?<@q>&w=1">コンテンツ(<@t.val>)</a><$next()><$end>
 		<a href="<@v.myself2><@t.key>?<@q>"><@if(t.key < 10000, "<@t.key>年", int(substr(t.key,4,2)) . '月')>(<@t.val>)</a>
 	<$end>
 	</div>

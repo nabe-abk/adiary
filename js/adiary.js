@@ -1136,14 +1136,14 @@ function put_sid(id) {
 // ●検索条件表示の関連処理
 //////////////////////////////////////////////////////////////////////////////
 function init_top_search(id) {
-	var form = $(id);
+	var form = $secure(id);
 	var tagdel = $('<span>').addClass('ui-icon ui-icon-close');
 	tagdel.click(function(evt){
 		var obj = $(evt.target);
 		obj.parent().remove();
 		form.submit();
 	});
-	form.find("div.taglist span.tag").append(tagdel);
+	form.find("div.taglist span.tag, div.ctype span.ctype").append(tagdel);
 
 	var ymddel = $('<span>').addClass('ui-icon ui-icon-close');
 	ymddel.click(function(evt){

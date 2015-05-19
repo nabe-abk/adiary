@@ -9,13 +9,19 @@ sub {
 	my $blogid = $self->{blogid};
 
 	my $num = $self->load_plgset($name, 'displays') || 5;
-	my $ary = $DB->select("${blogid}_art",{
+	my $blog_only  = $self->load_plgset($name, 'blog_only');
+
+	my $h = {
 		flag     => { enable => 1 },
 		cols     => [ 'title', 'name', 'id', 'tm', 'yyyymmdd', 'link_key', 'ctype' ],
 		sort     => [ 'yyyymmdd', 'tm'],
 		sort_rev => [ 1, 1 ],
 		limit    => $num
-	});
+	};
+	if ($blog_only) {
+		$h->{match} = { priority => 0 };
+	}
+	my $ary = $DB->select("${blogid}_art", $h);
 
 	foreach(@$ary) {
 		$self->post_process_article($_);

@@ -12,8 +12,8 @@
 	<tr>
 		<th>標準の検索タイプ</th>
 		<td>
-			<input type="radio" name="all" value="0"<@if(!ps.all,' checked')>><label>タイトル</label>
-			<input type="radio" name="all" value="1"<@if( ps.all,' checked')>><label>全文</label>
+			<input type="radio" name="all" value="0"<@if(ps.all eq '0',' checked')>><label>タイトル</label>
+			<input type="radio" name="all" value="1"<@if(ps.all ne '0',' checked')>><label>全文</label>
 		</td>
 	</tr>
 	</tbody>

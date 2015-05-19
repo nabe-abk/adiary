@@ -28,5 +28,11 @@
 			<option value="20"<@if(x ==20, ' selected')>>20件</option>
 		</select></td>
 	</tr>
+	<tr>
+		<th>コンテンツ表示</th>
+		<td>
+			<input type="checkbox" name="blog_only" value="1"<@if(ps.blog_only,' checked')>><label>コンテンツは一覧に含めない</label>
+		</td>
+	</tr>
 	</tbody>
 	</table>
