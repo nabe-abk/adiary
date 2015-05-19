@@ -20,10 +20,10 @@ sub load_arts_list {
 	my $DB   = $self->{DB};
 
 	my $sort = $opt->{sort};
-	my $rev  = $opt->{sort_rev};
+	my $rev  = $opt->{rev};
 
 	# sortのチェック
-	my %a = ('yyyymmdd'=>1,'name'=>1,'tm'=>1,'update_tm'=>1,'coms'=>1,'coms_all'=>1);
+	my %a = ('enable'=>1,'yyyymmdd'=>1,'ctype'=>1,'name'=>1,'tm'=>1,'update_tm'=>1,'coms'=>1,'coms_all'=>1);
 	$sort =~ s/\W//g;
 	if (!$a{$sort} || $sort eq '') { $sort='yyyymmdd'; }
 	$rev = ($rev eq '' || $rev) ? 1 : 0;
@@ -61,9 +61,11 @@ sub load_arts_list {
 	# ロード対象記事オプション
 	if (! $self->{allow_edit}) {
 		$h{flag} = {enable => 1};
-	} elsif ($opt->{draft_only}) {
+	} 
+	if ($opt->{draft_only}) {
 		$h{is_null} = ['tm'];
-	} elsif (!$opt->{load_draft}) {
+	}
+	if (!$opt->{load_draft}) {
 		$h{not_null} = ['tm'];
 	}
 
@@ -73,10 +75,17 @@ sub load_arts_list {
 	my $blogid = $self->{blogid};
 	my ($logs,$hits) =  $DB->select("${blogid}_art", \%h);
 
+	my %name;
+	my %ctype;
 	foreach(@$logs) {
 		$self->post_process_link_key( $_ );
 	}
-	return wantarray ? ($logs,$hits) : $logs;
+
+	my %ret;
+	$ret{hits} = $hits;
+	$ret{sort} = $sort;
+	$ret{rev}  = $rev;
+	return wantarray ? ($logs, \%ret) : $logs;
 }
 
 #------------------------------------------------------------------------------
@@ -88,10 +97,10 @@ sub load_coms_list {
 	my $DB   = $self->{DB};
 
 	my $sort = $opt->{sort};
-	my $rev  = $opt->{sort_rev};
+	my $rev  = $opt->{rev};
 
 	# sortのチェック
-	my %a = ('tm'=>1,'name'=>1,'a_yyyymmdd'=>1);
+	my %a = ('enable'=>1,'tm'=>1,'name'=>1,'a_yyyymmdd'=>1);
 	$sort =~ s/\W//g;
 	if (!$a{$sort} || $sort eq '') { $sort='tm'; }
 	$rev = ($rev eq '' || $rev) ? 1 : 0;
@@ -124,7 +133,11 @@ sub load_coms_list {
 		$_->{text_nobr} =~ s/<br>/ /g;
 	}
 
-	return wantarray ? ($logs,$hits) : $logs;
+	my %ret;
+	$ret{hits} = $hits;
+	$ret{sort} = $sort;
+	$ret{rev}  = $rev;
+	return wantarray ? ($logs,\%ret) : $logs;
 }
 
 #------------------------------------------------------------------------------

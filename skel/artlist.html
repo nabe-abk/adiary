@@ -1,5 +1,5 @@
 <@6>
-<@local(logs,t,x,opt,s,loads,url,page_offset,tag_links)>
+<@local(logs,t,x,opt,ret,s,loads,url,page_offset,tag_links)>
 <$ifredirect(!v.blogid, v.myself)>
 
 <@> システムモード
@@ -11,15 +11,18 @@
 <@>--------------------------------------------
 <$page  = int(Query.page)  || 1>
 <$loads = int(Query.loads) || 50>
-<#$ifset(loads < 5, loads, 5)>
+<$ifset(!Develop && loads < 10, loads, 10)>
 
 <$opt = {}>
 <$opt.loads = loads>
 <$opt.offset= loads*(page-1)>
 <$opt.require_hits = 1>
-<$opt.q = Query.q>
+<$opt.q    = Query.q>
+<$opt.sort = Query.sort>
+<$opt.rev  = Query.rev>
 
-<$(logs,hits) = v.load_arts_list(opt)>
+<$(logs,ret) = v.load_arts_list(opt)>
+<$hits = ret.hits>
 <@>--------------------------------------------
 <@> ページ送りロジック
 <@>--------------------------------------------
@@ -30,7 +33,7 @@
 <$page_offset  = page_max - 10>
 <$ifset(page_offset<0, page_offset, 0)>
 
-<$url = "<@v.myself>?_=<@v.skeleton>&amp;loads=<@loads>&amp;q=" . encode_uricom(x = Query.q) . "&amp;">
+<$url = "<@v.myself>?_=<@v.skeleton>&amp;loads=<@loads>&amp;sort=<@ret.sort>&amp;rev=<@ret.rev>&amp;q=" . encode_uricom(x = Query.q) . "&amp;">
 
 <$tag_links = begin>
 	<@local(tag)>
@@ -50,30 +53,54 @@
 	<div class="serach-box">
 		<form action="<@v.myself>" id="search" method="GET" class="element">
 		<input type="hidden" name="_" value="<@v.skeleton>">
-		<div class="element">表示
-		<select name="loads" onchange="$('#search').submit();">
-			<option value="20" <@if(loads== 20,' selected')>>20</option>
-			<option value="50" <@if(loads== 50,' selected')>>50</option>
-			<option value="100"<@if(loads==100,' selected')>>100</option>
-			<option value="200"<@if(loads==200,' selected')>>200</option>
-		</select> 件</div>
-
 		<div class="element">
-			<input type="search" class="w160" name="q" value="<@tag_escape(x = Query.q)>">
+		表示<select name="loads" class="r">
+			<option value="20" <@if(loads== 20,' selected')>>20件</option>
+			<option value="50" <@if(loads== 50,' selected')>>50件</option>
+			<option value="100"<@if(loads==100,' selected')>>100件</option>
+			<option value="200"<@if(loads==200,' selected')>>200件</option>
+		</select>
+		</div>
+		<div class="element">
+			<select name="sort"><$x = ret.sort>
+				<@ifexec(v.allow_edit, begin)>
+				<option value="enable"<@if(x eq 'enable', ' selected')>>公開、非公開</option>
+				<$end>
+				<option value="yyyymmdd"<@if(x eq 'yyyymmdd', ' selected')>>日付</option>
+				<option value="ctype"<@if(x eq 'ctype', ' selected')>>種類</option>
+				<option value="name"<@if(x eq 'name', ' selected')>>投稿者</option>
+				<option value="<@if(v.allow_edit, 'coms_all', 'coms')>"<@if(x eq 'coms' || x eq 'coms_all', ' selected')>>コメント数</option>
+				<@ifexec(v.allow_edit, begin)>
+				<option value="tm"<@if(x eq 'tm', ' selected')>>投稿日時</option>
+				<option value="update_tm"<@if(x eq 'update_tm', ' selected')>>更新日時</option>
+				<$end>
+			</select>
+			<select name="rev">
+				<option value="0"<@if(!ret.rev, ' selected')>>昇順</option>
+				<option value="1"<@if( ret.rev, ' selected')>>降順</option>
+			</select>
+		</div>
+		<div class="element">
+			<input type="search" class="w140" name="q" value="<@tag_escape(x = Query.q)>">
 			<button type="submit">検索</button>
 		</div>
 		</form>
 	</div>
 	<@ifexec(pages>1, begin)>
-	<div class="page-nav">
-		<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;</a>', '&lt;')> 
+	<nav class="page-nav">
+		<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;</a>', '<a>&lt;</a>')> 
 		<@forexec_num(x, page_max-page_offset, begin)>
 			<$t = page_offset + x>
 			<@if(t!=page, #'<a href="<@url>page=<@t>"><@t></a>', "<strong><@t></strong>")> 
 		<$end>
-		<@if(page<pages, #'<a href="<@url>page=' . (page+1) . '">&gt;</a>', '&gt;')>
-	</div>
+		<@if(page<pages, #'<a href="<@url>page=' . (page+1) . '">&gt;</a>', '<a>&gt;</a>')>
+	</nav>
 	<$end>
+
+
+<$date = ''>
+<$ifset(ret.sort eq 'tm',        date, '投稿日時')>
+<$ifset(ret.sort eq 'update_tm', date, '更新日時')>
 
 <@ifexec(v.allow_edit, begin)>
 	<form action="<@url>page=<@page>" method="POST" class="js-form-check" data-target="#artlist-table .pkey-ary">
@@ -86,7 +113,8 @@
 		<th><input type="checkbox" name="all_check" class="js-checked" data-target="#artlist-table .pkey-ary"></th>
 		<th>公開</th>
 		<$end>
-		<th>日付</th>
+		<th><@if(date, date, '日付')></th>
+		<th>種類</th>
 		<th>タイトル</th>
 		<th>タグ</th>
 		<th>投稿者</th>
@@ -99,9 +127,14 @@
 		<td class="c"><input type="checkbox" name="pkey_int_ary" value="<@t.pkey>" class="pkey-ary" id="art-<@t.pkey>"></td>
 		<td class="c"><label for="art-<@t.pkey>"><@if(t.enable, '公')></label></td>
 		<$end>
+		<@ifexec(date, begin, begin)>
+		<td class="c"><label for="art-<@t.pkey>"><@tm_printf('%Y/%m/%d %K:%M', t.(ret.sort))></label></td>
+		<$else>
 		<td class="c"><label for="art-<@t.pkey>"><@v.format_ymd(t.yyyymmdd)></label></td>
+		<$end>
+		<td class="c"><label for="art-<@t.pkey>"><@t.ctype)></label></td>
 		<td><a href="<@v.myself2><@t.elink_key>"><@t.title></a></td>
-		<td class="c"><label for="art-<@t.pkey>"><@if(t.tags ne '', exec(tag_links, t.tags), '-')></label></td>
+		<td class="c"><label for="art-<@t.pkey>"><@if(t.tags ne '', exec(tag_links, t.tags))></label></td>
 		<td><@t.name></td>
 		<td class="r"><@if(v.allow_edit, t.coms_all, t.coms)></td>
 	</tr>
@@ -111,10 +144,10 @@
 
 	<p>Total <@int(hits)> articles.</p>
 
-	<div class="page-nav">
-		<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;前のページ</a>')>
-		<@if(page<pages, #'<a href="<@url>page=' . (page+1) . '">次のページ&gt;</a>')>
-	</div>
+	<nav class="page-nav">
+		<@if(1<page, #'<a class="prev-page pnavi" rel="prev" href="<@url>page=' . (page-1) . '">前のページ</a>')>
+		<@if(page<pages, #'<a class="next-page pnavi" rel="next" href="<@url>page=' . (page+1) . '">次のページ</a>')>
+	</nav>
 
 <@ifexec(v.allow_edit, begin)>
 	<button type="submit" name="enable"  class="js-form-check" data-confirm="">表示に設定</button> <@\>
@@ -129,3 +162,12 @@
 
 
 
+<script>
+$(function(){
+	var form = $secure('#search');
+	var sel = form.find('select');
+	sel.change(function(){
+		form.submit();
+	});
+});
+</script>

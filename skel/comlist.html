@@ -11,14 +11,17 @@
 <@>--------------------------------------------
 <$page  = int(Query.page)  || 1>
 <$loads = int(Query.loads) || 50>
-<#$ifset(loads < 5, loads, 5)>
+<$ifset(!Develop && loads < 10, loads, 10)>
 
 <$opt = {}>
 <$opt.loads = loads>
 <$opt.offset= loads*(page-1)>
 <$opt.require_hits = 1>
+<$opt.sort = Query.sort>
+<$opt.rev  = Query.rev>
 
-<$(logs,hits) = v.load_coms_list(opt)>
+<$(logs,ret) = v.load_coms_list(opt)>
+<$hits = ret.hits>
 <@>--------------------------------------------
 <@> ページ送りロジック
 <@>--------------------------------------------
@@ -29,7 +32,7 @@
 <$page_offset  = page_max - 10>
 <$ifset(page_offset<0, page_offset, 0)>
 
-<$url = "<@v.myself>?<@v.skeleton>&amp;loads=<@loads>&amp;">
+<$url = "<@v.myself>?<@v.skeleton>&amp;loads=<@loads>&amp;sort=<@ret.sort>&amp;rev=<@ret.rev>&amp;">
 
 <@>--------------------------------------------
 <@> 新着コメントを消す
@@ -49,24 +52,41 @@
 	<div class="serach-box">
 		<form action="<@v.myself>" id="search" method="GET" class="element">
 		<input type="hidden" name="_" value="<@v.skeleton>">
-		表示
-		<select name="loads" onchange="$('#search').submit();">
-			<option value="20" <@if(loads== 20,' selected')>>20</option>
-			<option value="50" <@if(loads== 50,' selected')>>50</option>
-			<option value="100"<@if(loads==100,' selected')>>100</option>
-			<option value="200"<@if(loads==200,' selected')>>200</option>
-		</select> 件</form>
-		<@ifexec(pages>1, begin)>
-		<div class="page-nav element">
-			<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;</a>', '&lt;')> 
-			<@forexec_num(x, page_max-page_offset, begin)>
-				<$t = page_offset + x>
-				<@if(t!=page, #'<a href="<@url>page=<@t>"><@t></a>', "<strong><@t></strong>")> 
-			<$end>
-			<@if(page<pages, #'<a href="<@url>page=' . (page+1) . '">&gt;</a>', '&gt;')>
+		<div class="element">
+		表示<select name="loads" class="r">
+			<option value="20" <@if(loads== 20,' selected')>>20件</option>
+			<option value="50" <@if(loads== 50,' selected')>>50件</option>
+			<option value="100"<@if(loads==100,' selected')>>100件</option>
+			<option value="200"<@if(loads==200,' selected')>>200件</option>
+		</select>
 		</div>
-		<$end>
+		<div class="element">
+			<select name="sort"><$x = ret.sort>
+				<@ifexec(v.allow_edit, begin)>
+				<option value="enable"<@if(x eq 'enable', ' selected')>>公開、非公開</option>
+				<$end>
+				<option value="tm"<@if(x eq 'tm', ' selected')>>投稿日時</option>
+				<option value="name"<@if(x eq 'name', ' selected')>>名前</option>
+				<option value="a_yyyymmdd"<@if(x eq 'a_yyyymmdd', ' selected')>>投稿記事の日付</option>
+			</select>
+			<select name="rev">
+				<option value="0"<@if(!ret.rev, ' selected')>>昇順</option>
+				<option value="1"<@if( ret.rev, ' selected')>>降順</option>
+			</select>
+		</div>
+		</form>
 	</div>
+
+	<@ifexec(pages>1, begin)>
+	<nav class="page-nav">
+		<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;</a>', '<a>&lt;</a>')> 
+		<@forexec_num(x, page_max-page_offset, begin)>
+			<$t = page_offset + x>
+			<@if(t!=page, #'<a href="<@url>page=<@t>"><@t></a>', "<strong><@t></strong>")> 
+		<$end>
+		<@if(page<pages, #'<a href="<@url>page=' . (page+1) . '">&gt;</a>', '<a>&gt;</a>')>
+	</nav>
+	<$end>
 
 <@ifexec(v.allow_edit, begin)>
 	<form action="<@url>page=<@page>" method="POST" class="js-form-check" data-target="#comlist-table .pkey-ary">
@@ -93,9 +113,9 @@
 		<td class="c"><input type="checkbox" name="pkey_int_ary" value="<@t.pkey>" class="pkey-ary" id="com-<@t.pkey>"></td>
 		<td class="c"><label for="com-<@t.pkey>"><@if(t.enable, '公', if(t.hidden, '非'))></label></td>
 		<$end>
-		<td><a href="<@v.myself2><@t.a_elink_key>" title="<@t.a_title>"><@v.string_clip(t.a_title,10)></a></td>
+		<td><a href="<@v.myself2><@t.a_elink_key>" title="<@v.format_ymd(t.a_yyyymmdd)> <@t.a_title>"><@v.string_clip(t.a_title,10)></a></td>
 		<td><a href="<@v.myself2><@t.a_elink_key>#c<@t.num>"<@if(v.allow_edit, #' data-reply="<@t.pkey>"')>><@t.name></a></td>
-		<td class="c"><label for="com-<@t.pkey>"><@tm_printf('%Y/%m/%d %J:%M', t.tm)></label></td>
+		<td class="c"><label for="com-<@t.pkey>"><@tm_printf('%Y/%m/%d %K:%M', t.tm)></label></td>
 		<td><label for="com-<@t.pkey>"><@v.string_clip(t.text_nobr,20)></label></td>
 	</tr>
 	<$end>
@@ -104,10 +124,10 @@
 
 	<p>Total <@int(hits)> comments.</p>
 
-	<div class="page-nav">
-		<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;前のページ</a>')>
-		<@if(page<pages, #'<a href="<@url>page=' . (page+1) . '">次のページ&gt;</a>')>
-	</div>
+	<nav class="page-nav">
+		<@if(1<page, #'<a class="prev-page pnavi" rel="prev" href="<@url>page=' . (page-1) . '">前のページ</a>')>
+		<@if(page<pages, #'<a class="next-page pnavi" rel="next" href="<@url>page=' . (page+1) . '">次のページ</a>')>
+	</nav>
 
 <@ifexec(v.allow_edit, begin)>
 	<button type="submit" name="enable"  class="js-form-check btn-help" data-confirm="" data-help="非公開コメントおよび記事が非公開の場合は表示することはできません">表示に設定</button>
@@ -142,3 +162,14 @@
 <$end>
 </div>
 <$end.block>
+
+
+<script>
+$(function(){
+	var form = $secure('#search');
+	var sel = form.find('select');
+	sel.change(function(){
+		form.submit();
+	});
+});
+</script>

@@ -18,9 +18,7 @@ var SP;		// adiary内部がスマホモード
 var Storage;
 var SettedBrowserClass;
 
-// _frame.html で設定される
-var Vmyself;
-var SpecialQuery;
+// _frame で設定されないことがある変数
 var _gaq;
 //////////////////////////////////////////////////////////////////////////////
 //●初期化処理
