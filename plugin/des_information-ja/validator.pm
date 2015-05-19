@@ -16,6 +16,7 @@ sub {
 		comlist-link
 		artcomlist-link
 		print-link
+		print-link_blank
 		bicon
 		rssicon
 	);

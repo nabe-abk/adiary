@@ -2,6 +2,8 @@
 
 *Ver3.0 RC1 : 2015/xx/xx
 
+
+-印刷用リンクを別ページで開く設定ができるようにしました。（[http://adiary.blog.abk.nu/0366#com:Thanks to 手石]）
 -【テーマ】あらゆる出力から{<input type="submit">, <input type="button">}を廃止しました。
 -【fix】その他の設定に、謎のデザインモジュール再インストールボタンがあった。
 -他
