@@ -10,7 +10,7 @@ package Satsuki::TextParser::Satsuki;
 # ※注意。パッケージ名変更時は78行目付近も修正のこと！
 
 use Satsuki::AutoLoader;
-our $VERSION = '2.01';
+our $VERSION = '2.02';
 #------------------------------------------------------------------------------
 my $TAG_PLUGIN_CLASS = 'TextParser::TagPlugin::Tag_';
 my $CSS_CLASS_PREFIX = 'tag-';
@@ -507,6 +507,7 @@ sub block_parser {
 			while($self->{chain_line} && substr($line, -1) eq "\\") {
 				chop($line);
 				$line  =~ s/ +$//;	# \ の手前のスペース除去
+				$line .= shift(@$lines);
 			}
 			# mini verbatim表記  {xxx}, {<tag>}, {[xxx:tag]}
 			$line =~ s/\\([\{\}])/ "\x01#" . ord($1) . ';'/eg;	# { } のエスケープ
