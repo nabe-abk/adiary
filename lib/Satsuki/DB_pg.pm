@@ -1,16 +1,17 @@
 use strict;
 #-------------------------------------------------------------------------------
 # データベースプラグイン for PostgreSQL
-#					(C)2006-03 nabe / ABK project
+#							(C)2015 nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::DB_pg;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-our $VERSION = '1.00';
+use Encode ();
+our $VERSION = '1.10';
 #-------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
-my $DB_attr = {AutoCommit => 1, RaiseError => 0, PrintError => 0};
+my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0, pg_enable_utf8 => 0);
 #-------------------------------------------------------------------------------
 # コネクションプール
 my %Connection_pool;
@@ -31,6 +32,10 @@ sub new {
 	$self->{_RDBMS} = 'PostgreSQL';
 	$self->{db_id}  = "pg.$database.";
 	$self->{exist_tables_cache} = {};
+	my %option = %DB_attr;
+	if ($self->{enable_utf8}) {
+		$self->{pg_enable_utf8} = $self->{enable_utf8};
+	}
 
 	# コネクション pool 処理
 	my $dbh;
@@ -48,7 +53,7 @@ sub new {
 	}
 	# 接続
 	if (! $dbh) {
-		$dbh = DBI->connect("DBI:Pg:$database", $username, $password, $DB_attr);
+		$dbh = DBI->connect("DBI:Pg:$database", $username, $password, \%option);
 		if (!$dbh) { $self->error('Connection faild'); return ; }
 	}
 	# プールする
@@ -286,6 +291,8 @@ sub generate_select_where {
 
 	if ($where) { $where = ' WHERE' . substr($where, 4); }
 
+	$self->utf8_on(\@ary);
+
 	return ($where, \@ary);
 }
 
@@ -320,6 +327,19 @@ sub error_hook {
 		$self->{begin}=-1;	# error
 	}
 }
+
+#------------------------------------------------------------------------------
+# ●utf8フラグをつける
+#------------------------------------------------------------------------------
+sub utf8_on {
+	my $self = shift;
+	my $ary = shift;
+	foreach(@$ary) {
+		Encode::_utf8_on($_);
+	}
+}
+
+
 
 ###############################################################################
 # ●タイマーの仕込み

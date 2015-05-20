@@ -1,13 +1,13 @@
 use strict;
 #-------------------------------------------------------------------------------
 # データベースプラグイン for mysql
-#						(C)2006-2012 nabe@abk
+#						(C)2006-2015 nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::DB_mysql;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-our $VERSION = '1.01';
+our $VERSION = '1.10';
 #-------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my $DB_attr = {AutoCommit => 1, RaiseError => 0, PrintError => 0};
@@ -57,10 +57,11 @@ sub new {
 	if ($self->{Pool}) {
 		$Connection_pool{$connect_id} = $dbh;
 	}
-	# クライアント文字コード設定（connection pool時に初期化される？）
-	if ($self->{Charset}) {
-		my $code = $self->{Charset};
-		$code =~ s/\W//g;
+
+	# 文字コード設定（Perl 5.20 / 文字化け対策）
+	my $code = exists($self->{Charset}) ? $self->{Charset} : 'utf8';
+	if ($code) {
+		$code =~ s/[^\w]//g;
 		my $sql = "SET NAMES $code";
 		$self->debug($sql);		# debug-safe
 		$dbh->do($sql);
