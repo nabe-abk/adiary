@@ -22,7 +22,7 @@
 	<@ifexec(v.v2conf, begin)>
 		<p><a href="<@Myself>?system/v2conv">Version2からの移行ツール</a></p>
 	<$end>
-	<@ifexec(Auth.auto, begin, begin)>
+	<@ifexec(Auth.auto, begin)>
 		<p><a href="<@Myself>?user/add">最初のユーザーを追加してください</a></p>
 	<$end>
 

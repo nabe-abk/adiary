@@ -65,7 +65,7 @@ tree.dynatree({
 
 			data.name = data.title;
 			data.full = path + data.title;
-			data.href = base_url + data.full;
+			data.href = base_url + encodeURIComponent( data.full );
 			set_node_title(node);
 
 			// ダブルタップで編集
@@ -136,7 +136,7 @@ function editNode( node ) {
 	// Replace node with <input>
 	var inp = $('<input>').attr({
 		type:  'text',
-		value: tag_decode(node.data.name)
+		value: tag_decode_amp(node.data.name)
 	});
 
 	// ノードの選択中表示を解除する
@@ -163,7 +163,7 @@ function editNode( node ) {
 				$(this).blur();
 				break;
 			case 13: // [enter]
-				node.data.name = tag_esc( inp.val() );
+				node.data.name = tag_esc_amp( inp.val() );
 				$(this).blur();
 				break;
 		}
@@ -247,7 +247,7 @@ form.submit(function(){
 			var inp = $('<input>').attr({
 				type: 'hidden',
 				name: 'tag_ary',
-				value: val
+				value: tag_decode_amp(val)
 			});
 			div.append(inp);
 			// join情報

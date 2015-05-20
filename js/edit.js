@@ -55,6 +55,7 @@ tagsel.change(function(evt){
 	var val = tagsel.val();
 	tag_append( val );
 });
+tagsel.val('');
 
 function tag_append(tag_text) {
 	if (tag_text=="") return;
@@ -63,7 +64,7 @@ function tag_append(tag_text) {
 	for(var i=0; i<ch.length; i++) {
 		if ($(ch[i]).text() == tag_text) return;
 	}
-	var tag = $('<span>').addClass('tag').html( tag_text );
+	var tag = $('<span>').addClass('tag').html( tag_esc_amp(tag_text) );
 	var inp = $('<input>').attr({
 		type: 'hidden',
 		name: 'tag_ary',

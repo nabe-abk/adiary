@@ -308,7 +308,7 @@ sub regist_article {
 	my $name = $form->{name};
 	my $id   = $form->{id};
 	$ROBJ->string_normalize($title, $tags, $name);
-	$ROBJ->tag_escape($title, $tags, $name);
+	$ROBJ->tag_escape_amp($title, $tags, $name);
 	$id =~ s/\W//g;
 	if ($title =~ /^\s*$/) {	# タイトルがない場合、タイトルを日付にする
 		$title = sprintf("%04d-%02d-%02d", $year, $mon, $day);
@@ -1379,8 +1379,10 @@ sub regist_comment {
 	my $url    = $form->{url};	# 任意
 	my $text   = $form->{comment_txt} ne '' ? $form->{comment_txt} : $form->{text};
 	my $hidden = $form->{hidden} ? 1 : 0;
-	$ROBJ->trim($name, $email, $url, $text);
-	$ROBJ->tag_escape( $name, $text );
+	$text =~ s/^(?:\s*\n)*//;	# 先頭は空行のみ除去
+	$text =~ s/[\s*\n]*$//;		# 末尾は\n\s全部除去
+	$ROBJ->trim($name, $email, $url);
+	$ROBJ->tag_escape_amp( $name, $text );
 	$ROBJ->clear_form_error();
 
 	# データチェック

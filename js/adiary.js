@@ -1088,25 +1088,53 @@ initfunc.push( function(R){
 // ■のサービス処理
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
-//●コメント欄の >>14 等をリンクに変更する
+//●コメント欄の加工。 >>14 等をリンクに変更する。スペースを&ensp;に置換
 //////////////////////////////////////////////////////////////////////////////
 $( function(){
-	var setReplay =  function(link,div){
-		var num  = link.data('reply').toString().replace(/[^\d]/g, '');
-		var com  = $('#c' + num);
-		if (!com.length) return;
-		div.html( com.html() );
-	};
-
 	var popup=$('#popup-com');
-	$('#com div.comment-text a[data-reply], #comlist-table a[data-reply]').each(function(idx,dom) {
-		var link = $(dom);
-		var num  = link.data('reply').toString().replace(/[^\d]/g, '');
-		var com  = $('#c' + num);
-		if (!com.length) return;
-		link.mouseenter( {div: popup , func: setReplay}, easy_popup);
-		link.mouseleave( {div: popup                  }, easy_popup_out);
+	$('#com div.comment-text').each(function(idx,dom) {
+		var obj  = $(dom);
+		var text = obj.html();
+
+		// TAB to SPACE
+		var safe = 999;
+		while(safe-- && 0 <= text.indexOf("\t"))
+			text = text.replace(/(^|<br>)(.*?)\t/g, function(all, m1, m2){
+				var len=0;
+				for(var i=0; i<m2.length; i++)
+					len += (0x7f < m2.charCodeAt(i)) ? 2 : 1;
+				var tab = 4 - (len & 3);
+				return m1 + m2 + ' '.repeat(tab);
+			});
+
+		// SPACE to &ensp;
+		text = text.replace(/([^\s])(\s\s+)/g, function(all, m1, m2){
+			return m1 + '&ensp;'.repeat( m2.length );
+		});
+		text = text.replace(/(^|<br>)(\s+)/g, function(all, m1, m2){
+			return m1 + '&ensp;'.repeat( m2.length );
+		});
+
+		// リンクに加工
+		text = text.replace(/&gt;&gt;(\d+)/g, function(all, num){
+			return '<a href="#c' + num + '">&gt;&gt;' + num + '</a>';
+		});
+		// 置換
+		obj.html(text);
+
+		// popup機能
+		obj.find('a').each(function(idx,dom) {
+			var link = $(dom);
+			link.mouseenter( {div: popup , func: setReplay}, easy_popup);
+			link.mouseleave( {div: popup                  }, easy_popup_out);
+		});
 	});
+	function setReplay(obj, div) {
+		var num  = obj.attr('href').toString().replace(/[^\d]/g, '');
+		var com = $('#c' + num);
+		if (!com.length) return div.empty();
+		div.html( com.html() );
+	}
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1414,6 +1442,9 @@ function tag_esc(text) {
 function tag_esc_br(text) {
 	return tag_esc(text).replace(/\n|\\n/g,'<br>');
 }
+function tag_esc_amp(text) {
+	return tag_esc( text.replace(/&/g,'&amp;') );
+}
 
 function tag_decode(text) {
 	return text
@@ -1422,6 +1453,9 @@ function tag_decode(text) {
 	.replace(/&gt;/g, '>')
 	.replace(/&lt;/g, '<')
 	.replace(/&#92;/g, "\\")	// for JSON data
+}
+function tag_decode_amp(text) {
+	return tag_decode(text).replace(/&amp;/g,'&');
 }
 
 //////////////////////////////////////////////////////////////////////////////

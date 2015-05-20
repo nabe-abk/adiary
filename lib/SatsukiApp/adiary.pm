@@ -818,7 +818,7 @@ sub load_articles {
 			$q{search_cols}  = $query->{all} ? ['title','_text'] : ['title'];
 
 			$q =~ s/\x04\[(\d+)\]/"$buf[$1]"/g;
-			$ROBJ->tag_escape( $q );
+			$ROBJ->tag_escape_amp( $q );
 			$ret{q} = $q;
 			$ret{words} = \@words;
 		}
@@ -1104,17 +1104,7 @@ sub load_comments_current_blog {
 	$opt->{loads} = $num ? $num : undef;
 
 	# ロード
-	my $c = $self->load_comments($self->{blogid}, $a_pkey, $opt);
-
-	# >>44とかのリンクを有効に。行頭半角スペースを &ensp; に。
-	# <br>は元から入ってる。
-	if ($opt->{html}) {
-		foreach(@$c) {
-			$_->{text} =~ s|&gt;&gt;(\d+)|<a href="#c$1" data-reply="$1">&gt;&gt;$1</a>|g;
-			$_->{text} =~ s/(^|<br>)(\s+)/$1 . ('&ensp;' x length($2))/eg;
-		}
-	}
-	return $c;
+	return $self->load_comments($self->{blogid}, $a_pkey, $opt);
 }
 
 #------------------------------------------------------------------------------

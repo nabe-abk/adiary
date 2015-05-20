@@ -139,7 +139,7 @@
 	<input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary"><label>すべて選択</label>
 	</div>
 	<$end>
-	<@forexec(c, v.load_comments_current_blog(t, view, flagq(html)), begin)>
+	<@forexec(c, v.load_comments_current_blog(t, view), begin)>
 	<div class="comment-one<@if(!c.enable, ' hidden')>" id="c<@c.num>">
 		<div class="commentator">
 			<span class="canchor"><a href="#c<@c.num>"><@c.num></a>:</span>	<@\>
@@ -188,7 +188,7 @@
 		<span class="caption-name">名前</span><span class="separater">:</span>
 		<@ifexec(Auth.ok, begin, begin)><span class="comment-author"><@Auth.name></span><$else><input type="text" name="name" class="w160 comment-author" value="<@esc(Form.name)>" required><$end>
 		<@if(t.hcom_ok, '&emsp;<input type="checkbox" name="hidden" value="1"><label>非公開コメント</label>')>
-		<button type="submit" id="post-comment">投稿</button><br>
+		<button type="submit" id="post-comment">投稿</button><span class="help" data-help="返信は「>>n」\n空白、タブ有効。タグ無効。">?</span><br>
 		<textarea class="comment-txt w600" name="comment_txt" rows="3" required><@esc(Form.comment_txt)></textarea>
 	</form> <!-- comment form -->
 	<$end>

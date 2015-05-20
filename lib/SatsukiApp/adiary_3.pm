@@ -882,7 +882,7 @@ sub tag_edit {
 	foreach(@$edits) {
 		my ($pkey,$upnode,$priority,$name) = split(',',$_,4);
 		$ROBJ->string_normalize($name);
-		$ROBJ->tag_escape($name);
+		$ROBJ->tag_escape_amp($name);
 		if($upnode) {
 			$name = $tags[ $upnode ]->{name} . '::' . $name;
 		}
