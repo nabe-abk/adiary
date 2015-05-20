@@ -203,7 +203,7 @@ sub _post_action {
 	$blog{version}       = $adiary_version;
 	$self->{adiary_version} = $adiary_version;
 	if ($self->{check_local_url}) {	# 外部公開ページか確認する
-		if ($url =~ m[^https?://(?:192|10|172)\.\d+\.\d+\.\d+/] || $url =~ m|^https?://local|) {
+		if ($url =~ m[^https?://(?:192|10|172)\.\d+\.\d+\.\d+/] || $url =~ m|^https?://[\w\-]+(?:\:\d+)?/|) {
 			$self->{message} = '公開されたページから送信してください';
 			return 3;
 		}
