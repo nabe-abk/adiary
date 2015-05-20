@@ -31,13 +31,25 @@
 	<input type="hidden" name="action" value="<@v.skel_dir>blog_rebuild">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	
-	<p><input type="checkbox" name="only_blog_info" value="1"><label>付加情報（タグ一覧等）やRSSのみ再生成する</label></p>
-	
-	<button type="submit">ブログを再構築する</button><br>
+	<p><input type="checkbox" name="only_blog_info" value="1" id="info-only" data-on="付加情報のみ再生成する" data-off="ブログを再構築する"><label>付加情報（タグ一覧等）やRSSのみ再生成する</label></p>
+
+	<button type="submit" id="submit-btn">ブログを再構築する</button><br>
 
 	</form>
 </div>
 </article>
 
 
+<script>
+$(function(){
+	var info = $('#info-only');
+	var submit = $('#submit-btn');
+	info.change(function(evt){
+		if (info.prop('checked'))
+			submit.text( info.data('on') );
+		else	submit.text( info.data('off') );
+	});
+	info.change();
+});
+</script>
 

@@ -1,0 +1,41 @@
+@charset "UTF-8";
+/*****************************************************************************
+  Satsuki2 - responsive style
+							(C)2013 nabe@abk.nu
+*****************************************************************************/
+@import url("../satsuki2/satsuki2.css");
+/* $color_info = satsuki2 */
+/*--------------------------------------------------------------------
+■全体配置 (800px以上)
+---------------------------------------------------------------------*/
+@media screen and (min-width: 800px) {
+/* 日記部 */
+div.main {
+	margin-left:		164px;
+	margin-right:		164px;
+}
+#sidebar
+{
+	width:			100%;
+	position:		absolute;
+	visibility:		hidden;		/* こうしないと記事部をclickできない */
+}
+#side-a
+{
+	width:			160px;
+	margin:			0;
+	padding:		0;
+	visibility:		visible;
+}
+#side-b
+{
+	position:		absolute;
+	width:			160px;
+	right:			0;
+	top:			0;
+	margin:			0;
+	padding:		0;
+	visibility:		visible;
+}
+
+}

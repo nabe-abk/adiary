@@ -803,6 +803,7 @@ sub escape_without_html_tag {
 		$_ =~ s/</&lt;/g;
 		$_ =~ s/>/&gt;/g;
 		$_ =~ tr/\x00/&/;
+		$_ =~ s/\x03E(\d+)\x03/chr($1)/eg;
 	}
 	return $_[0];
 }

@@ -314,6 +314,7 @@ dndEmulation: function(opt){
 		var e = make_mouse_event('mousemove', evt, touch);
 		$(enter).trigger(e);
 
+		// opt.leave が指定されてないか
 		// 要素移動がなければこれで終了
 		evt.preventDefault();
 		if (!opt.leave || dom == prev) return;

@@ -119,6 +119,7 @@ ul li > p:first-child {
 /* はてなブックマーク数の表示 */
 .http-bookmark img {
 	vertical-align: bottom;
+	height:		13px;
 }
 /* Google-map の埋め込み */
 div.google-map {
