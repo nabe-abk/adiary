@@ -22,6 +22,10 @@
 	<@ifexec(v.v2conf, begin)>
 		<p><a href="<@Myself>?system/v2conv">Version2からの移行ツール</a></p>
 	<$end>
+	<@ifexec(Auth.auto, begin, begin)>
+		<p><a href="<@Myself>?user/add">最初のユーザーを追加してください</a></p>
+	<$end>
+
 
 	<@ifexec(Auth.isadmin && v.require_update, begin)>
 		<p><strong class="warning">すぐに<a href="<@v.myself>?system/update">アップデート処理</a>を実行してください。</strong></p>
