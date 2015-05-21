@@ -3,6 +3,7 @@
 #--------------------------------------
 .*/
 *.tar.bz2
+adiary-*
 
 #--------------------------------------
 # private data directory
@@ -35,6 +36,7 @@ adiary.env.cgi
 adiary.conf.cgi
 mimetex.cgi
 __tool/__*
+!__tool/.htaccess
 lib/SatsukiApp/form.pm
 lib/SatsukiApp/form_2.pm
 info/textparser_site_tags.txt
