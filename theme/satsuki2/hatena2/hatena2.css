@@ -83,6 +83,7 @@ body.IE8 {
 .IE8 #hatena-body {
 	margin-top:		-16px;
 	position:		relative;
+	min-height:		600px;
 	max-height:		99999px;	/* adiary.jsで高さを自動フィットさせる指定 */
 }
 .IE8 .main {

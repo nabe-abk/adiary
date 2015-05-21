@@ -41,6 +41,7 @@ h1 img, h1 a img {
 #hatena-body {
 	position:		relative;
 	margin:			1em 0.5em;
+	min-height:		600px;
 	max-height:		99999px;	/* adiary.jsで高さを自動フィットさせる指定 */
 }
 /* 記事部 */

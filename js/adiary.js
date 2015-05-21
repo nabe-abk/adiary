@@ -1153,6 +1153,7 @@ $( function(){
 $( function(){
 	var hbody = $('#hatena-body');
 	if ( hbody.css('max-height') != '99999px' ) return;
+	hbody.css('max-height', 'none');
 
 	function fix_height() {
 		var height = 0;
@@ -1162,8 +1163,10 @@ $( function(){
 			if (isNaN(h)) continue;
 			if (height < h) height=h;
 		}
-		if (!h) return;
-		hbody.css('min-height', height);
+		if (!height) return;
+		var min = parseInt(hbody.css('min-height') || '0');
+		if (min && height <= min) return;
+		hbody.css('min-height', height + 'px');
 	}
 	setTimeout(fix_height, 1000);
 	fix_height();

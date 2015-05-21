@@ -1768,9 +1768,10 @@ sub post_process {
 			my $ary = shift;
 			my $t   = shift;
 			if (length($t) > $level) { return; }
+
+			push(@$out, "<ul" . ($t ? '' : " class=\"$class\"") . ">\n");
 			$t .= "\t";
 
-			push(@$out, "<ul class=\"$class\">\n");
 			foreach(@$ary) {
 				my $subs = $_->{children};
 				if (!$subs || !@$subs) {
