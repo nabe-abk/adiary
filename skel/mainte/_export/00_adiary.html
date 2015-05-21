@@ -38,7 +38,7 @@
 <@>-----------------------------------
 <@local(t,t2)>
 <$t = argv#0>
-<day date="<@t.year>-<@t.mon>-<@t.day>" title="<@esc_xml(t.title)>">
+<day date="<@t.year>-<@t.mon>-<@t.day>" title="<@tag_escape_amp(t.title)>">
 <attributes
 	adiary="3"
 	pkey="<@t.pkey>"
@@ -46,23 +46,23 @@
 	tm="<@t.tm>"
 	allow_hcom="<@t.com_ok>"
 	allow_com="<@t.hcom_ok>"
-	tags="<@esc_xml(t.tags)>"
+	tags="<@tag_escape_amp(t.tags)>"
 	parser="<@t.parser>"
 <@>
 	link_key="<@t.link_key>"
 	ctype="<@t.ctype>"
 	priority="<@t.priority>"
-	upnode="<@esc_xml(t.upnode)>"
+	upnode="<@tag_escape_amp(t.upnode)>"
 <@>
 <@ifexec(!opt.no_writer, begin)>
-	name="<@esc_xml(t.name)>"
+	name="<@tag_escape_amp(t.name)>"
 	id="<@t.id>"
 	ip="<@t.ip>"
-	host="<@esc_xml(t.host)>"
-	agent="<@esc_xml(t.agent)>"
+	host="<@tag_escape_amp(t.host)>"
+	agent="<@tag_escape_amp(t.agent)>"
 <$end>
 />
-<body><@esc_xml(t._text)></body>
+<body><@tag_escape_amp(t._text)></body>
 <@>
 <@> コメントの生成
 <@>
@@ -73,17 +73,17 @@
 	<enable><@t2.enable></enable>
 	<hidden><@t2.hidden></hidden>
 	<id><@t2.id></id>
-	<username><@esc_xml(t2.name)></username>
+	<username><@tag_escape_amp(t2.name)></username>
 	<num><@t2.num></num>
 	<timestamp><@t2.tm></timestamp>
-	<email><@esc_xml(t2.email)></email>
-	<url><@esc_xml(t2.url)></url>
+	<email><@tag_escape_amp(t2.email)></email>
+	<url><@tag_escape_amp(t2.url)></url>
 <@ifexec(!opt.no_writer, begin)>
 	<ip><@t2.ip></ip>
-	<host><@esc_xml(t2.host)></host>
-	<agent><@esc_xml(t2.agent)></agent>
+	<host><@tag_escape_amp(t2.host)></host>
+	<agent><@tag_escape_amp(t2.agent)></agent>
 <$end>
-	<body><@esc_xml(t2.text)></body>
+	<body><@tag_escape_amp(t2.text)></body>
 </comment>
 <$end></comments>
 <$end.comment>
