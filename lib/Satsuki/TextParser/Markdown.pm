@@ -71,6 +71,7 @@ sub text_parser {
 	if ( $sobj ) {
 		$sobj->{thisurl}  = $self->{thisurl};
 		$sobj->{thispkey} = $self->{thispkey};
+		$sobj->{thisymd}  = $self->{thisymd};
 		$sobj->init_unique_link_name();
 	}
 
@@ -228,7 +229,7 @@ sub parse_special_block {
 					$text = "<span class=\"sanchor\">$anchor</span>$text";
 				}
 				if ($self->{section_link}) {
-					$text = "<a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$text</a>";
+					$text = "<a href=\"$self->{thisurl}#$name\" id=\"$name\">$text</a>";
 				}
 			} elsif ($level==2) {	# [S] h4
 				my $anchor = $self->{subsection_anchor};
@@ -246,7 +247,7 @@ sub parse_special_block {
 				});
 				$text = "<span class=\"sanchor\">$anchor</span>$text";
 				if ($self->{section_link}) {
-					$text = "<a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$text</a>";
+					$text = "<a href=\"$self->{thisurl}#$name\" id=\"$name\">$text</a>";
 				}
 			}
 			push(@ary,"<h$n>$text</h$n>\x01");

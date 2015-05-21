@@ -986,6 +986,7 @@ sub dummy {
 #--------------------------------------------------------------------
 sub section {
 	my ($self, $line) = @_;
+	my $ROBJ = $self->{ROBJ};
 	my @ary;
 
 	# section の終わり
@@ -1016,12 +1017,13 @@ sub section {
 			my $ROBJ = $self->{ROBJ};
 			my $format = $self->{timestamp_time} || '%J:%M';
 			my $h = $ROBJ->time2timehash( $name );
-			if ($h->{day} != $self->{thisday} || $h->{mon} != $self->{thismon} || $h->{year} != $self->{thisyear}) {
+			my $ymd = sprintf("%04d%02d%02d", $h->{year}, $h->{mon}, $h->{day});
+			if ($ymd != $self->{thisymd}) {
 				$format = $self->{timestamp_date} || '%Y/%m/%d';
 			}
 			$format = $force_format || $format;
 			$line .= ' <span class="timestamp">'
-				. $self->{ROBJ}->tm_printf($format, $name) . '</span>';
+				. $ROBJ->tm_printf($format, $name) . '</span>';
 		}
 	}
 
@@ -1039,7 +1041,7 @@ sub section {
 
 	my $hnum = $self->{section_hnum};
 	if ($anchor ne '') { $anchor="<span class=\"sanchor\">$anchor</span>"; }
-	push(@ary, "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$anchor$line</a></h$hnum>\n");
+	push(@ary, "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\">$anchor$line</a></h$hnum>\n");
 	return \@ary;
 }
 
@@ -1069,7 +1071,8 @@ sub subsection {
 			my $ROBJ = $self->{ROBJ};
 			my $format = $self->{timestamp_time} || '%J:%M';
 			my $h = $ROBJ->time2timehash( $name );
-			if ($h->{day} != $self->{thisday} || $h->{mon} != $self->{thismon} || $h->{year} != $self->{thisyear}) {
+			my $ymd = sprintf("%04d%02d%02d", $h->{year}, $h->{mon}, $h->{day});
+			if ($ymd != $self->{thisymd}) {
 				$format = $self->{timestamp_date} || '%Y/%m/%d';
 			}
 			$format = $force_format || $format;
@@ -1090,7 +1093,7 @@ sub subsection {
 
 	my $hnum = $self->{section_hnum} +1;
 	if ($anchor ne '') { $anchor="<span class=\"sanchor\">$anchor</span>"; }
-	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$anchor$line</a></h$hnum>\n";
+	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\">$anchor$line</a></h$hnum>\n";
 }
 
 #--------------------------------------------------------------------
@@ -1768,10 +1771,9 @@ sub post_process {
 			my $ary = shift;
 			my $t   = shift;
 			if (length($t) > $level) { return; }
-
-			push(@$out, "<ul" . ($t ? '' : " class=\"$class\"") . ">\n");
 			$t .= "\t";
 
+			push(@$out, "<ul class=\"$class\">\n");
 			foreach(@$ary) {
 				my $subs = $_->{children};
 				if (!$subs || !@$subs) {
