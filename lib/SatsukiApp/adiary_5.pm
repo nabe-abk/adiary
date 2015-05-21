@@ -627,10 +627,9 @@ sub art_import {
 	# upnode対応処理
 	my $p2p = $opt{pkey2pkey};
 	foreach(@{$opt{upnodes}}) {
-		my $pkey   = $_->{pkey};
-		my $upnode = $_->{upnode};
-		my $up_pkey = $p2p->{$upnode};
-		if ($upnode != $up_pkey && $up_pkey) {
+		my $pkey    = $_->{pkey};
+		my $up_pkey = $p2p->{ $_->{upnode} };
+		if ($up_pkey) {
 			$DB->update_match("${blogid}_art", {upnode => $up_pkey}, 'pkey', $pkey);
 		}
 	}
