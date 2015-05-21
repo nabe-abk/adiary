@@ -94,7 +94,7 @@ iframe.on('load', function(){
 		});
 	// コメント欄
 	var combody = $f('#com>div.commentbody');
-	var comview = combody.children('div.comemntview');
+	var comview = combody.children('div.commentview');
 	comview.hide(0);
 
 	// iframe内のリンク書き換え

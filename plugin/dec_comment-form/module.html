@@ -14,10 +14,10 @@
 		<button type="submit" id="post-comment">投稿</button><span class="help" data-help="返信は「>>n」\n空白、タブ有効。タグ無効。">?</span><br>
 		<textarea class="comment-txt w600" name="comment_txt" rows="3" required><@esc(Form.comment_txt)></textarea>
 		<@ifexec(ps.email, begin)>
-		<span class="caption-email">E-Mail(任意/非公開)</span><span class="separater">:</span><input class="w300" type="email" name="email" value="<@esc(Form.email)>"><br>
+		<div class="post-comment-email"><span class="caption-email">E-Mail(任意/非公開)</span><span class="separater">:</span><input class="w300" type="email" name="email" value="<@esc(Form.email)>"></div>
 		<$end>
 		<@ifexec(ps.url, begin)>
-		<span class="caption-url">URL(任意)</span><span class="separater">:</span><input class="w300" type="url" name="url" value="<@esc(Form.url)>"><br>
+		<div class="post-comment-url"><span class="caption-url">URL(任意)</span><span class="separater">:</span><input class="w300" type="url" name="url" value="<@esc(Form.url)>"></div>
 		<$end>
 		<@ps.msg>
 	</form> <!-- comment form -->

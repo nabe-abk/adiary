@@ -26,7 +26,7 @@
 
 	<p>コンテンツkeyを編集するときは、ダブルクリック等で編集ボックスを出し、編集後にEnterを押してください。</p>
 
-	<div id="tree" data-url="<@Basepath><@v.blogpub_dir>contents.json" data-base-url="<@v.myself2>"></div>
+	<div id="tree" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'contents.json')>" data-base-url="<@v.myself2>"></div>
 
 	<button type="submit" id="submit">変更を保存する</button>
 	<button type="button" id="reset">リセット</button><br>

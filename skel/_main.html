@@ -157,7 +157,7 @@
 
 <@><!--========================================================================-->
 <@ifexec(ret.pagemode && (1<page || ret.next_page), begin.page)>
-<nav class="page-head page-nav">
+<nav class="page-nav">
 <@page_nav = exec(begin.function)>
 <@ifexec(ret.pages, begin, begin)>
 	<a<@if(1<page, #' href="<@url>' . if(2<page, '&amp;p=' . (page-1)) . '"')> class="prev-page pnavi" rel="prev">前のページ</a>
@@ -186,7 +186,7 @@
 <div class="body-header">
 <@>$ARTICLE_TOP:END$-----------------------------------------------------------
 	<$ps = v.load_plgset('dea_art-info')>
-	<div class="body-header" data-module-name="dea_art-info" data-fix="1">
+	<div data-module-name="dea_art-info" data-fix="1">
 		<@ifexec(ps.hatena_bicon, begin)>
 		<a class="http-bookmark" href="http://b.hatena.ne.jp/entry/<@url>"><img src="http://b.st-hatena.com/entry/image/<@url>" alt="はてブ数"></a>
 		<$end>
@@ -200,7 +200,7 @@
 <@>$ARTICLE_BOTTOM$------------------------------------------------------------
 </div>
 <div class="body-main">
-	<@if(! t.enable, '<strong class="warning">【この記事は非公開です】</strong><br>')>
+	<@if(! t.enable, '<div><strong class="warning">【この記事は非公開です】</strong></div>')>
 <@if(t.text_s ne '', t.text_s, t.text)>
 </div>
 <$coms = if(v.allow_edit, t.coms_all, t.coms)>
@@ -219,7 +219,7 @@
 
 
 <@ifexec(page_nav, begin.page)>
-<nav class="page-foot page-nav">
+<nav class="page-nav">
 <@page_nav>
 </nav>
 <$end.page>

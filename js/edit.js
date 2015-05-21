@@ -213,6 +213,8 @@ if (edit_pkey && el_time>9) {
 
 	// 編集中の確認
 	ajax_edit_lock('ajax_check_lock', edit_lock_checked);
+} else {
+	do_edit = true;
 }
 
 //----------------------------------------------------------------------------
@@ -555,11 +557,12 @@ dndbody.on('dragover', function(evt) {
 	return false;
 });
 dndbody.on("drop", function(evt) {
+	evt.stopPropagation();
+	evt.preventDefault();
+
 	if (!do_edit) return;
 	if (!evt.originalEvent.dataTransfer) return;
 
-	evt.stopPropagation();
-	evt.preventDefault();
 	dnd_files = evt.originalEvent.dataTransfer.files;
 	if (!dnd_files || !dnd_files.length) return;
 	if (!window.FormData) return;

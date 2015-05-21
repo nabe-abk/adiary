@@ -177,7 +177,7 @@ td.checkbox, th.checkbox {
 td.button, th.button {
 	text-align:		center;
 }
-textarea {
+textarea, pre {
 	display:	block;
 	-moz-tab-size:	4;
 	-o-tab-size:	4;

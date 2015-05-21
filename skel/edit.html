@@ -114,7 +114,7 @@
 	<@forexec(t, tags, begin)><span class="tag"><@t><input type="hidden" name="tag_ary" value="<@t>"></span><$end>
 	</span>
 	
-	<select name="taglist" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json">
+	<select name="taglist" id="tag-select" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'taglist.json')>">
 		<option value="" class="special">【タグを追加】</option>
 		<option value="*" class="special" data-new="1">【新規に登録】</option>
 	</select></span><br>
@@ -215,7 +215,7 @@
 		<li><input type="checkbox" name="wiki" value="1" data-target="#wiki-block" class="js-switch"<@if(art.ctype || art.wiki, ' checked')>><label>wikiコンテンツにする</label>
 		<input type="hidden" name="priority" value="<@art.priority>">
 		<ul id="wiki-block" style="display: none">
-			<li>親ノード<select name="upnode" id="upnode-select" data-default="<@art.upnode>" data-this-pkey="<@edit_pkey>" data-url="<@Basepath><@v.blogpub_dir>contents.json">
+			<li>親ノード<select name="upnode" id="upnode-select" data-default="<@art.upnode>" data-this-pkey="<@edit_pkey>" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'contents.json')>">
 				<option value="0">*トップ(root)</option>
 			</select></li>
 			<li>コンテンツkey<span class="help" data-help='"http://" や "/" ではじまるkeyを指定するとリンクになります。"FrontPage", "top", "index"のいずれかを指定するとブログトップの固定記事になります。'>?</span><input type="text" name="link_key" id="link-key" class="w240" value="<@if(art.ctype, esc(art.link_key))>" data-suggest="<@s.suggest_link_key>"></li>
@@ -268,7 +268,6 @@
 <@> ファイルアップロード用データ
 <$tags = call('album/_load_tags')>
 <span id="paste-tag" data-file="<@tags.file>"></span>
-<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>" id="csrf-key">
 
 <div id="thumbnail-info"><br>
 <select name="paste">

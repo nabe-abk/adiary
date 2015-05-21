@@ -38,7 +38,7 @@
 <@><!--========================================================================-->
 <$node = if(t.ctype, v.load_content_node(t.pkey), v.load_art_node(t.pkey))>
 <@ifexec(node.prev || node.next || node.upnode || page_nav_force, begin.page)>
-<nav class="page-head page-nav" data-module-name="dem_page-nav,1">
+<nav class="page-nav" data-module-name="dem_page-nav,1">
 <@page_nav = page_nav_force || exec(begin.function)>
 <@ifexec(node.prev && node.prev != node.upnode, begin)>
 <a href="<@v.myself2><@if(node.prev.link_key, node.prev.elink_key, "0<@node.prev.pkey>")>" class="prev-page pnavi" rel="prev"><@node.prev.title></a>
@@ -82,8 +82,8 @@
 <@>$ARTICLE_MIDDLE$------------------------------------------------------------
 </div>
 <div class="body-main">
-	<@if( t.draft,  '<strong class="warning">【この記事は下書きです】</strong><br>' )>
-	<@if(!t.draft && !t.enable, '<strong class="warning">【この記事は非公開です】</strong><br>')>
+	<@if( t.draft,  '<div><strong class="warning">【この記事は下書きです】</strong></div>' )>
+	<@if(!t.draft && !t.enable, '<div><strong class="warning">【この記事は非公開です】</strong></div>')>
 <@t.text>
 	<@ifexec(t.ctype eq 'link', begin)>
 	<$x=esc(t.link_key)><p class="link"><a href="<@x>"><@x></a></p>
@@ -129,8 +129,8 @@
 	<$end>
 	</div>
 	<div class="commentbody" id="c<@t.pkey>n-block">
+	<div class="commentview">
 	<@ifexec(coms && v.allow_edit, begin)>
-	<div class="comemntview">
 	<form method="POST" action="<@permalink>" class="js-form-check" data-target="#com .pkey-ary">
 	<input type="hidden" name="action" value="comments_edit">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
@@ -165,19 +165,21 @@
 	<@ifexec(coms && v.allow_edit, begin)>
 	<div class="com-buttons">
 	<@ifexec(t.enable, begin)>
-	<button type="submit" name="enable"  class="js-form-check" data-confirm="">表示に設定<span class="help" data-help="非公開コメントを表示することはできません">?</span></button>
+	<button type="submit" name="enable"  class="js-form-check btn-help" data-confirm="" data-help="非公開コメントを表示することはできません">表示に設定</button>
 	<button type="submit" name="disable" class="js-form-check" data-confirm="">非表示に設定</button>
 	<$end>
 	<button type="submit" name="delete"  class="js-form-check" id="del-submit" data-confirm="%c件のコメントを削除しますか？" data-focus="cancel">削除</button>
 	<input type="checkbox" name="del_check" class="js-enable" data-target="#del-submit"><label>削除確認</label>
 	</div>
 	</form>
-	<@if(t.com_ok && v.allow_com, '<hr id="com-form-separator">')>
 	</div><!-- end of comemntview -->
 	<$end>
+	<@if(coms && t.com_ok && v.allow_com, '<hr id="com-form-separator">')>
+
 <@>$COMMENT_TOP:END$-----------------------------------------------------------
 
 	<@ifexec(t.com_ok && v.allow_com, begin)>
+	<$ps = v.load_plgset('dec_comment-form')>
 	<form method="POST" action="<@permalink>" class="comment" onsubmit="put_sid('sid<@t.pkey>',74, <@\>
 	<@forexec(c, secure_ary, begin)><@c ^ 93>,<@c>,<$end> <@\>
 	20); return true;" data-module-name="dec_comment-form" data-fix="1">
@@ -190,6 +192,13 @@
 		<@if(t.hcom_ok, '&emsp;<input type="checkbox" name="hidden" value="1"><label>非公開コメント</label>')>
 		<button type="submit" id="post-comment">投稿</button><span class="help" data-help="返信は「>>n」\n空白、タブ有効。タグ無効。">?</span><br>
 		<textarea class="comment-txt w600" name="comment_txt" rows="3" required><@esc(Form.comment_txt)></textarea>
+		<@ifexec(ps.email, begin)>
+		<div class="post-comment-email"><span class="caption-email">E-Mail(任意/非公開)</span><span class="separater">:</span><input class="w300" type="email" name="email" value="<@esc(Form.email)>"></div>
+		<$end>
+		<@ifexec(ps.url, begin)>
+		<div class="post-comment-url"><span class="caption-url">URL(任意)</span><span class="separater">:</span><input class="w300" type="url" name="url" value="<@esc(Form.url)>"></div>
+		<$end>
+		<@ps.msg>
 	</form> <!-- comment form -->
 	<$end>
 <@>$COMMENT_BOTTOM$------------------------------------------------------------
@@ -202,7 +211,7 @@
 
 
 <@ifexec(page_nav, begin.page)>
-<nav class="page-foot page-nav" data-module-name="dem_page-nav,2">
+<nav class="page-nav" data-module-name="dem_page-nav,2">
 <@page_nav>
 </nav>
 <$end.page>

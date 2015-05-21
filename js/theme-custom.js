@@ -396,8 +396,8 @@ function change_hsv() {
 		if (!hsv) return;
 		// 色変換
 		hsv.h += h;
-		hsv.s *= (s/255);
-		hsv.v *= (v/255);
+		hsv.s *= (s/100);
+		hsv.v *= (v/100);
 		var rgb = HSVtoRGB( hsv );
 		set_color(obj, rgb);
 	}
@@ -405,8 +405,8 @@ function change_hsv() {
 }
 $('#h-slider, #s-slider, #v-slider').slider({
 	range: "min",
-	max: 255,
-	value: 255,
+	max: 300,
+	value: 100,
 	slide: change_hsv,
 	change: change_hsv
 });

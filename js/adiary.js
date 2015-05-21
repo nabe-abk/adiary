@@ -174,6 +174,7 @@ $(function(){
 	});
 
 	var css = get_value_from_css('syntax-highlight-theme') || syntax_highlight_css;
+	css = css.replace(/\.css$/, '').replace(/[^\w\-]/g, '');
 	prepend_css_file(PubdistDir + 'highlight-js/'+ css +'.css');
 });
 
@@ -501,6 +502,7 @@ initfunc.push( function(R){
 	};
 	 helps.mouseenter( {func: helpfunc, div: popup_help}, easy_popup);
 	bhelps.mouseenter( {func: helpfunc, div: popup_help}, easy_popup);
+	if (!SP) bhelps.data('delay', ButtonHelpDelay);	// 長めのディレイ。スマホ除く
 
 	imgs  .mouseleave({div: popup_img }, easy_popup_out);
 	helps .mouseleave({div: popup_help}, easy_popup_out);
@@ -511,7 +513,11 @@ initfunc.push( function(R){
 //●詳細情報ダイアログの表示
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
+  var prev;
   R.findx('.js-info[data-info], .js-info[data-url]').click( function(evt){
+	if (evt.target == prev) return;	// 連続クリック防止
+	prev=evt.target;
+
 	var obj = $(evt.target);
 	var div = $('<div>');
 	var div2= $('<div>');	// 直接 div にクラスを設定すると表示が崩れる
@@ -523,14 +529,17 @@ initfunc.push( function(R){
 	if (obj.data('info')) {
 		var text = tag_esc_br( obj.data("info") );
 		div2.html( text );
-		div.dialog({ width: DialogWidth });
+		div.dialog({ width: DialogWidth, close: close_func });
 		return;
 	}
 	var url = obj.data("url");
 	div2.load( url, function(){
-		div.dialog({ width: DialogWidth, height: 320 });
+		div.dialog({ width: DialogWidth, height: 320, close: close_func });
 	});
   })
+  function close_func(){
+	prev = null;
+  }
 });
 
 //////////////////////////////////////////////////////////////////////////////
