@@ -186,7 +186,7 @@
 <div class="body-header">
 <@>$ARTICLE_TOP:END$-----------------------------------------------------------
 	<$ps = v.load_plgset('dea_art-info')>
-	<div data-module-name="dea_art-info" data-fix="1">
+	<div class="art-info" data-module-name="dea_art-info" data-fix="1">
 		<@ifexec(ps.hatena_bicon, begin)>
 		<a class="http-bookmark" href="http://b.hatena.ne.jp/entry/<@url>"><img src="http://b.st-hatena.com/entry/image/<@url>" alt="はてブ数"></a>
 		<$end>

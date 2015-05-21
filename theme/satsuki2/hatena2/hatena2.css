@@ -473,7 +473,7 @@ span.tag:not(:last-child):after {
 	font-size:		90%;
 	font-weight:		normal;
 }
-.body h3 a.linkall {
+.body h3 a {
 	text-decoration:	none;
 }
 .body h3 a, .body h3 a:link, .body h3 a:visited {

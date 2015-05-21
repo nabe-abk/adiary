@@ -13,7 +13,7 @@ sub {
 	}
 
 	my $node = int($self->load_plgset($name, 'node'));
-	my $tree = [];
+	my $tree = {};
 	if ($node) {
 		my $all = $root->{_all};
 		foreach(@$all) {

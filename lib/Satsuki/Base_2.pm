@@ -624,7 +624,7 @@ sub check_lib {
 ###############################################################################
 sub esc_xml {	# 非破壊
 	my $self = shift;
-	return $self->{ROBJ}->tag_escape_for_xml(join('',@_));
+	return $self->tag_escape_for_xml(join('',@_));
 }
 sub tag_escape_for_xml {	# &nbsp; は使えない
 	my $self = shift;

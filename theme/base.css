@@ -140,7 +140,7 @@ article div.body .hidden em {
 	white-space:		nowrap;
 }
 
-ul.none, ol.none {
+ul.none, ol.none, ul.toc {
 	list-style:	none;
 }
 /* 目次 */
@@ -177,8 +177,7 @@ td.checkbox, th.checkbox {
 td.button, th.button {
 	text-align:		center;
 }
-textarea, pre {
-	display:	block;
+#com textarea {
 	-moz-tab-size:	4;
 	-o-tab-size:	4;
 	tab-size:	4;
