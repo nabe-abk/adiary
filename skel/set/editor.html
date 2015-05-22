@@ -84,6 +84,10 @@
 
 	<table class="blog-setting">
 	<tbody>
+	<tr><th>編集画面のUpload先<span class="help" data-help="編集画面から直接ファイル（画像）アップロード機能を使った時、どのフォルダにアップロードするか設定します。">?</span></th>
+		<td><input type="text" class="w200" name="edit_upload" value="<@if(s.edit_upload eq '', 'adiary/%y/', s.edit_upload)>"><br>
+		%y=年, %m=月</td>
+	</tr>
 	<tr><th>Exif貼り付け時の形式</th>
 		<td><input type="text" class="w300" name="exif_tag" value="<@s.exif_tag>"><span class="help" data-help="%271:メーカー名\n%272:機種名\n%305:使用ソフト\n%33434:露出時間\n%33437:F値\n%34855:ISO感度\n%36867:撮影日時\n%37386:焦点距離\n%37380:露出補正(EV)">?</span><br>
 		※Exifタグ番号の詳細は<a href="https://www.google.co.jp/search?q=exif+%E3%82%BF%E3%82%B0+%E4%B8%80%E8%A6%A7+271+272&amp;ie=utf-8&amp;oe=utf-8&amp;hl=ja">検索してください</a>。

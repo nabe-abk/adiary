@@ -3,18 +3,11 @@
 <@local(s,ps)>
 <$s=v.blog>
 
-<@><!--カスタムサイドバー===================================================-->
-<@ifexec(v.sidebar_html, begin)>
-<aside id="sidebar">
-<@v.sidebar_html>
-</aside> <!-- End of sidebar -->
-<$break(0)>
-<$end>
-
 <aside id="sidebar">
 <div id="side-a">
 
 <@ifcall(v.special_sidebar_module, v.special_sidebar_module)>
+
 <@ifexec(!v.special_sidebar_module && Auth.ok && v.system_mode && !v.design_edit, begin)>
 <!--現在のブログ情報=====================================-->
 <div class="hatena-module" id="side-login-information">

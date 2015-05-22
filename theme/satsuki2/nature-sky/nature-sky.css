@@ -1049,11 +1049,6 @@ article.edit span.tag:after {
 	background-image:	linear-gradient(to bottom, #fdd, #faa);
 }
 .ui-dialog.error-dialog .ui-icon {
-	-webkit-filter:		hue-rotate(120deg) brightness(80%);
-	-moz-filter:		hue-rotate(120deg) brightness(80%);
-	-o-filter:		hue-rotate(120deg) brightness(80%);
-	-ms-filter:		hue-rotate(120deg) brightness(80%);
-	filter:			hue-rotate(120deg) brightness(80%);
 }
 
 /*--------------------------------------------------------------------

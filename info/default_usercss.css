@@ -27,6 +27,13 @@ div.body p {
 	text-align:	center;
 } */
 
-
+/*** シンタックスハイライトのテーマ選択 ********************/
+/* highlight.js demo https://highlightjs.org/static/demo/ */
+/*
+#syntax-highlight-theme {
+	font-size:	1px;
+	font-family:	"tomorrow-night-blue";
+}
+*/
 /*** 追加のスタイル ****************************************/
 

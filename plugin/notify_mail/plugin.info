@@ -17,6 +17,6 @@ skel/_mail/notify_comment.html
 FILES
 
 *events=<<EVENTS
-COMMENT_NEW=skel/_mail/notify_comment.html
+COMMENT_NEW=skel/_mail/notify_comment
 EVENTS
 

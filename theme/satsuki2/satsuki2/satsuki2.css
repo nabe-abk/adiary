@@ -635,6 +635,9 @@ div.messages div.message {
 	color:		#c30;			/* $c=fixstrongfont */
 	font-weight:	bold;
 }
+div.messages div.message:not(:last-child) {
+	font-weight:	normal;
+}
 div.messages div.notice {
 	margin-left:	2em;
 }
@@ -869,7 +872,6 @@ article.edit span.tag:after {
 	border:			2px solid #6b75b8;	/* $c=border */
 	border-radius:		10px;
 	box-shadow:		8px 8px 4px 4px rgba(60,60,100,0.75);
-	padding:		0;
 
 	font-size:		10.5pt;
 	line-height:		130%;
@@ -884,21 +886,10 @@ article.edit span.tag:after {
 }
 .ui-dialog span.ui-dialog-title {
 	height:			1em;
-	margin-top:		0;
-	padding-top:		0;
 	padding-bottom:		2px;
 }
 .ui-dialog button.ui-button {
 	border-radius:		4px;
-}
-.ui-dialog .ui-icon {
-	text-indent:		0px;
-}
-.ui-dialog span.ui-icon-closethick {
-}
-.ui-dialog .ui-dialog-buttonpane {
-	margin-top:		0px;
-	padding-top:		0px;
 }
 
 /* エラーダイアログ */
@@ -913,13 +904,7 @@ article.edit span.tag:after {
 	border-color:		#632;
 	background-image:	linear-gradient(to bottom, #fdd, #faa);
 }
-.ui-dialog.error-dialog .ui-icon {
-	-webkit-filter:		hue-rotate(120deg) brightness(80%);
-	-moz-filter:		hue-rotate(120deg) brightness(80%);
-	-o-filter:		hue-rotate(120deg) brightness(80%);
-	-ms-filter:		hue-rotate(120deg) brightness(80%);
-	filter:			hue-rotate(120deg) brightness(80%);
-}
+
 
 /*--------------------------------------------------------------------
 ●jQuery UI, タブ表示（ブログ一覧画面）
@@ -1000,17 +985,13 @@ article h3.ui-accordion-header {
 ●プログレスバー（import等）
 ---------------------------------------------------------------------*/
 .ui-progressbar {
-	padding:		0;
 	margin:			0.5em 0;
 	max-width:		400px;
-	border:			1px solid #6b75b8;	/* $c=border */
-	position:		relative;
+	border-color:		#6b75b8;	/* $c=border */
 	background-color:	#fff;
 }
 .ui-progressbar .label {
-	position:		absolute;
-	width:			100%;
-	text-align:		center;
+	color:			#000;
 	font-weight:		bold;
 	text-shadow:	 1px -1px 2px #fff,
 			 1px -1px 2px #fff,
@@ -1018,14 +999,11 @@ article h3.ui-accordion-header {
 			 1px  1px 2px #fff;
 }
 .ui-progressbar,
-.ui-progressbar .label,
 .ui-corner-left {
 	height:			20px;
-	vertical-align:		center;
 }
 .ui-corner-left {
-	padding:		1px 0 0 1px;
 	background-color:	#aac;			/* $c=btndisable */
-} 
+}
 
 

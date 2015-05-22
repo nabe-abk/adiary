@@ -1187,7 +1187,7 @@ sub call_event {
 		if ($v =~ m|^func/([\w\-]+\.pm)$|) {
 			# ファイルをロードして無名ルーチンを呼び出す
 			$r = $self->call_plugin_function($1, $name, @_);
-		} elsif ($v =~ m|^skel/([\w/-]+)\.html$|) {
+		} elsif ($v =~ m|^skel/([\w/-]+)$|) {
 			# スケルトンファイルを呼び出す
 			$r = $ROBJ->call($1, $name, @_);
 		} else {

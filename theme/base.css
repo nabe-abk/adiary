@@ -624,6 +624,7 @@ figure {
 ---------------------------------------------------------------------*/
 .ui-dialog {
 	background-color:	#f8f8ff;
+	padding:		0;
 }
 .ui-dialog div.pre {
 	white-space:		pre;
@@ -642,6 +643,31 @@ ul.dynatree-container {
 /* import/export画面等 */
 h3.ui-accordion-header {
 	background-color:	#ddd;
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI, プログレスバー
+---------------------------------------------------------------------*/
+.ui-progressbar {
+	position:		relative;
+	border:			1px solid #aaa;
+	max-width:		400px;
+	background-color:	#fff;
+}
+.ui-progressbar .label {
+	position:		absolute;
+	font-weight:		bold;
+	text-align:		center;
+	vertical-align:		middle;
+	width:			100%;
+}
+.ui-progressbar,
+.ui-corner-left {
+	height:			20px;
+}
+.ui-corner-left {
+	padding:		1px 0 0 1px;	/* 外枠の幅と合わせること */
+	background-color:	#bbb;
 }
 
 /*--------------------------------------------------------------------
@@ -933,13 +959,13 @@ ul.menu {
 }
 
 /* 画像アルバム */
-.sp .album-folder-tree > ul {
+.sp #album-folder-tree > ul {
 	min-height:		60px;
 }
 #sp-album #album-folder-view {
 	min-height:		60px;
 }
-.ui-dialog .album-folder-tree ul {
+.ui-dialog #album-folder-tree ul {
 	margin:			0;
 }
 

@@ -144,7 +144,7 @@ $(function(){
 		file += (near<16 ? '0' : '') + near.toString(16);
 	}
 	// アイコンのロード
-	var css = '.ui-icon, a.pnavi:before, a.pnavi:after { background-image: '
+	var css = '.ui-icon, .art-nav a:before, .art-nav a:after { background-image: '
 		+ 'url("' + PubdistDir + 'ui-icon/' + file + '.png") }';
 	var style = $('<style>').attr('type','text/css');
 	$('head').append(style);

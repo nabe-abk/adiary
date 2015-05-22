@@ -73,7 +73,7 @@ patched by nabe@abk
 .hljs-tag .hljs-title,
 .hljs-rules .hljs-property,
 .django .hljs-tag .hljs-keyword {
-  color: #000080;
+  color: #800;
   font-weight: normal;
 }
 
@@ -89,8 +89,11 @@ patched by nabe@abk
 }
 
 .hljs-class {
-  color: #458;
+  color: #c66;
   font-weight: bold;
+}
+.css .hljs-class {
+  font-weight: normal;
 }
 
 .hljs-symbol,

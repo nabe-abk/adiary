@@ -340,7 +340,6 @@ function module_setting(obj, mode) {
 		},
 		error: function(xmlobj){
 			errmsg.html( $('#msg-ajax-error').html() );
-			errmsg.attr('title', xmlobj.responseText);
 		},
 	};
 

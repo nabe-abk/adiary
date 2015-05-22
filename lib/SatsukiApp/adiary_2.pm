@@ -61,11 +61,9 @@ sub load_arts_list {
 	# ロード対象記事オプション
 	if (! $self->{allow_edit}) {
 		$h{flag} = {enable => 1};
-	} 
-	if ($opt->{draft_only}) {
+	} elsif ($opt->{draft_only}) {
 		$h{is_null} = ['tm'];
-	}
-	if (!$opt->{load_draft}) {
+	} elsif (!$opt->{load_draft}) {
 		$h{not_null} = ['tm'];
 	}
 
