@@ -10,12 +10,12 @@
 	</tr>
 <@ifexec(v.system_email, begin, begin)>
 	<tr>
-		<th>送信元アドレス<span class="help" data-help="adiary.conf.cgiで固定されています。">?</span></th>
-		<td><input type="hidden" name="from" value="<@v.system_email>"><@v.system_email></td>
+		<th>送信元アドレス<span class="help" data-help="adiaryの設定ファイルで固定されています。">?</span></th>
+		<td><input type="hidden" name="from" value="<@v.system_email>"><@v.system_email>（変更不可）</td>
 	</tr>
 <$else>
 	<tr>
-		<th>送信元アドレス<span class="help" data-help="メールのFromを指定します。空でも構いません。\nサーバによって強制的に異なるアドレスに書き換えられたり、Fromアドレスが許可されていないドメイン等の場合、そもそも送信されないことがあります。">?</span></th>
+		<th>送信元アドレス<span class="help" data-help="メールのFromを指定します。空でも構いません。\n指定してもサーバによって強制的に異なるアドレスに書き換えられたり、正しくない指定をするとそもそも送信されないことがあります。">?</span></th>
 		<td><input type="text" class="w320" name="from" value="<@ps.from>" maxlength="128"></td>
 	</tr>
 <$end>

@@ -140,7 +140,7 @@ article div.body .hidden em {
 	white-space:		nowrap;
 }
 
-ul.none, ol.none, ul.toc {
+ul.none, ol.none {
 	list-style:	none;
 }
 /* 目次 */
