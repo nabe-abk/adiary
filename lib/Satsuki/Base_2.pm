@@ -912,8 +912,8 @@ sub form_data_check_and_save {
 #	emails		メールアドレス(複数可)。カンマ区切り。正しくないものは除去される。
 #	reg_del:xxx	正規表現で指定した文字（列）を削除
 #	reg_rep:xxx	正規表現置換。_optに置換文字列
-#	reg_check:xxx	正規表現に一致すればそのまま。一致しなければ空文字に。
-#	reg_ncheck:xxx	正規表現に一致すれば空文字に。一致しなければそのまま。
+#	reg_check:xxx	正規表現に一致しなければエラー
+#	reg_ncheck:xxx	正規表現に一致すればエラー
 #	rgb		#7744ff 等のRGB色表現に一致すればそのまま。一致しなければ空文字に
 #	trim		文字列の前後にあるスペース（改行含む）を除去
 #	normalize	前後のスペースを除去し、複数のスペースやタブを' 'に置換します
@@ -1034,6 +1034,7 @@ sub validator {
 			my %h = map {$_ => 1} split(/\s*,\s*/, $check->{"$_:enum"});
 			if (!exists $h{$v}) {
 				$self->form_error($_, "'%s' is selected from '%s'.", $title, $check->{"$_:enum_txt"} || $check->{"$_:enum"});
+				$err=1;
 			}
 		}
 
@@ -1067,6 +1068,7 @@ sub validator {
 			} elsif ($f eq 'notnull') {
 				if ($v eq '') {
 					$self->form_error($_, "'%s' is null or illegal value.", $title);
+					$err=1;
 				}
 			} elsif ($f =~ /^file:(.*)$/) {
 				my $x = $1;
@@ -1092,11 +1094,15 @@ sub validator {
 					$err=-1;
 				}
 				$flag = $neg ? !$flag : $flag;
-				if (!$flag) { $v=''; }
+				if (!$flag) {
+					$self->form_error($_, "Illegal setting '%s'.", $v);
+					$err=1;
+				}
 			} else {
 				$self->error_from('validator()', "Unknown %s '%s'.", 'filter', $f);
 				$err=-1;
 			}
+			if ($err) { last; }
 		}
 
 		# 値保存

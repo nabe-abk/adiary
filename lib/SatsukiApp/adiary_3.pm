@@ -379,14 +379,22 @@ sub image_upload_form {
 #------------------------------------------------------------------------------
 sub ajax_image_upload {
 	my $self = shift;
+	my $h = $self->do_ajax_image_upload( @_ );
+	return $self->generate_json($h);
+}
+sub do_ajax_image_upload {
+	my $self = shift;
 	my $form = shift;
 	my $ROBJ = $self->{ROBJ};
 
 	# ディレクトリ生成
-	my $dir  = $self->image_folder_to_dir( $form->{folder} ); # 値check付
-	my @ary  = split('/', $dir);
-	$dir = '';
+	my $dir = $self->image_folder_to_dir();
+	my @ary  = split('/', $form->{folder});
 	foreach(@ary) {
+		if ($_ eq '') { next; }
+		if (!$self->check_file_name($_)) {
+			return {ret => -1};
+		}
 		$dir .= $_ . '/';
 		if (!-e $dir) { $ROBJ->mkdir($dir); }
 	}
@@ -396,6 +404,7 @@ sub ajax_image_upload {
 	$h{ret}  = $cf ? 1 : 0;
 	$h{fail} = $cf;
 	$h{success} = $cs;
+	$h{dir} = $dir;
 	my @ary;
 	foreach(@$files) {
 		push(@ary,{
@@ -404,7 +413,7 @@ sub ajax_image_upload {
 		});
 	}
 	$h{files} = \@ary;
-	return $self->generate_json(\%h);
+	return \%h;
 }
 
 #----------------------------------------------------------------------
@@ -645,7 +654,10 @@ sub load_image_magick {
 #------------------------------------------------------------------------------
 sub image_folder_to_dir {
 	my ($self, $folder) = @_;
+	$folder =~ s|/+|/|g;
 	$folder =~ s#(^|/)\.+/#$1#g;
+	$folder =~ s|/*$|/|;
+	$folder =~ s|^/||;
 	return $self->{ROBJ}->get_filepath( $self->blogimg_dir() . $folder );
 }
 

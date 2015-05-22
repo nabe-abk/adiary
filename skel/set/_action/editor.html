@@ -23,9 +23,11 @@
 	hcom_ok_force:default = 
 	hcom_ok_force:enum = ,0
 
-	exif_tag = Exif貼り付け時の形式
-	exif_tag:filter0 = trim
-	exif_tag:filter1 = tag
+	edit_upload = 編集画面のUpload先
+	edit_upload:filter0 = trim
+	edit_upload:filter1 = reg_ncheck:^\.
+	edit_upload:filter2 = reg_ncheck:\./
+	edit_upload:filter3 = reg_ncheck:/\.
 
 	exif_tag = Exif貼り付け時の形式
 	exif_tag:filter0 = trim
@@ -66,6 +68,10 @@
 	seemore_msg:filter1 = tag
 <$end>
 <$ifbreak(form_error())>
+
+<$ifexec(h.edit_upload ne '', begin)>
+	<$replace_one(h.edit_upload, '/*$', '/')>
+<$end>
 
 <$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>
 

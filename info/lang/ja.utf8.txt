@@ -41,6 +41,7 @@ Skeleton dir is '' in regist_skeleton.(level=%d)=スケルトンディレクト�
 In '%s', '%s' is not permitted. Permit protocols are '%s'.=「%s」では「%s」は許可されていません（許可プロトコル「%s」）
 '%s' need protocol. Permit protocols are '%s'.=「%s」にはプロトコルが必要です（許可プロトコル「%s」）
 '%s' is null or illegal value.=「%s」が入力されていないか値が不正です
+Illegal setting '%s'.=その設定は許されていません「%s」
 # system error
 Unknown %s '%s'.=%sの指定が正しくありません「%s」
 Regular expression error '%s'.=正規表現が正しくありません「%s」

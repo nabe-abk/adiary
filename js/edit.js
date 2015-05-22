@@ -16,7 +16,7 @@ var upsel  = $('#upnode-select');
 var parsel = $('#select-parser');
 var edit = $('#editarea');
 
-var fileup  = $('#file-upload');
+var fileup  = $secure('#file-upload');
 var dndbody = $('#edit');
 
 load_taglist(tagsel);
@@ -476,6 +476,8 @@ function upload_files_insert(data, folder) {
 			f: data['fail'],
 			s: data['success']
 		});
+	} else if (data['ret']) {
+		show_error('#msg-upload-error');
 	}
 
 	// 記事に挿入
@@ -510,13 +512,19 @@ function upload_files_insert(data, folder) {
 //----------------------------------------------------------------------------
 function ajax_upload( form_dom, upfiles, callback ) {
 	var date = $('#edit-date').val().toString() || '';
-	if (date.match(/^\d\d\d\d/)) {
-		date = date.substr(0,4);
+	var year;
+	var mon;
+	if (date.match(/^\d\d\d\d[\-\/]\d\d/)) {
+		year = date.substr(0,4);
+		mon  = date.substr(5,2);
 	} else {
 		var d = new Date();
-		date = d.getFullYear();
+		year = d.getFullYear();
+		mon  = (101 + d.getMonth()).toString().substr(1);
 	}
-	var folder = 'adiary/' + date + '/';
+	var folder = fileup.data('folder');
+	if (folder == '') folder='adiary/%y/';
+	folder = folder.replace('%y', year).replace('%m', mon).replace(/^\/+/, '');
 
 	// FormData生成
 	var fd = new FormData( form_dom );
