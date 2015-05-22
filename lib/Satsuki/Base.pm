@@ -1357,9 +1357,9 @@ sub crypt_by_string_with_salt {
 	if (!defined $generator) { $generator = $self->{Secret_word}; }
 	my $base64 = $self->{SALT64chars};
 
-	# SALTキャッシュシステム（１時間おきに初期化）
+	# SALTキャッシュシステム（１日おきに初期化）
 	if ($s_cache_base64 ne $base64 || $s_cache_tm < $self->{TM}) {
-		%s_cache=(); $s_cache_tm = $self->{TM} + 3600;
+		%s_cache=(); $s_cache_tm = $self->{TM} + 86400;
 		$s_cache_base64=$base64;
 	}
 	my $cache_id = "$secret\x01$generator";

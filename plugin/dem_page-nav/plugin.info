@@ -12,9 +12,9 @@ module_type=main
 
 *sample_html=<<HTML
 <nav class="page-nav">
-<a href="#" class="prev-page pnavi" rel="prev">adiaryについて</a>
-<a href="#" class="upnode-page pnavi">adiary公式ページ</a>
-<a href="#" class="next-page pnavi" rel="next">オンラインマニュアル</a>
+<a href="#" class="prev-page" rel="prev">adiaryについて</a>
+<a href="#" class="upnode-page">adiary公式ページ</a>
+<a href="#" class="next-page" rel="next">オンラインマニュアル</a>
 </nav>
 HTML
 
@@ -24,16 +24,16 @@ HTML
 <$ps = v.load_plgset('<@this>')>
 <$node = if(t.ctype, v.load_content_node(t.pkey), v.load_art_node(t.pkey))>
 <@ifexec(node.prev || node.next || node.upnode || page_nav_force, begin.page)>
-<nav class="page-nav <@ps.align>" data-module-name="<@this>">
+<nav class="page-nav art-nav <@ps.align>" data-module-name="<@this>">
 <@page_nav_force || exec(begin.function)>
 <@ifexec(node.prev && node.prev != node.upnode, begin)>
-<a href="<@v.myself2><@if(node.prev.link_key, node.prev.elink_key, "0<@node.prev.pkey>")>" class="prev-page pnavi" rel="prev"><@node.prev.title></a>
+<a href="<@v.myself2><@if(node.prev.link_key, node.prev.elink_key, "0<@node.prev.pkey>")>" class="prev-page" rel="prev"><@node.prev.title></a>
 <$end>
 <@ifexec(node.upnode, begin)>
-<a href="<@v.myself2><@node.upnode.elink_key>" class="upnode-page pnavi"><@node.upnode.title></a>
+<a href="<@v.myself2><@node.upnode.elink_key>" class="upnode-page"><@node.upnode.title></a>
 <$end>
 <@ifexec(node.next, begin)>
-<a href="<@v.myself2><@if(node.next.link_key, node.next.elink_key, "0<@node.next.pkey>")>" class="next-page pnavi" rel="next"><@node.next.title></a>
+<a href="<@v.myself2><@if(node.next.link_key, node.next.elink_key, "0<@node.next.pkey>")>" class="next-page" rel="next"><@node.next.title></a>
 <$end>
 <$end.function>
 </nav>
@@ -46,18 +46,18 @@ HTML
 <@><!--========================================================================-->
 <$ps = v.load_plgset('<@this>')>
 <@ifexec(ret.pagemode && (1<page || ret.next_page), begin.page)>
-<nav class="page-nav <@ps.align>" data-module-name="<@this>">
+<nav class="page-nav art-nav <@ps.align>" data-module-name="<@this>">
 <@page_nav_force || exec(begin.function)>
 <@ifexec(ret.pages, begin, begin)>
-	<a<@if(1<page, #' href="<@url>' . if(2<page, '&amp;p=' . (page-1)) . '"')> class="prev-page pnavi" rel="prev">前のページ</a>
+	<a<@if(1<page, #' href="<@url>' . if(2<page, '&amp;p=' . (page-1)) . '"')> class="prev-page" rel="prev">前のページ</a>
 	<@forexec_num(x, page_max-page_offset, begin)>
 		<$t = page_offset + x>
 		<@if(t!=ret.page, #'<a href="<@url>&amp;p=<@t>"><@t></a>', "<strong><@t></strong>")> 
 	<$end>
-	<a<@if(ret.next_page, #' href="<@url>&amp;p=' . (page+1) . '"')> class="next-page pnavi" rel="next">次のページ</a>
+	<a<@if(ret.next_page, #' href="<@url>&amp;p=' . (page+1) . '"')> class="next-page" rel="next">次のページ</a>
 <$else>
-	<a<@if(1<page, #' href="<@url>' . if(2<page, '?&amp;p=' . (page-1)) . '"')> class="prev-page pnavi" rel="prev">前のページ</a> <@\>
-	<a<@if(ret.next_page, #' href="<@url>?&amp;p=' . (page+1) . '"')> class="next-page pnavi" rel="next">次のページ</a>
+	<a<@if(1<page, #' href="<@url>' . if(2<page, '?&amp;p=' . (page-1)) . '"')> class="prev-page" rel="prev">前のページ</a> <@\>
+	<a<@if(ret.next_page, #' href="<@url>?&amp;p=' . (page+1) . '"')> class="next-page" rel="next">次のページ</a>
 <$end>
 <$end.function>
 </nav>

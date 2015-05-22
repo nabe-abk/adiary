@@ -31,8 +31,8 @@ agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0
 	<$(logs,ret) = v.load_articles_current_blog('',{}, { load_items => 1 })>
 	<$t = logs#0>
 	<$ifset(!t, t, art_dummy)>
-	<$t.com_ok=1>
 <$end>
+<$t.com_ok=1>
 
 <$page_nav_force = begin_string>
 <a href="#" class="prev-page pnavi" rel="prev">sampleについて</a>

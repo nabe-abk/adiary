@@ -38,16 +38,16 @@
 <@><!--========================================================================-->
 <$node = if(t.ctype, v.load_content_node(t.pkey), v.load_art_node(t.pkey))>
 <@ifexec(node.prev || node.next || node.upnode || page_nav_force, begin.page)>
-<nav class="page-nav" data-module-name="dem_page-nav,1">
+<nav class="page-nav art-nav" data-module-name="dem_page-nav,1">
 <@page_nav = page_nav_force || exec(begin.function)>
 <@ifexec(node.prev && node.prev != node.upnode, begin)>
-<a href="<@v.myself2><@if(node.prev.link_key, node.prev.elink_key, "0<@node.prev.pkey>")>" class="prev-page pnavi" rel="prev"><@node.prev.title></a>
+<a href="<@v.myself2><@if(node.prev.link_key, node.prev.elink_key, "0<@node.prev.pkey>")>" class="prev-page" rel="prev"><@node.prev.title></a>
 <$end>
 <@ifexec(node.upnode, begin)>
-<a href="<@v.myself2><@node.upnode.elink_key>" class="upnode-page pnavi"><@node.upnode.title></a>
+<a href="<@v.myself2><@node.upnode.elink_key>" class="upnode-page"><@node.upnode.title></a>
 <$end>
 <@ifexec(node.next, begin)>
-<a href="<@v.myself2><@if(node.next.link_key, node.next.elink_key, "0<@node.next.pkey>")>" class="next-page pnavi" rel="next"><@node.next.title></a>
+<a href="<@v.myself2><@if(node.next.link_key, node.next.elink_key, "0<@node.next.pkey>")>" class="next-page" rel="next"><@node.next.title></a>
 <$end>
 <$end.function>
 </nav>
@@ -180,17 +180,16 @@
 
 	<@ifexec(t.com_ok && v.allow_com, begin)>
 	<$ps = v.load_plgset('dec_comment-form')>
-	<form method="POST" action="<@permalink>" class="comment" onsubmit="put_sid('sid<@t.pkey>',74, <@\>
-	<@forexec(c, secure_ary, begin)><@c ^ 93>,<@c>,<$end> <@\>
-	20); return true;" data-module-name="dec_comment-form" data-fix="1">
+	<form method="POST" action="<@permalink>" class="comment" id="comment-form" data-module-name="dec_comment-form" data-fix="1"
+	 data-secure="<$x=t.pkey & 255><@forexec(c, secure_ary, begin)><@c ^ x>,<$end>25">
 		<input type="hidden" name="action" value="comment_post">
 		<@if(Auth.ok, #'\t\t<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">\n')>
-		<input type="hidden" name="a_pkey" value="<@t.pkey>">
-		<input type="hidden" name="secure_id" value="" id="sid<@t.pkey>">
+		<input type="hidden" name="a_pkey" value="<@t.pkey>" id="comment-form-apkey">
+		<input type="hidden" name="secure_id" value="" id="comment-form-sid">
 		<span class="caption-name">名前</span><span class="separater">:</span>
 		<@ifexec(Auth.ok, begin, begin)><span class="comment-author"><@Auth.name></span><$else><input type="text" name="name" class="w160 comment-author" value="<@esc(Form.name)>" required><$end>
 		<@if(t.hcom_ok, '&emsp;<input type="checkbox" name="hidden" value="1"><label>非公開コメント</label>')>
-		<button type="submit" id="post-comment">投稿</button><span class="help" data-help="返信は「>>n」\n空白、タブ有効。タグ無効。">?</span><br>
+		<button type="submit" id="post-comment">投稿</button><span class="help" data-help="返信は「>>n」\n空白、タブ有効。タグ無効。\n押せない時はちょっと待ってね。">?</span><br>
 		<textarea class="comment-txt w600" name="comment_txt" rows="3" required><@esc(Form.comment_txt)></textarea>
 		<@ifexec(ps.email, begin)>
 		<div class="post-comment-email"><span class="caption-email">E-Mail(任意/非公開)</span><span class="separater">:</span><input class="w300" type="email" name="email" value="<@esc(Form.email)>"></div>
@@ -211,7 +210,7 @@
 
 
 <@ifexec(page_nav, begin.page)>
-<nav class="page-nav" data-module-name="dem_page-nav,2">
+<nav class="page-nav art-nav" data-module-name="dem_page-nav,2">
 <@page_nav>
 </nav>
 <$end.page>

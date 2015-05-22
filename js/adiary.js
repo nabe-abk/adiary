@@ -1178,18 +1178,41 @@ $( function(){
 //////////////////////////////////////////////////////////////////////////////
 //●セキュリティコードの設定
 //////////////////////////////////////////////////////////////////////////////
-function put_sid(id) {
-	var str="";
-	for (var i=3; i<arguments.length; i++) {
-		if (i & 1) {
-			str += String.fromCharCode(  arguments[i] );
-		}
-	}
-	if (id) {
-		$('#' + id).val(str);
-	}
-}
+$(function(){
+	var form = $('#comment-form');
+	if (!form.length) return;
+	var csrf = form.find('[name="csrf_check_key"]');
+	if (csrf.length) return;	// secure_id は無用
 
+	var pkey = $('#comment-form-apkey').val() || '';
+	var ary  = (form.data('secure') || '').split(',');
+	if (!pkey.match(/^\d+$/)) return;
+	pkey = pkey & 255;
+
+	var sid = '';
+	for(var i=0; i<ary.length-1; i++) {
+		if (!ary[i].match(/^\d+$/)) return;
+		sid += String.fromCharCode( ary[i] ^ pkey );
+	}
+
+	var post = $('#post-comment');
+	post.prop('disabled', true);
+
+	// 10key押されるか、10秒経ったら設定
+	var cnt=0;
+	var tarea = form.find('textarea');
+	tarea.on('keydown', function(){
+		cnt++;
+		if (cnt<10) return;
+		tarea.off('keydown');
+		$('#comment-form-sid').val(sid);
+		post.prop('disabled', false);
+	});
+	setTimeout(function(){
+		$('#comment-form-sid').val(sid);
+		post.prop('disabled', false);
+	}, 10000);
+});
 //////////////////////////////////////////////////////////////////////////////
 // ●検索条件表示の関連処理
 //////////////////////////////////////////////////////////////////////////////

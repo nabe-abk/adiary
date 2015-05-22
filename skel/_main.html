@@ -157,18 +157,18 @@
 
 <@><!--========================================================================-->
 <@ifexec(ret.pagemode && (1<page || ret.next_page), begin.page)>
-<nav class="page-nav">
+<nav class="page-nav art-nav">
 <@page_nav = exec(begin.function)>
 <@ifexec(ret.pages, begin, begin)>
-	<a<@if(1<page, #' href="<@url>' . if(2<page, '&amp;p=' . (page-1)) . '"')> class="prev-page pnavi" rel="prev">前のページ</a>
+	<a<@if(1<page, #' href="<@url>' . if(2<page, '&amp;p=' . (page-1)) . '"')> class="prev-page" rel="prev">前のページ</a>
 	<@forexec_num(x, page_max-page_offset, begin)>
 		<$t = page_offset + x>
 		<@if(t!=ret.page, #'<a href="<@url>&amp;p=<@t>"><@t></a>', "<strong><@t></strong>")> 
 	<$end>
-	<a<@if(ret.next_page, #' href="<@url>&amp;p=' . (page+1) . '"')> class="next-page pnavi" rel="next">次のページ</a>
+	<a<@if(ret.next_page, #' href="<@url>&amp;p=' . (page+1) . '"')> class="next-page" rel="next">次のページ</a>
 <$else>
-	<a<@if(1<page, #' href="<@url>' . if(2<page, '?&amp;p=' . (page-1)) . '"')> class="prev-page pnavi" rel="prev">前のページ</a> <@\>
-	<a<@if(ret.next_page, #' href="<@url>?&amp;p=' . (page+1) . '"')> class="next-page pnavi" rel="next">次のページ</a>
+	<a<@if(1<page, #' href="<@url>' . if(2<page, '?&amp;p=' . (page-1)) . '"')> class="prev-page" rel="prev">前のページ</a> <@\>
+	<a<@if(ret.next_page, #' href="<@url>?&amp;p=' . (page+1) . '"')> class="next-page" rel="next">次のページ</a>
 <$end>
 <$end.function>
 </nav>
@@ -219,7 +219,7 @@
 
 
 <@ifexec(page_nav, begin.page)>
-<nav class="page-nav">
+<nav class="page-nav art-nav">
 <@page_nav>
 </nav>
 <$end.page>

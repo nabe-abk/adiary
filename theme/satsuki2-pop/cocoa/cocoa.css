@@ -1260,6 +1260,9 @@ article.system section {
 .system select {
 	margin:			0;
 }
+.system select {
+	padding:		0 2px;
+}
 .system table,
 textarea.edit-article {
 	max-width:		98%;
