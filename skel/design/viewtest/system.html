@@ -1,0 +1,71 @@
+<@6>
+<@local(s,err)>
+
+<@> システムモード
+<$v.system_mode("テーマの表示テスト")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2>設定画面</h2>
+<div class="body">
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>項目1</th><td class="focus"><input type="text" class="w200" value="フォーカス"></td>
+	</tr>
+	<tr>
+		<th>項目2</th><td><input type="text" class="w200" value="通常"></td>
+	</tr>
+	<tr>
+		<th>項目3</th><td class="error"><input type="text" class="w200" value="エラー"></td>
+	</tr>
+	</tbody>
+	</table>
+</div>
+</article>
+
+<!--========================================================================-->
+<article class="system error">
+	<h2>エラー</h2>
+	<div class="body">
+		<div class="messages">
+			<div class="message">名前を入力してください</div>
+		</div>
+	</div> <!-- end of body -->
+</article>
+<article class="system message">
+	<h2>処理結果</h2>
+	<div class="body">
+		<div class="messages">
+			<div class="message">コメントを書き込みました</div>
+		</div>
+		<p>
+			<a href="#"><strong id="reload-msg">3秒後にリロードします</strong>(Enter)</a>
+			<button id="reload-stop">STOP</button>
+		</p>
+	</div>
+</article>
+<article class="system message">
+	<h2>処理結果</h2>
+	<div class="body">
+		<div class="messages">
+<div class="message">[plugin:des_system-info] アンインストールが成功しました</div>
+<div class="message">[plugin:des_searchbox] アンインストールが成功しました</div>
+<div class="message">[plugin:des_searchbox] インストールが成功しました</div>
+<div class="message">[plugin:des_system-info] インストールが成功しました</div>
+<div class="message">デザインモジュールを再インストールしました。</div>
+		</div>
+		<p>
+			<a href="#"><strong id="reload-msg">3秒後にリロードします</strong>(Enter)</a>
+			<button id="reload-stop">STOP</button>
+		</p>
+	</div>
+</article>
+
+
+
+

@@ -1,0 +1,267 @@
+<@6>
+<@local(s,err)>
+
+<@> システムモード
+<$v.system_mode("テーマの表示テスト")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article class="system message search">
+<h2>検索条件</h2>
+<div class="body">
+	<form method="GET" action="#" data-noymd-url="#" id="top-search-form">
+	<div class="freeword">
+	<select name="all">
+		<option value="0">タイトル</option>
+		<option value="1" selected>全文</option>
+	</select>から <input type="search" class="w300" name="q" value="本文 い です">
+	<button type="button">絞リ込み</button>
+	</div>
+	</form>
+
+	<div class="narrow narrow-tag">
+	<span class="search-caption">タグで絞り込み</span>
+		<a href="#">(タグなし)(8)</a>
+		<a href="#">a&amp;b(1)</a>
+		<a href="#">import(24)</a>
+		<a href="#">未分類(11)</a>
+	</div>
+
+	<div class="narrow narrow-ctype">
+	<span class="search-caption">種類で絞り込み</span>
+		<a href="#">通常記事(19)</a>
+		<a href="#">link(1)</a>
+		<a href="#">wiki(12)</a>
+	</div>
+
+	<div class="narrow narrow-ymd">
+	<span class="search-caption">日付で絞り込み</span>
+				<a href="#">2013年(13)</a>
+				<a href="#">2015年(6)</a>
+	</div>
+
+	<div class="hits">
+	<span class="hits">全<span>32</span>件</span>
+	<span class="pages">(1/7ページ)</span>
+	<input type="checkbox" class="js-switch" data-target="article.article div.body div.body-main" data-save="1" checked><label>記事本文を表示</label></div>
+</div>
+</article>
+<script>$(function(){ init_top_search('#top-search-form'); });</script>
+
+
+
+
+<nav class="page-nav art-nav " data-module-name="dem_page-nav,1">
+	<a class="prev-page" rel="prev">前のページ</a>
+<strong>1</strong> 
+<a href="#">2</a> 
+<a href="#">3</a> 
+<a href="#">4</a> 
+<a href="#">5</a> 
+<a href="#">6</a> 
+<a href="#">7</a> 
+	<a href="#" class="next-page" rel="next">次のページ</a>
+</nav>
+
+<div id="articles">
+<!--========================================================================-->
+<article class="article">
+<div class="article-body">
+<h2 id="art-441"><a class="date" href="#"><span class="y">2015</span><span class="sep">/</span><span class="m">05</span><span class="sep">/</span><span class="d">22</span><span class="wd">(金)</span></a><a href="#" class="title">2015-05-22</a></h2>
+<div class="body" id="s441">
+<div class="body-header">
+	<div class="art-info" data-module-name="dea_art-info" data-fix="1">
+										<a href="#" class="edit-article">（編集）</a>	</div>
+
+</div>
+<div class="body-main">
+<section>
+パーサーは「標準（１行＝１段落）」を選択してください。<br>
+<ul class="toc">
+	<li><a href="#">見出し(h3) <span class="timestamp">2014/12/29</span></a>
+<ul class="toc">
+		<li><a href="#">小見出し(h4) <span class="timestamp">2014/12/29</span></a>
+</li>
+</ul></li>
+	<li><a href="#">引用</a>
+<ul class="toc">
+		<li><a href="#">pre</a></li>
+</ul></li>
+	<li><a href="#">テーブル記法</a></li>
+	<li><a href="#">シンタックハイライト</a></li>
+	<li><a href="#">リスト記法 <span class="mono">-～</span>, <span class="mono">+～</span></a></li>
+	<li><a href="#">定義済みリスト記法 <span class="mono">:～:～</span></a></li>
+	<li><a href="#">拡張リスト記法</a></li>
+</ul>
+</section>
+
+<section>
+<h3><a href="#" id="1419816020">見出し(h3) <span class="timestamp">2014/12/29</span></a></h3>
+本文1<span class="footnote"><a title="注釈1" href="#" id="fnt-k441n1">*1</a></span><br>
+<br>
+本文2<span class="footnote"><a title="注釈2" href="#" id="fnt-k441n2">*2</a></span><span class="footnote"><a title="注釈3" href="#" id="fnt-k441n3">*3</a></span><br>
+<h4><a href="#" id="1419816021">小見出し(h4) <span class="timestamp">2014/12/29</span></a></h4>
+本文<span class="footnote"><a title="注釈4" href="#" id="fnt-k441n4">*4</a></span><br>
+<h5><a href="#" id="1419816020.1.1" class="linkall">子々見出し(h5)</a></h5>
+本文<br>
+<footer>
+	<p class="footnote"><a href="#" id="fn-k441n1">*1</a> : 注釈1</p>
+	<p class="footnote"><a href="#" id="fn-k441n2">*2</a> : 注釈2</p>
+	<p class="footnote"><a href="#" id="fn-k441n3">*3</a> : 注釈3</p>
+	<p class="footnote"><a href="#" id="fn-k441n4">*4</a> : 注釈4</p>
+</footer>
+</section>
+
+<section>
+<h3><a href="#" id="k441p2">引用</a></h3>
+<blockquote cite="http://adiary.org">
+adiary Ver3 は Perl で動作する<strong>HTML5 valid</strong>なブログ＆CMSです。純日本製オープンソース！<br>
+<cite><a href="#">http://adiary.org</a></cite></blockquote>
+<blockquote>
+複数行引用。<br>
+複数行引用。<br>
+複数行引用。<br>
+</blockquote>
+<h4><a href="#" id="k441p2.1">pre</a></h4>
+<pre>本文
+<span class="comment">コメント</span>
+<strong class="comment">強調</strong>
+</pre>
+</section>
+
+<section>
+<h3><a href="#" id="k441p3">テーブル記法</a></h3>
+<table>
+<thead>
+	<tr class="odd"><th>名前</th><th>色</th><th>形状</th></tr>
+</thead><tbody>
+	<tr class="even"><td>りんご</td><td>赤</td><td>球</td></tr>
+	<tr class="odd"><td>ドーナッツ</td><td>茶</td><td>穴の開いた円</td></tr>
+</tbody></table>
+<table>
+<thead>
+	<tr class="odd"><th>メーカー</th><th colspan="2">プリンタ</th><th>個数</th></tr>
+</thead><tbody>
+	<tr class="even"><td rowspan="3">Canon</td><td>LBP-740e</td><td>EP-J</td><td>3</td></tr>
+	<tr class="odd"><td>LBP-1420</td><td>EP-65</td><td>0</td></tr>
+	<tr class="even"><td colspan="2">LBP-470</td><td>15</td></tr>
+</tbody></table>
+<table>
+<thead>
+	<tr class="odd"><th>見出し</th><th>見出し</th><th>見出し</th></tr>
+</thead><tbody>
+	<tr class="even"><th>見出し</th><td>Not見出し</td><td>Not見出し</td></tr>
+	<tr class="odd"><th>見出し</th><td>Not見出し</td><td>Not見出し</td></tr>
+</tbody></table>
+</section>
+
+<section>
+<h3><a href="#" id="k441p4">シンタックハイライト</a></h3>
+<pre class="syntax-highlight js">//////////////////////////////////////////////////////////////////////////////
+// ●CSSから値を取得する
+//////////////////////////////////////////////////////////////////////////////
+function get_value_from_css(id, attr) {
+	var span = $('&lt;span&gt;').attr('id', id).css('display', 'none');
+	$('#body').append(span);
+	if (attr) {
+		attr = span.css(attr);
+		span.remove();
+		return attr;
+	}
+	var size = span.css('font-size');	// 1pxの時のみ有効
+	var str  = span.css('font-family');
+	span.remove();
+	if (str == null || size != '1px') return '';
+	str = str.replace(/["']/g, '');
+	return str;
+}
+</pre>
+</section>
+
+<section>
+<h3><a href="#" id="k441p5">リスト記法 <span class="mono">-～</span>, <span class="mono">+～</span></a></h3>
+<ul>
+	<li>ブログシステム
+	<ol>
+		<li>adiary</li>
+		<li>Wordpress</li>
+		<li>MovableType</li>
+	</ol>
+	</li>
+	<li>開発言語
+	<ul>
+		<li>Perl</li>
+		<li>PHP</li>
+	</ul>
+	</li>
+</ul>
+</section>
+
+<section>
+<h3><a href="#" id="k441p6">定義済みリスト記法 <span class="mono">:～:～</span></a></h3>
+&lt;dl&gt;, &lt;dt&gt;, &lt;dd&gt;に展開されるリストです。<br>
+<pre>:adiary:Perl
+:Wordpress:PHP
+:tDiary:Ruby
+</pre>
+<blockquote>
+<dl>
+	<dt>adiary</dt><dd>Perl</dd>
+	<dt>Wordpress</dt><dd>PHP</dd>
+	<dt>tDiary</dt><dd>Ruby</dd>
+</dl>
+</blockquote>
+</section>
+
+<section>
+<h3><a href="#" id="k441p7">拡張リスト記法</a></h3>
+通常のリスト記法では、リスト中に改行を入れたりブロックを展開することができませんでした。拡張リスト記法では、それらが可能になります。<br>
+<blockquote>
+<ul>
+	<li>変数x<br>
+xは未知変数である<br>
+	</li>
+	<li>変数y<br>
+yはxについての２次関数。<br>
+<blockquote>
+y=ax<sup>2</sup>+bx+c<br>
+</blockquote>
+	</li>
+</ul>
+</blockquote>
+定義済リストも同じように拡張記法を使えます。<br>
+
+</section>
+</div>
+	<div class="body-footer">
+		<span class="element com-caption"><a href="#"><span class="com-title">コメント</span><span class="com-num">（<span class="num">1</span>件）</span></a></span>
+	</div>
+</div> <!-- end of body -->
+</div> <!-- end of article-body -->
+</article>
+</div>
+
+<nav class="page-nav art-nav " data-module-name="dem_page-nav,2">
+	<a class="prev-page" rel="prev">前のページ</a>
+<strong>1</strong> 
+<a href="#">2</a> 
+<a href="#">3</a> 
+<a href="#">4</a> 
+<a href="#">5</a> 
+<a href="#">6</a> 
+<a href="#">7</a> 
+	<a href="#" class="next-page" rel="next">次のページ</a>
+</nav>
+
+<!-- 検索語ハイライト -->
+<div id="search-words-list" style="display: none">
+<span>本文</span>
+<span>い</span>
+<span>です</span>
+</div>
+<script>$(function(){ word_highlight('#search-words-list'); });</script>
+</div> <!-- End of main -->
+

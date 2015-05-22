@@ -1,0 +1,158 @@
+<@6>
+<@local(s,err)>
+
+<@> システムモード
+<$v.system_mode("テーマの表示テスト")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<$v.regist_css  ("<@v.script_dir>dynatree/skin/ui.dynatree.css")>
+<$v.regist_jslib("<@v.script_dir>dynatree/jquery.dynatree.min.js")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2>ダイアログを開きます</h2>
+<div class="body">
+
+	<p>ボタンをクリックするとそれぞれダイアログを開きます。</p>
+
+	<p>
+		<button type="button" id="btn1" data-title="テキストエリア" data-msg="テキストを入力してください。">テキストエリア</button>
+
+		<button type="button" id="link"   data-msg="リンクを生成" data-msg1="リンク先" data-val1="http://" data-msg2="リンク文字列">リンクを生成</button>
+		<button type="button" id="trashbox">ゴミ箱を空に</button>
+
+		<button type="button" id="error">エラー表示</button>
+	</p>
+
+	<@ifexec(v.theme eq v.default_theme, begin)>
+	<p>
+		<button type="button" id="setting1" data-url="<@v.myself>?set2/plugin_setting&amp;name=des_searchbox">プラグイン設定１</button>
+		<button type="button" id="setting2" data-url="<@v.myself>?set2/plugin_setting&amp;name=dem_freetext&amp;mode=css">プラグイン設定２</button>
+		※ok押すとエラー表示
+	</p>
+	<$end>
+
+</div>
+</article>
+
+<article class="system setting">
+<h2>ツリー</h2>
+<div class="body">
+
+	<p>コンテンツ一覧もどきツリー。</p>
+
+	<div class="folder-tree" id="tree"></div>
+</div>
+</article>
+
+
+
+<div style="display:none">
+<span id="msg-confirm-trash">ゴミ箱を空を空にしますか？</span>
+<span id="msg-error">なんだかわからないけど、エラーになったみたいです。</span>
+<span id="plgset-title">プラグイン設定 // OK押すとエラー表示</span>
+<span id="plgset-err-title">保存に失敗しました。</span>
+<div  id="plgset-err-msg"><div class="message">「文字サイズ」が小さすぎます（最小値:1）</div></div>
+
+<script>$(function(){
+$('#btn1').click(function(evt){
+	textarea_dialog(evt.target, function(){});
+});
+$('#link').click(function(evt){
+	var obj = $(evt.target);
+	form_dialog({
+		title: obj.data('msg'),
+		elements: [
+			obj.data('msg1'),
+			{type:'text', name:'str1', val:obj.data('val1'), dclass:'w240' },
+			obj.data('msg2'),
+			{type:'text', name:'str2', val: '' }
+		],
+		callback: function (){}
+	});
+});
+$('#trashbox').click(function(evt){
+	my_confirm('#msg-confirm-trash', function(){});
+});
+$('#error').click(function(evt){
+	show_error('#msg-error');
+});
+
+$("#tree").dynatree({
+	children: [
+		{title: "コンテンツ１"},
+		{title: "adiaryとは", expand: true,
+			children: [
+				{title: "とっても使いやすい"},
+				{title: "とっても速い"},
+				{title: "とっても機能的"}
+			]
+		},
+		{title: "Version3になって", expand: true,
+			children: [
+				{title: "CSS3で見た目が少しよくなった"}
+			]
+		}
+	]
+});
+
+function plugin_setting(evt) {
+	var formdiv = $('<div>').attr('id', 'popup-dialog');
+	var form = $('<form>');
+	var body = $('<div>').attr('id', 'js-form-body');
+	form.append( body );
+	formdiv.append( form );
+
+	// エラー表示用
+	var errdiv = $('<div>').addClass('error-message');
+	var errmsg = $('<strong>').addClass('error').css('display', 'block');
+	var erradd = $('<div>');
+	errdiv.append(errmsg, erradd);
+
+	var buttons = {};
+	buttons[ $('#ajs-ok').text() ] = function(){
+		errmsg.html( $('#plgset-err-title').html() );
+		erradd.html( $('#plgset-err-msg')  .html() );
+	};
+	buttons[ $('#ajs-cancel').text() ] = function(){
+		formdiv.dialog( 'close' );
+	};
+
+	// こうしておこないとロードしたJavaScriptが実行されない
+	$('#body').append( formdiv );
+
+	// ダイアログの設定
+	formdiv.dialog({
+		autoOpen: false,
+		modal: true,
+		width:  DialogWidth,
+		minHeight: 100,
+		maxHeight: $(window).height(),
+		title:   $('#plgset-title').text(),
+		buttons: buttons
+	});
+
+	var url = $(evt.target).data('url');
+
+	// フォーム本体をロード
+	body.load(url, function(){
+		{	// HTMLソースを表示
+			var vbtn = $('<button>').attr('type','button');
+			vbtn.text( 'HTML' );
+			vbtn.css( 'float', 'right' );
+			body.prepend( vbtn );
+		}
+		body.append( errdiv );
+		formdiv.dialog( "open" );
+	});
+}
+$('#setting1').click( plugin_setting );
+$('#setting2').click( plugin_setting );
+$f = $;
+///
+});
+</script>
+
