@@ -957,7 +957,6 @@ ul.menu {
 	display:		none;
 	width:			300px;
 }
-
 /* 画像アルバム */
 .sp #album-folder-tree > ul {
 	min-height:		60px;
@@ -967,6 +966,10 @@ ul.menu {
 }
 .ui-dialog #album-folder-tree ul {
 	margin:			0;
+}
+/* 短縮表記 */
+.sp .sp-hidden {
+	display:		none;
 }
 
 /* ボタン */
@@ -978,6 +981,11 @@ ul.menu {
 
 .sp .ajs-popup {
 	margin:			0 1em;
+}
+
+/* accordion/インポート、エクスポート */
+.sp .ui-accordion-content {
+	padding:		0 4px;
 }
 
 /*--------------------------------------------------------------------

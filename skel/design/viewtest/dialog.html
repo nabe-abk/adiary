@@ -44,7 +44,7 @@
 
 	<p>コンテンツ一覧もどきツリー。</p>
 
-	<div class="folder-tree" id="tree"></div>
+	<div class="treebox" id="tree"></div>
 </div>
 </article>
 
@@ -82,6 +82,25 @@ $('#error').click(function(evt){
 });
 
 $("#tree").dynatree({
+	dnd: {
+		onDragStart: function(node) {
+			return true;
+		},
+		autoExpandMS: 1000,
+		preventVoidMoves: true,
+		onDragEnter: function(node, sourceNode) {
+			 return true;
+		},
+		onDragOver: function(node, sourceNode, hitMode) {
+			if(node.isDescendantOf(sourceNode))
+				return false;
+			if( !node.data.isFolder && hitMode === "over" )
+				return "after";
+		},
+		onDrop: function(node, sourceNode, hitMode, ui, draggable) {
+			sourceNode.move(node, hitMode);
+		}
+	},
 	children: [
 		{title: "コンテンツ１"},
 		{title: "adiaryとは", expand: true,

@@ -910,7 +910,7 @@ li>input[type="checkbox"]:first-child {
 }
 
 /* ツリーとCSS等の編集画面 */
-article #tree,
+article .treebox,
 article:not(.edit) #editarea {
 	margin-top:		1em;
 	margin-bottom:		1em;
