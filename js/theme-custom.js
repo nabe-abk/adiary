@@ -726,7 +726,7 @@ function automatic(des_name, src_name) {
 	var c_src = src.data('original')
 	var c_cur = src.data('val') || src.val();
 	if (!c_des || !c_src || !c_cur) return;
-	// if (c_src == c_cur) return c_des;
+	if (c_src == c_cur) return c_des;
 
 	// HSV空間での差分
 	var h_des = RGBtoHSV( c_des );
@@ -741,8 +741,6 @@ function automatic(des_name, src_name) {
 	hsv.h = hsv.h + diff.h;
 	hsv.s = hsv.s * diff.s;
 	hsv.v = hsv.v * diff.v;
-
-	console.log(hsv);
 
 	return HSVtoRGB( hsv );
 }

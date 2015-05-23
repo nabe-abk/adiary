@@ -336,7 +336,7 @@ section footer {
 	padding:		2px 4px;
 	margin:			1.5em 1em 0 1em;
 
-	background-color:	#d4e4ff;		/* $c=footnotebg = main + #1c1c1c */
+	background-color:	#d4e4ff;		/* $c=footnotebg = auto:main */
 	border-radius:		2px;
 }
 /* 脚注 */
@@ -559,7 +559,7 @@ dt { font-weight:	bold; }
 	font-weight:		bold;
 	margin:			0px;
 	padding:		3px 5px;
-	border:			1px solid #abc;		/* $c=tableborder = preborder */
+	border:			1px solid #abc;		/* $c=tableborder */
 	background-color:	#dde3ff;		/* $c=tablebg */
 }
 
@@ -757,16 +757,16 @@ button
 	border:			1px solid #abc;		/* $c=btnborder = preborder */
 	border-radius:		6px;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#def,				/* $c=btnbg0 =btnbg1 + #222 */
-				#bcf);				/* $c=btnbg1 */
+				#def,				/* $c=btnbg0  */
+				#bcf);				/* $c=btnbg1 = auto:btnbg0 */
 }
 button:hover
 {
 	border-radius:		6px;
 	cursor:			pointer;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#eff,				/* $c=btnbghover0 = btnbg1 + #333 */
-				#cdf)	;			/* $c=btnbghover1 = btnbg1 + #111 */
+				#eff,				/* $c=btnbghover0 = auto:btnbg0 */
+				#cdf)	;			/* $c=btnbghover1 = auto:btnbg0 */
 }
 
 button:disabled
@@ -791,7 +791,7 @@ button:disabled
 }
 
 .ui-icon.ui-button {
-	border:                 1px solid #140;			/* $c=uiborder = link/2 */
+	border:                 1px solid #140;			/* $c=uiborder = auto:link */
 	border-radius:		4px;
 	background-color:       #eee;
 	margin:			0 1px;
@@ -872,7 +872,7 @@ article.system th {
 	background-color:	#d6e1fa;			/* $c=sysdarkbg */
 }
 article.system td {
-	background-color:	#f4f4ff;		/* $c=systd = sysartbg + #060606 */
+	background-color:	#f4f4ff;		/* $c=systd = auto:sysartbg */
 }
 
 /* エラー */

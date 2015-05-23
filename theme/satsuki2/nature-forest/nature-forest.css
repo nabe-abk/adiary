@@ -178,7 +178,7 @@ h1 img, h1 a img {
 /* 矢印の色 */
 .dropdown-menu li ul li ul:before,
 .dropdown-menu.sp li ul:before {
-	border-left-color:	#393;		/* $c=ddarrow = link/2 */
+	border-left-color:	#393;		/* $c=ddarrow = auto:link */
 }
 .dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
@@ -336,7 +336,7 @@ section footer {
 	padding:		2px 4px;
 	margin:			1.5em 1em 0 1em;
 
-	background-color:	#f0f0e0;		/* $c=footnotebg = main + #1c1c1c */
+	background-color:	#f0f0e0;		/* $c=footnotebg = auto:main */
 	border-radius:		2px;
 }
 /* 脚注 */
@@ -456,7 +456,7 @@ span.tag:not(:last-child):after {
 
 	padding:		6px 0 6px 6px;
 	margin-top:		1em;
-	border-left:		4px solid #ccc;		/* $c=h3border = artborder */
+	border-left:		4px solid #ccc;		/* $c=h3border = auto:artborder */
 }
 .body h3 span.timestamp {
 	font-size:		90%;
@@ -554,7 +554,7 @@ dt { font-weight:	bold; }
 	font-weight:		bold;
 	margin:			0px;
 	padding:		3px 5px;
-	border:			1px solid #aaa;		/* $c=tableborder = preborder */
+	border:			1px solid #aaa;		/* $c=tableborder */
 	background-color:	#ddd;			/* $c=fixtablebg */
 }
 
@@ -752,16 +752,16 @@ button
 	border:			1px solid #aaa;		/* $c=btnborder = preborder */
 	border-radius:		6px;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#f4f4e4,			/* $c=btnbg0 =main + #202020 */
-				#d4d4c4);			/* $c=btnbg1 =main */
+				#f4f4e4,			/* $c=btnbg0 = auto:main */
+				#d4d4c4);			/* $c=btnbg1 = auto:main */
 }
 button:hover
 {
 	border-radius:		6px;
 	cursor:			pointer;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#e4e4d4,			/* $c=btnbghover0 = main + #101010 */
-				#c4c4b4);			/* $c=btnbghover1 = main - #101010 */
+				#e4e4d4,			/* $c=btnbghover0 = auto:main */
+				#c4c4b4);			/* $c=btnbghover1 = auto:main */
 
 }
 
@@ -769,7 +769,7 @@ button:disabled
 {
 	color:			#666;
 	background-image:	none;
-	background-color:	#b4b4a4;			/* $c=btndisable = main - #202020 */
+	background-color:	#b4b4a4;			/* $c=btndisable = auto:main */
 }
 
 /*--------------------------------------------------------------------
@@ -777,7 +777,7 @@ button:disabled
 ---------------------------------------------------------------------*/
 #ui-icon-autoload {
 	display:		none;
-	background-color:	#880;				/* $c=uiicon = linkvisited*2 */
+	background-color:	#880;				/* $c=uiicon = auto:linkvisited */
 }
 .ui-icon {
 /*	background-image:	url(ui-icons.png);	*/
@@ -787,7 +787,7 @@ button:disabled
 }
 
 .ui-icon.ui-button {
-	border:                 1px solid #140;			/* $c=uiborder = link/2 */
+	border:                 1px solid #140;			/* $c=uiborder = auto:link */
 	border-radius:		4px;
 	background-color:       #eee;
 	margin:			0 1px;

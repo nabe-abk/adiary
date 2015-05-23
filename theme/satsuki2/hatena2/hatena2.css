@@ -54,7 +54,7 @@ body
 /* フッタの配置 */
 #footer
 {
-	background-color:	#5e7cb4;	/* $c=footerbg = headerbg */
+	background-color:	#5e7cb4;	/* $c=footerbg = bg */
 
 	text-align:		center;
 	margin:			30px 0 0 0;
@@ -111,7 +111,7 @@ body.IE8 {
 }
 #nav-header {
 	color:			#ccc;
-	background-color:	#5e7cb4;	/* $c=headerbg */
+	background-color:	#5e7cb4;	/* $c=headerbg = bg */
 
 	text-align:		right;
 	font-size:		10pt;
@@ -169,7 +169,7 @@ h1 img, h1 a img {
 /* 選択色 */
 .dropdown-menu>ul li:hover,
 .dropdown-menu>ul li.hover {
-	background-color:	#5e7cb4;	/* $c=ddhover = headerbg */
+	background-color:	#5e7cb4;	/* $c=ddhover = bg */
 }
 /* 枠線 */
 .dropdown-menu>ul li {
@@ -184,7 +184,7 @@ h1 img, h1 a img {
 /* 矢印の色 */
 .dropdown-menu li ul li ul:before,
 .dropdown-menu.sp li ul:before {
-	border-left-color:	#338;		/* $c=ddarrow = link/2 */
+	border-left-color:	#338;		/* $c=ddarrow = auto:link */
 }
 .dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
@@ -398,7 +398,7 @@ ul.hatena-section {
 }
 .hatena-module:not(.side-contents-list) ul.hatena-section li
 {
-	border-bottom:		1px solid #e5ebfa;	/* $c=moduleborder = border+#303030 */
+	border-bottom:		1px solid #e5ebfa;	/* $c=moduleborder = auto:border */
 	margin:			4px 0;
 	padding-bottom:		3px;
 	line-height:		130%;
@@ -766,8 +766,8 @@ button
 	border:			1px solid #66c;		/* $c=btnborder */
 	border-radius:		6px;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#ddf,			/* $c=btnbg0=btnbg1 + #333 */
-				#aaf);			/* $c=btnbg1 */
+				#ddf,			/* $c=btnbg0  */
+				#aaf);			/* $c=btnbg1 = auto:btnbg0 */
 }
 
 button:hover
@@ -775,8 +775,8 @@ button:hover
 	border-radius:		6px;
 	cursor:			pointer;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#eef,			/* $c=btnbghover0=btnbg1 + #444 */
-				#ccf);			/* $c=btnbghover1=btnbg1 + #222 */
+				#eef,			/* $c=btnbghover0 = auto:btnbg0 */
+				#ccf);			/* $c=btnbghover1 = auto:btnbg0 */
 
 }
 
@@ -784,7 +784,7 @@ button:disabled
 {
 	color:			#666;
 	background-image:	none;
-	background-color:	#aac;			/* $c=btndisable=btnbg1 - #222 */
+	background-color:	#aac;			/* $c=btndisable= auto:btnbg0 */
 }
 
 /*--------------------------------------------------------------------
@@ -802,7 +802,7 @@ button:disabled
 }
 
 .ui-icon.ui-button {
-	border:                 1px solid #016;		/* $c=uiborder = link/2 */
+	border:                 1px solid #016;		/* $c=uiborder = auto:link */
 	border-radius:		4px;
 	background-color:       #ddf;			/* $c=btnbg0 */
 	margin:			0 1px;
@@ -860,10 +860,10 @@ ul.checkbox {
 	list-style-type:	none;
 }
 article.system th {
-	background-color:	#ccf;			/* $c=sysbg */
+	background-color:	#ccf;			/* $c=sysbg  */
 }
 article.system td {
-	background-color:	#f8f8ff;		/* $c=systd = sysbg + #343434 */
+	background-color:	#f8f8ff;		/* $c=systd = auto:sysbg */
 }
 
 /* エラー */
@@ -1048,7 +1048,7 @@ article.edit span.tag:after {
 .jqueryui-tabs .body {
 	border-radius:		8px;
 	border:			1px solid #2133a9;	/* $c=sysborder */
-	background-color:	#eeeeff;		/* $c=sysartbg */
+	background-color:	#eeeeff;		/* $c=sysartbg = auto:sysbg */
 	padding:		0 0.5em;
 }
 .ui-tabs .ui-tabs-nav li {
