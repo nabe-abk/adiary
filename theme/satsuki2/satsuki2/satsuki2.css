@@ -659,16 +659,16 @@ button
 	border:			1px solid #66c;		/* $c=btnborder */
 	border-radius:		6px;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#ddf,			/* $c=btnbg0=main2 + #111 */
-				#aaf);			/* $c=btnbg1=main2 - #222 */
+				#ddf,			/* $c=btnbg0 = auto:main2 */
+				#aaf);			/* $c=btnbg1 = auto:main2 */
 }
 button:hover
 {
 	border-radius:		6px;
 	cursor:			pointer;
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
-				#eef,			/* $c=btnbghover0=main2 + #222 */
-				#ccf);			/* $c=btnbghover1=main2 */
+				#eef,			/* $c=btnbghover0 = auto:main2 */
+				#ccf);			/* $c=btnbghover1 = auto:main2 */
 
 }
 
@@ -676,7 +676,7 @@ button:disabled
 {
 	color:			#666;
 	background-image:	none;
-	background-color:	#aac;			/* $c=btndisable=main2 - #222 */
+	background-color:	#aac;			/* $c=btndisable = auto:main2 */
 }
 
 /*--------------------------------------------------------------------
