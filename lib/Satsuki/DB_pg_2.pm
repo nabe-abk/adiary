@@ -329,10 +329,13 @@ sub do_sql {
 	my $err_f = 1;						# エラー表示フラグ
 	if ($sql =~ /^\d$/) { $err_f=$sql; $sql=shift; }	# エラー表示なし
 
+	my @ary = @_;
+	$self->utf8_on(\@ary);
+
 	my $dbh   = $self->{dbh};
 	$self->debug($sql);	# debug-safe
 	my $sth = $dbh->prepare($sql);
-	$sth && $sth->execute(@_);
+	$sth && $sth->execute(@ary);
 	if ($dbh->err) { $self->error(); }
 	if ($err_f && (!$sth || $dbh->err)) {
 		$self->error($sql);
