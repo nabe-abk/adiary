@@ -28,6 +28,27 @@
 </div>
 </article>
 
+<!--記事の編集=============================================================-->
+<article class="system edit" id="edit">
+<h2>記事の編集（タグ表示の確認）</h2>
+<div class="body">
+	<div class="float-r" id="edit-disp-pkey">444</div>
+	<span class="element" id="edit-yyyymmdd">
+	<span class="edit-caption">日付</span><input id="edit-date" type="date" name="ymd" class="w120" value="2015-06-19" min="1980-01-01" max="2999-12-31" required></span>
+
+	<span class="element" id="edit-tags"><span class="edit-caption">タグ</span>
+	<span id="tags">
+	<span class="tag">タグ１<span class="ui-icon ui-icon-close"></span></span>
+	<span class="tag">タグ２<span class="ui-icon ui-icon-close"></span></span>
+	<span class="tag">タグ３<span class="ui-icon ui-icon-close"></span></span>
+	</span>
+	<select name="taglist" id="tag-select" data-url="/~nabe/adiary/pub/nabe/taglist.json?1434646524">
+		<option value="" class="special">【タグを追加】</option>
+		<option value="*" class="special" data-new="1">【新規に登録】</option>
+	</select></span><br>
+</div>
+</article>
+
 <!--========================================================================-->
 <article class="system error">
 	<h2>エラー</h2>
@@ -60,12 +81,9 @@
 <div class="message">デザインモジュールを再インストールしました。</div>
 		</div>
 		<p>
-			<a href="#"><strong id="reload-msg">3秒後にリロードします</strong>(Enter)</a>
-			<button id="reload-stop">STOP</button>
+			<a href="#"><strong id="reload-msg2">3秒後にリロードします</strong>(Enter)</a>
+			<button id="reload-stop2">STOP</button>
 		</p>
 	</div>
 </article>
-
-
-
 

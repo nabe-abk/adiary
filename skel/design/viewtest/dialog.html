@@ -25,6 +25,8 @@
 		<button type="button" id="trashbox">ゴミ箱を空に</button>
 
 		<button type="button" id="error">エラー表示</button>
+
+		<button type="button" disabled>押せないボタン</button>
 	</p>
 
 	<@ifexec(v.theme eq v.default_theme, begin)>
@@ -56,6 +58,7 @@
 <span id="plgset-title">プラグイン設定 // OK押すとエラー表示</span>
 <span id="plgset-err-title">保存に失敗しました。</span>
 <div  id="plgset-err-msg"><div class="message">「文字サイズ」が小さすぎます（最小値:1）</div></div>
+</div>
 
 <script>$(function(){
 $('#btn1').click(function(evt){

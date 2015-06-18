@@ -8,6 +8,56 @@
 <@> 階層ツリー、初期処理
 <@call("<@v.skel_dir>_dir_tree")>
 
+<@><!--=====================================================================-->
+<@> dropdown-menu
+<$viewtest_append_header = exec(begin)>
+<div class="dropdown-menu">
+<ul class="js-auto-width">
+	<li><a href="#">はじめに</a>
+	<ul>
+		<li><a href="#">項目1</a></li>
+		<li><a href="#">項目2</a></li>
+		<li><a href="#">項目3</a>
+		<ul>
+			<li><a href="#">項目3.1</a></li>
+			<li><a href="#">項目3.2</a></li>
+			<li><a href="#">項目3.3</a></li>
+		</ul>
+		</li>
+		<li><a href="#">項目4</a></li>
+	</ul>
+	</li>
+	<li><a href="#">メニュー2</a></li>
+	<li><a href="#">いちご</a>
+	<ul>
+		<li><a href="#">あまおう</a></li>
+		<li><a href="#">とちおとめ</a></li>
+		<li><a href="#">さちのか</a></li>
+		<li><a href="#">やよいひめ</a></li>
+	</ul>
+	</li>
+	<li><a href="#">果物</a>
+	<ul>
+		<li><a href="#">バナナ</a></li>
+		<li><a href="#">リンゴ</a>
+		<ul>
+			<li><a href="#">青りんご</a></li>
+		</ul>
+		</li>
+		<li><a href="#">パイナップル</a></li>
+		<li><a href="#">梨</a>
+		<ul>
+			<li><a href="#">幸水</a></li>
+			<li><a href="#">豊水</a></li>
+			<li><a href="#">新高梨</a></li>
+			<li><a href="#">二十世紀</a></li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+</ul></div>
+<$end>
+
 <!--========================================================================-->
 <article class="system message search">
 <h2>検索条件</h2>
@@ -263,5 +313,4 @@ y=ax<sup>2</sup>+bx+c<br>
 <span>です</span>
 </div>
 <script>$(function(){ word_highlight('#search-words-list'); });</script>
-</div> <!-- End of main -->
 

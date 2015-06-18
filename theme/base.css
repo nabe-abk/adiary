@@ -754,7 +754,7 @@ h3.ui-accordion-header {
 	margin-bottom:		-1px;		/* 線の太さに合わせる */
 }
 .ui-tabs .ui-tabs-nav li:not(.ui-tabs-active):hover {
-	border-color:		#888;
+	background-color:	#ddd;
 }
 
 
@@ -957,6 +957,18 @@ ul.menu {
 .dropdown-menu {
 	color:			#338;
 }
+/* 枠線を消す */
+/*
+.dropdown-menu>ul li {
+	border:			none;
+}
+.dropdown-menu:not(.sp)>ul ul ul {
+	margin-top:	-1px;
+}
+.dropdown-menu:not(.sp)>ul>li a {
+	height:			100%;
+}
+*/
 /* 影をつける */
 /*
 .dropdown-menu>ul li:hover ul {
