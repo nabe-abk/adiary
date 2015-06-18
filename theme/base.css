@@ -645,6 +645,25 @@ h3.ui-accordion-header {
 	background-color:	#ddd;
 }
 
+/* sortable */
+.dynatree-title,
+.ui-sortable-handle {
+	cursor:			-moz-grab;
+	cursor:			-webkit-grab;
+	cursor:			grab;
+}
+.ui-sortable-handle.ui-sortable-helper {
+	cursor:			auto;
+	cursor:			-moz-grabbing;
+	cursor:			grabbing;
+}
+.ui-sortable-handle .no-drag {
+	cursor:			auto;
+}
+
+
+
+
 /*--------------------------------------------------------------------
 ●jQuery UI, プログレスバー
 ---------------------------------------------------------------------*/

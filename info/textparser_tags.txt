@@ -72,16 +72,16 @@ qt = >title
 #------------------------------------------------------------------------------
 # Google
 #------------------------------------------------------------------------------
-google       = Google検索,         UTF-8, http://www.google.co.jp/search?lr=lang_ja&ie=utf-8&oe=utf-8&q=
-google:all   = Google検索,         UTF-8, http://www.google.co.jp/search?ie=utf-8&oe=utf-8&q=
-google:image = Googleイメージ検索, UTF-8, http://images.google.co.jp/images?lr=lang_ja&ie=utf-8&oe=utf-8&q=
-google:news  = Googleニュース検索, UTF-8, http://news.google.co.jp/news?lr=lang_ja&ie=utf-8&oe=utf-8&q=
-google:transit = Googleトランジット, UTF-8, 2, http://www.google.co.jp/transit?saddr=$1&daddr=$2
+google       = Google検索,         UTF-8, https://www.google.co.jp/search?ie=utf-8&oe=utf-8&nfpr=1&q=
+google:ja    = Google検索(ja),     UTF-8, https://www.google.co.jp/search?lr=lang_ja&ie=utf-8&oe=utf-8&nfpr=1&q=
+google:image = Googleイメージ検索, UTF-8, https://images.google.co.jp/images?lr=lang_ja&ie=utf-8&oe=utf-8&q=
+google:news  = Googleニュース検索, UTF-8, https://news.google.co.jp/news?lr=lang_ja&ie=utf-8&oe=utf-8&q=
+google:transit = Googleトランジット, UTF-8, 2, https://www.google.co.jp/transit?saddr=$1&daddr=$2
 google:qr      = QRコード生成, image, 999, http://chart.apis.google.com/chart?cht=qr&chs=92x92&chl=$$
 google:qr#link = QRコード生成, image, 999, $$
 
 g   = >google
-ga  = >google:all
+g:ja= >google:ja
 gi  = >google:image
 gn  = >google:news
 tr  = >google:transit
@@ -100,7 +100,7 @@ isbn    = >asin
 #------------------------------------------------------------------------------
 # 色々
 #------------------------------------------------------------------------------
-wikipedia = Wikipedia, UTF-8, http://ja.wikipedia.org/wiki/
+wikipedia = Wikipedia, UTF-8, https://ja.wikipedia.org/wiki/
 w    = >wikipedia
 wiki = >wikipedia
 uc   = アンサイクロペディア, UTF-8, http://ja.uncyclopedia.info/wiki/
