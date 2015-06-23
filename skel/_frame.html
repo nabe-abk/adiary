@@ -68,7 +68,7 @@
 <$end>
 <script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">
-<@if(!js_stop && !v.system_mode && file_size(file), #'<script async src="<@Basepath><@file>"></script>\n')>
+<@if(!js_stop && file_size(file), #'<script async src="<@Basepath><@file>"></script>\n')>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
 <@v.extra_header>
 </head>

@@ -8,19 +8,11 @@
 /*--------------------------------------------------------------------
 ■全体配置
 ---------------------------------------------------------------------*/
-/* 記事部 */
-div.main {
-	margin-left:		0;
-	margin-right:		168px;
+.main {
+	float:			left;
 }
-/* 左側にメニューを配置 */
-#sidebar
-{
-	position:		absolute;
-	width:			160px;
-	left:			auto;
-	right:			0;
-	top:			0;
+#sidebar {
+	float:			right;
 }
 
 

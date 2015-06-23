@@ -27,6 +27,9 @@
 <$end>
 <@>----------------------------------------------------------------------------
 #body {
+<@ifexec(ps.width ne '', begin)>
+	width:			auto;
+<$end>
 <@ifexec(ps.bg ne '', begin)>
 	background-color:	<@ps.bg>;
 	background-image:	none;

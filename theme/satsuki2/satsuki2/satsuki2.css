@@ -39,23 +39,25 @@ h1 img, h1 a img {
 
 /* 全体配置用 */
 #hatena-body {
-	position:		relative;
-	margin:			1em 0.5em;
-	min-height:		600px;
-	max-height:		99999px;	/* adiary.jsで高さを自動フィットさせる指定 */
+	margin:			1em 0;
+	padding:		0 8px;
 }
+#hatena-body:after {
+	content:		"";
+	clear:			both;
+	display:		block;
+}
+
 /* 記事部 */
-div.main {
-	margin-left:		164px;
-	padding:		0px 8px 0px 8px;
-/*	min-height:		320px;	*/
+.main {
+	float:			right;
+	width:			calc(100% - 176px);
+	padding-right:		4px;
 }
 /* 左側にメニューを配置 */
 #sidebar
 {
-	position:		absolute;
-	left:			0px;
-	top:			0px;
+	float:			left;
 	width:			160px;
 	margin:			0;
 	padding:		0;
@@ -63,13 +65,13 @@ div.main {
 	font-size:		10pt;
 	line-height:		130%;
 }
+
 @media screen and (min-width: 940px) {
-	div.main {
-		margin-left:	18%;	/* for IE8 */
-		margin-left:	calc(17% + 4px);
+	.main {
+		width:		calc(82% - 16px);
 	}
 	#sidebar {
-		width:		17%;
+		width:		18%;
 	}
 }
 
@@ -89,6 +91,16 @@ div.main {
 	overflow:		hidden;
 	text-overflow:		ellipsis;
 } */
+
+/*--------------------------------------------------------------------
+○for IE8 (not support calc)
+---------------------------------------------------------------------*/
+.IE8 .main {
+	width:			81%;
+}
+.IE8 #sidebar {
+	width:			18%;
+}
 
 /*--------------------------------------------------------------------
 ■ヘッダメニュー

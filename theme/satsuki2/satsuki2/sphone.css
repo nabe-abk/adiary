@@ -9,22 +9,21 @@
 #body {
 	min-width:		0;
 }
-div.main {
+.main {
+	float:			none;
 	margin-left:		0;
 	margin-right:		0;
 	padding:		0;
+	width:			100%;
 }
 #hatena-body {
-	position:		static;
 	margin:			0 8px 0 6px;
 	width:			auto;
 	max-height:		none;
 }
 #sidebar, #side-a, #side-b {
-	position:		static;
+	float:			none;
 	margin:			0;
-	left:			auto;
-	top:			auto;
 	width:			auto;
 }
 #sidebar {

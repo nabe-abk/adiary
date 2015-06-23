@@ -113,6 +113,7 @@ $(function(){
 	var vals = [0, 0x80, 0xC0, 0xff];
 	var color = get_value_from_css('ui-icon-autoload', 'background-color');
 	if (!color || color == 'transparent') return;
+	color = color.replace(/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])/, "#$1$1$2$2$3$3");	// for IE8
 	if (color.match(/\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0/)) return;
 
 	var ma = color.match(/#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})/);
@@ -166,6 +167,7 @@ $(function(){
 	var codes = $('pre.syntax-highlight');
 	if (!codes.length) return;
 	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
+	if (IE8) return;	// Not work, for IE8
 
 	$.getScript(ScriptDir + 'highlight.pack.js', function(){
 		$('pre.syntax-highlight').each(function(i, block) {
@@ -1150,32 +1152,6 @@ initfunc.push( function(R){
 		if (IE8) width+=2;
 		obj.width(width);
 	});
-});
-
-//////////////////////////////////////////////////////////////////////////////
-//●sidebarかmainの高さに hatena-body をあわせる
-//////////////////////////////////////////////////////////////////////////////
-// テーマで指定があるときのみ実行
-$( function(){
-	var hbody = $('#hatena-body');
-	if ( hbody.css('max-height') != '99999px' ) return;
-	hbody.css('max-height', 'none');
-
-	function fix_height() {
-		var height = 0;
-		var ary = ['#main-first', '#sidebar', '#side-a', '#side-b'];
-		for(var i=0; i<ary.length; i++) {
-			var h = parseInt( $(ary[i]).outerHeight() );
-			if (isNaN(h)) continue;
-			if (height < h) height=h;
-		}
-		if (!height) return;
-		var min = parseInt(hbody.css('min-height') || '0');
-		if (min && height <= min) return;
-		hbody.css('min-height', height + 'px');
-	}
-	setTimeout(fix_height, 1000);
-	fix_height();
 });
 
 //############################################################################

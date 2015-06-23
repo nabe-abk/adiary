@@ -5,37 +5,42 @@
 *****************************************************************************/
 @import url("../satsuki2/satsuki2.css");
 /* $color_info = satsuki2 */
+
+@media screen and (min-width: 900px) {
 /*--------------------------------------------------------------------
-■全体配置 (800px以上)
+■全体配置
 ---------------------------------------------------------------------*/
-@media screen and (min-width: 800px) {
-/* 日記部 */
-div.main {
-	margin-left:		164px;
-	margin-right:		164px;
+.main {
+	float:			left;
+	width:			calc(100% - 340px);
+	padding-left:		8px;
+	padding-right:		4px;
 }
-#sidebar
-{
+#sidebar {
+	float:			none;
+	width:			auto;
+}
+#side-a {
+	float:			left;
+	width:			160px;
+}
+#side-b {
+	float:			right;
+	width:			160px;
+}
+/*--------------------------------------------------------------------
+for IE8
+---------------------------------------------------------------------*/
+.IE8 .main {
+	width:			64%;
+	padding-right:		0px;
+}
+.IE8 #sidebar {
 	width:			100%;
-	position:		absolute;
-	visibility:		hidden;		/* こうしないと記事部をclickできない */
 }
-#side-a
-{
-	width:			160px;
-	margin:			0;
-	padding:		0;
-	visibility:		visible;
-}
-#side-b
-{
-	position:		absolute;
-	width:			160px;
-	right:			0;
-	top:			0;
-	margin:			0;
-	padding:		0;
-	visibility:		visible;
+.IE8 #side-a,
+.IE8 #side-b {
+	width:			17%;
 }
 
 }

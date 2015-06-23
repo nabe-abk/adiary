@@ -1,0 +1,173 @@
+<@6>
+<@local(s,err)>
+
+<@> システムモード
+<$v.system_mode("テーマの表示テスト")>
+
+<!--========================================================================-->
+<@> dropdown-menu
+<div class="dropdown-menu">
+<ul class="js-auto-width">
+	<li><a href="#">はじめに</a>
+	<ul>
+		<li><a href="#">項目1</a></li>
+		<li><a href="#">項目2</a></li>
+		<li><a href="#">項目3</a>
+		<ul>
+			<li><a href="#">項目3.1</a></li>
+			<li><a href="#">項目3.2</a></li>
+			<li><a href="#">項目3.3</a></li>
+		</ul>
+		</li>
+		<li><a href="#">項目4</a></li>
+	</ul>
+	</li>
+	<li><a href="#">メニュー2</a></li>
+	<li><a href="#">いちご</a>
+	<ul>
+		<li><a href="#">あまおう</a></li>
+		<li><a href="#">とちおとめ</a></li>
+		<li><a href="#">さちのか</a></li>
+		<li><a href="#">やよいひめ</a></li>
+	</ul>
+	</li>
+	<li><a href="#">果物</a>
+	<ul>
+		<li><a href="#">バナナ</a></li>
+		<li><a href="#">リンゴ</a>
+		<ul>
+			<li><a href="#">青りんご</a></li>
+		</ul>
+		</li>
+		<li><a href="#">パイナップル</a></li>
+		<li><a href="#">梨</a>
+		<ul>
+			<li><a href="#">幸水</a></li>
+			<li><a href="#">豊水</a></li>
+			<li><a href="#">新高梨</a></li>
+			<li><a href="#">二十世紀</a></li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+</ul></div>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<!--========================================================================-->
+<article id="article" class="article">
+<div class="article-body" id="article-body">
+<h2><a href="#" class="title">記事タイトル</a></h2>
+<div class="body">
+<div class="body-header">
+	<div class="art-info" data-module-name="dea_art-info" data-fix="1">
+	</div>
+</div>
+<div class="body-main">
+<section>
+記事本文。「>&gt;&gt;6」などの部分にマウスを乗せてみてください。
+</section>
+</div><!-- body-main -->
+<div class="body-footer">
+<!-- 関連記事 -->
+<div data-module-name="dea_node-list">
+</div>
+
+</div> <!-- body-footer -->
+</div> <!-- body -->
+</div> <!-- article-body -->
+<aside class="comment" id="com">
+	<div class="caption js-switch" data-target="#c438n-block"><span class="caption-title">コメント</span><span class="com-num">（<span class="num">7</span>件）</span>
+	</div>
+	<div class="commentbody" id="c438n-block">
+	<div class="commentview">
+	<div class="swiches">
+	<input type="checkbox" name="view_ip_host_agent" class="js-switch" data-target="#com div.ip-host-agent" checked><label>投稿者情報の表示</label>
+	<input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary"><label>すべて選択</label>
+	</div>
+	<div class="comment-one" id="c5">
+		<div class="commentator">
+			<span class="canchor"><a href="#c5">5</a>:</span><input class="pkey-ary" type="checkbox" name="pkey_int_ary" value="140"><label>			<span class="commentator author login-user" title=test>テスト</span>
+						<span class="comment-date">2015年05月21日(木) 午前1時38分</span>
+</label>		</div>
+
+		<div class="comment-text">TAB	TAB</div>
+		<div class="ip-host-agent">example.com (192.168.0.1)<br>Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0</div>
+	</div> <!-- comment-one -->
+	<div class="comment-one" id="c6">
+		<div class="commentator">
+			<span class="canchor"><a href="#c6">6</a>:</span><input class="pkey-ary" type="checkbox" name="pkey_int_ary" value="141"><label>			<span class="commentator author login-user" title=test>テスト</span>
+						<span class="comment-date">2015年05月21日(木) 午前1時42分</span>
+</label>		</div>
+
+		<div class="comment-text">	fasfdasfdas	tab</div>
+		<div class="ip-host-agent">example.com (192.168.0.1)<br>Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0</div>
+	</div> <!-- comment-one -->
+	<div class="comment-one" id="c8">
+		<div class="commentator">
+			<span class="canchor"><a href="#c8">8</a>:</span><input class="pkey-ary" type="checkbox" name="pkey_int_ary" value="143"><label>			<span class="commentator author login-user" title=test>テスト</span>
+						<span class="comment-date">2015年05月21日(木) 午前1時46分</span>
+</label>		</div>
+
+		<div class="comment-text">&gt;&gt;6<br>&amp;gt;</div>
+		<div class="ip-host-agent">example.com (192.168.0.1)<br>Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0</div>
+	</div> <!-- comment-one -->
+	<div class="comment-one" id="c9">
+		<div class="commentator">
+			<span class="canchor"><a href="#c9">9</a>:</span><input class="pkey-ary" type="checkbox" name="pkey_int_ary" value="144"><label>			<span class="commentator author login-user" title=test>テスト</span>
+						<span class="comment-date">2015年05月21日(木) 午前2時05分</span>
+</label>		</div>
+
+		<div class="comment-text">			fasdfdasfdas<br>	fasdfdas		fasfdas</div>
+		<div class="ip-host-agent">example.com (192.168.0.1)<br>Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0</div>
+	</div> <!-- comment-one -->
+	<div class="comment-one" id="c11">
+		<div class="commentator">
+			<span class="canchor"><a href="#c11">11</a>:</span><input class="pkey-ary" type="checkbox" name="pkey_int_ary" value="146"><label>			<span class="commentator author login-user" title=test>テスト</span>
+						<span class="comment-date">2015年05月21日(木) 午前2時08分</span>
+</label>		</div>
+
+		<div class="comment-text">	fsadfdas	<br>fasdf	fasdfdas	afdasfda</div>
+		<div class="ip-host-agent">example.com (192.168.0.1)<br>Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0</div>
+	</div> <!-- comment-one -->
+	<div class="comment-one" id="c13">
+		<div class="commentator">
+			<span class="canchor"><a href="#c13">13</a>:</span><input class="pkey-ary" type="checkbox" name="pkey_int_ary" value="148"><label>			<span class="commentator author login-user" title=test>テスト</span>
+						<span class="comment-date">2015年05月21日(木) 午前2時27分</span>
+</label>		</div>
+
+		<div class="comment-text">&gt;&gt;6<br>&gt;&gt;11<br>fsdafdasfdas</div>
+		<div class="ip-host-agent">example.com (192.168.0.1)<br>Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0</div>
+	</div> <!-- comment-one -->
+	<div class="comment-one" id="c14">
+		<div class="commentator">
+			<span class="canchor"><a href="#c14">14</a>:</span><input class="pkey-ary" type="checkbox" name="pkey_int_ary" value="149"><label>			<span class="commentator author login-user" title=test>テスト</span>
+						<span class="comment-date">2015年05月21日(木) 午前2時28分</span>
+</label>		</div>
+
+		<div class="comment-text">&gt;&gt;6<br>&gt;&gt;8<br>&gt;&gt;14<br>33333333333	333333<br>てててててててててててててててて<br>けうしてけてうしけてうしけてうし<br>けしうけてうしけてけ</div>
+		<div class="ip-host-agent">example.com (192.168.0.1)<br>Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0</div>
+	</div> <!-- comment-one -->
+	<div class="com-buttons">
+	<button type="button" name="enable"  class="js-form-check btn-help" data-confirm="" data-help="非公開コメントを表示することはできません">表示に設定</button>
+	<button type="button" name="disable" class="js-form-check" data-confirm="">非表示に設定</button>
+	<button type="button" name="delete"  class="js-form-check" id="del-submit" data-confirm="%c件のコメントを削除しますか？" data-focus="cancel">削除</button>
+	<input type="checkbox" name="del_check" class="js-enable" data-target="#del-submit"><label>削除確認</label>
+	</div>
+	</div><!-- end of comemntview -->
+
+	<hr id="com-form-separator">	<!-- コメントフォーム -->
+
+		<span class="caption-name">名前</span><span class="separater">:</span>
+		<span class="comment-author">なべ</span>&emsp;<input type="checkbox" name="hidden" value="1"><label>非公開<span class="sp-hidden">コメント</span></label>
+		<button type="button" id="post-comment">投稿</button><span class="help" data-help="返信は「>>n」\n空白、タブ有効。タグ無効。\n押せない時はちょっと待ってね。">?</span><br>
+		<textarea class="comment-txt w600" name="comment_txt" rows="3" required></textarea>
+	</form> <!-- comment form -->
+
+
+	</div> <!-- commentbody -->
+</aside> <!-- comment -->
+</article>
+

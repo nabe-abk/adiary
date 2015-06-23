@@ -12,7 +12,7 @@ body
 {
 	background-image:	url("background.png");
 	background-repeat:	repeat;
-	background-color:	#f798a8;
+	background-color:	#f798a8;	/* $c=bg */
 	padding:		0;
 	margin:			0;
 
@@ -31,20 +31,22 @@ body
 #hatena-body {
 	position:		relative;
 	margin:			1em 8px;
-	max-height:		99999px;
 	padding-bottom:		1px;
 }
+#hatena-body:after {
+	content:		"";
+	clear:			both;
+	display:		block;
+}
 /* 記事部 */
-div.main {
-	margin-left:		164px;
-	padding:		0px 8px 0px 8px;
+.main {
+	float:			right;
+	width:			calc(100% - 168px);
 }
 /* 左側にメニューを配置 */
 #sidebar
 {
-	position:		absolute;
-	left:			0px;
-	top:			0px;
+	float:			left;
 	width:			160px;
 	margin:			0;
 	padding:		0;
@@ -72,6 +74,18 @@ div.main {
 	overflow:		hidden;
 	text-overflow:		ellipsis;
 } */
+
+/*--------------------------------------------------------------------
+○for IE8 (not support calc)
+---------------------------------------------------------------------*/
+.IE8 #adiary-body {
+	width:			800px;
+}
+.IE8 .main {
+	width:			612px;
+}
+
+
 
 /****************************************************************************
 ■全体設定
@@ -183,7 +197,7 @@ h1
 	border:			1px solid #d9a;		/* $c=border */
 }
 h1 a, h1 a:link, h1 a:visited {
-	color:			#ed3f43;		/* $c=titlefont */
+	color:			#ff454b;		/* $c=titlefont */
 	text-decoration:	none;
 }
 h1 img, h1 a img {
@@ -220,7 +234,7 @@ h1 img, h1 a img {
 /* 矢印の色 */
 .dropdown-menu li ul li ul:before,
 .dropdown-menu.sp li ul:before {
-	border-left-color:	#f05;	/* $c=ddarrow */
+	border-left-color:	#f05;	/* $c=ddarrow = link */
 }
 .dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
@@ -361,7 +375,7 @@ article div.body {
 }
 /* コンテンツ記事 */
 article.wiki div.body {
-	background-color:	#ffeeff;		/* $c=wikibg */
+	background-color:	#fff0ff;		/* $c=wikibg */
 }
 /* 記事ヘッダ */
 div.body-header {
@@ -438,14 +452,14 @@ span.tag:not(:last-child):after {
 div.body h3 {
 	font-size:		120%;
 	font-weight:		bold;
-	border-bottom:		2px solid #f05470;
+	border-bottom:		2px solid #f05;		/* $c=h3 */
 }
 div.body h3:before {
 	display:		inline-block;
 	content:		"";
 
 	margin-right:		4px;
-	border:			6px solid #f05470;	/* $c=h3 */
+	border:			6px solid #f05;		/* $c=h3 = link */
 	border-radius:		6px;
 	box-shadow:		2px 2px 1px 1px rgba(60,60,60,0.3);
 }
@@ -458,14 +472,14 @@ div.body h3,
 div.body h3 a,
 div.body h3 a:link,
 div.body h3 a:visited {
-	color:			#f05470;		/* $c=h3 */
+	color:			#f05;			/* $c=h3 */
 	text-decoration:	none;
 }
 /* 小見出し */
 div.body h4 {
 	font-size:		100%;
 	font-weight:		bold;
-	border-bottom:		1px solid #f05470;	/* $c=h3 */
+	border-bottom:		1px solid #f05;		/* $c=h3 */
 }
 div.body h5 {
 	font-size:		100%;
@@ -561,7 +575,7 @@ dt { font-weight:	bold; }
 
 	border-radius:		8px;
 	border:			2px solid #ee5576;	/* $c=main */
-	background-color:	#ffeeff;		/* $c=combg = artbg */
+	background-color:	#fff0ff;		/* $c=combg = artbg */
 	box-shadow:		4px 4px 3px 3px rgba(0,0,0, 0.3);
 }
 #com div.caption a {
@@ -787,7 +801,7 @@ table.plugins button { margin: 0; }
 ●システム画面
 ---------------------------------------------------------------------*/
 article.system div.body {
-	background-color:	#ffeeff;		/* $c=sysbg = wikibg */
+	background-color:	#fff0ff;		/* $c=sysbg = wikibg */
 }
 article.system div.body {
 	padding-bottom:		1em;
@@ -924,7 +938,7 @@ article.edit span.tag:after {
 ●jQuery UI, popup-info/dialog（プラグインのREADME/設定画面）
 ---------------------------------------------------------------------*/
 .ui-dialog {
-	background-color:	#ffeeff;		/* $c=wikibg */
+	background-color:	#fff0ff;		/* $c=wikibg */
 	border:			2px solid #d9a;		/* $c=border */
 	border-radius:		10px;
 	box-shadow:		8px 8px 4px 4px rgba(60,60,100,0.75);
@@ -991,7 +1005,7 @@ article.jqueryui-tabs {
 .jqueryui-tabs .body {
 	border-radius:		8px;
 	border:			2px solid #d9a;		/* $c=border */
-	background-color:	#ffeeff;		/* $c=sysbg */
+	background-color:	#fff0ff;		/* $c=sysbg */
 }
 .ui-tabs .ui-tabs-nav li {
 	border-radius:		8px;
@@ -999,8 +1013,8 @@ article.jqueryui-tabs {
 	background-color:	#fbc;			/* $c=main2 */
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active {
-	border-bottom:		2px solid #ffeeff;	/* $c=sysbg */
-	background-color:	#ffeeff;		/* $c=sysbg */
+	border-bottom:		2px solid #fff0ff;	/* $c=sysbg */
+	background-color:	#fff0ff;		/* $c=sysbg */
 }
 .ui-tabs .ui-tabs-nav {
 	margin-bottom:		-2px;		/* 線の太さに合わせる */
@@ -1026,7 +1040,7 @@ nav.tree {
 	margin-bottom:		1.5em;
 	padding:		0.5em 1em 0.5em 1.5em;
 
-	background-color:	#ffeeff;		/* $c=sysbg */
+	background-color:	#fff0ff;		/* $c=sysbg */
 }
 
 /*--------------------------------------------------------------------

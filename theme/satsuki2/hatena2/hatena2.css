@@ -15,6 +15,9 @@ body
 
 	padding:		0;
 	margin:			0 auto;
+}
+#adiary-body {
+	background-color:	#fff;
 
 	width:			90%;
 	min-width:		320px;
@@ -22,9 +25,6 @@ body
 
 	border-right:		1px solid #4a5973;	/* $c=border2 */
 	border-left:		1px solid #4a5973;	/* $c=border2 */
-}
-#adiary-body {
-	background-color:	#fff;
 }
 #hatena-body {
 	margin:			0 0 1em 14px;
@@ -75,31 +75,14 @@ body
 	text-decoration:	underline;
 }
 /*--------------------------------------------------------------------
-○for IE8 bugs
+○for IE8 (not support calc)
 ---------------------------------------------------------------------*/
-body.IE8 {
+.IE8 #adiary-body {
 	width:			800px;
 }
-.IE8 #hatena-body {
-	margin-top:		-16px;
-	position:		relative;
-	min-height:		600px;
-	max-height:		99999px;	/* adiary.jsで高さを自動フィットさせる指定 */
-}
 .IE8 .main {
-	float:			none;
-	width:			555px;
+	width:			550px;
 	padding-top:		1px;
-}
-.IE8 #sidebar {
-	float:			none;
-	position:		absolute;
-	top:			-1em;
-	left:			0;
-	margin-left:		565px;
-}
-.IE8 #sidebar div:first-child {
-	margin-top:		0;
 }
 
 /*--------------------------------------------------------------------
