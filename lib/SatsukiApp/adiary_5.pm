@@ -624,15 +624,10 @@ sub art_import {
 		$session->msg("Error exit(%d)", $r);
 		$session->close();
 	}
+
 	# upnode対応処理
-	my $p2p = $opt{pkey2pkey};
-	foreach(@{$opt{upnodes}}) {
-		my $pkey    = $_->{pkey};
-		my $up_pkey = $p2p->{ $_->{upnode} };
-		if ($up_pkey) {
-			$DB->update_match("${blogid}_art", {upnode => $up_pkey}, 'pkey', $pkey);
-		}
-	}
+	$self->import_build_tree($DB, $blogid, \%opt);
+
 	if ($tr) {
 		if ($DB->commit()) {
 			$session->say("[DB] ROLLBACK");
@@ -661,6 +656,21 @@ sub art_import {
 	$session->close();
 
 	return wantarray ? ($r, $opt{import_arts}) : $r;
+}
+
+sub import_build_tree {
+	my $self = shift;
+	my $DB   = shift;
+	my $id   = shift;
+	my $opt  = shift;
+	my $p2p = $opt->{pkey2pkey};
+	foreach(@{$opt->{upnodes}}) {
+		my $pkey    = $_->{pkey};
+		my $up_pkey = $p2p->{ $_->{upnode} };
+		if ($up_pkey) {
+			$DB->update_match("${id}_art", {upnode => $up_pkey}, 'pkey', $pkey);
+		}
+	}
 }
 
 sub import_events {
@@ -849,7 +859,7 @@ sub save_article {
 		push(@{ $opt->{a_pkeys} }, $pkey);
 
 		# upnode対策用の処理
-		if ($ret->{ctype} && $art->{pkey}) {
+		if ($opt->{upnodes} && $ret->{ctype} && $art->{pkey}) {
 			$opt->{pkey2pkey}->{ $art->{pkey}     } = $pkey;
 			$opt->{pkey2pkey}->{ $art->{link_key} } = $pkey;
 			push(@{$opt->{upnodes}}, {pkey=>$pkey, upnode=>$art->{upnode}});

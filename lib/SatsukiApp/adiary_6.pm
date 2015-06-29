@@ -404,6 +404,7 @@ sub v2convert {
 			$opt{save_pkey}     = 1;
 			$opt{save_com_pkey} = %tb ? 0 : 1;
 			$opt{tb_as_comment} = $h->{import_tb};
+			$opt{upnodes}       = [];
 
 			my $arts = $DBv2->select("${id}_diary", {sort => 'pkey'});
 			$DB->begin();
@@ -445,6 +446,9 @@ sub v2convert {
 				&conv_hash($art);
 				$self->save_article($art, $com{$pkey}, $tb{$pkey}, \%opt);
 			}
+			# upnode対応処理
+			$self->import_build_tree($DB, $id, \%opt);
+
 			$DB->commit();
 			$ROBJ->notice("Import %d articles (find %d articles)", $opt{import_arts}, $opt{find_arts});
 
