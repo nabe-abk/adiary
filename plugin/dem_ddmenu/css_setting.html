@@ -152,7 +152,7 @@ if ('<@ps.height>' == '') {
 if ('<@ps.zindex>' == '') {
 	$('#zindex').val( obj.css('z-index') || 990 );
 }
-if (!<@ps.no_underl>) {
+if (!<@ps.no_underl || 0>) {
 	var a = li.find('a');
 	if (li.height() == a.height()) $('#no-underl').prop('checked', true);
 }

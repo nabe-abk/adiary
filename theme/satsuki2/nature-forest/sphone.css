@@ -13,7 +13,7 @@ body {
 div.main {
 	margin-left:		0px;
 	margin-right:		0px;
-	padding:		0 8px;
+	padding:		0 4px;
 	width:			auto;
 	float:			none;
 }
@@ -156,7 +156,7 @@ article div.body {
 #adiary-body article.system {
 	padding:		6px;
 }
-.article-body {
+article {
 	padding:		10px 6px;
 }
 article.system div.body {

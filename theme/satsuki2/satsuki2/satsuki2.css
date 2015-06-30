@@ -208,14 +208,9 @@ a.next-page:after {
 /* 1つの記事 */
 article {
 	clear:			both;
-}
-article, #article-body {
 	margin-bottom:		1.5em;
 	border-radius:		8px;
 	box-shadow:		4px 4px 3px 3px rgba(0,0,0, 0.3);
-}
-#article {
-	box-shadow:		none;
 }
 
 /* 記事タイトル */

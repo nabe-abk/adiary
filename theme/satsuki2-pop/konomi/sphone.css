@@ -1,36 +1,36 @@
 @charset "UTF-8";
 /*****************************************************************************
-  patch to Satsuki2 for smart phone
+  patch for smart phone
 					2015/05 (C)nabe@abk.nu
 *****************************************************************************/
 /*--------------------------------------------------------------------
 ■全体配置
 ---------------------------------------------------------------------*/
 body, #adiary-body {
-	min-width:		0;
-	max-width:		none;
-}
-div.main {
-	margin-left:		0;
-	margin-right:		0;
-	padding:		0;
-}
-#hatena-body {
-	position:		static;
-	margin:			0 8px 0 6px;
 	width:			auto;
-	max-height:		none;
 }
-#sidebar, #side-a, #side-b {
-	position:		static;
+
+.main {
+	margin-left:		0px;
+	margin-right:		0px;
+	padding:		0 2px;
+	width:			auto;
+	float:			none;
+}
+#adiary-body {
 	margin:			0;
-	left:			auto;
-	top:			auto;
 	width:			auto;
+	min-width:		0px;	/* for GC bugs */
+	max-width:		auto;
 }
 #sidebar {
-	margin-top:		2em;
+	float:			none;
+	margin:			0 4px;
+	padding:		0;
+	width:			auto;
+	border:			none;
 }
+
 /*--------------------------------------------------------------------
 ■ヘッダ、フッタ
 ---------------------------------------------------------------------*/

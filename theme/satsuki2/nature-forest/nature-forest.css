@@ -265,17 +265,17 @@ a.next-page:after {
 /* 1つの記事 */
 article {
 	margin:			1em 0;
+	padding:		1.5em 1.5em 1em 1.5em;
+
+	background-color:	#fff;			/* $c=artbg */
+	border:			1px solid #ccc;		/* $c=artborder */
+	border-radius:		8px;
 }
 article + article {
 	margin-top:		2em;
 }
-.article-body {
-	background-color:	#fff;			/* $c=artbg */
-	border:			1px solid #ccc;		/* $c=artborder */
-	border-radius:		8px;
-	padding:		1.5em 1.5em 1em 1.5em;
-}
-article.wiki .article-body {
+
+article.wiki {
 	background-color:	#fafaf2;		/* $c=wikibg */
 }
 /* 記事タイトル */

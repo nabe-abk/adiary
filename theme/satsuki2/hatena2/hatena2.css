@@ -12,9 +12,8 @@ body
 	color:			#000;		/* $c=fixfont */
 	font-size:		12pt;
 	line-height:		150%;
-
 	padding:		0;
-	margin:			0 auto;
+	margin:			0;
 }
 #adiary-body {
 	background-color:	#fff;
@@ -22,19 +21,21 @@ body
 	width:			90%;
 	min-width:		320px;
 	max-width:		1024px;
+	margin:			0 auto;
 
 	border-right:		1px solid #4a5973;	/* $c=border2 */
 	border-left:		1px solid #4a5973;	/* $c=border2 */
 }
 #hatena-body {
-	margin:			0 0 1em 14px;
+	margin:			0 0 1em 0;
 	padding-bottom:		2em;
 }
 /* 記事部 */
 .main {
 	float:			left;
-	width:			calc(100% - 235px);
-	margin-right:		235px;
+	width:			calc(100% - 236px);
+	margin-right:		220px;
+	margin-left:		8px;
 	padding-top:		1em;
 }
 
@@ -252,12 +253,9 @@ a.next-page:after {
 ■記事のデザイン配置（本文）
 ---------------------------------------------------------------------*/
 /* 1つの記事 */
-#article {
+article {
 	margin-bottom:		2em;
-}
-.article-body {
-	padding:		8px;
-	margin-bottom:		2em;
+	padding:		4px 6px;
 }
 
 /* 記事タイトル */
@@ -293,13 +291,11 @@ article div.body {
 	margin:			0;
 	padding:		0;
 }
-article:not(.wiki) div.body {
-	background-color:	#fff;			/* $c=artbg */
-}
+
 /* コンテンツ記事 */
-.wiki .article-body {
-	background-color:	#f4f4ff;		/* $c=wikibg */
+article.wiki {
 	border-radius:		4px;
+	background-color:	#f4f4ff;		/* $c=wikibg */
 }
 /* 記事ヘッダ */
 div.body-header {
