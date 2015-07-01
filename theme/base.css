@@ -1102,6 +1102,9 @@ ul.menu {
 .dropdown-menu.sp>ul li {
 	width:		100%;
 }
+.dropdown-menu.sp>ul>li>ul>li {
+	width:		150%;
+}
 .dropdown-menu.sp>ul>li {
 	width:		60%;
 }

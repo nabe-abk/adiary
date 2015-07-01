@@ -6,23 +6,23 @@
 /*--------------------------------------------------------------------
 ■全体配置
 ---------------------------------------------------------------------*/
-body, #adiary-body {
-	width:			auto;
-}
-
 .main {
-	margin-left:		0px;
-	margin-right:		0px;
-	padding:		0 2px;
+	margin-left:		0;
+	margin-right:		0;
+	padding:		0;
 	width:			auto;
 	float:			none;
 }
 #adiary-body {
 	margin:			0;
-	width:			auto;
-	min-width:		0px;	/* for GC bugs */
-	max-width:		auto;
+	width:			360px;
 }
+#hatena-body {
+	padding-left:		2px;
+	padding-right:		2px;
+	border-width:		1px;
+}
+
 #sidebar {
 	float:			none;
 	margin:			0 4px;
@@ -35,26 +35,25 @@ body, #adiary-body {
 ■ヘッダ、フッタ
 ---------------------------------------------------------------------*/
 #sp-header {
-	margin-bottom:		1em;
+	width:			auto;
 }
 #sp-nav-header {
-	font-size:		10pt;
-	text-align:		right;
-	vertical-align:		top;
+}
+#sp-nav-header, #sp-nav-header a, #sp-nav-header a:link, #sp-nav-header a:visited {
+	color:			#fff;
+	font-size:		9pt;
+	text-decoration:	none;
 }
 #sp-page-title {
-	margin:			10px 0 0 0;
-	padding:		20px 6px;
-	font-weight:		bold;
-	text-shadow:
-		-1px -1px 0px #fee,
-		 1px -1px 0px #fee,
-		 1px  1px 0px #fee,
-		-1px  1px 0px #fee,
-		 3px  3px 2px #999;
+	font-size:		18pt;
 }
+h1 a:before {
+	height:			96px;
+}
+
 /* 検索ボックスボタン */
 #sp-head-search {
+	margin-top:		2px;
 	padding:		3px 4px 4px 4px;
 	border-radius:		4px;
 	background-color:	rgba(255,255,255,0.4);
@@ -62,6 +61,22 @@ body, #adiary-body {
 #sp-head-search .search-btn {
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
 }
+
+/*--------------------------------------------------------------------
+■記事配置
+---------------------------------------------------------------------*/
+article {
+	width:			352px;
+}
+h2:before,
+#com div.caption:before {
+	width:			354px;
+	background-image:	url("art354_top.png");
+}
+article.article div.body:before {
+	background-image:	url("art354_header.png");
+}
+
 
 /*--------------------------------------------------------------------
 ■サイドバー
@@ -124,10 +139,7 @@ article ul ul,
 article ol ol {
 	padding-left:		1em;
 }
-article div.body {
-	padding-left:		12px;
-	padding-right:		12px;
-}
+
 
 /*--------------------------------------------------------------------
 ○table, blockquote, pre

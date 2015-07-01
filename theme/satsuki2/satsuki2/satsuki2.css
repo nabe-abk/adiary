@@ -902,7 +902,7 @@ article.edit span.tag:after {
 /* エラーダイアログ */
 .ui-dialog.error-dialog {
 	background-color:	#fff8f8;
-	border:			2px solid #c33;
+	border:			2px solid #f69;
 }
 .ui-dialog.error-dialog .ui-widget-header {
 	background-color:	#f69;
