@@ -1620,7 +1620,7 @@ function get_value_from_css(id, attr) {
 //////////////////////////////////////////////////////////////////////////////
 $(function(){
 	var flag = get_value_from_css('sidebar-move-to-before-main');
-	if (!flag) return;
+	if (SP || !flag) return;
 
 	// 入れ替え
 	var sidebar = $('#sidebar');
