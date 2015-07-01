@@ -2,5 +2,5 @@
 @import url("../satsuki2/sphone.css");
 
 #sidebar-move-to-before-main {
-	font-size:		0px;
+	min-width:		0px;
 }
