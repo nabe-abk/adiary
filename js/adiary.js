@@ -107,80 +107,6 @@ function set_browser_class_into_body() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//●ui-iconの自動ロード
-//////////////////////////////////////////////////////////////////////////////
-$(function(){
-	var vals = [0, 0x80, 0xC0, 0xff];
-	var color = get_value_from_css('ui-icon-autoload', 'background-color');
-	if (!color || color == 'transparent') return;
-	color = color.replace(/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])/, "#$1$1$2$2$3$3");	// for IE8
-	if (color.match(/\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0/)) return;
-
-	var ma = color.match(/#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})/);
-	var cols = [];
-	if (ma) {	// IE8 is #0000ff
-		cols[0] = parseInt('0x' + ma[1]);
-		cols[1] = parseInt('0x' + ma[2]);
-		cols[2] = parseInt('0x' + ma[3]);
-	} else {
-		// rgb( 0, 0, 255 )
-		var ma = color.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
-		if (!ma) return;
-		cols[0] = ma[1];
-		cols[1] = ma[2];
-		cols[2] = ma[3];
-	}
-	// 用意されているアイコンからもっとも近い色を選択
-	var file='';
-	for(var i=0; i<3; i++) {
-		var c = cols[i];
-		var diff=255;
-		var near;
-		for(var j=0; j<vals.length; j++) {
-			var d = Math.abs(vals[j] - c);
-			if (d>diff) continue;
-			near = vals[j];
-			diff = d;
-		}
-		file += (near<16 ? '0' : '') + near.toString(16);
-	}
-	// アイコンのロード
-	var css = '.ui-icon, .art-nav a:before, .art-nav a:after { background-image: '
-		+ 'url("' + PubdistDir + 'ui-icon/' + file + '.png") }';
-	var style = $('<style>').attr('type','text/css');
-	$('head').append(style);
-	if (IE8)
-		style[0].styleSheet.cssText = css;
-	else
-		style.html(css);
-
-});
-
-//////////////////////////////////////////////////////////////////////////////
-//●syntax highlight機能の自動ロード
-//////////////////////////////////////////////////////////////////////////////
-var alt_SyntaxHighlight = false;
-var syntax_highlight_css = 'adiary';
-function load_SyntaxHighlight() {}	// 互換性のためのダミー
-
-$(function(){
-	var codes = $('pre.syntax-highlight');
-	if (!codes.length) return;
-	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
-	if (IE8) return;	// Not work, for IE8
-
-	$.getScript(ScriptDir + 'highlight.pack.js', function(){
-		$('pre.syntax-highlight').each(function(i, block) {
-			hljs.highlightBlock(block);
-		});
-	});
-
-	var css = get_value_from_css('syntax-highlight-theme') || syntax_highlight_css;
-	css = css.replace(/\.css$/, '').replace(/[^\w\-]/g, '');
-	prepend_css_file(PubdistDir + 'highlight-js/'+ css +'.css');
-});
-
-//////////////////////////////////////////////////////////////////////////////
 //●特殊Queryの処理
 //////////////////////////////////////////////////////////////////////////////
 $(function(){
@@ -1667,6 +1593,9 @@ function form_dialog(h) {
 	});
 }
 
+//############################################################################
+// ■CSSへの機能提供ライブラリ
+//############################################################################
 //////////////////////////////////////////////////////////////////////////////
 // ●CSSから値を取得する
 //////////////////////////////////////////////////////////////////////////////
@@ -1678,13 +1607,101 @@ function get_value_from_css(id, attr) {
 		span.remove();
 		return attr;
 	}
-	var size = span.css('font-size');	// 1pxの時のみ有効
+	var size = span.css('min-width');	// 1pxの時のみ有効
 	var str  = span.css('font-family');
 	span.remove();
 	if (str == null || size != '1px') return '';
 	str = str.replace(/["']/g, '');
-	return str;
+	return str || size;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//●sidebarのHTML位置変更
+//////////////////////////////////////////////////////////////////////////////
+$(function(){
+	var flag = get_value_from_css('sidebar-move-to-before-main');
+	if (!flag) return;
+
+	// 入れ替え
+	var sidebar = $('#sidebar');
+	sidebar.insertBefore( 'div .main:first-child' );
+});
+
+
+//////////////////////////////////////////////////////////////////////////////
+//●ui-iconの自動ロード
+//////////////////////////////////////////////////////////////////////////////
+$(function(){
+	var vals = [0, 0x80, 0xC0, 0xff];
+	var color = get_value_from_css('ui-icon-autoload', 'background-color');
+	if (!color || color == 'transparent') return;
+	color = color.replace(/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])$/, "#$1$1$2$2$3$3");	// for IE8
+	if (color.match(/\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0/)) return;
+
+	var ma = color.match(/#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})/);
+	var cols = [];
+	if (ma) {	// IE8 is #0000ff
+		cols[0] = parseInt('0x' + ma[1]);
+		cols[1] = parseInt('0x' + ma[2]);
+		cols[2] = parseInt('0x' + ma[3]);
+	} else {
+		// rgb( 0, 0, 255 )
+		var ma = color.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+		if (!ma) return;
+		cols[0] = ma[1];
+		cols[1] = ma[2];
+		cols[2] = ma[3];
+	}
+	// 用意されているアイコンからもっとも近い色を選択
+	var file='';
+	for(var i=0; i<3; i++) {
+		var c = cols[i];
+		var diff=255;
+		var near;
+		for(var j=0; j<vals.length; j++) {
+			var d = Math.abs(vals[j] - c);
+			if (d>diff) continue;
+			near = vals[j];
+			diff = d;
+		}
+		file += (near<16 ? '0' : '') + near.toString(16);
+	}
+	// アイコンのロード
+	var css = '.ui-icon, .art-nav a:before, .art-nav a:after { background-image: '
+		+ 'url("' + PubdistDir + 'ui-icon/' + file + '.png") }';
+	var style = $('<style>').attr('type','text/css');
+	$('head').append(style);
+	if (IE8)
+		style[0].styleSheet.cssText = css;
+	else
+		style.html(css);
+
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//●syntax highlight機能の自動ロード
+//////////////////////////////////////////////////////////////////////////////
+var alt_SyntaxHighlight = false;
+var syntax_highlight_css = 'adiary';
+function load_SyntaxHighlight() {}	// 互換性のためのダミー
+
+$(function(){
+	var codes = $('pre.syntax-highlight');
+	if (!codes.length) return;
+	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
+	if (IE8) return;	// Not work, for IE8
+
+	$.getScript(ScriptDir + 'highlight.pack.js', function(){
+		$('pre.syntax-highlight').each(function(i, block) {
+			hljs.highlightBlock(block);
+		});
+	});
+
+	var css = get_value_from_css('syntax-highlight-theme') || syntax_highlight_css;
+	css = css.replace(/\.css$/, '').replace(/[^\w\-]/g, '');
+	prepend_css_file(PubdistDir + 'highlight-js/'+ css +'.css');
+});
+
 
 //############################################################################
 // ■adiary用 Ajaxライブラリ

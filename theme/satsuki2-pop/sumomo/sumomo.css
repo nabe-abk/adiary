@@ -85,17 +85,6 @@ body
 	text-overflow:		ellipsis;
 } */
 
-/*--------------------------------------------------------------------
-○for IE8 (not support calc)
----------------------------------------------------------------------*/
-.IE8 #adiary-body {
-	width:			800px;
-}
-.IE8 .main {
-	width:			612px;
-}
-
-
 
 /****************************************************************************
 ■全体設定
@@ -166,6 +155,7 @@ button:disabled
 ■ヘッダ
 ****************************************************************************/
 #header, #sp-header {
+	background-color:	#ffc3b8;	/* for IE8, IE9 */
 	background-image:	linear-gradient(to bottom, #fff2f0, #ff9480);
 	background-position:	0 20px;
 	position:		relative;
@@ -176,6 +166,7 @@ button:disabled
 	border-radius:		0 0 8px 8px;
 	box-shadow:		4px 4px 4px rgba(0,0,0, 0.4);
 }
+
 #nav-header, #sp-nav-header {
 	position:		absolute;
 	display:		block;
