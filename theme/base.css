@@ -889,8 +889,7 @@ ul.menu {
 .dropdown-menu:not(.sp)>ul ul ul {
 	top:		-27px;	/* = 3-Y */
 }
-.dropdown-menu li ul li ul:before,
-.dropdown-menu.sp    li ul:before {
+.dropdown-menu li ul li ul:before {
 	top:		10px;	/* = (Y-10)/2 */
 }
 /* 項目の文字位置 */
@@ -1115,6 +1114,9 @@ ul.menu {
 .dropdown-menu.sp>ul>li a,
 .dropdown-menu.sp>ul li.open>ul>li {
 	height:		30px;	/* Y */
+}
+.dropdown-menu.sp li ul:before {
+	top:		10px;	/* = (Y-10)/2 */
 }
 .dropdown-menu.sp>ul>li>ul li.open {
 	height:		auto;

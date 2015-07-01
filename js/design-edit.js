@@ -80,7 +80,7 @@ iframe.on('load', function(){
 	f_head.sortable({ items: selector });
 
 	// 記事本体
-	var artbody = $f('#article-body>div.body');
+	var artbody = $f('article div.body');
 	var arthead = artbody.children('div.body-header');
 	var artfoot = artbody.children('div.body-footer');
 	var artmain = artbody.children('div.body-main');
