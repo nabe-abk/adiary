@@ -186,7 +186,7 @@ td.button, th.button {
 
 input[type="radio"]    + label,
 input[type="checkbox"] + label {
-	margin-left:	1px;
+	margin:		0 0 0 1px;
 }
 
 /* radioやcheckboxが複数並んだ場合 */
@@ -454,6 +454,12 @@ span.highlight4	{ background-color: #f6f; }
 	border:			none;
 }
 
+/* エラーダイアログの閉じるボタン */
+.ui-dialog.error-dialog .ui-icon-closethick {
+	border-color:		#900;
+	background-position:	-240px -224px;
+}
+
 /*--------------------------------------------------------------------
 ●画像アルバム
 ---------------------------------------------------------------------*/
@@ -606,12 +612,22 @@ figure {
 }
 .module-edit-header {
 	position:		absolute;
-	top:			0px;
-	right:			0px;
+	top:			0;
+	right:			0;
+	padding:		0;
 	z-index:		10;
-	float:			right;
 	text-align:		right;
+
+	font-size:		1px;
+	line-height:		100%;
 }
+/* モジュール右上アイコン */
+.module-edit-header span.ui-icon {
+	margin-left:		1px;
+	border:			1px solid #333;
+	border-radius:		3px;
+}
+
 #body .module-edit-header * {
 	vertical-align:		top;
 }

@@ -105,30 +105,6 @@ h2 a:hover, h3 a:hover, h4 a:hover, h5 a:hover,
 .jqueryui-tabs a:hover {
 	background-color:	transparent;
 }
-/*--------------------------------------------------------------------
-●jQuery UI アイコン設定
----------------------------------------------------------------------*/
-#ui-icon-autoload {
-	display:		none;
-	background-color:	#f05;	/* $c=uiicon = link */
-}
-.ui-icon {
-	display:		inline-block;
-	width:			16px;
-	vertical-align:		middle;
-}
-
-.ui-icon.ui-button {
-	border:                 1px solid #008;
-	border-radius:		4px;
-	background-color:       #eee;
-	margin:			0 1px;
-}
-
-.ui-icon.ui-button:hover {
-	background-color:       #bbb;
-	cursor:			pointer;
-}
 
 /*--------------------------------------------------------------------
 ●ボタンデザイン
@@ -158,6 +134,30 @@ button:disabled
 	color:			#666;
 	background-image:	none;
 	background-color:	#dbc;			/* $c=btndisable = auto:btnbg0 */
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI アイコン設定
+---------------------------------------------------------------------*/
+#ui-icon-autoload {
+	display:		none;
+	background-color:	#f05;	/* $c=uiicon = link */
+}
+.ui-icon {
+	display:		inline-block;
+	width:			16px;
+	vertical-align:		middle;
+}
+
+button.ui-button-icon-only {
+	border:                 1px solid #d9a;		/* $c=btnborder */
+	border-radius:		4px;
+	background-color:       #eee;
+	margin:			0 1px;
+}
+
+button.ui-button-icon-only:hover {
+	background-color:       #bbb;
 }
 
 /****************************************************************************
@@ -851,7 +851,7 @@ article:not(.edit) #editarea {
 ●記事の編集画面
 ---------------------------------------------------------------------*/
 article.system.notice {
-	margin-bottom:	0.4em;
+	margin-bottom:	1em;
 }
 textarea.edit-article {
 	width:		98%;
@@ -978,13 +978,6 @@ article.edit span.tag:after {
 .ui-dialog.error-dialog button {
 	border-color:		#632;
 	background-image:	linear-gradient(to bottom, #fdd, #faa);
-}
-.ui-dialog.error-dialog .ui-icon {
-	-webkit-filter:		hue-rotate(120deg) brightness(80%);
-	-moz-filter:		hue-rotate(120deg) brightness(80%);
-	-o-filter:		hue-rotate(120deg) brightness(80%);
-	-ms-filter:		hue-rotate(120deg) brightness(80%);
-	filter:			hue-rotate(120deg) brightness(80%);
 }
 
 /*--------------------------------------------------------------------

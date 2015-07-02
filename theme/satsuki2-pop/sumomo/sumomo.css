@@ -97,31 +97,6 @@ a:visited	{ color: #E34D91; }	/* $c=linkvisited = auto:link */
 a:hover		{ color: #FF859E; }	/* $c=linkhover   = auto:link */
 
 /*--------------------------------------------------------------------
-●jQuery UI アイコン設定
----------------------------------------------------------------------*/
-#ui-icon-autoload {
-	display:		none;
-	background-color:	#f05;	/* $c=uiicon = link */
-}
-.ui-icon {
-	display:		inline-block;
-	width:			16px;
-	vertical-align:		middle;
-}
-
-.ui-icon.ui-button {
-	border:                 1px solid #008;
-	border-radius:		4px;
-	background-color:       #eee;
-	margin:			0 1px;
-}
-
-.ui-icon.ui-button:hover {
-	background-color:       #bbb;
-	cursor:			pointer;
-}
-
-/*--------------------------------------------------------------------
 ●ボタンデザイン
 ---------------------------------------------------------------------*/
 button
@@ -143,12 +118,35 @@ button:hover
 				#fdc);			/* $c=btnbghover1 = auto:btnbg0 */
 
 }
-
 button:disabled
 {
 	color:			#666;
 	background-image:	none;
 	background-color:	#dcb;			/* $c=btndisable = auto:btnbg0 */
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI アイコン設定
+---------------------------------------------------------------------*/
+#ui-icon-autoload {
+	display:		none;
+	background-color:	#f05;	/* $c=uiicon = link */
+}
+.ui-icon {
+	display:		inline-block;
+	width:			16px;
+	vertical-align:		middle;
+}
+
+button.ui-button-icon-only {
+	border:                 1px solid #da9;		/* $c=fixbtnborder */
+	border-radius:		4px;
+	background-color:       #eee;
+	margin:			0 1px;
+}
+
+button.ui-button-icon-only:hover {
+	background-color:       #bbb;
 }
 
 /****************************************************************************
@@ -400,6 +398,10 @@ article {
 #articles article + article {
 	margin-top:		60px;
 }
+.main > article:first-child {
+	margin-top:		23px;
+}
+
 h2:before {
 	content:		"";
 	display:		block;
@@ -1016,7 +1018,7 @@ article:not(.edit) #editarea {
 ●記事の編集画面
 ---------------------------------------------------------------------*/
 article.system.notice {
-	margin-bottom:	0.4em;
+	margin-bottom:	1em;
 }
 textarea.edit-article {
 	width:		98%;
@@ -1144,13 +1146,7 @@ article.edit span.tag:after {
 	border-color:		#632;
 	background-image:	linear-gradient(to bottom, #fdd, #faa);
 }
-.ui-dialog.error-dialog .ui-icon {
-	-webkit-filter:		hue-rotate(120deg) brightness(80%);
-	-moz-filter:		hue-rotate(120deg) brightness(80%);
-	-o-filter:		hue-rotate(120deg) brightness(80%);
-	-ms-filter:		hue-rotate(120deg) brightness(80%);
-	filter:			hue-rotate(120deg) brightness(80%);
-}
+
 
 /*--------------------------------------------------------------------
 ●jQuery UI, タブ表示（ブログ一覧画面）

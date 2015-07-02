@@ -1087,16 +1087,15 @@ form#import-form table {
 }
 
 /* デザインの編集とかのアイコン */
-.ui-icon.ui-button {
+button.ui-button-icon-only {
     border:                 1px solid #b5001f;
     border-radius:          4px;
     background-color:       white;
     margin:                 0 1px;
 }
 
-.ui-icon.ui-button:hover {
+button.ui-button-icon-only:hover {
     background-color:       #f6dbd6;
-    cursor:                 pointer;
 }
 
 /*--------------------------------------------------------------------

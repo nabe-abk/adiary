@@ -233,7 +233,7 @@ function init_module(obj) {
 
 	if (obj.data('readme')) {
 		var info = $('<span>');
-		info.addClass('ui-icon ui-icon-help ui-button info');
+		info.addClass('ui-icon ui-icon-help ui-button ui-state-default info');
 		info.attr({
 			onclick: '',
 			'data-url': obj.data("readme-url")
@@ -245,7 +245,7 @@ function init_module(obj) {
 
 	if (obj.data('setting')) {
 		var set = $('<span>');
-		set.addClass('ui-icon ui-icon-wrench ui-button');
+		set.addClass('ui-icon ui-icon-wrench ui-button ui-state-default');
 		set.attr('title', btn_setting_title);
 		set.click(function(){
 			module_setting(obj);
@@ -255,7 +255,7 @@ function init_module(obj) {
 
 	if (obj.data('css-setting')) {
 		var set = $('<span>');
-		set.addClass('ui-icon ui-icon-image ui-button');
+		set.addClass('ui-icon ui-icon-image ui-button ui-state-default');
 		set.attr('title', btn_cssset_title);
 		set.click(function(){
 			module_setting(obj, 'css');
@@ -265,7 +265,7 @@ function init_module(obj) {
 
 	if (!obj.data('fix')) {
 		var close = $('<span>');
-		close.addClass('ui-icon ui-icon-close ui-button');
+		close.addClass('ui-icon ui-icon-close ui-button ui-state-default');
 		close.attr('title', btn_close_title);
 		close.click(function(){
 			my_confirm({
@@ -279,11 +279,36 @@ function init_module(obj) {
 		});
 		div.append(close);
 	}
+	var divs = $f('.module-edit-header');
 
 	obj.addClass('design-module-edit');
 	obj.prepend(div);
-
 	obj.show();
+
+	// 表示位置が重ならないように調整
+	var offset = div.offset();
+	var x = offset.left + div.outerWidth();
+	var y = offset.top;
+	var margin = 16;
+	var l=0;
+	if (y>30) return;
+
+	for(var i=0; i<divs.length && l<999; i++,l++) {
+		var btn = $(divs[i]);
+		var off = btn.offset();
+		var dx  = off.left + btn.outerWidth();
+		var dy  = off.top;
+		if (dy>30) continue;
+		console.log(x,y,dx,dy);
+		if (x <= (dx-    50) || (dx+    50) <= x) continue;
+		if (y <= (dy-margin) || (dy+margin) <= y) continue;
+		// 位置をずらす
+		y += margin; i=0;
+	}
+	if (offset.top != y) {
+		// console.log("set ",btn.parent().attr('id')," x=",x," y=",y);
+		div.css('top', (y-offset.top) + 'px');
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////////

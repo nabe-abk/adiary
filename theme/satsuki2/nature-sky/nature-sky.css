@@ -789,16 +789,15 @@ button:disabled
 	vertical-align:		middle;
 }
 
-.ui-icon.ui-button {
+button.ui-button-icon-only {
 	border:                 1px solid #140;			/* $c=uiborder = auto:link */
 	border-radius:		4px;
 	background-color:       #eee;
 	margin:			0 1px;
 }
 
-.ui-icon.ui-button:hover {
+button.ui-button-icon-only:hover {
 	background-color:       #bbb;
-	cursor:			pointer;
 }
 
 /****************************************************************************/
