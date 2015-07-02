@@ -60,6 +60,10 @@
 }
 #sp-head-search .search-btn {
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
+	padding:		2px;
+	height:			20px;
+	width:			20px;
+	margin:			0;
 }
 
 /* フッター */

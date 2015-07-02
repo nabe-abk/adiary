@@ -33,14 +33,14 @@
 <@>----------------------------------------------------------------------------
 <@ifexec(v.blogid && !v.system_mode, begin)>
 <!--検索ボックス============================================================-->
-<div id="sp-head-search">
+<div id="sp-head-search" class="<@if(!s.spmenu, 'no-menu')>">
 <form method="GET" action="<@v.myself>">
-<input type="search" class="search-box" name="q" value="<@esc(Query.q)>" required><span class="search-btn ui-icon ui-icon-search ui-button js-submit"></span>
+<input type="search" class="search-box" name="q" value="<@esc(Query.q)>" required><button class="search-btn js-submit ui-button ui-corner-all"><span class="ui-icon ui-button-icon-primary ui-icon-search"></span></button>
 <input type="hidden" name="all" value="1">
 </form>
 </div>
 
-<@ifexec(v.blogid && s.spmenu, begin)>
+<@ifexec(s.spmenu, begin)>
 <!--ドロップダウンメニュー=====================================-->
 <div class="dropdown-menu sp js-alt-hover">
 <@s.spmenu>

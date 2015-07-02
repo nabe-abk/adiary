@@ -16,6 +16,7 @@ body:after {
 ChangeLog
 2014/08/17  adiary C86 Special Editionにて配布 (by Kaede)
 2015/05/18  全体の修正と調整。IE8対応。ライセンス変更 (by nabe)
+2015/07/03  調整 (by nabe)
 
 
 同梱のbg.jpgは「2000ピクセル以上のフリー写真素材集」

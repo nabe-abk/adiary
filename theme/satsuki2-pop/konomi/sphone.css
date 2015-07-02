@@ -53,15 +53,19 @@ body, #adiary-body {
 		-1px  1px 0px #fee,
 		 3px  3px 2px #999;
 }
-/* 検索ボックスボタン */
+/* 検索ボックス */
 #sp-head-search {
 	padding:		3px 4px 4px 4px;
 	border-radius:		4px;
 	background-color:	rgba(255,255,255,0.4);
 }
 #sp-head-search .search-btn {
-	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
+	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
 }
+#sp-head-search.no-menu {
+	background-color:	#e8e8e8;
+}
+
 
 /*--------------------------------------------------------------------
 ■サイドバー

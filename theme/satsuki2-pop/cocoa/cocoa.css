@@ -1019,13 +1019,13 @@ article.edit .w120 {
 /* ◆　ナビゲーション
 ----------------------------------------------------------------------*/
 nav.tree {
-    font-size:              13px;
+    font-size:              12px;
     line-height:            18px;
     padding-left:           10px;
 }
 
 nav.tree select {
-    font-size:              13px;
+    font-size:              12px;
 }
 
 /* ◆　ツリー (タグ, wiki)
@@ -1065,37 +1065,6 @@ form#import-form table {
 #ui-icon-autoload {
 	display:		none;
 	background-color:	#cc0000;
-}
-
-/* サイドバー 過去ログ/タグ スイッチ */
-.ui-icon {
-    display:            inline-block;
-    width:              16px;
-    vertical-align:     middle;
-}
-
-/* 折りたたみ時 */
-.sw-show .ui-icon.switch-icon {
-    background-position:    -224px 0px;
-    width:                  13px;
-}
-
-/* 展開時 */
-.sw-hide .ui-icon.switch-icon {
-    background-position:    -240px 0px;
-    width:                  13px;
-}
-
-/* デザインの編集とかのアイコン */
-button.ui-button-icon-only {
-    border:                 1px solid #b5001f;
-    border-radius:          4px;
-    background-color:       white;
-    margin:                 0 1px;
-}
-
-button.ui-button-icon-only:hover {
-    background-color:       #f6dbd6;
 }
 
 /*--------------------------------------------------------------------
@@ -1307,4 +1276,54 @@ h3.ui-accordion-header {
 
 div.messages div.message {
 	margin:			0;
+}
+
+#com div.ip-host-agent {
+	color:			#080;
+	text-align:		right;
+	margin-right:		1em;
+	display:		none;
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI, popup-info/dialog（プラグインのREADME/設定画面）
+---------------------------------------------------------------------*/
+.ui-dialog {
+	background-color:	#fcf6f0;
+	border:			2px solid #f4ead5;
+	border-radius:		10px;
+	box-shadow:		8px 8px 4px 4px rgba(60,60,100,0.75);
+	padding:		0;
+
+	font-size:		10.5pt;
+	line-height:		130%;
+}
+.ui-dialog .ui-widget-header {
+	background-color:	#f4ead5;
+	font-weight:		bold;
+	font-size:		12pt;
+
+	border:			none;
+	border-radius:		8px 8px 0 0;
+}
+.ui-dialog span.ui-dialog-title {
+	height:			1em;
+	margin-top:		0;
+	padding-top:		0;
+	padding-bottom:		2px;
+}
+.ui-dialog button.ui-button {
+	border-radius:		4px;
+}
+.ui-dialog .ui-icon {
+	text-indent:		0px;
+}
+.ui-dialog span.ui-icon-closethick {
+}
+.ui-dialog .ui-dialog-buttonpane {
+	margin-top:		0px;
+	padding-top:		0px;
+}
+.ui-dialog textarea {
+	width:			95%;
 }

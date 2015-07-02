@@ -770,26 +770,9 @@ button:disabled
 ●jQuery UI アイコン設定
 ---------------------------------------------------------------------*/
 #ui-icon-autoload {
-	display:		none;
 	background-color:	#8080c0;		/* $c=uiicon=link */
 }
-.ui-icon {
-/*	background-image:	url(ui-icons.png);	*/
-	display:		inline-block;
-	width:			16px;
-	vertical-align:		middle;
-}
 
-button.ui-button-icon-only {
-	border:                 1px solid #016;		/* $c=uiborder = auto:link */
-	border-radius:		4px;
-	background-color:       #ddf;			/* $c=btnbg0 */
-	margin:			0 1px;
-}
-
-button.ui-button-icon-only:hover {
-	background-color:       #eef;			/* $c=btnbghover0 */
-}
 
 /****************************************************************************/
 /****************************************************************************/
@@ -1003,21 +986,6 @@ article.edit span.tag:after {
 .ui-dialog .ui-dialog-buttonpane {
 	margin-top:		0px;
 	padding-top:		0px;
-}
-
-/* エラーダイアログ */
-.ui-dialog.error-dialog {
-	background-color:	#fff8f8;
-	border:			2px solid #f69;
-}
-.ui-dialog.error-dialog .ui-widget-header {
-	background-color:	#f69;
-}
-.ui-dialog.error-dialog button {
-	border-color:		#632;
-	background-image:	linear-gradient(to bottom, #fdd, #faa);
-}
-.ui-dialog.error-dialog .ui-icon {
 }
 
 /*--------------------------------------------------------------------

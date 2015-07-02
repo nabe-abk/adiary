@@ -430,6 +430,15 @@ span.highlight4	{ background-color: #f6f; }
 /*--------------------------------------------------------------------
 ●UIアイコン, RSSアイコン
 ---------------------------------------------------------------------*/
+.ui-icon {
+	display:		inline-block;
+	width:			16px;
+	vertical-align:		middle;
+}
+.ui-corner-all,
+.ui-button.ui-corner-all:hover {
+	border-radius:		4px;
+}
 .sw-show .ui-icon.switch-icon {
 	background-position:	-224px 0px;
 	width:			13px;
@@ -452,6 +461,13 @@ span.highlight4	{ background-color: #f6f; }
 }
 .rss-icon a img {
 	border:			none;
+}
+
+/* ダイアログの閉じるボタン位置調整 */
+.ui-dialog-titlebar .ui-dialog-titlebar-close {
+	width:  19px;
+	height: 19px;
+	padding: 1px 2px 2px 1px;
 }
 
 /* エラーダイアログの閉じるボタン */
@@ -625,8 +641,13 @@ figure {
 .module-edit-header span.ui-icon {
 	margin-left:		1px;
 	border:			1px solid #333;
-	border-radius:		3px;
+	border-radius:		4px;
+	background-color:       #fff;
 }
+.module-edit-header span.ui-icon:hover {
+	background-color:       #eee;
+}
+
 
 #body .module-edit-header * {
 	vertical-align:		top;
@@ -678,8 +699,21 @@ h3.ui-accordion-header {
 	cursor:			auto;
 }
 
-
-
+/* エラーダイアログ */
+.ui-dialog.error-dialog {
+	background-color:	#fff8f8;
+	border-color:		#f69;
+}
+.ui-dialog.error-dialog .ui-widget-header {
+	background-color:	#f69;
+}
+.ui-dialog.error-dialog button {
+	border-color:		#987;
+	background-image:	linear-gradient(to bottom, #fdd, #faa);
+}
+.ui-dialog.error-dialog button.ui-button {
+	border-color:		#f69;
+}
 
 /*--------------------------------------------------------------------
 ●jQuery UI, プログレスバー

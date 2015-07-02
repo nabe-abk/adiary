@@ -75,9 +75,12 @@ h1
 	border-radius:		4px;
 	background-color:	rgba(255,255,255,0.4);
 }
-#sp-head-search .search-btn {
-	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
+#sp-head-search .search-btn  {
+	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
+	background-color:	#fff;
+	background-image:	none;
 }
+
 #sp-header:after {
 	content:		"";
 	display:		block;

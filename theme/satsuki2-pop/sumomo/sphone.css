@@ -37,8 +37,6 @@
 #sp-header {
 	width:			auto;
 }
-#sp-nav-header {
-}
 #sp-nav-header, #sp-nav-header a, #sp-nav-header a:link, #sp-nav-header a:visited {
 	color:			#fff;
 	font-size:		9pt;
@@ -51,7 +49,7 @@ h1 a:before {
 	height:			98px;
 }
 
-/* 検索ボックスボタン */
+/* 検索ボックス */
 #sp-head-search {
 	margin-top:		2px;
 	padding:		3px 4px 4px 4px;
@@ -59,8 +57,14 @@ h1 a:before {
 	background-color:	rgba(255,255,255,0.4);
 }
 #sp-head-search .search-btn {
-	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
+	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
 }
+#sp-head-search.no-menu {
+	margin-top:		10px;
+	background-color:	rgba(200,200,200,0.4);
+}
+
+
 
 /*--------------------------------------------------------------------
 ■記事配置
