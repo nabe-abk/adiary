@@ -9,26 +9,32 @@
 body, #adiary-body {
 	width:			auto;
 }
-
-.main {
-	margin-left:		0px;
-	margin-right:		0px;
-	padding:		0 2px;
-	width:			auto;
-	float:			none;
-}
 #adiary-body {
 	margin:			0;
 	width:			auto;
 	min-width:		0px;	/* for GC bugs */
 	max-width:		auto;
 }
-#sidebar {
-	float:			none;
-	margin:			0 4px;
+#hatena-body {
+	margin-left:		6px;
+	margin-right:		6px;
+}
+.main {
+	margin-left:		0px;
+	margin-right:		0px;
 	padding:		0;
 	width:			auto;
+	float:			none;
+}
+#sidebar,
+#side-a, #side-b {
+	float:			none;
+	width:			auto;
 	border:			none;
+}
+#sidebar {
+	margin:			0;
+	padding:		0;
 }
 
 /*--------------------------------------------------------------------
