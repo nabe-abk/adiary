@@ -774,11 +774,16 @@ h3.ui-accordion-header {
 	vertical-align:		middle;
 	width:			100%;
 }
-.ui-progressbar,
-.ui-corner-left {
-	height:			20px;
+.ui-progressbar .label:before {
+	content:		"";
+	display:		inline-block;
 }
-.ui-corner-left {
+.ui-progressbar,
+.ui-progressbar .label:before {
+	height:			20px;
+	vertical-align:		middle;
+}
+.ui-progressbar-value {
 	padding:		1px 0 0 1px;	/* 外枠の幅と合わせること */
 	background-color:	#bbb;
 }

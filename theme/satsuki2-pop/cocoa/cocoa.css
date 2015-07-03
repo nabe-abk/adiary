@@ -1096,12 +1096,11 @@ form#import-form table {
              1px  1px 2px #fff;
 }
 .ui-progressbar,
-.ui-progressbar .label,
-.ui-corner-left {
+.ui-progressbar .label:before {
     height:                 20px;
-    vertical-align:         center;
+    vertical-align:         middle;
 }
-.ui-corner-left {
+.ui-progressbar-value {
     padding:                1px 0 0 1px;
     background-color:       rgba(181,0,31,0.5);
 } 

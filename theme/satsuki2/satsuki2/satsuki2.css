@@ -948,10 +948,11 @@ div.body h3.ui-accordion-header {
 			 1px  1px 2px #fff;
 }
 .ui-progressbar,
-.ui-corner-left {
+.ui-progressbar .label:before {
 	height:			20px;
+	vertical-align:		middle;
 }
-.ui-corner-left {
+.ui-progressbar-value {
 	background-color:	#aac;			/* $c=btndisable */
 }
 
