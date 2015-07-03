@@ -10,7 +10,7 @@
 ---------------------------------------------------------------------*/
 body
 {
-	background-color:	#ccc;		/* $c=basebg */
+	background-color:	#ccc;		/* $c=basebg  */
 	padding:		0;
 	margin:			0;
 
@@ -235,7 +235,7 @@ h1
 				#000);			/* $c=titlebg3 = auto:titlebg */
 }
 h1 a, h1 a:link, h1 a:visited {
-	color:			#ffffff;		/* $c=titlefont */
+	color:			#ffffff;		/* $c=fixtitlefont */
 	text-decoration:	none;
 }
 h1 img, h1 a img {
@@ -343,16 +343,16 @@ h1 img, h1 a img {
 /* 背景色（非選択色） */
 .dropdown-menu,
 .dropdown-menu>ul li {
-	background-color:	#c8d5e2;			/* $c=ddbg */
+	background-color:	#c8d5e2;			/* $c=ddbg = auto:modulebg */
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
 						 #c8d5e2,	/* $c=ddbg */
-						 #889eb6);	/* $c=ddbg2 = auto:ddbg */
+						 #889eb6);	/* $c=ddbg2 = auto:modulebg */
 }
 /* 選択色 */
 .dropdown-menu>ul li:hover,
 .dropdown-menu>ul li.hover {
 	background-image:	none;
-	background-color:	#e0eaf9;			/* $c=ddhover = sysbg */
+	background-color:	#e0eaf9;			/* $c=ddhover = auto:prebg */
 }
 /* 枠線 */
 .dropdown-menu>ul li {
@@ -362,7 +362,7 @@ h1 img, h1 a img {
 .dropdown-menu a:link,
 .dropdown-menu a:visited
 {
-	color:			#293d5b;			/* $c=ddfont */
+	color:			#293d5b;			/* $c=ddfont = auto:modulebg  */
 }
 /* 矢印の色 */
 .dropdown-menu li ul li ul:before,
@@ -565,7 +565,7 @@ div.body h3:before {
 	display:		inline-block;
 	content:		"";
 	margin-right:		4px;
-	border:			6px solid #000;		/* $c=h3font */
+	border:			6px solid #000;		/* $c=h3font = fixfont */
 	box-shadow:		3px 3px 2px rgba(0,0,0,0.3);
 }
 
@@ -670,7 +670,7 @@ dt { font-weight:	bold; }
 	background-image:	linear-gradient(to bottom,	/* $c=_ */
 					#f0f1f7,	/* $c=thbg0 = auto:wikibg */
 					#d2d9ea);	/* $c=thbg1 = auto:wikibg */
-	background-color:	#d2d9ea;		/* $c=thbg */
+	background-color:	#d2d9ea;		/* $c=thbg1 */
 	border:			1px solid #ccc;		/* $c=border */
 }
 
@@ -903,7 +903,7 @@ table.plugins button { margin: 0; }
 ●システム画面
 ---------------------------------------------------------------------*/
 article.system div.body {
-	background-color:	#e2edf8;		/* $c=sysbg */
+	background-color:	#e2edf8;		/* $c=sysbg = auto:prebg */
 }
 article.system div.body {
 	padding-bottom:		1em;
