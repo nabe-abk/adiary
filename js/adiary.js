@@ -113,8 +113,6 @@ function set_browser_class_into_body() {
 
 	// bodyにクラス設定する
 	body.addClass( x.join(' ') );
-
-	alert( x.join(' ') );
 }
 
 //////////////////////////////////////////////////////////////////////////////
