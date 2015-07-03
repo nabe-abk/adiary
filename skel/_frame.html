@@ -28,7 +28,9 @@
 <@if(!v.base_css_stop,	#'<link rel="stylesheet" href="<@Basepath><@v.theme_dir>base.css">\n')>
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css" id="theme-css">
 <@>
-<@if(!v.special_system_mode && s.theme_custom && s.theme eq v.theme, #'<link rel="stylesheet" href="<@Basepath><@s.theme_custom>" id="theme-custom-css">\n')>
+<@ifexec(!v.special_system_mode && s.theme_custom && s.theme eq v.theme, begin)>
+<link rel="stylesheet" href="<@Basepath><@s.theme_custom>?<@get_lastmodified(s.theme_custom)>" id="theme-custom-css">
+<$end>
 <@>
 <$file = "<@v.blogpub_dir>dynamic.css">
 <@ifexec(!v.system_mode && file_size(file), begin)>

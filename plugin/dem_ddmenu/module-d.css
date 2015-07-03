@@ -109,11 +109,13 @@
 /* 背景色（非選択色） */
 <@id>,<@id>>ul li {
 	background-color:	<@ps.item_bg>;
+	background-image:	none;
 }
 <$end>
 <@ifexec(ps.tbg_trans, begin)>
 /* トップアイテムを背景透過に */
 <@id>>ul>li {
+	background-image:	none;
 	background-color:	transparent;
 	border-left:		none;
 	border-right:		none;
@@ -135,6 +137,7 @@
 <@id>>ul li:hover,
 <@id>>ul li.hover {
 	background-color:	<@ps.select_bg>;
+	background-image:	none;
 }
 <$end>
 <@>

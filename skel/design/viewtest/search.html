@@ -70,6 +70,15 @@
 	</select>から <input type="search" class="w300" name="q" value="本文 い です">
 	<button type="button">絞リ込み</button>
 	</div>
+
+	<div class="taglist cond">
+	<span class="search-caption">検索タグ</span> <span class="tags"><span class="tag"><a href="#">タグ１</a></span><span class="tag"><a href="#">alphabet</a></span><span class="tag"><a href="#">未分類</a></span><span class="tag"><a href="#">タグテスト</a></span></span>
+	</div>
+
+
+	<div class="yyyymm cond">
+	<span class="search-caption">指定期間</span> <span class="yyyymm">2015年の記事</span><br>
+	</div>
 	</form>
 
 	<div class="narrow narrow-tag">
@@ -99,7 +108,7 @@
 	<input type="checkbox" class="js-switch" data-target="article.article div.body div.body-main" data-save="1" checked><label>記事本文を表示</label></div>
 </div>
 </article>
-<script>$(function(){ init_top_search('#top-search-form'); });</script>
+<script>$(function(){ init_top_search('#top-search-form', 1); });</script>
 
 
 

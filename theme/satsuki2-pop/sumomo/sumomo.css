@@ -727,9 +727,11 @@ div.com-buttons {
 div.comment-text {
 	margin-left:		2em;
 }
+/* 非公開コメント */
 .comment-hidden {
-	color:			#080;
+	color:			#808;
 }
+/* 非表示コメント */
 .comment-disable {
 	color:			#800;
 }
@@ -758,39 +760,10 @@ div.ip-host-agent {
 /*--------------------------------------------------------------------
 ■検索ウィンドウ
 ---------------------------------------------------------------------*/
-/* 検索条件表示 */
-article.search div.cond {
-	vertical-align:		middle;
-}
-span.tag span.ui-icon,
-.yyyymm  span.ui-icon {
-	width:		12px;
-	margin-left:	-2px;
-}
-span.tag span.ui-icon:hover,
-.yyyymm  span.ui-icon:hover {
-	cursor:		pointer;
+article.system.search div.body {
+	padding-bottom:	4px;
 }
 
-/* 絞り込み項目 */
-article.search div.narrow {
-	font-size:	9pt;
-	line-height:	150%;
-}
-article.search span.search-caption {
-	font-weight:	bold;
-	color:		#900;
-	margin-right:	0.3em;
-}
-div.narrow span.search-caption:after {
-	content:	'>>';
-}
-article.search div.hits {
-	margin-top:	0.3em;
-}
-article.system.search div.body {
-	padding-bottom:	0.3em;
-}
 /*--------------------------------------------------------------------
 ●メッセージ関連
 ---------------------------------------------------------------------*/
@@ -1078,7 +1051,7 @@ article.edit span.tag:after {
 */
 
 /*--------------------------------------------------------------------
-●jQuery UI, popup-info/dialog（プラグインのREADME/設定画面）
+●jQuery UI, popup-info/dialog（テーマREADME/記事のタグヘルパー等）
 ---------------------------------------------------------------------*/
 .ui-dialog {
 	background-color:	#fff2f0;		/* $c=sysbg */
@@ -1192,10 +1165,9 @@ nav.tree {
 /*--------------------------------------------------------------------
 ●accordion（インポート、エクスポート画面等）
 ---------------------------------------------------------------------*/
-article h3.ui-accordion-header {
+div.body h3.ui-accordion-header {
 	font-size:		12pt;
 	line-height:		100%;
-	padding:		0;
 	margin:			0;
 	
 	background-color:	#e66;
@@ -1204,7 +1176,7 @@ article h3.ui-accordion-header {
 .ui-accordion-header-icon {
 	display:		none;
 }
-article h3.ui-accordion-header:before {
+div.body h3.ui-accordion-header:before {
 	display:		none;
 }
 

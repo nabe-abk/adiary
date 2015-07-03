@@ -225,12 +225,6 @@ span.colorbox {
 	z-index:	10000;
 }
 
-/* 検索など */
-.ui-icon.ui-icon-close,
-.js-switch {
-	cursor:		pointer;
-}
-
 /* radioやcheckboxで選択された要素 */
 /* article.setting input[type="checkbox"]:checked + label, */
 article.setting input[type="radio"]:checked + label
@@ -261,6 +255,18 @@ ul#edit-lockers {
 	margin:			2px 0px;
 	padding:		0px 2px;
 }
+
+/* 記事タグ */
+article.edit span.tag {
+	font-size:		9pt;
+	background-color:	#ccc;
+	border-radius:		6px;
+	padding:		0px 4px;
+	margin-right:		6px;
+}
+
+
+
 
 /*--------------------------------------------------------------------
 ●フロートオブジェクト
@@ -418,7 +424,7 @@ em			{ font-style: normal; text-decoration: underline; }
 }
 
 /*--------------------------------------------------------------------
-●検索とハイライト
+●検索とハイライトとタグ
 ---------------------------------------------------------------------*/
 span.highlight	{ background-color: #0a0; font-weight: bold; text-decoration: inherit; }
 span.highlight0	{ background-color: #ff6; }
@@ -426,6 +432,36 @@ span.highlight1	{ background-color: #aff; }
 span.highlight2	{ background-color: #9f9; }
 span.highlight3	{ background-color: #f99; }
 span.highlight4	{ background-color: #f6f; }
+
+/* 検索条件表示、タグ表示（記事編集含む） */
+span.tag span.ui-icon-close,
+.yyyymm  span.ui-icon-close {
+	background-position:	-83px -133px;
+	width:			11px;
+	height:			9px;
+	margin:			0;
+	padding:		0;
+	display:		inline-block;
+	vertical-align:		middle;
+}
+
+/* 絞り込み項目 */
+.search div.narrow {
+	font-size:	9pt;
+	line-height:	150%;
+}
+.search span.search-caption {
+	font-weight:	bold;
+	color:		#900;
+	margin-right:	4px;
+}
+div.narrow span.search-caption:after {
+	content:	'>>';
+}
+.search div.hits {
+	margin-top:	4px;
+}
+
 
 /*--------------------------------------------------------------------
 ●UIアイコン, RSSアイコン
@@ -439,6 +475,11 @@ span.highlight4	{ background-color: #f6f; }
 .ui-button.ui-corner-all:hover {
 	border-radius:		4px;
 }
+.ui-icon.ui-icon-close,
+.js-switch {
+	cursor:		pointer;
+}
+
 .sw-show .ui-icon.switch-icon {
 	background-position:	-224px 0px;
 	width:			13px;
@@ -470,11 +511,7 @@ span.highlight4	{ background-color: #f6f; }
 	padding: 1px 2px 2px 1px;
 }
 
-/* エラーダイアログの閉じるボタン */
-.ui-dialog.error-dialog .ui-icon-closethick {
-	border-color:		#900;
-	background-position:	-240px -224px;
-}
+
 
 /*--------------------------------------------------------------------
 ●画像アルバム
@@ -703,16 +740,22 @@ h3.ui-accordion-header {
 .ui-dialog.error-dialog {
 	background-color:	#fff8f8;
 	border-color:		#f69;
+	background-image:	none;
 }
 .ui-dialog.error-dialog .ui-widget-header {
 	background-color:	#f69;
+	background-image:	none;
 }
-.ui-dialog.error-dialog button {
-	border-color:		#987;
+/* OKボタン */
+.ui-dialog.error-dialog button.ui-button {
+	color:			#444;
+	border-color:		#d99;
 	background-image:	linear-gradient(to bottom, #fdd, #faa);
 }
-.ui-dialog.error-dialog button.ui-button {
-	border-color:		#f69;
+/* エラーダイアログの閉じるボタン */
+.ui-dialog.error-dialog .ui-icon-closethick {
+	border-color:		#900;
+	background-position:	-240px -224px;
 }
 
 /*--------------------------------------------------------------------
@@ -1193,6 +1236,14 @@ ul.menu {
 .IE8 aside {
 	margin:		0;
 }
+
+.IE div:not(.ui-dialog) button {
+	font-size:		12px;
+	height:			21px;
+	line-height:		100%;
+	padding:		0 4px;
+}
+
 
 /*--------------------------------------------------------------------
 ●デバッグ

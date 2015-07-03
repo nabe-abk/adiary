@@ -402,8 +402,8 @@ function change_hsv() {
 		if (!hsv) return;
 		// 色変換
 		hsv.h += h;
-		hsv.s *= (s/100);
-		hsv.v *= (v/100);
+		hsv.s *= (s/160);
+		hsv.v += (v-256);
 		var rgb = HSVtoRGB( hsv );
 		set_color(obj, rgb);
 	}
@@ -411,13 +411,14 @@ function change_hsv() {
 }
 $('#h-slider, #s-slider, #v-slider').slider({
 	range: "min",
-	max: 300,
-	value: 100,
+	max: 512,
+	value: 256,
 	slide: change_hsv,
 	change: change_hsv
 });
 h_slider.slider('option', 'max', 360);
 h_slider.slider('value', 0);
+s_slider.slider('value', 160);
 
 //////////////////////////////////////////////////////////////////////////////
 // ●RGBtoHSV
@@ -471,6 +472,8 @@ function RGBtoHSV(str) {
 // ●HSVtoRGB
 //////////////////////////////////////////////////////////////////////////////
 function HSVtoRGB( hsv ) {
+	if (hsv.s<0) hsv.s=0;
+	if (hsv.v<0) hsv.v=0;
 	var max = hsv.v;
 	var min = max - (hsv.s*max/255);
 
@@ -733,14 +736,20 @@ function automatic(des_name, src_name) {
 	var h_src = RGBtoHSV( c_src );
 	var diff = [];
 	diff.h = h_des.h - h_src.h;
+	diff.s = h_des.s - h_src.s;
+	diff.v = h_des.v - h_src.v;
+/*	// 比では黒をうまく扱えない
 	diff.s = h_des.s / (h_src.s || 0.0000001);	// 
 	diff.v = h_des.v / (h_src.v || 0.0000001);	// 0除算防止
+*/
 
 	// 今の色に変化を適用
 	var hsv = RGBtoHSV( c_cur );
+	console.log(hsv.h, hsv.s, hsv.v);
 	hsv.h = hsv.h + diff.h;
-	hsv.s = hsv.s * diff.s;
-	hsv.v = hsv.v * diff.v;
+	hsv.s = hsv.s + diff.s;
+	hsv.v = hsv.v + diff.v;
+	console.log(des_name,"-->",hsv.h, hsv.s, hsv.v);
 
 	return HSVtoRGB( hsv );
 }

@@ -80,6 +80,10 @@
 		0px 0px 0px rgba(0, 0, 0, 0);
 <$end>
 <@>------------------------------------------------
+<@ifexec(ps.fbg ne '', begin)>
+	background-color:	rgba(<@v.hex2rgb(ps.fbg)>, <@ps.fbg_alpha>);
+	background-image:	none;
+<$end>
 <@ifexec(ps.titleimg, begin)>
 	display:		inline-block;
 	background-image:	url('<@v.plugin_image_path(ps.titleimg)>?<@TM>');
@@ -90,9 +94,6 @@
 	width:			<@ps.titleimg_w>px;
 	font-size:		1px;
 	text-indent:		-99999px;
-<$end>
-<@ifexec(ps.fbg ne '', begin)>
-	background-color:	rgba(<@v.hex2rgb(ps.fbg)>, <@ps.fbg_alpha>);
 <$end>
 <@ifexec(ps.top ne '', begin)>
 	position:		absolute;

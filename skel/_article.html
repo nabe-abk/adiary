@@ -139,7 +139,7 @@
 	</div>
 	<$end>
 	<@forexec(c, v.load_comments_current_blog(t, view), begin)>
-	<div class="comment-one<@if(!c.enable, ' hidden')>" id="c<@c.num>">
+	<div class="comment-one<@if(!c.enable, if(c.hidden, ' comment-hidden', ' comment-disable'))>" id="c<@c.num>">
 		<div class="commentator">
 			<span class="canchor"><a href="#c<@c.num>"><@c.num></a>:</span>	<@\>
 			<@ifexec(v.allow_edit, begin)>	<@\>
@@ -155,7 +155,7 @@
 			<@if(v.allow_edit, '</label>')>
 		</div>
 
-		<div class="comment-text<@if(!c.enable, if(c.hidden, ' comment-hidden', ' comment-disable'))>"><@c.text></div>
+		<div class="comment-text"><@c.text></div>
 		<@ifexec(v.allow_edit, begin)>
 		<div class="ip-host-agent"><@c.host> (<@c.ip>)<br><@c.agent></div>
 		<$end>

@@ -666,7 +666,9 @@ body .ui-tooltip {
 
 /* Interaction states
 ----------------------------------*/
-.ui-state-default {
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default {
 	border: 1px solid #d3d3d3;
 	background-color: #e6e6e6;
 	font-weight: normal;
@@ -679,7 +681,11 @@ body .ui-tooltip {
 	text-decoration: none;
 }
 .ui-state-hover,
-.ui-state-focus {
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover,
+.ui-state-focus,
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus {
 	border: 1px solid #999999;
 	background-color: #dadada;
 	font-weight: normal;
