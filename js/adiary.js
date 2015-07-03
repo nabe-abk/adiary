@@ -62,6 +62,13 @@ if (!Array.isArray) Array.isArray = function (vArg) {
 if (!String.prototype.trim ) String.prototype.trim = function(){
 	return this.toString().replace(/^\s+|\s+$/g, '');
 }
+// IE で repeat が使えない
+if (!String.repeat) String.prototype.repeat = function(num){
+	var str='';
+	var x = this.toString();
+	for(var i=0; i<num; i++) str += x;
+	return str;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //●<body>にCSSのためのブラウザクラスを設定
@@ -79,6 +86,8 @@ function set_browser_class_into_body() {
 	else if (ua.indexOf('Gecko')  != -1) x.push('Fx');
 
 	var m = ua.match(/MSIE (\d+)/);
+	var n = ua.match(/Trident\/\d+.*rv:(\d+)/);
+	if (n) { x = []; m = n; }		// IE11
 	if (m) x.push('IE', 'IE' + m[1]);
 	  else x.push('NotIE');
 	if (m && m[1]<8)  IE67=true;
@@ -104,6 +113,8 @@ function set_browser_class_into_body() {
 
 	// bodyにクラス設定する
 	body.addClass( x.join(' ') );
+
+	alert( x.join(' ') );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1124,10 +1135,10 @@ $(function(){
 //////////////////////////////////////////////////////////////////////////////
 // ●検索条件表示の関連処理
 //////////////////////////////////////////////////////////////////////////////
-function init_top_search(id) {
+function init_top_search(id, flag) {
 	var form = $secure(id);
 	var tagdel = $('<span>').addClass('ui-icon ui-icon-close');
-	tagdel.click(function(evt){
+	if (!flag) tagdel.click(function(evt){
 		var obj = $(evt.target);
 		obj.parent().remove();
 		form.submit();
@@ -1135,9 +1146,9 @@ function init_top_search(id) {
 	form.find("div.taglist span.tag, div.ctype span.ctype").append(tagdel);
 
 	var ymddel = $('<span>').addClass('ui-icon ui-icon-close');
-	ymddel.click(function(evt){
+	if (!flag) ymddel.click(function(evt){
 		form.attr('action', form.data('noymd-url'));
-		form.submit();
+		if (!flag) form.submit();
 	});
 
 	form.find("div.yyyymm span.yyyymm").append(ymddel);
