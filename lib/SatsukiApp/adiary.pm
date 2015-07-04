@@ -15,7 +15,7 @@ our $DATA_VERSION = 2.96;
 # ■システム内部イベント
 ###############################################################################
 my %SysEvt;
-$SysEvt{ARTICLE_STATE_CHANGE} = [qw(http://theta/~nabe/adiary/nabe/?_sphone=1
+$SysEvt{ARTICLE_STATE_CHANGE} = [qw(
 	update_bloginfo_article
 	update_taglist
 	update_contents_list

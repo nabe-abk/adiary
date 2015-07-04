@@ -1205,7 +1205,8 @@ form#import-form table {
 }
 /* 影をつける */
 /*
-.dropdown-menu>ul li:hover ul {
+.dropdown-menu>ul li:hover ul,
+.dropdown-menu.sp>ul>li>ul {
 	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
 }
 */

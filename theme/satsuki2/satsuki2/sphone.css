@@ -17,7 +17,9 @@
 	width:			100%;
 }
 #hatena-body {
-	margin:			0 4px;
+	padding:		0 8px;
+	margin-left:		0;
+	margin-right:		0;
 	width:			auto;
 	max-height:		none;
 }

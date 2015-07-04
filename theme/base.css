@@ -1069,7 +1069,8 @@ ul.menu {
 */
 /* 影をつける */
 /*
-.dropdown-menu>ul li:hover ul {
+.dropdown-menu>ul li:hover ul,
+.dropdown-menu.sp>ul>li>ul {
 	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
 }
 */
@@ -1201,10 +1202,7 @@ ul.menu {
 }
 
 /* 表示サイズ（横幅） */
-.dropdown-menu.sp>ul li {
-	width:		100%;
-}
-.dropdown-menu.sp>ul>li>ul>li {
+.dropdown-menu.sp>ul>li>ul {
 	width:		150%;
 }
 .dropdown-menu.sp>ul>li {
