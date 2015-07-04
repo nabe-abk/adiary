@@ -178,7 +178,6 @@ findx: function(sel){
 dndEmulation: function(opt){
 	var self = this[0];
 	if (!self) return;
-	if (!self.addEventListener) return; // for IE8
 
 	opt = opt || {};
 
@@ -216,7 +215,8 @@ dndEmulation: function(opt){
 	var orig_touch;
 
 	// mousedownエミュレーション
-	self.addEventListener('touchstart', function(evt){
+	this.bind('touchstart', function(_evt){
+		var evt = _evt.originalEvent;
 		prev = evt.target;
 		orig_touch = evt.touches[0];
 		var e = make_mouse_event('mousedown', evt, evt.touches[0]);
@@ -231,7 +231,8 @@ dndEmulation: function(opt){
 	});
 
 	// mouseupエミュレーション
-	self.addEventListener('touchend', function(evt){
+	this.bind('touchend', function(_evt){
+		var evt = _evt.originalEvent;
 		if (timer) clearTimer(timer);
 		timer = false;
 		var e = make_mouse_event('mouseup', evt, evt.changedTouches[0]);
@@ -239,7 +240,8 @@ dndEmulation: function(opt){
 	});
 
 	// ドラッグエミュレーション
-	self.addEventListener('touchmove', function(evt){
+	this.bind('touchmove', function(_evt){
+		var evt = _evt.originalEvent;
 
 		// 一定時間立たなければ、処理を開始しない
 		if (!flag) return;
