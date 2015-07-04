@@ -25,6 +25,7 @@
 <@>
 <@> テーマとユーザーCSSは最後に読み込む
 <@if(v.sphone,		#'<meta name="viewport" content="width=device-width">\n')>
+<@if(299 < v.sphone,	#'<style type="text/css"><!-- body { max-width: <@v.sphone>px; }</style>\n')>
 <@if(!v.base_css_stop,	#'<link rel="stylesheet" href="<@Basepath><@v.theme_dir>base.css">\n')>
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css" id="theme-css">
 <@>

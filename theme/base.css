@@ -1132,9 +1132,14 @@ ul.menu {
 	padding:		0;
 	margin:			0 0 0 2px;
 }
+
 #sp-head-search .search-box {
-	width:			100px;
-	margin:			0;
+	width:			80px;
+}
+@media screen and (min-width: 340px) {
+	#sp-head-search .search-box {
+		width:		100px;
+	}
 }
 
 /*--------------------------------------------------------------------

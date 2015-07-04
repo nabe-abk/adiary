@@ -15,7 +15,7 @@ our $DATA_VERSION = 2.96;
 # ■システム内部イベント
 ###############################################################################
 my %SysEvt;
-$SysEvt{ARTICLE_STATE_CHANGE} = [qw(
+$SysEvt{ARTICLE_STATE_CHANGE} = [qw(http://theta/~nabe/adiary/nabe/?_sphone=1
 	update_bloginfo_article
 	update_taglist
 	update_contents_list
@@ -208,7 +208,7 @@ sub read_query_form {
 		$v =~ s|[^\w\-/]||g;
 
 		if ($_ eq '_sphone') {		# スマホ表示
-			$self->{sphone}=1;
+			$self->{sphone}=$v;
 		} elsif ($_ eq '_theme') {	# テーマ指定
 			$self->load_theme( $v );
 		}
