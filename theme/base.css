@@ -1204,9 +1204,11 @@ ul.menu {
 /* 表示サイズ（横幅） */
 .dropdown-menu.sp>ul>li>ul {
 	width:		150%;
+	max-width:	360px;
 }
 .dropdown-menu.sp>ul>li {
 	width:		60%;
+	max-width:	360px;
 }
 
 /* 高さの設定 */

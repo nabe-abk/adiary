@@ -255,6 +255,7 @@ function init_custom_form(data) {
 			value: cval
 		});
 		inp.data('original', val);	// テーマ初期値
+		inp.data('default_',cval);	// 現在の設定値（保存用）
 		inp.data('default', cval);	// 現在の設定値
 		inp.change( function(evt){
 			update_css();
@@ -348,9 +349,12 @@ function update_css() {
 $('#btn-reset').click( function() {
 	var col = {};
 	input_cols.each(function(idx,dom){
-		var obj = $(dom);
-		set_color(obj, obj.data('default'));
+		var obj = $(dom)
+		var col = obj.data('default_');
+		obj.data('default', col);
+		set_color(obj, col);
 	});
+	form_reset();
 	update_css();
 });
 
@@ -360,9 +364,12 @@ $('#btn-reset').click( function() {
 $('#btn-super-reset').click( function() {
 	var col = {};
 	input_cols.each(function(idx,dom){
-		var obj = $(dom);
-		set_color(obj, obj.data('original'));
+		var obj = $(dom)
+		var col = obj.data('original');
+		obj.data('default', col);
+		set_color(obj, col);
 	});
+	form_reset();
 	update_css();
 });
 
@@ -413,12 +420,17 @@ $('#h-slider, #s-slider, #v-slider').slider({
 	range: "min",
 	max: 512,
 	value: 256,
-	slide: change_hsv,
-	change: change_hsv
+//	change: change_hsv,
+	slide: change_hsv
 });
 h_slider.slider('option', 'max', 360);
-h_slider.slider('value', 0);
-s_slider.slider('value', 160);
+form_reset();
+
+function form_reset() {
+	h_slider.slider('value', 0);
+	s_slider.slider('value', 160);
+	v_slider.slider('value', 256);
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // ●RGBtoHSV
