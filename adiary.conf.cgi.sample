@@ -117,6 +117,14 @@
 # しばらくログインできなくなる時間（分）
 #<$Auth.fail_minute = 10>
 
+# ログインIP/HOST制限機能
+#<$Auth.allow_ip = begin_array>
+#	192.168.
+#<$end>
+#<$Auth.allow_host = begin_array>
+#	myhost.example.jp
+#	.example.com
+#<$end>
 
 #-------------------------
 # ○以下は変更不要
@@ -146,7 +154,8 @@
 	<$Form_options.multipart_total_max_size = v.uplaod_files_max>
 	<$Form_options.multipart_data_max_size  = 1024> その他のデータ
 
-	ホスト名逆引き	<$resolve_host()>
+	# ホスト名逆引き（2重引き）
+	<$resolve_host()>
 <$end>
 ################################################################################
 # ■blogシステム本体

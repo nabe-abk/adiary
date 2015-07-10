@@ -7,7 +7,7 @@ use Satsuki::Auth ();
 package Satsuki::Auth;
 my $_SALT = 'eTUMs6mRN8vqiSCHWaOGwynJKFbBpdA29txZEDcYluVgr75hLPQXfIk/j4o3z.10';
 ###############################################################################
-# ■承認ルーチン
+# ■認証ルーチン
 ###############################################################################
 #------------------------------------------------------------------------------
 # ●ログイン
@@ -18,7 +18,11 @@ sub login {
 	my $DB   = $self->{DB};
 	$self->userdb_init();
 
-	if (! $self->{exists_admin} && $self->{start_up}) {	# 無条件承認
+	# IP/HOST制限
+	if (! $ROBJ->check_ip_host($self->{allow_ip}, $self->{allow_host})) { return ; }
+
+	# 無条件認証
+	if (! $self->{exists_admin} && $self->{start_up}) {
 		$self->{ok}    = 1;
 		$self->{pkey}  = -1;
 		$self->{id}    = "admin*";
@@ -29,6 +33,8 @@ sub login {
 		$self->log_save('admin*', 'login');
 		return 'auth (no exist user)';
 	}
+
+	# ID確認
 	my $table = $self->{table};
 	my $udata;
 	if ($id ne '' && $self->{uid_alt_col} ne '') {
@@ -110,18 +116,24 @@ sub login {
 }
 
 #------------------------------------------------------------------------------
-# ●セッションの承認
+# ●セッションの認証
 #------------------------------------------------------------------------------
 sub session_auth {
 	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	# IP/HOST制限
+	if (! $ROBJ->check_ip_host($self->{allow_ip}, $self->{allow_host})) { return ; }
+
+	# 認証処理
 	my $r = $self->do_session_auth(@_);
 	if ($r) { return $r; }
 
 	# 失敗したとき
 	$self->userdb_init();
 
-	# ユーザー未登録時に自動承認？
-	if (! $self->{exists_admin} && $self->{start_up}) {	# 無条件承認
+	# ユーザー未登録時に自動認証？
+	if (! $self->{exists_admin} && $self->{start_up}) {	# 無条件認証
 		$self->{ok}    = 1;
 		$self->{pkey}  = -1;
 		$self->{id}    = "root*";
@@ -143,7 +155,7 @@ sub do_session_auth {
 	if ($id eq 'root*') { return; }
 	if ($id eq '' || $session_id eq '') { return; }
 
-	# セッションの承認
+	# セッションの認証
 	if (!$opt->{force_auth}) {
 		my $session = $DB->select_match_limit1($self->{table}.'_sid', 'id', $id, 'sid', $session_id);
 		if (! $session) { return; }
@@ -159,7 +171,7 @@ sub do_session_auth {
 	my $auth = $DB->select_match_limit1($self->{table}, 'id', $id);
 	$self->set_logininfo($auth);
 
-	# 承認失敗
+	# 認証失敗
 	if ($auth->{disable}) {
 		$ROBJ->message('This account is disable');
 		return ;
@@ -171,7 +183,7 @@ sub do_session_auth {
 }
 
 #------------------------------------------------------------------------------
-# ●IDを指定してログイン承認処理
+# ●IDを指定してログイン認証処理
 #------------------------------------------------------------------------------
 sub force_auth {
 	my ($self, $id) = @_;
@@ -258,6 +270,7 @@ sub get_uid {
 sub set_logininfo {
 	my $self = shift;
 	my $user = shift;
+	my $ROBJ = $self->{ROBJ};
 	my $id = $user->{id};
 
 	# ログイン成功
@@ -280,19 +293,10 @@ sub set_logininfo {
 		if (! $self->{admin_list}->{ $id }) { $self->{isadmin}=0; }
 	}
 
-	# IP制限
-	my $ip = $ENV{REMOTE_ADDR};
-	my $list = $self->{admin_allow_ip};
-	if ($ip ne '' && ref($list) eq 'ARRAY') {
-		my $ng=1;
-		foreach(@$list) {
-			if ($_ eq '') { next; }
-			if (0 != index($ip, $_)) { next; }
-			$ng=0; last;
-		}
-		if ($ng) {
-			$self->{isroot}=$self->{isadmin}=0;
-		}
+	# IP/HOST制限
+	if (!$self->{isadmin}) { return; }
+	if (! $ROBJ->check_ip_host($self->{admin_allow_ip}, $self->{admin_allow_host})) {
+		$self->{isroot} = $self->{isadmin} = 0;
 	}
 }
 

@@ -1301,27 +1301,59 @@ HTML
 # ●ホスト名の逆引き
 #------------------------------------------------------------------------------
 sub resolve_host {
-	my $self  = shift;
-	my $force = shift;
-	if (!$force && $ENV{REMOTE_HOST} ne '') { return ; }
+	my $self = shift;
+	my $ip   = $ENV{REMOTE_ADDR};
+	my $host = $ENV{REMOTE_HOST};
+
+	if ($self->{Resolve_host}) { return $host; }
+	$self->{Resolve_host} = 1;
+	$ENV{REMOTE_HOST} = '';
 
 	# 逆引き
-	my $ip = $ENV{REMOTE_ADDR};
-	if ($ip eq '') { return ; }
 	my $ip_bin = pack('C4', split(/\./, $ip));
-	my $host   = gethostbyaddr($ip_bin, 2);
-	if ($host eq '') { return ; }
+	if ($host eq '') {
+		if ($ip eq '') { return ; }
+		$host = gethostbyaddr($ip_bin, 2);
+		if ($host eq '') { return ; }
+	}
 
 	# 2重引き
 	my @addr = gethostbyname($host);
 	splice(@addr, 0, 4);	# [0]-[3] を捨てて address リストのみ残す
-	my $flag = 1;
+	my $ok;
 	foreach(@addr) {
-		if ($_ eq $ip_bin) { $flag=0; last; }
+		if ($_ eq $ip_bin) { $ok=1; last; }
 	}
-	if ($flag) { return ; }
-	# 2重引き成功
-	$ENV{REMOTE_HOST} = $host;
+	if (!$ok) { return ; }
+	return ($ENV{REMOTE_HOST} = $host);
+}
+
+#------------------------------------------------------------------------------
+# ●IP/HOST名チェック
+#------------------------------------------------------------------------------
+# 1: OK, 0: NG
+sub check_ip_host {
+	my $self = shift;
+	my $ip_ary   = shift || [];
+	my $host_ary = shift || [];
+	if (!@$ip_ary && !@$host_ary) { return 1; }	# ok
+
+	my $ip = $ENV{REMOTE_ADDR} . '.';
+	foreach(@$ip_ary) {		# 前方一致
+		if ($_ eq '') { next; }
+		my $x = $_ . (substr($_,-1) eq '.' ? '' : '.');
+		if (0 == index($ip, $x)) { return 1; }
+	}
+
+	if (!@$host_ary) { return 0; }
+	my $host = $self->resolve_host();
+	foreach(@$host_ary) {
+		if ($_ eq '') { next; }
+		if ($_ eq $host) { return 1; }
+		my $x = (substr($_,0,1) eq '.' ? '' : '.') . $_;
+		if ($x eq substr($host,-length($x))) { return 1; }
+	}
+	return 0;
 }
 
 ###############################################################################
