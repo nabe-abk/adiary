@@ -63,8 +63,9 @@ h1 a:before {
 	margin-top:		10px;
 	background-color:	rgba(200,200,200,0.4);
 }
-
-
+#sp-head-search .search-box {
+	width:			100px;
+}
 
 /*--------------------------------------------------------------------
 ■記事配置

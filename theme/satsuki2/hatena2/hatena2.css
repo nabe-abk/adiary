@@ -16,7 +16,7 @@ body
 	margin:			0;
 }
 #adiary-body {
-	background-color:	#fff;
+	background-color:	#fff;		/* $c=mainbg */
 
 	width:			90%;
 	min-width:		320px;
@@ -213,6 +213,8 @@ h1 img, h1 a img {
 	background-color:	#e9eff8;	/* $c=ddhovermain = prebg */
 }
 
+
+
 /*--------------------------------------------------------------------
 ■ページ送り
 ---------------------------------------------------------------------*/
@@ -353,7 +355,7 @@ div.body-footer div.social-buttons:first-child {
 div.hatena-module {
 }
 div.hatena-moduletitle {
-	color:			#fff;		/* $c=fixmodulebg */
+	color:			#fff;		/* $c=fixmodulefont */
 	font-weight:		bold;
 	text-align:		center;
 

@@ -4,6 +4,7 @@ Author: かえで
 Access: https://twitter.com/__Kaede
 License: GPL
 Charset: UTF-8
+Smartphone: no
 System-mode: yes
 
 テーマ名の表示を消す場合は以下をユーザーcssに定義してください。
