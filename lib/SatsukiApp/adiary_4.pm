@@ -1455,11 +1455,6 @@ sub load_theme_colors {
 					$col{"-err-$name"} = "[$line_c]$_<br> &emsp; " . $col{$name};
 				}
 				$col{$name} = $1;
-
-				# border: 1px solid #ffffff; → border-color:
-				if ($_ =~ /^(.*border[\w\-]*?)(?:-color)*\s*:[^\}]*?(}?\s*\/\*.*)/i) {
-					$_ = $1 . "-color:\t" . $col{$name} . ";$2\n";
-				}
 			}
 			if (!$in_attr && $_ =~ /{.*}/) {
 				push(@ary, $sel, $_);
@@ -1470,8 +1465,11 @@ sub load_theme_colors {
 
 			# プロパティの開始まで戻る
 			my $c = $line_c;
-			while ($_ !~ /[\w-]+[\s\n\r]*:/ && $c>1 && !$line_flag[$c-1]) {
+			my $x = $_;
+			while ($x =~ s|/\*.*?\*/||sg, 
+			  ($x !~ /[\w-]+[\s\n\r]*:/ && $c>1 && !$line_flag[$c-1])) {
 				$_ = $lines->[$c-2] . $_;
+				$x = $lines->[$c-2] . $x;
 				$c--;
 			}
 			$attr .= $_;
@@ -1499,7 +1497,14 @@ sub load_theme_colors {
 		# セレクタ
 		$sel .= $_;
 	}
-	return (\%col, join('',@ary));
+
+	# 後処理
+	my $css = join('',@ary);
+	# border:	1px solid #ffffff; → border-color: #ffffff
+	# border-left:	1px solid #ffffff; → border-left-color: #ffffff
+	$css =~ s/(border[\w\-]*?)(?:-color)?[\s\r\n]*?:[^;}]*?(#[0-9A-Fa-f]+)/$1-color:\t$2/ig;
+
+	return (\%col, $css);
 }
 
 #------------------------------------------------------------------------------
