@@ -105,7 +105,7 @@ button
 	font-weight:		bold;
 	border:			1px solid #da9;		/* $c=fixbtnborder */
 	border-radius:		6px;
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 				#fdc,			/* $c=btnbg0 */
 				#fba);			/* $c=btnbg1 = auto:btnbg0 */
 }
@@ -113,7 +113,7 @@ button:hover
 {
 	border-radius:		6px;
 	cursor:			pointer;
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 				#fed,			/* $c=btnbghover0 = auto:btnbg0 */
 				#fdc);			/* $c=btnbghover1 = auto:btnbg0 */
 
@@ -160,7 +160,7 @@ button:disabled
 	font-family:		"IPA Pゴシック","IPA PGothic","ＭＳ Ｐゴシック",sens-serif;
 
 	text-align:		right;
-	font-size:		14px;
+	font-size:		13px;
 	line-height:		100%;
 }
 #nav-header, #nav-header a, #nav-header a:link, #nav-header a:visited {
@@ -619,6 +619,17 @@ pre {
 	display:		block;
 /*	overflow:		auto;	*/	/* はみ出した部分は scroll bar */
 }
+
+/* システムモード用 */
+article.system p,
+article.system ul,
+article.system ol,
+article.system blockquote,
+article.system pre {
+	margin-top:		1em;
+	margin-bottom:		1em;
+}
+
 
 /* pre 中コメント */
 pre span.comment	{ color: #c30; }			/* $c=fixstrongfont */

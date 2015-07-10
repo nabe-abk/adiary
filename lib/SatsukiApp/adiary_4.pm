@@ -1421,8 +1421,9 @@ sub load_theme_colors {
 	my $attr = '';
 	my $in_com;
 	my $in_attr;
-	my @ary;
+	my @ary;		# 抽出部保存用
 	my $line_c=0;
+	my @line_flag;		# 抽出部記録用
 	foreach(@$lines) {
 		$line_c++;
 		$_ =~ s/\r\n?/\n/;
@@ -1448,11 +1449,8 @@ sub load_theme_colors {
 		if ($_ =~ /\$c=\s*([\w]+)/) {	# /* $c=main */ 等
 			my $name = $1;
 			$_ =~ s/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])([^0-9A-Fa-f])/#$1$1$2$2$3$3$4/g;
-			if ($name =~ /^_/) {
-				# 色は持たないけども属性値として保存する
-				$_ =~ s|\s*/\*.*?\*/[\t ]*||g;
 
-			} elsif ($_ =~ /(#[0-9A-Fa-f]+)/) {
+			if ($_ =~ /(#[0-9A-Fa-f]+)/) {
 				if ($col{$name} && $col{$name} ne $1) {
 					$col{"-err-$name"} = "[$line_c]$_<br> &emsp; " . $col{$name};
 				}
@@ -1467,6 +1465,14 @@ sub load_theme_colors {
 				push(@ary, $sel, $_);
 				$sel='';
 				next;
+			}
+			$line_flag[$line_c] = 1;
+
+			# プロパティの開始まで戻る
+			my $c = $line_c;
+			while ($_ !~ /[\w-]+[\s\n\r]*:/ && $c>1 && !$line_flag[$c-1]) {
+				$_ = $lines->[$c-2] . $_;
+				$c--;
 			}
 			$attr .= $_;
 			next;

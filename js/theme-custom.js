@@ -184,6 +184,8 @@ function init_custmize(name) {
 			return custom_form_empty();
 		// 値保存
 		css_text = data._css_text;
+		alert(css_text);
+		
 		delete data['_css_text'];
 		$('#custom-flag').val('1');
 

@@ -717,7 +717,7 @@ button
 	font-weight:		bold;
 	border:			1px solid #66c;		/* $c=btnborder */
 	border-radius:		6px;
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 				#ddf,			/* $c=btnbg0  */
 				#aaf);			/* $c=btnbg1 = auto:btnbg0 */
 }
@@ -726,7 +726,7 @@ button:hover
 {
 	border-radius:		6px;
 	cursor:			pointer;
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 				#eef,			/* $c=btnbghover0 = auto:btnbg0 */
 				#ccf);			/* $c=btnbghover1 = auto:btnbg0 */
 

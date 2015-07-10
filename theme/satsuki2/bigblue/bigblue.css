@@ -59,7 +59,7 @@ body
 #footer
 {
 	background-color:	#60778f;			/* $c=headerbg */
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 						#60778f,	/* $c=headerbg */
 						#29425c);	/* $c=headerbg2 */
 	text-align:		center;
@@ -111,7 +111,7 @@ button
 	border:			1px solid #348;			/* $c=btnborder = border */
 	border-radius:		6px;
 	background-color:	#8ab;				/* $c=btnbg */
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 				#8ab,				/* $c=btnbg */
 				#367);				/* $c=btnbg1 = auto:btnbg */
 }
@@ -119,7 +119,7 @@ button:hover
 {
 	border-radius:		6px;
 	cursor:			pointer;
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 				#9bc,				/* $c=btnbghover0 = auto:btnbg */
 				#59a);				/* $c=btnbghover1 = auto:btnbg */
 }
@@ -161,7 +161,7 @@ button:disabled
 	right:			0;
 
 	background-color:	#60778f;			/* $c=headerbg */
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 					#60778f,		/* $c=headerbg */
 					#29425c);		/* $c=headerbg2 = auto:headerbg */
 
@@ -195,7 +195,7 @@ button:disabled
 #sp-nav-header:hover,
 #nav-header:hover {
 	background-color:	#8090a3;			/* $c=headerhoverbg */
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 					#8090a3,		/* $c=headerhoverbg  = auto:headerbg */
 					#29425c);		/* $c=headerhoverbg2 = auto:headerbg */
 }
@@ -229,7 +229,7 @@ h1
 	line-height:		100%;
 	padding:		18px 16px 14px 16px;
 	margin:			0;
-	background-image:	linear-gradient(179deg,	/* $c=_ */
+	background-image:	linear-gradient(179deg,
 				#444,			/* $c=titlebg */
 				#2a2a2a,		/* $c=titlebg2 = auto:titlebg */
 				#000);			/* $c=titlebg3 = auto:titlebg */
@@ -277,12 +277,12 @@ h1 img, h1 a img {
 }
 #head-search button {
 	background-color:	#444;				/* $c=headerbtnbg0 = auto:titlebg */
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 				#666,				/* $c=headerbtnbg1 = auto:titlebg */
 				#000);				/* $c=headerbtnbg2 = auto:titlebg */
 }
 #head-search button:hover {
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 				#777,				/* $c=headerbtnhoverbg1 = auto:titlebg */
 				#333);				/* $c=headerbtnhoverbg2 = auto:titlebg */
 }
@@ -344,7 +344,7 @@ h1 img, h1 a img {
 .dropdown-menu,
 .dropdown-menu>ul li {
 	background-color:	#c8d5e2;			/* $c=ddbg = auto:modulebg */
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 						 #c8d5e2,	/* $c=ddbg */
 						 #889eb6);	/* $c=ddbg2 = auto:modulebg */
 }
@@ -451,7 +451,7 @@ article h2 {
 	font-size:		13pt;
 	line-height:		120%;
 	background-color:	#7291a9;			/* $c=h2bg */
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 						#7291a9,	/* $c=h2bg */
 						#416074);	/* $c=h2bg2 = auto:h2bg */
 	margin:			0px;
@@ -668,7 +668,7 @@ dt { font-weight:	bold; }
 	font-weight:		bold;
 	margin:			0px;
 	padding:		2px;
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 					#f0f1f7,	/* $c=thbg0 = auto:wikibg */
 					#d2d9ea);	/* $c=thbg1 = auto:wikibg */
 	background-color:	#d2d9ea;		/* $c=thbg1 */
@@ -790,7 +790,7 @@ div.hatena-moduletitle {
 	color:			#fff;
 
 	background-color:	#7291a9;			/* $c=h2bg */
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 						#7291a9,	/* $c=h2bg */
 						#416074);	/* $c=h2bg2 = auto:h2bg */
 	border-radius:		2px 2px 0 0;
@@ -1061,7 +1061,7 @@ article.edit span.tag:after {
 	font-size:		12pt;
 	color:			#fff;
 	background-color:	#7291a9;			/* $c=h2bg */
-	background-image:	linear-gradient(to bottom,	/* $c=_ */
+	background-image:	linear-gradient(to bottom,
 						#7291a9,	/* $c=h2bg */
 						#416074);	/* $c=h2bg2 */
 
