@@ -1375,10 +1375,10 @@ sub css_rewrite {
 				$in_opt  = 1;
 				$opt_sel = $opt->{$1} eq $2;
 				$_ = $opt_sel ? "/* \$$1=$2 */\n" : '';
-			}
-			if ($_ =~ /\$option=end/) {
+			} elsif ($_ =~ m|(.*?)\s*\*/|) {
 				$in_opt = 0;
-				$_ = '';
+				$_ = $1;
+				$_ = ($_ =~ /^(.*[;}])/) ? "$1\n" : '';
 			}
 			if (!$opt_sel) { $_ = ''; }
 		}
@@ -1458,10 +1458,12 @@ sub load_theme_colors {
 		if ($in_opt || $_ =~ /\$(option\d*)=([\w-]+)/) {	# オプション中
 			if (!$in_opt) {
 				$in_opt=1;
-				$opt{$1} ||= [];
-				push(@{ $opt{$1} }, $2);
+				if ($2 ne 'default') {
+					$opt{$1} ||= [];
+					push(@{ $opt{$1} }, $2);
+				}
 			}
-			if ($_ =~ /\$option\d*=end/) {
+			if ($_ =~ m|\*/|) {
 				$in_opt=0;
 			}
 			push(@ary, $_);

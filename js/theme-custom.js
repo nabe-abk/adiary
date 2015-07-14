@@ -320,6 +320,7 @@ function init_custom_form(data, data2) {
 			});
 			var list = opts[i].list;
 			var val  = opts[i].val || '';
+			sel.data('default', val);
 			for(var j=0; j<list.length; j++) {
 				var n = name2msg( list[j] );	// 翻訳
 				var o = $('<option>')
@@ -382,14 +383,21 @@ function update_css() {
 	var opt_sel;
 	for(var i=0; i<lines.length; i++) {
 		var x  = lines[i];
-		var ma = x.match(/\$(option\d*)=([\w-]+)/);
-		if (in_opt || ma) {
+		var ma = in_opt || x.match(/\$(option\d*)=([\w-]+)/);
+		if (ma) {
 			if (!in_opt) {
 				in_opt  = true;
 				opt_sel = (opt[ ma[1] ] == ma[2]);
+				lines[i]='';
+			} else if (ma = x.match(/(.*?)\s*\*\//)) {
+				in_opt = false;
+				x = ma[1];
+				ma = x.match(/^(.*[;}])/);
+				if (ma) x=ma[1];
+				   else x='';
+				lines[i]=x;
 			}
-			if (ma || !opt_sel) lines[i]='';
-			if (ma && ma[2] == 'end') in_opt=false;
+			if (!opt_sel) lines[i]='';
 			continue;
 		}
 
@@ -398,6 +406,7 @@ function update_css() {
 		lines[i] = x.replace(/#[0-9A-Fa-f]+/, col[ ma[1] ]);
 	}
 	var new_css = lines.join("\n");
+	alert(new_css);
 	try {
 		if_css.html( new_css );
 	} catch(e) {
@@ -421,6 +430,10 @@ $('#btn-reset').click( function() {
 		obj.data('default', col);
 		set_color(obj, col);
 	});
+	select_opts.each(function(idx,dom){
+		var obj = $(dom)
+		obj.val( obj.data('default') );
+	});
 	form_reset();
 	update_css();
 });
@@ -435,6 +448,10 @@ $('#btn-super-reset').click( function() {
 		var col = obj.data('original');
 		obj.data('default', col);
 		set_color(obj, col);
+	});
+	select_opts.each(function(idx,dom){
+		var obj = $(dom)
+		obj.val('');
 	});
 	form_reset();
 	update_css();
