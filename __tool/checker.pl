@@ -29,6 +29,22 @@ print "---adiary Release checker-------------------------------------------\n";
 		$errors++;
 	}
 }
+{
+	open(my $fh, 'grep -ERni "alert\s*\(" js/|fgrep -v ".min.js"|');
+	my @ary = <$fh>;
+	close($fh);
+	
+	foreach(@ary) {
+		my ($file, $linenum, $line) = split(/:/, $_, 3);
+		if ($file !~ /\.js$/) { next; }
+		if ($line =~ m!s*//!) { next; }
+		if ($line =~ m!//\s*(?:alert|debug)-safe!) { next; }
+
+		print "## Debug error : $file\n";
+		print "$linenum:$line";
+		$errors++;
+	}
+}
 
 #------------------------------------------------------------------------------
 # CRLF check
