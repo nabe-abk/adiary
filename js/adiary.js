@@ -1372,7 +1372,7 @@ function $secure(id) {
 //////////////////////////////////////////////////////////////////////////////
 // CSSファイルの追加
 //////////////////////////////////////////////////////////////////////////////
-function prepend_css_file(file) {
+function prepend_css_file(file, id) {
 	var css = $("<link>")
 	css.attr({
 		type: "text/css",
@@ -1607,6 +1607,7 @@ function form_dialog(h) {
 //############################################################################
 // ■CSSへの機能提供ライブラリ
 //############################################################################
+var css_initial_functions = [];
 //////////////////////////////////////////////////////////////////////////////
 // ●CSSから値を取得する
 //////////////////////////////////////////////////////////////////////////////
@@ -1629,20 +1630,20 @@ function get_value_from_css(id, attr) {
 //////////////////////////////////////////////////////////////////////////////
 //●sidebarのHTML位置変更
 //////////////////////////////////////////////////////////////////////////////
-$(function(){
+css_initial_functions.push(function(){
 	var flag = get_value_from_css('sidebar-move-to-before-main');
 	if (SP || !flag) return;
 
 	// 入れ替え
 	var sidebar = $('#sidebar');
-	sidebar.insertBefore( 'div .main:first-child' );
+	sidebar.insertBefore( 'div.main:first-child' );
 });
 
 
 //////////////////////////////////////////////////////////////////////////////
 //●ui-iconの自動ロード
 //////////////////////////////////////////////////////////////////////////////
-$(function(){
+css_initial_functions.push(function(){
 	var vals = [0, 0x80, 0xC0, 0xff];
 	var color = get_value_from_css('ui-icon-autoload', 'background-color');
 	if (!color || color == 'transparent') return;
@@ -1707,11 +1708,23 @@ $(function(){
 			hljs.highlightBlock(block);
 		});
 	});
+	prepend_css_file('#').attr('id', 'syntaxhighlight-theme');
+});
 
+css_initial_functions.push(function(){
 	var css = get_value_from_css('syntax-highlight-theme') || syntax_highlight_css;
 	css = css.replace(/\.css$/, '').replace(/[^\w\-]/g, '');
-	prepend_css_file(PubdistDir + 'highlight-js/'+ css +'.css');
+	$('#syntaxhighlight-theme').attr('href', PubdistDir + 'highlight-js/'+ css +'.css');
 });
+
+//////////////////////////////////////////////////////////////////////////////
+//●CSSによる設定を反映
+//////////////////////////////////////////////////////////////////////////////
+function css_inital() {
+	for(var i=0; i<css_initial_functions.length; i++)
+		(css_initial_functions[i])();
+}
+$(function(){ css_inital() });
 
 
 //############################################################################

@@ -84,6 +84,45 @@ body
 }
 
 
+/*--------------------------------------------------------------------
+■表示オプション（レスポンシブ、両サイドバー）
+---------------------------------------------------------------------*/
+/* $option=multi-sidebar
+#sidebar-move-to-before-main {
+	min-width:		1px;
+}
+.main {
+	float:			left;
+	width:			calc(100% - 340px);
+	padding-left:		10px;
+}
+#sidebar {
+	float:			none;
+	width:			auto;
+}
+#side-a {
+	float:			left;
+	width:			160px;
+}
+#side-b {
+	float:			right;
+	width:			160px;
+}
+.IE8 #adiary-body {
+	width:			920px;
+}
+.IE8 .main {
+	width:			64%;
+	padding-right:		0px;
+}
+.IE8 #sidebar {
+	width:			100%;
+}
+.IE8 #side-a,
+.IE8 #side-b {
+	width:			17%;
+}
+$option=end */
 
 /****************************************************************************
 ■全体設定

@@ -281,15 +281,11 @@ sub remake_theme_custom_css {
 	my $file = $ROBJ->get_filepath( $self->get_theme_custom_css($theme) );
 	if (!-r $file) { return 0; }	# カスタムファイルが無い
 
-	my $lines = $ROBJ->fread_lines( $file );
-	my ($col,$x) = $self->load_theme_colors( $lines );
-	# $col = 現在の設定状況（hash）
-
 	# 再度書き換える
-	my ($c,$css) = $self->load_theme_colors( $theme );
+	my ($col,$opt,$css) = $self->load_theme_info( $theme, '' );
 	if (!$css) { return; }
 
-	my $ary = $self->css_rewrite($css, $col);
+	my $ary = $self->css_rewrite($css, $col, $opt);
 	$ROBJ->fwrite_lines($file, $ary);
 	return 0;
 }

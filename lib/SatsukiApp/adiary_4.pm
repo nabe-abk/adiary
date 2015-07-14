@@ -1324,13 +1324,19 @@ sub save_theme {
 
 	# テーマカスタマイズ情報の保存
 	if (!$form->{custom}) { return 0; }
-	my ($c,$css) = $self->load_theme_colors( $theme );
+	my ($c,$opt,$css) = $self->load_theme_colors( $theme );
 	if (!$css) { return 0; }
 	my $file = $self->get_theme_custom_css($theme);
 
 	my %col;
+	my %opt;
 	my $diff;
 	foreach(keys(%$form)) {
+		if ($_ =~ /^option\d*$/) {
+			$opt{$_} = $form->{$_};
+			$diff=1;
+			next;
+		}
 		if ($_ !~ /^c_(\w+)/) { next; }
 		my $name = $1;
 		my $val = $form->{$_};
@@ -1344,7 +1350,7 @@ sub save_theme {
 	}
 
 	# CSS書き換え
-	my $ary = $self->css_rewrite($css, \%col);
+	my $ary = $self->css_rewrite($css, \%col, \%opt);
 	$ROBJ->fwrite_lines($file, $ary);
 
 	# カスタマイズ情報の保存
@@ -1356,11 +1362,26 @@ sub save_theme {
 sub css_rewrite {
 	my $self = shift;
 	my $css  = shift;
-	my $col  = shift;
+	my $col  = shift || {};
+	my $opt  = shift || {};
 
 	my @ary = split(/\n/, $css);
+	my $in_opt;
+	my $opt_sel;
 	foreach(@ary) {
 		$_ .= "\n";
+		if ($in_opt || $_ =~ /\$(option\d*)=([\w-]+)/) {
+			if (!$in_opt) {
+				$in_opt  = 1;
+				$opt_sel = $opt->{$1} eq $2;
+				$_ = $opt_sel ? "/* \$$1=$2 */\n" : '';
+			}
+			if ($_ =~ /\$option=end/) {
+				$in_opt = 0;
+				$_ = '';
+			}
+			if (!$opt_sel) { $_ = ''; }
+		}
 		if ($_ !~ /\$c=\s*(\w+)/) { next; }
 		my $name = $1;
 		$_ =~ s/#[0-9A-Fa-f]+/$col->{$name}/g;
@@ -1372,7 +1393,8 @@ sub css_rewrite {
 # ●テーマの色カスタム情報ロード
 #------------------------------------------------------------------------------
 sub load_theme_info {
-	my ($self, $theme, $rec) = @_;
+	my ($self, $theme, $append) = @_;
+	if (!defined $append) { $append = '-cst'; }
 	my $ROBJ = $self->{ROBJ};
 	if ($theme !~ m|^([\w-]+)/([\w-]+)/?$|) {
 		return 1;
@@ -1380,19 +1402,23 @@ sub load_theme_info {
 	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
 	# テーマ色情報のロード
-	my ($col, $css) = $self->load_theme_colors($theme);
-	if (!$css) { return $col; }
+	my ($col, $opt, $css) = $self->load_theme_colors($theme);
+	if (!$css) { return ($col, $opt); }
 
 	# カスタマイズ情報のロード
 	my $file = $ROBJ->get_filepath( $self->get_theme_custom_css($theme) );
 	if (-r $file) {
 		my $lines = $ROBJ->fread_lines( $file );
 		foreach(@$lines) {
+			if ($_ =~ /\$(option\d*)=([\w-]+)/) {
+				$opt->{"$1$append"} = $2;
+				next;
+			}
 			if ($_ !~ /(#[0-9A-Fa-f]+).*\$c=\s*(\w+)/) { next; }
-			$col->{"$2-cst"} = $1;
+			$col->{"$2$append"} = $1;
 		}
 	}
-	return ($col, $css);
+	return ($col, $opt, $css);
 }
 
 #------------------------------------------------------------------------------
@@ -1417,9 +1443,11 @@ sub load_theme_colors {
 	}
 
 	my %col;
+	my %opt;
 	my $sel  = '';
 	my $attr = '';
 	my $in_com;
+	my $in_opt;
 	my $in_attr;
 	my @ary;		# 抽出部保存用
 	my $line_c=0;
@@ -1427,6 +1455,19 @@ sub load_theme_colors {
 	foreach(@$lines) {
 		$line_c++;
 		$_ =~ s/\r\n?/\n/;
+		if ($in_opt || $_ =~ /\$(option\d*)=([\w-]+)/) {	# オプション中
+			if (!$in_opt) {
+				$in_opt=1;
+				$opt{$1} ||= [];
+				push(@{ $opt{$1} }, $2);
+			}
+			if ($_ =~ /\$option\d*=end/) {
+				$in_opt=0;
+			}
+			push(@ary, $_);
+			$line_flag[$line_c] = 1;
+			next;
+		}
 		if ($in_com) {	# コメント中
 			if ($_ !~ m|\*/(.*)|) { next; }
 			$_ = $1;
@@ -1504,7 +1545,7 @@ sub load_theme_colors {
 	# border-left:	1px solid #ffffff; → border-left-color: #ffffff
 	$css =~ s/(border[\w\-]*?)(?:-color)?[\s\r\n]*?:[^;}]*?(#[0-9A-Fa-f]+)/$1-color:\t$2/ig;
 
-	return (\%col, $css);
+	return (\%col, \%opt, $css);
 }
 
 #------------------------------------------------------------------------------

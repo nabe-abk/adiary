@@ -103,6 +103,61 @@ h1 img, h1 a img {
 }
 
 /*--------------------------------------------------------------------
+■表示オプション（右サイドバー）
+---------------------------------------------------------------------*/
+/* $option=right-sidebar
+.main {
+	float:			left;
+}
+#sidebar {
+	float:			right;
+}
+$option=end */
+
+/*--------------------------------------------------------------------
+■表示オプション（レスポンシブ、両サイドバー）
+---------------------------------------------------------------------*/
+/* $option=multi-sidebar
+#sidebar-move-to-before-main {
+	min-width:		1px;
+}
+
+@media screen and (min-width: 900px) {
+.main {
+	float:			left;
+	width:			calc(100% - 340px);
+	padding-left:		8px;
+	padding-right:		4px;
+}
+#sidebar {
+	float:			none;
+	width:			auto;
+}
+#side-a {
+	float:			left;
+	width:			160px;
+}
+#side-b {
+	float:			right;
+	width:			160px;
+}
+
+.IE8 .main {
+	width:			64%;
+	padding-right:		0px;
+}
+.IE8 #sidebar {
+	width:			100%;
+}
+.IE8 #side-a,
+.IE8 #side-b {
+	width:			17%;
+}
+
+}
+$option=end */
+
+/*--------------------------------------------------------------------
 ■ヘッダメニュー
 ---------------------------------------------------------------------*/
 #nav-header {

@@ -128,7 +128,7 @@ iframe.on('load', function(){
 	ftheme = ftheme.replace(/^.*\/([\w\-]+\/[\w\-]+)\/[\w\-]+\.css$/, "$1");
 	if (ftheme != current_theme) return;
 
-	if_css = $('<style>').attr('type','text/css');
+	if_css = $('<style>').attr('type','text/css', 'id', 'theme-realtime-custom-css');
 	iframe.contents().find('head').append(if_css);
 
 	if (!theme_query) return;
@@ -151,7 +151,10 @@ iframe.on('load', function(){
 		obj.attr('href', url);
 	});
 
-	if (css_text) update_css();
+	if (css_text) {
+		iframe.contents().find('#theme-custom-css').remove();
+		update_css();
+	}
 });
 //############################################################################
 //############################################################################
@@ -164,10 +167,12 @@ iframe.on('load', function(){
 	var detail_mode  = $('#detail-mode');
 
 	var input_cols;
+	var select_opts;
 	var rel_col;
 	var rel_pol;
 
 	var cols;
+	var opts;
 	var css_text;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -175,6 +180,7 @@ iframe.on('load', function(){
 //////////////////////////////////////////////////////////////////////////////
 function init_custmize(name) {
   cols = undefined;
+  opts = undefined;
   css_text = '';
   $.ajax({
 	url: Vmyself + '?design/theme_colors&name=' + name,
@@ -185,10 +191,12 @@ function init_custmize(name) {
 		// 値保存
 		css_text = data._css_text;
 		delete data['_css_text'];
+		var data2 = data._options;
+		delete data['_options'];
 		$('#custom-flag').val('1');
 
 		// フォーム初期化
-		init_custom_form(data);
+		init_custom_form(data, data2);
 	},
 	error: custom_form_empty
   });
@@ -198,6 +206,7 @@ function custom_form_empty() {
 	custom_cols.empty();
 	custom_detail.empty();
 	input_cols = [];
+	select_opts = [];
 	iframe_resize();
 	$('#custom-flag').val('');
 }
@@ -205,7 +214,7 @@ function custom_form_empty() {
 //////////////////////////////////////////////////////////////////////////////
 // ●カスタマイズフォーム設定
 //////////////////////////////////////////////////////////////////////////////
-function init_custom_form(data) {
+function init_custom_form(data, data2) {
 	cols = [];
 
 	// データの取り出しと並べ替え
@@ -289,6 +298,43 @@ function init_custom_form(data) {
 		div.append(span);
 	}
 	input_cols = $(input_cols);
+
+	// オプション選択生成
+	opts = [];
+	select_opts = [];
+	if (data2) {
+		for(var k in data2) {
+			if (k.rsubstr(4) == '-cst') continue;
+			opts.push({name: k, val: data2[k + '-cst'], list: data2[k] });
+		}
+		opts = opts.sort(function(a, b) {
+		        return (a.name < b.name) ? -1 : 1;
+		});
+
+		var obj = $('<span>').attr('id', 'options');
+		for(var i=0; i<opts.length; i++) {
+			var sel = $('<select>').attr('name', opts[i].name);
+			sel.append($('<option>').attr('value','').text( name2msg('default') ));
+			sel.change( function(evt){
+				update_css();
+			});
+			var list = opts[i].list;
+			var val  = opts[i].val || '';
+			for(var j=0; j<list.length; j++) {
+				var n = name2msg( list[j] );	// 翻訳
+				var o = $('<option>')
+					.attr('value', list[j])
+					.text(n);
+				if (list[j] == val) o.prop('selected', true);
+				sel.append(o);
+			}
+			obj.append( sel );
+			select_opts.push( sel );
+			if (IE8) sel.val('');	// なぜかこうするとうまく動く
+		}
+		custom_cols.prepend( obj );
+		select_opts = $(select_opts);
+	}
 	custom_form.show();
 	iframe_resize();
 }
@@ -326,9 +372,27 @@ function update_css() {
 		if (val.match(/#[0-9A-Fa-f]{3}/) || val.match(/#[0-9A-Fa-f]{6}/))
 			col[ obj.attr('name').substr(2) ] = val;
 	});
+	var opt = {};
+	select_opts.each(function(idx,dom){
+		var obj = $(dom);
+		opt[ obj.attr('name') ] = obj.val();
+	});
 	var lines = css_text.split("\n");
+	var in_opt;
+	var opt_sel;
 	for(var i=0; i<lines.length; i++) {
-		var x = lines[i];
+		var x  = lines[i];
+		var ma = x.match(/\$(option\d*)=([\w-]+)/);
+		if (in_opt || ma) {
+			if (!in_opt) {
+				in_opt  = true;
+				opt_sel = (opt[ ma[1] ] == ma[2]);
+			}
+			if (ma || !opt_sel) lines[i]='';
+			if (ma && ma[2] == 'end') in_opt=false;
+			continue;
+		}
+
 		var ma = x.match(/\$c=(\w+)/);
 		if (!ma) continue;
 		lines[i] = x.replace(/#[0-9A-Fa-f]+/, col[ ma[1] ]);
@@ -341,6 +405,9 @@ function update_css() {
 		iframe.contents().find('head').append(if_css);
 		if_css[0].styleSheet.cssText = new_css;
 	}
+
+	// CSSによる設定反映
+	iframe[0].contentWindow.css_inital();
 }
 
 //////////////////////////////////////////////////////////////////////////////
