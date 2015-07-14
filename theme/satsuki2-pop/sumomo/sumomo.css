@@ -44,14 +44,13 @@ body
 .main {
 	float:			right;
 	width:			620px;
-	margin-right:		2px;
 }
 /* 左側にメニューを配置 */
 #sidebar
 {
 	float:			left;
 	width:			160px;
-	margin:			0;
+	margin:			0 0 0 4px;
 	padding:		0;
 
 	font-size:		10pt;
@@ -85,6 +84,19 @@ body
 	text-overflow:		ellipsis;
 } */
 
+/*--------------------------------------------------------------------
+■表示オプション（右サイドバー）
+---------------------------------------------------------------------*/
+/* $option=right-sidebar
+.main {
+	float:			left;
+	margin-left:		2px;
+}
+#sidebar {
+	float:			right;
+	margin-right:		2px;
+}
+$option=end */
 
 /****************************************************************************
 ■全体設定
@@ -848,7 +860,7 @@ div.side-contents-list div.hatena-moduletitle a {
 ●sidebar：カレンダー
 ---------------------------------------------------------------------*/
 table.calendar {
-	margin			0 auto;
+	margin:			0 auto;
 	font-size:		95%;
 	line-height:		100%;
 }

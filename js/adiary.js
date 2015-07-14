@@ -1372,7 +1372,7 @@ function $secure(id) {
 //////////////////////////////////////////////////////////////////////////////
 // CSSファイルの追加
 //////////////////////////////////////////////////////////////////////////////
-function prepend_css_file(file, id) {
+function prepend_css_file(file) {
 	var css = $("<link>")
 	css.attr({
 		type: "text/css",
@@ -1708,7 +1708,12 @@ $(function(){
 			hljs.highlightBlock(block);
 		});
 	});
-	prepend_css_file('#').attr('id', 'syntaxhighlight-theme');
+	var css = $('<style>').attr({
+		type: "text/css",
+		rel: "stylesheet",
+		id: 'syntaxhighlight-theme'
+	});
+	$("head").prepend(css);
 });
 
 css_initial_functions.push(function(){
