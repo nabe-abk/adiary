@@ -406,7 +406,6 @@ function update_css() {
 		lines[i] = x.replace(/#[0-9A-Fa-f]+/, col[ ma[1] ]);
 	}
 	var new_css = lines.join("\n");
-	alert(new_css);
 	try {
 		if_css.html( new_css );
 	} catch(e) {
