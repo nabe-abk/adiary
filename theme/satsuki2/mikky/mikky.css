@@ -133,6 +133,7 @@ button
 	background-image:	linear-gradient(to bottom,
 				#72c2aa,		/* $c=btnbg0 */
 				#5fa18d);		/* $c=btnbg1 = auto:btnbg0 */
+	background-color:	#5fa18d;		/* $c=btnbg1 */
 }
 button:hover
 {
