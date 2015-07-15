@@ -1332,7 +1332,7 @@ sub save_theme {
 	my %opt;
 	my $diff;
 	foreach(keys(%$form)) {
-		if ($_ =~ /^option\d*$/) {
+		if ($_ =~ /^option\d*$/ && $form->{$_} ne '') {
 			$opt{$_} = $form->{$_};
 			$diff=1;
 			next;
@@ -1342,7 +1342,7 @@ sub save_theme {
 		my $val = $form->{$_};
 		if ($val !~ /(#[0-9A-Fa-f]{6})/) { next; }
 		$col{$name} = $1;
-		if ($c->{$name} ne $col{$name}) { $diff=1; }
+		if ($c->{$name} ne $col{$name}) { $diff=1; $self->debug("cname $_"); }
 	}
 	if (!$diff) {	# カスタマイズしてない
 		$ROBJ->file_delete( $file );
@@ -1449,6 +1449,7 @@ sub load_theme_colors {
 	my $in_com;
 	my $in_opt;
 	my $in_attr;
+	my $in_prop;
 	my @ary;		# 抽出部保存用
 	my $line_c=0;
 	my @line_flag;		# 抽出部記録用
@@ -1489,7 +1490,8 @@ sub load_theme_colors {
 			$col{"$1-rel"} = $2;
 		}
 
-		if ($_ =~ /\$c=\s*([\w]+)/) {	# /* $c=main */ 等
+
+		if ($_ =~ /\$c=\s*([\w]+)/) {	# /* $c=main */ 等の色名定義
 			my $name = $1;
 			$_ =~ s/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])([^0-9A-Fa-f])/#$1$1$2$2$3$3$4/g;
 
@@ -1504,7 +1506,13 @@ sub load_theme_colors {
 				$sel='';
 				next;
 			}
+			$in_prop=1;
+		}
+		if ($in_prop) {
 			$line_flag[$line_c] = 1;
+
+			# プロパティが終わってない
+			$in_prop = ($_ !~ /[;}]/);
 
 			# プロパティの開始まで戻る
 			my $c = $line_c;
@@ -1517,7 +1525,9 @@ sub load_theme_colors {
 			}
 			$attr .= $_;
 			next;
+
 		}
+
 		# その行だけのコメントを除去
 		$_ =~ s|\s*/\*.*?\*/[\t ]*||g;
 		if ($_ =~ m|(.*?)/\*|) {	# コメント開始
