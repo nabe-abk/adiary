@@ -11,4 +11,4 @@ System-mode: yes
 
 ChangeLog
 2008/08/15 初版
-2015/07/1x adiary Ver3に移植 (by nabe)
+2015/07/16 adiary Ver3に移植 (by nabe)
