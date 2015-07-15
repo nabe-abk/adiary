@@ -76,7 +76,7 @@ iframe.on('load', function(){
 	var selector = '>' + module_selector + not_sortable;
 	side_a.sortable({ items: selector, connectWith: ".connectedSortable" });
 	side_b.sortable({ items: selector, connectWith: ".connectedSortable" });
-	f_main.sortable({ items: selector + ', #article, #articles' });
+	f_main.sortable({ items: selector + ', #article-box, #articles' });
 	f_head.sortable({ items: selector });
 
 	// 記事本体
