@@ -20,6 +20,8 @@ $(function(){
 	var sel = $('#theme-select');
 	var theme_query='';
 
+	var theme_dir = sel.data('theme_dir');
+
 //////////////////////////////////////////////////////////////////////////////
 // ●iframeの自動リサイズ
 //////////////////////////////////////////////////////////////////////////////
@@ -30,6 +32,18 @@ $(function(){
 	}
 	iframe_resize();
 	$(window).resize( iframe_resize );
+
+	var detail = $('#detail-mode');
+	function detail_click(evt) {
+		var obj = detail;
+		var tar = $(obj.data('target'));
+		if (obj.prop('checked'))
+			tar.show(DefaultShowSpeed, iframe_resize);
+		else
+			tar.hide(DefaultShowSpeed, iframe_resize);
+	}
+	detail.click( detail_click );
+	detail_click( );
 
 //////////////////////////////////////////////////////////////////////////////
 // ●テーマ変更時の処理
@@ -382,7 +396,17 @@ function update_css() {
 	var in_opt;
 	var opt_sel;
 	for(var i=0; i<lines.length; i++) {
-		var x  = lines[i];
+		var x = lines[i];
+		// 画像ファイル
+		var ma = x.match(/(.*?)url\s*\(\s*(['"])([^'"]+)\2\s*\)(.*)/i);
+		if (ma) {
+			var file = ma[3];
+			file = file.replace('./', '');
+			if (file.match(/^[\w-]+(?:\.[\w-]+)*$/))
+				x = ma[1] + "url('" + theme_dir + current_theme + '/' + file + "')" + ma[4];
+			lines[i] = x;
+		}
+		// オプション
 		var ma = in_opt || x.match(/\$(option\d*)=([\w-]+)/);
 		if (ma) {
 			if (!in_opt) {
@@ -401,6 +425,7 @@ function update_css() {
 			continue;
 		}
 
+		// 色カスタム
 		var ma = x.match(/\$c=(\w+)/);
 		if (!ma) continue;
 		lines[i] = x.replace(/#[0-9A-Fa-f]+/, col[ ma[1] ]);
@@ -635,8 +660,10 @@ function HSVtoRGB( hsv ) {
 	}
 }
 function name2msg(name) {
-	for(var n in n2msg)
-		name = name.replace(n, n2msg[n]);
+	for(var n in n2msg) {
+		name = name.replace(n + '-', n2msg[n]);
+		name = name.replace(n      , n2msg[n]);
+	}
 	return name;
 }
 

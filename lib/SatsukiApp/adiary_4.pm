@@ -1364,12 +1364,17 @@ sub css_rewrite {
 	my $css  = shift;
 	my $col  = shift || {};
 	my $opt  = shift || {};
+	my $dir  = $self->{ROBJ}->{Basepath} . $self->{theme_dir};
 
 	my @ary = split(/\n/, $css);
 	my $in_opt;
 	my $opt_sel;
+	my $theme;
 	foreach(@ary) {
 		$_ .= "\n";
+		if ($_ =~ m|\$theme=([\w\-]+/[\w\-]+)|) {
+			$theme=$1;
+		}
 		if ($in_opt || $_ =~ /\$(option\d*)=([\w-]+)/) {
 			if (!$in_opt) {
 				$in_opt  = 1;
@@ -1381,6 +1386,16 @@ sub css_rewrite {
 				$_ = ($_ =~ /^(.*[;}])/) ? "$1\n" : '';
 			}
 			if (!$opt_sel) { $_ = ''; }
+
+			# オプション内に画像ファイルを含む
+			$_ =~ s!url\s*\(\s*(['"])([^'"]+)\1\s*\)!
+				my $q = $1;
+				my $file = $2;
+				if ($file =~ m|^(?:\./)*[\w-]+(?:\.[\w-]+)*$|) {
+					$file = $dir . $theme . '/' . $file;
+				}
+				"url($q$file$q)";
+			!ieg;
 		}
 		if ($_ !~ /\$c=\s*(\w+)/) { next; }
 		my $name = $1;
@@ -1430,6 +1445,7 @@ sub load_theme_colors {
 
 	my $lines;
 	my $template;
+	my $name;
 	if (ref($theme)) {
 		$lines = $theme;
 		$rec = 1;	# 他ファイル参照無効
@@ -1437,6 +1453,7 @@ sub load_theme_colors {
 		if ($theme !~ m|^([\w-]+)/([\w-]+)/?$|) {
 			return 1;
 		}
+		$name = $theme;
 		$template = $1;
 		$theme = $2;
 		$lines = $ROBJ->fread_lines( "$self->{theme_dir}$template/$theme/$theme.css" );
@@ -1552,6 +1569,10 @@ sub load_theme_colors {
 	}
 
 	# 後処理
+	if (@ary && $name) {
+		# CSS内でオプション部に url(); を含む時に必要
+		unshift(@ary, "/* \$theme=$name */\n");
+	}
 	my $css = join('',@ary);
 	# border:	1px solid #ffffff; → border-color: #ffffff
 	# border-left:	1px solid #ffffff; → border-left-color: #ffffff

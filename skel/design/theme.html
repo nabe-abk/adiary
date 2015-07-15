@@ -109,7 +109,7 @@ div.iblk {
 <input type="hidden" name="action" value="<@v.skeleton>">
 <input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 <@v.title> 
-<select id="theme-select" name="theme">
+<select id="theme-select" name="theme" data-theme_dir="<@Basepath><@v.theme_dir>">
 <@forexec(tp, v.load_templates(), begin)>
 <@forexec(t,  v.load_themes(tp), begin)>
 	<option value="<@tp><@t.name>" data-readme="<@t.readme>"<@if("<@tp><@t.name>" eq theme, ' selected')>><@tp><@t.name></option>
@@ -134,7 +134,7 @@ div.iblk {
 <input type="hidden" name="custom" value="" id="custom-flag">
 <button type="button" id="btn-reset">リセット</button>
 <button type="button" id="btn-super-reset">テーマ初期値に</button>
-<input type="checkbox" class="js-switch" data-target="#custom-colors-detail" id="detail-mode"><label>詳細</label>
+<input type="checkbox" data-target="#custom-colors-detail" id="detail-mode"><label>詳細</label>
 <div class="iblk">H <div id="h-slider" class="silder"></div></div>
 <div class="iblk">S <div id="s-slider" class="silder"></div></div>
 <div class="iblk">V <div id="v-slider" class="silder"></div></div>
@@ -171,15 +171,14 @@ module=モジュール
 strong=強調
 
 default=デフォルト
-right-=右
 right=右
-left-=左
 left=左
 multi-=マルチ
 multi=マルチ
 sidebar=サイドバー
 responsive=レスポンシブ
 mono=単色
+image=画像
 </textarea>
 <span id="css-exp-error">CSSで指定されている色式が正しくありません。<br>%s</span>
 <span id="sysmode-no-warning">このテーマは管理画面非対応です。表示が崩れることがあるかもしれません。それでも管理画面で使用しますか？</span>
