@@ -1,0 +1,1069 @@
+@charset "UTF-8";
+/*****************************************************************************
+  「みっきー」テーマ
+					         (C)2015 nabe@abk
+					Original (C)2008 GLANSHE
+*****************************************************************************/
+/* [TAB=8] */
+/*--------------------------------------------------------------------
+■全体配置
+---------------------------------------------------------------------*/
+body
+{
+	background-image:	linear-gradient(to bottom,
+				#fff,
+				#6ad6dc);	/* $c=bg */
+	background-color:	#6ad6dc;	/* $c=bg */
+	background-attachment:	fixed;
+
+	padding:		0;
+	margin:			0;
+
+	color:			#000;		/* $c=fixfont */
+	font-size:		12pt;
+	line-height:		130%;
+}
+#adiary-body {
+	min-width:		600px;
+	max-width:		920px;
+	margin:			0 auto;
+
+	border:			1px solid #bbb;	/* $c=border */
+	border-width:		0px 1px;
+	background-color:	#fff;
+	padding:		0;
+}
+#hatena-body {
+	position:		relative;
+	margin:			1em 8px;
+	padding-bottom:		1px;
+}
+#hatena-body:after {
+	content:		"";
+	clear:			both;
+	display:		block;
+}
+/* 記事部 */
+.main {
+	float:			right;
+	width:			calc(100% - 168px);
+}
+/* 左側にメニューを配置 */
+#sidebar
+{
+	float:			left;
+	width:			160px;
+	margin:			0;
+	padding:		0;
+
+	font-size:		10pt;
+	line-height:		130%;
+}
+/* フッタの配置 */
+#footer
+{
+	background-color:	#527a6f;	/* $c=footerbg */
+	text-align:		center;
+
+	margin:			30px 0 0 0;
+	padding:		1em 0;
+	font-size:		10pt;
+	line-height:		120%;
+}
+#footer, #footer a:link, #footer a:visited {
+	color:			#fff;
+}
+
+/* overflow防止 */
+/* #side-a, #side-b, article {
+	overflow:		hidden;
+	text-overflow:		ellipsis;
+} */
+
+/*--------------------------------------------------------------------
+○for IE8 (not support calc)
+---------------------------------------------------------------------*/
+.IE8 #adiary-body {
+	width:			800px;
+}
+.IE8 .main {
+	width:			612px;
+}
+
+/*--------------------------------------------------------------------
+■表示オプション（右サイドバー）
+---------------------------------------------------------------------*/
+/* $option=right-sidebar
+.main {
+	float:			left;
+	width:			calc(100% - 172px);
+}
+#sidebar {
+	float:			right;
+}
+-------------------- */
+
+/* $option2=monobg
+body {
+	background-image:	none;
+}
+-------------------- */
+
+
+
+/****************************************************************************
+■全体設定
+****************************************************************************/
+/*--------------------------------------------------------------------
+●リンク配色
+---------------------------------------------------------------------*/
+a:link		{ color: #007D81; }	/* $c=link */
+a:visited	{ color: #236270; }	/* $c=linkvisited = main */
+a:hover		{ color: #7BBBC8; }	/* $c=linkhoverbg */
+
+/*--------------------------------------------------------------------
+●ボタンデザイン
+---------------------------------------------------------------------*/
+button
+{
+	color:			#fff;			/* $c=fixbtnfont */
+	font-weight:		bold;
+	border:			1px solid #7eb5a6;	/* $c=btnborder = btnbg0 */
+	border-radius:		6px;
+	background-image:	linear-gradient(to bottom,
+				#72c2aa,		/* $c=btnbg0 */
+				#5fa18d);		/* $c=btnbg1 = auto:btnbg0 */
+}
+button:hover
+{
+	border-radius:		6px;
+	cursor:			pointer;
+	background-image:	linear-gradient(to bottom,
+				#85e6cb,		/* $c=btnbghover0 = btnbg0 */
+				#85e6cb);		/* $c=btnbghover1 = btnbg0 */
+}
+
+button:disabled
+{
+	color:			#ccc;
+	background-image:	none;
+	background-color:	#7ba4ad;		/* $c=btndisable = auto:btnbg0 */
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI アイコン設定
+---------------------------------------------------------------------*/
+#ui-icon-autoload {
+	background-color:	#007D81;		/* $c=uiicon = auto:link */
+}
+
+/****************************************************************************
+■ヘッダ
+****************************************************************************/
+#sp-header, #header {
+	padding:		0;
+	background-color:	#b5e6d8;		/* $c=headerbg = auto:headerbg0 */
+	background-image:	linear-gradient(to right,
+				#85e6cb,		/* $c=headerbg0 */
+				#fff);
+}
+/* $option3=header-image
+#header {
+	background-image:	url('title.jpg');
+	background-size:	cover;
+}
+*/
+
+#nav-header {
+	text-align:		right;
+	font-size:		10pt;
+	line-height:		100%;
+	margin:			0;
+	padding:		1px;
+	display:		block;
+}
+
+#nav-header a, #nav-header a:link, #nav-header a:visited {
+	text-decoration:	none;
+}
+/* ○○さん */
+a.welcome-name { margin: 0px 4px 0px 4px; }
+
+
+/* 見出し */
+h1
+{
+	font-size:		24pt;
+	font-weight:		bold;
+	font-family:		"HGP創英角ﾎﾟｯﾌﾟ体",sens-serif;
+	line-height:		100%;
+
+	text-align:		center;
+	margin:			0;
+	padding:		110px 0 40px 0;
+}
+h1 a, h1 a:link, h1 a:visited {
+	color:			#088;		/* $c=titlefont */
+	text-decoration:	none;
+}
+h1 img, h1 a img {
+	border:			none;
+}
+
+/*--------------------------------------------------------------------
+●ドロップダウンメニュー
+---------------------------------------------------------------------*/
+.dropdown-menu {
+	margin-bottom:		1em;
+}
+/* 背景色（非選択色） */
+.dropdown-menu,
+.dropdown-menu>ul li {
+	background-color:	#f2fffa;	/* $c=ddbg = artbg */
+}
+/* 選択色 */
+.dropdown-menu>ul li:hover,
+.dropdown-menu>ul li.hover {
+	background-color:	#adffde;	/* $c=ddhover = auto:artbg */
+}
+/* 枠線 */
+.dropdown-menu>ul li {
+	border-color:		#bbb;		/* $c=border */
+}
+/* 文字 */
+.dropdown-menu a:link,
+.dropdown-menu a:visited
+{
+	color:			#007D81;	/* $c=ddfont = link */
+}
+/* 矢印の色 */
+.dropdown-menu li ul li ul:before,
+.dropdown-menu.sp li ul:before {
+	border-left-color:	#007D81;	/* $c=ddarrow = link */
+}
+.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
+	border-left-color:	transparent;
+	border-right-color:	#007D81;	/* $c=ddarrow */
+}
+/* 設定画面に矢印の色を自動取得させるための指定 */
+.dropdown-menu {
+	color:			#007D81;	/* $c=ddarrow */
+}
+/* 枠線を消す */
+.dropdown-menu>ul li {
+	border-top:		none;
+	border-bottom:		none;
+}
+.dropdown-menu:not(.sp)>ul>li li {
+	margin-top:	0px;
+}
+.dropdown-menu:not(.sp)>ul ul ul {
+	margin-top:	-1px;
+}
+.dropdown-menu:not(.sp)>ul>li a {
+	height:			100%;
+}
+
+/* 影をつける */
+.dropdown-menu>ul li:hover ul,
+.dropdown-menu.sp>ul>li>ul {
+	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
+}
+
+/****************************************************************************
+■メイン
+****************************************************************************/
+/*--------------------------------------------------------------------
+■ページ送り
+---------------------------------------------------------------------*/
+nav.page-nav {
+	font-size:	10pt;
+	line-height:	100%;
+	margin:		1em 0;
+}
+nav.page-nav a {
+	display:	inline-block;
+}
+nav.page-nav a:first-child {
+	margin-right:	1em;
+}
+nav.page-nav a:last-child {
+	margin-left:	1em;
+}
+a.prev-page:before,
+a.upnode-page:before,
+a.next-page:after {
+	display:		inline-block;
+	width:			16px;
+	height:			16px;
+	content:		' ';
+	vertical-align:		bottom;
+}
+a.prev-page:before {
+	background-position: -208px -16px;
+}
+a.upnode-page:before {
+	background-position: -224px -16px;
+}
+a.next-page:after {
+	background-position: -240px -16px;
+}
+/*--------------------------------------------------------------------
+■記事のデザイン配置（本文）
+---------------------------------------------------------------------*/
+/* 1つの記事 */
+article {
+	position:		relative;
+	clear:			both;
+	margin-bottom:		1.5em;
+	padding:		0;
+
+	border-radius:		2px;
+	border:			1px solid #bbb;		/* $c=border */
+	background-color:	#f2fffa;		/* $c=artbg */
+}
+
+/* 記事タイトル */
+h2, h2 a, h2 a:link, h2 a:visited {
+	text-decoration:	none;
+}
+article h2 {
+	font-size:		13pt;
+	margin:			0;
+	padding:		20px 0 0 0;
+	text-align:		center;
+}
+article h2:after {
+	display:		block;
+	content:		"";
+	height:			3px;
+	margin:			0 16px;
+	background-color:	#236270;	/* $c=main */
+	background-image:	linear-gradient(to right,
+				#fff,
+				#236270,	/* $c=main */
+				#fff);
+}
+article h2 a.date {
+	position:		absolute;
+	right:			10px;
+	top:			0px;
+	font-weight:		normal;
+
+	font-size:		12px;
+	text-decoration:	none;
+}
+
+
+/* 記事本文 */
+article div.body {
+	font-size:		90%;
+	line-height:		140%;
+	margin:			0px;
+	padding:		0.5em 1em 0.5em 1.5em;
+}
+
+/* 記事ヘッダ */
+div.body-header {
+	text-align:		right;
+	line-height:		100%;
+	font-size:		90%;
+	padding:		0;
+	margin:			0 0.2em 0 0;
+}
+
+/* 記事中のセクション */
+article section {
+	margin-top: 		0.5%;
+	margin-bottom:		3%;
+}
+
+/* セクションフッタ */
+section footer {
+	font-size:		90%;
+	margin:			1.5em 1em 0 1em;
+	background-color:	#f6f6ff;		/* $c=footnotebg */
+	border-radius:		6px;
+}
+/* 脚注 */
+section footer p.footnote {
+	margin-top:		0;
+	margin-bottom:		0;
+}
+
+/* 記事フッタ */
+div.body-footer {
+}
+
+/* ソーシャルアイコン */
+div.social-buttons {
+	line-height:		100%;
+	font-size:		90%;
+	margin:			0 0 0 0.5em;
+	vertical-align:		middle;
+
+	margin-left:		1em;
+	display:		inline-block;
+}
+div.body-footer div.social-buttons:first-child {
+	margin-left:		0;
+}
+
+/****************************************************************************/
+/****************************************************************************/
+/*--------------------------------------------------------------------
+■記事ヘッダ
+---------------------------------------------------------------------*/
+div.body-header > span:not(:last-child) {
+	margin-right:		0.5em;
+}
+/* タグ一覧 */
+div.body-header span.tags:before {
+	content:		'[';
+}
+div.body-header span.tags:after {
+	content:		']';
+}
+span.tag:not(:last-child) {
+	margin-right:		0.5em;
+}
+span.tag:not(:last-child):after {
+	content:		',';
+}
+
+/*--------------------------------------------------------------------
+■記事見出し
+---------------------------------------------------------------------*/
+/* 見出し */
+div.body h3 {
+	font-size:		120%;
+	font-weight:		bold;
+	border-bottom:		2px solid #007D81;	/* $c=h3 */
+}
+div.body h3:before {
+	display:		inline-block;
+	content:		"";
+
+	margin-right:		4px;
+	border:			6px solid #007D81;	/* $c=h3 = link */
+	box-shadow:		2px 2px 1px 1px rgba(60,60,60,0.3);
+}
+
+div.body h3 span.timestamp {
+	font-size:		10pt;
+	font-weight:		normal;
+}
+div.body h3,
+div.body h3 a,
+div.body h3 a:link,
+div.body h3 a:visited {
+	color:			#007D81;		/* $c=h3 */
+	text-decoration:	none;
+}
+/* 小見出し */
+div.body h4 {
+	font-size:		100%;
+	font-weight:		bold;
+	border-bottom:		1px solid #007D81;	/* $c=h3 */
+}
+div.body h5 {
+	font-size:		100%;
+	font-weight:		bold;
+}
+/* 小見出しへのリンク */
+div.body h4 a, div.body h5 a {
+	font-size:		inherit;
+	color:			inherit;
+	text-decoration:	inherit;
+}
+
+/*--------------------------------------------------------------------
+■記事内部
+---------------------------------------------------------------------*/
+div.body p {
+	margin:			0.7em 0.5em 0.7em 0;
+}
+
+blockquote, pre, div.box {
+	margin:			0.5em 2em 0.5em 2em;
+	padding:		0.3em 1em 0.3em 1em;
+	border:			1px solid #bbb;			/* $c=border */
+	border-radius:		4px;
+	background-color:	#fff;				/* $c=prebg */
+}
+div.body blockquote p {
+	margin:			0.2em 0.5em 0.2em 0;
+}
+pre {
+	font-family:		monospace;
+	display:		block;
+/*	overflow:		auto;	*/	/* はみ出した部分は scroll bar */
+}
+
+/* pre 中コメント */
+pre span.comment	{ color: #c30; }			/* $c=fixstrongfont */
+pre strong.comment	{ color: #c30; font-weight: bold; }	/* $c=fixstrongfont */
+em {
+	font-style:		normal;
+	text-decoration:	none;
+	color:			#c30;				/* $c=fixstrongfont */
+}
+
+/* 強調 */
+article:not(.system) strong { color: #c30; }			/* $c=fixstrongfont */
+
+dt { font-weight:	bold; }
+
+/*--------------------------------------------------------------------
+●記事：テーブル
+---------------------------------------------------------------------*/
+.body table,
+.ui-dialog table {
+	font-size:		inherit;
+	margin:			0.5em 1em 0.5em 1em;
+	border-collapse:	collapse;
+	empty-cells:		show;
+}
+.body blockquote table,
+.body div.box table {
+	margin-left:		0;
+	margin-right:		0;
+}
+.body table tr,
+.ui-dialog table tr {
+	margin:			0px;
+	padding:		0px;
+}
+.body table td,
+.ui-dialog table td {
+	margin:			0px;
+	padding:		2px 4px;
+	border-bottom:		1px dashed #000;
+}
+.body table th,
+.ui-dialog table th {
+	font-weight:		bold;
+	margin:			0px;
+	padding:		2px 4px;
+	border-right:		1px solid #bbb;		/* $c=border */
+	border-bottom:		1px solid #bbb;		/* $c=border */
+	background-color:	#aae2e6;		/* $c=tablebg */
+}
+tr th:last-child {
+	border-right:		none;
+}
+
+
+
+/*--------------------------------------------------------------------
+●コメント欄
+---------------------------------------------------------------------*/
+#com {
+	margin-top:		0.5em;
+	padding:		1em;
+	font-size:		10.5pt;
+	line-height:		150%;
+
+	border-radius:		3px;
+	border:			1px solid #bbb;		/* $c=border */
+	background-color:	#f2fffa;		/* $c=combg = artbg */
+}
+#com div.caption a {
+	font-weight:		bold;
+	text-decoration:	none;
+}
+
+#com div.swiches {
+	font-size:		10pt;
+	margin:			0 0 0 2em;
+	padding:		0;
+}
+
+div.comment-one {
+	margin:			1em 0;
+
+}
+div.commentator {
+	border-bottom:		1px solid #bbb;		/* $c=border */
+}
+div.comment-text {
+	margin-left:		2em;
+}
+/* 非公開コメント */
+.comment-hidden {
+	color:			#008;
+}
+/* 非表示コメント */
+.comment-disable {
+	color:			#800;
+}
+#com div.ip-host-agent {
+	color:			#080;
+	text-align:		right;
+	margin-right:		1em;
+	display:		none;
+}
+div.ip-host-agent {
+	font-size:		9pt;
+	line-height:		120%;
+}
+
+/* リプライやコメント一覧画面でのポップアップ表示 */
+#popup-com {
+	border:			1px solid #000;
+	background-color:	#ffd;
+	border-radius:		4px;
+	box-shadow:		4px 4px 2px 2px rgba(60,60,20,0.75);
+
+	font-size:		10pt;
+	padding:		0.5em;
+}
+
+/*--------------------------------------------------------------------
+■検索ウィンドウ
+---------------------------------------------------------------------*/
+article.system.search div.body {
+	padding-bottom:	4px;
+}
+
+/*--------------------------------------------------------------------
+●メッセージ関連
+---------------------------------------------------------------------*/
+strong.warning, strong.error, strong.notice,
+div.messages div.message {
+	color:		#c30;			/* $c=fixstrongfont */
+}
+div.messages div.message:last-child {
+	font-weight:	bold;
+}
+div.messages div.notice {
+	margin-left:	2em;
+}
+div.messages div.message + div.notice {
+	display:	block;
+	margin-top:	0.5em;
+}
+.add-msg {
+	margin:		1em 0;
+}
+
+/****************************************************************************
+■sidebar
+****************************************************************************/
+/* sidebar の 1項目 */
+div.hatena-module {
+	margin:			0 0 1.3em 0;
+	padding:		0;
+	font-size:		95%;
+	line-height:		120%;
+}
+div.hatena-moduletitle {
+	color:			#236270;	/* $c=main */
+	margin:			0;
+	padding:		2px 0;
+	text-align:		center;
+	font-weight:		bold;
+}
+div.hatena-moduletitle:after {
+	display:		block;
+	content:		"";
+	height:			2px;
+	background-color:	#236270;	/* $c=main */
+	background-image:	linear-gradient(to right,
+				#fff,
+				#236270,	/* $c=main */
+				#fff);
+}
+
+div.hatena-modulebody {
+	margin:			0.3em 0.5em 0.3em 0.5em;
+}
+div#side-calendar div.hatena-modulebody table {
+	font-size:		100%;
+	margin:			0.3em auto;
+}
+#sidebar p {
+	margin-top:		0.5em;
+	margin-bottom:		0.5em;
+}
+/* Informationのタイトルを出さない */
+div#side-information div.hatena-moduletitle {
+	display:		none;
+}
+
+/* コンテンツ */
+div.side-contents-list div.hatena-moduletitle a {
+	text-decoration:	none;
+}
+
+/*--------------------------------------------------------------------
+●sidebar：カレンダー
+---------------------------------------------------------------------*/
+table.calendar {
+	margin-left:		auto;
+	margin-right:		auto;
+	font-size:		95%;
+	line-height:		100%;
+}
+table.calendar td.calendar-prev-month    { text-align: left;  margin-left:  0.5em; }
+table.calendar td.calendar-current-month { text-align: center; }
+table.calendar td.calendar-next-month    { text-align: right; margin-right: 0.5em; }
+table.calendar td {
+	text-align:		right;
+}
+table.calendar td.calendar-day a {
+	text-decoration:	underline;
+}
+/* 土曜日 */
+table.calendar td.w6, table.calendar th.w6 {
+	background-color: 	#ccf;
+}
+/* 日曜日、祝日 */
+table.calendar td.w0, table.calendar th.w0,
+table.calendar td.holiday {
+	background-color: 	#fcc;
+}
+/* 今日 */
+table.calendar td.day-today      { font-weight: bold; }
+/* 選択した日付 */
+table.calendar td.day-selected {
+	text-decoration:	none;
+	border:			1px solid #007D81;	/* $c=link */
+}
+
+/*--------------------------------------------------------------------
+●sidebar：タグ
+---------------------------------------------------------------------*/
+/* タイトル一覧など */
+ul.hatena-section {
+	list-style-type:	none;
+	margin:			0.3em 0em 0.3em 0.3em;
+	padding:		0px;
+}
+
+/* 2段目のリスト */
+ul.hatena-section ul {
+	list-style-type:	none;
+	margin:			0 0 0.2em 1em;
+	padding:		0px;
+}
+
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
+/* ここより下は管理メニュー内でのみ使用するクラス                           */
+/*		システムモードに対応しないテーマでは定義不要                */
+/****************************************************************************/
+#side-login-information table {
+	border-spacing:		0;
+}
+
+.copyright blockquote {
+	background-color:	#ffe;
+}
+
+/* プラグインの設定 */
+span.plg-author {
+	margin:		0 0.5em;
+}
+table.plugins button { margin: 0; }
+
+/*--------------------------------------------------------------------
+●システム画面
+---------------------------------------------------------------------*/
+article.system {
+	background-color:	#f6fffc;		/* $c=sysbg = auto:artbg */
+}
+article.system div.body {
+	padding-bottom:		1em;
+}
+
+#album h2 {
+	text-align:		left;
+	padding-left:		10px;
+}
+
+/*--------------------------------------------------------------------
+●フォームの一般設定
+---------------------------------------------------------------------*/
+ul.checkbox {
+	list-style-type:	none;
+}
+/* エラー */
+th.error, td.error {
+	background-color:	#ffccb0;
+}
+input.error, textarea.error,
+th.error input, td.error input {
+	background-color:	#ffffaa;
+}
+
+/* フォーカス */
+th.focus, td.focus {
+	background-color:	#ffffcc;	/* $c=fixfocusbg1 */
+}
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+.setting textarea:focus {
+	background-color:	#ffeeee;	/* $c=fixfocusbg2 */
+}
+textarea#editarea:focus {
+	background-color:	#fff;
+}
+textarea#editarea {
+	font-size:		11.5pt;
+}
+li>input[type="checkbox"]:first-child {
+	margin-left:		-1px;
+}
+
+/* ツリーとCSS等の編集画面 */
+article .treebox,
+article:not(.edit) #editarea {
+	margin-top:		1em;
+	margin-bottom:		1em;
+}
+
+/*--------------------------------------------------------------------
+●記事の編集画面
+---------------------------------------------------------------------*/
+article.system.notice {
+	margin-bottom:	1em;
+}
+textarea.edit-article {
+	width:		98%;
+	margin:		0;
+}
+article.edit form.delete {
+	margin-top:	1.5em;
+}
+article.edit span.element {
+	margin-right:	1em;
+}
+
+span.edit-caption {
+	font-weight:	bold;
+	margin-right:	0.3em;
+}
+
+/* タグ */
+article.edit span.tag {
+	font-size:		9pt;
+	background-color:	#aae2e6;	/* $c=tablebg */
+	border-radius:		6px;
+	padding:		0px 4px;
+	margin-right:		0.5em;
+}
+article.edit span.tag:after {
+	content:		'';
+}
+
+/*--------------------------------------------------------------------
+●ポップアップヘルプ, info
+---------------------------------------------------------------------*/
+.help {
+	color:			#c3c;
+}
+.btn-help:after {
+	color:			#e8e;
+}
+
+
+#popup-help {
+	min-width:		100px;
+	max-width:		360px;
+	padding:		0.5em 1em;
+
+	background-color:	#fff;
+	color:			#6b75b8;		/* $c=fixhelpfont */
+
+	font-size:		11pt;
+	/* font-weight:		bold; */
+
+	border:			2px solid #e88;
+	border-radius:		10px;
+	box-shadow:		6px 6px 4px 2px rgba(60,60,60,0.75);
+}
+#popup-help:before {
+	content:		"HELP";
+	color:			#fff;
+	background-color:	#c33;
+	border-radius:		6px;
+
+	font-weight:		bold;
+	font-size:		8pt;
+	padding:		4px;
+	margin:			-2px 4px 0 0px;
+
+	display:		inline-block;
+	line-height:		100%;
+	vertical-align:		middle;
+}
+/*
+#popup-help div.additional {
+	color:			#000;
+	font-weight:		normal;
+}
+*/
+
+/*--------------------------------------------------------------------
+●jQuery UI, popup-info/dialog（テーマREADME/記事のタグヘルパー等）
+---------------------------------------------------------------------*/
+.ui-dialog {
+	background-color:	#f2fffa;		/* $c=artbg */
+	border:			2px solid #85e6cb;	/* $c=dialogbg = auto:headerbg */
+	border-radius:		10px;
+	box-shadow:		8px 8px 4px 4px rgba(60,60,100,0.75);
+	padding:		0;
+
+	font-size:		10.5pt;
+	line-height:		130%;
+}
+.ui-dialog .ui-widget-header {
+	color:			#000;
+	background-color:	#85e6cb;		/* $c=dialogbg */
+	font-weight:		bold;
+	font-size:		12pt;
+
+	border:			none;
+	border-radius:		8px 8px 0 0;
+}
+.ui-dialog span.ui-dialog-title {
+	height:			1em;
+	margin-top:		0;
+	padding-top:		0;
+	padding-bottom:		2px;
+}
+.ui-dialog button.ui-button {
+	color:			#fff;
+	border-radius:		4px;
+}
+.ui-dialog .ui-icon {
+	text-indent:		0px;
+}
+.ui-dialog span.ui-icon-closethick {
+}
+.ui-dialog .ui-dialog-buttonpane {
+	margin-top:		0px;
+	padding-top:		0px;
+}
+
+
+/*--------------------------------------------------------------------
+●jQuery UI, タブ表示（ブログ一覧画面）
+---------------------------------------------------------------------*/
+article.jqueryui-tabs {
+	box-shadow:		none;
+}
+
+.jqueryui-tabs .body {
+	border-radius:		8px;
+	border:			2px solid #bbb;		/* $c=border */
+	background-color:	#f6fffc;		/* $c=sysbg */
+}
+.ui-tabs .ui-tabs-nav li {
+	border-radius:		8px;
+	border:			2px solid #bbb;		/* $c=border */
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-active {
+	border-bottom:		2px solid #f6fffc;	/* $c=sysbg */
+	background-color:	#f6fffc;		/* $c=sysbg */
+}
+.ui-tabs .ui-tabs-nav {
+	margin-bottom:		-2px;		/* 線の太さに合わせる */
+}
+.ui-tabs .ui-tabs-nav li:not(.ui-tabs-active):hover {
+	border-color:		#bbb;			/* $c=border */
+}
+
+
+/*--------------------------------------------------------------------
+●設定ページナビゲーション
+---------------------------------------------------------------------*/
+nav.tree, nav.tree select {
+	font-size:		9pt;
+}
+
+nav.tree {
+	line-height:		100%;
+	display:		block;
+
+	border:			1px solid #bbb;		/* $c=border */
+	margin-bottom:		1.5em;
+	padding:		0.5em 1em;
+
+	background-color:	#f6fffc;		/* $c=sysbg */
+}
+
+/*--------------------------------------------------------------------
+●デザイン編集
+---------------------------------------------------------------------*/
+.design-module-edit.display {	/* 表示ボタンを押したとき */
+	background-color:	#fcc;
+}
+.design-module-edit:hover {
+	background-color:	#faa;
+}
+
+/* モジュールの設定画面 */
+.ui-dialog table.blog-setting {
+	font-size:		10pt;
+}
+
+/*--------------------------------------------------------------------
+●accordion（インポート、エクスポート画面等）
+---------------------------------------------------------------------*/
+div.body h3.ui-accordion-header {
+	font-size:		12pt;
+	line-height:		100%;
+	margin:			0;
+
+	background-color:	#527a6f;	/* $c=footerbg */
+	color:			#fff;
+	border-color:		#ccc;
+}
+.ui-accordion-header-icon {
+	display:		none;
+}
+div.body h3.ui-accordion-header:before {
+	display:		none;
+}
+
+/*--------------------------------------------------------------------
+●プログレスバー（import等）
+---------------------------------------------------------------------*/
+.ui-progressbar {
+	padding:		0;
+	margin:			0.5em 0;
+	max-width:		400px;
+	border:			1px solid #bbb;		/* $c=border */
+	position:		relative;
+	background-color:	#fff;
+}
+.ui-progressbar .label {
+	position:		absolute;
+	width:			100%;
+	text-align:		center;
+	font-weight:		bold;
+	text-shadow:	 1px -1px 2px #fff,
+			 1px -1px 2px #fff,
+			-1px  1px 2px #fff,
+			 1px  1px 2px #fff;
+}
+.ui-progressbar,
+.ui-progressbar .label:before {
+	height:			20px;
+	vertical-align:		middle;
+}
+.ui-progressbar-value {
+	padding:		1px 0 0 1px;
+	background-color:	#72c2aa;			/* $c=btnbg0 */
+} 
+
+
