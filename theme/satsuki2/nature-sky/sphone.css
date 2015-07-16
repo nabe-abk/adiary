@@ -17,9 +17,8 @@ div.main {
 	width:			auto;
 	float:			none;
 }
-#hatena-body,
 #hatena-body>div,
-#footer {
+#footer>div {
 	margin:			0;
 	width:			auto;
 	min-width:		1px;	/* for GC bugs */
