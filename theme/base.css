@@ -61,6 +61,25 @@ body {
 section, article {
 	display:		block;
 }
+
+/* ログイン情報 */
+#side-login-information table {
+	border-spacing:		0;
+}
+
+/* copyright表示 */
+.copyright blockquote {
+	color:			#000;
+	background-color:	#ffe;
+}
+
+/* プラグインの設定 */
+span.plg-author {
+	margin:			0 0.5em;
+}
+table.plugins button { margin: 0; }
+
+
 /*--------------------------------------------------------------------
 ●互換性維持
 ---------------------------------------------------------------------*/

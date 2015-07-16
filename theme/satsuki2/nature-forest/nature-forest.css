@@ -24,7 +24,6 @@ body
 	margin:			0 auto;
 	padding-bottom:		3em;
 	width:			100%;
-	min-width:		800px;
 	background-color:	#d4d4c4;		/* $c=main */
 
 	border-top:		2px solid #aa9;	/* $c=fixbodyborder */
@@ -35,7 +34,7 @@ body
 #footer>div {
 	padding:		0;
 	margin:			0 auto;
-	min-width:		600px;
+	min-width:		700px;
 	max-width:		960px;
 }
 #hatena-body:after {
@@ -760,20 +759,6 @@ button:disabled
 /* ここより下は管理メニュー内でのみ使用するクラス                           */
 /*		システムモードに対応しないテーマでは定義不要                */
 /****************************************************************************/
-#side-login-information table {
-	border-spacing:		0;
-}
-
-.copyright blockquote {
-	background-color:	#ffe;
-}
-
-/* プラグインの設定 */
-span.plg-author {
-	margin:		0 0.5em;
-}
-table.plugins button { margin: 0; }
-
 /*--------------------------------------------------------------------
 ●システム画面
 ---------------------------------------------------------------------*/
