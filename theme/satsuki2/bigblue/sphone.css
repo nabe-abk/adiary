@@ -49,12 +49,13 @@ body, #adiary-body {
 	clear:			both;
 }
 #sp-nav-header {
-	font-size:		10pt;
+	font-size:		9pt;
 	text-align:		right;
 	vertical-align:		top;
 }
 #sp-page-title {
-	padding:		26px 6px 4px 6px;
+	font-size:		18pt;
+	padding:		32px 6px 4px 6px;
 	min-height:		33px;
 	font-weight:		bold;
 	text-shadow:
