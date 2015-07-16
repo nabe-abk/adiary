@@ -1342,7 +1342,7 @@ sub save_theme {
 		my $val = $form->{$_};
 		if ($val !~ /(#[0-9A-Fa-f]{6})/) { next; }
 		$col{$name} = $1;
-		if ($c->{$name} ne $col{$name}) { $diff=1; $self->debug("cname $_"); }
+		if ($c->{$name} ne $col{$name}) { $diff=1; }
 	}
 	if (!$diff) {	# カスタマイズしてない
 		$ROBJ->file_delete( $file );
