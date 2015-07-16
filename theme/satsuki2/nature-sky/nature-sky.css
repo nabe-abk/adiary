@@ -15,7 +15,8 @@ body
 
 	padding:		0;
 	margin:			0;
-
+}
+#header, #footer {
 	background-color:	#39f;		/* $c=main */
 	background-image:	url("slant-tile.gif");
 }
@@ -29,8 +30,10 @@ body
 	border-top:		2px solid #aa9;	/* $c=fixbodyborder */
 	border-bottom:		2px solid #aa9;	/* $c=fixbodyborder */
 }
+
 #hatena-body>div,
-#header, #footer {
+#header>div,
+#footer>div {
 	padding:		0;
 	margin:			0 auto;
 	min-width:		600px;

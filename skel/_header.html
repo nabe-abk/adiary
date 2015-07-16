@@ -7,7 +7,7 @@
 <@>$PASTE=<$ifcontinue(v.system_mode)>
 
 <!--ヘッダ部================================================================-->
-<header id="header">
+<header id="header"><div>
 <@>$HEADER:END$----------------------------------------------------------------
 <nav id="nav-header" data-module-name="deh_login" data-fix="1">
 	<@ifexec(Auth.ok, begin)><span class="welcome"><a href="<@if(v.subdomain_mode , "http://<@v.subdomain_mode>/" ,Myself)>" class="welcome-prefix">ようこそ</a><a<@if(v.exists_my_blog, #' href="<@v.myself3>"')> class="welcome-name"><@Auth.name></a><span class="welcome-postfix">さん</span></span><$end>
@@ -35,4 +35,4 @@
 
 <@viewtest_append_header>
 <@>$FOOTER$--------------------------------------------------------------------
-</header>
+</div></header>

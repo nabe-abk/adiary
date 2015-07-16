@@ -81,6 +81,9 @@
 	padding:		0;
 	background-repeat:	repeat-x;
 	<$end>
+	<@ifexec(ps.head_bgfile_norep, begin)>
+	background-repeat:	no-repeat;
+	<$end>
 <$end>
 <@>
 <@ifexec(ps.margin4 ne '', begin)>

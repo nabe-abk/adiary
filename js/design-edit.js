@@ -56,7 +56,7 @@ iframe.on('load', function(){
 	var side_a = $fsec('#side-a');
 	var side_b = $fsec('#side-b');
 	var f_main = $fsec('#main-first');
-	var f_head = $fsec('#header');
+	var f_head = $fsec('#header').children('div');
 
 	// フレーム内check
 	if ($f('#body').hasClass('system-mode')) {

@@ -112,12 +112,12 @@
 <!--End of body ============================================================-->
 
 <$ps = v.load_plgset('def_footer')>
-<footer id="footer" data-module-name="def_footer" data-fix="1"><!--フッタ-->
+<footer id="footer" data-module-name="def_footer" data-fix="1"><div><!--フッタ-->
 <@ps.footer_txt>
 <@ifexec(ps.outver ne '0', begin)>
 <div class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></div>
 <$end>
-</footer>
+</div></footer>
 </div> <!-- End of #adiary-body -->
 <$end.sp_sysmode>
 
