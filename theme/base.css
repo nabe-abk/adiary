@@ -450,12 +450,12 @@ span.tag span.ui-icon-close,
 	font-size:	9pt;
 	line-height:	150%;
 }
-.search span.search-caption {
+.search-caption {
 	font-weight:	bold;
 	color:		#900;
 	margin-right:	4px;
 }
-div.narrow span.search-caption:after {
+.search-caption:after {
 	content:	'>>';
 }
 .search div.hits {
@@ -736,6 +736,7 @@ h3.ui-accordion-header {
 
 /* エラーダイアログ */
 .ui-dialog.error-dialog {
+	color:			#000;
 	background-color:	#fff8f8;
 	border-color:		#f69;
 	background-image:	none;
@@ -817,9 +818,6 @@ h3.ui-accordion-header {
 	margin-bottom:		-1px;
 	padding:		0px;
 	z-index:		800;
-}
-.ui-tabs .ui-tabs-nav li.ui-tabs-active a {
-	color:			black;
 }
 #body .ui-tabs-nav li {
 	border-bottom-left-radius:	0;

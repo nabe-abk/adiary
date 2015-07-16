@@ -1705,12 +1705,12 @@ $(function(){
 			hljs.highlightBlock(block);
 		});
 	});
-	var css = $('<style>').attr({
+	var style = $('<link>').attr({
 		type: "text/css",
 		rel: "stylesheet",
 		id: 'syntaxhighlight-theme'
 	});
-	$("head").prepend(css);
+	$("head").prepend(style);
 });
 
 css_initial_functions.push(function(){

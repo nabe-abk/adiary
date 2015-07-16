@@ -19,9 +19,22 @@
 <@ifexec(ps.padding0 ne '', begin)>
 	padding:		<@ps.padding0>px <@ps.padding1>px <@ps.padding2>px <@ps.padding3>px;
 <$end>
+<@ifexec(ps.nav_bg, begin)>
+	background-color:	<@ps.nav_bg>;
+	background-image:	none;
+<$end>
+<@ifexec(ps.nav_trans, begin)>
+	background-color:	transparent;
+	background-image:	none;
+<$end>
+<@ifexec(ps.absolute, begin)>
+	position:		relative;
+	float:			right;
+	z-index:		1;
+<$end>
 }
 <@ifexec(ps.font_ca, begin)>
-#nav-header a, #nav-header a:link, #nav-header a:visited {
+<@id> a, <@id> a:link, <@id> a:visited {
 	color:			<@ps.font_ca>;
 }
 <$end>

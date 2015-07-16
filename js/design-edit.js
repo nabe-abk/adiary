@@ -473,10 +473,10 @@ btn_save.click(function(){
 	var main_b_ary = [];
 	{
 		var x = main_a_ary;
-		var items = f_main.children(module_selector + ', #article');
+		var items = f_main.children(module_selector + ', #article-box, #articles');
 		for(var i=0; i<items.length; i++) {
 			var id = $(items[i]).attr('id');
-			if (id == 'article' || id == 'articles') {
+			if (id == 'article-box' || id == 'articles') {
 				x = main_b_ary;
 				continue;
 			}

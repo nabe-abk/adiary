@@ -17,6 +17,18 @@
 		<input type="checkbox" class="js-disable" data-target="#font-c,#font-ca,#font-bf"<@if(ps.font_c eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
+	<tr><th>背景色<span class="help" data-help="ログインヘッダ部分の背景を設定します。">?</span></th>
+		<td>
+			<input type="text" id="nav-bg" name="nav_bg" value="<@ps.nav_bg || '#ffffff'>" class="color-picker">
+			<input type="checkbox" id="nav-bgtrans" name="nav_trans" value="1"<@if(ps.nav_trans,' checked')>><label>透明にする</label>
+			<input type="checkbox" class="js-disable" data-target="#nav-bg,#nav-bgtrans"<@if(ps.nav_bg eq '' && !ps.nav_trans,' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>タイトル内への配置</th>
+		<td>
+		<input type="checkbox" name="absolute" value="1"<@if(ps.absolute, ' checked')>><label>タイトル領域内に配置する</label>
+		</td>
+	</tr>
 	<tr>
 		<th>マージン</th>
 		<td>
@@ -90,7 +102,7 @@
 	<tr><th>ヘッダ領域の背景<span class="help" data-help="ログインヘッダやタイトル部分の背景を指定します。">?</span></th>
 		<td>
 			<input type="text" id="head-bg" name="head_bg" value="<@ps.head_bg || '#ffffff'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#head-bg"<@if(ps.head_bg eq '',' checked')>><label>変更しない</label><br>
+			<input type="checkbox" class="js-disable" data-target="#head-bg"<@if(ps.head_bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr><th>ヘッダの背景画像</th>
@@ -155,6 +167,11 @@ if ('<@ps.bg>' == '') {
 	var col = parse_color( body.css('background-color') );
 	if (col) $('#bg').val(col);
 }
+if ('<@ps.nav_bg>' == '') {
+	var col = parse_color( obj.css('background-color') );
+	if (col) $('#nav-bg').val(col);
+}
+
 if ('<@ps.body_bg>' == '') {
 	var col = parse_color( abody.css('background-color') );
 	if (col) $('#body-bg').val(col);

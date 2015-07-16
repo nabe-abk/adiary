@@ -119,7 +119,7 @@ body {
 ---------------------------------------------------------------------*/
 a:link		{ color: #007D81; }	/* $c=link */
 a:visited	{ color: #236270; }	/* $c=linkvisited = main */
-a:hover		{ color: #7BBBC8; }	/* $c=linkhoverbg */
+a:hover		{ color: #7BBBC8; }	/* $c=linkhoverbg = auto:link */
 
 /*--------------------------------------------------------------------
 ●ボタンデザイン
@@ -774,6 +774,9 @@ table.plugins button { margin: 0; }
 ---------------------------------------------------------------------*/
 article.system {
 	background-color:	#f6fffc;		/* $c=sysbg = auto:artbg */
+}
+article.system h2 {
+	font-family:		sens-serif;
 }
 article.system div.body {
 	padding-bottom:		1em;

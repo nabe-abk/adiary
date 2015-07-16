@@ -307,7 +307,7 @@ function init_custom_form(data, data2) {
 		// 要素を追加
 		var div = rel ? custom_detail : custom_cols;
 		if (name.substr(0,3) == 'fix'
-		 && name != 'fixbg' && name != 'fixartbg' && name != 'fixfont')
+		 && name != 'fixbg' && name != 'fixmain' && name != 'fixartbg' && name != 'fixfont')
 			div = custom_detail;
 		div.append(span);
 	}
