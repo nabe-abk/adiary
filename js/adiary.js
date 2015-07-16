@@ -1641,7 +1641,7 @@ css_initial_functions.push(function(){
 //●ui-iconの自動ロード
 //////////////////////////////////////////////////////////////////////////////
 css_initial_functions.push(function(){
-	var vals = [0, 0x80, 0xC0, 0xff];
+	var vals = [0, 0x40, 0x80, 0xC0, 0xff];
 	var color = get_value_from_css('ui-icon-autoload', 'background-color');
 	if (!color || color == 'transparent') return;
 	color = color.replace(/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])$/, "#$1$1$2$2$3$3");	// for IE8
