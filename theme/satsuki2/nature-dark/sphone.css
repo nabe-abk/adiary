@@ -1,0 +1,251 @@
+@charset "UTF-8";
+/*****************************************************************************
+  patch for smart phone
+					2015/05 (C)nabe@abk.nu
+*****************************************************************************/
+/*--------------------------------------------------------------------
+■全体配置
+---------------------------------------------------------------------*/
+body {
+	width:			auto;
+	margin:			0 2px;
+}
+div.main {
+	margin-left:		0px;
+	margin-right:		0px;
+	padding:		0 4px;
+	width:			auto;
+	float:			none;
+}
+#hatena-body>div,
+#footer>div {
+	margin:			0;
+	width:			auto;
+	min-width:		1px;	/* for GC bugs */
+	max-width:		auto;
+}
+#sidebar {
+	float:			none;
+	margin:			0 4px;
+	padding:		0;
+	width:			auto;
+	border:			none;
+}
+
+/*--------------------------------------------------------------------
+■ヘッダ
+---------------------------------------------------------------------*/
+#sp-header {
+	color:			#fff;
+}
+#sp-nav-header {
+	font-size:		10pt;
+	text-align:		right;
+	vertical-align:		top;
+	float:			right;
+}
+#sp-header a,
+#sp-header a:link,
+#sp-header a:visited {
+	color:			#fff;
+}
+#sp-page-title {
+	margin:			0px;
+	font-weight:		bold;
+	background-color:	#000;
+	text-shadow:
+		-1px -1px 0px #666,
+		 1px -1px 0px #666,
+		 1px  1px 0px #666,
+		-1px  1px 0px #666,
+		 3px  3px 2px #888;
+}
+h1
+{
+	padding:		40px 6px 24px 6px;
+	margin:			0;
+}
+
+/* 検索ボックス */
+#sp-head-search {
+	margin-top:		2px;
+	padding:		3px 4px;
+	border-radius:		4px;
+	background-color:	rgba(255,255,255,0.4);
+}
+#sp-head-search .search-btn {
+	background-image:	none;
+	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
+}
+#sp-header:after {
+	content:		"";
+	display:		block;
+	clear:			both;
+}
+
+/*--------------------------------------------------------------------
+■サイドバー
+---------------------------------------------------------------------*/
+#sidebar {
+	margin-top:		3em;
+	font-size:		12pt;
+}
+span.switch-icon {
+	margin-right:		1em;
+}
+#sidebar ul.hatena-section {
+	line-height:		200%;
+}
+#side-search input.search-box {
+	width:			180px;
+}
+
+table.calendar {
+	margin:			0 8px;
+}
+
+/*--------------------------------------------------------------------
+■コメント欄
+---------------------------------------------------------------------*/
+#com {
+	font-size:		10pt;
+
+}
+#com form input.comment-author {
+	width:			100px;
+}
+#com form textarea {
+	width:			340px;
+}
+
+/*--------------------------------------------------------------------
+■記事部の設定
+---------------------------------------------------------------------*/
+#adiary-body {
+	word-wrap:		break-word;
+}
+
+#adiary-body img,
+#adiary-body figure {
+	max-width:		100%;
+	height:			auto;
+	float:			none;
+}
+#adiary-body textarea,
+#adiary-body input,
+#adiary-body video,
+#adiary-body audio {
+	max-width:		100%;
+}
+
+article ul,
+article ol {
+	padding-left:		2em;
+}
+article ul ul,
+article ol ol {
+	padding-left:		1em;
+}
+article div.body {
+	padding-left:		12px;
+	padding-right:		12px;
+}
+
+/*--------------------------------------------------------------------
+○table, blockquote, pre
+---------------------------------------------------------------------*/
+#adiary-body article.system {
+	padding:		6px;
+}
+article {
+	padding:		10px 6px;
+}
+article.system div.body {
+	padding-left:		0;
+	padding-right:		0;
+}
+.body table {
+	margin-left:		1em;
+	margin-right:		1em;
+
+}
+.body blockquote table,
+.body div.box table {
+	margin-left:		0;
+	margin-right:		0;
+}
+
+blockquote, pre, div.box {
+	margin:			0.5em 1.0em 0.5em 1.0em;
+	padding:		0.2em 0.5em 0.2em 0.5em;
+}
+pre {
+	margin-left:		0;
+	margin-right:		0;
+	overflow-x:		scroll;
+}
+
+
+/*--------------------------------------------------------------------
+■ブログ一覧
+---------------------------------------------------------------------*/
+#table-view table {
+	margin-left:		4px;
+	margin-right:		4px;
+}
+#table-view table th {
+	font-size:		9pt;
+}
+#table-view table .large {
+	font-size:		100%;
+}
+#table-view table .hhmm {
+	display:		none;
+}
+
+
+/*--------------------------------------------------------------------
+■システムモード
+---------------------------------------------------------------------*/
+article.system div.body {
+	padding-left:		6px;
+	padding-right:		6px;
+}
+article.system div.body table {
+	margin-left:		0px;
+	margin-right:		0px;
+}
+article.system ul:not(.dynatree-container):not(.ui-tabs-nav) {
+	padding-left:		2em;
+}
+nav.tree {
+	font-size:		8pt;
+	line-height:		200%;
+}
+nav.tree span.items {
+	display:		block;
+}
+#adiary-body .main input,
+#adiary-body .main textarea {
+	max-width:		100%;
+}
+
+article.edit span.element {
+	display:		block;
+}
+#edit-tags + br,
+#edit-tags + br + br {
+	display:		none;
+}
+article.edit button,
+article.edit select {
+	margin-top:		6px;
+	margin-bottom:		6px;
+}
+
+.system button {
+	padding:		2px 3px;
+}
+#edit .helper + .help {
+	margin-left:		0px;
+}

@@ -1,0 +1,1082 @@
+@charset "UTF-8";
+/*****************************************************************************
+  nature-dark
+							(C)2015 nabe@abk
+*****************************************************************************/
+/*--------------------------------------------------------------------
+■全体配置
+---------------------------------------------------------------------*/
+body
+{
+	color:			#f1e8e8;		/* $c=font */
+	font-size:		12pt;
+	line-height:		120%;
+
+	padding:		0;
+	margin:			0;
+	background-color:	#2c2626;		/* $c=main */
+}
+#hatena-body {
+	margin:			0;
+	padding-bottom:		3em;
+	width:			100%;
+
+	border-top:		1px solid #555;	/* $c=fixbodyborder */
+	border-bottom:		1px solid #555;	/* $c=fixbodyborder */
+}
+#hatena-body>div,
+#header>div,
+#footer>div {
+	padding:		0;
+	margin:			0 auto;
+	min-width:		700px;
+	max-width:		960px;
+}
+#hatena-body:after {
+	content:		"";
+	clear:			both;
+	display:		block;
+}
+
+/* 記事部 */
+.main {
+	float:			left;
+	width:			calc(100% - 240px);
+}
+
+/* 左側にメニューを配置 */
+#sidebar
+{
+	float:			right;
+	width:			220px;
+	margin:			0;
+	padding-top:		1em;
+
+	font-size:		10pt;
+	line-height:		130%;
+}
+
+/* フッタの配置 */
+#footer
+{
+	background-color:	#333;		/* $c=footerbg = headerbg */
+	text-align:		right;
+	padding:		20px 1em;
+	font-size:		10pt;
+	line-height:		120%;
+}
+#footer, #footer a:link, #footer a:visited {
+	color:			#f1e8e8;	/* $c=font */
+	text-decoration:	none;
+}
+#footer a:hover {
+	text-decoration:	underline;
+}
+/*--------------------------------------------------------------------
+○for IE8 bugs
+---------------------------------------------------------------------*/
+.IE8 #hatena-body>div,
+.IE8 #header,.IE8 #footer {
+	margin:			0 auto;
+	width:			920px;
+}
+.IE8 .main {
+	float:			left;
+	width:			680px;
+}
+.IE8 #nav-header {
+	margin:			0;
+}
+
+/****************************************************************************
+■全体設定
+****************************************************************************/
+/*--------------------------------------------------------------------
+●リンク配色
+---------------------------------------------------------------------*/
+a:link		{ color: #fee; }	/* $c=link */
+a:visited	{ color: #ecc; }	/* $c=linkvisited = auto:link */
+a:hover		{ color: #bbb; }	/* $c=linkhover   = auto:link */
+a:link {
+	text-decoration:	none;
+}
+article a:link,
+nav.tree a:link,
+#com a:link,
+.ui-dialog a:link,
+#popup-div a:link,
+#popup-com a:link {
+	color: #800;		/* $c=artlink */
+	text-decoration:	underline;
+}
+article a:visited,
+nav.tree a:visited,
+.ui-dialog a:visited,
+#com a:visited,
+#popup-div a:visited,
+#popup-com a:visited {
+	color: #633;		/* $c=artlinkvisited = auto:artlink */
+}
+article a:hover,
+nav.tree a:hover,
+.ui-dialog a:hover,
+#com a:hover,
+#popup-div a:hover,
+#popup-com a:hover {
+	color: #888;		/* $c=artlinkhover   = auto:artlink */
+}
+
+
+/*--------------------------------------------------------------------
+●ボタンデザイン
+---------------------------------------------------------------------*/
+button
+{
+	color:			#fff;			/* $c=fixbtnfont */
+	font-weight:		bold;
+	border:			1px solid #744;		/* $c=btnborder = btnbg0 */
+	border-radius:		6px;
+	background-image:	linear-gradient(to bottom,
+				#744,			/* $c=btnbg0 */
+				#422);			/* $c=btnbg1 = auto:btnbg0  */
+	background-color:	#744;			/* $c=btnbg0 */
+}
+button:hover
+{
+	border-radius:		6px;
+	cursor:			pointer;
+	background-image:	linear-gradient(to bottom,
+				#955,			/* $c=btnbghover0 = auto:btnbg0 */
+				#633);			/* $c=btnbghover1 = auto:btnbg0 */
+}
+
+button:disabled
+{
+	color:			#aaa;
+	background-image:	none;
+	background-color:	#411;			/* $c=btndisable = auto:btnbg0 */
+}
+
+
+/*--------------------------------------------------------------------
+●jQuery UI アイコン設定
+---------------------------------------------------------------------*/
+#ui-icon-autoload {
+	background-color:	#fcc;			/* $c=uiicon = auto:link */
+}
+
+/****************************************************************************
+■ヘッダ
+****************************************************************************/
+/*--------------------------------------------------------------------
+■ヘッダ部
+---------------------------------------------------------------------*/
+#header, #sp-header {
+	background-color:	#333;		/* $c=headerbg */
+	color:			#fff;		/* $c=fixheaderfont */
+}
+#nav-header {
+	text-align:		right;
+	font-size:		10pt;
+	line-height:		100%;
+	padding:		2px 0;
+	display:		block;
+}
+#header a {
+	text-decoration:	none;
+}
+/* ○○さん */
+a.welcome-name { margin: 0px 4px 0px 4px; }
+
+h1
+{
+	font-size:		20pt;
+	font-weight:		bold;
+	line-height:		110%;
+	padding:		60px 10px;
+	margin:			0;
+}
+h1 a, h1 a:link, h1 a:hover, h1 a:visited {
+	color:			#fff;		/* $c=titlefont */
+	text-decoration:	inherit;
+}
+h1 img, h1 a img {
+	border:			none;
+}
+
+/*--------------------------------------------------------------------
+■ドロップダウンメニュー
+---------------------------------------------------------------------*/
+/* 背景色（非選択色） */
+.dropdown-menu.sp, 
+.dropdown-menu>ul li {
+	background-color:	#311;		/* $c=ddbg = headerbg */
+}
+.dropdown-menu>ul>li,
+.dropdown-menu {
+	background-color:	transparent;
+}
+/* 選択色 */
+.dropdown-menu>ul li:hover,
+.dropdown-menu>ul li.hover {
+	background-color:	#666;		/* $c=ddhover = ddborder */
+}
+/* 枠線 */
+.dropdown-menu>ul li {
+	border-color:		#666;		/* $c=ddborder */
+}
+/* 文字 */
+.dropdown-menu a:link,
+.dropdown-menu a:visited
+{
+	font-weight:		normal;
+	color:			#fee;		/* $c=ddfont = link */
+}
+/* 矢印の色 */
+.dropdown-menu li ul li ul:before,
+.dropdown-menu.sp li ul:before {
+	border-left-color:	#fee;		/* $c=ddarrow = link */
+}
+.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
+	border-left-color:	transparent;
+	border-right-color:	#fee;		/* $c=ddarrow */
+}
+/* 設定画面に矢印の色を自動取得させるための指定 */
+.dropdown-menu {
+	color:			#fee;		/* $c=ddarrow */
+}
+/* 枠線を消す */
+.dropdown-menu:not(.sp)>ul>li a {
+	height:			100%;
+}
+.dropdown-menu:not(.sp)>ul>li:first-child {
+	border-left:		none;
+}
+.dropdown-menu:not(.sp)>ul>li:last-child {
+	border-right:		none;
+}
+
+/* 影をつける */
+.dropdown-menu>ul li:hover ul,
+.dropdown-menu.sp>ul>li>ul {
+	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
+}
+
+.main .dropdown-menu {
+	margin:			0 0 1em 0;
+}
+
+/*--------------------------------------------------------------------
+■ページ送り
+---------------------------------------------------------------------*/
+nav.page-nav {
+	font-size:	10pt;
+	line-height:	100%;
+	margin:		1em 0;
+}
+nav.page-nav a {
+	display:	inline-block;
+}
+nav.page-nav a:first-child {
+	margin-right:	1em;
+}
+nav.page-nav a:last-child {
+	margin-left:	1em;
+}
+a.prev-page:before,
+a.upnode-page:before,
+a.next-page:after {
+	display:		inline-block;
+	width:			16px;
+	height:			16px;
+/*	background-image:	url(ui-icons.png);	*/
+	content:		' ';
+	vertical-align:		bottom;
+}
+a.prev-page:before {
+	background-position: -208px -16px;
+}
+a.upnode-page:before {
+	background-position: -224px -16px;
+}
+a.next-page:after {
+	background-position: -240px -16px;
+}
+
+/*--------------------------------------------------------------------
+■記事のデザイン配置（本文）
+---------------------------------------------------------------------*/
+/* 1つの記事 */
+article {
+	margin:			1em 0;
+	padding:		1.5em 1.5em 1em 1.5em;
+
+	color:			#422;			/* $c=artfont */
+	background-color:	#f2eee8;		/* $c=artbg */
+	border:			1px solid #aaa;		/* $c=border */
+	border-radius:		8px;
+}
+article + article {
+	margin-top:		2em;
+}
+
+article.wiki {
+	background-color:	#fafaf2;		/* $c=wikibg */
+}
+/* 記事タイトル */
+article h2 {
+	color:			#600;			/* $c=h2font = auto:artlink */
+	font-size:		100%;
+	line-height:		100%;
+	border-left:		5px solid #c66;		/* $c=h2border */
+
+	margin:			0 0 1em 0;
+	padding:		0.5em 0 0.5em 8px;
+}
+article h2 a.title {
+	font-size:		120%;
+	line-height:		100%;
+	display:		block;
+	margin-left:		-1px;
+}
+article h2 a:link,
+article h2 a:visited
+{
+	text-decoration:	none;
+}
+article h2 a:hover {
+	text-decoration:	underline;
+}
+
+article h2 a.date,
+article h2 .body-header {
+	font-size:		80%;
+	line-height:		100%;
+	font-weight:		normal;
+}
+article h2 * {
+	display:		inline;
+}
+
+/* 記事本文 */
+article div.body {
+	font-size:		90%;
+	line-height:		140%;
+	margin:			0;
+	padding:		0;
+}
+
+
+
+/* 記事中のセクション */
+article section {
+	margin-top: 		0.5%;
+	margin-bottom:		3%;
+}
+
+/* セクションフッタ */
+section footer {
+	font-size:		90%;
+	padding:		2px 4px;
+	margin:			1.5em 1em 0 1em;
+
+	background-color:	#f0f0e0;		/* $c=footnotebg = auto:main */
+	border-radius:		2px;
+}
+/* 脚注 */
+section footer p.footnote {
+	margin-top:		0;
+	margin-bottom:		0;
+}
+
+/* 記事フッタ */
+div.body-footer {
+}
+
+/* ソーシャルアイコン */
+div.social-buttons {
+	line-height:		100%;
+	font-size:		90%;
+	margin:			0 0 0 0.5em;
+	vertical-align:		middle;
+
+	margin-left:		1em;
+	display:		inline-block;
+}
+div.body-footer div.social-buttons:first-child {
+	margin-left:		0;
+}
+
+/****************************************************************************/
+/****************************************************************************/
+/*--------------------------------------------------------------------
+■記事ヘッダ
+---------------------------------------------------------------------*/
+div.body-header > span:not(:last-child) {
+	margin-right:		0.5em;
+}
+/* タグ一覧 */
+div.body-header span.tags:before {
+	content:		'[';
+}
+div.body-header span.tags:after {
+	content:		']';
+}
+span.tag:not(:last-child) {
+	margin-right:		0.5em;
+}
+span.tag:not(:last-child):after {
+	content:		',';
+}
+
+/*--------------------------------------------------------------------
+■記事見出し
+---------------------------------------------------------------------*/
+/* 見出し */
+.body h3 {
+	font-size:		110%;
+	font-weight:		bold;
+
+	padding:		6px 0 6px 6px;
+	margin-top:		1em;
+	border-left:		4px solid #c66;		/* $c=h2border */
+}
+.body h3 span.timestamp {
+	font-size:		90%;
+	font-weight:		normal;
+}
+.body h3 a {
+	text-decoration:	none;
+}
+.body h3, .body h3 a, .body h3 a:link, .body h3 a:visited,
+.body h4, .body h4 a, .body h4 a:link, .body h4 a:visited,
+h5, h6 {
+	color:			#600;			/* $c=h2font */
+}
+
+/* 小見出し */
+div.body h4 {
+	font-size:		100%;
+	font-weight:		bold;
+	border-bottom:		1px solid #c66;	/* $c=h2border */
+}
+div.body h5 {
+	font-size:		100%;
+	font-weight:		bold;
+}
+/* 小見出しへのリンク */
+div.body h4 a, div.body h5 a {
+	font-size:		inherit;
+	color:			inherit;
+	text-decoration:	inherit;
+}
+
+/*--------------------------------------------------------------------
+■記事内部
+---------------------------------------------------------------------*/
+div.body p {
+	margin:			0.7em 0.5em 0.7em 0;
+}
+
+blockquote, pre, div.box {
+	margin:			0.5em 2em 0.5em 2em;
+	padding:		0.3em 1em 0.3em 1em;
+	border:			1px solid #aaa;		/* $c=preborder = border */
+	border-radius:		4px;
+	background-color:	#fff;			/* $c=prebg */
+}
+div.body blockquote p {
+	margin:			0.2em 0.5em 0.2em 0;
+}
+
+/* pre 中コメント */
+pre span.comment	{ color: #c30; }			/* $c=fixstrongfont */
+pre strong.comment	{ color: #c30; font-weight: bold; }	/* $c=fixstrongfont */
+em {
+	font-style:		normal;
+	text-decoration:	none;
+	color:			#c30;				/* $c=fixstrongfont */
+}
+
+/* 強調 */
+article:not(.system) strong { color: #c30; }			/* $c=fixstrongfont */
+
+dt { font-weight:	bold; }
+
+/*--------------------------------------------------------------------
+●記事：テーブル
+---------------------------------------------------------------------*/
+.body table,
+.ui-dialog table {
+	font-size:		90%;
+	margin:			0.5em 1em;
+	border-collapse:	collapse;
+	border-spacing:		2px;
+	empty-cells:		show;
+}
+.body blockquote table,
+.body div.box table {
+	margin-left:		0;
+	margin-right:		0;
+}
+.body table tr,
+.ui-dialog table tr {
+	margin:			0px;
+	padding:		0px;
+}
+.body table td,
+.ui-dialog table td {
+	margin:			0px;
+	padding:		3px 5px;
+	border:			1px solid #aaa;		/* $c=tableborder = border */
+}
+.body table th,
+.ui-dialog table th {
+	font-weight:		bold;
+	margin:			0px;
+	padding:		3px 5px;
+	border:			1px solid #aaa;		/* $c=tableborder */
+	background-color:	#ddb;			/* $c=tablebg */
+}
+
+/****************************************************************************/
+/*--------------------------------------------------------------------
+■コメント欄
+---------------------------------------------------------------------*/
+#com {
+	color:			#422;			/* $c=artfont */
+	font-size:		10.5pt;
+	line-height:		150%;
+	margin:			1em 0;
+	padding:		1.5em 1.5em 1em 1.5em;
+
+	background-color:	#fafaf8;		/* $c=combg = wikibg */
+	border:			1px solid #aaa;		/* $c=border */
+	border-radius:		8px;
+}
+#com div.caption a {
+	font-weight:		bold;
+	text-decoration:	none;
+}
+#com div.swiches {
+	font-size:		10pt;
+	margin:			0 0 0 2em;
+	padding:		0;
+}
+div.comment-one {
+	margin:			12px 0;
+	padding:		0.5em 2px;
+	border-top:		1px solid #aaa;		/* $c=border */
+}
+div.com-buttons {
+	margin-top:		1em;
+}
+div.commentator {
+	margin-bottom:		0.5em;
+}
+div.comment-text {
+	margin-left:		2em;
+}
+/* 非公開コメント */
+.comment-hidden {
+	color:			#808;
+}
+/* 非表示コメント */
+.comment-disable {
+	color:			#800;
+}
+#com-form-separator {
+	border:			none;
+	height:			1px;
+	background:		#999;
+	opacity:		0.5;
+	margin:			1em 0 1.5em 0;
+}
+#com div.ip-host-agent {
+	color:			#080;
+	text-align:		right;
+	margin-right:		1em;
+}
+div.ip-host-agent {
+	font-size:		9pt;
+	line-height:		120%;
+}
+
+/*--------------------------------------------------------------------
+●リプライのポップアップ
+---------------------------------------------------------------------*/
+#popup-com {
+	color:			#422;			/* $c=artfont */
+	border:			1px solid #000;
+	background-color:	#ffd;
+	border-radius:		4px;
+	box-shadow:		2px 2px 2px 2px rgba(60,60,20,0.75);
+
+	font-size:		10pt;
+	padding:		0.5em;
+}
+#popup-com .ip-host-agent,
+#popup-com input {
+	display:		none;
+}
+
+/*--------------------------------------------------------------------
+■検索ウィンドウ
+---------------------------------------------------------------------*/
+article.system.search div.body {
+	padding-bottom:	4px;
+}
+
+/*--------------------------------------------------------------------
+●メッセージ関連
+---------------------------------------------------------------------*/
+strong.warning, strong.error, strong.notice,
+div.messages div.message {
+	color:		#c30;			/* $c=fixstrongfont */
+}
+div.messages div.message:last-child {
+	font-weight:	bold;
+}
+div.messages div.notice {
+	margin-left:	2em;
+}
+div.messages div.message + div.notice {
+	display:	block;
+	margin-top:	0.5em;
+}
+
+.add-msg {
+	margin:			1em 0;
+}
+
+/****************************************************************************
+■sidebar
+****************************************************************************/
+/* sidebar の 1項目 */
+div.hatena-module {
+	margin-bottom:		2em;
+}
+div.hatena-moduletitle {
+	font-size:		12pt;
+	color:			#fff;		/* $c=moduletitlefont */
+	font-weight:		bold;
+	font-weight:		900;
+	letter-spacing:		3px;
+
+	text-shadow:		 1px -1px 1px #000,
+				 1px  1px 1px #000,
+				-1px  1px 1px #000,
+				-1px -1px 1px #000,
+				4px 2px 2px rgba(255,255,255,0.4);
+}
+div.hatena-modulebody {
+	padding:		0 4px 0 10px;
+}
+div.hatena-module a {
+}
+
+#sidebar p {
+	margin-top:		0.5em;
+	margin-bottom:		0.5em;
+}
+
+div.hatena-moduletitle a,
+div.hatena-moduletitle a:link,
+div.hatena-moduletitle a:visited {
+	text-decoration:	none;
+	color:			inherit;
+}
+
+/* タイトル一覧など */
+ul.hatena-section {
+	list-style-type:	none;
+	margin:			2px 0em 0.3em 0.3em;
+	padding:		0px;
+}
+/* 2段目のリスト */
+ul.hatena-section ul {
+	list-style-type:	none;
+	margin:			0 0 0.2em 1em;
+	padding:		0px;
+}
+
+/* Informationのタイトルを出さない */
+body:not(.system) #side-information div.hatena-moduletitle {
+	display:		none;
+}
+
+/*--------------------------------------------------------------------
+●sidebar：カレンダー
+---------------------------------------------------------------------*/
+#side-calendar .hatena-modulebody {
+	padding:		2px 0;
+}
+table.calendar {
+	margin:			0px auto;
+	font-size:		95%;
+	line-height:		100%;
+}
+table.calendar td.calendar-prev-month    { text-align: left;  margin-left:  0.5em; }
+table.calendar td.calendar-current-month { text-align: center; }
+table.calendar td.calendar-next-month    { text-align: right; margin-right: 0.5em; }
+table.calendar td {
+	text-align:		right;
+}
+table.calendar td.calendar-weekday {
+}
+table.calendar td.calendar-day a {
+	color:			inherit;
+	text-decoration:	underline;
+}
+table.calendar tr.calendar-wdayname td {
+	text-align:		center;
+}
+table.calendar tbody td {
+	padding:		1px 4px;
+}
+/* 土曜日 */
+table.calendar td.w6, table.calendar th.w6 {
+	color:		 	#55F;
+}
+/* 日曜日、祝日 */
+table.calendar td.w0, table.calendar th.w0,
+table.calendar td.holiday {
+	color:			#D33;
+}
+/* 今日 */
+table.calendar td.day-today      { font-weight: bold; }
+/* 選択した日付 */
+table.calendar td.day-selected {
+	background-color:	rgba(255,255,255,0.3);
+}
+
+
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
+/* ここより下は管理メニュー内でのみ使用するクラス                           */
+/*		システムモードに対応しないテーマでは定義不要                */
+/****************************************************************************/
+/*--------------------------------------------------------------------
+●システム画面
+---------------------------------------------------------------------*/
+.system .main {
+	padding-top:		1em;
+}
+article.system div.body,
+.IE8 article.system div.body {
+	background-color:	#f8f8e8;		/* $c=sysartbg */
+}
+article.system:not(.ui-tabs) {
+	background-color:	#f8f8e8;		/* $c=sysartbg */
+	margin:			1em 0;
+	padding:		1em;
+}
+article.system h2 {
+	color:			#000;			/* $c=fixfont */
+}
+
+/*--------------------------------------------------------------------
+●アルバム
+---------------------------------------------------------------------*/
+.side-folder-tree {
+	padding:		6px 2px;
+	background-color:	#f8f8e8;		/* $c=sysartbg */
+	border:			1px solid #aaa;		/* $c=border */
+	border-radius:		4px;
+}
+.side-folder-tree .hatena-moduletitle {
+	margin-bottom:		2px;
+}
+
+/*--------------------------------------------------------------------
+●フォームの一般設定
+---------------------------------------------------------------------*/
+ul.checkbox {
+	list-style-type:	none;
+}
+article.system td {
+	background-color:	#fff;			/* $c=fixsystd */
+}
+
+/* エラー */
+th.error, td.error {
+	background-color:	#ffccb0;
+}
+input.error, textarea.error,
+th.error input, td.error input {
+	background-color:	#ffffaa;
+}
+
+/* フォーカス */
+th.focus, td.focus {
+	background-color:	#ffffcc;		/* $c=fixfocusbg1 */
+}
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+.setting textarea:focus {
+	background-color:	#ffeeee;		/* $c=fixfocusbg2 */
+}
+textarea#editarea:focus {
+	background-color:	#fff;
+}
+textarea#editarea {
+	font-size:		11.5pt;
+}
+li>input[type="checkbox"]:first-child {
+	margin-left:		0;
+}
+
+/* ツリーとCSS等の編集画面 */
+article .treebox,
+article:not(.edit) #editarea {
+	margin-top:		1em;
+	margin-bottom:		1em;
+}
+
+/*--------------------------------------------------------------------
+●記事の編集画面
+---------------------------------------------------------------------*/
+article.system.notice {
+	margin-bottom:	0.4em;
+}
+textarea.edit-article {
+	width:		98%;
+	margin:		0;
+}
+article.edit form.delete {
+	margin-top:	1.5em;
+}
+article.edit span.element {
+	margin-right:	1em;
+}
+
+span.edit-caption {
+	font-weight:	bold;
+	margin-right:	0.3em;
+}
+
+/* タグ */
+article.edit span.tag {
+	font-size:		9pt;
+	background-color:	#bb9;		/* $c=tagbg = auto:tablebg */
+	border-radius:		6px;
+	padding:		0px 4px;
+	margin-right:		0.5em;
+}
+article.edit span.tag:after {
+	content:		'';
+}
+
+/*--------------------------------------------------------------------
+●ポップアップヘルプ, info
+---------------------------------------------------------------------*/
+.help {
+	color:			#c3c;
+}
+.btn-help:after {
+	color:			#d6d;
+}
+
+#popup-help {
+	min-width:		100px;
+	max-width:		360px;
+	padding:		0.5em 1em;
+
+	background-color:	#fff;
+	color:			#2133a9;		/* $c=fixhelpfont */
+
+	font-size:		11pt;
+	/* font-weight:		bold; */
+
+	border:			2px solid #2133a9;	/* $c=fixhelpborder */
+	border-radius:		10px;
+	box-shadow:		4px 4px 4px 2px rgba(60,60,60,0.75);
+}
+#popup-help:before {
+	content:		"HELP";
+	color:			#fff;
+	background-color:	#c33;
+	border-radius:		6px;
+
+	font-weight:		bold;
+	font-size:		8pt;
+	padding:		4px;
+	margin:			-2px 4px 0 0px;
+
+	display:		inline-block;
+	line-height:		100%;
+	vertical-align:		middle;
+}
+/*
+#popup-help div.additional {
+	color:			#000;
+	font-weight:		normal;
+}
+*/
+
+/*--------------------------------------------------------------------
+●jQuery UI, popup-info/dialog（テーマREADME/記事のタグヘルパー等）
+---------------------------------------------------------------------*/
+.ui-dialog {
+	color:			#422;			/* $c=artfont */
+	background-color:	#f8f8e8;		/* $c=sysartbg */
+	border:			2px solid #955;		/* $c=dialogheaderbg */
+	border-radius:		10px;
+	box-shadow:		4px 4px 4px 4px rgba(60,60,100,0.75);
+	padding:		0;
+
+	font-size:		10.5pt;
+	line-height:		130%;
+}
+.ui-dialog .ui-widget-header {
+	color:			#fff;
+	background-color:	#955;			/* $c=dialogheaderbg = auto:btnbg0 */
+	font-weight:		bold;
+	font-size:		12pt;
+
+	border:			none;
+	border-radius:		7px 7px 0 0;
+}
+.ui-dialog span.ui-dialog-title {
+	height:			1em;
+	margin-top:		0;
+	padding-top:		0;
+	padding-bottom:		2px;
+}
+.ui-dialog button.ui-button {
+	border-radius:		4px;
+}
+.ui-dialog .ui-icon {
+	text-indent:		0px;
+}
+.ui-dialog span.ui-icon-closethick {
+}
+.ui-dialog .ui-dialog-buttonpane {
+	margin-top:		0px;
+	padding-top:		0px;
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI, タブ表示（ブログ一覧画面）
+---------------------------------------------------------------------*/
+.jqueryui-tabs .body {
+	border-radius:		8px;
+	border:			1px solid #aaa;		/* $c=border */
+	background-color:	#f8f8e8;		/* $c=sysartbg */
+	padding:		6px;
+}
+.ui-tabs .ui-tabs-nav li {
+	border-radius:		8px;
+	border:			1px solid #aaa;		/* $c=border */
+	border-bottom:		1px solid #aaa;		/* $c=border */
+	background-color:	#ddb;			/* $c=sysdarkbg */
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-active {
+	border-bottom:		1px solid #f8f8e8;	/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysartbg */
+}
+.ui-tabs .ui-tabs-nav {
+	margin-bottom:		-1px;		/* 線の太さに合わせる */
+}
+.ui-tabs .ui-tabs-nav li:not(.ui-tabs-active):hover {
+	border-color:		#ccc;
+}
+
+/* dynatree */
+ul.dynatree-container a {
+	color:			#000;
+	text-decoration:	none;
+}
+ul.dynatree-container {
+	border:			1px solid #aaa;		/* $c=preborder */
+}
+
+
+/*--------------------------------------------------------------------
+●設定ページナビゲーション
+---------------------------------------------------------------------*/
+nav.tree, nav.tree select {
+	font-size:		9pt;
+}
+
+nav.tree {
+	color:			#422;			/* $c=artfont */
+	line-height:		100%;
+	display:		block;
+
+	border:			1px solid #aaa;		/* $c=border */
+	margin-bottom:		1.5em;
+	padding:		0.5em 1em 0.5em 1.5em;
+
+	background-color:	#f8f8e8;		/* $c=sysartbg */
+}
+
+/*--------------------------------------------------------------------
+●デザイン編集
+---------------------------------------------------------------------*/
+.design-module-edit.display {	/* 表示ボタンを押したとき */
+	background-color:	#fcc;
+}
+.design-module-edit:hover {
+	background-color:	#faa;
+}
+
+/* モジュールの設定画面 */
+.ui-dialog table.blog-setting {
+	font-size:		10pt;
+}
+
+/*--------------------------------------------------------------------
+●accordion（インポート、エクスポート画面等）
+---------------------------------------------------------------------*/
+div.body h3.ui-accordion-header {
+	font-size:		12pt;
+	line-height:		100%;
+	margin:			0 0 1px 0;
+
+	font-weight:		bold;
+	background-color:	#ddb;		/* $c=sysdarkbg */
+}
+.ui-accordion-header-icon {
+	display:		none;
+}
+
+/*--------------------------------------------------------------------
+●プログレスバー（import等）
+---------------------------------------------------------------------*/
+.ui-progressbar {
+	padding:		0;
+	margin:			0.5em 0;
+	max-width:		400px;
+	border:			1px solid #aaa;		/* $c=border */
+	position:		relative;
+	background-color:	#fff;
+}
+.ui-progressbar .label {
+	position:		absolute;
+	width:			100%;
+	text-align:		center;
+	font-weight:		bold;
+	text-shadow:	 1px -1px 2px #fff,
+			 1px -1px 2px #fff,
+			-1px  1px 2px #fff,
+			 1px  1px 2px #fff;
+}
+.ui-progressbar,
+.ui-progressbar .label:before {
+	height:			20px;
+	vertical-align:		middle;
+}
+.ui-progressbar-value {
+	padding:		1px 0 0 1px;
+	background-color:	#955;		/* $c=dialogheaderbg */
+} 
+
+
