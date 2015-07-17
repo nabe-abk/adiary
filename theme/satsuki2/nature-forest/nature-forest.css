@@ -702,6 +702,8 @@ table.calendar td a:link {
 strong.warning, strong.error, strong.notice,
 div.messages div.message {
 	color:		#c30;			/* $c=fixstrongfont */
+}
+div.messages div.message:last-child {
 	font-weight:	bold;
 }
 div.messages div.notice {
