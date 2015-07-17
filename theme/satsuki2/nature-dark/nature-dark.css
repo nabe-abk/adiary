@@ -207,23 +207,23 @@ h1 img, h1 a img {
 /*--------------------------------------------------------------------
 ■ドロップダウンメニュー
 ---------------------------------------------------------------------*/
+.dropdown-menu,
+.dropdown-menu>ul>li {
+	background-color:	transparent;
+}
 /* 背景色（非選択色） */
 .dropdown-menu.sp, 
-.dropdown-menu>ul li {
+.dropdown-menu>ul>li>ul li {
 	background-color:	#311;		/* $c=ddbg = headerbg */
-}
-.dropdown-menu>ul>li,
-.dropdown-menu {
-	background-color:	transparent;
 }
 /* 選択色 */
 .dropdown-menu>ul li:hover,
 .dropdown-menu>ul li.hover {
-	background-color:	#666;		/* $c=ddhover = ddborder */
+	background-color:	#666;		/* $c=ddhover = auto:border */
 }
 /* 枠線 */
 .dropdown-menu>ul li {
-	border-color:		#666;		/* $c=ddborder */
+	border-color:		#666;		/* $c=ddborder = auto:border */
 }
 /* 文字 */
 .dropdown-menu a:link,
@@ -321,7 +321,7 @@ article + article {
 }
 
 article.wiki {
-	background-color:	#fafaf2;		/* $c=wikibg */
+	background-color:	#fafaf2;		/* $c=wikibg = auto:artbg*/
 }
 /* 記事タイトル */
 article h2 {
@@ -765,10 +765,10 @@ table.calendar td.day-selected {
 }
 article.system div.body,
 .IE8 article.system div.body {
-	background-color:	#f8f8e8;		/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysbg = auto:artbg */
 }
 article.system:not(.ui-tabs) {
-	background-color:	#f8f8e8;		/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysbg */
 	margin:			1em 0;
 	padding:		1em;
 }
@@ -781,7 +781,7 @@ article.system h2 {
 ---------------------------------------------------------------------*/
 .side-folder-tree {
 	padding:		6px 2px;
-	background-color:	#f8f8e8;		/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysbg */
 	border:			1px solid #aaa;		/* $c=border */
 	border-radius:		4px;
 }
@@ -926,7 +926,7 @@ article.edit span.tag:after {
 ---------------------------------------------------------------------*/
 .ui-dialog {
 	color:			#422;			/* $c=artfont */
-	background-color:	#f8f8e8;		/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysbg */
 	border:			2px solid #955;		/* $c=dialogheaderbg */
 	border-radius:		10px;
 	box-shadow:		4px 4px 4px 4px rgba(60,60,100,0.75);
@@ -969,18 +969,18 @@ article.edit span.tag:after {
 .jqueryui-tabs .body {
 	border-radius:		8px;
 	border:			1px solid #aaa;		/* $c=border */
-	background-color:	#f8f8e8;		/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysbg */
 	padding:		6px;
 }
 .ui-tabs .ui-tabs-nav li {
 	border-radius:		8px;
 	border:			1px solid #aaa;		/* $c=border */
 	border-bottom:		1px solid #aaa;		/* $c=border */
-	background-color:	#ddb;			/* $c=sysdarkbg */
+	background-color:	#ddb;			/* $c=sysdarkbg = tablebg */
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active {
-	border-bottom:		1px solid #f8f8e8;	/* $c=sysartbg */
-	background-color:	#f8f8e8;		/* $c=sysartbg */
+	border-bottom:		1px solid #f8f8e8;	/* $c=sysbg */
+	background-color:	#f8f8e8;		/* $c=sysbg */
 }
 .ui-tabs .ui-tabs-nav {
 	margin-bottom:		-1px;		/* 線の太さに合わせる */
@@ -1015,7 +1015,7 @@ nav.tree {
 	margin-bottom:		1.5em;
 	padding:		0.5em 1em 0.5em 1.5em;
 
-	background-color:	#f8f8e8;		/* $c=sysartbg */
+	background-color:	#f8f8e8;		/* $c=sysbg */
 }
 
 /*--------------------------------------------------------------------
