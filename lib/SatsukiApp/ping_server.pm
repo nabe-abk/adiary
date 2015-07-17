@@ -146,7 +146,7 @@ sub _post_action {
 	#---------------------------------------------------
 	my $agent = $ENV{HTTP_USER_AGENT};
 	my $adiary_version;
-	if ($agent =~ /^adiary (\d\.\d+)/) {
+	if ($agent =~ /^adiary\s+(\d\.\d+)/) {
 		$adiary_version = $1;
 	} else {
 		$self->{message} = 'This ping server for adiary only';
