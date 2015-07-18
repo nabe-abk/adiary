@@ -655,8 +655,6 @@ div.messages div.message + div.notice {
 div.hatena-module {
 	margin:			0 0 1.3em 0;
 	padding:		0;
-	font-size:		95%;
-	line-height:		120%;
 }
 div.hatena-moduletitle {
 	margin:			0;

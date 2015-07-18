@@ -52,7 +52,7 @@ body
 	margin:			0;
 	padding:		0;
 
-	font-size:		10pt;
+	font-size:		9pt;
 	line-height:		130%;
 }
 /* フッタの配置 */
@@ -825,9 +825,6 @@ div.messages div.message + div.notice {
 div.hatena-module {
 	margin:			0 0 1em 0;
 	padding:		0;
-	font-size:		9pt;
-	line-height:		120%;
-
 	background-color:	#c8d7e3;		/* $c=modulebg */
 	border-radius:		2px;
 	box-shadow:		1px 1px 2px rgba(0,0,0, 0.4);
