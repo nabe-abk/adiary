@@ -222,8 +222,8 @@ function custom_form_empty() {
 	custom_form.hide();
 	custom_cols.empty();
 	custom_detail.empty();
-	input_cols = [];
-	select_opts = [];
+	input_cols  = $;
+	select_opts = $;
 	iframe_resize();
 	$('#custom-flag').val('');
 	submit_btn.prop('disabled', false);
