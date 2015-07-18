@@ -7,6 +7,9 @@
  * for <@name>  <@Timestamp>
  **************************************************/
 <@id> {
+<@ifexec(ps.centering, begin)>
+	text-align:		center;
+<$end>
 <@>
 <@ifexec(ps.bg ne '', begin)>
 	background-color:	rgba(<@v.hex2rgb(ps.bg)>, <@ps.bg_alpha>);

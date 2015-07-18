@@ -50,6 +50,11 @@
 	<table class="blog-setting">
 	<tbody>
 	<tr>
+		<th>センタリング<td>
+			<input type="checkbox" name="centering" value="1"<@if(ps.centering,' checked')>><label>テキストをセンタリングする</label>
+		</td>
+	</tr>
+	<tr>
 		<th>固定位置で表示<span class="help" data-help="ヘッダ等の領域内で固定された位置に表示します。">?</span></th>
 		<td>
 			上から<input type="number" class="int w50" name="abs_y" value="<@ps.abs_y || 0>" min="0" max="999" id="abs-y">px 
