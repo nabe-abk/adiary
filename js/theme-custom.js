@@ -13,6 +13,7 @@ $(function(){
 	var iframe = $('#iframe');
 	var if_css;
 	var readme = $('#readme-button');
+	var submit_btn = $('#submit-btn');
 
 	var sysmode_no = $('#sysmode-no');
 	var sysmode_no_flag;
@@ -180,8 +181,8 @@ iframe.on('load', function(){
 	var custom_detail= $('#custom-colors-detail');
 	var detail_mode  = $('#detail-mode');
 
-	var input_cols;
-	var select_opts;
+	var input_cols  = $;
+	var select_opts = $;
 	var rel_col;
 	var rel_pol;
 
@@ -196,6 +197,7 @@ function init_custmize(name) {
   cols = undefined;
   opts = undefined;
   css_text = '';
+  submit_btn.prop('disabled', true);
   $.ajax({
 	url: Vmyself + '?design/theme_colors&name=' + name,
 	dataType: 'json',
@@ -211,9 +213,10 @@ function init_custmize(name) {
 
 		// フォーム初期化
 		init_custom_form(data, data2);
+		submit_btn.prop('disabled', false);
 	},
 	error: custom_form_empty
-  });
+        });
 }
 function custom_form_empty() {
 	custom_form.hide();
@@ -223,6 +226,7 @@ function custom_form_empty() {
 	select_opts = [];
 	iframe_resize();
 	$('#custom-flag').val('');
+	submit_btn.prop('disabled', false);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -352,6 +356,13 @@ function init_custom_form(data, data2) {
 	}
 	custom_form.show();
 	iframe_resize();
+
+	// すべてロードされる前に送信されることがある。
+	custom_form.append($('<input>').attr({
+		type:	'hidden',
+		name:	'custom_flag',
+		value:	1
+	}));
 }
 
 //////////////////////////////////////////////////////////////////////////////
