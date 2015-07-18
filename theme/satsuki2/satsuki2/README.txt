@@ -6,7 +6,9 @@ License: GPL
 Smartphone: yes
 System-mode: yes
 
-※余計な記述が多いので、オリジナルテーマの下敷きにするのは推奨しません。
+※余計な記述が多いので、オリジナルテーマの下敷きにするのはお勧めしません。
+
+※mikkyテーマのCSSがシンプルで、ほどほどに洗練されているのでお勧めです。
 
 ChangeLog
 2013-08-xx adiary3/HTML5準拠で書き直し

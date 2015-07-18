@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.0 RC1 : 2015/xx/xx
+*Ver3.0 RC1 : 2015/07/2x
 
 -[http://adiary.org/devman/theme/:テーマ開発マニュアル]をまとめました。
 -ログイン時のIP/HOST制限機能が付きました。

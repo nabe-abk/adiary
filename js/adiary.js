@@ -343,8 +343,8 @@ var jquery_hook_stop = false;
 $(function(){
 	var body = $('#body');
 	body.append( $('<div>').attr('id', 'popup-image') );
-	body.append( $('<div>').attr('id', 'popup-help')  );
-	body.append( $('<div>').attr('id', 'popup-com')   );
+	body.append( $('<div>').attr('id', 'popup-help').addClass('adiary-popup')  );
+	body.append( $('<div>').attr('id', 'popup-com') .addClass('adiary-popup')  );
 	adiary_init(body);
 
 	//////////////////////////////////////////////////////////////////////
@@ -1635,6 +1635,29 @@ css_initial_functions.push(function(){
 	var sidebar = $('#sidebar');
 	sidebar.insertBefore( 'div.main:first-child' );
 });
+
+
+css_initial_functions.push(function(){
+	var flag = get_value_from_css('side-b-move-to-footer');
+	if (SP || !flag) return;
+
+	// 入れ替え
+	$('#footer').prepend( $('#side-b') );
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//●dropdown-menuの位置変更
+//////////////////////////////////////////////////////////////////////////////
+css_initial_functions.push(function(){
+	var flag = get_value_from_css('dropdown-menu-move-to-after-header-div');
+	if (SP || !flag) return;
+
+	// 入れ替え
+	var header = $('#header');
+	var ddmenu = header.find('.dropdown-menu');
+	header.append( ddmenu );
+});
+
 
 
 //////////////////////////////////////////////////////////////////////////////

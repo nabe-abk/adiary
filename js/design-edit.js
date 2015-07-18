@@ -56,7 +56,8 @@ iframe.on('load', function(){
 	var side_a = $fsec('#side-a');
 	var side_b = $fsec('#side-b');
 	var f_main = $fsec('#main-first');
-	var f_head = $fsec('#header').children('div');
+	var f_head = $fsec('#header');
+	var f_hdiv = f_head.children('div');
 
 	// フレーム内check
 	if ($f('#body').hasClass('system-mode')) {
@@ -77,7 +78,7 @@ iframe.on('load', function(){
 	side_a.sortable({ items: selector, connectWith: ".connectedSortable" });
 	side_b.sortable({ items: selector, connectWith: ".connectedSortable" });
 	f_main.sortable({ items: selector + ', #article-box, #articles' });
-	f_head.sortable({ items: selector });
+	f_hdiv.sortable({ items: selector });
 
 	// 記事本体
 	var artbody = $f('article div.body');
@@ -467,7 +468,7 @@ btn_save.click(function(){
 
 	form_append('side_a_ary', side_a.children(module_selector));
  	form_append('side_b_ary', side_b.children(module_selector));
- 	form_append('header_ary', f_head.children(module_selector));
+ 	form_append('header_ary', f_head.find(module_selector));
 
 	var main_a_ary = [];
 	var main_b_ary = [];
