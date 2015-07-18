@@ -1320,6 +1320,10 @@ sub post_comment {
 	} else {
 		delete $form->{id};
 	}
+	# 実体参照の無効化
+	$form->{name}        =~ s/&/&amp;/g;
+	$form->{comment_txt} =~ s/&/&amp;/g;
+
 	# フォーム値から値削除
 	$self->delete_ip_host_agent($form);
 	delete $form->{tm};
@@ -1381,7 +1385,7 @@ sub regist_comment {
 	$text =~ s/^(?:\s*\n)*//;	# 先頭は空行のみ除去
 	$text =~ s/[\s*\n]*$//;		# 末尾は\n\s全部除去
 	$ROBJ->trim($name, $email, $url);
-	$ROBJ->tag_escape_amp( $name, $text );
+	$ROBJ->tag_escape( $name, $text );
 	$ROBJ->clear_form_error();
 
 	# データチェック
