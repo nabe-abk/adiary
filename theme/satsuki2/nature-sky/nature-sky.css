@@ -81,7 +81,8 @@ body
 ○for IE8 bugs
 ---------------------------------------------------------------------*/
 .IE8 #hatena-body>div,
-.IE8 #header,.IE8 #footer {
+.IE8 #header>div,
+.IE8 #footer>div {
 	margin:			0 auto;
 	width:			920px;
 }
