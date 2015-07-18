@@ -537,7 +537,7 @@ $(function(){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●画像・ヘルプのポップアップ
+//●画像・ヘルプ・コメントのポップアップ
 //////////////////////////////////////////////////////////////////////////////
 function easy_popup(evt) {
 	var obj = $(evt.target);
@@ -569,8 +569,10 @@ function easy_popup_out(evt) {
 
 initfunc.push( function(R){
 	var popup_img  = $('#popup-image');
+	var popup_com  = $('#popup-com');
 	var popup_help = $('#popup-help');
 	var imgs  = R.findx(".js-popup-img");
+	var coms  = R.findx(".js-popup-com");
 	var helps = R.findx(".help[data-help]");
 	var bhelps= R.findx(".btn-help[data-help]");
 
@@ -582,6 +584,14 @@ initfunc.push( function(R){
 		div.append( img );
 	}, div: popup_img}, easy_popup);
 
+	coms.mouseenter( {func: function(obj,div){
+		var num = obj.data('target');
+		if (num == '' || num == 0) return div.empty();
+		var com = $secure('#c' + num);
+		if (!com.length) return div.empty();
+		div.html( com.html() );
+	}, div: popup_com}, easy_popup);
+
 	var helpfunc = function(obj,div){
 		var text = tag_esc_br( obj.data("help") );
 		div.html( text );
@@ -591,6 +601,7 @@ initfunc.push( function(R){
 	if (!SP) bhelps.data('delay', ButtonHelpDelay);	// 長めのディレイ。スマホ除く
 
 	imgs  .mouseleave({div: popup_img }, easy_popup_out);
+	coms  .mouseleave({div: popup_com }, easy_popup_out);
 	helps .mouseleave({div: popup_help}, easy_popup_out);
 	bhelps.mouseleave({div: popup_help}, easy_popup_out);
 });
@@ -1210,8 +1221,8 @@ $( function(){
 		// popup機能
 		obj.find('a').each(function(idx,dom) {
 			var link = $(dom);
-			link.mouseenter( {div: popup , func: setReplay}, easy_popup);
-			link.mouseleave( {div: popup                  }, easy_popup_out);
+			link.mouseenter( {div: popup, func: setReplay}, easy_popup);
+			link.mouseleave( {div: popup                 }, easy_popup_out);
 		});
 	});
 	function setReplay(obj, div) {

@@ -114,7 +114,7 @@
 		<td class="c"><label for="com-<@t.pkey>"><@if(t.enable, '公', if(t.hidden, '非'))></label></td>
 		<$end>
 		<td><a href="<@v.myself2><@t.a_elink_key>" title="<@v.format_ymd(t.a_yyyymmdd)> <@t.a_title>"><@v.string_clip(t.a_title,10)></a></td>
-		<td><a href="<@v.myself2><@t.a_elink_key>#c<@t.num>"<@if(v.allow_edit, #' data-reply="<@t.pkey>"')>><@t.name></a></td>
+		<td><a href="<@v.myself2><@t.a_elink_key>#c<@t.num>"<@if(v.allow_edit, #' class="js-popup-com" data-target="<@t.pkey>"')>><@t.name></a></td>
 		<td class="c"><label for="com-<@t.pkey>"><@tm_printf('%Y/%m/%d %K:%M', t.tm)></label></td>
 		<td><label for="com-<@t.pkey>"><@v.string_clip(t.text_nobr,20)></label></td>
 	</tr>
