@@ -184,6 +184,10 @@ blockquote p:last-child {
 /*--------------------------------------------------------------------
 ●フォーム関連
 ---------------------------------------------------------------------*/
+/* webkit default override */
+input {
+	box-sizing:		content-box;
+}
 input[type="number"] {
 	text-align:		right;
 }
@@ -1017,6 +1021,7 @@ ul.menu {
 .dropdown-menu:not(.sp)>ul>li>ul li {
 	width:		200px;	/* ２段目の幅 = X2 */
 }
+/* 最後の要素だけ左にサブメニューを開く。IE8非対応 */
 .dropdown-menu:not(.sp)>ul>li:last-child:not(:first-child)>ul {
 	left:		-92px;	/* = X1-X2 */
 }

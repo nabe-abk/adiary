@@ -405,11 +405,6 @@ ul.hatena-section ul {
 	padding:		0px;
 }
 
-/* カレンダー */
-div#side-calendar div.hatena-modulebody table {
-	font-size:		100%;
-	margin:			0.3em auto;
-}
 #sidebar p {
 	margin-top:		0.5em;
 	margin-bottom:		0.5em;
@@ -656,11 +651,8 @@ article.system.search div.body {
 /*--------------------------------------------------------------------
 ●sidebar：カレンダー
 ---------------------------------------------------------------------*/
-#side-calendar .hatena-modulebody {
-	padding:		2px 0;
-}
 table.calendar {
-	margin:			0px auto;
+	margin:			6px auto;
 	font-size:		95%;
 	line-height:		100%;
 }

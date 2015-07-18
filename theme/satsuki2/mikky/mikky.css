@@ -679,10 +679,6 @@ div.hatena-moduletitle:after {
 div.hatena-modulebody {
 	margin:			0.3em 0.5em 0.3em 0.5em;
 }
-div#side-calendar div.hatena-modulebody table {
-	font-size:		100%;
-	margin:			0.3em auto;
-}
 #sidebar p {
 	margin-top:		0.5em;
 	margin-bottom:		0.5em;
@@ -701,9 +697,7 @@ div.side-contents-list div.hatena-moduletitle a {
 ●sidebar：カレンダー
 ---------------------------------------------------------------------*/
 table.calendar {
-	margin-left:		auto;
-	margin-right:		auto;
-	font-size:		95%;
+	margin:			3px auto;
 	line-height:		100%;
 }
 table.calendar td.calendar-prev-month    { text-align: left;  margin-left:  0.5em; }
