@@ -64,11 +64,10 @@ HTML
 
 *module_html=<<HTML
 <!--ドロップダウンメニュー=====================================-->
-<div class="dropdown-menu" data-module-name="<@this>" id="<@id>">
+<div class="dropdown-menu<@if(v.load_plgset('<@this>', 'width1_free'), ' js-ddmenu-free-item-width')>" data-module-name="<@this>" id="<@id>">
 <@v.load_plgset('<@this>', 'html')>
 </div>
 HTML
-
 
 *files=<<FILES
 func/<@this>.pm

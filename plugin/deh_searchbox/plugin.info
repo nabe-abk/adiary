@@ -20,8 +20,7 @@ module_id=head-search
 <input type="search" class="search-box w100" name="q" value="" required>
 <button type="submit" class="search-btn">検索</button>
 <span class="search-radio">
-<input class="search-title" type="radio" name="all" value="0"><label>タイトル</label>
-<input class="search-text"  type="radio" name="all" value="1" checked><label>全文</label>
+<input class="search-title" type="radio" name="all" value="0"><label>タイトル</label><input class="search-text"  type="radio" name="all" value="1" checked><label>全文</label>
 </span>
 </form>
 </div>

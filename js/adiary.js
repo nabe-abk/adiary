@@ -1077,12 +1077,24 @@ $( function(){
 //●要素の幅を中身を参照して自動設定する
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
+	R.findx('.js-ddmenu-free-item-width').each(function(idx,dom) {
+		var ch = $(dom).children('ul').children();
+		for(var i=0; i<ch.length; i++) {
+			var a = $(ch[i]).children('a');
+			a.css('width', 'auto').css('display', 'inline-block');
+			var w = a.outerWidth()+2;
+			$(ch[i]).width( w ).data('width', w);
+			a.css('display', 'block');
+		}
+	});
 	R.findx('.js-auto-width').each(function(idx,dom) {
 		var obj = $(dom);
 		var ch = obj.children();
 		var width = 0;
-		for(var i=0; i<ch.length; i++)
-			width += $(ch[i]).outerWidth();
+		for(var i=0; i<ch.length; i++) {
+			var li = $(ch[i]);
+			width += li.data('width') || li.outerWidth();
+		}
 		if (IE8) width+=2;
 		obj.width(width);
 	});

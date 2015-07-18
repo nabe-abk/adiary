@@ -50,14 +50,6 @@
 	<table class="blog-setting">
 	<tbody>
 	<tr>
-		<th>固定位置で表示<span class="help" data-help="ヘッダ等の領域内で固定された位置に表示します。">?</span></th>
-		<td>
-			上から<input type="number" class="int w50" name="abs_y" value="<@ps.abs_y || 0>" min="0" max="999" id="abs-y">px 
-			左から<input type="number" class="int w50" name="abs_x" value="<@ps.abs_x || 0>" min="0" max="999" id="abs-x">px &ensp;
-			<input type="checkbox" class="js-enable" data-target="#abs-x,#abs-y"<@if(ps.abs_x ne '',' checked')>><label>固定位置で表示する</label>
-		</td>
-	</tr>
-	<tr>
 		<th>領域の幅と高さ</th>
 		<td>
 			  幅<input type="number" class="int w50" name="width"  value="<@ps.width  || 0>" min="0" max="1999" id="width">px 

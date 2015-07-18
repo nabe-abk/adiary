@@ -119,6 +119,13 @@ if ('<@ps.border_c>' == '') {
 	var col = get_border_color( obj );
 	if (col) $('#border-c').val(col);
 }
+// 固定位置
+var pos = obj.position();
+if (pos) {
+	$('#abs-x').val( Math.round(pos.left) );
+	$('#abs-y').val( Math.round(pos.top ) );
+}
+
 // 幅と高さ
 if ('<@ps.width>' == '')
 	$('#width').val(  obj.outerWidth()  );

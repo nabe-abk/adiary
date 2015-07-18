@@ -36,13 +36,13 @@
 <@id>>ul>li>ul li {
 	width:		<@x2=ps.width2>px;	/* ２段目の幅 = X2 */
 }
-:not(.IE8) <@id>>ul>li:last-child:not(:first-child)>ul {
+body:not(.IE8) <@id>>ul>li:last-child:not(:first-child)>ul {
 	left:		<@x1-x2>px;	/* = X1-X2 */
 }
-:not(.IE8) <@id>>ul>li:last-child:not(:first-child)>ul ul {
+body:not(.IE8) <@id>>ul>li:last-child:not(:first-child)>ul ul {
 	left:		<@-x2>px;	/* = -X2 */
 }
-:not(.IE8) <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
+body:not(.IE8) <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
 	left:		<@x2>px;	/* = X2 */
 }
 <$end>
@@ -79,6 +79,16 @@
 	height:		100%;
 }
 <$end>
+<@>
+<@ifexec(ps.item_left, begin)>
+<@id> li a {
+	text-align:	left;
+}
+body:not(.IE8) <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
+	left:		<@(ps.width2 || 200)*2 - 20>px;
+}
+<$end>
+<@>
 <@ifexec(ps.vbottom, begin)>
 <@id>>ul>li>a:after {
 	vertical-align:		bottom;
@@ -100,6 +110,11 @@
 /* 左右padding */
 <@id>>ul {
 	padding:	0 <@ps.padding>px;
+}
+<$end>
+<@ifexec(ps.item_padding ne '', begin)>
+<@id> li a {
+	padding:	0 <@ps.item_padding>px;
 }
 <$end>
 <@>----------------------------------------------------------------

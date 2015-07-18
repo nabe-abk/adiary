@@ -57,7 +57,7 @@ iframe.on('load', function(){
 	var side_b = $fsec('#side-b');
 	var f_main = $fsec('#main-first');
 	var f_head = $fsec('#header');
-	var f_hdiv = f_head.children('div');
+	var f_hdiv = f_head.children('div:first-child');
 
 	// フレーム内check
 	if ($f('#body').hasClass('system-mode')) {
@@ -191,7 +191,7 @@ $('#add-module').change(function(evt){
 	// 追加
 	var type = mod_type.val();
 	if (type == 'header') {
-		f_head.append(obj);
+		f_hdiv.append(obj);
 	} else if (type == 'article') {
 		artfoot.append(obj);
 	} else {
@@ -300,7 +300,7 @@ function init_module(obj) {
 		var dx  = off.left + btn.outerWidth();
 		var dy  = off.top;
 		if (dy>30) continue;
-		console.log(x,y,dx,dy);
+		// console.log(x,y,dx,dy);
 		if (x <= (dx-    50) || (dx+    50) <= x) continue;
 		if (y <= (dy-margin) || (dy+margin) <= y) continue;
 		// 位置をずらす

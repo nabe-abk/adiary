@@ -6,6 +6,7 @@
 	width1:min  =   40
 	width1:max  = 9999
 	width1:default = 
+	width1_free = flag
 
 	width2 = 2段目以降の項目幅
 	width2:type =  int
@@ -40,11 +41,17 @@
 	margin3:max  =   999
 	margin3:default = 
 
-	padding = 左右padding
+	padding = 全体の左右padding
 	padding:type = int
 	padding:min  =   0
 	padding:max  = 999
 	padding:default = 
+
+	item_padding = 各項目の左右padding
+	item_padding:type = int
+	item_padding:min  =   0
+	item_padding:max  = 999
+	item_padding:default = 
 
 	zindex = 表示優先度
 	zindex:type =  int
@@ -60,6 +67,7 @@
 	no_underl = flag
 	vbottom   = flag
 	no_centering  = flag
+	item_left = flag
 
 	bg_trans  = flag
 	tbg_trans = flag

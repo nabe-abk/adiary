@@ -9,15 +9,16 @@
 	<tr>
 		<th>項目幅</th>
 		<td>
-			1段目<input type="number" class="int w60" name="width1" value="<@ps.width1 || 110>" min="40" max="9999" id="width1"> &ensp;
-			2段目以降<input type="number" class="int w60" name="width2" value="<@ps.width2 || 200>" min="40" max="9999" id="width2"> &ensp;
-			<input type="checkbox" class="js-disable" data-target="#width1,#width2"<@if(ps.width1 eq '',' checked')>><label>変更しない</label>
+			1段目<input type="number" class="int w60" name="width1" value="<@ps.width1 || 110>" min="40" max="9999" id="width1">px &ensp;
+			<input type="checkbox" name="width1_free" value="1"<@if(ps.width1_free, ' checked')> id="width1-free"><label>フリーサイズ<span class="help" data-help="項目内容に応じてアイテム幅を可変させます。設定時は各項目のpaddingも設定してください。">?</span></label><br>
+			2段目以降<input type="number" class="int w60" name="width2" value="<@ps.width2 || 200>" min="40" max="9999" id="width2">px &ensp;
+			<input type="checkbox" class="js-disable" data-target="#width1,#width1-free,#width2"<@if(ps.width1 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>アイテムの高さ</th>
 		<td>
-			<input type="number" class="int w60" name="height" value="<@ps.height || 30>" min="20" max="99" id="height"> &ensp;
+			<input type="number" class="int w60" name="height" value="<@ps.height || 30>" min="20" max="99" id="height">px &ensp;
 			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
@@ -38,9 +39,19 @@
 		</td>
 	</tr>
 	<tr>
-		<th>全体の表示位置<span class="help" data-help="メニューアイテム全体を左寄せで表示するか設定します。">?</span></th>
+		<th>表示位置<span class="help" data-help="メニューアイテム全体を左寄せで表示するか設定します。">?</span></th>
 		<td>
-			<input type="checkbox" name="no_centering" value="1"<@if(ps.no_centering,' checked')>><label>左寄せで表示する</label>
+			<input type="checkbox" name="no_centering" value="1"<@if(ps.no_centering,' checked')>><label>全体を左寄せで表示する</label> &ensp;
+			<input type="checkbox" name="item_left" value="1"<@if(ps.item_left,' checked')>><label>各項目を左寄せで表示する</label>
+		</td>
+	</tr>
+	<tr>
+		<th>左右padding</th>
+		<td>
+			全体<input type="number" class="int w60" name="padding" value="<@ps.padding || 0>" min="0" max="999" id="padding">px &ensp;
+			<input type="checkbox" class="js-disable" data-target="#padding"<@if(ps.padding eq '',' checked')>><label>変更しない</label><br>
+			各項目<input type="number" class="int w60" name="item_padding" value="<@ps.item_padding || 0>" min="0" max="999" id="item-padding">px &ensp;
+			<input type="checkbox" class="js-disable" data-target="#item-padding"<@if(ps.item_padding eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -51,13 +62,6 @@
 			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
 			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &ensp;
 			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
-		</td>
-	</tr>
-	<tr>
-		<th>左右padding</th>
-		<td>
-			<input type="number" class="int w60" name="padding" value="<@ps.padding || 0>" min="0" max="999" id="padding"> &ensp;
-			<input type="checkbox" class="js-disable" data-target="#padding"<@if(ps.padding eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>

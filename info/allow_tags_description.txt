@@ -6,7 +6,6 @@ _protocol	http, https, ftp, mailto
 
 ### 基本 ########################
 a		href, name, target, rel
-p
 br
 span
 
