@@ -1,0 +1,266 @@
+@charset "UTF-8";
+/*****************************************************************************
+  patch for smart phone
+					2015/05 (C)nabe@abk.nu
+*****************************************************************************/
+/*--------------------------------------------------------------------
+■全体配置
+---------------------------------------------------------------------*/
+body {
+	width:			auto;
+}
+#header>div:first-child,
+#footer>div:last-child,
+#hatena-body,
+#side-b {
+	width:			auto;
+	min-width:		1px;	/* for GC bugs */
+	max-width:		auto;
+}
+#hatena-body {
+	padding:		0 4px;
+}
+
+.main {
+	margin-left:		0px;
+	margin-right:		0px;
+	padding:		0 2px;
+	width:			auto;
+	float:			none;
+}
+#sidebar {
+	color:			#000;
+	float:			none;
+	margin:			40px 4px 0 4px;
+	padding:		0;
+	width:			auto;
+	border:			none;
+}
+
+/*--------------------------------------------------------------------
+■ヘッダ、フッタ
+---------------------------------------------------------------------*/
+#sp-header {
+	margin-bottom:		1em;
+}
+#sp-nav-header {
+	font-size:		9pt;
+	text-align:		right;
+	vertical-align:		top;
+}
+#sp-page-title {
+	font-size:		19pt;
+	margin:			10px 0 0 0;
+	padding:		20px 6px;
+	font-weight:		bold;
+	text-shadow:
+		-1px -1px 0px #fff,
+		 1px -1px 0px #fff,
+		 1px  1px 0px #fff,
+		-1px  1px 0px #fff,
+		 3px  3px 2px #999;
+}
+#sp-nav-header a {
+	text-decoration:	none;
+}
+
+/* 検索ボックス */
+#sp-head-search {
+	margin-top:		2px;
+	padding:		3px 4px 4px 4px;
+	border-radius:		4px;
+	background-color:	rgba(255,255,255,0.4);
+}
+#sp-head-search .search-btn {
+	background-color:	#fff;
+	background-image:	none;
+	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
+}
+#sp-head-search.no-menu {
+	background-color:	#e8e8e8;
+}
+
+
+/*--------------------------------------------------------------------
+■サイドバー
+---------------------------------------------------------------------*/
+#sidebar {
+	font-size:		11pt;
+	line-height:		140%;
+}
+span.switch-icon {
+	margin-right:		1em;
+}
+#sidebar ul.hatena-section {
+	line-height:		200%;
+}
+not(.Fx) #side-search {		/* for Fx bug */
+	text-align:		center;
+}
+#side-search input.search-box {
+	width:			180px;
+}
+table.calendar {
+	margin-left:		auto;
+	margin-right:		auto;
+}
+
+/*--------------------------------------------------------------------
+■コメント欄
+---------------------------------------------------------------------*/
+#com {
+	font-size:		10pt;
+
+}
+#com form input.comment-author {
+	width:			100px;
+}
+#com form textarea {
+	width:			340px;
+}
+
+/*--------------------------------------------------------------------
+■記事部の設定
+---------------------------------------------------------------------*/
+#adiary-body {
+	word-wrap:		break-word;
+}
+
+#adiary-body img,
+#adiary-body figure {
+	max-width:		100%;
+	height:			auto;
+	float:			none;
+}
+#adiary-body textarea,
+#adiary-body input,
+#adiary-body video,
+#adiary-body audio {
+	max-width:		100%;
+}
+
+article ul,
+article ol {
+	padding-left:		2em;
+}
+article ul ul,
+article ol ol {
+	padding-left:		1em;
+}
+article div.body {
+	padding-left:		12px;
+	padding-right:		12px;
+}
+
+/*--------------------------------------------------------------------
+○table, blockquote, pre
+---------------------------------------------------------------------*/
+.body table {
+	margin-left:		1em;
+	margin-right:		1em;
+}
+.body blockquote table,
+.body div.box table {
+	margin-left:		0;
+	margin-right:		0;
+}
+
+blockquote, pre, div.box {
+	margin:			0.5em 1.0em 0.5em 1.0em;
+	padding:		0.2em 0.5em 0.2em 0.5em;
+}
+pre {
+	margin-left:		0;
+	margin-right:		0;
+	overflow-x:		scroll;
+}
+
+/*--------------------------------------------------------------------
+■フォントサイズとpadding初期化
+---------------------------------------------------------------------*/
+article {
+	padding:		6px;
+}
+article h2 {
+	font-size:		14pt;
+}
+article div.body {
+	padding:		0;
+	font-size:		11pt;
+	line-height:		140%;
+}
+div.body h3 {
+	font-size:		12pt;
+}
+div.body h4 {
+	font-size:		11pt;
+}
+#com {
+	padding:		6px;
+}
+
+/*--------------------------------------------------------------------
+■ブログ一覧
+---------------------------------------------------------------------*/
+#table-view table {
+	margin-left:		4px;
+	margin-right:		4px;
+}
+#table-view table th {
+	font-size:		9pt;
+}
+#table-view table .large {
+	font-size:		100%;
+}
+#table-view table .hhmm {
+	display:		none;
+}
+
+/*--------------------------------------------------------------------
+■システムモード
+---------------------------------------------------------------------*/
+article.system div.body {
+	padding-left:		6px;
+	padding-right:		6px;
+}
+article.system div.body table {
+	margin-left:		0px;
+	margin-right:		0px;
+}
+article.system ul:not(.dynatree-container):not(.ui-tabs-nav) {
+	padding-left:		2em;
+}
+nav.tree {
+	font-size:		8pt;
+	line-height:		200%;
+}
+nav.tree span.items {
+	display:		block;
+}
+#adiary-body .main input,
+#adiary-body .main textarea {
+	max-width:		100%;
+}
+
+article.edit span.element {
+	display:		block;
+}
+#edit-tags + br,
+#edit-tags + br + br {
+	display:		none;
+}
+article.edit button,
+article.edit select {
+	margin-top:		6px;
+	margin-bottom:		6px;
+}
+article.edit span.edit-writer {
+	display:		none;
+}
+
+.system button {
+	padding:		2px 3px;
+}
+#edit .helper + .help {
+	margin-left:		0px;
+}
