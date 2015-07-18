@@ -5,10 +5,10 @@
 	email = flag
 	url   = flag
 
-	msg = 出力テキスト
-	msg:filter0     = trim
-	msg:filter1     = file:<@v.allow_tags_head>usertext.txt
-	msg:filter1_opt = <@v.trust_mode>
+	msg_txt = 出力テキスト
+	msg_txt:filter0     = trim
+	msg_txt:filter1     = file:<@v.allow_tags_head>usertext.txt
+	msg_txt:filter1_opt = <@v.trust_mode>
 <$end>
 
 <$ifbreak(form_error())>
