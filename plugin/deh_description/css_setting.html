@@ -12,6 +12,11 @@
 		</td>
 	</tr>
 	<tr>
+		<th>センタリング<td>
+			<input type="checkbox" name="centering" value="1"<@if(ps.centering,' checked')>><label>テキストをセンタリングする</label>
+		</td>
+	</tr>
+	<tr>
 		<th>背景色<td>
 			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
 			透過<input type="number" class="w50" name="bg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.bg_alpha || 1>" id="bg-alpha">(0=透明) &ensp;

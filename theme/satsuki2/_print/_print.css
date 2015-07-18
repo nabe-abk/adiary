@@ -11,6 +11,9 @@
 #sidebar {
 	display:	none;
 }
+.dropdown-menu {
+	display:	none;
+}
 .main {
 	width:		100%;
 	margin:		0;
