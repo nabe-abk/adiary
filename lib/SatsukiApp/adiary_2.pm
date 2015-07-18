@@ -1536,6 +1536,7 @@ sub calc_comments {
 	my %h;
 	$h{match} = {a_pkey => $a_pkey};
 	$h{cols}  = ['pkey', 'enable', 'num'];
+	$h{sort}  = ['pkey'];
 	my $com = $DB->select("${blogid}_com", \%h);
 	my $c = 0;
 	my $num=0;
