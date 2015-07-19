@@ -68,7 +68,7 @@ sub load_arts_list {
 	}
 
 	# ロードカラム
-	$h{cols} = [qw(pkey link_key title tags name id yyyymmdd tm update_tm coms coms_all enable)];
+	$h{cols} = [qw(pkey link_key title tags ctype name id yyyymmdd tm update_tm coms coms_all enable)];
 
 	my $blogid = $self->{blogid};
 	my ($logs,$hits) =  $DB->select("${blogid}_art", \%h);

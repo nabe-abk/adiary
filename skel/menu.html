@@ -11,7 +11,7 @@
 <$end>
 
 <@> Version2からの移行処理
-<$ifredirect(!Develop && v.v2conf,  Myself . '?system/v2conv')>
+<$ifredirect(Auth.isadmin && !Develop && v.v2conf,  Myself . '?system/v2conv')>
 
 <@> 階層ツリー
 <@call("<@v.skel_dir>_dir_tree")>
