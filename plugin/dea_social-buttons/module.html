@@ -12,7 +12,7 @@
 			<@if(ps.twitter_follow, "&amp;related=<@ps.nabe_abk>")> <@\>
 			<@if(ps.twitter_hash,   "&amp;hashtags=<@ps.twitter_hash>")>  <@\>
 			&amp;url=" title="Twitterでシェア"></a> <@\>
-		<a target="_blank" class="count" href="https://twitter.com/search?q="></a>
+		<a target="_blank" class="count" href="https://twitter.com/search?q=">-</a>
 	</span>
 	<$end>
 	<@>
@@ -22,7 +22,7 @@
 	<@ifexec(ps.facebook, begin)>
 	<span class="social-button facebook-share" data-url="<@url>">
 		<a target="_blank" class="share" rel="nofollow" href="https://www.facebook.com/sharer/sharer.php?u=" title="Facebookでシェア"></a> <@\>
-		<a target="_blank" class="count" href="https://www.facebook.com/sharer/sharer.php?u="></a>
+		<a target="_blank" class="count" href="https://www.facebook.com/sharer/sharer.php?u=">-</a>
 	</span>
 	<$end>
 	<@>
@@ -32,7 +32,7 @@
 	<@ifexec(ps.hatena, begin)>
 	<span class="social-button hatena-bookmark" data-url="<@url>">
 		<a target="_blank" class="share" rel="nofollow" href="http://b.hatena.ne.jp/add?mode=confirm&amp;url=" title="はてなブックマークに追加"></a> <@\>
-		<a target="_blank" class="count" href="http://b.hatena.ne.jp/entry/"></a>
+		<a target="_blank" class="count" href="http://b.hatena.ne.jp/entry/">-</a>
 	</span>
 	<$end>
 	<@>
@@ -42,7 +42,7 @@
 	<@ifexec(ps.pocket, begin)>
 	<span class="social-button pocket-bookmark" data-url="<@url>">
 		<a target="_blank" class="share" rel="nofollow" href="http://getpocket.com/edit?url=" title="Pocket"></a> <@\>
-		<a target="_blank" class="count" href="http://getpocket.com/edit?url=">123456</a>
+		<a target="_blank" class="count" href="http://getpocket.com/edit?url=">-</a>
 	</span>
 	<$end>
 	<@>

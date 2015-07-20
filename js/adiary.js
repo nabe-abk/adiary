@@ -1288,9 +1288,9 @@ $( function(){
 			url: "http://query.yahooapis.com/v1/public/yql",
 			data: {
 				q: "SELECT content FROM data.headers WHERE url='http://widgets.getpocket.com/v1/button?v=1&count=horizontal&url=" + url + "'",
+				// noncache: new Date().getTime(),
 				format: "xml",
-				env: "http://datatables.org/alltables.env",
-				noncache: new Date().getTime()
+				env: "http://datatables.org/alltables.env"
 			},
 			success: function (xml) {
 				var content = $(xml).find('content').text();

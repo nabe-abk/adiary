@@ -1,21 +1,32 @@
 ######################################################################
 title=ソーシャルボタン
-version=1.00
+version=1.10
 #					(C)2015 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=2.941
+adiary_version=2.961
 module_type=article
 module_id=social-buttons
 
+load_module_html_in_edit=1
+
 *sample_html=<<HTML
 <div class="social-buttons" data-module-name="<@this>">
-	<button>ブックマーク</button>
-	<button>いいね！</button>
-	<button>ツイート</button>
+	<span class="social-button twitter-share">
+		<a class="share" href="#" title="Twitterでシェア"></a><a class="count" href="#">0</a>
+	</span>
+	<span class="social-button facebook-share">
+		<a class="share" href="#" title="Facebookでシェア"></a><a class="count" href="#">0</a>
+	</span>
+	<span class="social-button hatena-bookmark">
+		<a class="share" href="#" title="はてなブックマークに追加"></a><a class="count" href="#">0</a>
+	</span>
+	<span class="social-button pocket-bookmark">
+		<a class="share" href="#" title="Pocket"></a><a class="count" href="#">0</a>
+	</span>
 </div>
 HTML
 
