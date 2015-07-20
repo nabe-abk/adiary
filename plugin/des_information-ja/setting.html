@@ -100,7 +100,7 @@ print-link
 	<img class="rss-icon" alt="RSS" src="<@Basepath><@v.pubdist_dir>rss-icon.png">
 </div>
 
-<div data-module-name="free_txt" data-duplicate="1" title="フリーテキスト" data-alt='フリーテキスト<br><a target="_blank" href="<@v.myself>?etc/allow_tags&amp;n=usertext">使用可能タグ</a>'>
+<div data-module-name="free_txt" data-duplicate="1" title="フリーテキスト" data-alt='フリーテキスト<br>改行無視<br><a target="_blank" href="<@v.myself>?etc/allow_tags&amp;n=usertext">使用可能タグ</a>'>
 	<textarea class="w300" rows="2" name="free_txt"></textarea>
 </div>
 
@@ -155,7 +155,8 @@ function append_element(name, val) {
 		}
 		if (val && val != '' && (name == 'free_txt' || name == 'freebr_txt')
 		 && obj[0].tagName == 'TEXTAREA') {
-		 	if (name == 'freebr_txt') val = val.replace(/<br>/g, "\n");
+		 	if (name == 'free_txt')   val = val.replace(/<!--br-->/g, "\n");
+		 	if (name == 'freebr_txt') val = val.replace(/<br>/g,      "\n");
 			obj.val( val );
 		}
 		obj.attr('name', count + ',' + key);

@@ -43,7 +43,7 @@ sub {
 		# フリーテキスト
 		if ($name eq 'free_txt' || $name eq 'freebr_txt') {
 			if ($name eq 'free_txt') {
-				$val =~ s/\n//g;
+				if ($val !~ /<!--/) { $val =~ s/\n/<!--br-->/g; }
 			} else {
 				$val =~ s/\n/<br>/g;
 			}
