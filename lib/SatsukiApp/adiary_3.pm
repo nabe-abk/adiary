@@ -803,6 +803,9 @@ sub save_private_mode {
 	}
 	$blog->{blogpub_dir_postfix} = $postfix;
 	$self->{blogpub_dir} = $self->blogpub_dir();
+	if ($blog->{theme_custom}) {
+		$blog->{theme_custom} = $self->get_theme_custom_css( $blog->{theme} );
+	}
 
 	$self->call_event($evt_name);
 	$self->rebuild_blog();

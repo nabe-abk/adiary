@@ -1326,7 +1326,7 @@ sub save_theme {
 	if (!$form->{custom}) { return 0; }
 	my ($c,$opt,$css) = $self->load_theme_colors( $theme );
 	if (!$css) { return 0; }
-	my $file = $self->get_theme_custom_css($theme);
+	my $file = $self->get_theme_custom_css($theme, 1);
 
 	my %col;
 	my %opt;
@@ -1585,10 +1585,10 @@ sub load_theme_colors {
 # ●テーマカスタムファイルの取得
 #------------------------------------------------------------------------------
 sub get_theme_custom_css {
-	my ($self, $theme) = @_;
+	my ($self, $theme, $mkdir) = @_;
 	my $ROBJ = $self->{ROBJ};
 	my $dir = $self->{blogpub_dir} . 'css/';
-	$ROBJ->mkdir($dir);
+	$mkdir && $ROBJ->mkdir($dir);
 	$theme =~ s|/|.|g;
 	return $dir . $theme . '.css';
 }
