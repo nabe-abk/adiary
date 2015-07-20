@@ -460,10 +460,7 @@ div.body blockquote p {
 	margin:			0.2em 0.5em 0.2em 0;
 }
 pre {
-	font-family:		monospace;
-	display:		block;
 	background-color:	#e3efff;		/* $c=prebg */
-/*	overflow:		auto;	*/	/* はみ出した部分は scroll bar */
 }
 
 /* pre 中コメント */

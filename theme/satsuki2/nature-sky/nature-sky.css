@@ -492,9 +492,8 @@ div.body blockquote p {
 	margin:			0.2em 0.5em 0.2em 0;
 }
 pre {
-	font-family:		monospace;
-	display:		block;
 	background-color:	#eef4ff;		/* $c=prebg */
+	overflow:		auto;
 }
 
 /* pre 中コメント */

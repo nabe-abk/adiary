@@ -543,9 +543,6 @@ div.body blockquote p {
 pre {
 	font-size:		11pt;
 	line-height:		140%;
-	font-family:		monospace;
-	display:		block;
-/*	overflow:		auto;	*/	/* はみ出した部分は scroll bar */
 }
 
 /* pre 中コメント */

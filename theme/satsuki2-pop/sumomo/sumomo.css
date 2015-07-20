@@ -620,11 +620,6 @@ div.body blockquote ol {
 	margin-top:		0;
 	margin-bottom:		0;
 }
-pre {
-	font-family:		monospace;
-	display:		block;
-/*	overflow:		auto;	*/	/* はみ出した部分は scroll bar */
-}
 
 /* システムモード用 */
 article.system p,

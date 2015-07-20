@@ -576,8 +576,6 @@ blockquote p + p {
 /* pre記法 */
 /*-------------------------------------------------------------------*/
 div.body-main pre {
-    font-family:            monospace;
-    display:                block;
     position:               relative;
     margin-left:            8px;
     z-index:                0;
