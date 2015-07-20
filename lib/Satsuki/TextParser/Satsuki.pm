@@ -1276,6 +1276,7 @@ sub table_output {
 		my $cols = shift(@$rows);
 		my $tr_class = pop(@$cols);
 		my $line;
+		my $th_only = 1;
 		foreach(0..$#$cols) {
 			my $h = $cols->[$_];
 			if ($h->{output}) { next; }	# １度出力したものは出力しない
@@ -1288,14 +1289,15 @@ sub table_output {
 			if ($h->{th}) {
 				$line .= "<th$at>$h->{data}</th>";
 			} else {
+				$th_only = 0;
 				$line .= "<td$at>$h->{data}</td>";
 			}
 		}
-		push(@$out, "\t<tr class=\"$tr_class\">$line</tr>\n");
-		if ($thead_flag) {
+		if ($thead_flag && !$th_only) {
 			push(@$out, "</thead><tbody>\n");
 			$thead_flag = 0;
 		}
+		push(@$out, "\t<tr class=\"$tr_class\">$line</tr>\n");
 	}
 	push(@$out, "</tbody></table>\n");
 }
