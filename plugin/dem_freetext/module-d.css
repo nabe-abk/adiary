@@ -10,7 +10,7 @@
 	clear:			both;
 }
 <@id> {
-<@ifexec(ps.centering, begin)>
+<@ifexec(ps.text_centering, begin)>
 	text-align:		center;
 <$end>
 <@>
@@ -43,13 +43,18 @@
 <@ifexec(ps.padding0 ne '', begin)>
 	padding:		<@ps.padding0>px <@ps.padding1>px <@ps.padding2>px <@ps.padding3>px;
 <$end>
+<@ifexec(ps.width ne '' || ps.height ne '', begin)>
+	box-sizing:		border-box;
+<$end>
 <@ifexec(ps.width ne '', begin)>
-	width:			<@ps.width - ps.padding1 - ps.padding3>px;
+	width:			<@ps.width>px;
+	<@ifexec(ps.centering, begin)>
 	margin-left:		auto;
 	margin-right:		auto;
+	<$end>
 <$end>
 <@ifexec(ps.height ne '', begin)>
-	height:			<@ps.height - ps.padding0 - ps.padding2>px;
+	height:			<@ps.height>px;
 <$end>
 <@ifexec(ps.abs_x ne '', begin)>
 	position:		absolute;

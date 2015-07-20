@@ -51,7 +51,7 @@
 	<tbody>
 	<tr>
 		<th>センタリング<td>
-			<input type="checkbox" name="centering" value="1"<@if(ps.centering,' checked')>><label>テキストをセンタリングする</label>
+			<input type="checkbox" name="text_centering" value="1"<@if(ps.text_centering,' checked')>><label>テキストをセンタリングする</label>
 		</td>
 	</tr>
 	<tr>
@@ -66,7 +66,10 @@
 		<th>領域の幅と高さ</th>
 		<td>
 			  幅<input type="number" class="int w50" name="width"  value="<@ps.width  || 0>" min="0" max="1999" id="width">px 
-			<input type="checkbox" class="js-disable" data-target="#width"<@if(ps.width eq '',' checked')>><label>変更しない</label> &ensp; 
+			<input type="checkbox" name="centering" value="1"<@if(ps.centering,' checked')> id="centering"><label>センタリングする</label>
+
+
+			<input type="checkbox" class="js-disable" data-target="#width,#centering"<@if(ps.width eq '',' checked')>><label>変更しない</label><br>
 			  高さ<input type="number" class="int w50" name="height" value="<@ps.height || 0>" min="0" max="999" id="height">px 
 			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
 		</td>
