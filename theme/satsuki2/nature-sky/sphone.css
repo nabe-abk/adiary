@@ -223,10 +223,6 @@ nav.tree {
 nav.tree span.items {
 	display:		block;
 }
-#adiary-body .main input,
-#adiary-body .main textarea {
-	max-width:		100%;
-}
 
 article.edit span.element {
 	display:		block;

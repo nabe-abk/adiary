@@ -427,22 +427,22 @@ em			{ font-style: normal; text-decoration: underline; }
 .w80p { width:  80%; }
 
 /* スマホ */
-.SP .w120 { width: 100px; }
-.SP .w160 { width: 120px; }
-.SP .w200 { width: 140px; }
-.SP .w240 { width: 160px; }
-.SP .w280 { width: 180px; }
-.SP .w300,
-.SP .w320,
-.SP .w360,
-.SP .w400,
-.SP .w480,
-.SP .w500,
-.SP .w512,
-.SP .w520,
-.SP .w560,
-.SP .w600,
-.SP .w640 {
+.sp .w120 { width: 100px; }
+.sp .w160 { width: 120px; }
+.sp .w200 { width: 140px; }
+.sp .w240 { width: 160px; }
+.sp .w280 { width: 180px; }
+.sp .w300,
+.sp .w320,
+.sp .w360,
+.sp .w400,
+.sp .w480,
+.sp .w500,
+.sp .w512,
+.sp .w520,
+.sp .w560,
+.sp .w600,
+.sp .w640 {
 	width:	100%;
 }
 
@@ -1139,6 +1139,16 @@ ul.menu {
 /* accordion/インポート、エクスポート */
 .sp .ui-accordion-content {
 	padding:		0 4px;
+}
+
+/* フォーム要素 */
+.sp .main input,
+.sp .main textarea {
+	max-width:		100%;
+}
+.sp .main table.blog-setting input,
+.sp .main table.blog-setting textarea {
+	max-width:		60%;
 }
 
 /*--------------------------------------------------------------------
