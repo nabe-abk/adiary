@@ -45,6 +45,8 @@
 <$end>
 <@ifexec(ps.width ne '', begin)>
 	width:			<@ps.width - ps.padding1 - ps.padding3>px;
+	margin-left:		auto;
+	margin-right:		auto;
 <$end>
 <@ifexec(ps.height ne '', begin)>
 	height:			<@ps.height - ps.padding0 - ps.padding2>px;
