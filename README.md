@@ -90,5 +90,6 @@ VLゴシックフォント（pub-dist/VL-PGothic-Regular.ttf）を
   * pub-dist/icon/ 以下にあるアイコンの一部はせりか氏の著作物です。
   * pub-dist/icon/tp*.gif に該当するファイルはSix Apartの著作物です。
   * pub-dist/mahjong/ 以下のファイルは「まつセン　牌画」を利用自由のライセンスに基づき同梱しています。
+  * theme/_img/social-buttons.png は「Simplicity (GPL)」に含まれるアイコンを元にしました。
 
 せりか氏著作物のライセンスは、adiaryのライセンスの準じます。

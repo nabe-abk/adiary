@@ -1,10 +1,10 @@
 <@40.is_function>
 <@local(h)>
 <$h = validator(begin_hash, argv#0) )>
-	hatena_btn = flag
-	mixi_check = flag
-	fb_btn = flag
-	twitter_btn = flag
+	twitter = flag
+	facebook = flag
+	hatena = flag
+	pocket = flag
 
 	twitter_id = ツイートに含めるID
 	twitter_id:filter0 = reg_del:[^\w\-]
@@ -13,7 +13,8 @@
 	twitter_follow:filter0 = reg_del:[^\w\-]
 
 	twitter_hash = ツイートに含めるハッシュ
-	twitter_hash:filter0 = tag_amp
+	twitter_hash:filter0 = reg_del:#
+	twitter_hash:filter1 = tag_amp
 <$end>
 
 <$ifbreak(form_error())>

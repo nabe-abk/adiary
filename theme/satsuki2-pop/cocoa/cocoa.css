@@ -413,11 +413,12 @@ div.body-footer {
     margin:                 1em 0 1.5em 0;
 }
 div.social-buttons {
-    font-size:              13px;
-    line-height:            18px;
     text-align:             right;
+}
+.social-button {
     color:                  #b5001f;
 }
+
 
 div.body-footer span, div.body-footer a:visited,
 div.body-footer a:hover {

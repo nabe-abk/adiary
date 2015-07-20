@@ -3,24 +3,9 @@
 <$ps=argv#0>
 	<table class="blog-setting">
 	<tbody>
-	<tr><th>はてなブックマーク</th>
+	<tr><th rowspan=4>Twitter</th>
 		<td colspan="2">
-			<input type="checkbox" name="hatena_btn" value="1"<@if(ps.hatena_btn, ' checked')>><label>表示する</label>
-		</td>
-	</tr>
-	<tr><th>mixiチェック</th>
-		<td colspan="2">
-			<input type="checkbox" name="mixi_check" value="1"<@if(ps.mixi_check, ' checked')>><label>表示する</label>
-		</td>
-	</tr>
-	<tr><th>Facebook/いいね</th>
-		<td colspan="2">
-			<input type="checkbox" name="fb_btn" value="1"<@if(ps.fb_btn, ' checked')>><label>表示する</label>
-		</td>
-	</tr>
-	<tr><th rowspan=4>twitter/ツイート</th>
-		<td colspan="2">
-			<input type="checkbox" name="twitter_btn" value="1"<@if(ps.twitter_btn, ' checked')>><label>表示する</label>
+			<input type="checkbox" name="twitter" value="1"<@if(ps.twitter, ' checked')>><label>表示する</label>
 		</td>
 	</tr>
 	<tr>
@@ -34,6 +19,21 @@
 	<tr>
 		<td>ハッシュタグ<span class="help" data-help="ツイート時に標準で含まれるハッシュ(#)を指定します">?</span></td>
 		<td><em><span class="mono">＃</span></em><input type="text" class="w100" name="twitter_hash" value="<@ps.twitter_hash>"></td>
+	</tr>
+	<tr><th>Facebook</th>
+		<td colspan="2">
+			<input type="checkbox" name="facebook" value="1"<@if(ps.facebook, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	<tr><th>はてなブックマーク</th>
+		<td colspan="2">
+			<input type="checkbox" name="hatena" value="1"<@if(ps.hatena, ' checked')>><label>表示する</label>
+		</td>
+	</tr>
+	<tr><th>Pocket</th>
+		<td colspan="2">
+			<input type="checkbox" name="pocket" value="1"<@if(ps.pocket, ' checked')>><label>表示する</label>
+		</td>
 	</tr>
 	</tbody>
 	</table>

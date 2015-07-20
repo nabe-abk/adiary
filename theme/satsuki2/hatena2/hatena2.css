@@ -334,20 +334,6 @@ section footer p.footnote {
 div.body-footer {
 }
 
-/* ソーシャルアイコン */
-div.social-buttons {
-	line-height:		100%;
-	font-size:		90%;
-	margin:			0 0 0 0.5em;
-	vertical-align:		middle;
-
-	margin-left:		1em;
-	display:		inline-block;
-}
-div.body-footer div.social-buttons:first-child {
-	margin-left:		0;
-}
-
 /*--------------------------------------------------------------------
 ■sidebar内の配置設定
 ---------------------------------------------------------------------*/

@@ -288,9 +288,6 @@ article.edit span.tag {
 	margin-right:		6px;
 }
 
-
-
-
 /*--------------------------------------------------------------------
 ●フロートオブジェクト
 ---------------------------------------------------------------------*/
@@ -534,7 +531,84 @@ span.tag span.ui-icon-close,
 	padding: 1px 2px 2px 1px;
 }
 
+/*--------------------------------------------------------------------
+●ソーシャルボタン
+---------------------------------------------------------------------*/
+.social-button * {
+	vertical-align:		middle;
+}
+.social-button a.share {
+	display:		inline-block;
+	width:			20px;
+	height:			20px;
 
+	background-image:	url("_img/social-buttons.png");
+	background-repeat:	no-repeat;
+	border-radius:		4px;
+}
+.social-button.twitter-share a.share {
+	background-position:	0 0;
+}
+.social-button.facebook-share a.share {
+	background-position:	-20px 0;
+}
+.social-button.hatena-bookmark a.share {
+	background-position:	-40px 0;
+}
+.social-button.pocket-bookmark a.share {
+	background-position:	-60px 0;
+}
+.social-button.feedly-bookmark a.share {
+	background-position:	-80px 0;
+}
+.social-button a, .social-button a:link, .social-button a:visited, .social-button a:hover {
+	text-decoration:	none;
+	color:			inherit;
+}
+/* 吹き出し */
+.social-button a.count {
+	position:		relative;
+	display:		inline-block;
+	border:			1px solid #aaa;
+	margin-left:		5px;
+	height:			20px;
+	box-sizing:		border-box;
+	line-height:		100%;
+}
+.social-button a.count:before,
+.social-button a.count:after {
+	content:		"";
+	display:		block;
+	position:		absolute;
+	top:			5px;
+	left:			-4px;
+
+	border:			4px solid transparent;
+	border-left-width:	0;
+}
+.social-button a.count:after {
+	left:			-3px;
+}
+
+/* カスタマイズ領域 */
+.social-button {
+	color:			#000;
+	margin-right:		8px;
+}
+.social-button a.count {
+	font-size:		14px;
+	padding:		3px 8px;
+
+	border-radius:		4px;
+	border-color:		#aaa;	/* 吹き出し枠線 */
+	background-color:	#fff;	/* 吹き出し背景 */
+}
+.social-button a.count:before {
+	border-right-color:	#888;	/* 枠線と同色 */
+}
+.social-button a.count:after {
+	border-right-color:	#fff;	/* 背景と同色 */
+}
 
 /*--------------------------------------------------------------------
 ●画像アルバム

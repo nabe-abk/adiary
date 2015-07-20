@@ -1233,6 +1233,75 @@ $( function(){
 	}
 });
 
+//////////////////////////////////////////////////////////////////////////////
+//●ソーシャルボタンの加工
+//////////////////////////////////////////////////////////////////////////////
+$( function(){
+  $('.social-button').each(function(idx,dom) {
+	var obj = $(dom);
+	var url = obj.data('url') || '';
+
+	if (0<url || !url.match(/^https?:\/\//i)) return;
+	url = encodeURIComponent( url );
+	var share = obj.children('a.share');
+	var count = obj.children('a.count');
+
+	var share_link = share.attr('href');
+	var count_link = count.attr('href');
+	if (obj.hasClass('hatena-bookmark')) {
+		share_link += url;
+		count_link += url.replace(/^https?:\/\//i, '');
+	} else {
+		share_link += url;
+		count_link += url;
+	}
+	share.attr('href', share_link);
+	count.attr('href', count_link);
+
+	///////////////////////////////////////////////////////////////
+	// カウンタ値のロード
+	///////////////////////////////////////////////////////////////
+	count.text('-');
+	function load_and_set_counter(obj, url, key) {
+		$.ajax({
+			url: url,
+			dataType: "jsonp",
+			success: function(c) {
+				if (key && typeof(c) == 'object') c = c[key];
+				c = c || 0;
+				obj.text(c);
+			}
+		})
+	}
+
+	// 値のロード
+	if (obj.hasClass('twitter-share'))
+		return load_and_set_counter(count, 'http://urls.api.twitter.com/1/urls/count.json?url=' + url, 'count');
+	if (obj.hasClass('facebook-share'))
+		return load_and_set_counter(count, 'http://graph.facebook.com/?id=' + url, 'shares');
+	if (obj.hasClass('hatena-bookmark'))
+		return load_and_set_counter(count, 'http://api.b.st-hatena.com/entry.count?url=' + url);
+
+	if (obj.hasClass('pocket-bookmark')) {
+		$.ajax({
+			dataType: "xml",
+			url: "http://query.yahooapis.com/v1/public/yql",
+			data: {
+				q: "SELECT content FROM data.headers WHERE url='http://widgets.getpocket.com/v1/button?v=1&count=horizontal&url=" + url + "'",
+				format: "xml",
+				env: "http://datatables.org/alltables.env",
+				noncache: new Date().getTime()
+			},
+			success: function (xml) {
+				var content = $(xml).find('content').text();
+				var ma = content.match(/<\w+\s+id\s*=\s*"cnt">(\d+)/i);
+ 				count.text(ma ? ma[1] : 0);
+			}
+		});
+	}
+  });
+});
+
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
 //●要素の幅を中身を参照して自動設定する
