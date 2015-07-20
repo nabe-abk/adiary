@@ -612,7 +612,7 @@ div.body h3 {
 	margin:			26px 0 10px 0;
 	text-shadow:		3px 3px 2px rgba(0,0,0,0.3);
 }
-div.body h3:before {
+div.body h3 a:before {
 	display:		inline-block;
 	content:		"";
 	margin-right:		4px;

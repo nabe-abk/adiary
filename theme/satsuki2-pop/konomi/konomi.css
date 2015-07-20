@@ -445,7 +445,7 @@ div.body h3 {
 	font-weight:		bold;
 	border-bottom:		2px solid #f05;		/* $c=h3 */
 }
-div.body h3:before {
+div.body h3 a:before {
 	display:		inline-block;
 	content:		"";
 
