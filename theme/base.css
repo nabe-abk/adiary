@@ -591,6 +591,9 @@ span.tag span.ui-icon-close,
 }
 
 /* カスタマイズ領域 */
+.social-buttons {
+	margin:			1em 0;
+}
 .social-button {
 	color:			#000;
 	margin-right:		8px;
