@@ -271,4 +271,9 @@ small    = html:span.small
 x-small  = html:span.x-small
 xx-small = html:span.xx-small
 
+# Ver2/TeX互換設定
+Huge  = html:span.xx-large
+huge  = html:span.x-large
+tiny  = html:span.x-small
+scriptsize = html:span.xx-small
 
