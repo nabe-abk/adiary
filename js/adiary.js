@@ -1584,7 +1584,7 @@ function css_fix(css_text, width) {
 
 	// 幅調整
 	var obj = $(iframe);
-	obj.css('min-width', '0');
+	obj.css('min-width', 0);
 	if (width > 49) {
 		obj.css('width', width + 'px');
 	}
