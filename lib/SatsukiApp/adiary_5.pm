@@ -380,7 +380,7 @@ sub create_tables {
 
   { # 記事テーブル
 	my %info;
-	$info{text}    = [ qw(title parser tags name id ip host agent link_key ctype) ];
+	$info{text}    = [ qw(title parser tags name id ip host agent link_key ctype main_image description) ];
 	$info{ltext}   = [ qw(text text_s _text) ];
 	$info{int}     = [ qw(yyyymmdd tm update_tm coms coms_all revision upnode priority) ];
 	$info{flag}    = [ qw(enable com_ok hcom_ok) ];
