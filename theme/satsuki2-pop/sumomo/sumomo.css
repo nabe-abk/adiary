@@ -809,6 +809,7 @@ div.hatena-module {
 	border-radius:		6px;
 }
 div.hatena-moduletitle {
+	background-color:	#fc6a74;
 	background-image:	url("mod_header.png");
 	background-repeat:	no-repeat;
 	background-position:	right top;

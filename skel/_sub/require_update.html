@@ -1,12 +1,10 @@
 <@6>
-<$ifsuperjump(Auth.isadmin, 'menu')>
-<$v.load_theme( v.default_theme )>
 
 <@> 階層ツリー
 <!--error msg============================================================-->
 <article class="system error">
 <h2>アップデートを実行してください。</h2>
 <div class="body">
-	<div class="messages"><div class="message">アップデートが必要です。管理者アカウントでログインしてください。</div></div>
+	<p><strong class="warning">すぐに<a href="<@v.myself>?system/update">アップデート処理</a>を実行してください。</strong></p>
 </div> <!-- end of body -->
 </article>
