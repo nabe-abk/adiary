@@ -1240,9 +1240,9 @@ $( function(){
   $('.social-button').each(function(idx,dom) {
 	var obj = $(dom);
 	var url_orig = obj.data('url') || '';
-	var url = encodeURIComponent( url_orig );
+	if (0<url_orig || !url_orig.match(/^https?:\/\//i)) return;
 
-	if (0<url || !url.match(/^https?:\/\//i)) return;
+	var url = encodeURIComponent( url_orig );
 	var share = obj.children('a.share');
 	var count = obj.children('a.count');
 
@@ -1284,7 +1284,7 @@ $( function(){
 
 	if (obj.hasClass('pocket-bookmark')) {
 		$.ajax({
-			dataType: "xml",
+			dataType: "html",
 			url: "http://query.yahooapis.com/v1/public/yql",
 			data: {
 				q: "SELECT content FROM data.headers WHERE url='http://widgets.getpocket.com/v1/button?v=1&count=horizontal&url=" + url + "'",
