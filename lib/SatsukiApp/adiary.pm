@@ -7,10 +7,10 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = '2.961';
+our $VERSION = '2.97';
 our $OUTVERSION = '3.00';
 our $SUBVERSION = 'RC0';
-our $DATA_VERSION = 2.96;
+our $DATA_VERSION = 2.97;
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
@@ -1692,8 +1692,8 @@ sub load_jscss {
 	push(@ary, @{ $self->load_jscss_events($name) });
 	return [ grep { $h{$_}++; $h{$_}<2 } @ary ];
 }
-# styleの登録
-sub append_header {
+# ヘッダに追加
+sub add_header {
 	my $self = shift;
 	push(@{ $self->{extra_header} ||=[] }, @_);
 }

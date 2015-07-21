@@ -12,7 +12,7 @@
 <$items = v.load_spmenu_items()>
 <$ifjump(!items, '_sub/error_message', '利用可能なデザインモジュール（コンテンツリスト等）がインストールされていません。')>
 
-<$v.append_header(exec(begin))>
+<$v.add_header(exec(begin))>
 <style>
 #body table.blog-setting td {
 	padding:	2px 6px;

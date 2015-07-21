@@ -53,7 +53,7 @@ sub create_table {
 		if ($_->{not_null}) { $notnull_cols{$col}=1; }
 
 		# indexカラム？（UNIQUEカラムはindexにする）
-		if ($_->{index} || $_->{unique}) {
+		if ($_->{index} || $_->{index_tdb} || $_->{unique}) {
 			$index_cols{$col}=1;
 		}
 	}

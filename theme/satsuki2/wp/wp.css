@@ -878,9 +878,6 @@ article.system div.body {
 	line-height:		140%;
 }
 
-article.system div.body {
-	padding-bottom:		1em;
-}
 ul.dynatree-container {
 	border:			1px solid #bbb;		/* $c=border */
 	border-radius:		4px;

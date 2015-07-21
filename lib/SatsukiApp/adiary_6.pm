@@ -15,11 +15,11 @@ package SatsukiApp::adiary;
 # ■ワンライナーなサブルーチン等
 ###############################################################################
 my @update_versions = (
-	{ ver => 2.93, func => 'sys_update_293', rebuild=>1, plugin=>1 },
+	{ ver => 2.93, func => 'sys_update_293', plugin=>1, rebuild=>1 },
 	{ ver => 2.94, func => 'sys_update_294' },
 	{ ver => 2.95, plugin=>1 },
-	{ ver => 2.96, func => 'sys_update_296', plugin=>1, theme=>1 },
-	{ ver => 2.97, plugin=>1 }
+	{ ver => 2.96, func => 'sys_update_296', plugin=>1, theme=>1   },
+	{ ver => 2.97, func => 'sys_update_297', plugin=>1, rebuild=>1 }
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
@@ -126,6 +126,33 @@ sub sys_update_296 {
 		$self->update_blogset($_, 'bgfile');
 	}
 }
+
+#------------------------------------------------------------------------------
+# ●システムアップデート for Ver2.97
+#------------------------------------------------------------------------------
+sub sys_update_297 {
+	my $self  = shift;
+	my $blogs = shift;
+	my $DB   = $self->{DB};
+	my $ROBJ = $self->{ROBJ};
+	foreach(@$blogs) {
+		my $blog = $self->load_blogset($_);
+		my $desc = $blog->{description_txt};
+		$ROBJ->tag_delete($desc);
+		$self->update_blogset($blog, 'description_notag', $desc);
+
+		# DB変更
+		my $r=0;
+		$r +=    $DB->drop_table("${_}_log");
+		$r += 10*$DB->add_column("${_}_art", {name=>'main_image',  type=>'text'});
+		$r += 10*$DB->add_column("${_}_art", {name=>'description', type=>'text'});
+
+		if ($r) { $ROBJ->message("Blog '$_' database error($r)"); }
+	}
+}
+
+
+
 ###############################################################################
 # ■Version2 to 3 移行ルーチン
 ###############################################################################

@@ -48,7 +48,7 @@
 	background-image:	none;
 <$end>
 <@ifexec(ps.bgfile ne '', begin)>
-	background-image:	url('<@v.plugin_image_path(ps.bgfile)>?<@TM>');
+	background-image:	url('<@Basepath><@v.plugin_image_dir(ps.bgfile)>?<@TM>');
 <$end>
 }
 <@>----------------------------------------------------------------------------
@@ -63,7 +63,7 @@
 	background-image:	none;
 <$end>
 <@ifexec(ps.body_bgfile ne '', begin)>
-	background-image:	url('<@v.plugin_image_path(ps.body_bgfile)>?<@TM>');
+	background-image:	url('<@Basepath><@v.plugin_image_dir(ps.body_bgfile)>?<@TM>');
 <$end>
 }
 <@>----------------------------------------------------------------------------
@@ -74,7 +74,7 @@
 <$end>
 <@>
 <@ifexec(ps.head_bgfile, begin)>
-	background-image:	url('<@v.plugin_image_path(ps.head_bgfile)>?<@TM>');
+	background-image:	url('<@Basepath><@v.plugin_image_dir(ps.head_bgfile)>?<@TM>');
 	background-position:	center;
 	<@ifexec(ps.head_bgfile_fit && ps.head_bgfile_h, begin)>
 	min-height:		<@ps.head_bgfile_h - ps.padding0 - ps.padding2>px;

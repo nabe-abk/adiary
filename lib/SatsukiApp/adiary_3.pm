@@ -801,10 +801,16 @@ sub save_private_mode {
 		$ROBJ->error('Rename failed blog public directory (%s)', $blogid);
 		return 1;
 	}
+	my $old_dir = $self->blogpub_dir();
 	$blog->{blogpub_dir_postfix} = $postfix;
-	$self->{blogpub_dir} = $self->blogpub_dir();
-	if ($blog->{theme_custom}) {
-		$blog->{theme_custom} = $self->get_theme_custom_css( $blog->{theme} );
+	my $new_dir = $self->blogpub_dir();
+	$self->{blogpub_dir} = $new_dir;
+
+	# pub/<uid>/ 以下に保存してあるファイルのパス変更
+	my $len = length($old_dir);
+	foreach(keys(%$blog)) {
+		if (substr($blog->{$_}, 0, $len) ne $old_dir) { next; }
+		$blog->{$_} = $new_dir . substr($blog->{$_}, $len);
 	}
 
 	$self->call_event($evt_name);

@@ -870,12 +870,7 @@ sub void_plugin_images {
 #------------------------------------------------------------------------------
 sub plugin_image_dir {
 	my $self = shift;
-	return $self->image_folder_to_dir( '@system/' );
-}
-sub plugin_image_path {
-	my $self = shift;
-	my $file = shift;
-	return $self->{ROBJ}->{Basepath} . $self->plugin_image_dir() . $file;
+	return $self->image_folder_to_dir( '@system/' ) . shift;
 }
 
 ###############################################################################

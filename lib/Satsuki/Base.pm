@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.02';
+our $VERSION = '2.03';
 our $RELOAD;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
@@ -66,7 +66,8 @@ sub new {
 	# 内部文字コード
 	$self->{System_coding} = $SYSTEM_CODING;
 	$self->{Code_lib} = $CODE_LIB;
-	$self->{Locale} = $LOCALE;
+	$self->{Locale}  = $LOCALE;
+	$self->{Locale2} = $LOCALE;
 
 	# 時刻／日付関連の設定
 	$self->{TM} = time;
@@ -511,6 +512,7 @@ sub __call {
 	#------------------------------------------------------------
 	my $c = $self->{__cont_level};
 	local ($self->{argv}, $self->{__src_file}, $self->{__skeleton}, $self->{Nest_count_base});
+#	my @arg = @_;
 	$self->{argv}            = \@_;
 	$self->{__src_file}      = $src_file;
 	$self->{__skeleton}      = $skeleton_name;
@@ -838,6 +840,7 @@ sub tag_delete {
 		$_ =~ s/<\w(?:[^>"']|[=\s]".*?\"|[=\s]'.*?')*?>//sg;
 		$_ =~ s/</&lt;/g;
 		$_ =~ s/>/&gt;/g;
+		$_ =~ s/"/&quot;/g;
 	}
 	return $_[0];
 }
@@ -1591,6 +1594,7 @@ sub load_language_file {
 	$self->{System_coding} = $mt->{System_coding};
 	$self->{Code_lib} = $mt->{Code_lib};
 	$self->{Locale}   = $mt->{Locale};
+	$self->{Locale2}  = $mt->{Locale2} || $mt->{Locale};
 }
 
 #------------------------------------------------------------------------------

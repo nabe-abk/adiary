@@ -1225,6 +1225,9 @@ ul.menu {
 }
 
 /* フォーム要素 */
+table.blog-setting textarea {
+	display:		block;
+}
 .sp .main input,
 .sp .main textarea {
 	max-width:		100%;

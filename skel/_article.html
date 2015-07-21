@@ -30,8 +30,21 @@
 <$end>
 <$ifjump_clear(!t || @Message, "_sub/error_message_404")>
 
+<@>URL
+<$permalink = if(t.link_key eq s.frontpage, v.myself, "<@v.myself2><@t.elink_key>")>
+<$url=v.server_url . permalink>
+<$canonical_url = url>
+<$encode_uricom(url)>
+
 <@>記事タイトル
 <$ifset(frontpage, v.subtitle, s.fp_title, t.title)>
+
+<@> OGP/Twitter Cards
+<$ifexec(Develop || index(ENV.HTTP_USER_AGENT, 'Mozilla/')<0, begin)>
+	<$img = if(t.main_image, v.blogimg_dir() . t.main_image, '')>
+	<$call('_sub/set_ogp', 'article', permalink, v.subtitle, t.description, img)>
+<$end>
+
 
 <@>$HEADER:END$----------------------------------------------------------------
 
@@ -56,10 +69,6 @@
 <@>$ARTICLE_TOP$---------------------------------------------------------------
 
 <!--========================================================================-->
-<$permalink = if(t.link_key eq s.frontpage, v.myself, "<@v.myself2><@t.elink_key>")>
-<$url=v.server_url . permalink>
-<$canonical_url = url>
-<$encode_uricom(url)>
 <@>
 <div id="article-box">
 <article id="article" class="article<@if(t.priority, " wiki")><@if(t.ctype, " art-<@t.ctype>")>">

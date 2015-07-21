@@ -44,8 +44,34 @@
 	rss2_title:filter1 = tag
 
 	rss2_no_comment = flag
+
+	desc_len = 記事概要の文字数
+	desc_len:type = int
+	desc_len:min  =  20
+	desc_len:max  = 200
+
+	fb_admins = Facebook admins
+	fb_admins:filter0 = reg_del:[^\w]
+
+	fb_app_id = Facebook app_id
+	fb_app_id:filter0 = reg_del:[^\w]
+
+	tw_owner_id = Twitter ID
+	tw_owner_id:filter0 = reg_del:[^\w]
 <$end>
+<$ifset(h.tw_owner_id, h.tw_owner_id, '@' . h.tw_owner_id)>
+
+<@> ファイル無効化
+<$v.void_plugin_images(h, Form)>
+
+<@> ファイルアップロード処理
+<$h2 = new>
+<$v.plugin_upload_images(h2, 'sys', Form, begin_array)>
+	blog_image
+<$end>
+
 <$ifbreak(form_error())>
+<$ifset(h2.blog_image, h.blog_image, v.plugin_image_dir(h2.blog_image))>
 
 <$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'), flag('rss_update'))>
 

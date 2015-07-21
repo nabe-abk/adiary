@@ -1,5 +1,5 @@
 ################################################################################
-データベースシステム説明書	Version 2.00	2010/01/15
+データベースシステム説明書	Version 2.01	2015/07/21
 ################################################################################
 					Copyright(C)2010 nabe / ABK project.
 [TAB=8]
@@ -67,10 +67,12 @@ $r = $self->create_table($table_name, \@colums);
 	$colums->[$i]		$i 個目のカラムのハッシュ
 	  $h->{name}		カラム名
 	  $h->{type}		カラム型
-	  $h->{index}		INDEX化するか、しないか
+	  $h->{index}		INDEX化するか
 	  $h->{unique}		そのカラムにユニーク制約を付けるか
 	  $h->{not_null}	NOT NULL制約を付けるか
 	  $h->{ref_pkey}	外部キー制約（ table_name.col_name 形式の文字列 ）
+
+	  $h->{index_tdb}	TextDBの時にはINDEX化する。(※)
 
 　テーブル名、カラム名に使用出来るのは半角英数と "_" のみです。
 　カラム名 pkey は主キー（シリアル型/auto_incrementのint型）として予約されています。
@@ -81,6 +83,12 @@ $r = $self->create_table($table_name, \@colums);
 Ret:
 	$r  = 0			成功
 	$r != 0			失敗
+
+
+※TextDBでは、$_->{index} または $_->{index_tdb} が指定された要素がindexになります。
+　テキストDBは検索対象となる要素は、なるべくindex化しないとパフォーマンスが悪化する。
+（全文検索の対象などの大きいデータは除く。
+　index化するデータ量が極端に増えると逆にパスォーマンスが低下します。）
 
 ================================================================================
 ●[share3]テーブルの作成
@@ -97,6 +105,7 @@ $r = $self->create_table_wrapper($table_name, \%h);
 	$cols{float}   = [ qw(float_number) ];
 	$cols{flag}    = [ qw(disable isadmin) ];
 	$cols{idx}     = [ qw(id regist_tm isadmin) ];
+	$cols{idx_tdb} = [ qw(id regist_tm isadmin) ];
 	$cols{unique}  = [ qw(id) ];
 	$cols{notnull} = [ qw(id name) ];
 	$cols{ref}     = { id => "id_xxx_table.id" };

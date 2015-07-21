@@ -1,0 +1,27 @@
+<@6>
+<@local(s,img)>
+<$s = v.blog>
+<$img = Server_url . Basepath . (argv#4 || s.site_image || v.pubdist_dir . 'default-logo.png')>
+<@>
+<@> OGP/Twitter CARDの設定
+<@>
+<$v.add_header(exec(begin))>
+<!-- OGP -->
+<meta property="og:type" content="<@argv#0>">
+<meta property="og:url" content="<@Server_url><@argv#1>">
+<meta property="og:title" content="<@argv#2 || s.fp_title || s.blog_name>">
+<meta property="og:description" content="<@argv#3 || s.description_notag>">
+<meta property="og:image" content="<@img>">
+<meta property="og:site_name" content="<@s.blog_name>">
+<meta property="og:locale" content="<@Locale2>">
+<@if(s.fb_admins, #'<meta property="fb:admins" content="<@s.fb_admins>">\n')>
+<@if(s.fb_app_id, #'<meta property="fb:app_id" content="<@s.fb_app_id>">\n')>
+<!-- Twitter Card -->
+<meta name="twitter:card" content="<@if(argv#4 || s.site_image, 'summary_large_image', 'summary')>">
+<meta name="twitter:url" content="<@Server_url><@argv#1>">
+<meta name="twitter:title" content="<@argv#2 || s.fp_title || s.blog_name>">
+<meta name="twitter:description" content="<@argv#3 || s.description_notag>">
+<meta name="twitter:image" content="<@img>">
+<@if(s.tw_owner_id, #'<meta name="twitter:site" content="<@s.tw_owner_id>">\n')>
+<$end>
+

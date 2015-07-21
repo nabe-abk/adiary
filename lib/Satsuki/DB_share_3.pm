@@ -37,6 +37,7 @@ sub create_table_wrapper {
 	foreach(@{$ci->{int}})     { $cols{$_} = {name => $_, type => 'int'};  }	# 整数カラム
 	foreach(@{$ci->{float}})   { $cols{$_} = {name => $_, type => 'float'};}	# 少数カラム
 	foreach(@{$ci->{idx}})     { $cols{$_}->{index}    = 1; }			# indexカラム
+	foreach(@{$ci->{idx_tdb}}) { $cols{$_}->{index_tdb}= 1; }			# index_tdbカラム
 	foreach(@{$ci->{unique}})  { $cols{$_}->{unique}   = 1; }			# uniqueカラム
 	foreach(@{$ci->{notnull}}) { $cols{$_}->{not_null} = 1; }			# NOT NULLeカラム
 	while(my ($k, $v) = each(%{ $ci->{ref} })) {			# 外部キー

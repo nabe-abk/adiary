@@ -93,7 +93,6 @@ sub blog_clear {
 
 	# テーブルから記事などの削除
 	$DB->delete_match("${blogid}_com");
-	$DB->delete_match("${blogid}_log");
 	$DB->delete_match("${blogid}_tagart");
 	$DB->delete_match("${blogid}_tag");
 	$DB->delete_match("${blogid}_art");
@@ -153,6 +152,9 @@ sub rebuild_blog {
 		my %h;
 		$h{text}   = $text;
 		$h{text_s} = $text_s;	# 短いtext
+		# 記事概要の生成
+		$self->set_description(\%h);
+
 		$update{ $_->{pkey} } = \%h;
 	}
 	#-----------------------------------------------
@@ -382,7 +384,8 @@ sub create_tables {
 	$info{ltext}   = [ qw(text text_s _text) ];
 	$info{int}     = [ qw(yyyymmdd tm update_tm coms coms_all revision upnode priority) ];
 	$info{flag}    = [ qw(enable com_ok hcom_ok) ];
-	$info{idx}     = [ qw(title name tags id link_key ctype upnode yyyymmdd tm update_tm coms coms_all revision enable priority) ];
+	$info{idx}     = [ qw(name id link_key ctype upnode yyyymmdd tm update_tm coms coms_all enable priority) ];
+	$info{idx_tdb} = [ qw(title tags) ];
 	$info{unique}  = [ qw(link_key) ];
 	$info{notnull} = [ qw(enable com_ok hcom_ok coms coms_all yyyymmdd link_key) ];
 	$info{ref}     = { };	# upnode => "${table}_art.pkey" をすると記事が削除できなくなる
@@ -413,26 +416,13 @@ sub create_tables {
 	if ($r) { return 300 + $r; }
   }
 
-  { # リビジョン管理テーブル
-	my %info;
-	$info{text}    = [ qw(title parser note name id ip host agent) ];
-	$info{ltext}   = [ qw(text _text) ];
-	$info{int}     = [ qw(tm a_pkey) ];
-	$info{flag}    = [ qw(elock) ];
-	$info{idx}     = [ qw(title id tm a_pkey elock) ];
-	$info{unique}  = [ qw() ];
-	$info{notnull} = [ qw(a_pkey elock tm) ];
-	$info{ref}     = { a_pkey => "${table}_art.pkey" };
-	$r = $DB->create_table_wrapper("${table}_log", \%info);
-	if ($r) { return 400 + $r; }
-  }
-
   { # コメントテーブル
 	my %info;
 	$info{text}    = [ qw(text email url name id ip host agent a_title a_elink_key) ];
 	$info{int}     = [ qw(tm num a_pkey a_yyyymmdd) ];
 	$info{flag}    = [ qw(enable hidden) ];
-	$info{idx}     = [ qw(name id ip enable hidden num tm a_pkey a_yyyymmdd) ];
+	$info{idx}     = [ qw(name id enable tm a_pkey) ];
+	$info{idx_tdb} = [ qw(ip num a_yyyymmdd hidden) ];
 	$info{unique}  = [ ];
 	$info{notnull} = [ qw(enable hidden text tm a_pkey a_yyyymmdd) ];
 	$info{ref}     = { a_pkey => "${table}_art.pkey" };
@@ -455,7 +445,6 @@ sub drop_tables {
 
 	my $r = 0;
 	$r += $DB->drop_table("${table}_com");
-	$r += $DB->drop_table("${table}_log");
 	$r += $DB->drop_table("${table}_tagart");
 	$r += $DB->drop_table("${table}_tag");
 	$r += $DB->drop_table("${table}_art");

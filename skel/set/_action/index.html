@@ -33,6 +33,8 @@
 <$end>
 <$ifbreak(form_error())>
 
+<$h.description_notag = h.description_txt>
+<$tag_delete(h.description_notag)>
 
 <@> ファイル無効化
 <$v.void_plugin_images(h, Form)>
@@ -43,7 +45,7 @@
 	iconfile
 <$end>
 <$ifbreak(form_error())>
-<$ifset(h2.iconfile, h.iconfile, v.plugin_image_path(h2.iconfile))>
+<$ifset(h2.iconfile, h.iconfile, v.plugin_image_dir(h2.iconfile))>
 
 
 <@> 設定保存

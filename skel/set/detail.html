@@ -157,6 +157,41 @@
 	</tbody>
 	</table>
 
+	<h3>OGP/Twitter CARDの設定</h3>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>概要の文字数<span class="help" data-help="記事の概要部分の文字数を設定します。">?</span></th>
+		<td<@err.c_desc_len>>
+			<input type="number" class="int w50" name="desc_len" value="<@s.desc_len || 64>" min="20" max="200">文字（全角も1文字換算）
+		</td>
+	</tr>
+
+	<tr><th>サイト画像の設定<span class="help" data-help="サイトトップページをFacebookでシェアした時などに表示される画像です。">?</span></th>
+		<td>
+			<input type="file" name="blog_image"><br>
+			<@ifexec(s.blog_image, begin)>
+			<input type="checkbox" name="blog_image_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<$end>
+		</td>
+	</tr>
+	<tr><th>Facebook<span class="help" data-help="共有情報をFacebook上でアクセス解析を見るための紐付け情報です。">?</span></th>
+		<td>
+			admins <input type="text" name="fb_admins" class="w200" value="<@s.fb_admins>"><br>
+			app_id <input type="text" name="fb_app_id" class="w240" value="<@s.fb_app_id>"><br>
+			※どちらか一方を設定すれば十分です。<a href="https://www.google.co.jp/search?q=admins+app_id&amp;&hl=ja">詳細は検索</a>してください。
+		</td>
+	</tr>
+	<tr><th>Twitter ID<span class="help" data-help="Twitter上でシェアされたとき、サイトオーナーとして表示したいidを指定してください。">?</span></th>
+		<td>
+			<input type="text" name="tw_owner_id" class="w200" value="<@s.tw_owner_id>">（@xxx形式）
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+
+
 	<button type="submit">この設定を保存する</button>
 
 	</form>

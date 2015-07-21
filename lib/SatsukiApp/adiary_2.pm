@@ -503,6 +503,7 @@ sub regist_article {
 		$art{text}   = $text;
 		$art{text_s} = '';
 	}
+	$self->set_description(\%art);
 
 	#------------------------------------------------------------
 	# DBに書き込み
@@ -567,6 +568,33 @@ sub regist_article {
 	}
 
 	return wantarray ? (\%art, $elink_key) : \%art;	# 書き込み成功
+}
+
+#------------------------------------------------------------------------------
+# ●記事のメイン画像と概要を生成
+#------------------------------------------------------------------------------
+sub set_description {
+	my $self = shift;
+	my $h    = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $text = $h->{text};
+
+	while($text =~ /<img\s+(?:[\w-]+\s*=\s*"[^"]*"\s+)*src\s*=\s*"([^"]+)"/gi) {
+		my $img = $1;
+		my $dir = $ROBJ->{Basepath} . $self->blogimg_dir();
+		if (substr($img,0, length($dir)) ne $dir) { next; }
+		
+		# 代表画像
+		$img = substr($img, length($dir));
+		$img =~ s!(^|/).thumbnail/(.+)\.jpg$!$1$2!;
+		$h->{main_image} = $img;
+		last;
+	}
+
+	$text = substr($text, 0, 4096);		# 長文への対策
+	$text =~ s/[\r\n]//g;
+	$ROBJ->tag_delete($text);
+	$h->{description} = $self->string_clip($text, $self->{blog}->{desc_len} || 64);
 }
 
 #------------------------------------------------------------------------------
