@@ -640,7 +640,7 @@ sub edit_articles {
 		$cevent_name = 'COMMENTS_DELETE';
 
 		$DB->delete_match("${blogid}_tagart", 'a_pkey', $keylist);
-		$DB->delete_match("${blogid}_log", 'a_pkey', $keylist);
+		# $DB->delete_match("${blogid}_rev", 'a_pkey', $keylist);
 		$comkeylist = $DB->select_match_colary("${blogid}_com", 'pkey', 'a_pkey', $keylist);
 		$com = $DB->delete_match("${blogid}_com", 'a_pkey', $keylist);
 		$cnt = $DB->delete_match("${blogid}_art", 'pkey', $keylist);
