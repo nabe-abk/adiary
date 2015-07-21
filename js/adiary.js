@@ -1239,10 +1239,10 @@ $( function(){
 $( function(){
   $('.social-button').each(function(idx,dom) {
 	var obj = $(dom);
-	var url = obj.data('url') || '';
+	var url_orig = obj.data('url') || '';
+	var url = encodeURIComponent( url_orig );
 
 	if (0<url || !url.match(/^https?:\/\//i)) return;
-	url = encodeURIComponent( url );
 	var share = obj.children('a.share');
 	var count = obj.children('a.count');
 
@@ -1250,7 +1250,7 @@ $( function(){
 	var count_link = count.attr('href');
 	if (obj.hasClass('hatena-bookmark')) {
 		share_link += url;
-		count_link += url.replace(/^https?:\/\//i, '');
+		count_link += url_orig.replace(/^https?:\/\//i, '');
 	} else {
 		share_link += url;
 		count_link += url;
