@@ -4,7 +4,7 @@
 <$s = v.blog>
 
 <@> アップデート警告
-<@ifcall(v.skel_dir ne 'design/' &&  v.require_update, '_sub/require_update')>
+<@ifcall(v.require_update, '_sub/require_update')>
 
 <$ifexec(argv#0, begin, begin)>
 	<$t   = argv#0>

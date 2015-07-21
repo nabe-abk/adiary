@@ -9,7 +9,7 @@ use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION = '2.97';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'RC0';
+our $SUBVERSION = 'RC1';
 our $DATA_VERSION = 2.97;
 ###############################################################################
 # ■システム内部イベント
@@ -139,7 +139,7 @@ sub main {
 	if ($self->{view_pass}) { $self->check_view_pass(); }
 
 	# メンテナンスモード
-	if ($self->{sys}->{mainte_mode}) { $self->mainte_mode(); }
+	if ($self->{sys}->{mainte_mode} || $self->{require_update}) { $self->mainte_mode(); }
 
 	#-------------------------------------------------------------
 	# pop タイマー処理

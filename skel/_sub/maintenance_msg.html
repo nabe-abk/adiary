@@ -1,5 +1,6 @@
 <@6>
 <$v.frame_skeleton = ''>
+<$clear_cookie('session')>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,6 +9,10 @@
 </head>
 <body>
 <@v.sys.mainte_txt || 'メンテナンス中です。'>
+<@ifexec(v.require_update, begin)>
+<br>管理者ログイン後にアップグレード処理を行ってください。
+<$end>
+
 
 <div style="margin-top: 2em; font-size: 9pt;">
 <a href="<@Myself>?login">login</a>
