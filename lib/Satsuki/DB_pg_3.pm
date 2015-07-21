@@ -119,9 +119,10 @@ sub add_column {
 	if    ($h->{type} eq 'int')   { $sql .= "$col INT";     }
 	elsif ($h->{type} eq 'float') { $sql .= "$col FLOAT";   }
 	elsif ($h->{type} eq 'flag')  { $sql .= "$col BOOLEAN"; }
+	elsif ($h->{type} eq 'text')  { $sql .= "$col TEXT";    }
 	elsif ($h->{type} eq 'ltext') { $sql .= "$col TEXT";    }
 	else {
-		$self->error('Column "%s" have invalid type "%s"', $col, $_->{type});
+		$self->error('Column "%s" have invalid type "%s"', $col, $h->{type});
 		return 20;
 	}
 	if ($h->{unique})   { $sql .= ' UNIQUE';   }		# ユニーク制約

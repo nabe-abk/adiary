@@ -142,7 +142,7 @@ sub add_column {
 	}
 	elsif ($h->{type} eq 'ltext') { $sql .= "$col MEDIUMTEXT"; }
 	else {
-		$self->error('Column "%s" have invalid type "%s"', $col, $_->{type});
+		$self->error('Column "%s" have invalid type "%s"', $col, $h->{type});
 		return 20;
 	}
 	if ($h->{unique})   { $sql .= ' UNIQUE';   }	# ユニーク制約
