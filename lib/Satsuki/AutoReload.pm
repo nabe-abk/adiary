@@ -53,6 +53,8 @@ sub check_lib {
 	delete $INC{$mypkg};
 	require $mypkg;
 
+	# Base.pmでのエラー対策
+	delete $INC{'Satsuki/Base.pm'};
 	return 1;
 }
 
