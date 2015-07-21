@@ -1582,11 +1582,11 @@ function css_fix(css_text, width) {
 	css.html(css_text);
 	$(head).append(css);
 
+	// 幅調整
+	var obj = $(iframe);
+	obj.css('min-width', '0');
 	if (width > 49) {
-		iframe.css({
-			'width': width + "px",
-			'min-width': width + "px"
-		});
+		obj.css('width', width + 'px');
 	}
 	return ;
 };
