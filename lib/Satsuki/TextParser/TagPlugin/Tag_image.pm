@@ -1,7 +1,7 @@
 use strict;
 #------------------------------------------------------------------------------
 # 画像記法プラグイン
-#                                                   (C)2013 nabe / nabe@abk.nu
+#                                                   (C)2015 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
 package Satsuki::TextParser::TagPlugin::Tag_image;
 ###############################################################################
@@ -20,16 +20,16 @@ package Satsuki::TextParser::TagPlugin::Tag_image;
 #
 # としたとき
 # [img:test]
-#  → <a href="http://image.xxx.jp/image/test.jpg" class="img">
-#	<img alt="test" title="test" src="http://image.xxx.jp/image/test_large.jpg"></a>
+#  → <a href="http://image.xxx.jp/image/test.jpg" class="img" title="test">
+#	<img alt="test" src="http://image.xxx.jp/image/test_large.jpg"></a>
 #
 # [img:test:small]
-#  → <a href="http://image.xxx.jp/image/test.jpg" class="img small">
-#	<img alt="test" title="test" src="http://image.xxx.jp/image/test_small.jpg"></a>
+#  → <a href="http://image.xxx.jp/image/test.jpg" class="img small" title="test">
+#	<img alt="test" src="http://image.xxx.jp/image/test_small.jpg"></a>
 #
 # [img:test:てすと]
-#  → <a href="http://image.xxx.jp/image/test.jpg" class="img">
-#	<img alt="てすと" title="てすと" src="http://image.xxx.jp/image/test_small.jpg"></a>
+#  → <a href="http://image.xxx.jp/image/test.jpg" class="img" title="てすと">
+#	<img alt="てすと" src="http://image.xxx.jp/image/test_small.jpg"></a>
 #
 #------------------------------------------------------------------------------
 # ●コンストラクタ
@@ -63,7 +63,7 @@ sub image {
 	if (exists $tags->{"$tag_name#$mode"}) {	# [tag:～:large] 等の指定がある
 		$tag  = $tags->{"$tag_name#$mode"};
 		$mode = undef;
-		pop( @$ary );
+		splice(@$ary, $argc || 1, 1);	# モード指定部を削除
 	}
 
 	#  構成
@@ -78,7 +78,6 @@ sub image {
 	my $size;
 	if    ($mode =~ /^w(\d+%?)$/) { $size=" width=\"$1\"";  shift(@$ary); }
 	elsif ($mode =~ /^h(\d+%?)$/) { $size=" height=\"$1\""; shift(@$ary); }
-	elsif (!defined $mode) { shift(@$ary); }	# モード指定読み捨て
 
 	# Captionあり？
 	my $caption;
