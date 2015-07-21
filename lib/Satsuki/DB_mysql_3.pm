@@ -137,7 +137,7 @@ sub add_column {
 	elsif ($h->{type} eq 'float') { $sql .= "$col FLOAT"; }
 	elsif ($h->{type} eq 'flag')  { $sql .= "$col TINYINT UNSIGNED"; $check=" CHECK($col=0 OR $col=1)"; }
 	elsif ($h->{type} eq 'text')  {
-		if ($_->{unique})     { $sql .= "$col VARCHAR(" . int($self->{unique_text_size} || 256) .")"; }
+		if ($h->{unique})     { $sql .= "$col VARCHAR(" . int($self->{unique_text_size} || 256) .")"; }
 	          else                { $sql .= "$col TEXT"; $col_is_text=1; }
 	}
 	elsif ($h->{type} eq 'ltext') { $sql .= "$col MEDIUMTEXT"; }
