@@ -37,8 +37,8 @@ sphone_menu=1
 HTML
 
 *module_html=<<HTML
-<!--タグリスト=====================================-->
-<div class="hatena-module side-contents-list" data-module-name="<@this>">
+<!--コンテンツリスト=====================================-->
+<div class="hatena-module side-contents-list" data-module-name="<@this>" id="<@id>">
 <@v.load_plgset('<@this>', 'html')>
 </div> <!-- hatena-module -->
 HTML
