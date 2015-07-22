@@ -79,11 +79,7 @@ span.plg-author {
 }
 table.plugins button { margin: 0; }
 
-/* サイドバー twitterモジュール */
-.twitter-module .hatena-modulebody {
-	padding-top:	0;
-	padding-right:	0;
-}
+
 /*--------------------------------------------------------------------
 ●互換性維持
 ---------------------------------------------------------------------*/

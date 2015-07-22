@@ -1,6 +1,6 @@
 <!--twitter=====================================-->
 <$ps = v.load_plgset('<@this>')>
-<div class="hatena-module twitter-module" data-title="<@ps.title>" data-module-name="<@this>">
+<div class="hatena-module twitter-module" id="<@id>" data-title="<@ps.title>" data-module-name="<@this>">
 <@ifexec(!ps.title_none, begin)>
 <div class="hatena-moduletitle"><@if(ps.title ne '',ps.title ,'Twitter')></div>
 <$end>
@@ -15,7 +15,7 @@
 	<@if(ps.noscrollbar,'noscrollbar ')> <@\>
 	<@if(ps.transparent,'transparent ')> <@\>
 	"
-	<@if(ps.size_y,  #'\theight="<@ps.size_y>"\n')>
+	<@if(ps.height,  #'\theight="<@ps.height>"\n')>
 	<@if(ps.border,  #'\tdata-border-color="<@ps.border>"\n')>
 	<@if(ps.twlinks, #'\tdata-link-color="<@ps.twlinks>"\n')>
 >@<@ps.id> からのツイート</a>
@@ -28,7 +28,7 @@ li.tweet { <@if(ps.twbg, "background-color: <@ps.twbg>; ")><@if(ps.twfc, "color:
 <@ifexec(ps.noactions, begin)>
 li.tweet div.footer { display: none; } \
 <$end>
-'<@if(ps.size_x, ", <@ps.size_x>")>);
+'<@if(ps.width, ", <@ps.width>")>);
 });</script>
 <@>
 <$else>

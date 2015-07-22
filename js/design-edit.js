@@ -637,6 +637,7 @@ function view_html_source(_obj) {
 // GC : rgb(200,200,200), rgb(0, 0, 0, 0)
 // IE8: #ccf / #ccccff
 function parse_color(col) {
+	if (col == '') return '';
 	col = col.toLowerCase();
 	if (col == 'transparent') return '';
 	col = col.replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/, "#$1$1$2$2$3$3");
