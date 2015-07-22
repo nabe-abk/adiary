@@ -1,0 +1,50 @@
+<@6>
+<@local(name,id,ps)>
+<$name = argv#0>
+<$id = '#' . argv#1>
+<$ps = v.load_plgset(name)>
+/**************************************************
+ * for <@name>  <@Timestamp>
+ **************************************************/
+<@id> {
+<@ifexec(ps.text_centering, begin)>
+	text-align:		center;
+<$end>
+<@>
+<@ifexec(ps.font_c ne '', begin)>
+	color:			<@ps.font_c>;
+	font-size:		<@ps.font_s>px;
+	line-height:		<@ps.line_h>%;
+<$end>
+<@>
+<@ifexec(ps.border_c ne '', begin)>
+	border-color:		<@ps.border_c>;
+<$end>
+<@ifexec(ps.border_w, begin)>
+	border-style:		solid;
+	border-width:		<@ps.border_w>px;
+<$end>
+<@ifexec(ps.border_r, begin)>
+	border-radius:		<@ps.border_r>px;
+<$end>
+<@ifexec(ps.shadow_b, begin)>
+	box-shadow:		<@ps.shadow_b>px <@ps.shadow_b>px <@ps.shadow_b>px <@ps.shadow_bb>px rgba(0,0,0,0.3);
+<$end>
+<@ifexec(ps.margin0 ne '', begin)>
+	margin:			<@ps.margin0>px <@ps.margin1>px <@ps.margin2>px <@ps.margin3>px;
+<$end>
+<@ifexec(ps.width ne '' || ps.height ne '', begin)>
+	box-sizing:		border-box;
+<$end>
+}
+<@>
+<@>
+<@id>>.hatena-modulebody {
+<@ifexec(ps.padding0 ne '', begin)>
+	padding:		<@ps.padding0>px <@ps.padding1>px <@ps.padding2>px <@ps.padding3>px;
+<$end>
+<@ifexec(ps.bg ne '', begin)>
+	background-color:	rgba(<@v.hex2rgb(ps.bg)>, <@ps.bg_alpha>);
+	background-image:	none;
+<$end>
+}
