@@ -35,6 +35,7 @@ plugin/@*
 adiary.env.cgi
 adiary.conf.cgi
 mimetex.cgi
+robots.txt
 __tool/__*
 !__tool/.htaccess
 lib/SatsukiApp/form.pm
