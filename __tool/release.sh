@@ -21,9 +21,7 @@ fi
 #CPFLAGS=-v
 
 RELEASE=adiary-$VERSION
-
 EXCLUSIVE_LIST=__tool/norelease.list
-PLUGINS=`cat __tool/plugins.list`
 
 BASE="
 	adiary.cgi
