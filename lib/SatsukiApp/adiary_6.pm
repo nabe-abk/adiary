@@ -19,7 +19,8 @@ my @update_versions = (
 	{ ver => 2.94, func => 'sys_update_294' },
 	{ ver => 2.95, plugin=>1 },
 	{ ver => 2.96, func => 'sys_update_296', plugin=>1, theme=>1   },
-	{ ver => 2.97, func => 'sys_update_297', plugin=>1, theme=>1, rebuild=>1 }
+	{ ver => 2.97, func => 'sys_update_297', plugin=>1, theme=>1, rebuild=>1 },
+	{ ver => 3.00, theme=>1 }
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
