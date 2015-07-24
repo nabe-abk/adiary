@@ -2,6 +2,7 @@
 
 *Ver3.0 : 2015/0x/xx
 
+-textarea を 'display: block' に変更しました。
 -【テーマ】satsuki2のマルチサイドバー表示時のサイドバーの幅を可変にしました。
 
 
