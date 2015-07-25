@@ -44,12 +44,6 @@ info/textparser_site_tags.txt
 js/lightbox.js
 
 #--------------------------------------
-# sample files for develop
-#--------------------------------------
-js/jquery-ui-all.min.js
-theme/_jquery-ui/jquery-ui.css
-
-#--------------------------------------
 # for Special Edition files
 #--------------------------------------
 theme/satsuki2/ayaka/
