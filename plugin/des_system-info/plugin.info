@@ -35,10 +35,8 @@ DB time : <@int(Timer.check('db')*10000 + 0.5)/10> ms<br>
 <$end>
 Runtime : <@CGI_mode><br>
 RDBMS : <@DB._RDBMS><br>
-<@ifexec(Develop, begin)>
-HTTP Status: <@Status><br>
-<@if(AutoReload, "AutoReload : 1<br>")>
-<$end>
+<@if(Status != 200, "HTTP Status: <@Status><br>")>
+<@if(Develop && AutoReload, "AutoReload : 1<br>")>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
 HTML
