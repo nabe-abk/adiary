@@ -124,7 +124,8 @@ div.ascii-art {
 	font-family:	monospace;
 }
 .l, .left	{ text-align: left; }
-.c, .center	{ text-align: center; }
+.c:not(.syntax-highlight),
+    .center	{ text-align: center; }
 .r, .right	{ text-align: right; }
 
 /* インデント */

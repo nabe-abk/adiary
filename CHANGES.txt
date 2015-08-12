@@ -4,7 +4,7 @@
 
 -textarea を 'display: block' に変更しました。
 -【テーマ】satsuki2のマルチサイドバー表示時のサイドバーの幅を可変にしました。
-
+-【fix】シンタックハイライトで言語「c」を指定するとセンタリングされてしまう。（[http://test.blog.abk.nu/02829:Thanks to tester]）
 
 *Ver3.0 RC1 : 2015/07/22
 
