@@ -28,6 +28,13 @@ li.tweet { <@if(ps.twbg, "background-color: <@ps.twbg>; ")><@if(ps.twfc, "color:
 <@ifexec(ps.noactions, begin)>
 li.tweet div.footer { display: none; } \
 <$end>
+<@ifexec(ps.noborders2, begin)>
+.customisable-border { border-left: none; border-right: none; } \
+.customisable-border:first-child { border-top: none; } \
+div.customisable-border { border-bottom: none; } \
+<$end>
+<@> ol.h-feed li.tweet { padding-left: 8px }
+<@> .timeline { background-color: transparent }
 '<@if(ps.width, ", <@ps.width>")>);
 });</script>
 <@>

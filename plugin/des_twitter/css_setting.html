@@ -21,8 +21,10 @@
 			<label>ヘッダーを非表示</label><br>
 			<input type="checkbox" name="nofooter" value="1"<@if(ps.nofooter, ' checked')>>
 			<label>フッター（ツイートボックス）を非表示</label><br>
-			<input type="checkbox" name="noborders" class="js-disable" data-target="#border" value="1"<@if(ps.noborders, ' checked')>>
-			<label>ボーダー（境界線）を非表示</label><br>
+			<input type="checkbox" name="noborders" class="js-disable" data-target="#border,#noborders2" value="1"<@if(ps.noborders, ' checked')>>
+			<label>ツイートの枠線と境界線を非表示</label><br>
+			<input type="checkbox" name="noborders2" id="noborders2" value="1"<@if(ps.noborders2, ' checked')>>
+			<label>ツイートの外枠のみを非表示</label><br>
 			<input type="checkbox" name="noscrollbar" value="1"<@if(ps.noscrollbar, ' checked')>>
 			<label>スクロールバーを非表示</label><br>
 			<input type="checkbox" name="noactions" value="1"<@if(ps.noactions || ps.noactions eq '', ' checked')>>

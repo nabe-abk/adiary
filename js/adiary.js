@@ -1575,20 +1575,22 @@ function css_fix(css_text, width) {
 	if (!head || !body) return -2;
 	if (body.innerHTML.length == 0) return -3;
 
-	var css = $('<style>').attr({
-		id: 'add-tw-css',
-		type: 'text/css'
-	});
-	css.html(css_text);
-	$(head).append(css);
-
-	// 幅調整
-	var obj = $(iframe);
-	obj.css('min-width', 0);
-	if (width > 49) {
-		obj.css('width', width + 'px');
-	}
-	return ;
+	// delay
+	setTimeout(function(){
+		var css = $('<style>').attr({
+			id: 'add-tw-css',
+			type: 'text/css'
+		});
+		css.html(css_text);
+		$(head).append(css);
+	
+		// 幅調整
+		var obj = $(iframe);
+		obj.css('min-width', 0);
+		if (width > 49) {
+			obj.css('width', width + 'px');
+		}
+	}, try_msec);
 };
 ///
 }
