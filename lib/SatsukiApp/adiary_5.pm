@@ -166,6 +166,9 @@ sub rebuild_blog {
 	}
 	$r += $DB->commit();
 
+	# タグ情報の再構築
+	$self->tagart_rebuild();
+
 	# イベント処理
 	$self->call_event('BLOG_REBUILD');
 	$self->call_event('ARTICLE_STATE_CHANGE');
@@ -182,6 +185,9 @@ sub blog_info_rebuild {
 	my $ROBJ = $self->{ROBJ};
 	if (!$self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
 
+	# タグ情報の再構築
+	$self->tagart_rebuild();
+
 	# イベント処理
 	$self->call_event('BLOG_INFO_REBUILD');
 	$self->call_event('ARTICLE_STATE_CHANGE');
@@ -189,6 +195,40 @@ sub blog_info_rebuild {
 	$self->call_event('ARTCOM_STATE_CHANGE');
 	return 0;
 }
+
+#------------------------------------------------------------------------------
+# ●全タグ情報の再生成
+#------------------------------------------------------------------------------
+sub tagart_rebuild {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $DB   = $self->{DB};
+	if (!$self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	my $blogid = $self->{blogid};
+	my $ary = $DB->select_match("${blogid}_art",
+			'*cols', ['pkey', 'enable', 'tags']
+		);
+
+	$DB->begin();
+	$DB->delete_match("${blogid}_tagart");
+	foreach my $art (@$ary) {
+		my $tag = $art->{tags};
+		if ($tag eq '') { next; }
+
+		my $pkeys = $self->regist_tags($blogid, [split(',', $tag)]);
+		$pkeys = ref($pkeys) ? $pkeys : [];
+		foreach(@$pkeys) {
+			$DB->insert("${blogid}_tagart", {
+				'a_pkey'   => $art->{pkey},
+				'a_enable' => $art->{enable},
+				't_pkey'   => $_
+			});
+		}
+	}
+	$DB->commit();
+}
+
 
 ###############################################################################
 # ■プラグイン/デザイン関連
