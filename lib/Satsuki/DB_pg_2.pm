@@ -307,9 +307,12 @@ sub generate_where {
 			next;
 		}
 		# 値が配列のとき
+		if (!@$val) {	# 空の配列
+			$where .= $not ? '' : ' AND false';
+			next;
+		}
 		my $w = '?,' x ($#$val+1);
 		chop($w);
-		if ($w eq '') { next; }
 		$where .= $not ? " AND not $col in ($w)" : " AND $col in ($w)";
 		push(@$ary, @$val);
 	}

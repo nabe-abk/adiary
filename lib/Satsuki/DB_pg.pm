@@ -8,7 +8,7 @@ use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
 use Encode ();
-our $VERSION = '1.10';
+our $VERSION = '1.11';
 #-------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0, pg_enable_utf8 => 0);
