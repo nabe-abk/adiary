@@ -54,6 +54,7 @@ tree.dynatree({
 		rootNode.visit(function(node){
 			var data  = node.data;
 			data.href = base_url + data.link_key;
+			node.setTitle( data.title );
 
 			// ダブルタップで編集
 			$(node.span).on("mydbltap", function(evt) {
@@ -141,7 +142,15 @@ function editNode( node ) {
 				break;
 		}
 	});
+
+	var tree_click = function(evt){
+		if (inp[0] == evt.target) return;
+		inp.blur();
+	};
+	tree.click(tree_click);
+
 	inp.blur(function(evt){
+		tree.unbind('click', tree_click);
 		node.setTitle(title);
 		node.tree.$widget.bind();
 		node.focus();

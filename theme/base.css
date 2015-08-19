@@ -207,6 +207,11 @@ td.checkbox, th.checkbox {
 td.button, th.button {
 	text-align:		center;
 }
+button {
+	padding:		2px 4px;
+	line-height:		100%;
+}
+
 #com textarea {
 	-moz-tab-size:	4;
 	-o-tab-size:	4;

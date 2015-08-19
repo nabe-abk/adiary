@@ -165,7 +165,15 @@ function editNode( node ) {
 				break;
 		}
 	});
+
+	var tree_click = function(evt){
+		if (inp[0] == evt.target) return;
+		inp.blur();
+	};
+	tree.click(tree_click);
+
 	inp.blur(function(evt){
+		tree.unbind('click', tree_click);
 		set_node_title(node);
 		node.tree.$widget.bind();
 		node.focus();

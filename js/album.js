@@ -311,9 +311,19 @@ function edit_node( node ) {
 		}
 	});
 	//-------------------------------------------
+	// ○ツリーのクリック
+	//-------------------------------------------
+	var tree_click = function(evt){
+		if (inp[0] == evt.target) return;
+		inp.blur();
+	};
+	tree.click(tree_click);
+
+	//-------------------------------------------
 	// ○フォーカスが離れた（編集終了）
 	//-------------------------------------------
 	inp.blur(function(evt){
+		tree.unbind('click', tree_click);
 		node.setTitle( node.data.title );
 		ctree.$widget.bind();
 		node.data.rename = false;
