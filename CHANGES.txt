@@ -3,6 +3,7 @@
 *Ver3.0 : 2015/0x/xx
 
 -textarea を 'display: block' に変更しました。
+-付加情報リビルド時にタグ情報テーブルも再生成するようにしました。
 -【テーマ】satsuki2のマルチサイドバー表示時のサイドバーの幅を可変にしました。
 -【fix】nature-dark テーマを選ぶとエラーが表示される。
 -【fix】シンタックハイライトで言語「c」を指定するとセンタリングされてしまう。（[http://test.blog.abk.nu/02829:Thanks to tester]）v

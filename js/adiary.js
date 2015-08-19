@@ -1356,20 +1356,20 @@ $(function(){
 	var post = $('#post-comment');
 	post.prop('disabled', true);
 
-	// 10key押されるか、10秒経ったら設定
+	// 10key押されるか、5秒経ったら設定
 	var cnt=0;
 	var tarea = form.find('textarea');
-	tarea.on('keydown', function(){
-		cnt++;
-		if (cnt<10) return;
+	var enable_func = function(){
 		tarea.off('keydown');
 		$('#comment-form-sid').val(sid);
 		post.prop('disabled', false);
+	};
+	tarea.on('keydown', function(){
+		cnt++;
+		if (cnt<10) return;
+		enable_func()
 	});
-	setTimeout(function(){
-		$('#comment-form-sid').val(sid);
-		post.prop('disabled', false);
-	}, 10000);
+	setTimeout(enable_func, 5000);
 });
 //////////////////////////////////////////////////////////////////////////////
 // ●検索条件表示の関連処理
