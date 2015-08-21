@@ -50,7 +50,10 @@ $(function(){
 //////////////////////////////////////////////////////////////////////////////
 if (!('console' in window)) {
 	window.console = {};
-	window.console.log = function(x){return x};
+	var func = function(x){return x};
+	window.console.log   = func;
+	window.console.warn  = func;
+	window.console.error = func;
 }
 // IE8ではsubstr(-1)が効かない
 String.prototype.rsubstr = function(n) {

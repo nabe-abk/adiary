@@ -443,32 +443,38 @@ btn_save.click(function(){
 	var form = $secure('#js-form');
 	if (!form.length) return;
 
-	var form_append = function(key, obj) {
-		var i=0;
+	form.find('.js-value').remove();
+	var generate_inp = function(key,val) {
+		return $('<input>').addClass('js-value').attr({
+			type: 'hidden',
+			name:  key,
+			value: val
+		});
+	};
+	var form_append = function(key, obj, fixmod) {
+		if (fixmod) {
+			for(var i=0; i<obj.length; i++) {
+				if ($(obj[i]).data('module-name') != fixmod) continue;
+				fixmod = null;
+				break;
+			}
+		}
+		if (fixmod) {
+			form.append( generate_inp(key, fixmod) );
+			form.append( generate_inp('debug_ary', 'Add fix module "' + fixmod + '" for "' + key + '"') );
+		}
+
 		obj.each( function(idx,dom){
 			var name = $(dom).data('module-name');
 			if (!name || name == '') return;
-			var inp1 = $('<input>').addClass('js-value');
-			inp1.attr({
-				type: 'hidden',
-				name:  key,
-				value: name
-			});
+			form.append( generate_inp(key, name) );
 			// console.log(key + '=' + name);
-			form.append(inp1);
-			var inp2 = $('<input>').addClass('js-value');
-			inp2.attr({
-				type: 'hidden',
-				name: name + '_int',
-				value: i++
-			});
-			form.append(inp2);
 		});
 	};
 
 	form_append('side_a_ary', side_a.children(module_selector));
  	form_append('side_b_ary', side_b.children(module_selector));
- 	form_append('header_ary', f_head.find(module_selector));
+ 	form_append('header_ary', f_head.find(module_selector), 'deh_login');
 
 	var main_a_ary = [];
 	var main_b_ary = [];
@@ -489,9 +495,9 @@ btn_save.click(function(){
  	form_append('main_b_ary', $(main_b_ary));
 
 	// 記事本体とコメント欄
-	form_append('art_h_ary', arthead.children(module_selector));
+	form_append('art_h_ary', arthead.children(module_selector), 'dea_art-info');
 	form_append('art_f_ary', artfoot.children(module_selector));
-	form_append('com_ary'  , combody.children(module_selector));
+	form_append('com_ary'  , combody.children(module_selector), 'dec_comment-form');
 
 	form.submit();
 });

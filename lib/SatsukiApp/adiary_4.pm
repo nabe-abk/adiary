@@ -885,14 +885,14 @@ sub save_design {
 	my $ROBJ = $self->{ROBJ};
 	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	my @side_a = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{side_a_ary} || []};
-	my @side_b = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{side_b_ary} || []};
-	my @main_a = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{main_a_ary} || []};
-	my @main_b = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{main_b_ary} || []};
-	my @header = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{header_ary} || []};
-	my @art_h  = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{art_h_ary}  || []};
-	my @art_f  = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{art_f_ary}  || []};
-	my @com    = sort {$form->{"${a}_int"} cmp $form->{"${b}_int"}} @{$form->{com_ary}    || []};
+	my @side_a = @{$form->{side_a_ary} || []};
+	my @side_b = @{$form->{side_b_ary} || []};
+	my @main_a = @{$form->{main_a_ary} || []};
+	my @main_b = @{$form->{main_b_ary} || []};
+	my @header = @{$form->{header_ary} || []};
+	my @art_h  = @{$form->{art_h_ary}  || []};
+	my @art_f  = @{$form->{art_f_ary}  || []};
+	my @com    = @{$form->{com_ary}    || []};
 	my %save   = map {$_ => 1} @{$form->{save_ary} || []};
 
 	my %use_f  = map {$_ => 1} (@side_a,@side_b,@main_a,@main_b,@header,@art_h,@art_f,@com);

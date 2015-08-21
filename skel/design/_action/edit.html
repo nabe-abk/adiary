@@ -7,4 +7,9 @@
 <$ifmessage(action_return eq '0', 'デザインを保存しました')>
 <$ifmessage(action_return ne '0', 'デザインの保存に失敗しました')>
 
+<$ifexec(Form.debug_ary, begin)>
+	<$debug(join("\n", Form.debug_ary))>	<@># debug-safe
+<$end>
+
+
 <$jump('_sub/reload_message', v.myself . '?design/')>
