@@ -1870,12 +1870,13 @@ sub encode_uricom {
 sub make_attr {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my ($ary, $tag, $type) = @_;
+	my ($ary, $tag, $type, $noattr) = @_;
+	$noattr ||= {};
 
 	# target/class/rel 設定, type未定義のとき初期値なし(mailto:等)
-	my $target = $self->{"${type}_target"};
-	my $class  = $self->{"${type}_class"};
-	my $data   = $self->{"${type}_data"};
+	my $target = $noattr->{target} ? '' : $self->{"${type}_target"};
+	my $class  = $noattr->{class}  ? '' : $self->{"${type}_class"};
+	my $data   = $noattr->{data}   ? '' : $self->{"${type}_data"};
 	my $title  = $tag->{title} || $tag->{name};
 	while(1) {
 		my $x = $ary->[0];

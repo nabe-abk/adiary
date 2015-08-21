@@ -109,7 +109,7 @@ sub amazon_asin_image {
 
 	# タイトル
 	# $cmd =~ tr/a-z/A-Z/;
-	my $attr = $pobj->make_attr($ary, $tag, 'image');
+	my $attr = $pobj->make_attr($ary, $tag, 'image', {data => 1});
 	my $name = $pobj->make_name($ary, "$cmd:$isbn");
 	$name =~ s/"/&quot;/g;
 
