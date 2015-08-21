@@ -582,6 +582,7 @@ sub system_mode {
 	my ($self, $title) = @_;
 	my $ROBJ = $self->{ROBJ};
 	$self->{system_mode} = 1;
+	$self->{no_robots}   = 1;
 	if ($title ne '') { $self->{title} = $title; }
 
 	if ($self->{blog}->{sysmode_notheme}){

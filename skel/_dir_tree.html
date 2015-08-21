@@ -15,11 +15,11 @@
 <@ifexec(v.allow_edit, begin)>
   <@if(v.skeleton eq 'album/index',   '<span class="select">画像管理</span>',     #'<a href="<@v.myself>?album/">画像管理</a>')>, 
 <$end>
-  <@if(v.skel_name eq 'artlist',  '<span class="select">記事一覧</span>',     #'<a href="<@v.myself>?artlist">記事一覧</a>')>, 
-  <@if(v.skel_name eq 'comlist',  '<span class="select">コメント一覧</span>', #'<a href="<@v.myself>?comlist">コメント一覧</a>')><@if(blogs,',')> 
+  <@if(v.skel_name eq 'artlist',  '<span class="select">記事一覧</span>',     #'<a href="<@v.myself>?artlist" rel="nofollow">記事一覧</a>')>, 
+  <@if(v.skel_name eq 'comlist',  '<span class="select">コメント一覧</span>', #'<a href="<@v.myself>?comlist" rel="nofollow">コメント一覧</a>')><@if(blogs,',')> 
 <$end>
 <@ifexec(blogs, begin)>
-  <@if(v.skel_name eq 'blogs_sys','<span class="select">ブログ一覧</span>（詳細）', #'<a href="<@v.myself>?blogs_sys">ブログ一覧</a>（<a href="<@v.myself>?blogs_sys#table-view">詳細</a>）')>
+  <@if(v.skel_name eq 'blogs_sys','<span class="select">ブログ一覧</span>（詳細）', #'<a href="<@v.myself>?blogs_sys">ブログ一覧</a>（<a href="<@v.myself>?blogs_sys#table-view" rel="nofollow">詳細</a>）')>
 <$end>
  <span class="item-end">]</span>
  </span>

@@ -32,7 +32,7 @@ HTML
 	<li class="description"><@s.description_txt></li>
 HTML
 	$modules{'artlist-link'} = <<'HTML';
-	<li class="to-artlist"><a href="<@v.myself>?artlist" rel="nofollow">記事一覧</a></li>
+	<li class="to-artlist"><a href="<@v.myself>?artlist">記事一覧</a></li>
 HTML
 	$modules{'comlist-link'} = <<'HTML';
 	<li class="to-comlist"><a href="<@v.myself>?comlist" rel="nofollow">コメント一覧</a></li>

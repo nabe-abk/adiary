@@ -15,7 +15,7 @@
 <meta name="generator" content="adiary <@v.VERSION>">
 <meta name="author" content="<@v.blogid>">
 <@>
-<@if(v.system_mode || v.no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
+<@if(v.no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
 <link rel="stylesheet" href="<@Basepath><@v.pubdist_dir>jquery-ui/jquery-ui.custom.css" id="jquery-ui-css">
 <link rel="stylesheet" href="<@Basepath><@v.pubdist_dir>lightbox/lightbox.css" id="lightbox-css">
 <@>
