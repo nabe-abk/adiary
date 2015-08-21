@@ -1,9 +1,11 @@
-<@6>
-<@local(ps,name,art,line)>
+<@20>
+<@local(ps,name,art,form,line)>
 <$name = argv#0>
 <$art  = argv#1>
+<$form = argv#2>
 <$ps   = v.load_plgset(name)>
 
+<$ifbreak(! form.ping)>
 <$ifbreak(ps.access_token eq '')>
 
 <@>twitterへの通知ツイート

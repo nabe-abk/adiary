@@ -236,11 +236,11 @@ sub edit_article {
 
 	# イベント呼び出しと固定の後処理
 	if ($opt{first_visible}) {
-		$self->call_event('ARTICLE_FIRST_VISIBLE', $art);
+		$self->call_event('ARTICLE_FIRST_VISIBLE', $art, $form);
 	}
-	$self->call_event('ARTICLE_AFTER', $art);
-	if ($opt{edit_pkey})  { $self->call_event('ARTICLE_AFTER_EDIT', $art); }
-			 else { $self->call_event('ARTICLE_AFTER_POST', $art); }
+	$self->call_event('ARTICLE_AFTER', $art, $form);
+	if ($opt{edit_pkey})  { $self->call_event('ARTICLE_AFTER_EDIT', $art, $form); }
+			 else { $self->call_event('ARTICLE_AFTER_POST', $art, $form); }
 
 	$self->call_event('ARTICLE_STATE_CHANGE', [ $art->{pkey} ], !$opt{tag_state_change});
 
@@ -698,10 +698,11 @@ sub edit_articles {
 #------------------------------------------------------------------------------
 sub send_update_ping {
 	my $self = shift;
-	my ($blogid, $art) = @_;
-	my $ROBJ = $self->{ROBJ};
+	my ($art, $form) = @_;
+	if (!$form->{ping}) { return 0; }
 
-	my $blog = $self->load_blogset($blogid);
+	my $ROBJ = $self->{ROBJ};
+	my $blog = $self->{blog};
 	my @servers = split("\n", $self->{sys}->{ping_servers_txt});
 
 	# 更新通知情報
@@ -743,6 +744,7 @@ sub send_update_ping {
 		$jcode && $jcode->from_to(\$msg, 'UTF-8', $ROBJ->{System_coding});
 		$ROBJ->notice("Ping sended : %s (from %s)", $msg, $_);
 	}
+	return 0;
 }
 #------------------------------------------------------------------------------
 # ●更新通知Pingを送信（拡張仕様準拠）

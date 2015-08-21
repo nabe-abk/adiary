@@ -15,6 +15,9 @@ our $DATA_VERSION = 2.97;
 # ■システム内部イベント
 ###############################################################################
 my %SysEvt;
+$SysEvt{ARTICLE_FIRST_VISIBLE} = [qw(
+	send_update_ping
+)];
 $SysEvt{ARTICLE_STATE_CHANGE} = [qw(
 	update_bloginfo_article
 	update_taglist
