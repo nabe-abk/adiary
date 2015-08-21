@@ -19,7 +19,7 @@
 	<tr>
 	<th>ブログID</th>
 	<td<@FormError.c_id>>
-		<input type="text" class="w80" name="id" id="blogid" value="<@esc(Form.id) || Auth.id>" required>
+		<input type="text" class="w80" name="id" id="blogid" value="<@esc(Form.id) || Auth.id>" pattern="^[a-z][a-z0-9_]*$" required>
 	</td>
 	</tr>
 	<tr>
