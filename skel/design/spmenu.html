@@ -98,7 +98,7 @@ $(function(){
 		<th>モジュール名</th>
 		<th>内容表示</th>
 	</tr></thead><tbody id="sortable-body">
-	<@forexec(t, items, begin)><$pi=v.load_plugin_info(t.name)>
+	<@forexec(t, items, begin)><$pi=t.pi>
 	<tr>
 		<td class="nowrap no-drag">
 			<input type="checkbox" name="mod_ary" value="<@t.name>"<@if(t.on, ' checked')>>
@@ -112,7 +112,7 @@ $(function(){
 	<$end>
 	</tbody>
 	</table>
-	
+
 	<p>タイトル<span class="help" data-help="使用するモジュールが2つ以上ある時、全体のタイトルとして使用されます。">?</span>
 	<input class="w160" type="text" name="spmenu_title" value="<@s.spmenu_title || 'メニュー'>"></p>
 

@@ -1253,8 +1253,7 @@ sub load_arts_for_rss {
 	#-----------------------------------------------
 	# RSSのタグエスケーパー
 	#-----------------------------------------------
-	my $escaper = $self->load_tag_escaper( 'rss' );
-	$escaper->{allow_anytag} = 0;
+	my $escaper = $self->load_tag_escaper_force( 'rss' );
 
 	# RSS のための加工処理
 	my $tm_max     = 0;
@@ -1970,18 +1969,25 @@ sub load_parser {
 #------------------------------------------------------------------------------
 sub load_tag_escaper {
 	my $self = shift;
+	my $obj  = $self->load_tag_escaper_force(@_);
+	$obj->{allow_anytag} = $self->{trust_mode};
+	$self->debug("allow anytag : $obj->{allow_anytag}");
+	
+	return $obj;
+}
+sub load_tag_escaper_force {
+	my $self = shift;
 
 	my $head = $self->{allow_tags_head};
 	my @ary  = map { "$head$_.txt" } @_;
-	return $self->_load_tag_escaper(@ary);
+	my $obj  = $self->_load_tag_escaper(@ary);
+	return $obj;
 }
 sub _load_tag_escaper {
 	my $self  = shift;
 	my $key   = join('*',@_);
 	my $cache = $self->{__tag_escaper_cache} ||= {};
 	my $obj   = $cache->{$key} || $self->{ROBJ}->loadpm('TextParser::TagEscape', @_);
-
-	$obj->{allow_anytag} = $self->{trust_mode};
 	return ($cache->{$key} = $obj);
 }
 

@@ -1644,7 +1644,8 @@ sub load_spmenu_items {
 		my $h = {
 			title=> $h->{title},
 			html => $h->{html},
-			name => $name
+			name => $name,
+			pi   => $pi
 		};
 		push(@ary, $h);
 		$names{$name}=$h;
@@ -1684,7 +1685,7 @@ sub parse_html_for_spmenu {
 	}
 	$ROBJ->tag_delete($title);
 
-	my $escaper = $self->load_tag_escaper( 'spmenu' );
+	my $escaper = $self->load_tag_escaper_force( 'spmenu' );
 	$title = $escaper->escape( $title );
 	$html  = $escaper->escape( $html  );
 
