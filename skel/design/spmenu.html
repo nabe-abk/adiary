@@ -10,7 +10,7 @@
 <@call("<@v.skel_dir>_dir_tree")>
 
 <$items = v.load_spmenu_items()>
-<$ifjump(!items, '_sub/error_message', '利用可能なデザインモジュール（コンテンツリスト等）がインストールされていません。')>
+<$ifjump(!items, '_sub/error_message', '利用可能なデザインモジュール（コンテンツリスト等）がインストールされていません。','デザイン編集からサイドバー等にモジュールをインストールしてください。')>
 
 <$v.add_header(exec(begin))>
 <style>

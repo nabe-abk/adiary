@@ -13,7 +13,7 @@
 <h2><@if(action_return eq '0', '結果表示', 'エラー')><@if(Auth.isadmin && action_return != 0, "(<@action_return>)")></h2>
 <div class="body">
 	<div class="messages"><@join("\n", Message)></div>
-	<@if(POST && argv#1, #'<div class="add-msg"><@argv#1></div>')>
+	<@if(argv#1, #'<div class="add-msg"><@argv#1></div>')>
 </div> <!-- end of body -->
 </article>
 <$ifset(v.title eq '', v.title, 'エラー')>
