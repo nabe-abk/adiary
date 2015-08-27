@@ -1971,8 +1971,6 @@ sub load_tag_escaper {
 	my $self = shift;
 	my $obj  = $self->load_tag_escaper_force(@_);
 	$obj->{allow_anytag} = $self->{trust_mode};
-	$self->debug("allow anytag : $obj->{allow_anytag}");
-	
 	return $obj;
 }
 sub load_tag_escaper_force {
