@@ -825,6 +825,11 @@ div.hatena-moduletitle {
 						#416074);	/* $c=h2bg2 = auto:h2bg */
 	border-radius:		2px 2px 0 0;
 }
+div.hatena-moduletitle a, 
+div.hatena-moduletitle a:link, 
+div.hatena-moduletitle a:visited {
+	color:			inherit;
+}
 div.hatena-modulebody {
 	margin:			0;
 	padding:		2px 4px;

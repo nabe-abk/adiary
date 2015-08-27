@@ -645,6 +645,10 @@ div.hatena-moduletitle {
 	text-align:		center;
 	font-weight:		bold;
 }
+div.hatena-moduletitle a:hover {
+	color:			inherit;
+}
+
 div.hatena-moduletitle:after {
 	display:		block;
 	content:		"";

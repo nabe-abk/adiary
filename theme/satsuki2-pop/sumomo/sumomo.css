@@ -822,6 +822,12 @@ div.hatena-moduletitle {
 	font-weight:		bold;
 	color:			#fff;
 }
+div.hatena-moduletitle a, 
+div.hatena-moduletitle a:link, 
+div.hatena-moduletitle a:visited {
+	color:			inherit;
+}
+
 div.hatena-modulebody {
 	padding:		4px 2px;
 }

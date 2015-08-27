@@ -717,6 +717,11 @@ div.hatena-moduletitle {
 				-1px -1px 1px #f8f8f8,
 				4px 2px 2px rgba(0,0,0,0.6);
 }
+div.hatena-moduletitle a, 
+div.hatena-moduletitle a:link, 
+div.hatena-moduletitle a:visited {
+	color:			inherit;
+}
 
 div.hatena-modulebody {
 	margin:			0.3em 0.5em 0.3em 0.5em;

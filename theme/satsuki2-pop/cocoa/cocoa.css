@@ -870,6 +870,11 @@ div.hatena-moduletitle {
     padding:                0;
     margin:                 0 0 5px 0;
 }
+div.hatena-moduletitle a, 
+div.hatena-moduletitle a:link, 
+div.hatena-moduletitle a:visited {
+	color:			inherit;
+}
 
 div.hatena-modulebody {
     padding:                0;

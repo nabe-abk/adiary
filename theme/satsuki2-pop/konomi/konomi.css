@@ -648,6 +648,14 @@ div.hatena-moduletitle {
 	background-color:	#ee5576;	/* $c=modulebg = main */
 	border-radius:		4px;
 }
+div.hatena-moduletitle a, 
+div.hatena-moduletitle a:link, 
+div.hatena-moduletitle a:hover, 
+div.hatena-moduletitle a:visited {
+	color:			inherit;
+	background-color:	inherit;
+}
+
 div.hatena-modulebody {
 	margin:			0.3em 0.5em 0.3em 0.5em;
 }
