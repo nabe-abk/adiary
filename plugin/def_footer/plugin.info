@@ -15,7 +15,7 @@ module_id=footer
 
 *sample_html=<<HTML
 <footer id="<@id>" data-fix="1"><!--フッタ-->
-<span class="adiary"><a href="http://adiary.org/">adiary</a> Version 3.00</span>
+<span class="adiary"><a href="http://adiary.org/" title="HTML5 open source CMS">adiary</a> Version 3.00</span>
 </footer>
 HTML
 
@@ -25,7 +25,7 @@ HTML
 <footer id="<@id>" data-module-name="<@this>" data-fix="1"><!--フッタ-->
 <@ps.footer_txt>
 <@ifexec(ps.outver ne '0', begin)>
-<div class="adiary"><a href="http://adiary.org/">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></div>
+<div class="adiary"><a href="http://adiary.org/" title="HTML5 open source CMS">adiary</a> Version <@v.OUTVERSION><@if(v.SUBVERSION, "-<@v.SUBVERSION>")></div>
 <$end>
 </footer>
 HTML
