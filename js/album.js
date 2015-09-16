@@ -440,9 +440,7 @@ $('#album-new-folder').click( function(){
 			create.data.title = get_title( create.data );
 
 			// 名前変更モード
-			console.log(111);
-			// node.expand();
-			console.log(222);
+			node.expand();
 			edit_node(create);
 		},
 		error: function() {
