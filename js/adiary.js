@@ -1372,7 +1372,7 @@ $(function(){
 		if (cnt<10) return;
 		enable_func()
 	});
-	setTimeout(enable_func, 5000);
+	// setTimeout(enable_func, 5000);
 });
 //////////////////////////////////////////////////////////////////////////////
 // ●検索条件表示の関連処理

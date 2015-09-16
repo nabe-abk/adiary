@@ -12,11 +12,13 @@
 -ボタンのデザインがブラウザによりまちまちなので、最低限CSSで指定するようにしました。
 -【テーマ】satsuki2のマルチサイドバー表示時のサイドバーの幅を可変にしました。
 -【fix】nature-dark テーマを選ぶとエラーが表示される。
--【fix】シンタックハイライトで言語「c」を指定するとセンタリングされてしまう。（[http://test.blog.abk.nu/02829:Thanks to tester]）v
+-【fix】シンタックハイライトで言語「c」を指定するとセンタリングされてしまう。（[http://test.blog.abk.nu/02829:Thanks to tester]）
 -【fix】[http://adiary.org/v3man/install2/:#conf:trust_mode設定時]、スマホメニューの設定で項目が出てこない。（[https://twitter.com/dentacs/status/636828022612463616:Thanks to tono]）
+-【fix】「続きを読む」記法使用時、続きを読むよりも手前にある画像等が表示されない。（[http://adiary.blog.abk.nu/0370#c1:Thanks to 平山]）
 -【fix】コンテンツ一覧画面で右クリックからリンクを開いた時記事が表示されない。
 -【fix】PostgreSQL/MySQL運用時、タグ一覧からのタグ編集がうまく行かない。((DB_pg/DB_mysqlにおいて、条件節において空の配列を指定したときの動作が正しくない不具合の修正。))
 -【fix】サイドバーモジュールのタイトルがリンクであるとき、一部テーマで文字が読みにくい。
+
 -他
 
 
