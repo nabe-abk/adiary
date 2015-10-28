@@ -209,7 +209,9 @@ td.button, th.button {
 }
 button {
 	padding:		2px 4px;
+	text-indent:		0;
 	line-height:		100%;
+	font-family:		"メイリオ","IPAGothic","VL Gothic",sans-serif;
 }
 
 
@@ -1372,16 +1374,6 @@ ul.menu {
 .IE8 footer,
 .IE8 aside {
 	margin:		0;
-}
-
-.IE div:not(.ui-dialog) button {
-	font-size:		12px;
-	height:			21px;
-	line-height:		100%;
-	padding:		0 4px;
-}
-.IE button {
-	text-indent:		0;
 }
 
 /*--------------------------------------------------------------------
