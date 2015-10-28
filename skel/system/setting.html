@@ -35,8 +35,7 @@
 		<select name="default_blogid">
 			<option value="">（指定しない）</option>
 			<@forexec(t, v.load_blog_list('id'), begin)>
-			<$ifnext(t.private)>
-			<option value="<@t.id>"<@if(s.default_blogid eq t.id,' selected')>><@t.id>: <@t.blog_name></option>
+			<option value="<@t.id>"<@if(s.default_blogid eq t.id,' selected')>><@if(t.private, "【非公開】")><@t.id>: <@t.blog_name></option>
 			<$end>
 		</select>
 		<$end>
