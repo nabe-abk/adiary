@@ -66,9 +66,11 @@
 	<@>### タグ ###
 	<@ifexec(ret.tags, begin)>
 	<div class="taglist cond">
-	<span class="search-caption">検索タグ</span> <span class="tags"><@forexec(t, ret.tags, begin)><span class="tag"> <@\>
-		<a href="<@v.myself>?&amp;t=<@t>"><@if(t eq '', '(タグなし)',t)></a> <@\>
-		<$q .= "&amp;t=<@t>"><input type="hidden" name="t" value="<@t>"> <@\>
+	<span class="search-caption">検索タグ</span> <span class="tags"> <@\>
+	<@forexec(t, ret.tags, begin)><$x=encode_uricom(x = t)> <@\>
+	<span class="tag"> <@\>
+		<a href="<@v.myself>?&amp;t=<@x>"><@if(t eq '', '(タグなし)',t)></a> <@\>
+		<$q .= "&amp;t=<@x>"><input type="hidden" name="t" value="<@t>"> <@\>
 	</span><$end></span>
 	</div>
 	<$end>
@@ -101,7 +103,7 @@
 	<div class="narrow narrow-tag">
 	<span class="search-caption">タグで絞り込み</span>
 	<@forexec_hash(t,ret.narrow_tags,begin)>
-		<a href="<@url>&amp;t=<@encode_uri(x = t.key)>"><@if(t.key eq '', '(タグなし)',t.key)>(<@t.val>)</a>
+		<a href="<@url>&amp;t=<@encode_uricom(x = t.key)>"><@if(t.key eq '', '(タグなし)',t.key)>(<@t.val>)</a>
 	<$end>
 	</div>
 	<$end>

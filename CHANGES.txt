@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.0 : 2015/0x/xx
+*Ver3.0 RC2: 2015/11/xx
 
 -textarea を 'display: block' に変更しました。
 -Twitterへの通知送信を更新通知Pingの設定と連動するようにしました。
@@ -14,12 +14,12 @@
 -【fix】nature-dark テーマを選ぶとエラーが表示される。
 -【fix】シンタックハイライトで言語「c」を指定するとセンタリングされてしまう。（[http://test.blog.abk.nu/02829:Thanks to tester]）
 -【fix】[http://adiary.org/v3man/install2/:#conf:trust_mode設定時]、スマホメニューの設定で項目が出てこない。（[https://twitter.com/dentacs/status/636828022612463616:Thanks to tono]）
--【fix】「続きを読む」記法使用時、続きを読むよりも手前にある画像等が表示されない。（[http://adiary.blog.abk.nu/0370#c1:Thanks to 平山]）
+-【fix】「続きを読む」記法使用時、続きを読むよりも手前にある画像等が表示されない。（[http://adiary.blog.abk.nu/0370#c1:Thanks to 平山]）((アップデート後、該当する記事を再保存するか全記事を再構築してください。))
 -【fix】画像アルバムでフォルダ新規作成時に、そのフォルダを開かない。（[http://adiary.blog.abk.nu/0370#c1:Thanks to 平山]）
 -【fix】コンテンツ一覧画面で右クリックからリンクを開いた時記事が表示されない。
 -【fix】PostgreSQL/MySQL運用時、タグ一覧からのタグ編集がうまく行かない。((DB_pg/DB_mysqlにおいて、条件節において空の配列を指定したときの動作が正しくない不具合の修正。))
 -【fix】サイドバーモジュールのタイトルがリンクであるとき、一部テーマで文字が読みにくい。
-
+-【fix】タグ名に日本語や「&」を含む時、タグ検索リンクやページ送りのURIがエンコードされていない。（[http://adiary.blog.abk.nu/0370#c3:Thanks to とも]）
 -他
 
 
