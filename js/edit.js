@@ -125,6 +125,7 @@ function parser_change() {
 	// 記法ヘルプのリンク先変更
 	var link = $secure('#parser-help-link');
 	var is_markdown = parsel.val().match(/^markdown/i);
+	var is_html     = parsel.val().match(/^simple/i);
 
 	var url = is_markdown ? link.data('markdown') : link.data('default');
 	link.attr('href', 'http://adiary.org/v3man/' + url);
