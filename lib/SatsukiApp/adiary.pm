@@ -9,7 +9,7 @@ use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION = '2.98';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'RC2';
+our $SUBVERSION = 'RC1.x';
 our $DATA_VERSION = 2.97;
 ###############################################################################
 # ■システム内部イベント
@@ -647,6 +647,7 @@ sub load_article {
 #	ret.mode	判別したモード
 #	ret.pagemode	ページモードかどうか。
 #	ret.page	現在のページ数
+#	ret.title_tag	検索がタイトルかタグ検索のみ（mode が 'search'のときのみ）
 #
 sub load_articles {
 	my ($self, $blogid, $mode, $query, $opt) = @_;
@@ -710,11 +711,13 @@ sub load_articles {
 	#---------------------------------------------------------------
 	} elsif ($mode =~ /^(\d\d\d\d)(\d\d)?$/ || $query->{t} || $query->{c} || $query->{q} !~ /^\s*$/) {
 		$ret{mode} = 'search';
+		my $title_tag;
 
 		#--------------------------------------
 		# 年月指定 / YYYYMM
 		#--------------------------------------
 		if ($mode =~ /^(\d\d\d\d)(\d\d)?$/) {
+			$title_tag = 0;
 			if ($2) {
 				my $err = $self->check_date($1, $2);
 				if ($err ne '') {
@@ -742,6 +745,7 @@ sub load_articles {
 		# タグの検索
 		#--------------------------------------
 		if ($query->{t}) {
+			if (!defined $title_tag) { $title_tag=1; }
 			my $taglist = $self->load_tag_cache($blogid);
 			my $name2pkey = $taglist->[0];
 			my $tags = $query->{t};
@@ -793,6 +797,7 @@ sub load_articles {
 		# コンテンツタイプの検索
 		#--------------------------------------
 		if (exists($query->{c})) {
+			$title_tag = 0;
 			$q{match}->{ctype} = $query->{c};
 			$ret{ctype} = $query->{c};
 		}
@@ -807,6 +812,7 @@ sub load_articles {
 				push(@buf, $1);
 				" \x04[$#buf] ";
 			!eg;
+			$q =~ s/^ \x04\[/\x04\[/;
 			my $sep = $self->{words_separator} || '\s';
 
 			require Encode;
@@ -820,6 +826,11 @@ sub load_articles {
 			}
 			$q{search_words} = \@words;
 			$q{search_cols}  = $query->{all} ? ['title','_text'] : ['title'];
+			if ($query->{all}) {
+				$title_tag = 0;
+			} else {
+				if (!defined) { $title_tag = 1; }
+			}
 
 			$q =~ s/\x04\[(\d+)\]/"$buf[$1]"/g;
 			$ROBJ->tag_escape_amp( $q );
@@ -830,8 +841,9 @@ sub load_articles {
 		$q{sort}     = ['yyyymmdd', 'tm'];
 		$q{sort_rev} = [1, 1];
 		$q{limit}    = $loads;
-		$ret{pagemode} = 1;
-		$ret{narrow} = 1;	# 絞り込み
+		$ret{pagemode}  = 1;
+		$ret{narrow}    = 1;	# 絞り込み
+		$ret{title_tag} = $title_tag;
 
 	#---------------------------------------------------------------
 	# コンテンツ指定
