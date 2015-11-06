@@ -878,11 +878,11 @@ sub tag_edit {
 	foreach(@$joins) {
 		my ($master, @slaves) = split(',',$_);
 		my $ta = $DB->select_match("${blogid}_tagart", 't_pkey', \@slaves, '*cols', ['a_pkey', 'a_enable'] );
-		$DB->delete_match("${blogid}_tagart", 't_pkey', [$master, @slaves]);
-		$DB->delete_match("${blogid}_tag", 'pkey', \@slaves);
+		$DB->delete_match("${blogid}_tagart", 't_pkey', \@slaves);
+		$DB->delete_match("${blogid}_tag",    'pkey'  , \@slaves);
 		foreach(@$ta) {
 			if ($e_art{ $_->{a_pkey} }) { next; }
-			$DB->insert("${blogid}_tagart", {
+			my $r = $DB->insert("${blogid}_tagart", {
 				a_pkey => $_->{a_pkey},
 				t_pkey => $master,
 				a_enable => $_->{a_enable}

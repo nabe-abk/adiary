@@ -202,7 +202,7 @@ join.click(function(){
 	search_nodes(select_node);
 
 	select_node.data.joinkeys = ary;
-	select_node.data.qt       = qt;
+	select_node.data.qt      += qt;
 	set_node_title( select_node );
 });
 
