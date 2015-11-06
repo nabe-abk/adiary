@@ -558,10 +558,10 @@ span.tag span.ui-icon-close,
 }
 .social-button a.share {
 	display:		inline-block;
-	width:			20px;
+	width:			60px;
 	height:			20px;
 
-	background-image:	url("_img/social-buttons.png");
+	background-image:	url("_img/social-buttons_w.png");
 	background-repeat:	no-repeat;
 	border-radius:		4px;
 }
@@ -569,16 +569,15 @@ span.tag span.ui-icon-close,
 	background-position:	0 0;
 }
 .social-button.facebook-share a.share {
-	background-position:	-20px 0;
+	background-position:	0 -20px;
 }
 .social-button.hatena-bookmark a.share {
-	background-position:	-40px 0;
+	background-position:	0 -40px;
+	width:			80px;
 }
 .social-button.pocket-bookmark a.share {
-	background-position:	-60px 0;
-}
-.social-button.feedly-bookmark a.share {
-	background-position:	-80px 0;
+	background-position:	0 -60px;
+	width:			64px;
 }
 .social-button a, .social-button a:link, .social-button a:visited, .social-button a:hover {
 	text-decoration:	none;
