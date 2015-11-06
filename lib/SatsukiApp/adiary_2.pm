@@ -487,7 +487,7 @@ sub regist_article {
 		# 許可タグ以外の除去処理
 		my $escape = $self->load_tag_escaper( 'article' );
 		$text   = $escape->escape($text);
-		if ($text_s) {
+		if ($text_s ne '') {
 			$text_s = $escape->escape($text_s);
 		}
 
