@@ -73,7 +73,7 @@ sub connect_host {
 	}
 	{
 		local $SIG{ALRM} = sub { close($sh); };
-		alarm( $self->{timeout}+1 );
+		alarm( $self->{timeout} );
 		if (! connect($sh, $sockaddr)) {
 			return $self->error($sh, "Can't connect %s", $host);
 		}
@@ -102,7 +102,7 @@ sub send_http_request {
 	my ($r, $timeout);
 	{
 		local $SIG{ALRM} = sub { close($socket); $timeout=1; };
-		alarm( $self->{timeout}+1 );
+		alarm( $self->{timeout} );
 		$r = select($vec_in, undef, undef, $self->{timeout});
 		if (vec($vec_in, fileno($socket), 1) ) {
 			@response = <$socket>;
