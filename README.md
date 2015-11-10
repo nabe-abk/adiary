@@ -55,7 +55,7 @@ MITライセンスやWTFPLだと大変助かります。
 
 # 利用著作物
 
-## JavaScript（及び画像）
+## JavaScript
 
 以下の公開ライブラリをライセンスに基づき使用しています。
 
@@ -68,6 +68,11 @@ MITライセンスやWTFPLだと大変助かります。
   * highlight.js (BSD)
   * css3-mediaqueries.js (MIT)
   * IE9.js (MIT)
+
+## Perl
+
+  * ImageMagick (Apache 2.0)
+  * Net::SSLeay (Perl)
 
 ## プラグインとテーマ
 
