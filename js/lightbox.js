@@ -1,5 +1,5 @@
 /**
- * Lightbox v2.7.1 - patch1
+ * Lightbox v2.7.1 - patch3
  * by Lokesh Dhakar - http://lokeshdhakar.com/projects/lightbox2/
  *
  * @license http://creativecommons.org/licenses/by/2.5/
@@ -55,6 +55,7 @@
     Lightbox.prototype.enable = function() {
       var self = this;
       $('body').on('click', 'a[rel^=lightbox], area[rel^=lightbox], a[data-lightbox], area[data-lightbox]', function(event) {
+      	if (event.ctrlKey) return true;
         self.start($(event.currentTarget));
         return false;
       });
