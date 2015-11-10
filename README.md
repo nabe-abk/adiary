@@ -46,7 +46,7 @@ AGPL(AFFERO GENERAL PUBLIC LICENSE) Vesrion 3 または
 
 パッチやPull Requestを送信される場合は、
 必ずコードのライセンスを明記してください。
-修正BSDライセンスやWTFPLだと大変助かります。
+MITライセンスやWTFPLだと大変助かります。
 
 ライセンスが不明記、
 またはライセンスの内容によっては、
