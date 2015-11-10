@@ -848,7 +848,7 @@ sub load_articles {
 	#---------------------------------------------------------------
 	# コンテンツ指定
 	#---------------------------------------------------------------
-	} elsif ($mode =~ /^[^&]/) {	# wiki的指定
+	} elsif ($mode =~ /^[^&]/) {
 		$ret{mode} = 'wiki';
 		$q{match} = {link_key => $mode};
 
@@ -1053,7 +1053,7 @@ sub post_process_article {
 	my $mon  = $dat->{mon}  = substr($yyyymmdd, 4, 2);
 	my $day  = $dat->{day}  = substr($yyyymmdd, 6, 2);
 
-	# wiki関連
+	# コンテンツkey関連
 	my $key = $dat->{link_key};
 	$dat->{elink_key} = $key;
 	$self->link_key_encode( $dat->{elink_key} );

@@ -20,7 +20,7 @@ my @update_versions = (
 	{ ver => 2.95, plugin=>1 },
 	{ ver => 2.96, func => 'sys_update_296', plugin=>1, theme=>1   },
 	{ ver => 2.97, func => 'sys_update_297', plugin=>1, theme=>1, rebuild=>1 },
-	{ ver => 2.98, plugin=>1, theme=>1 }
+	{ ver => 2.98, func => 'sys_update_298', plugin=>1, theme=>1 }
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
@@ -129,7 +129,7 @@ sub sys_update_296 {
 }
 
 #------------------------------------------------------------------------------
-# ●システムアップデート for Ver2.97
+# ●システムアップデート for Ver2.97 (RC1)
 #------------------------------------------------------------------------------
 sub sys_update_297 {
 	my $self  = shift;
@@ -141,6 +141,25 @@ sub sys_update_297 {
 		my $desc = $blog->{description_txt};
 		$ROBJ->tag_delete($desc);
 		$self->update_blogset($blog, 'description_notag', $desc);
+
+		# DB変更
+		my $r=0;
+		$r +=    $DB->drop_table("${_}_log");
+		$r += 10*$DB->add_column("${_}_art", {name=>'main_image',  type=>'text'});
+		$r += 10*$DB->add_column("${_}_art", {name=>'description', type=>'text'});
+
+		if ($r) { $ROBJ->message("Blog '$_' database error($r)"); }
+	}
+}
+
+#------------------------------------------------------------------------------
+# ●システムアップデート for Ver2.98 (RC2)
+#------------------------------------------------------------------------------
+sub sys_update_297 {
+	my $self  = shift;
+	my $blogs = shift;
+	foreach(@$blogs) {
+		my $blog = $self->load_blogset($_);
 
 		# DB変更
 		my $r=0;

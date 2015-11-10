@@ -54,7 +54,7 @@
 		<li><a href="<@v.myself>?set/">基本設定</a></li>
 	<$end>
 	<@ifexec(v.allow_edit, begin)>
-		<li><a href="<@v.myself>?set2/">その他の設定</a><span class="help" data-help="タグ、コンテンツツリー、記法タグ、ユーザーCSS<@if(v.blog_admin,'、プラグイン設定')>">?</span></li>
+		<li><a href="<@v.myself>?set2/">その他の設定</a><span class="help" data-help="記事タグ、コンテンツツリー、記法タグ、ユーザーCSS<@if(v.blog_admin,'、プラグイン設定')>">?</span></li>
 	<$end>
 	<@ifexec(v.blog_admin, begin)>
 		<li><a href="<@v.myself>?design/">デザイン設定</a><span class="help" data-help="テーマ選択、デザイン編集">?</span></li>
