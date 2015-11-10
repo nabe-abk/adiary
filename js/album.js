@@ -947,6 +947,8 @@ function update_view(flag, selected) {
 		}
 
 		if (evt.ctrlKey) {
+			if (evt.shiftKey) return true;	// ブラウザデフォルト
+
 			// download させる
 			evt.stopPropagation();
 			evt.preventDefault()

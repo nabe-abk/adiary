@@ -55,7 +55,23 @@
     Lightbox.prototype.enable = function() {
       var self = this;
       $('body').on('click', 'a[rel^=lightbox], area[rel^=lightbox], a[data-lightbox], area[data-lightbox]', function(event) {
-      	if (event.ctrlKey) return true;
+        // download path by nabe@abk
+      	if (event.shiftKey) return true;
+      	if (event.ctrlKey) {
+        	var obj = $(event.currentTarget);
+		var file = obj.attr('href') || obj.parent('a').attr('href');
+		var name = obj.attr('title');
+		if (name == undefined) name = file.replace(/^.*\//, '')
+		var dl = $('<a>').attr({
+			href: file,
+			download: name
+		});
+		var e = document.createEvent('MouseEvent');
+		e.initEvent("click", true, false);
+        	dl[0].dispatchEvent( e ); 
+      		return false;
+      	}
+        // patch end
         self.start($(event.currentTarget));
         return false;
       });
