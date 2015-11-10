@@ -118,25 +118,10 @@ function new_tag_append() {
 //############################################################################
 // ■パーサーの変更
 //############################################################################
-parsel.change( parser_change );
-parser_change();
-
-function parser_change() {
-	// 記法ヘルプのリンク先変更
-	var link = $secure('#parser-help-link');
-	var is_markdown = parsel.val().match(/^markdown/i);
-	var is_html     = parsel.val().match(/^simple/i);
-
-	var url = is_markdown ? link.data('markdown') : link.data('default');
-	link.attr('href', 'http://adiary.org/v3man/' + url);
-
-	// 記法ヘルパー
-	$('#btn-quote'     ).prop('disabled', is_markdown);
-	$('#btn-annotation').prop('disabled', is_markdown);
-
-	// 箇条書き
-	$('#btn-list').data('tag', is_markdown ? '* ' : '-');
-}
+parsel.change( function(){
+	init_helper( parsel.val() );
+});
+$( function(){ parsel.change() } );
 
 //############################################################################
 // ■公開状態の変更
@@ -175,15 +160,6 @@ upsel.change(function(){
 	if (set.rsubstr(1) != '/') set += '/';
 	lkey.val( set );
 	lkey.data('set', set);
-});
-
-//############################################################################
-// ■画像アルバムを開く
-//############################################################################
-var album_btn = $secure('#album-open');
-album_btn.click(function(){
-	var win = window.open(album_btn.data('url'), 'album', 'location=yes, menubar=no, resizable=yes, scrollbars=yes');
-	win.focus();
 });
 
 //############################################################################
@@ -255,8 +231,8 @@ function start_edit(){
 	// リロード時に使えるようにするための設定
 	$('#edit').find('form, button:not(.no-disable), input, select').prop('disabled', false);
 	$('#edit').find('textarea').prop('readonly', false);
-	if (!window.FormData) $('#edit').find('.js-fileup').prop('disabled', true);	
-	
+	if (!window.FormData) $('#edit').find('.js-fileup').prop('disabled', true);
+	init_helper();
 
 	// ページを離れるときにunlock	※IE8では無効
 	$(window).on('unload', function(){
@@ -334,11 +310,11 @@ function ajax_edit_lock(action, func, unlock) {
 //----------------------------------------------------------------------------
 // ●カーソル位置にテキスト挿入
 //----------------------------------------------------------------------------
-function _insert_text(text) {
+// save to global for album.js
+insert_text = function(text) {
 	edit.focus();
 	insert_to_textarea(edit[0], text);	// adiary.js
 }
-insert_text = _insert_text;
 
 //----------------------------------------------------------------------------
 // ●選択範囲のテキスト取得
@@ -583,22 +559,131 @@ dndbody.on("drop", function(evt) {
 //############################################################################
 // ■記法ヘルパー機能
 //############################################################################
-// <button type="button" id="btn-strong">太字</button>
-// <button type="button" id="btn-link">リンク</button>
-// <button type="button" id="btn-google">検索</button>
-// <button type="button" id="btn-list">箇条書き</button>
-// <button type="button" id="btn-annotation">注釈</button>
-//
+var helper_mode;
+var helper_info = {};
+var helper = {
+	strong:	$secure('#btn-strong'),
+	link:	$secure('#btn-link'),
+	google:	$secure('#btn-google'),
+	list:	$secure('#btn-list'),
+	quote:	$secure('#btn-quote'),
+	annotation: $secure('#btn-annotation'),
+	album:	$secure('#album-open'),
+	color:	$secure('#select-color'),
+	fsize:	$secure('#select-fontsize')
+};
+helper.color.val('');
+helper.fsize.val('');
+for(var key in helper) {
+	if (helper[key][0].tagName == "SELECT") {
+		var func = function(k) {	// closure
+			return function(evt){
+				var obj = $(evt.target);
+				if (obj.val() == '') return;
+				var info = helper_info[helper_mode];
+				if (!info) return;
+				var r = info[k].func(evt);
+				obj.val('');
+				return r;
+			};
+		}(key);
+		helper[key].change( func );
+		continue;
+	}
+
+	var func = function(k) {	// closure
+		return function(evt){
+			var info = helper_info[helper_mode];
+			if (!info) return;
+			return info[k].func(evt);
+		};
+	}(key);
+	helper[key].click( func );
+}
+
+//----------------------------------------------------------------------------
+helper_info.default = {
+	strong: 	{ func: inline_tag,		start: '[bf:', end: ']'},
+	link:		{ func: http_tag },
+	google:		{ func: link_tag,		start: '[g:',  end: ']'},
+	annotation:	{ func: inline_tag,		start: '((',   end: '))'},
+	list:		{ func: block_tag,		tag: '-'},
+	quote:		{ func: satsuki_quote_tag,	'start-base': '>>',	end: '<<'},
+	color:		{ func: inline_tag,		'start-base':'[color:',	end: ']'},
+	fsize:		{ func: inline_tag,		'start-base':'[',	end: ']'},
+	album:		{ func: open_album }
+};
+helper_info.markdown = {
+	strong: 	{ func: inline_tag,		start: '[bf:', end: ']'},
+	link:		{ func: http_tag },
+	google:		{ func: link_tag,		start: '[g:',  end: ']'},
+	annotation:	null,
+	list:		{ func: block_tag,		tag: '* '},
+	quote:		{ func: block_tag,		tag: '> '},
+	color:		{ func: inline_tag,		'start-base':'[color:',	end: ']'},
+	fsize:		{ func: inline_tag,		'start-base':'[',	end: ']'},
+	album:		{ func: open_album }
+};
+helper_info.simple = {
+	strong: 	{ func: html_inline_tag,	tag: 'strong' },
+	link:		{ func: html_http_tag },
+	google:		null,
+	annotation:	null,
+	list:		{ func: block_tag,		start: '<ul>', tag:'<li>', end:'</ul>'},
+	quote:		{ func: block_tag,		start: '<blockquote>', end:'</blockquote>'},
+	color:		{ func: html_inline_style,	tag: 'color' },
+	fsize:		{ func: html_inline_class },
+	album:		null
+};
+
+//----------------------------------------------------------------------------
+// ●ヘルパーの初期化
+//----------------------------------------------------------------------------
+function init_helper(parser_name) {
+	var mode = (parser_name || helper_mode).replace(/[-_][\w-]+$/, '');
+	helper_mode = mode;
+
+	var link = $secure('#parser-help-link');
+	var url  = link.data(mode);
+	if (url) {
+		link.show();
+		link.attr('href', 'http://adiary.org/v3man/' + url);
+	} else	link.hide();
+
+	// 記法ヘルパー
+	var info = helper_info[mode] || {};
+	for(var key in helper) {
+		var btn = helper[key];
+		var h   = info[key];
+		btn.prop('disabled', h ? false : true);
+		if (!h) continue;
+
+		var attr = ['tag', 'start', 'end', 'start-base'];
+		for(var i=0; i<attr.length; i++) {
+			var name = attr[i];
+			btn.data(name, h[name]);
+			if (! h[name]) btn.removeData(name);
+		}
+	}
+	if (info.init) info.init(mode);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ■記法ヘルパーの各機能
+//////////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 // ●インラインタグ汎用処理
 //----------------------------------------------------------------------------
-function inline_tag_btn(evt) {
+function inline_tag(evt, func) {
 	var obj = $(evt.target);
+	var st_base = obj.data('start-base');
 	var tag_st  = obj.data('start');
 	var tag_end = obj.data('end');
+	if (st_base) tag_st = st_base + obj.val() + ':';
 	var text = get_selection();
 	if (text) {
 		text = parse_lines(text, function(str) {
+			if (func) return func({str: str}, obj);
 			return tag_st + esc_satsuki_tag(str) + tag_end;
 		})
 		return replace_selection(text);
@@ -608,72 +693,40 @@ function inline_tag_btn(evt) {
 		title: obj.data('msg'),
 		callback: function (h) {
 			if (!h.str) return;
+			if (func) return func(h, obj);
 			insert_text(tag_st + h.str + tag_end);
 		}
 	});
 }
 
 //----------------------------------------------------------------------------
-// ●太字、注釈
+// ●HTMLインラインタグ汎用処理
 //----------------------------------------------------------------------------
-$secure('#btn-strong'    ).click( inline_tag_btn );
-$secure('#btn-annotation').click( inline_tag_btn );
-
-//----------------------------------------------------------------------------
-// ●リンク生成
-//----------------------------------------------------------------------------
-function link_tag_btn(evt, func) {
-	var obj = $(evt.target);
-	var text = get_selection();
-	if (0 <= text.indexOf("\n"))	// 複数行は処理しない
-		return show_error('#msg-multiline');
-
-	form_dialog({
-		title: obj.data('msg'),
-		elements: [
-			obj.data('msg1'),
-			{type:'text', name:'str1', val:obj.data('val1'), dclass:'w240' },
-			obj.data('msg2'),
-			{type:'text', name:'str2', val: text }
-		],
-		callback: func || function (h) {
-			if (h.str1 == '') return;
-			if (h.str2 != '') h.str2 = ':' + h.str2;
-			h.str1 = esc_satsuki_tag(h.str1);
-			replace_selection( obj.data('start') + h.str1 + h.str2 + obj.data('end') );
-		}
+function html_inline_tag(evt) {
+	inline_tag(evt, function (h, obj) {
+		var tag = obj.data('tag');
+		insert_text('<' + tag + '>' + h.str + '</' + tag + '>');
 	});
 }
-$secure('#btn-link').click( function(evt) {
-	link_tag_btn(evt, function (h) {
-		if (h.str1 == '') return;
-		if (h.str2 != '') h.str2 = ':' + h.str2;
-		var ma = h.str1.match(/^(https?:\/\/)(.+)/i);
-		if (! ma) return;
-		var url = ma[1] + esc_satsuki_tag(ma[2]);
-		replace_selection( '[' + url + h.str2 + ']' );
+function html_inline_class(evt) {
+	inline_tag(evt, function (h, obj) {
+		var val = obj.val();
+		insert_text('<span class="' + val + '">' + h.str + '</span>');
 	});
-});
-$secure('#btn-google').click( link_tag_btn );
-
-//----------------------------------------------------------------------------
-// ●色変え、フォント変え
-//----------------------------------------------------------------------------
-function font_change(evt) {
-	var obj = $(evt.target);
-	var val = obj.val();
-	if (val == '') return;
-	obj.data('start', obj.data('start-base') + val + ':' );
-	inline_tag_btn(evt);
-	obj.val('');
 }
-$secure('#select-color'   ).val('').change( font_change );
-$secure('#select-fontsize').val('').change( font_change );
+function html_inline_style(evt) {
+	inline_tag(evt, function (h, obj) {
+		var val = obj.val();
+		var tag = obj.data('tag');
+		insert_text('<span style="' + tag + ':' + val + ';">' + h.str + '</span>');
+	});
+}
+
 
 //----------------------------------------------------------------------------
 // ●ブロックタグ汎用処理
 //----------------------------------------------------------------------------
-function block_tag_btn(evt) {
+function block_tag(evt) {
 	if (edit[0].selectionStart == undefined)	// IE8 非対応
 		return show_error('#msg-for-ie8');
 
@@ -702,17 +755,61 @@ function block_tag_btn(evt) {
 }
 
 //----------------------------------------------------------------------------
-// ●リストと引用タグ
+// ●リンク生成
 //----------------------------------------------------------------------------
-$secure('#btn-list' ).click( block_tag_btn );
+function link_tag(evt, func) {
+	var obj = $(evt.target);
+	var text = get_selection();
+	if (0 <= text.indexOf("\n"))	// 複数行は処理しない
+		return show_error('#msg-multiline');
 
-$secure('#btn-quote').click( function(evt) {
+	form_dialog({
+		title: obj.data('msg'),
+		elements: [
+			obj.data('msg1'),
+			{type:'text', name:'str1', val:obj.data('val1'), dclass:'w240' },
+			obj.data('msg2'),
+			{type:'text', name:'str2', val: text }
+		],
+		callback: func || function (h) {
+			if (h.str1 == '') return;
+			if (h.str2 != '') h.str2 = ':' + h.str2;
+			h.str1 = esc_satsuki_tag(h.str1);
+			replace_selection( obj.data('start') + h.str1 + h.str2 + obj.data('end') );
+		}
+	});
+}
+
+function http_tag(evt) {
+	link_tag(evt, function (h) {
+		var ma = h.str1.match(/^(https?:\/\/)(.+)/i);
+		if (! ma) return;
+		if (h.str2 != '') h.str2 = ':' + h.str2;
+		var url = ma[1] + esc_satsuki_tag(ma[2]);
+		replace_selection( '[' + url + h.str2 + ']' );
+	});
+}
+
+
+function html_http_tag(evt) {
+	link_tag(evt, function (h) {
+		var ma = h.str1.match(/^https?:\/\/.+/i);
+		if (! ma) return;
+		if (h.str2 == '') h.str2 = h.str1;
+		replace_selection( '<a href="' + h.str1 + '">' + h.str2 + '</a>' );
+	});
+}
+
+//----------------------------------------------------------------------------
+// ●引用タグの処理
+//----------------------------------------------------------------------------
+function satsuki_quote_tag(evt) {
 	if (edit[0].selectionStart == undefined)	// IE8 非対応
 		return show_error('#msg-for-ie8');
 
 	var obj = $(evt.target);
 	obj.data('start', obj.data('start-base'));
-	if (IE9) return block_tag_btn(evt);		// ダイアログを出すと選択範囲が消えてしまう
+	if (IE9) return block_tag(evt);			// ダイアログを出すと選択範囲が消えてしまう
 
 	form_dialog({
 		title: obj.data('msg'),
@@ -726,14 +823,25 @@ $secure('#btn-quote').click( function(evt) {
 				start += '[&' + h.url + ']';
 
 			obj.data('start', start);
-			block_tag_btn(evt);
+			block_tag(evt);
 		},
 		cancel: function() {
-			block_tag_btn(evt);
+			block_tag(evt);
 		}
 	});
-});
+}
 
+//----------------------------------------------------------------------------
+// ■画像アルバムを開く
+//----------------------------------------------------------------------------
+function open_album(evt) {
+	var win = window.open($(evt.target).data('url'), 'album', 'location=yes, menubar=no, resizable=yes, scrollbars=yes');
+	win.focus();
+};
+
+//////////////////////////////////////////////////////////////////////////////
+// ■記法ヘルパー用サブルーチン
+//////////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 // ● 選択範囲やカーソル位置を行ごとに調整する
 //----------------------------------------------------------------------------

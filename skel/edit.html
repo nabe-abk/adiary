@@ -121,14 +121,14 @@
 
 	<span class="element" id="edit-title"><span class="edit-caption">タイトル</span><input class="w360 no-enter-submit" type="text" name="title" value="<@art.title>"></span> 
 	<div id="edit-helper">
-	<button class="helper" type="button" id="btn-strong" data-msg="太字にしたい文字列を入力" data-start="[bf:" data-end="]">太字</button>
+	<button class="helper" type="button" id="btn-strong" data-msg="太字にしたい文字列を入力">太字</button>
 	<button class="helper" type="button" id="btn-link"   data-msg="リンクを生成" data-msg1="リンク先" data-val1="http://" data-msg2="リンク文字列">リンク</button>
-	<button class="helper" type="button" id="btn-google" data-msg="Google検索へのリンクを生成" data-msg1="検索する言葉" data-msg2="リンク文字列" data-start="[g:" data-end="]">検索</button>
-	<button class="helper" type="button" id="btn-list"   data-msg="箇条書きにしたい項目を１行ずつ入力" data-tag="-" data-type="lines">箇条<@if(!v.sphone,'書き')></button>
-	<button class="helper" type="button" id="btn-quote"  data-msg="引用したい文章を入力" data-start-base=">>" data-end="<<" data-type="block" data-sp-msg="引用元サイトがある場合、そのURLを入力してください">引用</button>
-	<button class="helper" type="button" id="btn-annotation" data-msg="注釈にしたい文字列を入力" data-start="((" data-end="))">注釈</button>
+	<button class="helper" type="button" id="btn-google" data-msg="Google検索へのリンクを生成" data-msg1="検索する言葉" data-msg2="リンク文字列">検索</button>
+	<button class="helper" type="button" id="btn-list"   data-msg="箇条書きにしたい項目を１行ずつ入力">箇条<@if(!v.sphone,'書き')></button>
+	<button class="helper" type="button" id="btn-quote"  data-msg="引用したい文章を入力" data-sp-msg="引用元サイトがある場合、そのURLを入力してください">引用</button>
+	<button class="helper" type="button" id="btn-annotation" data-msg="注釈にしたい文字列を入力">注釈</button>
 	<button class="helper btn-help" type="button" id="album-open" data-url="<@v.myself>?album/#edit" data-help="画像アルバムからファイルを選択して貼り付けます。">画像</button>
-	<select class="helper" id="select-color" title="選択した文字列に色を付けます。" data-start-base="[color:" data-end="]" data-msg="色を変更したい文字列を入力">
+	<select class="helper" id="select-color" title="選択した文字列に色を付けます。" data-msg="色を変更したい文字列を入力">
 		<option value="" selected>色</option>
 		<option value="#FF0000" style="color:#FF0000;">■</option>
 		<option value="#FFFF00" style="color:#FFFF00;">■</option>
@@ -264,6 +264,9 @@
 <span id="msg-for-ie8">このブラウザではこの機能は使用できません。</span>
 <span id="msg-upload-error">アップロードに失敗しました。</span>
 <span id="msg-upload-fail">%n 個中 %f 個のアップロードに失敗しました。</span>
+
+<@> HTML用記法ヘルパー
+<span id="image-dir"><@v.blogimg_dir()></span>
 
 <@> ファイルアップロード用データ
 <$tags = call('album/_load_tags')>
