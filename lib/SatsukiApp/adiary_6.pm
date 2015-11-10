@@ -152,26 +152,6 @@ sub sys_update_297 {
 	}
 }
 
-#------------------------------------------------------------------------------
-# ●システムアップデート for Ver2.98 (RC2)
-#------------------------------------------------------------------------------
-sub sys_update_297 {
-	my $self  = shift;
-	my $blogs = shift;
-	foreach(@$blogs) {
-		my $blog = $self->load_blogset($_);
-
-		# DB変更
-		my $r=0;
-		$r +=    $DB->drop_table("${_}_log");
-		$r += 10*$DB->add_column("${_}_art", {name=>'main_image',  type=>'text'});
-		$r += 10*$DB->add_column("${_}_art", {name=>'description', type=>'text'});
-
-		if ($r) { $ROBJ->message("Blog '$_' database error($r)"); }
-	}
-}
-
-
 
 ###############################################################################
 # ■Version2 to 3 移行ルーチン
