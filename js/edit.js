@@ -45,7 +45,7 @@ tagdel.click(function(evt){
 	var obj = $(evt.target);
 	obj.parent().remove();
 });
-$("#edit-tags span.tag").append(tagdel);
+$("#edit-tags span.tag").append( tagdel.clone(true) );
 
 //----------------------------------------------------------------------------
 // ●タグの追加
