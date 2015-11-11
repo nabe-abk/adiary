@@ -156,7 +156,7 @@ sub simple_parser {
 			$foot='<br />';
 		
 		# 日本語の文章のとき、行末改行を取り除く
-		} elsif (ord(substr($this,-1))<0x80 || ord(substr($next,0,1))<0x80) {
+		} elsif (ord(substr($this,-1))<0x80 && ord(substr($next,0,1))<0x80) {
 			$foot="\n";
 		}
 
