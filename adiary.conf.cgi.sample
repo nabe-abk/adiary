@@ -192,14 +192,14 @@
 # ■パーサーの設定
 #----------------------------------------------------------
 <$v.parsers = begin_hash_order>
-	default       = 標準（そのまま改行）
+	default       = 標準
 	default_p1    = 標準（１行＝１段落）
-	default_p2    = 標準（空行で段落。改行無視）
-	default_p2_br = 標準（空行で段落。そのまま改行）
-	default_no_br = 標準（改行無視）
-	simple_br     = HTML（そのまま改行）
-	simple_p      = HTML（１行＝１段落）
-	simple	      = HTML（改行無視）
+	default_p2    = 標準（空行で段落）
+	default_p2_br = 標準（空行で段落。改行処理）
+#	default_no_br = 標準（そのまま）
+	simple	      = HTML（そのまま）
+	simple_br     = HTML（改行処理）
+#	simple_p      = HTML（１行＝１段落）
 	markdown      = Markdown
 <$end>
 

@@ -208,7 +208,7 @@
 			<li><input type="checkbox" name="draft" value="1"<@if(art.draft, ' checked')> id="draft-chk" data-on='下書き'><label>この記事を下書きとして保存する</label><span class="help" data-help="初公開日時の情報も消去されます。">?</span></li>
 		<$end>
 		<@ifexec(Develop && !v.sphone, begin)>
-			<li><input type="checkbox" class="js-switch" data-target="#-dummy-" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug"><em>[develop]</em> パーサーのデバッグ</label></li>
+			<li><input type="checkbox" class="js-save" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug"><em>[develop]</em> パーサーのデバッグ</label></li>
 		<$end>
 		</ul></li>
 		<li><input type="checkbox" name="wiki" value="1" data-target="#content-block" class="js-switch"<@if(art.ctype || art.wiki, ' checked')>><label>コンテンツページにする</label>
@@ -264,9 +264,6 @@
 <span id="msg-for-ie8">このブラウザではこの機能は使用できません。</span>
 <span id="msg-upload-error">アップロードに失敗しました。</span>
 <span id="msg-upload-fail">%n 個中 %f 個のアップロードに失敗しました。</span>
-
-<@> HTML用記法ヘルパー
-<span id="image-dir"><@v.blogimg_dir()></span>
 
 <@> ファイルアップロード用データ
 <$tags = call('album/_load_tags')>

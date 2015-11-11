@@ -1,12 +1,12 @@
 <@40.is_function>
 <@local(parser)>
 <@>
-<@> シンプルパーサー（段落処理設定）
+<@> シンプルパーサー（段落処理）
 <@>
 <$parser = loadpm('TextParser::Simple')>
 
 <$parser.seemore_msg     = b.seemore_msg || '続きを読む'>
-<$parser.paragraph_mode  = 1>		1行=1段落
+<$parser.paragraph_mode  = 3>		空行で段落処理。2行以上の空行を改行に置換。
 <$parser.paragraph_class = 'ni'>	<p> のクラス / 'ni'=インデントなし<p>
 <$parser.br_mode         = 0>		空行を<br>に置換する
 <$parser.skip_tag_line   = 1>		タグのみの行は段落処理しない

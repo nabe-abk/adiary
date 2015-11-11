@@ -1,10 +1,10 @@
 use strict;
 #------------------------------------------------------------------------------
 # 記法システム - シンプルパーサー
-#                                                   (C)2013 nabe / nabe@abk.nu
+#                                                   (C)2013-2015 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::TextParser::Simple;
-our $VERSION = '1.20';
+our $VERSION = '1.30';
 #------------------------------------------------------------------------------
 ###############################################################################
 # ■基本処理
@@ -72,7 +72,7 @@ sub simple_parser {
 	my $br_mode = $self->{br_mode};
 	my $p_mode  = $self->{paragraph_mode};
 	my $p_class = $self->{paragraph_class};
-	my $ls_mode = $self->{ls_mode};		# 行間処理モード
+	my $tagline = $self->{skip_tag_line};	# タグのみの行は段落処理しない
 	my $indent  = $self->{indent};
 	# p class処理
 	$p_class =~ s/[^\w\-]//g;
@@ -81,7 +81,6 @@ sub simple_parser {
 	# フラグ初期化
 	my $in_paragraph = 0;
 	my $see_more     = 0;
-	my $ls_count     = 0;	# 空行カウンタ
 
 	my @ary;
 	my @short;
@@ -100,7 +99,6 @@ sub simple_parser {
 		if ($this_f == -1) {
 			@short = @ary;	# 短いテキストのコピー
 			$see_more=1;
-			$ls_count=0;
 			push(@ary,"<!--%SeeMore%-->");	# SeeMore Marking
 			next;
 		}
@@ -108,21 +106,21 @@ sub simple_parser {
 		$this =~ s/^ =/=/;
 
 		#----------------------------------------------------
-		# 空行処理
+		# タグのみの行は段落処理しない
 		#----------------------------------------------------
-		if ($this eq '') {
-			if (! $ls_mode) { next; }
-			# 空行処理モード
-			$ls_count++;
-			if ($ls_count>1) { push(@ary, "$indent<br />\n"); }
+		if ($tagline && $this =~ m!^\s*(?:</?\w+(?:"[^"]*"|'[^']*'|[^>])*>)+\s*$!) {
+			push(@ary, "$indent$this\n");
 			next;
 		}
-		$ls_count = 0;	# 空行カウンタ初期化
 		#----------------------------------------------------
 		# 段落の始まり？
 		#----------------------------------------------------
 		# １行＝１段落
 		if ($p_mode==1) {
+			if ($this_f) {
+				if ($br_mode) { push(@ary, "$indent<br>\n"); }
+				next;
+			}
 			push(@ary, "$indent<p$p_class>$this</p>\n");
 			next;
 		}
@@ -132,24 +130,38 @@ sub simple_parser {
 				else  { push(@ary, "$indent$this\n");     }
 			next;
 		}
-		# 不明な指定
-		if ($p_mode!=2) { next; }
 
-		# 空行で段落処理
+		#-----------------------------------------------------------
+		# 空行で段落処理 (p_mode = 2)
+		#-----------------------------------------------------------
+		if ($p_mode!=2 && $p_mode!=3) { next; }
+		if ($this_f && $prev_f) {	# 2行以上続く空行
+			if ($p_mode == 3) { push(@ary, "$indent<br>\n"); }
+			next;
+		}
+		if ($this_f) { next; }
+
+		# 段落の始まり？
 		my $head = '';
 		my $foot = '';
-		# 段落の始まり
 		if (! $in_paragraph) { $head = "<p$p_class>"; $in_paragraph=1; }
+
 		# ここで段落の終わり
 		if ($next_f) {
 			$in_paragraph=0;
-			$foot='</p>';
+			$foot="</p>\n\n";
+
 		# 途中改行を処理
 		} elsif ($br_mode) {
 			$foot='<br />';
+		
+		# 日本語の文章のとき、行末改行を取り除く
+		} elsif (ord(substr($this,-1))<0x80 || ord(substr($next,0,1))<0x80) {
+			$foot="\n";
 		}
+
 		# 出力
-		push(@ary, "$indent$head$this$foot\n");
+		push(@ary, "$indent$head$this$foot");
 	}
 	if (@short) {
 		push(@short, <<TEXT);
