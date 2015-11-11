@@ -141,7 +141,7 @@ _module_start
 # YouTube モジュール
 #------------------------------------------------------------------------------
 *youtube
-<iframe class="youtube-player" width="#{width|420}" height="#{height|315}" src="http://www.youtube.com/embed/${vid}" frameborder="0">
+<iframe class="youtube-player" style="width:#{width|420}px; height:#{height|315}px;" src="http://www.youtube.com/embed/${vid}" frameborder="0">
 </iframe>
 
 #------------------------------------------------------------------------------
@@ -155,16 +155,16 @@ _module_start
 # ニコニコ動画 モジュール
 #------------------------------------------------------------------------------
 *nico
-<iframe class="niconico" width="312" height="176" src="http://ext.nicovideo.jp/thumb/${vid}" frameborder="0"  scrolling="no"><a href="http://www.nicovideo.jp/watch/${vid}">http://www.nicovideo.jp/watch/${vid}</a></iframe>
+<iframe class="niconico" style="width:312px; height:176px" src="http://ext.nicovideo.jp/thumb/${vid}" frameborder="0"  scrolling="no"><a href="http://www.nicovideo.jp/watch/${vid}">http://www.nicovideo.jp/watch/${vid}</a></iframe>
 
 *nico:mylist
-<iframe class="niconico nico-mylist" frameborder="0" height="176" scrolling="no" src="http://ext.nicovideo.jp/thumb_mylist/${mid}" width="312"></iframe>
+<iframe class="niconico nico-mylist" style="width:312px; height:176px" frameborder="0" scrolling="no" src="http://ext.nicovideo.jp/thumb_mylist/${mid}" width="312"></iframe>
 
 *nico:mylist
-<iframe class="niconico nico-user" frameborder="0" height="176" scrolling="no" src="http://ext.nicovideo.jp/thumb_user/${uid}" width="312"></iframe>
+<iframe class="niconico nico-user" style="width:312px; height:176px" frameborder="0" scrolling="no" src="http://ext.nicovideo.jp/thumb_user/${uid}"></iframe>
 
 *nico:commu
-<iframe class="niconico nico-commu"  frameborder="0" height="176" scrolling="no" src="http://ext.nicovideo.jp/thumb_community/${cid}" width="312"></iframe>
+<iframe class="niconico nico-commu" style="width:312px; height:176px" frameborder="0" scrolling="no" src="http://ext.nicovideo.jp/thumb_community/${cid}"></iframe>
 
 #------------------------------------------------------------------------------
 # github/gist表示モジュール
@@ -179,19 +179,18 @@ _module_start
 # slideshare モジュール
 #------------------------------------------------------------------------------
 *slideshare
-<iframe src="http://www.slideshare.net/slideshow/embed_code/${sid}" width="#{width|427}" height="#{height|356}" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>
+<iframe src="http://www.slideshare.net/slideshow/embed_code/${sid}" style="width:#{width|420}px; height:#{height|315}px;" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>
 
 #------------------------------------------------------------------------------
 # rabbit-shockerモジュール
 #------------------------------------------------------------------------------
 *rabbit-shocker:slide
 <iframe src="http://slide.rabbit-shocker.org${path}viewer.html"
-        width="#{width|640}" height="#{height|524}"
         frameborder="0"
         marginwidth="0"
         marginheight="0"
-        scrolling="no"
-        style="border: 1px solid #ccc; border-width: 1px 1px 0; margin-bottom: 5px"
+        scrolling="no" style=""
+        style="border: 1px solid #ccc; border-width: 1px 1px 0; margin-bottom: 5px; width:#{width|640}px; height:#{height|524}px;"
         allowfullscreen>
 </iframe>
 <div style="margin-bottom: 5px">
@@ -202,12 +201,12 @@ _module_start
 # Google-map モジュール
 #------------------------------------------------------------------------------
 *google:map:directions
-<iframe src="https://www.google.com/maps/embed/v1/directions?key=${key}&amp;origin=${origin}&amp;destination=${destination}" width="#{width|425}" height="#{height|350}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
+<iframe src="https://www.google.com/maps/embed/v1/directions?key=${key}&amp;origin=${origin}&amp;destination=${destination}"  style="width:#{width|425}px; height:#{height|350}px;" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
 
 *google:map:search
-<iframe src="https://www.google.com/maps/embed/v1/search?key=${key}&amp;q=${q}" width="#{width|425}" height="#{height|350}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
+<iframe src="https://www.google.com/maps/embed/v1/search?key=${key}&amp;q=${q}" style="width:#{width|425}px; height:#{height|350}px;" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
 
 *google:map:view
-<iframe src="https://www.google.com/maps/embed/v1/view?key=${key}&amp;center=${center}&amp;zoom=${zoom}&amp;" width="#{width|425}" height="#{height|350}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
+<iframe src="https://www.google.com/maps/embed/v1/view?key=${key}&amp;center=${center}&amp;zoom=${zoom}&amp;" style="width:#{width|425}px; height:#{height|350}px;" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
 
 
