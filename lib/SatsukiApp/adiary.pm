@@ -790,6 +790,8 @@ sub load_articles {
 				my $c = @$tags;		# 指定されたタグの数
 				my @ary = grep { $arts{$_} == $c } keys(%arts);
 				$q{match}->{pkey} = @ary ? \@ary : [-1];
+			} else {
+				$q{match}->{pkey} = -1;
 			}
 		}
 
