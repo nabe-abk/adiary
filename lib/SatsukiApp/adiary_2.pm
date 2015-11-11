@@ -1802,6 +1802,93 @@ sub update_lock_file {
 }
 
 ###############################################################################
+# ■スマホメニュー再生成
+###############################################################################
+#------------------------------------------------------------------------------
+# ●スマホメニューの生成
+#------------------------------------------------------------------------------
+sub generate_spmenu {
+	my $self = shift;
+	my $blog = $self->{blog};
+
+	my $ary = $self->load_spmenu_info();
+	if (! @$ary) {
+		$self->update_cur_blogset('spmenu', '');
+		return 0;
+	}
+
+	# 要素がある
+	my $out = "<ul>\n";
+	foreach(@$ary) {
+		my $title = $_->{title};
+		my $html  = $blog->{"p:$_->{name}:html"};
+		my $h = $self->parse_html_for_spmenu($html);
+		my $url = $h->{url} || '#';
+		$out .= "<li><a href=\"$url\">$title</a>\n$h->{html}\n</li>\n";
+	}
+	$out .= "</ul>\n";
+	if ($#$ary > 0) {
+		my $title = $blog->{spmenu_title} || 'menu';
+		$out = "<ul><li><a href=\"#\">$title</a>\n$out</li></ul>\n";
+	}
+	$self->update_cur_blogset('spmenu', $out);
+	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●保存してあるスマホメニュー情報を分解
+#------------------------------------------------------------------------------
+sub load_spmenu_info {
+	my $self = shift;
+	my $blog = $self->{blog};
+	my $info = $blog->{spmenu_info};
+
+	my @ary = split("\n", $info);
+	my @ary2;
+	my $f;
+	foreach(@ary) {
+		chomp($_);		# $_に処理しないように
+		my ($name,$title) = split(/=/, $_, 2);
+		push(@ary2, {
+			name  => $name,
+			title => $title
+		});
+	}
+	return \@ary2;
+}
+
+#------------------------------------------------------------------------------
+# ●メニュー用に要素を加工
+#------------------------------------------------------------------------------
+sub parse_html_for_spmenu {
+	my $self = shift;
+	my $html = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my %h;
+	my $title;
+	$html =~ s|<div\s*class="\s*hatena-moduletitle\s*">(.*?)</div>|$title=$1,''|e;
+	if ($title =~ /<a.*? href\s*=\s*"([^"]+)"/) {
+		$h{url} = $1;
+	}
+	$ROBJ->tag_delete($title);
+
+	my $escaper = $self->load_tag_escaper_force( 'spmenu' );
+	$title = $escaper->escape( $title );
+	$html  = $escaper->escape( $html  );
+
+	$html =~ s|</a>(.*?)</li>|$1</a></li>|g;
+	$html =~ s/^[\s\n\r]+//;
+	$html =~ s/[\s\n\r]+$//;
+	if ($html !~ m|^<ul>|) { return; }
+	if ($html !~ m|</ul>$|) { return; }
+
+	$h{html}  = $html;
+	$h{title} = $title;
+	return \%h;
+}
+
+###############################################################################
 # ■サブルーチン
 ###############################################################################
 #------------------------------------------------------------------------------
@@ -2062,6 +2149,14 @@ sub regist_end_callback {
 	my $self = shift;
 	my $k = shift;
 	$self->{end_callback}->{$k} = shift;
+}
+
+#------------------------------------------------------------------------------
+# ●プラグイン番号の取得（プラグイン側から呼ばれる）
+#------------------------------------------------------------------------------
+sub plugin_num {
+	my $self = shift;
+	return ($_[0] =~ /^(?:[A-Za-z][\w\-]*),(\d+)$/) ? $1 : undef;
 }
 
 1;

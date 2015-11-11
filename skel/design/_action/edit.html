@@ -5,6 +5,7 @@
 <$action_return = v.save_design(Form)>
 
 <$ifmessage(action_return eq '0', 'デザインを保存しました')>
+<$ifmessage(action_return eq '0' && ! v.blog.spmenu, '※スマホ用メニューも忘れず設定してください')>
 <$ifmessage(action_return ne '0', 'デザインの保存に失敗しました')>
 
 <$ifexec(Form.debug_ary, begin)>

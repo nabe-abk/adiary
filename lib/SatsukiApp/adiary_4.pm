@@ -761,13 +761,10 @@ sub save_plugin_setting {
 #------------------------------------------------------------------------------
 # ●プラグイン名のチェックとalias番号の分離
 #------------------------------------------------------------------------------
+# plugin_num in adiary_2.pm
 sub plugin_name_check {
 	my $self = shift;
 	return ($_[0] =~ /^([A-Za-z][\w\-]*)(?:,\d+)?$/) ? $1 : undef;
-}
-sub plugin_num {
-	my $self = shift;
-	return ($_[0] =~ /^(?:[A-Za-z][\w\-]*),(\d+)$/) ? $1 : undef;
 }
 sub plugin_name_id {
 	my $self = shift;
@@ -1622,6 +1619,10 @@ sub update_design_info {
 ###############################################################################
 # ■スマホ画面の設定
 ###############################################################################
+# in adiary_2.pm
+#	generate_spmenu
+#	load_spmenu_info
+#	parse_html_for_spmenu
 #------------------------------------------------------------------------------
 # ●スマホメニュー要素ロード
 #------------------------------------------------------------------------------
@@ -1670,37 +1671,6 @@ sub load_spmenu_items {
 }
 
 #------------------------------------------------------------------------------
-# ●メニュー用に要素を加工
-#------------------------------------------------------------------------------
-sub parse_html_for_spmenu {
-	my $self = shift;
-	my $html = shift;
-	my $ROBJ = $self->{ROBJ};
-
-	my %h;
-	my $title;
-	$html =~ s|<div\s*class="\s*hatena-moduletitle\s*">(.*?)</div>|$title=$1,''|e;
-	if ($title =~ /<a.*? href\s*=\s*"([^"]+)"/) {
-		$h{url} = $1;
-	}
-	$ROBJ->tag_delete($title);
-
-	my $escaper = $self->load_tag_escaper_force( 'spmenu' );
-	$title = $escaper->escape( $title );
-	$html  = $escaper->escape( $html  );
-
-	$html =~ s|</a>(.*?)</li>|$1</a></li>|g;
-	$html =~ s/^[\s\n\r]+//;
-	$html =~ s/[\s\n\r]+$//;
-	if ($html !~ m|^<ul>|) { return; }
-	if ($html !~ m|</ul>$|) { return; }
-
-	$h{html}  = $html;
-	$h{title} = $title;
-	return \%h;
-}
-
-#------------------------------------------------------------------------------
 # ●スマホメニュー要素のセーブ
 #------------------------------------------------------------------------------
 sub save_spmenu_items {
@@ -1729,28 +1699,6 @@ sub save_spmenu_items {
 }
 
 #------------------------------------------------------------------------------
-# ●保存してあるスマホメニュー情報を分解
-#------------------------------------------------------------------------------
-sub load_spmenu_info {
-	my $self = shift;
-	my $blog = $self->{blog};
-	my $info = $blog->{spmenu_info};
-
-	my @ary = split("\n", $info);
-	my @ary2;
-	my $f;
-	foreach(@ary) {
-		chomp($_);		# $_に処理しないように
-		my ($name,$title) = split(/=/, $_, 2);
-		push(@ary2, {
-			name  => $name,
-			title => $title
-		});
-	}
-	return \@ary2;
-}
-
-#------------------------------------------------------------------------------
 # ●スマホメニューの項目が消えていないか確認
 #------------------------------------------------------------------------------
 sub check_spmenu_items {
@@ -1772,37 +1720,6 @@ sub check_spmenu_items {
 		chomp($info);
 		$self->update_cur_blogset('spmenu_info', $info);
 	}
-}
-
-#------------------------------------------------------------------------------
-# ●スマホメニューの生成
-#------------------------------------------------------------------------------
-sub generate_spmenu {
-	my $self = shift;
-	my $blog = $self->{blog};
-
-	my $ary = $self->load_spmenu_info();
-	if (! @$ary) {
-		$self->update_cur_blogset('spmenu', '');
-		return 0;
-	}
-
-	# 要素がある
-	my $out = "<ul>\n";
-	foreach(@$ary) {
-		my $title = $_->{title};
-		my $html  = $blog->{"p:$_->{name}:html"};
-		my $h = $self->parse_html_for_spmenu($html);
-		my $url = $h->{url} || '#';
-		$out .= "<li><a href=\"$url\">$title</a>\n$h->{html}\n</li>\n";
-	}
-	$out .= "</ul>\n";
-	if ($#$ary > 0) {
-		my $title = $blog->{spmenu_title} || 'menu';
-		$out = "<ul><li><a href=\"#\">$title</a>\n$out</li></ul>\n";
-	}
-	$self->update_cur_blogset('spmenu', $out);
-	return 0;
 }
 
 1;

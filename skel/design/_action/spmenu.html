@@ -6,7 +6,7 @@
 
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
-	<$message("スマホメニューの設定を保存しました")>
+	<$message("スマホ用メニューの設定を保存しました")>
 	<$url = v.myself .'?'. v.query0>
 	<$jump('_sub/reload_message', url)>
 <$end>
