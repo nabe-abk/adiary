@@ -15,14 +15,13 @@
 }
 #adiary-body {
 	margin:			0;
-	width:			360px;
+	width:			626px;
 }
 #hatena-body {
 	padding-left:		2px;
 	padding-right:		2px;
 	border-width:		1px;
 }
-
 #sidebar {
 	float:			none;
 	margin:			40px 4px 0 4px;
@@ -31,6 +30,66 @@
 	border:			none;
 }
 
+/*--------------------------------------------------------------------
+■記事配置と標準の横幅
+---------------------------------------------------------------------*/
+#adiary-body {
+	width:			626px;
+}
+article {
+	width:			620px;
+}
+#viewport-setting {
+	min-width:		1px;
+	font-family:		"width=626px";
+}
+
+/*--------------------------------------------------------------------
+■幅の設定（480px）
+---------------------------------------------------------------------*/
+@media screen and (min-width: 480px) and (max-width: 599px) {
+#adiary-body {
+	width:			480px;
+}
+article {
+	width:			472px;
+}
+h2:before,
+#com div.caption:before {
+	width:			474px;
+	background-image:	url("art474_top.png");
+}
+article.article div.body:before {
+	background-image:	url("art474_header.png");
+}
+#viewport-setting {
+	min-width:		1px;
+	font-family:		"width=480px";
+}
+}
+/*--------------------------------------------------------------------
+■幅の設定（360px）
+---------------------------------------------------------------------*/
+@media screen and (max-width: 478px){
+#adiary-body {
+	width:			360px;
+}
+article {
+	width:			352px;
+}
+h2:before,
+#com div.caption:before {
+	width:			354px;
+	background-image:	url("art354_top.png");
+}
+article.article div.body:before {
+	background-image:	url("art354_header.png");
+}
+#viewport-setting {
+	min-width:		1px;
+	font-family:		"width=360px";
+}
+}
 /*--------------------------------------------------------------------
 ■ヘッダ、フッタ
 ---------------------------------------------------------------------*/
@@ -68,22 +127,6 @@ h1 a:before {
 }
 
 /*--------------------------------------------------------------------
-■記事配置
----------------------------------------------------------------------*/
-article {
-	width:			352px;
-}
-h2:before,
-#com div.caption:before {
-	width:			354px;
-	background-image:	url("art354_top.png");
-}
-article.article div.body:before {
-	background-image:	url("art354_header.png");
-}
-
-
-/*--------------------------------------------------------------------
 ■サイドバー
 ---------------------------------------------------------------------*/
 #sidebar {
@@ -113,7 +156,7 @@ not(.Fx) #side-search {		/* for Fx bug */
 	width:			100px;
 }
 #com form textarea {
-	width:			340px;
+	width:			100%;
 }
 
 /*--------------------------------------------------------------------

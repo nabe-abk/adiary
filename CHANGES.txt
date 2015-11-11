@@ -17,6 +17,7 @@
 -【lightbox】スマホからの操作時、ズーム中やズーム動作で画像をめくらないようにしました。
 -【lightbox】画像リンクを、SHIFTと共にクリックした場合はブラウザデフォルト動作を、CTRLを押しながらクリックした場合はファイルをダウンロードするようにしました。
 -【テーマ】satsuki2のマルチサイドバー表示時のサイドバーの幅を可変にしました。
+-【テーマ】sumomoテーマのスマホ/タブレット表示を改善しました。
 -【fix】nature-dark テーマを選ぶとエラーが表示される。
 -【fix】シンタックハイライトで言語「c」を指定するとセンタリングされてしまう。（[http://test.blog.abk.nu/02829:Thanks to tester]）
 -【fix】[http://adiary.org/v3man/install2/:#conf:trust_mode設定時]、スマホメニューの設定で項目が出てこない。（[https://twitter.com/dentacs/status/636828022612463616:Thanks to tono]）
