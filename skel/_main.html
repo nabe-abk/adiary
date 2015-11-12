@@ -25,7 +25,7 @@
 	<$end>
 	<@> 日付指定の時
 	<$ifexec(ret.mode eq 'day' && ret.day, begin)>
-		<$message("<@ret.year>年<@ret.mon>月<@ret.day>日の記事")>
+		<$message("<@r<h4>○et.year>年<@ret.mon>月<@ret.day>日の記事")>
 	<$end>
 <$end>
 
@@ -187,6 +187,7 @@
 <@>$ARTICLE$-------------------------------------------------------------------
 <@>$ARTICLE_TOP$---------------------------------------------------------------
 
+<$url_bak = url>
 <div id="articles">
 <@forexec(t, logs, begin)>
 <$permalink = if(t.link_key eq s.frontpage, v.myself, "<@v.myself2><@t.elink_key>")>
@@ -226,6 +227,7 @@
 </article>
 <$end>
 </div>
+<$url = url_bak>
 <@>$ARTICLE_BOTTOM:END$--------------------------------------------------------
 <@>$ARTICLE:END$---------------------------------------------------------------
 
