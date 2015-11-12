@@ -233,7 +233,7 @@ dndEmulation: function(opt){
 	// mouseupエミュレーション
 	this.bind('touchend', function(_evt){
 		var evt = _evt.originalEvent;
-		if (timer) clearTimer(timer);
+		if (timer) clearTimeout(timer);
 		timer = false;
 		var e = make_mouse_event('mouseup', evt, evt.changedTouches[0]);
 		$( evt.target ).trigger(e);
