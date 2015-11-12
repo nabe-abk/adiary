@@ -1712,20 +1712,21 @@ function insert_to_textarea(ta, text) {
 // ●エラーの表示
 //////////////////////////////////////////////////////////////////////////////
 function show_error(h, _arg) {
-	if (typeof(h) === 'string') h = {id: h, hash:_arg};
+	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
 	h.dclass = (h.dclass ? h.dclass : '') + ' error-dialog';
-	h.title = 'ERROR';
+	h.default_title = 'ERROR';
 	return show_dialog(h);
 }
 function show_dialog(h, _arg) {
-	if (typeof(h) === 'string') h = {id: h, hash:_arg};
-	var html = h.html || ((h.id.substr(0,1) != '#') ? h.id : myfind(h.id).html());
+	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
+	var obj  = (h.id.substr(0,1) == '#') && $secure( h.id );
+	var html = obj.html() || h.html;
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 	html = html.replace(/%[A-Za-z]/g, '');
 
 	var div = $('<div>');
 	div.html( html );
-	div.attr('title', h.title || 'Dialog');
+	div.attr('title', h.title || obj.data('title') || h.default_title || 'Dialog');
 	div.dialog({
 		modal: true,
 		dialogClass: h.dclass,
@@ -1738,14 +1739,16 @@ function show_dialog(h, _arg) {
 // ●確認ダイアログ
 //////////////////////////////////////////////////////////////////////////////
 function my_confirm(h, callback) {
-	if (typeof(h) === 'string') h = {id: h};
-	callback = callback || h.callback;
-	var html = h.html || ((h.id.substr(0,1) != '#') ? h.id : myfind(h.id).html());
+	if (typeof(h) === 'string') h = {id: h, html:h };
+	var obj  = (h.id.substr(0,1) == '#') && $secure( h.id );
+	var html = obj.html() || h.html;
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
+
+	callback = callback || h.callback;
 
 	var div = $('<div>');
 	div.html( html );
-	div.attr('title', h.title || $('#ajs-confirm').text());
+	div.attr('title', h.title || obj.data('title') || $('#ajs-confirm').text());
 	var btn = {};
 	btn[ h.btn_ok || $('#ajs-ok').text()] = function(){
 		div.dialog('close');
