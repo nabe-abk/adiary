@@ -309,6 +309,7 @@ $.event.special.mydbltap = {
 		});
 	}
 };
+
 //////////////////////////////////////////////////////////////////////////////
 //●[jQuery] find でのエラーを無視する
 //////////////////////////////////////////////////////////////////////////////
@@ -327,7 +328,7 @@ function myfind(sel) {
 {
 	var init_orig = $.fn.init;
 	$.fn.init = function(sel,cont) {
-		if (typeof sel === "string" && sel.match(/<[\W]on\w+\s*=/i))
+		if (typeof sel === "string" && sel.match(/<.*?[\W]on\w+\s*=/i))
 			throw 'Security error by adiary.js : ' + sel;
 		return  new init_orig(sel,cont);
 	};
