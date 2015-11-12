@@ -1,0 +1,13 @@
+<@6>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.allow_edit)>
+<@>
+<$action_return = v.remove_exifjpeg( Form )>
+<@>
+<@>
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+<$set_content_type('application/json')>
+{ "ret": <@action_return> }
+<@>
+<@ifcall(Develop, '_sub/ajax_debug')>
