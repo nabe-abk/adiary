@@ -16,6 +16,7 @@
 //	date	UTC
 //	isImg	画像ファイルか？ true/false
 //
+'use strict';
 var DialogWidth;	// adiary.jsの参照
 
 $( function(){
@@ -29,6 +30,7 @@ $( function(){
 	var view_type  = $('#view-type');
 	var sort_type  = $('#sort-type');
 	var sort_rev   = $('#sort-rev');
+	var folder_icon= $('#folder-icon-change');
 	var is_thumbview;
 
 	// ツリー関連
@@ -36,6 +38,7 @@ $( function(){
 	var cur_files;
 	var cur_folder;
 	var cur_node;
+	var cur_folder_rel;	// cur_folder == '/' のとき空文字
 
 	// ファイルアップロード関連
 	var upform   = $secure('#upload-form');
@@ -50,10 +53,6 @@ $( function(){
 	var dnd_body = $('#body');
 	var dnd_div  = $('#dnd-files');
 	var upfiles  = [];
-
-	// スマホ画面用
-	var view_check  = $('#view-check');
-	var move_dialog = $('#move-dialog');
 
 	var isMac = /Mac/.test(navigator.platform);
 	var isIE8 = ('IE'.substr(-1) === 'IE');
@@ -178,9 +177,6 @@ tree.dynatree({
 function get_title(data) {
 	// tag_esc in adiary.js
 	return tag_esc(data.name) + (data.count==0 ? '' : ' (' + data.count + ')');
-}
-function get_folder(key) {
-	return (key == '/') ? '' : key;
 }
 
 //############################################################################
@@ -347,7 +343,7 @@ function rename_folder(obj, node, name) {
 	ajax_submit({
 		action: 'rename_folder',
 		data: {
-			folder: get_folder( node.getParent().data.key ),
+			folder: node.getParent().data.key,
 			old:    node.data.name,
 			name:   name
 		},
@@ -489,7 +485,8 @@ function drop_to_tree(node, srcNode, hitMode, ui, draggable) {
 function move_folder(node, srcNode) {
 	var from = srcNode.getParent().data.key;
 	var to   = node.data.key;
-	if (to.indexOf(from) == 0) return false;	// 自分自身やその子へは移動できない
+	if (to.indexOf(cur_folder) == 0) return false;	// 自分自身やその子へは移動できない
+	if (from == to) return false;			// 今あるフォルダと同じ場所へは移動できない
 
 	ajax_submit({
 		action: 'move_files',
@@ -525,11 +522,8 @@ function drop_files_to_tree(node, srcNode, hitMode, ui, draggable) {
 function move_files(to_folder) {
 	if (to_folder === cur_folder) return false;
 
-	var imgs = view.find('.selected');
-	var files = [];
-	for(var i=0; i<imgs.length; i++)
-		files.push( $(imgs[i]).data('title') );
-	if (!files.length) return false;
+	var files = load_selected_files();
+	if (!files) return false;
 
 	ajax_submit({
 		action: 'move_files',
@@ -573,10 +567,7 @@ function update_selected_files() {
 		selfiles.append(li);
 	}
 	var bool = (imgs.length == 0);
-	$('#paste-thumbnail' ).prop('disabled', bool);
-	$('#paste-original'  ).prop('disabled', bool);
-	$('#remake-thumbnail').prop('disabled', bool);
-	$('#album-move-files').prop('disabled', bool);
+	$('#paste-form [data-select]').prop('disabled', bool);
 }
 
 //----------------------------------------------------------------------------
@@ -586,7 +577,7 @@ function edit_file_name(li) {
 	var inp = $('<input>').attr({
 		type:  'text',
 		value: li.data('name')
-	}).addClass('w90p');
+	}).addClass('w100p');
 	li.empty();
 	li.append( inp );
 
@@ -599,6 +590,10 @@ function edit_file_name(li) {
 				obj.blur();
 				break;
 			case 13: // [enter]
+				if (li.data('name') == inp.val()) {
+					obj.blur();
+					break;
+				}
 				rename_file(inp, li, inp.val());
 				break;
 		}
@@ -695,6 +690,14 @@ function open_folder(node, isReloading) {
 		all_select.prop('checked', false);
 	}
 	if (node.data.rename) return;	// リネーム中は何もしない
+
+	// フォルダ移動ボタン（スマホ表示）
+	{
+		var dir = node.data.key;
+		$('#album-move-folder').prop('disabled',
+			dir == '/' || dir == '.trashbox/'
+		);
+	}
 	ajax_submit({
   		data: {	folder: node.data.key },
 		action: 'load_image_files',
@@ -733,10 +736,10 @@ function open_folder(node, isReloading) {
 }
 
 function set_current_folder(node) {
-	folder = get_folder( node.data.key );
-	upfolder.val( folder );
-	cur_folder = folder;
+	cur_folder = node.data.key;
 	cur_node   = node;
+	upfolder.val( cur_folder );
+	cur_folder_rel = (cur_folder == '/') ? '' : cur_folder;
 
 	var icon = $('#folder-icon');
 	icon.empty();
@@ -762,6 +765,7 @@ function ajax_submit(opt) {
 	data.action = $('#action-base').val() + opt.action;
 	data.csrf_check_key = $('#csrf-key').val();
 
+	folder_icon.attr('class', 'dynatree-statusnode-wait');	// Loding.gif
 	$.ajax(Vmyself + '?etc/ajax_dummy', {
 		method: 'POST',
 		data: data,
@@ -773,6 +777,9 @@ function ajax_submit(opt) {
 		success: function(data) {
 			if (opt.success) opt.success(data);
 			console.log('[ajax_submit()] http post success');
+		},
+		complete : function() {
+			folder_icon.attr('class', 'dynatree-ico-ef');
 		},
 		traditional: true
 	});
@@ -840,6 +847,7 @@ function update_view(flag, selected) {
 	}
 
 	view.empty();
+	var fspath = path + cur_folder_rel;
 	if (view_type.val() != 'name')
 	  for(var i in cur_files) {
 		// サムネイルビュー
@@ -848,7 +856,7 @@ function update_view(flag, selected) {
 		view.addClass('thumb-view');
 		var file = cur_files[i];
 		var link = $('<a>', {
-			href: encode_link( path + folder + file.name )
+			href: encode_link( fspath + file.name )
 		});
 		if (file.isImg) {
 			link.attr({
@@ -857,7 +865,7 @@ function update_view(flag, selected) {
 			});
 		}
 		var img  = $('<img>', {
-			src: encode_link( path + folder + '.thumbnail/' + file.name + '.jpg' + thumbq ),
+			src: encode_link( fspath + '.thumbnail/' + file.name + '.jpg' + thumbq ),
 			title: file.name,
 			'data-title': file.name,
 			'data-isimg': file.isImg ? 1 : 0
@@ -881,7 +889,7 @@ function update_view(flag, selected) {
 		view.addClass('name-view');
 		var file = cur_files[i];
 		var link = $('<a>', {
-			href: encode_link( path + folder + file.name )
+			href: encode_link( fspath + file.name )
 		});
 		if (file.isImg) {
 			link.attr({
@@ -895,7 +903,7 @@ function update_view(flag, selected) {
 		});
 		// ファイル名
 		var fname = $('<span>').text( file.name );
-		fname.addClass('js-popup-img').data('img-url', encode_link( path + folder + '.thumbnail/' + file.name + '.jpg' + thumbq) );
+		fname.addClass('js-popup-img').data('img-url', encode_link( fspath + '.thumbnail/' + file.name + '.jpg' + thumbq) );
 		span.append( $('<span>').addClass('filename').append( fname ) );
 		// 日付
 		var date = new Date( file.date*1000 );
@@ -938,12 +946,6 @@ function update_view(flag, selected) {
 		if (dbl_click) {
 			dbl_click = false;
 			return;
-		}
-
-		// スマホ用見るボタン
-		if (view_check.prop('checked')) {
-			evt.preventDefault()
-			return img_dblclick(evt);
 		}
 
 		if (evt.ctrlKey) {
@@ -1029,7 +1031,7 @@ if (thumb_size.val() != 120) thumb_size_change();
 var apeend_style;
 function thumb_size_change() {
 	var size = Number( thumb_size.val() );
-	if (size<20 || 320<size) return;
+	if (size<20 || 600<size) return;
 	if (IE8) return;
 
 	if (apeend_style) apeend_style.remove();
@@ -1048,6 +1050,7 @@ function thumb_size_change() {
 var paste_form = $secure('#paste-form');
 paste_form.submit(function(){
 	// エラー時送信しない為
+	alert( $('#paste-txt').val() );
 	if ($('#paste-txt').val() == '') return false;
 	return true;
 });
@@ -1074,7 +1077,7 @@ function paste_button(evt) {
 		var reg  = name.match(/\.(\w+)$/);
 		var ext  = reg ? reg[1] : '';
 		var rep  = {
-			d: esc_satsuki_tag(cur_folder),
+			d: esc_satsuki_tag(cur_folder_rel),
 			e: esc_satsuki_tag(ext),
 			f: esc_satsuki_tag(name),
 			c: ''
@@ -1100,24 +1103,47 @@ function paste_button(evt) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+// ●その他の操作（セレクトボックス or 独立ボタン）
+//////////////////////////////////////////////////////////////////////////////
+$('#remake-thumbnail').click( remake_thumbnail );
+$('#select-exifjpeg') .click( select_exifjpeg  );
+$('#album-move-files').click( album_move_files );
+
+$('#album-actions').change( function(evt){
+	var obj = $(evt.target);
+	var val = obj.val();
+	if (!val) return;
+	obj.val('');
+
+	if (val == 'remake-thumbnail') remake_thumbnail(evt);
+	if (val == 'remove-exifjpeg')  remove_exifjpeg(evt);
+	if (val == 'select-exifjpeg')  select_exifjpeg(evt);
+	if (val == 'album-move-files') album_move_files(evt);
+});
+
+//////////////////////////////////////////////////////////////////////////////
 // ●サムネイルの再生成
 //////////////////////////////////////////////////////////////////////////////
-$('#remake-thumbnail').click(function(){
-	var sel = view.find('.selected');
-	if (!sel.length) return false;
+function remake_thumbnail(){
+	var div = $('#remake-thumbnail-dialog');
+	var buttons = {};
+	$('#dialog-thumbnail-size').val( $('#thumbnail-size').val() );
 
-	var files = [];
-	for(var i=0; i<sel.length; i++) {
-		files.push( $(sel[i]).data('title') );
-	}
+	var ok_func = do_remake_thumbnail;
+	album_dialog(div, ok_func);
+}
+
+function do_remake_thumbnail(){
+	var files = load_selected_files();
+	if (!files) return false;
 
 	ajax_submit({
 		action: 'remake_thumbnail',
 		data: {
 			folder: cur_folder,
 			file_ary: files,
-			del_exif: $('#delete-exif').prop('checked') ? 1 : 0,
-			size: $('#thumbnail-size').val()
+			del_exif: 0,
+			size: $('#dialog-thumbnail-size').val()
 		},
 		success: function(data) {
 			if (data.ret !== 0) {
@@ -1134,12 +1160,12 @@ $('#remake-thumbnail').click(function(){
 			error_msg('#msg-fail-remake');
 		}
 	});
-});
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // ●exifファイルの検索
 //////////////////////////////////////////////////////////////////////////////
-$('#select-exifjpeg').click(function(){
+function select_exifjpeg(){
 	ajax_submit({
 		action: 'load_exif_files',
 		data: { folder: cur_folder },
@@ -1158,7 +1184,56 @@ $('#select-exifjpeg').click(function(){
 			error_msg('#msg-load-exif-error');
 		}
 	});
-});
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●Exifの削除
+//////////////////////////////////////////////////////////////////////////////
+function remove_exifjpeg(){
+	var files = load_selected_files();
+	if (!files) return false;
+
+	ajax_submit({
+		action: 'remove_exifjpeg',
+		data: {
+			folder: cur_folder,
+			file_ary: files
+		},
+		success: function(data) {
+			if (data.ret !== 0) {
+				error_msg('#msg-remove-exif-error');
+				return;
+			}
+			view.find('.selected').removeClass('selected');
+			update_selected_files();
+		},
+		error: function() {
+			// 通常起きない
+			error_msg('#msg-remove-exif-error');
+		}
+	});
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●ファイルの移動
+//////////////////////////////////////////////////////////////////////////////
+function album_move_files() {
+	folder_select_dialog( move_files );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ●選択中ファイル一覧の取得
+//////////////////////////////////////////////////////////////////////////////
+function load_selected_files() {
+	var sel = view.find('.selected');
+	if (!sel.length) return false;
+
+	var files = [];
+	for(var i=0; i<sel.length; i++) {
+		files.push( $(sel[i]).data('title') );
+	}
+	return files;
+}
 
 //############################################################################
 // ■ファイルアップロード関連
@@ -1341,10 +1416,8 @@ function encode_link(str){
 //############################################################################
 // ■スマホ関連処理
 //############################################################################
-
 // スマホ用のDnDエミュレーション
 view.dndEmulation();
-
 //////////////////////////////////////////////////////////////////////////////
 // ●フォルダの移動
 //////////////////////////////////////////////////////////////////////////////
@@ -1358,37 +1431,46 @@ $('#album-move-folder').click(function(){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-// ●ファイルの移動
-//////////////////////////////////////////////////////////////////////////////
-$('#album-move-files').click(function(){
-	folder_select_dialog( move_files );
-});
-
-//////////////////////////////////////////////////////////////////////////////
 // ●移動先フォルダ選択メニュー
 //////////////////////////////////////////////////////////////////////////////
 function folder_select_dialog(callback) {
-	var div = move_dialog;
+	var div = $('#move-dialog');
 	var buttons = {};
 
 	div.empty();
 	var dtree = $('<div>').addClass('album-folder-tree');
 	dtree.dynatree({
+		clickFolderMode: 1,	// activate only
 		imagePath: $('#icon-path').text(),
 		children: tree.dynatree("getTree").toDict()
 	});
 	div.append( dtree );
 
-	buttons[ div.data('ok') ] = function(){
+	var ok_func = function(){
 		var node = dtree.dynatree("getActiveNode");
 		if (!node || !node.data) return;
 		var folder = node.data.key;
 		if (folder == '') return;
 
 		// callback
-		if (callback(folder))
-			div.dialog('close');
+		if (!callback(folder)) {
+			error_msg('#msg-illegal-folder');
+			return;
+		}
+		div.dialog('close');
 	};
+	album_dialog(div, ok_func);
+}
+
+//############################################################################
+// ●アルバム用ダイアログの表示ルーチン
+//############################################################################
+function album_dialog(div, ok_func) {
+	var buttons = {};
+	buttons[ div.data('ok') ] = function(){
+		ok_func();
+		div.dialog('close');
+	}
 	buttons[ div.data('cancel') ] = function(){
 		div.dialog('close');
 	};

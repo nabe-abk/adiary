@@ -1,6 +1,6 @@
 use strict;
 #-------------------------------------------------------------------------------
-# adiary_3.pm (C)2014 nabe@abk
+# adiary_3.pm (C)2014-2015 nabe@abk
 #-------------------------------------------------------------------------------
 # ・画像管理
 # ・ブログの設定
@@ -198,7 +198,7 @@ sub make_thumbnail_for_image {
 
 	# リサイズ
 	if ($size <  60) { $size= 60; }
-	if (800 < $size) { $size=800; }
+	if (600 < $size) { $size=600; }
 
 	# print "0\n";
 	my $img = $self->load_image_magick( 'jpeg:size'=>"$size x $size" );
@@ -363,7 +363,7 @@ sub image_upload_form {
 
 	# サムネイル生成
 	$self->make_thumbnail( $dir, \@files, {
-		size => $form->{size},
+		size     => $form->{size},
 		del_exif => $form->{del_exif}
 	});
 
@@ -489,6 +489,33 @@ sub remake_thumbnail {
 	});
 
 	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●exifの除去
+#------------------------------------------------------------------------------
+sub remove_exifjpeg {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir   = $self->image_folder_to_dir( $form->{folder} ); # 値check付
+	my $files = $form->{file_ary};
+
+	# filesの値チェック
+	foreach(@$files) {
+		if (!$self->check_file_name($_)) { return -1; }
+	}
+
+	# Exif削除
+	my $jpeg = $ROBJ->loadpm('Jpeg');
+	my $fail = 0;
+	foreach(@$files) {
+		if (!$self->is_image($_) || $_ !~ /\.jpe?g$/i) { next; }
+		my $r = $jpeg->strip("$dir$_");
+		$fail += $r ? 1 : 0;
+	}
+	return $fail;
 }
 
 #------------------------------------------------------------------------------

@@ -21,11 +21,12 @@
 
 <@call('album/_main')>
 
-<@> アップロードボタンの送信用フレーム
+<div style="display:none">
+<!--========================================================================-->
+<@> ファイル送信用iframe
 <iframe name="form_response" id="form-response" frameborder="0" allowTransparency="true"
  style="width: 100%; height: 80px; overflow-y: scroll; overflow-x:visible; display: none;"></iframe>
 
-<div style="display:none">
 <span id="msg-trashbox">ゴミ箱</span>
 <span id="image-path"><@Basepath><@v.blogimg_dir()></span>
 <span id="icon-path"><@Basepath><@v.album_icons></span>
@@ -41,10 +42,28 @@
 <span id="msg-confirm-trash">ゴミ箱を空を空にしますか？</span>
 <span id="msg-fail-mv-files">ファイルの移動に失敗しました（移動先に同じ名前のファイルがありませんか？）%f</span>
 <span id="msg-fail-mv-folder">フォルダの移動に失敗しました（移動先に同じ名前のフォルダがありませんか？）%f</span>
-<span id="msg-exif-notfound">Exifを持つJPEGファイルはありません。</span>
+<span id="msg-exif-notfound" data-title="確認">Exifを持つJPEGファイルはありません。</span>
 <span id="msg-load-exif-error">Exif画像の検索に失敗しました。</span>
+<span id="msg-remove-exif-error">Exifの除去に失敗しました。</span>
+<span id="msg-illegal-folder">フォルダの指定が正しくありません。</span>
 
 <@> Ajax用基本データ
 <input type="hidden" name="action" value="<@v.skel_dir>" id="action-base">
 <input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>" id="csrf-key">
+
+<@> ダイアログ
+<div style="display: none" id="move-dialog" data-title="移動先を選択" data-ok="移動する" data-cancel="キャンセル">
+</div>
+<div style="display: none" id="remake-thumbnail-dialog" data-title="サムネイルのサイズ" data-ok="再生成する" data-cancel="キャンセル">
+<select id="dialog-thumbnail-size" class="r">
+			<option value="120" selected>120px</option>
+			<option value="160">160px</option>
+			<option value="240">240px</option>
+			<option value="320">320px</option>
+			<option value="400">400px</option>
+			<option value="480">480px</option>
+</select>
+</div>
+
+<!--========================================================================-->
 </div>

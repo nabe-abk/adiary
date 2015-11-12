@@ -2,7 +2,7 @@
 <$v.special_sidebar_module = 'album/_sidebar'>
 
 <article class="system" id="album">
-<h2 class="dynatree-ico-ef"><span id="folder-icon"></span><span id="current-folder">(no load)</span></h2>
+<h2 class="dynatree-ico-ef" id="folder-icon-change"><span class="dynatree-icon" id="folder-icon"></span><span id="current-folder">(no load)</span></h2>
 <div class="body">
 	<div id="album-header">
 		<div>
@@ -52,11 +52,16 @@
 	<input type="hidden" name="action" value="etc/dummy">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="paste_txt" value="" id="paste-txt">
-	<button type="submit" id="paste-thumbnail" data-tag="<@tags.thumb>">サムネイルを記事に</button>
-	<button type="submit" id="paste-original"  data-tag="<@tags.image>">元画像を記事に</button>
-	<button type="button" id="remake-thumbnail" class="btn-help" data-help="選択した画像のサムネイルを、下で指定したサイズで再生成します。「Exifの削除」がチェックされていれば、同時にExif削除も行います。">サムネイル再生成</button>
-	<button type="button" id="select-exifjpeg" class="btn-help" data-help="Exif情報を持つJPEGファイルを選択します。">Exif検索</button><br>
-	<input type="checkbox" id="paste-to-exif" class="js-save"><label>Exifも一緒に記事に貼り付ける</label>
+	<button type="submit" id="paste-thumbnail" data-select="1" data-tag="<@tags.thumb>">サムネイルを記事に</button>
+	<button type="submit" id="paste-original"  data-select="1" data-tag="<@tags.image>">元画像を記事に</button><br>
+	<input type="checkbox" id="paste-to-exif" class="js-save"><label>Exifも一緒に記事に貼り付ける</label><br>
+	<select id="album-actions">
+		<option value="" selected>その他の操作</option>
+		<option value="album-move-files" data-select="1">ファイルの移動</option>
+		<option value="remake-thumbnail" data-select="1">サムネイル再生成</option>
+		<option value="select-exifjpeg">Exif検索</option>
+		<option value="remove-exifjpeg"  data-select="1">Exif削除</option>
+	</select>
 	</form>
 
 	<section>
@@ -71,9 +76,16 @@
 	<input type="hidden" name="folder" value="" id="upload-folder">
 	<div id="dnd-files"></div><div id="file-elements"><input type="file" name="file0_ary" multiple id="file"></div>
 	<button type="submit" id="upload">upload</button><button type="reset" id="upload-reset">リセット</button>
-	&emsp;サムネイル：<input type="number" name="size" value="120" class="w50 js-save" min="60" max="800" id="thumbnail-size">px<br>
+	&emsp;サムネイル：<select name="size" id="thumbnail-size" class="r js-save">
+			<option value="120" selected>120px</option>
+			<option value="160">160px</option>
+			<option value="240">240px</option>
+			<option value="320">320px</option>
+			<option value="400">400px</option>
+			<option value="480">480px</option>
+	</select><br>
 	<span id="auto-upload-box"><input type="checkbox" id="auto-upload" class="js-save" checked><label>自動アップロード</label><span class="help" data-help="ファイルをブラウザにドロップしたとき、自動でアップロードします。">?</span></span>
-	<span id="delete-exif-box"><input type="checkbox" id="delete-exif" class="js-save" name="del_exif" value="1"><label>Exifの削除</label><span class="help" data-help="アップロード時、JPEG画像に含まれるExifなどの情報を削除します。またサムネイル再生成時にもExif削除を行えます。">?</span></span>
+	<span id="delete-exif-box"><input type="checkbox" id="delete-exif" class="js-save" name="del_exif" value="1"><label>Exifの削除</label><span class="help" data-help="アップロード時、JPEG画像に含まれるExif情報を削除します。">?</span></span>
 	</form>
 	</section>
 
@@ -88,4 +100,3 @@
 	</section>
 </div>
 </article>
-
