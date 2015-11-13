@@ -782,6 +782,9 @@ sub load_articles {
 				foreach(keys(%a)) {
 					$arts{$_}++;
 				}
+				if (!%a){	# 所属が0のタグ
+					$q{match}->{pkey} = -1;
+				}
 			}
 			if (%t) {
 				$ret{tags} = \@tags_txt;
@@ -790,8 +793,6 @@ sub load_articles {
 				my $c = @$tags;		# 指定されたタグの数
 				my @ary = grep { $arts{$_} == $c } keys(%arts);
 				$q{match}->{pkey} = @ary ? \@ary : [-1];
-			} else {
-				$q{match}->{pkey} = -1;
 			}
 		}
 
