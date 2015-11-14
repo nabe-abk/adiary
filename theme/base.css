@@ -556,6 +556,9 @@ span.tag span.ui-icon-close,
 /*--------------------------------------------------------------------
 ●ソーシャルボタン
 ---------------------------------------------------------------------*/
+.social-button {
+	display:		inline-block;
+}
 .social-button * {
 	vertical-align:		middle;
 }
