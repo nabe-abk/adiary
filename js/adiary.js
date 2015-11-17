@@ -1263,7 +1263,7 @@ $( function(){
 	var count_link = count.attr('href');
 	if (obj.hasClass('hatena-bookmark') || obj.hasClass('twitter-share')) {
 		share_link += url;
-		count_link += url_orig.replace(/^https?:\/\//i, '');
+		count_link += url_orig.replace(/^https?:\/\/(?:www\.)?/i, '').replace(/^www\./i, '');
 	} else {
 		share_link += url;
 		count_link += url;
