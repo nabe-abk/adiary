@@ -18,13 +18,18 @@ var SP;		// adiary内部がスマホモード
 var Storage;
 var SettedBrowserClass;
 
-// _frame で設定されないことがある変数
+// in Frame.html
+var Vmyself;
+var Vmyself2;
+var ScriptDir;
+var PubdistDir;
+var SpecialQuery;
 var _gaq;
 //////////////////////////////////////////////////////////////////////////////
 //●初期化処理
 //////////////////////////////////////////////////////////////////////////////
 $(function(){
-	if(Vmyself) Storage=load_PrefixStorage( Vmyself );
+	if (Vmyself) Storage=load_PrefixStorage( Vmyself );
 	if (!SettedBrowserClass) set_browser_class_into_body();
 
 	// Google Analytics

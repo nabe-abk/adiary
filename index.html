@@ -42,44 +42,36 @@
 <div class="body">
 	<section>
 	<h3>インストール方法</h3>
-	<p>簡単なインストール方法です。詳しくは<a href="http://adiary.org/v3man/install/">オンラインマニュアル</a>を参照してください。</p>
+	<p>詳しくは<a href="http://adiary.org/v3man/install/">オンラインマニュアル</a>を参照してください。</p>
 	<ol>
 		<li>解凍してでてきたファイルをサーバ上の任意の位置に置く</li>
 		<li><span class="mono">adiary.cgi</span> に実行属性を付ける</li>
-		<li><span class="mono">__cache/, data/, pub/, </span> ディレクトリの属性を 0777 等に変更にする（サーバよっては不要）。</li>
-		<li><span class="mono">adiary.conf.cgi.sample</span> を <span class="mono">adiary.conf.cgi</span> という名前でコピーし書き換える（そのまでも大丈夫）。</li>
-		<li><span class="mono"><a href="adiary.cgi?login&amp;id=dummy&amp;pass=dummy">adiary.cgi?login</a></span> にアクセスし「ID/パスワード」を適当に入力しログインする。</li>
-		<li>自分自身をユーザーとして追加する。</li>
+		<li><span class="mono">__cache/, data/, pub/, </span> ディレクトリの属性を 0777 等に変更にする（レンタルサーバ等では概ね不要）</li>
+		<li><span class="mono">adiary.conf.cgi.sample</span> を <span class="mono">adiary.conf.cgi</span> という名前でコピーする</li>
+		<li><span class="mono"><a href="adiary.cgi?login&amp;id=dummy&amp;pass=dummy">adiary.cgi?login</a></span> にアクセスし「ID/パスワード」を適当に入力しログインする</li>
+		<li>自分自身をユーザーとして追加する</li>
 	</ol>
 	<p><a href="adiary.cgi">adiary.cgiを開く</a></p>
 
-	<h4>諸注意</h4>
+	<div id="security-errors" style="display: none"></div>
+
 	<ul>
-		<li>ログインをクリックしても画面が表示されないなど、<strong>リンクがうまく辿れないときは adiary<u>.env.cgi</u></strong>（.conf.cgiではない） <strong>を設置し、そのファイル中の &lt;$Basepath&gt; および &lt;$Mod_rewrite=0&gt; を設定してください。</strong>（<a href="http://adiary.org/v3man/install/troubles">詳細はこちら</a>）</li>
-		<li>このファイル不要ですので、最後は適当に上書きするか削除してください。</li>
+		<li>うまくいかない時は<a href="http://adiary.org/v3man/install/troubles">トラブル事例集</a>を参考にしてください。</li>
+		<li>このファイル不要ですので設定後に削除して構いません。</li>
 	</ul>
-
-	<p><button onclick="security_check()"><strong>セキュリティチェック</strong></button> ※エラーがあれば表示されます</p>
-	<ul id="security-errors" style="display: none"></ul>
-
 	</section>
 
 	<section>
-	<h3>補足情報</h3>
+	<h3>補足</h3>
 	<ul>
-		<li><a href="http://adiary.org/v3man/setting/mod_rewrite">mod_rewrite</a> を .htaccess に設定することで<strong class="warning">URL中の adiary.cgi の文字列を無くすことができます</strong>。この場合index.htmlは悪さをするので削除もしくは「Options -Indexes」してください。</li>
+		<li><a href="http://adiary.org/v3man/setting/mod_rewrite">mod_rewrite</a> を .htaccess に設定することで<strong class="warning">URL中の adiary.cgi の文字列を消すことができます</strong>。この場合 index.html は削除してください。</li>
 		<li>標準で特定のブログを表示させたい場合は<a href="adiary.cgi?system/">システム管理</a>から設定してください。</li>
 		<li>SpeedyCGI, FastCGI, mod_perl2などを利用すると、より高速に動作させることができます。</li>
+	</ul>
 	</ul>
 	</section>
 </div>
 </article>
-
-
-
-<footer id="footer"><!--フッタ-->
-Valid HTML5/CSS
-</footer>
 
 </div><!-- end of main -->
 <!--サイドメニュー==========================================================-->
@@ -90,8 +82,7 @@ Valid HTML5/CSS
 <div class="hatena-moduletitle">Information</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">
-<li class="description"><p>adiary Version3は<strong>HTML5専用</strong>のblog/CMSツールです。</p>
-			<p>AGPLv3で配布される純国産のシステムで、CGIでも高速に動作するのが特徴です。</p></li>
+<li class="description"><p>adiary Version3は<strong>HTML5専用</strong>のblog/CMSツールです。</p></li>
 </ul>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
@@ -131,6 +122,7 @@ Valid HTML5/CSS
 <ul class="hatena-section">
 <li><a href="http://adiary.org/">adiary公式サイト</a></li>
 <li><a href="http://adiary.org/v3man/">オンラインマニュアル</a></li>
+<li><a href="https://github.com/nabe-abk/adiary">Githubリポジトリ</a></li>
 <li><a href="https://twitter.com/nabe_abk">作者のtwitter</a></li>
 </ul>
 </div> <!-- hatena-modulebody -->
@@ -142,28 +134,30 @@ Valid HTML5/CSS
 
 <!--End of body ============================================================-->
 </div> <!-- End of #hatena-body -->
+<!--フッタ-->
+<footer id="footer">Valid HTML5/CSS</footer>
 </div> <!-- End of #adiary-body -->
 
 <!--スクリプト==============================================================-->
 <script>
-function security_check() {
+$(function() {
+	var result = $('#result');
 	var url = window.location.toString();
 	url = url.replace(/\/[^\/]+$/, '/');
-	if (! url.match(/^http/)) return;	// webアクセス以外は無視
+	if (! url.match(/^https?:/i)) return;
 
 	$('#security-errors').empty();
 	$.get('__cache/index.html',function(){ security_error('__cache') });
 	$.get(   'data/index.html',function(){ security_error('data'   ) });
-}
+});
 function security_error(dir) {
-	var ul = $('#security-errors');
-	var li = $('<li>');
-	var st = $('<strong>').addClass('error').text('【セキュリティ警告】');
-	var sp = $('<span>').html('「<a href="' + dir + '/index.html">' + dir + '</a>」ディレクトリがweb上から読み込めます！（<a href="http://adiary.org/v3man/install/move_data_dir">対策方法</a>）');
-	li.append(st,sp);
-	ul.append(li);
-	ul.show();
-	// alert('「' + dir + '」ディレクトリがweb上から読み込めます！');
+	var err = $('#security-errors');
+	var div = $('<div>');
+	var st  = $('<strong>').addClass('error').text('【セキュリティ警告】');
+	var sp  = $('<span>').html('「<a href="' + dir + '/index.html">' + dir + '</a>」ディレクトリがweb上から読み込めます！（<a href="http://adiary.org/v3man/install/move_data_dir">対策方法</a>）');
+	div.append(st,sp);
+	err.append(div);
+	err.show();
 }
 </script>
 </body>
