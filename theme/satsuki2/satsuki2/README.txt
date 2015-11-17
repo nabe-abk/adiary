@@ -13,3 +13,4 @@ System-mode: yes
 ChangeLog
 2013-08-xx adiary3/HTML5準拠で書き直し
 2015-05-01 スマホ対応
+2015-11-18 1px枠線オプション
