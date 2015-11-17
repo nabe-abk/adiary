@@ -1092,7 +1092,7 @@ function paste_button(evt) {
 
 	if (window.opener) {
 		// 子ウィンドウとして開かれていたら
-		window.opener.insert_text(text)
+		window.opener.insert_image(text);
 		window.close();
 		return false;
 	}

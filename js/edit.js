@@ -5,9 +5,11 @@
 //[TAB=8]
 'use strict';
 var insert_text;	// global function
+var insert_image;	// global function for album.js
 var IE8;
 var IE9;
 var DialogWidth;
+var html_mode;		// html input mode
 $(function(){
 //############################################################################
 var body = $('#body');
@@ -311,6 +313,34 @@ function ajax_edit_lock(action, func, unlock) {
 // ●カーソル位置にテキスト挿入
 //----------------------------------------------------------------------------
 // save to global for album.js
+insert_image = function(text) {
+	if (html_mode) {
+		var imgdir = $('#image-dir').text();
+		text = text.replace(/\[image:((?:\\[:\[\]]|[^\]])+)\]/g, function(ma, m1){
+			var ary = m1.split(':');
+			var thumb1 = (ary[0] == 'S') ? '.thumbnail/' : '';
+			var thumb2 = (ary[0] == 'S') ? '.jpg'        : '';
+			ary[1] = unesc_satsuki_tag( ary[1] );
+			ary[2] = unesc_satsuki_tag( ary[2] );
+			var file = imgdir + ary[1] + ary[2];
+			var img  = imgdir + ary[1] + thumb1 + ary[2] + thumb2;
+			return '<figure class="image">'
+				+ '<a href="' + file + '">'
+				+ '<img src="' + img + '">'
+				+ '</a></figure>';
+		});
+		text = text.replace(/\[file:((?:\\[:\[\]]|[^\]])+)\]/g, function(ma, m1){
+			var ary = m1.split(':');
+			var ext = ary[0];
+			ary[1] = unesc_satsuki_tag( ary[1] );
+			ary[2] = unesc_satsuki_tag( ary[2] );
+			ary[3] = unesc_satsuki_tag( ary[3] );
+			return '<a href="' + imgdir + ary[1] + ary[2] + '">'
+				+ ary[3] + '</a>';
+		});
+	}
+	return insert_text(text);
+}
 insert_text = function(text) {
 	edit.focus();
 	insert_to_textarea(edit[0], text);	// adiary.js
@@ -481,7 +511,7 @@ function upload_files_insert(data, folder) {
 		// 記録
 		text += tag;
 	}
-	insert_text( text );
+	insert_image( text );
 }
 
 //----------------------------------------------------------------------------
@@ -633,7 +663,7 @@ helper_info.simple = {
 	quote:		{ func: block_tag,		start: '<blockquote>', end:'</blockquote>'},
 	color:		{ func: html_inline_style,	tag: 'color' },
 	fsize:		{ func: html_inline_class },
-	album:		null
+	album:		{ func: open_album }
 };
 
 //----------------------------------------------------------------------------
@@ -641,7 +671,8 @@ helper_info.simple = {
 //----------------------------------------------------------------------------
 function init_helper(parser_name) {
 	var mode = (parser_name || helper_mode).replace(/[-_][\w-]+$/, '');
-	helper_mode = mode;
+	helper_mode =  mode;
+	html_mode   = (mode == 'simple');
 
 	var link = $secure('#parser-help-link');
 	var url  = link.data(mode);

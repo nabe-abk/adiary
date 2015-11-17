@@ -2098,4 +2098,8 @@ function size_format(s) {
 function esc_satsuki_tag(str) {
 	return str.replace(/([:\[\]])/g, function(w,m){ return "\\" + m; });
 }
+function unesc_satsuki_tag(str) {
+	return str.replace(/\\([:\[\]])/g, "$1");
+}
+
 
