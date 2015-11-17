@@ -167,11 +167,11 @@
 		</td>
 	</tr>
 
-	<tr><th>サイト画像の設定<span class="help" data-help="サイトトップページをFacebookでシェアした時などに表示される画像です。630x315以上のサイズを推奨します。">?</span></th>
+	<tr><th>サイト画像の設定<span class="help" data-help="サイトページをFacebookなどでシェアした時などに表示される画像です。630x315以上の正方形の画像を推奨します（Twitterでは正方形にクロップされて表示されます）。">?</span></th>
 		<td>
 			<input type="file" name="blog_image"><br>
 			<@ifexec(s.blog_image, begin)>
-			<input type="checkbox" name="blog_image_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<input type="checkbox" name="blog_image_void" value="1"><label>現在<a href="<@Basepath><@s.blog_image>">使用している画像</a>を無効にする</label>
 			<$end>
 		</td>
 	</tr>
