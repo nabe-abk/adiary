@@ -157,7 +157,7 @@
 	<@if(s.edit_by_author_only && !v.blog_admin, '<span class="help" data-help="他人の記事の状態は変更できません。">?</span>')>
 	<button type="submit" name="disable" class="js-form-check" data-confirm="">非表示に設定</button>
 	<button type="submit" name="delete"  class="js-form-check" id="del-submit" data-confirm="%c件の記事を削除しますか？" data-focus="cancel">削除</button>
-	<input type="checkbox" name="del_check" class="js-enable" data-target="#del-submit"><label>削除確認</label>
+<@>	<input type="checkbox" name="del_check" class="js-enable" data-target="#del-submit"><label>削除確認</label>
 	</form>
 <$end>
 </div>
