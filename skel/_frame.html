@@ -71,7 +71,7 @@
 <$end>
 <script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">
-<@if(!js_stop && file_size(file), #'<script async src="<@Basepath><@file>"></script>\n')>
+<@if(!js_stop && file_size(file), #'<script async src="<@Basepath><@file>" id="theme-js"></script>\n')>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
 <@v.extra_header>
 </head>
@@ -83,7 +83,7 @@
 <@inframe>
 <@ifcall(Develop && (@Error || @Debug || @Warning) || ENV_print, '_sub/debug')>
 <$else.sp_sysmode>
-<div id="adiary-body">
+<div id="adiary-body" class="container">
 
 <@>-----------------------------------------------------------------------------
 <@> header
@@ -97,7 +97,7 @@
 <div id="hatena-body"><div>
 
 <!--内容====================================================================-->
-<div class="main" id="main-first">
+<div class="main col-md-8" id="main-first">
 <@inframe>
 </div> <!-- End of main -->
 
