@@ -7,11 +7,6 @@ Charset: UTF-8
 Smartphone: no
 System-mode: yes
 
-テーマ名の表示を消す場合は以下をユーザーcssに定義してください。
-----------------------------
-
-----------------------------
-
 ChangeLog
 2014/08/17  adiary C86 Special Editionにて配布 (by Kaede)
 2015/05/18  全体の修正と調整。IE8対応。ライセンス変更 (by nabe)
