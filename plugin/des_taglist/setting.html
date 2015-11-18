@@ -4,11 +4,14 @@
 	<table class="blog-ps.tting">
 	<tbody>
 	<tr>
-		<th>タグなし記事のリンク名</th>
-		<td><input type="text" class="w200" name="notag_title" value="<@ps.notag_title || '(none)'>" maxlength="32"></td>
+		<th>タグのない記事</th>
+		<td>
+			タイトル <input type="text" id="notag-title" class="w200" name="notag_title" value="<@ps.notag_title || '(none)'>" maxlength="32"><br>
+			<input type="checkbox" name="nodisp_notag" value="1" class="js-disable" data-target="#notag-title"<@if(ps.disp_notag,' checked')>><label>表示しない</label>
+		</td>
 	</tr>
 	<tr>
-		<th>記事のないタグの扱い</th>
+		<th>記事のないタグ</th>
 		<td>
 			<input type="checkbox" name="disp_noart_tag" value="1"<@if(ps.disp_noart_tag,' checked')>><label>表示する</label>
 		</td>

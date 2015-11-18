@@ -30,7 +30,7 @@
 	<a href="<@v.myself>?&amp;t=<@encode_uricom(x =t.name)>"><@t.sname></a> <span class="qt">(<span><@t.qtall></span>)</span></li>
 <$end>
 <$end.forexec>
-	<@ifexec(node.root && notag_arts, begin)>
+	<@ifexec(node.root && notag_arts && !ps.nodisp_notag, begin)>
 	<li><a href="<@v.myself>?&amp;t="><@ps.notag_title || '(none)'></a> <span class="qt">(<span><@notag_arts></span>)</span></li>
 	<$end>
 <@p></ul>
