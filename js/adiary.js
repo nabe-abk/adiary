@@ -1724,7 +1724,7 @@ function show_error(h, _arg) {
 }
 function show_dialog(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
-	var obj  = (h.id.substr(0,1) == '#') && $secure( h.id );
+	var obj  = h.id && h.id.substr(0,1) == '#' && $secure( h.id ) || $('<div>');
 	var html = obj.html() || h.html;
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 	html = html.replace(/%[A-Za-z]/g, '');
@@ -1745,7 +1745,7 @@ function show_dialog(h, _arg) {
 //////////////////////////////////////////////////////////////////////////////
 function my_confirm(h, callback) {
 	if (typeof(h) === 'string') h = {id: h, html:h };
-	var obj  = (h.id.substr(0,1) == '#') && $secure( h.id );
+	var obj  = h.id && h.id.substr(0,1) == '#' && $secure( h.id ) || $('<div>');
 	var html = obj.html() || h.html;
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 
@@ -1768,7 +1768,6 @@ function my_confirm(h, callback) {
 		dialogClass: h.class_,
 		buttons: btn,
 		open: function(){
-			if (h.focus != 'cancel') return;
 			div.siblings('.ui-dialog-buttonpane').find('button:eq(1)').focus();
 		}
 	});

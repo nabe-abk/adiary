@@ -31,9 +31,6 @@ html, #body {
 	color:			#fff;
 	margin:			2px 4px;
 }
-#form button + button {
-	margin:			inherit;
-}
 select {
 	padding:		0px 1px;
 }
@@ -58,13 +55,10 @@ select {
 ul {
 	padding:		0.5em 2em;
 }
-#back-btn {
-	margin-left:		2em;
-}
 </style>
 <$end>
 <!--========================================================================-->
-<form id="form" action="<@v.myself>?<@v.skeleton>" method="POST">
+<form id="form" action="<@v.myself>?<@v.skeleton>" method="POST" class="js-form-check" data-confirm="デザインをリセットしますか？">
 <input type="hidden" name="action" value="<@v.skeleton>">
 <input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 <@v.title> 
@@ -74,10 +68,7 @@ ul {
 	<li><input type="checkbox" name="load_design" value="1"><label>リセット後にデフォルトデザインをロードする</label></li>
 	</ul>
 
-
 	<button type="submit" id="reset-submit">リセットする</button>
-	<input type="checkbox" name="reset_check" class="js-enable" data-target="#reset-submit"><label>確認</label>
-
 	<button id="back-btn" type="button" onclick="window.location='<@v.myself>?<@v.skel_dir>'">戻る</button>
 </div>
 </form>
@@ -96,5 +87,5 @@ $(function(){
 	}
 	iframe_resize();
 	$(window).resize( iframe_resize );
-
-});</script>
+});
+</script>
