@@ -90,7 +90,6 @@ textarea {
     margin:                 0 8px 8px 0;
 }
 
-
 /*--------------------------------------------------------------------
 ■ 要素配置
 ---------------------------------------------------------------------*/
@@ -117,28 +116,31 @@ body:before {
 
 /* ブラウザ描画領域下部 */
 /* バージョン */
-body:after {
-    padding-top:            6px;
-    background-image:       url(footer_bg.png);
-    background-repeat:      repeat;
-    height:                 40px;
+#footer:before {
     display:                block;
-    background-color:       #b5001f;
     content:                "Cocoa: C86 Special Edition Theme";
-    text-align:             center;
 }
 /* フッター (adiary Version 〜) */
 #footer {
-	position:	absolute;
-	width:		960px;
-	bottom:		6px;
-	text-align:	center;
+	background-image:       url(footer_bg.png);
+	background-color:       #b5001f;
+	background-repeat:	repeat;
+
+	width:			960px;
+	padding:		6px 0 4px 0;
+	font-size:		9pt;
+	text-align:		center;
 }
-body:after,
 #footer, #footer a:link, #footer a:visited {
-	font-size:	9pt;
 	color:		#fff;
 }
+
+/*--------------------------------
+$option=no-theme-name
+#footer:before {
+	display:		none;
+}
+--------------------------------*/
 
 /* 本文部 ----------------------------------------------------------*/
 /* 管理メニュー + ブログタイトル + サイドバー + 記事部 */

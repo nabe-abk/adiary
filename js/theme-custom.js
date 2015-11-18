@@ -177,6 +177,7 @@ iframe.on('load', function(){
 // ●カスタマイズ機能
 //////////////////////////////////////////////////////////////////////////////
 	var custom_form  = $('#custom-form');
+	var color_bar    = $('#custom-color-bar');
 	var custom_cols  = $('#custom-colors');
 	var custom_detail= $('#custom-colors-detail');
 	var detail_mode  = $('#detail-mode');
@@ -354,6 +355,8 @@ function init_custom_form(data, data2) {
 		custom_cols.prepend( obj );
 		select_opts = $(select_opts);
 	}
+	if (cols.length < 1) color_bar.hide();
+			else color_bar.show();
 	custom_form.show();
 	iframe_resize();
 

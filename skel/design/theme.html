@@ -129,13 +129,15 @@ div.iblk {
 </div>
 <$end>
 <input type="hidden" name="custom" value="" id="custom-flag">
+<div id="custom-color-bar">
 <button type="button" id="btn-reset">リセット</button>
 <button type="button" id="btn-super-reset">テーマ初期値に</button>
 <input type="checkbox" data-target="#custom-colors-detail" id="detail-mode"><label>詳細</label>
 <div class="iblk">H <div id="h-slider" class="silder"></div></div>
 <div class="iblk">S <div id="s-slider" class="silder"></div></div>
 <div class="iblk">V <div id="v-slider" class="silder"></div></div>
-</div>
+</div><!-- custom-color-bar -->
+</div><!-- custom-functions -->
 <div id="custom-colors"></div>
 <div id="custom-colors-detail"></div>
 </div>
@@ -183,6 +185,8 @@ width=幅
 height=高さ
 limit=制限
 shadow=影
+
+theme-name=テーマ名
 </textarea>
 <span id="css-exp-error">CSSで指定されている色式が正しくありません。<br>%s</span>
 <span id="sysmode-no-warning">このテーマは管理画面非対応です。表示が崩れることがあるかもしれません。それでも管理画面で使用しますか？</span>
