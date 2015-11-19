@@ -175,10 +175,10 @@ ul.toc li span.sanchor {
 audio, video,
 article figure,
 .main img,
-.main iframe {
+.main iframe,
+.main select {
 	max-width:	100%;
 }
-
 
 /* ブロック中のpタグ */
 blockquote p:first-child {
