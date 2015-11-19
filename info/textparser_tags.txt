@@ -143,8 +143,8 @@ search:q  = >search:question
 #------------------------------------------------------------------------------
 tex =>gtex
 
-mjtex = MathJax API, ASCII, 1, <span class="math">#1</span>
-mjref = MathJax Ref, ASCII, 1, <span class="math">\ref{#1}</span>
+math = MathJax API, ASCII, 1, <span class="math">#1</span>
+mref = MathJax Ref, ASCII, 1, <span class="math">\ref{#1}</span>
 
 gtex = Google Chart API, ASCII, 1, <img src="http://chart.apis.google.com/chart?cht=tx&chf=bg,s,ffffff00&chl=$1" alt="#1" title="#1" class="tex">
 
