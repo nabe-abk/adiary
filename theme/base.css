@@ -118,13 +118,9 @@ div.ascii-art {
 	font-family: "Mona", "MS PGothic", "ＭＳ Ｐゴシック", "IPA MONAPGOTHIC", "IPA モナー Pゴシック", sans-serif;
 }
 /* mathjax.js */
-span.MathJax_Preview, span.MathJax {
-	margin-left:	0.1em;
-	margin-right:	0.1em;
-}
-span.mathref span {
-	margin-left:	0;
-	margin-right:	0;
+:not(.mathref) span.MathJax {
+	margin-left:	0.2em;
+	margin-right:	0.2em;
 }
 /* 等幅 */
 .mono, .pre {
