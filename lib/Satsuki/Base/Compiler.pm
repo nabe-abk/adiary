@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2015 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.71';
+our $VERSION = '1.72';
 #(簡易履歴)
+# 2015/11 Ver1.72  関数展開時の出力書式を綺麗に（実行結果に変化なし）
 # 2015/05 Ver1.71  <@ifcall(cond,f)>バグ修正。begin_array等で最後の空白行を除去。
 # 2014/09 Ver1.70  begin_hash/array/string中にコマンドを書けるように。
 # 2014/08 Ver1.63  begin_hashの順序保存を標準でoffに。
@@ -1976,6 +1977,7 @@ SUB_START
 	#-----------------------------------------------------------
 	my $main = shift(@$arybuf);
 	foreach(@$arybuf) {
+		chomp( $arybuf->[($1-1)] );
 		$main =~ s/\x04\[(\d+)\]\x04/$arybuf->[($1-1)]/eg;
 	}
 	my $subs = '';
