@@ -119,8 +119,8 @@ div.ascii-art {
 }
 /* mathjax.js */
 span.MathJax_Preview, span.MathJax {
-	margin-left:	0.2em;
-	margin-right:	0.2em;
+	margin-left:	0.1em;
+	margin-right:	0.1em;
 }
 span.mathref span {
 	margin-left:	0;
