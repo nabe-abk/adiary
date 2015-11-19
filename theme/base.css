@@ -122,7 +122,10 @@ span.MathJax_Preview, span.MathJax {
 	margin-left:	0.2em;
 	margin-right:	0.2em;
 }
-
+span.mathref span {
+	margin-left:	0;
+	margin-right:	0;
+}
 /* 等幅 */
 .mono, .pre {
 	font-family:	monospace;
