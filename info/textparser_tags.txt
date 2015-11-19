@@ -2,7 +2,7 @@
 ###############################################################################
 # Satsuki/TextParser/Satsuki.pm用 タグ定義ファイル
 ###############################################################################
-# Last-Update : 2015/06/18
+# Last-Update : 2015/11/18
 #
 #（注意）
 #　・先頭 '#' はコメント。空行は無視。
@@ -11,7 +11,7 @@
 #  ・文字コード "ASCII" や 小文字指定 はコード変換しない。
 #  ・引数の数が限定されていれば、それ以上の表記は「:」で連結する。
 #------------------------------------------------------------------------------
-# ■サイト固有、タグ設定ファイルのロード
+# ■サイト固有のタグ設定ファイルのロード
 #------------------------------------------------------------------------------
 load textparser_site_tags.txt
 
@@ -141,10 +141,17 @@ search:q  = >search:question
 #------------------------------------------------------------------------------
 # TeX記法
 #------------------------------------------------------------------------------
-tex = Google Chart API, ASCII, 1, <img src="http://chart.apis.google.com/chart?cht=tx&chf=bg,s,ffffff00&chl=$1" alt="#1" title="#1" class="tex">
+tex =>gtex
+
+mjtex = MathJax API, ASCII, 1, <span class="math">#1</span>
+mjref = MathJax Ref, ASCII, 1, <span class="math">\ref{#1}</span>
+
+gtex = Google Chart API, ASCII, 1, <img src="http://chart.apis.google.com/chart?cht=tx&chf=bg,s,ffffff00&chl=$1" alt="#1" title="#1" class="tex">
 
 # mimeTeX（要インストール http://adiary.org/v3man/Satsuki-tag/tex#mimetex）
 mtex = mimeTeX, ASCII, 1, <img src="${Basepath}mimetex.cgi?$1" alt="#1" title="#1" class="tex">
+
+
 
 #------------------------------------------------------------------------------
 # 画像プラグイン／画像アルバム
@@ -206,6 +213,7 @@ comment = comment,, 1, <!--#1-->
 class = class, ASCII, 2, <span class="$1">#2</span>
 # 画像icon
 icon  = icon, ASCII, 1, <img class="icon" alt="$1" title="$1" src="${pubdist}icon/$1.gif">
+
 # twitter
 twitter = twitter, ASCII, http://twitter.com/
 tw      = >twitter

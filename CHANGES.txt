@@ -2,6 +2,7 @@
 
 *Ver3.0 RC2: 2015/11/xx
 
+-[http://adiary.org/v3man/Satsuki-tag/tex#mathjax:MathJaxに対応しました]。
 -textarea を 'display: block' に変更しました。
 -Twitterへの通知送信を更新通知Pingの設定と連動するようにしました。
 -{[asin:XXXX:image]}記法使用時、スライドショー（Lightbox2）の対象にならないようにしました。
