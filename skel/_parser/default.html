@@ -6,7 +6,7 @@
 <$s = v.blog>
 
 <$parser = loadpm('TextParser::Satsuki', "<@v.data_dir>textparser_plugin_cache.dat")>
-<$parser.load_tagdata( "<@v.info_dir>textparser_tags.txt" )>
+<$parser.load_tagdata( "<@v.info_dir>textparser_tags.txt", 1 )>
 <$parser.load_tagdata( "<@v.blog_dir>usertag.txt" )>
 
 <#$parser.indent  = "\t\t">
