@@ -644,6 +644,9 @@ sub p_block_end {
 		push(@$ary, $line);
 		$line = $x;
 	}
+	# \> によるエスケープ
+	$line =~ s/\\>/&gt;/g;
+
 	$self->escape_without_html_tag($line);
 	push(@$ary, $line . '</p>');
 	push(@$ary, '');
