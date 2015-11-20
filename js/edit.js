@@ -179,7 +179,7 @@ if (edit_pkey && el_time>9) {
 	var d = new Date();
 	var el_sid;
 	if (window.location.hash) {
-		el_sid = window.location.hash.substr(1);
+		el_sid = window.location.hash.substr(1).replace('%20', ' ');
 	} else {
 		el_sid = d.getFullYear()
 		+ '/' + ('00'+(d.getMonth()+1)).rsubstr(2)
