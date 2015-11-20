@@ -370,6 +370,7 @@ sub execute {
 	{
 		## $self->{Timer}->start($self->{__src_file});
 		my $v_ref;
+		$self->{Return} = undef;
 		eval{ $self->{Return} = &$subroutine(\@output, $self, $line, $v_ref); };
 		$v_ref && ($self->{v} = $$v_ref);	# vを書き戻す
 		if ($self->{Exit_flag}) { $self->do_exit(@{ $self->{Exit_flag} }); }
