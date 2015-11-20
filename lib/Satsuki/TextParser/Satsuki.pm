@@ -1060,13 +1060,24 @@ sub parse_table {
 			shift(@$td_class);
 			next;
 		}
+		# caption / summary
+		if (substr($line,-1) ne '|') {
+			my $s9 = substr($line,0,9);
+			if ($s9 eq '|caption=') {
+				$caption = substr($line,9);
+				next;
+			}
+			if ($s9 eq '|summary=') {
+				$summary = substr($line,9);
+				next;
+			}
+		}
 
-		# |aa|bb|cc  → |aa|bb|cc|=
-		# |aa|bb|cc| → |aa|bb|cc|=
-		$line =~ s/\|?\s*$/|=/;
+		# |aa|bb|cc  → |aa|bb|cc|
+		# |aa|bb|cc| → |aa|bb|cc|
+		$line =~ s/\|?\s*$/|/;
 		my @l = split(/\s*\|\s*/, $line);
 		shift(@l);	# 最初を読み捨て
-		pop(@l);	# 最後を読み捨て
 
 		my @cols;
 		foreach(0..$#l) {
