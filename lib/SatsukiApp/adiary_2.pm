@@ -468,7 +468,7 @@ sub regist_article {
 	if ($parser_name ne '') {
 		my $parser = $self->load_parser( $parser_name );
 		if (! ref($parser)) {
-			$ROBJ->message("Load parser '%s' failed", $parser);
+			$ROBJ->message("Load parser '%s' failed", $parser_name);
 			return 3;
 		}
 
