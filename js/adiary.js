@@ -1316,7 +1316,7 @@ $( function(){
 
 	// 値のロード
 	if (obj.hasClass('twitter-share'))
-		return load_and_set_counter(count, 'http://urls.api.twitter.com/1/urls/count.json?url=' + url, 'count');
+		return; // load_and_set_counter(count, 'http://urls.api.twitter.com/1/urls/count.json?url=' + url, 'count');
 	if (obj.hasClass('facebook-share'))
 		return load_and_set_counter(count, 'http://graph.facebook.com/?id=' + url, 'shares');
 	if (obj.hasClass('hatena-bookmark'))

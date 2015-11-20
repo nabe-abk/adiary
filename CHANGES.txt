@@ -18,6 +18,7 @@
 -HTML直接入力のパーサーを改良し、使いやすくしました。
 -CGI動作時の記事編集保存の速度を少し速くしましした。
 -index.html を更新しました。
+-Twitterの仕様変更に合わせツイート数機能をオフにしました。（[http://did2memo.net/2015/09/28/twitter-count-json-shut-down/:参考]）
 -【さつき記法】[http://adiary.org/v3man/Satsuki/list:#dl:定義済みリスト記法]で、項目名と項目（dt/dd）を「n:m」で記述できるようにしました。（Thanks to Kaede）
 -【さつき記法】ブロック記法とリスト記法を互いに入れ子した時の挙動を改善しました。
 -【さつき記法】table出力時の「{<tr class="odd"/"even">}」クラス出力をやめました。((CSSで実現できるので不要になりました。))
