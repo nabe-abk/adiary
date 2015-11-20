@@ -1,18 +1,18 @@
 use strict;
 #------------------------------------------------------------------------------
 # システム標準パーサー／Satsukiパーサー
-#                                             (C)2006-2015 nabe / nabe@abk.nu
+#                                             (C)2006-2015 nabe / nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::TextParser::Satsuki;
 # ※注意。パッケージ名変更時は78行目付近も修正のこと！
 
 use Satsuki::AutoLoader;
-our $VERSION = '2.03';
+our $VERSION = '2.10';
 #------------------------------------------------------------------------------
 # \x00-\x03は内部で使用するため、処理の過程で除去されます。
 #	\x00 文字列の一時退避用
-#	\x01 インデント抑止用（グローバル使用）
-#	\x02 各処理ルーチン内でのみ使用
+#	\x01 インデント抑止用、処理済マークング（グローバル使用）
+#	\x02 各処理プロセス内でのみ使用
 #	\x03 未使用（プラグイン用）
 #------------------------------------------------------------------------------
 my $TAG_PLUGIN_CLASS = 'TextParser::TagPlugin::Tag_';
@@ -33,7 +33,7 @@ my %allow_override = (asid => 1, chain_line => 2,
  http_target  => 1, http_class  => 1, http_rel  => 1,
  image_target => 1, image_class => 1, image_rel => 1,
  autolink => 2, br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
- list_nobr => 2, seemore_msg => 1);
+ list_br => 2, seemore_msg => 1);
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -379,6 +379,8 @@ sub restore_blocks {
 #------------------------------------------------------------------------------
 sub text_parser {
 	my ($self, $lines, $opt) = @_;
+
+	$lines =~ s/[\x00-\x03\r]//g;
 	$lines = [ split(/\n/, $lines) ];
 	$opt ||= {};	# オプション
 
@@ -404,11 +406,11 @@ sub text_parser {
 	# [01]ブロック処理、コメント除去処理
 	$lines = $self->block_parser($lines);
 
-	# [02]tableやリストなどのブロック処理、セクション処理
-	$lines = $self->blocks_and_section($lines);
-
-	# 内部変数復元（[02]での最終オーバーライド結果を[03]で使わないため）
+	# 内部変数復元（[01]での最終オーバーライド結果を[03]で使わないため）
 	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
+
+	# [02]セクション、目次処理
+	$lines = $self->parse_section($lines);
 
 	# [03]記法タグの処理
 	$lines = $self->replace_original_tag($lines);
@@ -457,51 +459,230 @@ sub restore_unique_link_name {
 }
 
 ###############################################################################
-# ■[01] 前処理と「>>??<<」系のブロック処理、コメント除去処理
+# ■[01] ブロック処理
 ###############################################################################
 # 行末改行のある行は処理終了とみなす。
 sub block_parser {
 	my ($self, $lines) = @_;
+	my $st = {		# ブロックステータス
+		start  =>undef, # ブロック開始判定（正規表現）
+		end    => '',	# ブロック終了タグ
+		tag    => '',	# ブロックタグ名
+		class  => '',	# ブロックタグのclass
+		p      => 1, 	# 段落処理有効モード、0:そのまま入力モード
+		htag   => 1,	# htmlタグ有効？
+		atag   => 1,	# adiaryタグ有効？
+		bcom   => 0,	# ブロック中注釈機能 >> #{comment}
+		br     => 0,	# 行末強制改行モード
+		before => '',	# ブロック開始直後に出力するHTML
+		after  => '',	# ブロック終了直前に出力するHTML
+		pre    => 0,	# 1 = indent禁止
+		all    => 1	# 最初のブロック
+	};
+
 	my @ary;
-	my ($block_start, $block_end, $block_tag);
-	my $p     = 1;	# 段落処理有効モード、0:そのまま入力モード
-	my $tag   = 1;	# htmlタグ有効モード
-	my $atag  = 1;	# adiary拡張タグ有効モード
-	my $bcom  = 0;	# ブロック中コメント有効モード
-	my $br    = 0;	# 行末、強制<br>モード
-	my $cite='';	# 閉じタグの手前（blockquoteの下部等）に付けるHTML
+	$self->block_parser_main( \@ary, $lines, $st );
+	foreach(@ary) {
+		$_ =~ s/\x02//g;
+	}
+	return \@ary;
+}
+
+my @Blocks;
+push(@Blocks, {
+	start  => '>||script',
+	end    => '||<',
+	tag    => 'script',
+	before => '<!--',
+	after  => '-->',
+	pre    => 1
+});
+push(@Blocks, {
+	start  => '>||comment',
+	end    => '||<',
+	tag    => '',
+	before => '<!--',
+	after  => '-->',
+	pre    => 1
+});
+push(@Blocks, {
+	start  => '>|aa|',
+	end    => '||<',
+	tag    => 'div',
+	class  => 'ascii-art',
+	br     => 1,
+	pre    => 1
+});
+push(@Blocks, {
+	start  => qr/^>\|([\w#\-]+|\?)\|(.*)/,
+	end    => '||<',
+	tag    => 'pre',
+	class  => 'syntax-highlight',
+	opt    => '$1 $2',		# 正規表現の結果を代入
+	pre    => 1
+});
+push(@Blocks, {
+	start  => '>|?|',
+	end    => '||<',
+	tag    => 'pre',
+	class  => 'syntax-highlight',
+	pre    => 1
+});
+push(@Blocks, {
+	start  => '>||#',
+	end    => '#||<',
+	tag    => 'pre',
+	bcom   => 1,
+	pre    => 1
+});
+push(@Blocks, {
+	start  => '>||',
+	end    => '||<',
+	tag    => 'pre',
+	pre    => 1
+});
+push(@Blocks, {
+	start  => '>|',
+	end    => '|<',
+	tag    => 'pre',
+	htag   => 1,
+	atag   => 1,
+	pre    => 1
+});
+push(@Blocks, {
+	start  => '>>>||',
+	end    => '||<<<',
+	tag    => 'div'
+});
+push(@Blocks, {
+	start  => '>>>[',
+	end    => ']<<<',
+	tag    => 'div',
+	htag   => 1,
+	atag   => 0
+});
+push(@Blocks, {
+	start  => '>>><',
+	end    => '><<<',
+	tag    => 'div',
+	htag   => 0,
+	atag   => 1
+});
+push(@Blocks, {
+	start  => '>>>|',
+	end    => '|<<<',
+	tag    => 'div',
+	htag   => 1,
+	atag   => 1
+});
+push(@Blocks, {
+	start  => '>>>',
+	end    => '<<<',
+	tag    => 'div',
+	htag   => 1,
+	atag   => 1,
+	p      => 1
+});
+push(@Blocks, {
+	start  => '>>||',
+	end    => '||<<',
+	tag    => 'blockquote'
+});
+push(@Blocks, {
+	start  => '>>|',
+	end    => '|<<',
+	tag    => 'blockquote',
+	htag   => 1,
+	atag   => 1
+});
+push(@Blocks, {
+	start  => '>>del',
+	end    => '<<',
+	tag    => 'del',
+	htag   => 1,
+	atag   => 1,
+	p      => 1
+});
+push(@Blocks, {
+	start  => '>>ins',
+	end    => '<<',
+	tag    => 'ins',
+	htag   => 1,
+	atag   => 1,
+	p      => 1
+});
+push(@Blocks, {
+	start  => '>>',
+	end    => '<<',
+	tag    => 'blockquote',
+	htag   => 1,
+	atag   => 1,
+	p      => 1
+});
+push(@Blocks, {
+	start  => qr|>(https?://[^>]*)>(.*)|,
+	end    => '<<',
+	tag    => 'blockquote',
+	htag   => 1,
+	atag   => 1,
+	p      => 1,
+	opt    => '[$1] $2'
+});
+foreach(@Blocks) {
+	$_->{len} = length($_->{start});
+}
+
+#------------------------------------------------------------------------------
+# ●ブロックパース
+#------------------------------------------------------------------------------
+sub block_parser_main {
+	my $self   = shift;
+	my $ary    = shift;
+	my $lines  = shift;
+	my $st     = shift;		# blockステータス
 	my $macros = $self->{macros};	# マクロ情報
-	my @block_stack;
-	my $in_comment = 0;
-	
-	my $block_close = sub {
-		if ($block_tag eq '<!--') {
-			push(@ary, "-->\n\x01");
-		} elsif ($block_tag eq 'script') {
-			push(@ary, "--></script>\n\x01");
-		} elsif ($p) {
-			push(@ary, "$cite</$block_tag>\n");
-		} else {
-			push(@ary, "$cite</$block_tag>\n\x01");
+
+	my $end      = $st->{end};
+	my $blk_mark = $st->{all} ? '' : "\x02";
+	# \x02 は >> -- <<などのブロック中のみ行末に付加される。
+	# リストブロック内での項目連結処理を、項目内のブロックで行わないための細工。
+
+	my $in_comment;
+	my $class;		# リストブロック用クラス指定
+	my $list_mark;		# リスト記号
+	my $list_ext;		# 拡張リスト記法
+	my $ary_bak;		# $ary退避用
+	my @table;		# table用バッファ
+
+	my $list_close = sub {
+		my $list = $ary;
+		$ary = $ary_bak;
+		if ($list_mark eq ':') {
+			$self->parse_list_dl($ary, $list, $class);
 		}
-		($block_end, $block_tag, $p, $tag, $atag, $bcom, $br, $cite) = @{ pop(@block_stack)};
+		if ($list_mark eq '-') {
+			$self->parse_list_ulol($ary, $list, 1, $class);
+		}
+		$list_mark='';
+		$class='';
 	};
 	while($#$lines >= 0) {
 		my $line = shift(@$lines);
-		$line =~ s/[\x00-\x03]//g;
-		my $line_orig = $line;
+		my $blank = ($line eq '');
+
+		#-------------------------------------------------
 		# コメント中である
+		#-------------------------------------------------
 		if ($in_comment) {
 			my $x = index($line, '-->');
 			if ($x < 0) { next; }		# コメント中は出力しない
-			# コメントが閉じられている
 			$in_comment = 0;
 			$line = substr($line, $x +3);	# 残り
 		}
 		#-------------------------------------------------
 		# エスケープ記法の置換処理
 		#-------------------------------------------------
-		if ($atag) {	# adiary拡張tagが有効
+		if ($st->{atag}) {
 			# 行末 \ による行連結
 			while($self->{chain_line} && substr($line, -1) eq "\\") {
 				chop($line);
@@ -523,7 +704,7 @@ sub block_parser {
 		#-------------------------------------------------
 		# コメント除去
 		#-------------------------------------------------
-		if ($atag && $line ne '') {	# 記法タグが有効
+		if ($st->{atag}) {
 			$line =~ s/<!--.*?-->//g;		# コメント除去
 			my $x = index($line, '<!--');
 			if ($x >= 0) {				# コメントがある
@@ -534,273 +715,75 @@ sub block_parser {
 		#-------------------------------------------------
 		# ブロック記法の開始処理
 		#-------------------------------------------------
-		if ($atag && ord($line) == 0x3e) {	# 記法タグ有効 && 最初の文字が">"
-			my $new_block_end;
-			my $dc;		# デフォルトクラス
-			my $line_opt;
-			my $len;
-			my $block_tag_add='';
-			my $s10= substr("$line ", 0, 10);
-			my $s2 = substr($s10, 0, 2);
-			my $s3 = substr($s10, 0, 3);
-			my $s4 = substr($s10, 0, 4);
-			my $s5 = substr($s10, 0, 5);
-			my $s6 = substr($s10, 0, 6);
-			# $p		段落処理を行う
-			# $tag		htmlタグが有効
-			# $atag		記法タグが有効
-			# $bcom		ブロック中コメントon
-			$cite="";
-			if ($s2 eq '>|') {
-			  push(@block_stack, [$block_end, $block_tag, $p, $tag, $atag, $bcom, $br, $cite]);
-			  if ($line =~ /^>\|([\w#\-]+|\?)\|(.*)/) {
-				$len = 3+length($1);
-			  	if ($1 eq 'aa')  { $new_block_end = '||<'; $block_tag='div'; $p=$tag=$atag=0; $br=1; $dc=" ascii-art"; }
-				else {
-					# シンタックスハイライト記法
-					$new_block_end = '||<'; $block_tag='pre'; $p=$tag=$atag=0; $dc=" syntax-highlight";
-					my $lang = $1;
-					if ($lang =~ /^\w[\w\-]*$/) { $dc .= ' ' . $lang; }
+		if ($st->{atag}) {
+			my $blk;
+			my $opt;
+			foreach(@Blocks) {
+				my $start = $_->{start};
+				if (ref($start) && $line =~ /$start/) {
+					my $opt = $_->{opt};
+					$opt =~ s/\$1/$1/g;
+					$opt =~ s/\$2/$2/g;
+					$blk = $_;
+					last;
 				}
-				$line_opt = $2;
-			  }
-			  elsif ($s10 eq '>||script ') { $len=10; $new_block_end = '||<'; $block_tag='script'; $p=$tag=$atag=$br=0; }
-			  elsif ($s10 eq '>||comment') { $len=10; $new_block_end = '||<'; $block_tag='<!--';   $p=$tag=$atag=$br=0; }
-			  elsif ($s4 eq '>||#')  { $len=4; $new_block_end = '#||<'; $block_tag='pre'; $p=$tag=$atag=0; $bcom=1; }
-			  elsif ($s6 eq '>||aa '){ $len=6; $new_block_end =  '||<'; $block_tag='div'; $p=$tag=$atag=0; $br=1; $dc=" ascii-art"; }
-			  elsif ($s4 eq '>|?|')  { $len=4; $new_block_end =  '||<'; $block_tag='pre'; $p=$tag=$atag=0; $dc=" syntax-highlight"; }
-			  elsif ($s3 eq '>||')   { $len=3; $new_block_end =  '||<'; $block_tag='pre'; $p=$tag=$atag=0; }
-			  elsif ($s2 eq '>|')    { $len=2; $new_block_end =   '|<'; $block_tag='pre'; $p=0; }
-			} elsif ($s3 eq '>>>') {
-			  push(@block_stack, [$block_end, $block_tag, $p, $tag, $atag, $bcom, $br, $cite]);
-			     if ($s5 eq '>>>||') { $len=5; $new_block_end ='||<<<'; $block_tag='div'; $p=$tag=$atag=0; }
-			  elsif ($s4 eq '>>><')  { $len=4; $new_block_end = '><<<'; $block_tag='div'; $p=$tag =0; }
-			  elsif ($s4 eq '>>>[')  { $len=4; $new_block_end = ']<<<'; $block_tag='div'; $p=$atag=0; }
-			  elsif ($s4 eq '>>>|')  { $len=4; $new_block_end = '|<<<'; $block_tag='div'; $p=0; }
-			  elsif ($s3 eq '>>>')   { $len=3; $new_block_end =  '<<<'; $block_tag='div'; }
+				if (substr($line, 0, $_->{len}) ne $start) { next; }
 
-			} elsif ($s2 eq '>>') {
-			  push(@block_stack, [$block_end, $block_tag, $p, $tag, $atag, $bcom, $br, $cite]);
-			     if ($s4 eq '>>||')  { $len=4; $new_block_end = '||<<'; $block_tag='blockquote'; $p=$tag=$atag=0; }
-			  elsif ($s3 eq '>>|')   { $len=3; $new_block_end =  '|<<'; $block_tag='blockquote'; $p=0; }
-			  elsif ($s6 eq '>>del '){ $len=6; $new_block_end =   '<<'; $block_tag='del'; }
-			  elsif ($s6 eq '>>ins '){ $len=6; $new_block_end =   '<<'; $block_tag='ins'; }
-			  elsif ($s2 eq '>>')    { $len=2; $new_block_end =   '<<'; $block_tag='blockquote'; }
-			} elsif ($line  =~ m!^>(https?://[^>]*)>(.*)!) {
-			  push(@block_stack, [$block_end, $block_tag, $p, $tag, $atag, $bcom, $br, $cite]);
-			  	  $new_block_end = '<<'; $block_tag='blockquote';
-			  	  $line_opt = "[$1]$2";
+				# ブロック発見
+				my $len = $_->{len} + ($start =~ /\w$/ ? 1 : 0);
+				$opt = substr($line, $len);
+				$blk = $_;
+				last;
 			}
-
-			# \x01 インデント、[]タグ抑止マーク
-			if ($new_block_end) {
-				$block_end = $new_block_end;
-				my $class  = ($line_opt ne '' ? $line_opt : substr($line, $len) . $dc);
-				my $add_attr;
-				if ($block_tag eq 'blockquote' && $class =~ m|^(\[(&?https?://[^:\"\]]*)[^\]]*\])(.*)|) {	# タグ指定？
-					$add_attr = " cite=\"$2\"";
-					$cite  = "<cite>$1</cite>";
-					$class = $3;
-				}
-				if (!$dc && $class =~ /[^\w\-= ]/) {	# クラス名以外の文字等が続く場合は開始タグとして認識しない
-					($block_end, $block_tag, $p, $tag, $atag, $bcom, $br, $cite) = @{ pop(@block_stack)};
-				} else {
-					if ($block_tag eq '<!--')   { push(@ary, "<!--\x01"); next; }
-					if ($block_tag eq 'script') { push(@ary, "<script$class><!--\x01"); next; }
-					if ($class ne '') {	# クラス, ID指定
-						$class = $self->parse_class_id($class);
+			# ブロック発見
+			if ($blk) {
+				my $tag = $blk->{tag};
+				my $attr='';
+				if ($tag eq 'blockquote') {
+					if ($opt =~ m|^(\[[^]]*\])(.*)|) {
+						my $tag = $1;
+						$opt = $2;
+						if ($tag =~ m!^\[&?(https?://(?:\\:|[^:\"\]])*)!) {
+							$attr = " cite=\"$1\"";
+						}
+						my %b = %$blk; $blk = \%b;
+						$blk->{after} = "<cite>$tag</cite>";
 					}
-					if ($block_tag eq 'pre') { push(@ary, "<pre$add_attr$class>$block_tag_add\x01"); }
-							    else { push(@ary, "<$block_tag$add_attr$class>\n"); }
-					next;
 				}
-			}
-		}
-		#-------------------------------------------------
-		# ブロック中の処理
-		#-------------------------------------------------
-		if ($block_end) {
-			# ブロックの終わり
-			if ($line eq $block_end) {
-				&$block_close();
+				# クラス, ID指定
+				my $class = $self->parse_class_id($blk->{class} . ' ' . $opt);
+				my $mark  = $blk->{pre} ? "\x01" : '';
+				push(@$ary, ($tag ? "<$tag$attr$class>" : '') . "$blk->{before}\n$mark");
+
+				# ブロックの入れ子
+				$self->block_parser_main($ary, $lines, $blk);
+
+				push(@$ary, "$blk->{after}" . ($tag ? "</$tag>" : '') . "\n$mark");
 				next;
 			}
-			# script環境
-			if ($block_tag eq 'script') {
-				$line =~ s/--/==/g;
-				push(@ary, "$line\n\x01");	# そのまま出力（インデント不可）
-				next;
-			}
-			if ($block_tag eq '<!--') {
-				$line =~ s/--/==/g;
-				push(@ary, "$line\n");		# そのまま出力
-				next;
-			}			# HTMLタグ無効ブロック
-			if (! $tag) {	# htmlタグ、[]タグ無効、ブロックコメント有効
-				$line =~ s/&/&amp;/g;
-				$line =~ s/</&lt;/g;
-				$line =~ s/>/&gt;/g;
-			}
-			# ブロック中コメント機能
-			if ($bcom) {
-				$line =~ s/##(\{(.+?)\}|\[(.+?)\]|\|(.+?)\|)/<strong class="comment">$2$3$4<\/strong>/g;
-				$line =~  s/#(\{(.+?)\}|\[(.+?)\]|\|(.+?)\|)/<span class="comment">$2$3$4<\/span>/g;
-			}
-			# [tag] 形式の記法タグが無効
-			if (! $atag && $bcom) {			# ((?)) 注釈だけ有効にする：ブロック中コメント機能
-				$line =~ s/([\[\]\{\}\|:])/'&#' . ord($1) . ';'/eg;
-				$line =~ s/^([\-\+\*=])/   '&#' . ord($1) . ';'/e;
-			} elsif (! $atag) {
-				$line =~ s/([\[\]\{\}\|:\(\)])/'&#' . ord($1) . ';'/eg;
-				$line =~ s/^([\-\+\*=])/       '&#' . ord($1) . ';'/e;
-			} else {
-				$line =~ s/^====/&#61;===/;	# ブロック中は続きを読む表記を無効化
-			}
-			# 強制行末改行モード
-			if ($br) {
-				$line .= "<br>";
-			}
-			# 段落処理なしモード
-			if (! $p) {
-				push(@ary, "$line\n\x01");	# \x01 インデント抑止マーク
-				next;
-			}
-
-		}
-		#-------------------------------------------------
-		# 行処理
-		#-------------------------------------------------
-		if ($line eq '') {
-			if ($line_orig ne '') { next; }
-			my $c = 1;
-			while($#$lines >= 0) {
-				if ($lines->[0] ne '') { last; }
-				shift(@$lines);
-				$c++;
-			}
-			push(@ary, {null_lines => $c});
-			next;
-		}
-		#-------------------------------------------------
-		# 通常行
-		#-------------------------------------------------
-		push(@ary, $line);
-	}
-	# block が終わってないとき
-	while ($block_end) {
-		&$block_close();
-		next;
-	}
-
-	return \@ary;
-}
-
-#--------------------------------------------------------------------
-# ○ミニ verbatim 記法
-#--------------------------------------------------------------------
-sub mini_verbatim {
-	my ($self, $line) = @_;
-	$self->tag_syntax_escape($line);	# tagエスケープ
-	return $line;
-}
-
-#--------------------------------------------------------------------
-# ○ミニ pre 記法
-#--------------------------------------------------------------------
-sub mini_pre {
-	my ($self, $line) = @_;
-	$self->tag_syntax_escape($line);	# tagエスケープ
-	return "<span class=\"mono\">$line</span>";
-}
-
-
-###############################################################################
-# ■[02] table/リストのブロック処理、セクション処理
-###############################################################################
-# 行末改行のある行は処理終了とみなす。
-my %marks;
-$marks{'*'}     = \&section;
-$marks{'**'}    = \&subsection;
-$marks{'***'}   = \&subsubsection;
-$marks{'****'}  = \&subsubsubsection;
-$marks{'|'}     = \&table;
-$marks{'='}     = \&dummy;
-$marks{'=='}    = \&dummy;
-$marks{'==='}   = \&dummy;
-#$marks{'===='}  = \&more_read;
-$marks{'===='}  = \&super_more_read;
-$marks{'====='} = \&super_more_read;
-
-sub blocks_and_section {
-	my ($self, $lines) = @_;
-	my $ROBJ = $self->{ROBJ};
-	my @ary;
-	my $class;
-	my $id;
-
-	# 変数初期化
-	$self->{in_section}       = 0;
-	$self->{more_read}        = 0;
-	$self->{now_anchor_name}  = "$self->{unique_linkname}p0";	# default
-	$self->{tr_count}         = 0;
-	$self->{table_rows}       = undef;	# table buffer
-
-	# 先頭が見出しでない場合、section を開始する
-	if (ref($lines->[0])) { shift(@$lines); }	# 行頭改行無視
-	foreach(@$lines) {
-		if ($_ =~ /^::/ || $_ eq "" || ref($_)) { next; }
-		if (substr($_, 0, 1) ne '*' || substr($_, 0, 2) eq '**') {
-			$self->{in_section} = 1;
-			push(@ary, "<section>\n");
-		}
-		last;
-	}
-
-	my $in_table;
-	push(@$lines, "\n");	# dummy line
-	while($#$lines >= 0) {
-		my $line = shift(@$lines);
-		# $s1-$s3 先頭 1byte-3byte
-		my $s1 = substr($line, 0, 1);
-		my $s2 = substr($line, 0, 2);
-		my $s3 = substr($line, 0, 3);
-		#-------------------------------------------------
-		# テーブルの出力？
-		#-------------------------------------------------
-		if ($in_table && $s1 ne '|') {
-			$self->table_output( \@ary, $class );
-			$class='';
-			$in_table = undef;
-		}
-		#-------------------------------------------------
-		# 処理済み行は飛ばす
-		#-------------------------------------------------
-		my $end_mark = substr($line, -1);		# \n/\x01 で終わる行は処理済み
-		if (ref($line) || $end_mark eq "\n" || $end_mark eq "\x01") {
-			push(@ary, $line);
-			next;
 		}
 
 		#-------------------------------------------------
-		# table/listブロック判別
+		# 自由変数、内部変数書き換え処理
 		#-------------------------------------------------
-		# 自由変数に設定
-		if ($s3 eq ':::') {
+		if ($st->{atag} && substr($line,0,3) eq ':::') {
+			# 自由変数に設定
 			# 記法タグの部分で処理する
-			push(@ary, $line);
+			push(@$ary, $line);
 			next;
-		# クラス指定表記 / 内部変数書き換え
-		} elsif ($s2 eq '::' && length($line)>2) {
+
+		} elsif ($st->{atag} && $list_mark ne ':' && substr($line,0,2) eq '::' && length($line)>2) {
+			# クラス指定表記 / 内部変数書き換え
 			$class = substr($line, 2);
 			if ($class =~ /^(\w+)\s*=\s*(.*)/) {
 				# 一時的な内部変数書き換え（記法タグの時も処理する）
 				if ($allow_override{$1}==1) {
 					$self->{$1}=$2;
-					push(@ary, "::$1=$2");
-					$ROBJ->tag_escape( $self->{$1} );
+					push(@$ary, "::$1=$2");
+					$self->tag_escape( $self->{$1} );
 				} elsif ($allow_override{$1}==2) {
 					$self->{$1}=int($2);
-					push(@ary, "::$1=$self->{$1}");
+					push(@$ary, "::$1=$self->{$1}");
 				}
 				if (lc($1) ne 'id') {
 					$class='';
@@ -810,56 +793,432 @@ sub blocks_and_section {
 			$class = $self->parse_class_id($class);
 			next;
 		}
-		if ($s1 eq ':') {	# : のリスト表記
-			push(@ary, "<dl$class>\n"); $class='';
-			my $list_ext;
-			if ($line eq '::') {
-				$list_ext=1;
+
+		#-------------------------------------------------
+		# リストブロックの抽出
+		#-------------------------------------------------
+		my $s1 = substr($line, 0, 1);
+		my $s2 = substr($line, 0, 2);
+		if ($s1 eq '+') { $s1='-'; }
+
+		if ($st->{atag} && !$list_mark &&
+		   ($s1 eq '-' || ($s1 eq ':' && $s2 ne '::')) ) {
+			$list_mark = $s1;
+			$list_ext  = (length($line) == 1);	# 拡張リストブロック
+			$ary_bak = $ary;
+			$ary = [];
+			if (!$list_ext) {
+				push(@$ary, $line);
+			}
+			next;
+		}
+		if ($list_mark && ($blank || !$list_ext && $s1 ne $list_mark)) {
+			&$list_close();
+			# if ($blank) { next; }
+		}
+
+		#-------------------------------------------------
+		# テーブルの処理
+		#-------------------------------------------------
+		if ($st->{atag} && $s1 eq '|') {
+			push(@table, $line);
+		}
+		if (@table) {
+			if (substr($lines->[0], 0, 1) ne '|') {
+				$self->parse_table( $ary, \@table, $class );
+				@table = ();
+			}
+			next;
+		}
+
+		#-------------------------------------------------
+		# 平文処理
+		#-------------------------------------------------
+		if ($end && $line eq $end) {	# ブロックの終わり
+			last;
+		}
+
+		# htmlタグ無効
+		if (! $st->{htag}) {
+			$line =~ s/&/&amp;/g;
+			$line =~ s/</&lt;/g;
+			$line =~ s/>/&gt;/g;
+		}
+
+		# ブロック中コメント機能
+		if ($st->{bcom}) {
+			$line =~ s/##(\{(.+?)\}|\[(.+?)\]|\|(.+?)\|)/<strong class="comment">$2$3$4<\/strong>/g;
+			$line =~  s/#(\{(.+?)\}|\[(.+?)\]|\|(.+?)\|)/<span class="comment">$2$3$4<\/span>/g;
+		}
+
+		# [tag] 形式の記法タグが無効
+		if (! $st->{atag} && $st->{bcom}) {
+			# ((?)) 注釈だけ有効にする：ブロック中コメント機能
+			$line =~ s/([\[\]\{\}\|:])/'&#' . ord($1) . ';'/eg;
+			$line =~ s/^([\-\+\*=])/   '&#' . ord($1) . ';'/e;
+		} elsif (! $st->{atag}) {
+			$line =~ s/([\[\]\{\}\|:\(\)])/'&#' . ord($1) . ';'/eg;
+			$line =~ s/^([\-\+\*=])/       '&#' . ord($1) . ';'/e;
+		} elsif ($end) {
+			# ブロック中は続きを読む表記を無効化
+			$line =~ s/^====/&#61;===/;
+		}
+
+		#-------------------------------------------------
+		# リストブロック中
+		#-------------------------------------------------
+		if ($list_mark) {
+			push(@$ary, $line);
+			next;
+		}
+
+		#-------------------------------------------------
+		# 行処理
+		#-------------------------------------------------
+		# 強制行末改行モード
+		if ($st->{br}) {
+			$line .= "<br>";
+		}
+		# 段落処理なしモード
+		if (! $st->{p}) {
+			push(@$ary, "$line\n\x01");	# \x01 インデント抑止マーク
+			next;
+		}
+
+		if ($line eq '' ) {
+			if (! $blank) { next; }
+			my $c = 1;
+			while($#$lines >= 0) {
+				if ($lines->[0] ne '') { last; }
+				shift(@$lines);
+				$c++;
+			}
+			push(@$ary, {null_lines => $c});
+			next;
+		}
+		#-------------------------------------------------
+		# 通常行
+		#-------------------------------------------------
+		push(@$ary, "$line$blk_mark");
+	}
+	if ($list_mark) {
+		&$list_close();
+	}
+	return $ary;
+}
+
+#------------------------------------------------------------------------------
+# ●ミニ verbatim 記法
+#------------------------------------------------------------------------------
+sub mini_verbatim {
+	my ($self, $line) = @_;
+	$self->tag_syntax_escape($line);	# tagエスケープ
+	return $line;
+}
+
+#------------------------------------------------------------------------------
+# ●ミニ pre 記法
+#------------------------------------------------------------------------------
+sub mini_pre {
+	my ($self, $line) = @_;
+	$self->tag_syntax_escape($line);	# tagエスケープ
+	return "<span class=\"mono\">$line</span>";
+}
+
+#------------------------------------------------------------------------------
+# ●リストブロックのパース (ul/ol)
+#------------------------------------------------------------------------------
+sub parse_list_ulol {
+	my $self = shift;
+	my ($ary, $lines, $depth, $class) = @_;
+
+	my $tag    = substr($lines->[0], 0, 1) eq '-' ? 'ul' : 'ol';
+	my $indent = "\t" x ($depth-1);
+	push(@$ary, "$indent<$tag$class>\n");
+
+	my $li;
+	while(@$lines) {
+		if ($lines->[0] !~ /^([\+\-]+)(.*)/) { last; }
+		my $length = length($1);
+		my $data   = $2;
+		if ($length < $depth) { last; }
+		if ($length > $depth) {
+			if ($li) {
+				if ($li !~ /^\t*$/) { push(@$ary, "$li\n"); }
+				$li='';
+				$self->parse_list_ulol($ary, $lines, $depth+1);
+				push(@$ary, "$indent\t</li>\n");
+				next;
+			}
+			$self->parse_list_ulol($ary, $lines, $depth+1);
+			next;
+		}
+		shift(@$lines);
+		if ($li) { push(@$ary, "$li</li>\n"); }
+
+		if ($data =~ /^=(\d+)(?:\s+(.*))?/) {	# 項目値指定
+			$li = "$indent\t<li value=\"$1\">$2";
+		} else {
+			$li = "$indent\t<li>$data";
+		}
+
+		# 拡張リスト処理
+		my $out = $self->list_line_chain( $li, $lines, {'-' => 1, '+' => 1} );
+		$li = pop(@$out);
+		push(@$ary, @$out);
+	}
+	if ($li) { push(@$ary, "$li</li>\n"); }
+	push(@$ary, "$indent</$tag>\n");
+}
+
+#------------------------------------------------------------
+# 拡張リストの行連結
+#------------------------------------------------------------
+sub list_line_chain {
+	my $self = shift;
+	my ($str, $lines, $h) = @_;
+	my @out = ($str);
+	while(@$lines && !$h->{ substr($lines->[0],0,1) }) {
+		my $line = shift(@$lines);
+		if ($line =~ /[\n\x01\x02]$/ || ref($line) 
+		 || $out[$#out] =~ /[\n\x01\x02]$/ || ref($out[$#out])) {
+			push(@out, $line);
+			next;
+		}
+
+		my $br;
+		if ($self->{list_br}) { $br="<br>\n"; }
+		else {
+			$br = $self->acsii_line_chain($out[$#out], $line) ? "\n" : '';
+		}
+		$out[$#out] .= $br . $line;
+	}
+	return \@out;
+}
+
+#------------------------------------------------------------------------------
+# ●リストブロックのパース (dl)
+#------------------------------------------------------------------------------
+sub parse_list_dl {
+	my $self = shift;
+	my ($ary, $lines, $class) = @_;
+
+	push(@$ary, "<dl$class>\n");
+	while(@$lines) {
+		my $line = shift(@$lines);
+
+		# タグ中の : を処理しないため、先にタグを処理する
+		$line = $self->parse_tag($line);
+
+		my ($dummy, $dt, $dd) = split(':', $line, 3);
+		$dt = $dt ne '' ? $dt="<dt>$dt</dt>" : "\t";
+
+		my $out = $self->list_line_chain( $dd, $lines, {':' => 1} );
+		$dd = pop(@$out);
+		if (@$out) {
+			push(@$ary, "\t$dt<dd>" . shift(@$out));
+			push(@$ary, @$out, "$dd</dd>\n");
+		} else {
+			if ($dd ne '') { $dd="<dd>$dd</dd>"; }
+			if ($dt ne "\t" || $dd ne '') {
+				push(@$ary, "\t$dt$dd\n");
+			}
+		}
+	}
+	push(@$ary, "</dl>\n");
+}
+
+#------------------------------------------------------------------------------
+# ●TABLEのパース
+#------------------------------------------------------------------------------
+sub parse_table {
+	my $self = shift;
+	my ($ary, $lines, $class) = @_;
+
+	my $caption;
+	my $summary;
+
+	#---------------------------------------------------------
+	# 各行処理
+	#---------------------------------------------------------
+	my @rows;
+	my $tr_class = '';
+	my $td_class = [];
+	foreach my $line (@$lines) {
+		if (substr($line,0,3) eq '|::') {
+			# th, td クラス指定
+			my $class = substr($line,3);
+			$class =~ s/[^\w\-\| ]//g;
+			if (substr($class,0,1) ne '|') {
+				$tr_class = $class;
+				next;
+			}
+			$td_class = [ split(/\s*\|\s*/, $class) ];
+			shift(@$td_class);
+			next;
+		}
+
+		# |aa|bb|cc  → |aa|bb|cc|=
+		# |aa|bb|cc| → |aa|bb|cc|=
+		$line =~ s/\|?\s*$/|=/;
+		my @l = split(/\s*\|\s*/, $line);
+		shift(@l);	# 最初を読み捨て
+		pop(@l);	# 最後を読み捨て
+
+		my @cols;
+		foreach(0..$#l) {
+			my $x = $l[$_];
+			my $h = {cols=>1, rows=>1};
+			$h->{class} = $td_class->[$_];
+
+			if (substr($x,0,1) eq '*') {
+				$h->{th}   = 1;
+				$h->{data} = substr($x,1);
+			} elsif ($x eq '<' && $#cols >= 0) {	# 左連結
+				$h = $cols[$#cols];
+				$h->{cols} ++; 
+			} elsif (($x eq '~' || $x eq '^') && $#rows >= 0 && $_ < $#{ $rows[$#rows] }) {	# 上連結
+				$h = $rows[$#rows]->[$_];
+				$h->{rows} ++;
 			} else {
-				unshift(@$lines, $line);
+				$h->{data} = $x;
 			}
-			while(@$lines && ord($lines->[0]) == 0x3a) {
-				$line = shift(@$lines);
-				my @add;
-				if ($list_ext) {
-					my $block_c=0;
-					while(@$lines) {
-						my $x = $lines->[0];
-						if (ref($x) || ord($x) == 0x3a) { last; }
-						# 内部ブロック要素、対応チェック
-						if ($x =~ m[^\t*</(?:blockquote|div|pre)>[\n\x01]$]) {
-							$block_c--;if ($block_c<0) { last; }
-						} elsif ($x =~ m[^\t*<(?:blockquote|div|pre)[^>]*>[\n\x01]$]) {
-							$block_c++;
-						}
-						push(@add, shift(@$lines));
-					}
+			push(@cols, $h);
+		}
+		if ($#cols > 0) {
+			foreach(reverse(0..($#cols-1))) {
+				if ($cols[$_]->{data} eq '>') {	# 右連結
+					$cols[$_] = $cols[$_+1];
+					$cols[$_]->{cols} ++;
 				}
-				# タグ中の : を処理しないため先にパースする
-				$line = $self->parse_tag($line);
-				my ($dummy, $dt, $dd) = split(':', $line, 3);
-				if (@add) {
-					my $br; if ($self->{br_mode}) { $br='<br>'; }
-					push(@ary, "\t<dt>$dt</dt><dd>$dd$br\n", @add, "\t</dd>\n");
-				} else {
-					push(@ary, "\t<dt>$dt</dt><dd>$dd</dd>\n");
-				}
-				# リスト項目後の空行１行は無視
-				if ($list_ext && ref($lines->[0]) && $lines->[0]->{null_lines}==1) { shift(@$lines); }
 			}
-			push(@ary, "</dl>\n");
+		}
+		push(@cols, $tr_class);
+		push(@rows, \@cols);
+	}
+	if (!@rows) { return ; }
+
+	# 下に連結？
+	foreach my $row_num (reverse(0..($#rows-1))) {
+		my $cols = $rows[$row_num];
+		foreach(0..($#$cols-1)) {
+			my $h = $cols->[$_];
+			if ($h->{data} eq '_' && ref($rows[$row_num+1]->[$_])) {
+				$h = $rows[$row_num]->[$_] = $rows[$row_num+1]->[$_];
+				$h->{rows}++;
+			}
+		}
+	}
+
+	#---------------------------------------------------------
+	# テーブルの出力
+	#---------------------------------------------------------
+	# caption & summary
+	$self->tag_syntax_escape($summary);	# 記法タグも escape
+	$self->tag_escape($caption);
+	if ($summary ne '') { $summary="<!-- summary=$summary -->"; }
+
+	# 出力
+	push(@$ary, "<table$class>$summary\n");
+	if ($caption ne '') { push(@$ary, "<caption>$caption</caption>\n"); }
+
+	my $thead_flag;
+	if (1 < $#rows) {
+		# テーブルの行が２行以上あり、最初の行がすべて th ならば、
+		# その部分を thead として認識する。
+		my $cols=$rows[0];
+		$thead_flag = 1;
+		foreach(@$cols) {
+			if (ref($_) && ! $_->{th}) { $thead_flag=0; last; }
+		}
+	}
+	
+	if ($thead_flag) { push(@$ary, "<thead>\n"); }
+		    else { push(@$ary, "<tbody>\n"); }
+	while(@rows) {
+		my $cols = shift(@rows);
+		my $tr_class = pop(@$cols);
+		my $line;
+		my $th_only = 1;
+		foreach(0..$#$cols) {
+			my $h = $cols->[$_];
+			if ($h->{output}) { next; }	# １度出力したものは出力しない
+			# 出力
+			$h->{output} = 1;
+			my $at;
+			if ($h->{cols} >1) { $at .= " colspan=\"$h->{cols}\""; }
+			if ($h->{rows} >1) { $at .= " rowspan=\"$h->{rows}\""; }
+			if ($h->{class})   { $at .= " class=\"$h->{class}\"";  }
+			if ($h->{th}) {
+				$line .= "<th$at>$h->{data}</th>";
+			} else {
+				$th_only = 0;
+				$line .= "<td$at>$h->{data}</td>";
+			}
+		}
+		if ($thead_flag && !$th_only) {
+			push(@$ary, "</thead><tbody>\n");
+			$thead_flag = 0;
+		}
+		push(@$ary, "\t<tr class=\"$tr_class\">$line</tr>\n");
+	}
+	push(@$ary, "</tbody></table>\n");
+}
+
+###############################################################################
+# ■[02] セクション処理、目次処理
+###############################################################################
+# 行末改行のある行は処理終了とみなす。
+my %marks;
+$marks{'*'}     = \&section;
+$marks{'**'}    = \&subsection;
+$marks{'***'}   = \&subsubsection;
+$marks{'****'}  = \&subsubsubsection;
+$marks{'='}     = \&dummy;
+$marks{'=='}    = \&dummy;
+$marks{'==='}   = \&dummy;
+$marks{'===='}  = \&super_more_read;
+$marks{'====='} = \&super_more_read;
+sub parse_section {
+	my ($self, $lines) = @_;
+	my @ary;
+	my $class;
+
+	# 変数初期化
+	$self->{in_section}       = 0;
+	$self->{more_read}        = 0;
+	$self->{now_anchor_name}  = "$self->{unique_linkname}p0";	# default
+
+	# 行頭改行無視
+	if (ref($lines->[0]) eq 'HASH') { shift(@$lines); }
+
+	# 先頭が見出しでない場合、section を開始する
+	foreach(@$lines) {
+		if ($_ =~ /^::/ || $_ eq "" || ref($_) eq 'HASH') { next; }
+		if (substr($_, 0, 1) ne '*' || substr($_, 0, 2) eq '**') {
+			$self->{in_section} = 1;
+			push(@ary, "<section>\n");
+		}
+		last;
+	}
+
+	while($#$lines >= 0) {
+		my $line = shift(@$lines);
+
+		#-------------------------------------------------
+		# 処理済み行は飛ばす
+		#-------------------------------------------------
+		my $end_mark = substr($line, -1);		# \n/\x01 で終わる行は処理済み
+		if (ref($line) eq 'HASH' || $end_mark eq "\n" || $end_mark eq "\x01") {
+			push(@ary, $line);
 			next;
 		}
-		if ($s1 eq '+' || $s1 eq '-') {   # -/+ のリスト表記
-			my $list_ext;
-			if (length($line)==1) { $list_ext=1; } 
-					else  { unshift(@$lines, $line); }
-			$self->split_list_block(\@ary, $lines, 1, $class, $list_ext);
+		# 変数書き換え記法を読み飛ばす（なくても大丈夫だけど……）
+		if (substr($line,0,2) eq '::') {
+			push(@ary, $line);
 			next;
 		}
-		if (!$in_table && $s1 eq '|') {	# | のテーブル表記
-			$in_table = 1;
-		}
+
 		#-------------------------------------------------
 		# セクション、続きを読むの判別
 		#-------------------------------------------------
@@ -885,6 +1244,7 @@ sub blocks_and_section {
 		#-------------------------------------------------
 		push(@ary, $line);
 	}
+
 	if ($self->{more_read})  { push(@ary, "<!--%MoreEnd%-->\n"); }
 	if ($self->{in_section}) {
 		push(@ary, {section_end => 1});	# 位置をマーキング
@@ -908,85 +1268,16 @@ sub blocks_and_section {
 	return \@ary;
 }
 
-#--------------------------------------------------
-# ○リストブロックの抽出
-#--------------------------------------------------
-sub split_list_block {
-	my ($self, $ary, $lines, $depth, $class, $list_ext) = @_;
-	my $tag = 'ul';
-	my $indent = "\t" x ($depth-1);
-	if (substr($lines->[0], 0, 1) eq '+') { $tag='ol'; }
-	push(@$ary, "$indent<$tag$class>\n");
-	my $next_line;
-	while(@$lines) {
-		if (ref($lines->[0]) || $lines->[0] !~ /^([\+\-]+)(.*)/) { last; }
-		my $length = length($1);
-		my $data   = $2;
-		if ($length < $depth) { last; }
-		if ($length > $depth) {
-			if ($next_line) {
-				if ($next_line !~ /^\t*$/) { push(@$ary, "$next_line\n"); }
-				$next_line='';
-				$self->split_list_block($ary, $lines, $depth+1, '', $list_ext);
-				push(@$ary, "$indent\t</li>\n");
-				next;
-			}
-			$self->split_list_block($ary, $lines, $depth+1, '', $list_ext);
-			next;
-		}
-		shift(@$lines);
-		if ($next_line) { push(@$ary, "$next_line</li>\n"); }
-		if ($data =~ /^=(\d+)(?:\s+(.*))?/) {	# 項目値指定
-			$next_line = "$indent\t<li value=\"$1\">$2";
-		} else {
-			$next_line = "$indent\t<li>$data";
-		}
-		# 拡張リスト処理
-		if ($list_ext) {
-			my $f=1;
-			my $block_c=0;
-			while(@$lines) {
-				my $x = $lines->[0];
-				if (ref($x) || $x =~ /^[\+\-]/) { last; }
-				# 内部ブロック要素、対応チェック
-				if ($x =~ m[^\t*</(?:blockquote|div|pre)>[\n\x01]$]) {
-					$block_c--;if ($block_c<0) { last; }
-				} elsif ($x =~ m[^\t*<(?:blockquote|div|pre)[^>]*>[\n\x01]$]) {
-					$block_c++;
-				}
-				if ($f) {
-					my $br = $self->{list_nobr} ? '' : '<br>';
-					push(@$ary, "$next_line$br\n");		# ブロック終わり記号
-					$next_line="$indent\t"; $f=0
-				}
-				# リスト内改行への対応（p modeでもbrで処理）
-				my $br;
-				if (!$self->{list_nobr} && $x !~ /[\n\x01]$/) {
-					$br = "<br>\n";
-				}
-				push(@$ary, shift(@$lines) . $br);
-			}
-			# リスト項目後の空行１行は無視
-			if (ref($lines->[0]) && $lines->[0]->{null_lines}==1) { shift(@$lines); }
-		}
-	}
-	if ($next_line) { push(@$ary, "$next_line</li>\n"); }
-	push(@$ary, "$indent</$tag>\n");
-}
-
 #------------------------------------------------------------------------------
-# ●記法ルーチン
+# ●ダミー（何もせずそのまま）
 #------------------------------------------------------------------------------
-#--------------------------------------------------------------------
-# ダミー（何もせずそのまま）
-#--------------------------------------------------------------------
 sub dummy {
 	return $_[1];
 }
 
-#--------------------------------------------------------------------
-# *section_title
-#--------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# ●*section_title
+#------------------------------------------------------------------------------
 sub section {
 	my ($self, $line) = @_;
 	my $ROBJ = $self->{ROBJ};
@@ -1048,9 +1339,9 @@ sub section {
 	return \@ary;
 }
 
-#--------------------------------------------------------------------
-# **subsection_title
-#--------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# ●**subsection_title
+#------------------------------------------------------------------------------
 sub subsection {
 	my ($self, $line) = @_;
 	$line = substr($line, 2);
@@ -1099,9 +1390,9 @@ sub subsection {
 	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\">$anchor$line</a></h$hnum>\n";
 }
 
-#--------------------------------------------------------------------
-# ***subsubsection
-#--------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# ●***subsubsection
+#------------------------------------------------------------------------------
 sub subsubsection {
 	my ($self, $line) = @_;
 	$line = substr($line, 3);
@@ -1132,9 +1423,9 @@ sub subsubsection {
 	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$anchor$line</a></h$hnum>\n";
 }
 
-#--------------------------------------------------------------------
-# ***subsubsection
-#--------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# ●****subsubsubsection
+#------------------------------------------------------------------------------
 sub subsubsubsection {
 	my ($self, $line) = @_;
 	$line =~ /^\*(\*+)(.*)/s;
@@ -1143,172 +1434,9 @@ sub subsubsubsection {
 	return "<h$level>$2</h$level>\n";
 }
 
-#--------------------------------------------------------------------
-# table記法- |name|data
-#--------------------------------------------------------------------
-sub table {
-	my ($self, $line) = @_;
-	$line =~ s/\s*$//;	# 行末空白の除去
-
-	# caption/summary
-	if ($self->{table_rows} || substr($line,-1) eq '|') {
-		# tableが既に記述済 か | で終わるときは何もしない
-	} elsif (substr($line,0,9) eq '|caption=') {
-		$self->{table_caption} = substr($line,9);
-		return;
-	} elsif (substr($line,0,9) eq '|summary=') {
-		$self->{table_summary} = substr($line,9);
-		return;
-	}
-
-	# table 内クラス指定
-	if (substr($line,0,3) eq '|::') {
-		my $class = substr($line,3);
-		$class =~ s/[^\w\-\| ]//g;
-		# th, td クラス指定
-		if (substr($class,0,1) eq '|') {
-			my @ary = split(/\s*\|\s*/, $class);
-			shift(@ary);	# 読み捨て
-			$self->{td_classes} = \@ary;
-			return;
-		}
-		# trクラス指定
-		$self->{tr_class} = " $class";
-		return undef;
-	}
-
-	# table 1 ROW の作成
-	my $rows = $self->{table_rows} ||= [];
-	my @cols;
-
-	# |aa|bb|cc  → |aa|bb|cc|=
-	# |aa|bb|cc| → |aa|bb|cc|=
-	$line =~ s/\|?\s*$/|=/;
-	my @ary = split(/\s*\|\s*/, $line);
-	shift(@ary);	# 最初を読み捨て
-	pop(@ary);	# "=" 読み捨て
-
-	my $td_classes = $self->{td_classes} || [];
-	my @td_class_ary = @{ $td_classes };
-	foreach(0..$#ary) {
-		my $x = $ary[$_];
-		my $h = {cols=>1, rows=>1};
-		$h->{class} = shift( @td_class_ary );
-		if (substr($x,0,1) eq '*') {
-			$h->{th}   = 1;
-			$h->{data} = substr($x,1);
-		} elsif ($x eq '<' && $#cols >= 0) {	# 左連結
-			$h = $cols[$#cols];
-			$h->{cols} ++; 
-		} elsif (($x eq '~' || $x eq '^') && $#$rows >= 0 && $_ < $#{ $rows->[$#$rows]}) {	# 上連結
-			$h = $rows->[$#$rows]->[$_];
-			$h->{rows} ++;
-		} else {
-			$h->{data} = $x;
-		}
-		push(@cols, $h);
-	}
-	if ($#cols > 0) {
-		foreach(reverse(0..($#cols-1))) {
-			if ($cols[$_]->{data} eq '>') {	# 右連結
-				$cols[$_] = $cols[$_+1];
-				$cols[$_]->{cols} ++;
-			}
-		}
-	}
-
-	# trクラス指定
-	my $class    = 'even';
-	my $tr_count = ++ $self->{tr_count};
-	if ($tr_count & 1) { $class='odd'; }
-	$class .= $self->{tr_class};
-	$self->{tr_class} = undef;
-	push(@cols, $class);
-	push(@$rows, \@cols);
-	return undef;
-	# return "\t<tr class=\"$class\">$line</tr>\n";
-}
-
-#---------------------------
-# テーブルの出力
-#---------------------------
-sub table_output {
-	my ($self, $out, $class) = @_;
-	my $ROBJ = $self->{ROBJ};
-	my $rows = $self->{table_rows};
-	my $summary = $self->{table_summary};
-	my $caption = $self->{table_caption};
-	$self->{table_rows} = $self->{tr_class} = $self->{td_classes} = undef;
-	$self->{table_summary} = $self->{table_caption} = undef;
-	$self->{tr_count} = 0;
-	if (!defined $rows) { return ; }
-
-	# 下に連結？
-	foreach my $row_num (reverse(0..($#$rows-1))) {
-		my $cols = $rows->[$row_num];
-		foreach(0..($#$cols-1)) {
-			my $h = $cols->[$_];
-			if ($h->{data} eq '_' && ref($rows->[$row_num+1]->[$_])) {
-				$h = $rows->[$row_num]->[$_] = $rows->[$row_num+1]->[$_];
-				$h->{rows}++;
-			}
-		}
-	}
-
-	# caption & summary
-	$self->tag_syntax_escape($summary);		# 記法タグも escape
-	$ROBJ->tag_escape($caption);
-	if ($summary ne '') { $summary="<!-- summary=$summary -->"; }
-	# 出力
-	push(@$out, "<table$class>$summary\n");
-	if ($caption ne '') { push(@$out, "<caption>$caption</caption>\n"); }
-	my $thead_flag;
-	if (1 < $#$rows) {
-		# テーブルの行が２行以上あり、最初の行がすべて th ならば、
-		# その部分を thead として認識する。
-		my $cols=$rows->[0];
-		$thead_flag = 1;
-		foreach(@$cols) {
-			if (ref($_) && ! $_->{th}) { $thead_flag=0; last; }
-		}
-	}
-	
-	if ($thead_flag) { push(@$out, "<thead>\n"); }
-		    else { push(@$out, "<tbody>\n"); }
-	while(@$rows) {
-		my $cols = shift(@$rows);
-		my $tr_class = pop(@$cols);
-		my $line;
-		my $th_only = 1;
-		foreach(0..$#$cols) {
-			my $h = $cols->[$_];
-			if ($h->{output}) { next; }	# １度出力したものは出力しない
-			# 出力
-			$h->{output} = 1;
-			my $at;
-			if ($h->{cols} >1) { $at .= " colspan=\"$h->{cols}\""; }
-			if ($h->{rows} >1) { $at .= " rowspan=\"$h->{rows}\""; }
-			if ($h->{class})   { $at .= " class=\"$h->{class}\"";  }
-			if ($h->{th}) {
-				$line .= "<th$at>$h->{data}</th>";
-			} else {
-				$th_only = 0;
-				$line .= "<td$at>$h->{data}</td>";
-			}
-		}
-		if ($thead_flag && !$th_only) {
-			push(@$out, "</thead><tbody>\n");
-			$thead_flag = 0;
-		}
-		push(@$out, "\t<tr class=\"$tr_class\">$line</tr>\n");
-	}
-	push(@$out, "</tbody></table>\n");
-}
-
-
-#--------------------------------------------------------------------
-# 「続きを読む（完全省略）」 - =====
-#--------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# ●「続きを読む（完全省略）」 - =====
+#------------------------------------------------------------------------------
 sub super_more_read {
 	my ($self, $line) = @_;
 	if ($self->{more_read}) { return ; }
@@ -1689,14 +1817,19 @@ sub paragraph_processing {
 				next;
 			}
 			if ($br_mode) { push(@ary, "<br>\n"); }	# 改行処理
-			elsif (ord(substr($this,-1))<0x80 && ord(substr($next,0,1))<0x80) {
-				# 段落による行連結しものの、latin文字中である場合は改行を残す
+			elsif ($self->acsii_line_chain($this,$next)) {
+				# 行連結するとき、ASCII文字中である場合は改行を残す
 				push(@ary, "\n");
 			}
 			next;
 		}
 	}
 	return \@ary;
+}
+sub acsii_line_chain {
+	my $self = shift;
+	my ($prev, $this) = @_;
+	return ord(substr($prev,-1))<0x80 && ord(substr($this,0,1))<0x80;
 }
 
 #--------------------------------------------------------------------
@@ -1803,6 +1936,15 @@ sub post_process {
 ###############################################################################
 # ■内部サブルーチン
 ###############################################################################
+#------------------------------------------------------------------------------
+# ●タグエスケープ
+#------------------------------------------------------------------------------
+sub tag_escape {
+	my $self=shift;
+	my $ROBJ = $self->{ROBJ};
+	return $ROBJ->tag_escape(@_);
+}
+
 #------------------------------------------------------------------------------
 # ●タグ/記法記号のエスケープ（エンコード）
 #------------------------------------------------------------------------------
