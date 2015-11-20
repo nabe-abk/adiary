@@ -18,8 +18,9 @@ pre
 code
 
 ### 修飾 ########################
-ins
-del
+ins		cite, datetime
+del		cite, datetime
+q		cite
 strong
 em
 i

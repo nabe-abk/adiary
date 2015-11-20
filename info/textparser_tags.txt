@@ -242,20 +242,22 @@ pubdist = text:${pubdist}
 #------------------------------------------------------------------------------
 # HTMLタグへの置換
 #------------------------------------------------------------------------------
+em	= html:em
 bf	= html:strong
 warn	= html:strong.warning
 s	= html:del
 del	= html:del
-pre	= html:span.pre
-em	= html:em
+ins	= html:ins
+u	= html:span.underline
 h	= html:span.hidden
 hidden	= html:span.hidden
-u	= html:span.underline
+pre	= html:span.pre
 sup	= html:sup
 sub	= html:sub
 clear   = html:br.clear
 wbr     = html:wbr
 code	= html:code
+quote	= html:q
 
 #------------------------------------------------------------------------------
 # テキスト色

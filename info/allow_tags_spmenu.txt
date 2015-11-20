@@ -8,8 +8,9 @@ _protocol	http, https, ftp, mailto
 a		href, name, rel
 
 ### 修飾 ########################
-ins
-del
+ins		cite, datetime
+del		cite, datetime
+q		cite
 strong
 em
 i
