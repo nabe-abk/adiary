@@ -11,12 +11,12 @@ adiary_version=2.961
 module_type=article
 module_id=social-buttons
 
-load_module_html_in_edit=1
+load_module_html_in_edit=0
 
 *sample_html=<<HTML
 <div class="social-buttons" data-module-name="<@this>">
 	<span class="social-button twitter-share">
-		<a class="share" href="#" title="Twitterでシェア"></a><a class="count" href="#">0</a>
+		<a class="share" href="#" title="Twitterでシェア"></a><a class="count" href="#">-</a>
 	</span>
 	<span class="social-button facebook-share">
 		<a class="share" href="#" title="Facebookでシェア"></a><a class="count" href="#">0</a>
