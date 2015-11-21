@@ -514,11 +514,13 @@ push(@Blocks, {
 	pre    => 1
 });
 push(@Blocks, {
-	start  => qr/^>\|([\w#\-]+|\?)\|(.*)/,
+	start  => sub {
+		if ($_[0] !~ /^>\|([\w#\-]+)\|(.*)/) { return; }
+		return [$1, $2];
+	},
 	end    => '||<',
 	tag    => 'pre',
 	class  => 'syntax-highlight',
-	opt    => '$1 $2',		# 正規表現の結果を代入
 	pre    => 1
 });
 push(@Blocks, {
@@ -620,13 +622,15 @@ push(@Blocks, {
 	p      => 1
 });
 push(@Blocks, {
-	start  => qr|>(https?://[^>]*)>(.*)|,
+	start  => sub {
+		if ($_[0] !~ m|>(https?://[^>]*)>(.*)|) { return; }
+		return ["[$1]", $2];
+	},
 	end    => '<<',
 	tag    => 'blockquote',
 	htag   => 1,
 	atag   => 1,
-	p      => 1,
-	opt    => '[$1] $2'
+	p      => 1
 });
 foreach(@Blocks) {
 	$_->{len} = length($_->{start});
@@ -708,10 +712,8 @@ sub block_parser_main {
 			my $opt;
 			foreach(@Blocks) {
 				my $start = $_->{start};
-				if (ref($start) && $line =~ /$start/) {
-					my $opt = $_->{opt};
-					$opt =~ s/\$1/$1/g;
-					$opt =~ s/\$2/$2/g;
+				if (ref($start) && (my $ma = &$start($line))) {
+					$opt = join(' ', @$ma);
 					$blk = $_;
 					last;
 				}
@@ -2006,7 +2008,7 @@ sub parse_class_id {
 	my $self=shift;
 	my $str=shift;
 	my $id;
-	$str =~ s/(?:^|\s)[Ii][Dd]=([\w\-]+)/$id=$1,""/e;
+	$str =~ s/(?:^|\s)[Ii][Dd]=("?)([\w\-]+)\1/$id=$2,""/e;
 	$str =~ s/^\s*(.*?)\s*$/$1/;
 	$str =~ s/[^\w\-: ]//g;
 	$str =~ s/\s+/ /g;
