@@ -642,10 +642,10 @@ sub block_parser_main {
 	my $st     = shift;		# blockステータス
 	my $macros = $self->{macros};	# マクロ情報
 
-	my $end      = $st->{end};
-	my $blk_mark = $st->{all} ? '' : "\x02";
 	# \x02 は >> -- <<などのブロック中のみ行末に付加される。
 	# リストブロック内での項目連結処理を、項目内のブロックで行わないための細工。
+	my $end      = $st->{end};
+	my $blk_mark = $st->{all} ? '' : "\x02";
 
 	my $in_comment;
 	my $class;		# リストブロック用クラス指定
@@ -654,19 +654,7 @@ sub block_parser_main {
 	my $ary_bak;		# $ary退避用
 	my @table;		# table用バッファ
 
-	my $list_close = sub {
-		my $list = $ary;
-		$ary = $ary_bak;
-		if ($list_mark eq ':') {
-			$self->parse_list_dl($ary, $list, $class);
-		}
-		if ($list_mark eq '-') {
-			$self->parse_list_ulol($ary, $list, 1, $class);
-		}
-		$list_mark='';
-		$class='';
-	};
-	while($#$lines >= 0) {
+	while(@$lines || $list_mark) {		# $list_mark : 最終行がリスト項目の時にもう一度だけループを回す
 		my $line = shift(@$lines);
 		my $blank = ($line eq '');
 
@@ -793,6 +781,15 @@ sub block_parser_main {
 			$class = $self->parse_class_id($class);
 			next;
 		}
+		#-------------------------------------------------
+		# ブロックの終わり
+		#-------------------------------------------------
+		my $block_end = ($end && $line eq $end);
+		if ($block_end) {
+			# リストブロックやテーブルを強制的に終わらせる
+			$line = '';
+			$blank = 1;
+		}
 
 		#-------------------------------------------------
 		# リストブロックの抽出
@@ -812,16 +809,18 @@ sub block_parser_main {
 			}
 			next;
 		}
+		# 今の行はリストではない
 		if ($list_mark && ($blank || !$list_ext && $s1 ne $list_mark)) {
-			&$list_close();
-			# if ($blank) { next; }
-		}
-
-		#-------------------------------------------------
-		# ブロックの終わり
-		#-------------------------------------------------
-		if ($end && $line eq $end) {
-			last;
+			my $list = $ary;
+			$ary = $ary_bak;
+			if ($list_mark eq ':') {
+				$self->parse_list_dl($ary, $list, $class);
+			}
+			if ($list_mark eq '-') {
+				$self->parse_list_ulol($ary, $list, 1, $class);
+			}
+			$list_mark='';
+			$class='';
 		}
 
 		#-------------------------------------------------
@@ -831,11 +830,18 @@ sub block_parser_main {
 			push(@table, $line);
 		}
 		if (@table) {
-			if (substr($lines->[0], 0, 1) ne '|') {
+			if ($block_end || substr($lines->[0], 0, 1) ne '|') {
 				$self->parse_table( $ary, \@table, $class );
 				@table = ();
 			}
-			next;
+			if (!$block_end) { next; }
+		}
+
+		#-------------------------------------------------
+		# ブロックの終わり
+		#-------------------------------------------------
+		if ($block_end) {
+			last;
 		}
 
 		#-------------------------------------------------
@@ -903,9 +909,6 @@ sub block_parser_main {
 		# 通常行
 		#-------------------------------------------------
 		push(@$ary, "$line$blk_mark");
-	}
-	if ($list_mark) {
-		&$list_close();
 	}
 	return $ary;
 }
