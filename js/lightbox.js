@@ -26,6 +26,7 @@
       this.wrapAround                  = false;
       this.swipeThreshold              = 60;
       this.min_width                   = $('<div>').attr('id','lightbox-min-width').appendTo($('body')).width();
+      this.lightboxHash                = '#*--LBHash--LBHash--*';
     }
     
     // Change to localize to non-english language
@@ -143,6 +144,15 @@
     Lightbox.prototype.start = function($link) {
       var self    = this;
       var $window = $(window);
+
+      // back button hack  by nabe@abk
+      if ('onhashchange' in window) {
+        location.hash = this.options.lightboxHash;
+        $window.on('hashchange.lightbox.back', function(evt){
+          if (location.hash != self.options.lightboxHash)
+            self.end();
+        });
+      }
 
       $window.on('resize', $.proxy(this.sizeOverlay, this));
 
@@ -466,6 +476,11 @@
       $('select, object, embed').css({
         visibility: "visible"
       });
+
+      // back button hack
+      $(window).off('hashchange.lightbox.back');
+      if (location.hash == this.options.lightboxHash)
+	history.back();
     };
 
     return Lightbox;
