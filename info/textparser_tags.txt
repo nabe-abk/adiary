@@ -109,6 +109,9 @@ uc   = アンサイクロペディア, UTF-8, http://ja.uncyclopedia.info/wiki/
 ei   = 英辞郎, UTF-8, 1, http://eow.alc.co.jp/$1/UTF-8/
 e2j  = >ej
 
+man  = >jman
+jman = Linux jman, ASCII, http://linuxjm.osdn.jp/cgi-bin/man.cgi?Sec1=on&Sec2=on&Sec3=on&Sec4=on&Sec5=on&Sec6=on&Sec7=on&Sec8=on&Pagename=
+
 #------------------------------------------------------------------------------
 # はてな記法互換のためのタグ
 # ※使用上およそ問題ありませんが、完全互換ではありません
