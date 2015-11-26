@@ -59,7 +59,7 @@
 	<tr>
 		<th>同時編集の確認<span class="help" data-help="同じ記事を複数編集したとき確認メッセージを出すシステムです。情報共有CMSなどに利用できます。使用する場合は編集状況の確認間隔（秒）を設定してください。">?</span></th>
 		<td<@err.c_reload_time>>
-			<input type="number" name="edit_lock_time" min="0" max="300" class="w50" value="<@if(s.edit_lock_time eq '', 0, s.edit_lock_time)>">秒（0-9秒＝無効。推奨：60秒）
+			<input type="number" name="edit_lock_time" min="0" max="300" class="w50" value="<@if(s.edit_lock_time eq '', 0, s.edit_lock_time)>">秒（0-9秒＝無効。推奨：30秒）
 		</td>
 	</tr>
 	<tr>
@@ -86,7 +86,7 @@
 	<tr>
 		<th>データVersion<span class="help" data-help="自動システムアップデートで参照するシステム内データVersionです。アップデート処理をどうしてもやり直したい時などに使用します。通常は書き換えないでください。">?</span></th>
 		<td<@err.c_VERSION>>
-			Ver <input type="number" class="w60" name="VERSION" step="0.01" min="2.90" max="2.971" value="<@sprintf('%.2f', s.VERSION)>">
+			Ver <input type="number" class="w60" name="VERSION" step="0.01" min="2.90" value="<@sprintf('%.2f', s.VERSION)>">
 			 <strong class="warning">※非常時以外書き換え禁止</strong>
 		</td>
 	</tr>
