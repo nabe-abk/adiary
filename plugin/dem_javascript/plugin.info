@@ -1,0 +1,36 @@
+######################################################################
+title=JavaScript入力
+version=1.00
+#					(C)2015 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+adiary_version=2.98
+module_type=main
+
+# trust_mode専用プラグイン
+trust_mode=1
+
+*sample_html=<<HTML
+<div class="dem-module">
+JavaScriptを入力できます
+</div>
+HTML
+
+
+*module_html=<<HTML
+<$ps = v.load_plgset('<@this>')>
+<$js_urls = split("\n", ps.urls)>
+<$ifexec(ps.async, begin, begin)>
+	<$v.regist_js(@js_urls)>
+<$else>
+	<$v.regist_jslib(@js_urls)>
+<$end>
+<div class="dem-module" data-module-name="<@this>">
+<script><!--
+<@ps.script>
+--></script>
+</div>
+HTML

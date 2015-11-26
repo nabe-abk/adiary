@@ -93,7 +93,8 @@ select {
 <!-- デザインモジュールの情報 =============================================-->
 <div class="js-hook-stop" id="design-modules-data" style="display: none">
 <@forexec(t, mods, begin)>
-<$ifnext(t.adiary_version > v.VERSION)> <@>  対応Versionチェック
+<$ifnext(t.adiary_version > v.VERSION)>  <@>  対応Versionチェック
+<$ifnext(t.trust_mode && !v.trust_mode)> <@>  trust_mode専用プラグイン
 <div title="<@t.title>"
  data-module-name="<@t.name>"
  data-type="<@t.module_type>"

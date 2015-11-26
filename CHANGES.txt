@@ -7,6 +7,7 @@
 --単一記事表示と複数記事表示のそれぞれで、記事ヘッダとフッタを編集できるようにしました。
 --複数記事表示時に、記事と記事の間に出力するモジュールを編集できるようにしました。
 -[http://adiary.org/v3man/Satsuki-tag/tex#mathjax:MathJaxに対応しました]。
+-trust_mode時に使える「JavaScript入力プラグイン」を作成しました。
 -textarea を 'display: block' に変更しました。
 -Twitterへの通知送信を更新通知Pingの設定と連動するようにしました。
 -{[asin:XXXX:image]}記法使用時、スライドショー（Lightbox2）の対象にならないようにしました。

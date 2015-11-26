@@ -9,7 +9,7 @@ use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION = '2.98';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'RC1.x';
+our $SUBVERSION = 'RC2';
 our $DATA_VERSION = 2.97;
 ###############################################################################
 # ■システム内部イベント
@@ -1706,11 +1706,18 @@ sub regist_postcss {
 }
 sub load_jscss {
 	my $self = shift;
+	my $base = shift;
 	my $name = shift;
-	my %h;
 	my @ary = @{ $self->{$name . 'files'} || []};
 	push(@ary, @{ $self->load_jscss_events($name) });
-	return [ grep { $h{$_}++; $h{$_}<2 } @ary ];
+
+	my %h;
+	@ary = grep { $h{$_}++; $h{$_}<2 } @ary;
+	foreach(@ary) {
+		if ($_ =~ m!^/|^https?://!i) { next; }
+		$_ = $base . $_;
+	}
+	return \@ary;
 }
 # ヘッダに追加
 sub add_header {

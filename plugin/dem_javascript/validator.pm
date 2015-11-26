@@ -1,0 +1,33 @@
+#-----------------------------------------------------------------------------
+# JavaScriptモジュールの値チェック
+#-----------------------------------------------------------------------------
+sub {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $script = $form->{script_txt};
+	my $urls   = $form->{urls_txt};
+	my $async  = $form->{async} ? 1 : 0;
+
+	if (!$self->{trust_mode}) {
+		$script = '';
+		$urls   = '';
+	}
+
+	my @url;
+	foreach(split(/\n/, $urls)) {
+		$_ =~ s/\s//g; 
+		if ($_ !~ m|^/| && $_ !~ m|^https?://|) { next; }
+		push(@url, $_);
+	}
+
+	# 設定値
+	my %h;
+	$h{script} = $script;
+	$h{urls}   = join("\n", @url);
+	$h{async}  = $async;
+
+	return \%h;
+}
+

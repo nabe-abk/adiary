@@ -19,8 +19,8 @@
 <link rel="stylesheet" href="<@Basepath><@v.pubdist_dir>jquery-ui/jquery-ui.custom.css" id="jquery-ui-css">
 <link rel="stylesheet" href="<@Basepath><@v.pubdist_dir>lightbox/lightbox.css" id="lightbox-css">
 <@>
-<@forexec(t, v.load_jscss('css'), begin)>
-<link rel="stylesheet" href="<@Basepath><@t>">
+<@forexec(t, v.load_jscss(Basepath, 'css'), begin)>
+<link rel="stylesheet" href="<@t>">
 <$end>
 <@>
 <@> テーマとユーザーCSSは最後に読み込む
@@ -38,8 +38,8 @@
 <link rel="stylesheet" href="<@Basepath><@file>?<@get_lastmodified(file)>" id="user-css">
 <$end>
 <@>
-<@forexec(t, v.load_jscss('postcss'), begin)>
-<link rel="stylesheet" href="<@Basepath><@t>">
+<@forexec(t, v.load_jscss(Basepath, 'postcss'), begin)>
+<link rel="stylesheet" href="<@t>">
 <$end>
 <@>
 <@if(canonical_url, #'<link rel="canonical" href="<@canonical_url>">\n')>
@@ -63,11 +63,11 @@
 <!--<![endif]-->
 <script src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
 <script src="<@Basepath><@v.script_dir>adiary.js?<@tm>"></script>
-<@forexec(t, v.load_jscss('jslib'), begin)>
-<script src="<@Basepath><@t>?<@tm>"></script>
+<@forexec(t, v.load_jscss(Basepath, 'jslib'), begin)>
+<script src="<@t>?<@tm>"></script>
 <$end>
-<@forexec(t, v.load_jscss('js'), begin)>
-<script async src="<@Basepath><@t>?<@tm>"></script>
+<@forexec(t, v.load_jscss(Basepath, 'js'), begin)>
+<script async src="<@t>?<@tm>"></script>
 <$end>
 <script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">
