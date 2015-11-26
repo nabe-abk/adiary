@@ -173,10 +173,11 @@
 
 
 <$ifbreak(##logs==-1)><@> 記事がなければ処理終了
+<$ifexec(!art_sample_mode, begin)>
 <@>$HEADER:END$----------------------------------------------------------------
 
 <@><!--========================================================================-->
-<@ifexec(ret.pagemode && (1<page || ret.next_page) && !page_nav_stop, begin.page)>
+<@ifexec(ret.pagemode && (1<page || ret.next_page), begin.page)>
 <nav class="page-nav art-nav">
 <@page_nav = exec(begin.function)>
 <@ifexec(ret.pages, begin, begin)>
@@ -194,6 +195,7 @@
 </nav>
 <$end.page>
 <@>$BETWEEN_TOP$---------------------------------------------------------------
+<$end>
 <$between_c=0>
 <$between = begin.function>
 <$between_c+=1><$ifreturn(between_c > ##logs)>
@@ -250,12 +252,13 @@
 <@between && exec(between)>
 <$end>
 </div>
+<$ifbreak(art_sample_mode)>
 <$url = url_bak>
 <@>$ARTICLE_BOTTOM:END$--------------------------------------------------------
 <@>$ARTICLE:END$---------------------------------------------------------------
 
 
-<@ifexec(page_nav && !page_nav_stop, begin.page)>
+<@ifexec(page_nav, begin.page)>
 <nav class="page-nav art-nav">
 <@page_nav>
 </nav>

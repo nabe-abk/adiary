@@ -45,7 +45,7 @@ HTML
 *module_main_html=<<HTML
 <@><!--========================================================================-->
 <$ps = v.load_plgset('<@this>')>
-<@ifexec(ret.pagemode && (1<page || ret.next_page) && !page_nav_stop, begin.page)>
+<@ifexec(ret.pagemode && (1<page || ret.next_page), begin.page)>
 <nav class="page-nav art-nav <@ps.align>" data-module-name="<@this>">
 <@page_nav_force || exec(begin.function)>
 <@ifexec(ret.pages, begin, begin)>

@@ -511,7 +511,7 @@ btn_save.click(function(){
 		}
 		if (fixmod) {
 			form.append( generate_inp(key, fixmod) );
-			form.append( generate_inp('debug_ary', 'Add fix module "' + fixmod + '" for "' + key + '"') );
+			form.append( generate_inp('debug_ary', '[design-edit.js] Add fix module "' + fixmod + '" for "' + key + '"') );
 		}
 
 		obj.each( function(idx,dom){
