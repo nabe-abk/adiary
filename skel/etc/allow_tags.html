@@ -44,6 +44,7 @@
 		</tbody>
 		</table>
 	<ul>
+		<li>コメントの記述 : <@if(tag.allow_comment, '許可', '不可')>
 		<li>リンク可能なプロトコル : <@tag.allow_protocol>
 	<$end>
 		<li>相対パス→絶対パス: <@if(tag.force_absolute_path, '書き換える', '(none)')>

@@ -104,6 +104,7 @@ sub init {
 		$self->{allow_protocol} = join(', ', @$p);
 		$tag_allow{_protocol} = { map {$_=>1} @$p };
 	}
+	$self->{allow_comment}       = (exists $tag_allow{_comment});
 	$self->{allow_anytag}        = (exists $tag_allow{_allow_anytag});
 	$self->{force_absolute_path} = (exists $tag_allow{_force_absolute_path});
 	$self->{force_absolute_uri}  = (exists $tag_allow{_force_absolute_uri});
@@ -157,7 +158,7 @@ sub escape {
 
 	### コメント退避(保存) or 除去
 	my @comments;
-	if ($allow_any || exists $tag_list->{_comment}) {		# 退避
+	if ($allow_any || exists $self->{allow_comment}) {		# 退避
 		# 正しくは <!(--.*?--\s*)+> だけど、ブウラザの対応がまちまちなので。
 		$inp =~ s/<!--(.*?)--\s*>/push(@comments,$1),"\x01$#comments\x01"/seg;
 		foreach(@comments) {	# security対策
