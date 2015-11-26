@@ -152,7 +152,7 @@ sub request {
 		if ($jcode) {
 			$jcode->from_to(\$v, $ROBJ->{System_coding}, 'UTF-8');
 		}
-		$self->urlencode_com($v);
+		$self->oauth_urlencode_com($v);
 		$h{$_} = $v;
 	}
 
@@ -282,7 +282,7 @@ sub generate_signature {
 	my ($method, $url, $msg, $secret1, $secret2) = @_;
 
 	# signatureの生成
-	$self->urlencode($url, $msg);
+	$self->oauth_urlencode($url, $msg);
 	my $sig = $self->hmac_sha1("$secret1&$secret2", "$method&$url&$msg");
 	$sig =~ s/=/%3D/g;
 	return $sig;
@@ -291,20 +291,20 @@ sub generate_signature {
 #------------------------------------------------------------------------------
 # ●URIエンコード
 #------------------------------------------------------------------------------
-sub urlencode {
+sub oauth_urlencode {
 	my $self = shift;
 	foreach(@_) {
-		$_ =~ s|([^a-zA-Z0-9\-\._\~])|
+		$_ =~ s|([^\w\-\.\~])|
 			my $x = '%' . unpack('H2', $1);
 			$x =~ tr/a-f/A-F/;
 			$x;
 		|eg;
 	}
 }
-sub urlencode_com {
+sub oauth_urlencode_com {
 	my $self = shift;
 	foreach(@_) {
-		$_ =~ s|([^\w!\(\)\*\-\.\~\/])|
+		$_ =~ s|([^\w!\(\)\*\-\.\~\/:])|
 			my $x = '%' . unpack('H2', $1);
 			$x =~ tr/a-f/A-F/;
 			$x;
