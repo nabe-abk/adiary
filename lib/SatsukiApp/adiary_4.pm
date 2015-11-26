@@ -432,7 +432,8 @@ sub save_use_plugins {
 	foreach(@$ary) {
 		my $name = $_->{name};
 		my $inst = $form->{$name} ? 1 : 0;
-		if ($_->{adiary_version} > $self->{VERSION}) { $inst=0; }	# 非対応バージョン
+		if ($_->{adiary_version} > $self->{VERSION})  { $inst=0; }	# 非対応バージョン
+		if ($_->{trust_mode} && !$self->{trust_mode}) { $inst=0; }	# trust_mode専用
 		if ($pd->{$name} == $inst) { next; }				# 変化なし
 
 		# 状態変化あり
@@ -1130,12 +1131,17 @@ sub load_module_html {
 	my $target = shift;	# _article, _main 等が入る
 	my $ROBJ = $self->{ROBJ};
 
+	# trust_mode check
+	my $info = $self->load_plugin_info($name) || {};
+	if ($info->{trust_mode} && !$self->{trust_mode}) {
+		return '';
+	}
+
 	# generatorの有無はファイルの存在で確認
 	my $dir = $self->plugin_name_dir( $name );
 	my $pm  = $ROBJ->get_filepath( $dir . 'html_generator.pm' );
 	if (! -r $pm) {
-		my $h = $self->load_plugin_info($name) || {};
-		return $h->{"module${target}_html"} || $h->{"module_html"};
+		return $info->{"module${target}_html"} || $info->{"module_html"};
 	}
 
 	my $func = $self->load_plugin_function( $pm, $pm );

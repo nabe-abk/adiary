@@ -10,11 +10,6 @@ sub {
 	my $urls   = $form->{urls_txt};
 	my $async  = $form->{async} ? 1 : 0;
 
-	if (!$self->{trust_mode}) {
-		$script = '';
-		$urls   = '';
-	}
-
 	my @url;
 	foreach(split(/\n/, $urls)) {
 		$_ =~ s/\s//g; 

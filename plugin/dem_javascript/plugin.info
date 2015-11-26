@@ -19,7 +19,6 @@ JavaScriptを入力できます
 </div>
 HTML
 
-
 *module_html=<<HTML
 <$ps = v.load_plgset('<@this>')>
 <$js_urls = split("\n", ps.urls)>
