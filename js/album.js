@@ -1050,7 +1050,6 @@ function thumb_size_change() {
 var paste_form = $secure('#paste-form');
 paste_form.submit(function(){
 	// エラー時送信しない為
-	alert( $('#paste-txt').val() );
 	if ($('#paste-txt').val() == '') return false;
 	return true;
 });
