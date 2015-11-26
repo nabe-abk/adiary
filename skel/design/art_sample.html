@@ -1,14 +1,12 @@
 <@6>
-<@local(ret,s,t)>
+<@local(ret,s,t, logs)>
 <$s = v.blog>
+<$ifredirect(!v.blog_admin, v.myself)>
 
-<$art_dummy = begin_hash>
+<$art_dummy = v.post_process_article(begin_hash)>
 pkey  = 1
 title = ダミー
 yyyymmdd = 20141231
-year  = 2014
-mon   = 12
-day   = 31
 text  = <section>果物のリスト。<br><ul><li>りんご</li><li>バナナ</li><li>パイナップル</li></ul>この記事はダミーです。<br></section>
 priority=0
 hcom_ok=1
@@ -23,7 +21,7 @@ coms=0
 name=owner
 host=localhost
 coms_all=0
-link_key=01
+link_key=<@'01'>
 agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0
 <$end>
 <$(t,ret) = v.load_article_current_blog(s.frontpage))>
@@ -41,4 +39,19 @@ agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0
 <$end>
 
 <$js_stop = 1>
-<$jump('_article', t, ret)>
+<@call('_article', t, ret)>
+
+
+<@>----------------------------------------------------------------------------
+<$logs = array()>
+<$art_dummy.title = '複数記事モード'>
+<$push(logs, copy(art_dummy))>
+<$push(logs, art_dummy)>
+<$art_dummy.pkey=2>
+<$art_dummy.link_key ='02'>
+<$art_dummy.elink_key='02'>
+<$art_dummy.text = '<section><strong>※この上の部分に配置したモジュールは「記事と記事の間」に出力されます。</strong></section>'>
+<$page_nav_stop = 1>
+
+<@call('_main', logs, ret)>
+

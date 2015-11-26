@@ -1,0 +1,25 @@
+######################################################################
+title=コメント数の表示
+version=1.00
+#					(C)2015 nabe@abk
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+adiary_version=2.97
+module_type=article
+
+*sample_html=<<HTML
+	<div class="com-count" data-module-name="<@this>">
+		<span class="element com-caption"><a href="#"><span class="com-title">コメント</span><span class="com-num">（<span class="num">0</span>件）</span></a></span>
+	</div>
+HTML
+
+*module_html=<<HTML
+<@ifexec(t.com_ok || coms, begin)>
+<div class="com-count" data-module-name="<@this>">
+	<span class="element com-caption"><a href="<@v.myself2><@t.elink_key>#com"><span class="com-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span></a></span>
+</div>
+<$end>
+HTML

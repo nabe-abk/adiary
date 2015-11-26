@@ -282,6 +282,10 @@ sub reinstall_design_plugins {
 		$h->{save_ary} = [ '_sidebar', '_header' ];
 		if (!$des->{header}) { return -1; }
 	}
+	if ($des->{version}<7) {
+		$h->{mart_h_ary} = $h->{art_h_ary};
+		$h->{mart_f_ary} = [ 'dea_com-count' ];
+	}
 	# uninstall
 	$self->reset_design();
 
@@ -297,18 +301,12 @@ sub reinstall_design_plugins {
 sub parse_design_dat {
 	my $self = shift;
 	my $dat  = shift;
-	return {
-		version    => $dat->{version},
-		side_a_ary => [ split(/\n/, $dat->{side_a}) ],
-		side_b_ary => [ split(/\n/, $dat->{side_b}) ],
-		main_a_ary => [ split(/\n/, $dat->{main_a}) ],
-		main_b_ary => [ split(/\n/, $dat->{main_b}) ],
-		header_ary => [ split(/\n/, $dat->{header}) ],
-		art_h_ary  => [ split(/\n/, $dat->{art_h})  ],
-		art_f_ary  => [ split(/\n/, $dat->{art_f})  ],
-		com_ary    => [ split(/\n/, $dat->{com})    ],
-		save_ary   => [ split(/\n/, $dat->{save})   ],
-	};
+	my %h;
+	foreach(keys(%$dat)) {
+		$h{"${_}_ary"} = [ split(/\n/, $dat->{$_}) ];
+	}
+	$h{version} = $dat->{version};
+	return \%h;
 }
 
 #------------------------------------------------------------------------------

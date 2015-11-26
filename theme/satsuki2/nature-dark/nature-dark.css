@@ -347,7 +347,7 @@ article h2 a:hover {
 }
 
 article h2 a.date,
-article h2 .body-header {
+article h2 .art-info {
 	font-size:		80%;
 	line-height:		100%;
 	font-weight:		normal;
@@ -397,14 +397,14 @@ div.body-footer {
 /*--------------------------------------------------------------------
 ■記事ヘッダ
 ---------------------------------------------------------------------*/
-div.body-header > span:not(:last-child) {
+div.art-info > span:not(:last-child) {
 	margin-right:		0.5em;
 }
 /* タグ一覧 */
-div.body-header span.tags:before {
+div.art-info span.tags:before {
 	content:		'[';
 }
-div.body-header span.tags:after {
+div.art-info span.tags:after {
 	content:		']';
 }
 span.tag:not(:last-child) {

@@ -383,7 +383,7 @@ article div.body {
 }
 
 /* 記事ヘッダ */
-div.body-header {
+div.art-info {
 	text-align:		right;
 	line-height:		100%;
 	font-size:		90%;
@@ -420,14 +420,14 @@ div.body-footer {
 /*--------------------------------------------------------------------
 ■記事ヘッダ
 ---------------------------------------------------------------------*/
-div.body-header > span:not(:last-child) {
+div.art-info > span:not(:last-child) {
 	margin-right:		0.5em;
 }
 /* タグ一覧 */
-div.body-header span.tags:before {
+div.art-info span.tags:before {
 	content:		'[';
 }
-div.body-header span.tags:after {
+div.art-info span.tags:after {
 	content:		']';
 }
 span.tag:not(:last-child) {

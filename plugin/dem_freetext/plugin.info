@@ -8,7 +8,7 @@ url=https://twitter.com/nabe_abk
 license=WTFPL
 
 adiary_version=2.94
-module_type=main,header
+module_type=main,header,between
 load_module_html_in_edit=1
 
 *sample_html=<<HTML

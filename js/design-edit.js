@@ -1,6 +1,6 @@
 //############################################################################
 // adiaryデザイン編集用JavaScript
-//							(C)2013 nabe@abk
+//							(C)2013-2015 nabe@abk
 //############################################################################
 //[TAB=8]  require jQuery
 'use strict';
@@ -58,6 +58,8 @@ iframe.on('load', function(){
 	var f_main = $fsec('#main-first');
 	var f_head = $fsec('#header');
 	var f_hdiv = f_head.children('div:first-child');
+	var view_mode;
+	var zidx_module;	// hoverによる操作ボタン優先度の入れ替え用
 
 	// フレーム内check
 	if ($f('#body').hasClass('system-mode')) {
@@ -66,26 +68,30 @@ iframe.on('load', function(){
 	}
 	btn_save.prop('disabled', false);
 
+	// 複数記事表示の2つ目のモジュールを除去
+	$f('#art-2 ' + module_selector).removeAttr('data-module-name');
+
 	// モジュールにボタン追加
 	$f(module_selector).each( function(idx,obj){
 		init_module( $(obj) );
 	});
 
 	// sortable設定
-	side_a.addClass('connectedSortable');
-	side_b.addClass('connectedSortable');
 	var selector = '>' + module_selector + not_sortable;
-	side_a.sortable({ items: selector, connectWith: ".connectedSortable" });
-	side_b.sortable({ items: selector, connectWith: ".connectedSortable" });
-	f_main.sortable({ items: selector + ', #article-box, #articles' });
+	side_a.sortable({ items: selector, connectWith: side_b });
+	side_b.sortable({ items: selector, connectWith: side_a });
+	f_main.sortable({ items: selector + ', #article-box' + ',#articles , #main-between-article ' + selector });
 	f_hdiv.sortable({ items: selector });
 
-	// 記事本体
-	var artbody = $f('article div.body');
+	// 記事本体（単一表示）
+	var artbody = $f('#article-box div.body');
 	var arthead = artbody.children('div.body-header');
 	var artfoot = artbody.children('div.body-footer');
 	var artmain = artbody.children('div.body-main');
-	artfoot.sortable({ items: selector });
+	arthead.sortable({ items: selector, connectWith: artfoot });
+	artfoot.sortable({ items: selector, connectWith: arthead });
+	arthead.css('min-height', '16px');
+	artfoot.css('min-height', '16px');
 	if (artmain.height() > 300)
 		artmain.css({
 			'height':	'300px',
@@ -97,6 +103,18 @@ iframe.on('load', function(){
 	var combody = $f('#com>div.commentbody');
 	var comview = combody.children('div.commentview');
 	comview.hide(0);
+
+	// 記事本体（複数表示）
+	var martbody = $f('#art-1 div.body');
+	var marthead = martbody.children('div.body-header');
+	var martfoot = martbody.children('div.body-footer');
+	var martmain = martbody.children('div.body-main');
+	marthead.sortable({ items: selector, connectWith: martfoot });
+	martfoot.sortable({ items: selector, connectWith: marthead });
+	marthead.css('min-height', '16px');
+	martfoot.css('min-height', '16px');
+	var mbetween= $('<div>').css('min-height', '16px').attr('id', 'main-between-article');
+	$f('#art-1').after(mbetween);
 
 	// iframe内のリンク書き換え
 	$f('a').each(function(idx,dom) {
@@ -111,6 +129,30 @@ iframe.on('load', function(){
 	});
 
 //////////////////////////////////////////////////////////////////////////////
+// ●モード切り替え
+//////////////////////////////////////////////////////////////////////////////
+var article_box = $f('#article-box');
+var articles    = $f('#articles');
+$('#view-mode').change(function(evt){
+	var val = $(evt.target).val();
+	if (view_mode == val) return;
+
+	if (view_mode == undefined) {
+		article_box.after( articles );
+	}
+	view_mode = val;
+	if (val == '_article') {
+		articles.before( article_box );
+		articles.hide();
+		article_box.show();
+	} else {
+		article_box.after( articles );
+		articles.show();
+		article_box.hide();
+	}
+}).change();
+
+//////////////////////////////////////////////////////////////////////////////
 // ●要素タイプの選択
 //////////////////////////////////////////////////////////////////////////////
 var mod_type = $('#module-type');
@@ -120,10 +162,11 @@ mod_type.change(function(evt){
 	sel.append( $('<option>')
 		.val('').text( $('#msg-append-module-select').text() )
 	);
+	var t = (type == 'between') ? 'main' : type ;
 	for(var i=0; i<mod_list.length; i++) {
 		var name = mod_list[i];
 		var mod = modules[name];
-		if (mod.data('type').indexOf(type)<0) continue;
+		if (mod.data('type').indexOf(t)<0) continue;
 		// 
 		var id = mod.children().attr('id');
 		if (id) {
@@ -138,6 +181,10 @@ mod_type.change(function(evt){
 			.text(mod.attr('title'))
 		);
 	}
+	if (type == 'between')
+		$('#view-mode').val('_main').change();
+	if (type == 'main')
+		$('#view-mode').val('_article').change();
 });
 mod_type.change();
 
@@ -185,19 +232,19 @@ $('#add-module').change(function(evt){
 		obj.attr('id', id);			// 個別CSS適用のための細工
 	}
 
-	// モジュール初期化
-	init_module(obj);
-
 	// 追加
 	var type = mod_type.val();
-	if (type == 'header') {
-		f_hdiv.append(obj);
-	} else if (type == 'article') {
-		artfoot.append(obj);
-	} else {
-		var place = (type == 'main') ? f_main : side_a;
-		place.prepend(obj);
+	if (type == 'header')	f_hdiv.append(obj);
+	if (type == 'main') 	f_main.prepend(obj);
+	if (type == 'sidebar')	side_a.prepend(obj);
+	if (type == 'between')	mbetween.append(obj);
+	if (type == 'article') {
+		if (view_mode == '_article')  artfoot.append(obj);
+		if (view_mode == '_main')    martfoot.append(obj);
 	}
+
+	// モジュール初期化（表示後に呼び出すこと）
+	init_module(obj);
 
 	// モジュールHTMLをサーバからロード？
 	if (obj.data('load-module-html')) load_module_html( obj );
@@ -285,22 +332,25 @@ function init_module(obj) {
 	obj.addClass('design-module-edit');
 	obj.prepend(div);
 	obj.show();
+	obj.mouseenter(function(){
+		if (zidx_module == div) return;
+		if (zidx_module) zidx_module.css('z-index', parseInt(zidx_module.css('z-index')) - 1 );
+		div.css('z-index', parseInt(div.css('z-index')) + 1 );
+		zidx_module = div;
+	})
 
 	// 表示位置が重ならないように調整
 	var offset = div.offset();
 	var x = offset.left + div.outerWidth();
 	var y = offset.top;
 	var margin = 16;
-	var l=0;
-	if (y>30) return;
 
-	for(var i=0; i<divs.length && l<999; i++,l++) {
+	for(var i=0; i<divs.length; i++) {
 		var btn = $(divs[i]);
 		var off = btn.offset();
 		var dx  = off.left + btn.outerWidth();
 		var dy  = off.top;
-		if (dy>30) continue;
-		// console.log(x,y,dx,dy);
+		if (dx == 0 && dy == 0) continue;	// 非表示要素
 		if (x <= (dx-    50) || (dx+    50) <= x) continue;
 		if (y <= (dy-margin) || (dy+margin) <= y) continue;
 		// 位置をずらす
@@ -499,6 +549,11 @@ btn_save.click(function(){
 	form_append('art_f_ary', artfoot.children(module_selector));
 	form_append('com_ary'  , combody.children(module_selector), 'dec_comment-form');
 
+	// 複数表示
+	form_append('mart_h_ary',  marthead.children(module_selector), 'dea_art-info');
+	form_append('mart_f_ary',  martfoot.children(module_selector));
+	form_append('between_ary', mbetween.children(module_selector));
+
 	form.submit();
 });
 
@@ -519,8 +574,8 @@ function load_module_html(obj) {
 		var div = $('<div>').html(data);
 		var newobj = div.children( module_selector );
 
-		init_module( newobj );
 		obj.replaceWith( newobj );
+		init_module( newobj );	// 表示後に呼び出すこと
 	//	adiary_init( newobj );
 	});
 }

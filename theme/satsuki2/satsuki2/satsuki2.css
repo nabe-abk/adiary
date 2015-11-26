@@ -294,7 +294,7 @@ article.wiki div.body {
 	background-color:	#f4f4ff;		/* $c=wikibg */
 }
 /* 記事ヘッダ */
-div.body-header {
+div.art-info {
 	text-align:		right;
 	line-height:		100%;
 	font-size:		90%;
@@ -379,14 +379,14 @@ a:visited	{ color: #551a8b; }	/* $c=linkvisited */
 /*--------------------------------------------------------------------
 ■記事ヘッダ
 ---------------------------------------------------------------------*/
-div.body-header > span:not(:last-child) {
+div.art-info > span:not(:last-child) {
 	margin-right:		0.5em;
 }
 /* タグ一覧 */
-div.body-header span.tags:before {
+div.art-info span.tags:before {
 	content:		'[';
 }
-div.body-header span.tags:after {
+div.art-info span.tags:after {
 	content:		']';
 }
 span.tag:not(:last-child) {

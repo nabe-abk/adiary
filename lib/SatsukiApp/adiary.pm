@@ -1066,7 +1066,8 @@ sub post_process_article {
 
 	# 曜日の取得
 	$dat->{wday} = $self->get_dayweek($dat->{year}, $dat->{mon}, $dat->{day});
-	$dat->{wday_name}  = $ROBJ->{WDAY_name}->[ $dat->{wday} ];
+	$dat->{wday_name} = $ROBJ->{WDAY_name}->[ $dat->{wday} ];
+	return $dat;
 }
 
 # link_key処理のみ

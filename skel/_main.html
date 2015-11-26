@@ -1,13 +1,22 @@
 <@>$HEADER$--------------------------------------------------------------------
 <@6>
-<@local(ret,logs,s,t,coms,q,q2,url,permalink,x,page,page_offfset,ps)>
-
-<$(logs,ret) = v.load_articles_current_blog(v.pinfo, Query)>
+<@local(ret,logs,s,t,coms,q,q2,url,permalink,x,page,page_offfset,ps,between,between_c)>
 <$s = v.blog>
 <$v.title = s.blog_name>
-<$art_year = ret.year>
-<$art_mon  = ret.mon || ret.art_mon>
-<$art_day  = ret.day>
+
+<$ifexec(argv#0, begin, begin)>
+	<$logs = argv#0>
+	<$ret  = argv#1>
+	<$art_year = t.year>
+	<$art_mon  = t.mon>
+	<$art_day  = t.day>
+<$else>
+	<$(logs,ret) = v.load_articles_current_blog(v.pinfo, Query)>
+	<$art_year = ret.year>
+	<$art_mon  = ret.mon || ret.art_mon>
+	<$art_day  = ret.day>
+<$end>
+
 
 <@> OGP/Twitter Cards
 <$ifexec(Develop || index(ENV.HTTP_USER_AGENT, 'Mozilla/')<0, begin)>
@@ -167,7 +176,7 @@
 <@>$HEADER:END$----------------------------------------------------------------
 
 <@><!--========================================================================-->
-<@ifexec(ret.pagemode && (1<page || ret.next_page), begin.page)>
+<@ifexec(ret.pagemode && (1<page || ret.next_page) && !page_nav_stop, begin.page)>
 <nav class="page-nav art-nav">
 <@page_nav = exec(begin.function)>
 <@ifexec(ret.pages, begin, begin)>
@@ -184,6 +193,15 @@
 <$end.function>
 </nav>
 <$end.page>
+<@>$BETWEEN_TOP$---------------------------------------------------------------
+<$between_c=0>
+<$between = begin.function>
+<$between_c+=1><$ifreturn(between_c > ##logs)>
+<@>$BETWEEN_TOP:END$-----------------------------------------------------------
+<@>$BETWEEN_BOTTOM$------------------------------------------------------------
+<$end.function>
+<@>$BETWEEN_BOTTOM:END$--------------------------------------------------------
+
 <@>$ARTICLE$-------------------------------------------------------------------
 <@>$ARTICLE_TOP$---------------------------------------------------------------
 
@@ -194,8 +212,8 @@
 <$url=v.server_url . permalink>
 <$encode_uricom(url)>
 <!--========================================================================-->
-<article class="article<@if(t.priority, " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
-<h2 id="art-<@t.pkey>"><@if(!t.priority, #'<a class="date" href="<@v.myself2><@t.elink_key>"><span class="y"><@t.year></span><span class="sep">/</span><span class="m"><@t.mon></span><span class="sep">/</span><span class="d"><@t.day></span><span class="wd">(<@t.wday_name>)</span></a>')><a href="<@v.myself2><@t.elink_key>" class="title"><@t.title></a></h2>
+<article id="art-<@t.pkey>" class="article<@if(t.priority, " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
+<h2><@if(!t.priority, #'<a class="date" href="<@v.myself2><@t.elink_key>"><span class="y"><@t.year></span><span class="sep">/</span><span class="m"><@t.mon></span><span class="sep">/</span><span class="d"><@t.day></span><span class="wd">(<@t.wday_name>)</span></a>')><a href="<@v.myself2><@t.elink_key>" class="title"><@t.title></a></h2>
 <div class="body" id="s<@t.pkey>">
 <div class="body-header">
 <@>$ARTICLE_TOP:END$-----------------------------------------------------------
@@ -211,20 +229,25 @@
 		<@ifexec(ps.author, begin)><span class="author" title="<@t.id>"><@t.name></span><$end>
 		<@ifexec(v.check_editor(t), begin)><a href="<@v.myself2>0<@t.pkey>?edit" class="edit-article">（編集）</a><$end>
 	</div>
-<@>$ARTICLE_BOTTOM$------------------------------------------------------------
+<@>$ARTICLE_MIDDLE$------------------------------------------------------------
 </div>
 <div class="body-main">
 	<@if(! t.enable, '<div><strong class="warning">【この記事は非公開です】</strong></div>')>
 <@if(t.text_s ne '', t.text_s, t.text)>
 </div>
 <$coms = if(v.allow_edit, t.coms_all, t.coms)>
-	<div class="body-footer">
-	<@ifexec(t.com_ok || coms, begin)>
-		<span class="element com-caption"><a href="<@v.myself2><@t.elink_key>#com"><span class="com-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span></a></span>
-	<$end>
-	</div>
+<div class="body-footer">
+<@>$ARTICLE_MIDDLE:END$--------------------------------------------------------
+<@ifexec(t.com_ok || coms, begin)>
+<div class="com-count" data-module-name="dea_com-count">
+	<span class="element com-caption"><a href="<@v.myself2><@t.elink_key>#com"><span class="com-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span></a></span>
+</div>
+<$end>
+<@>$ARTICLE_BOTTOM$------------------------------------------------------------
+</div> <!-- body-footer -->
 </div> <!-- end of body -->
 </article>
+<@between && exec(between)>
 <$end>
 </div>
 <$url = url_bak>
@@ -232,7 +255,7 @@
 <@>$ARTICLE:END$---------------------------------------------------------------
 
 
-<@ifexec(page_nav, begin.page)>
+<@ifexec(page_nav && !page_nav_stop, begin.page)>
 <nav class="page-nav art-nav">
 <@page_nav>
 </nav>

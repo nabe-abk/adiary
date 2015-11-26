@@ -120,7 +120,7 @@ body:before {
     display:                block;
     content:                "Cocoa: C86 Special Edition Theme";
 }
-/* フッター (adiary Version 〜) */
+/* フッター (adiary Version ?) */
 #footer {
 	background-image:       url(footer_bg.png);
 	background-color:       #b5001f;
@@ -394,19 +394,19 @@ div.body-main {
 
 
 /* 本文ヘッダ部 */
-div.body-header {
+div.art-info {
     font-size:              12px;
     line-height:            16px;
     text-align:             right;
     margin:                 4px 0 1.5em 0;
 }
 
-div.body-header span {
+div.art-info span {
     margin-left:            1em;
 }
 
-div.body-header a:link, div.body-header a:visited, 
-div.body-header a:hover {
+div.art-info a:link, div.art-info a:visited, 
+div.art-info a:hover {
     color:                  #b5001f;
 }
 

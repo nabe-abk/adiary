@@ -882,17 +882,20 @@ sub save_design {
 	my $ROBJ = $self->{ROBJ};
 	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	my @side_a = @{$form->{side_a_ary} || []};
-	my @side_b = @{$form->{side_b_ary} || []};
-	my @main_a = @{$form->{main_a_ary} || []};
-	my @main_b = @{$form->{main_b_ary} || []};
-	my @header = @{$form->{header_ary} || []};
-	my @art_h  = @{$form->{art_h_ary}  || []};
-	my @art_f  = @{$form->{art_f_ary}  || []};
-	my @com    = @{$form->{com_ary}    || []};
+	my @side_a = @{$form->{side_a_ary}  || []};
+	my @side_b = @{$form->{side_b_ary}  || []};
+	my @main_a = @{$form->{main_a_ary}  || []};
+	my @main_b = @{$form->{main_b_ary}  || []};
+	my @header = @{$form->{header_ary}  || []};
+	my @art_h  = @{$form->{art_h_ary}   || []};
+	my @art_f  = @{$form->{art_f_ary}   || []};
+	my @com    = @{$form->{com_ary}     || []};
+	my @mart_h = @{$form->{mart_h_ary}  || []};
+	my @mart_f = @{$form->{mart_f_ary}  || []};
+	my @between= @{$form->{between_ary} || []};
 	my %save   = map {$_ => 1} @{$form->{save_ary} || []};
 
-	my %use_f  = map {$_ => 1} (@side_a,@side_b,@main_a,@main_b,@header,@art_h,@art_f,@com);
+	my %use_f  = map {$_ => 1} (@side_a,@side_b,@main_a,@main_b,@header,@art_h,@art_f,@com,@mart_h,@mart_f,@between);
 	my $pd = $self->load_plugins_dat();
 	my @multi;
 	foreach(keys(%$pd)) {	# 現在のinstall状態確認
@@ -1026,12 +1029,26 @@ sub save_design {
 			if ($fail->{$_}) { next; }
 			push(@html, $self->load_module_html($_, $file) . "\n");
 		}
+		#---記事と記事の間--------------------------
+		push(@html, @{$h->{BETWEEN_TOP} || []});
+		foreach(@between) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{BETWEEN_BOTTOM} || []});
+		#---記事表示部------------------------------
 		push(@html, @{$h->{ARTICLE_TOP} || []});
-		foreach(@art_h) {
+		foreach(@mart_h) {
+			if ($fail->{$_}) { next; }
+			push(@html, $self->load_module_html($_, $file) . "\n");
+		}
+		push(@html, @{$h->{ARTICLE_MIDDLE} || []});
+		foreach(@mart_f) {
 			if ($fail->{$_}) { next; }
 			push(@html, $self->load_module_html($_, $file) . "\n");
 		}
 		push(@html, @{$h->{ARTICLE_BOTTOM} || []});
+		#-------------------------------------------
 		foreach(@main_b) {
 			if ($fail->{$_}) { next; }
 			push(@html, $self->load_module_html($_, $file) . "\n");
@@ -1044,12 +1061,12 @@ sub save_design {
 			$ROBJ->message('Design save failed : %s', "$file.html");
 		}
 	}
-	
+
 	#-------------------------------------------------------------------
 	# デザイン情報を保管（再構築時用）
 	#-------------------------------------------------------------------
 	$self->update_design_info({
-		version => 6,
+		version => 7,
 		side_a => join("\n", @side_a),
 		side_b => join("\n", @side_b),
 		main_a => join("\n", @main_a),
@@ -1058,6 +1075,9 @@ sub save_design {
 		art_h  => join("\n", @art_h),
 		art_f  => join("\n", @art_f),
 		com    => join("\n", @com),
+		mart_h => join("\n", @mart_h),
+		mart_f => join("\n", @mart_f),
+		between=> join("\n", @between),
 		save   => join("\n", keys(%save))
 	});	# ※reinstall_design_plugins() と対応させること！
 		# 　項目追加時は version の数値を増加させる

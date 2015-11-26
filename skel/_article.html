@@ -68,8 +68,8 @@
 <!--========================================================================-->
 <@>
 <div id="article-box">
-<article id="article" class="article<@if(t.priority, " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
-<h2 id="art-<@t.pkey>"><@if(!t.priority, #'<a class="date" href="<@permalink>"><span class="y"><@t.year></span><span class="sep">/</span><span class="m"><@t.mon></span><span class="sep">/</span><span class="d"><@t.day></span><span class="wd">(<@t.wday_name>)</span></a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
+<article data-id="art-<@t.pkey>" id="article" class="article<@if(t.priority, " wiki")><@if(t.ctype, " art-<@t.ctype>")>">
+<h2><@if(!t.priority, #'<a class="date" href="<@permalink>"><span class="y"><@t.year></span><span class="sep">/</span><span class="m"><@t.mon></span><span class="sep">/</span><span class="d"><@t.day></span><span class="wd">(<@t.wday_name>)</span></a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
 <div class="body" id="s<@t.pkey>">
 <div class="body-header">
 <@>$ARTICLE_TOP:END$-----------------------------------------------------------
