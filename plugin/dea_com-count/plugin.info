@@ -11,7 +11,7 @@ adiary_version=2.97
 module_type=article
 
 *sample_html=<<HTML
-	<div class="com-count" data-module-name="<@this>">
+	<div class="com-count">
 		<span class="element com-caption"><a href="#"><span class="com-title">コメント</span><span class="com-num">（<span class="num">0</span>件）</span></a></span>
 	</div>
 HTML

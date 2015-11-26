@@ -11,7 +11,7 @@ adiary_version=2.94
 module_type=article
 
 *sample_html=<<HTML
-	<div class="art-info" data-module-name="<@this>" data-fix="1">
+	<div class="art-info" data-fix="1">
 		<a href="#" class="edit-article">（編集）</a>
 	</div>
 HTML
