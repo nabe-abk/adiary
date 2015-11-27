@@ -86,7 +86,7 @@
 		<@ifexec(v.check_editor(t), begin)><a href="<@v.myself2>0<@t.pkey>?edit" class="edit-article">（編集）</a><$end>
 	</div>
 <@>$ARTICLE_MIDDLE$------------------------------------------------------------
-</div>
+</div><!-- body-header -->
 <div class="body-main">
 	<@if( t.draft,  '<div><strong class="warning">【この記事は下書きです】</strong></div>' )>
 	<@if(!t.draft && !t.enable, '<div><strong class="warning">【この記事は非公開です】</strong></div>')>

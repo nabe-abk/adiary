@@ -1,6 +1,6 @@
 <@>$HEADER$--------------------------------------------------------------------
 <@6>
-<@local(ret,logs,s,t,coms,q,q2,url,permalink,x,page,page_offfset,ps,between,between_c)>
+<@local(ret,logs,s,t,t2,coms,q,q2,url,permalink,x,page,page_offfset,ps,between,between_c,node)>
 <$s = v.blog>
 <$v.title = s.blog_name>
 
@@ -232,12 +232,11 @@
 		<@ifexec(v.check_editor(t), begin)><a href="<@v.myself2>0<@t.pkey>?edit" class="edit-article">（編集）</a><$end>
 	</div>
 <@>$ARTICLE_MIDDLE$------------------------------------------------------------
-</div>
+</div><!-- body-header -->
 <div class="body-main">
 	<@if(! t.enable, '<div><strong class="warning">【この記事は非公開です】</strong></div>')>
 <@if(t.text_s ne '', t.text_s, t.text)>
 </div>
-<$coms = if(v.allow_edit, t.coms_all, t.coms)>
 <div class="body-footer">
 <@>$ARTICLE_MIDDLE:END$--------------------------------------------------------
 <@ifexec(t.com_ok || coms, begin)>

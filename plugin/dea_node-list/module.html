@@ -1,4 +1,5 @@
 <!-- 関連記事 -->
+<$node = if(t.ctype, v.load_content_node(t.pkey))>
 <$ps = v.load_plgset('<@this>')>
 <div data-module-name="<@this>">
 <@ifexec(node.children, begin)>
