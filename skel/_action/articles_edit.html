@@ -2,14 +2,13 @@
 <@local(mode,msg,c)>
 <$ifbreak(!v.allow_edit || csrf_check())>
 
-<$ifset(exists(Form.enable ), mode, 'enable'  )>
-<$ifset(exists(Form.enable ), msg , '%d件の記事を新たに表示しました')>
-<$ifset(exists(Form.disable), mode, 'disable' )>
-<$ifset(exists(Form.disable), msg , '%d件の記事を非表示にしました')>
-<$ifset(exists(Form.delete ), mode, 'delete'  )>
-<$ifset(exists(Form.delete ), msg , '%d件の記事を削除しました')>
+<$mode = Form.mode>
+<$ifset(mode eq 'enable',  msg , '%d件の記事を新たに表示しました')>
+<$ifset(mode eq 'disable', msg , '%d件の記事を非表示にしました')>
+<$ifset(mode eq 'delete' , msg , '%d件の記事を削除しました')>
+<$ifset(mode eq 'tagset' , msg , '%d件の記事のタグを編集しました')>
 
-<$(action_return,c) = v.edit_articles(mode, Form.pkey_int_ary)>
+<$(action_return,c) = v.edit_articles(mode, Form.pkey_int_ary, Form)>
 
 <@>
 <@> POST成功時の処理

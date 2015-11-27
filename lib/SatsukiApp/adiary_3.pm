@@ -875,6 +875,208 @@ sub change_blogpub_dir_postfix {
 }
 
 ###############################################################################
+# ■記事やコメントの状態変更
+###############################################################################
+#------------------------------------------------------------------------------
+# ●記事の表示状態変更、削除する
+#------------------------------------------------------------------------------
+sub edit_articles {
+	my ($self, $mode, $keylist, $opt) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $DB   = $self->{DB};
+	my $auth = $ROBJ->{Auth};
+	if (! $self->{allow_edit}) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	if ($keylist !~ /^\d+$/ && $keylist->[0] !~ /^\d+$/) {
+		return wantarray ? (0,0) : 0;
+	}
+
+	# 初期状態設定
+	my $blogid = $self->{blogid};
+	if ($self->{blog}->{edit_by_author_only} && !$self->{blog_admin}) {
+		# 他人の記事は編集できないので、IDが一致するかチェックする
+		my $id = $auth->{id};
+		my $ary = $DB->select_match("${blogid}_art", 'pkey', $keylist, '*cols', ['pkey','id']);
+		my @pkeys;
+		foreach(@$ary) {
+			if ($_->{id} ne $id) { next; }
+			push(@pkeys, $_->{pkey});
+		}
+		if (!@pkeys) {
+			# 該当記事なし
+			return wantarray ? (0,0) : 0;
+		}
+		$keylist = \@pkeys;
+	}
+
+	my $cnt = 0;
+	my $com;
+	my $comkeylist;
+	my $event_name;
+	my $cevent_name;
+	if ($mode eq 'delete') {
+		# 削除
+		$event_name  = 'ARTICLES_DELETE';
+		$cevent_name = 'COMMENTS_DELETE';
+
+		$DB->delete_match("${blogid}_tagart", 'a_pkey', $keylist);
+		# $DB->delete_match("${blogid}_rev", 'a_pkey', $keylist);
+		$comkeylist = $DB->select_match_colary("${blogid}_com", 'pkey', 'a_pkey', $keylist);
+		$com = $DB->delete_match("${blogid}_com", 'a_pkey', $keylist);
+		$cnt = $DB->delete_match("${blogid}_art", 'pkey', $keylist);
+
+	} elsif ($mode eq 'tagset') {
+		# タグの追加
+		$event_name = 'ARTICLES_EDIT';
+		my $append = $opt->{tag_append};
+		my $arts = $DB->select_match("${blogid}_art", 'pkey', $keylist, '*cols', ['pkey', 'enable', 'tags'] );
+
+		$DB->begin();
+		foreach(@$arts) {
+			my $pkey = $_->{pkey};
+			my $t = ($append ? $_->{tags} . ',' : '') . $opt->{tags};
+			my @tag  = $self->tag_normalize( $t );
+			my $tags = join(",",@tag);
+			my $r = $DB->update_match("${blogid}_art", { tags => $tags }, 'pkey', $pkey);
+			if (!$r) { next; }
+			
+			# タグ情報書き換え
+			$cnt += 1;
+			$DB->delete_match("${blogid}_tagart", 'a_pkey', $pkey);
+			my $t_pkeys = $self->regist_tags($blogid, \@tag);
+			foreach my $t_pkey (@$t_pkeys) {
+				$DB->insert("${blogid}_tagart", {
+					'a_pkey'   => $pkey,
+					'a_enable' => $_->{enable},
+					't_pkey'   => $t_pkey
+				});
+			}
+		}
+		$DB->commit();
+
+	} elsif ($mode eq 'enable') {
+		# 表示に設定
+		$event_name = 'ARTICLES_EDIT';
+		$cnt = $DB->update_match("${blogid}_art",
+			{ enable => 1 },
+			'enable', 0,
+			'-tm', '',	# 下書き記事は対象外
+			'pkey', $keylist
+		);
+	} else {
+		# 非表示に設定
+		$event_name  = 'ARTICLES_EDIT';
+		$cevent_name = 'COMMENTS_EDIT';
+		$cnt = $DB->update_match("${blogid}_art",
+			{ enable => 0 },
+			'enable', 1,
+			'-tm', '',	# 下書き記事は対象外
+			'pkey', $keylist
+		);
+		# 非公開にした記事にコメントがあれば
+		my $ary = $DB->select_match("${blogid}_art",
+			'enable', 0,
+			'-coms', 0,	# 公開コメントがある
+			'pkey', $keylist,
+			'*cols', ['pkey']
+		);
+		my @pkeys = map { $_->{pkey} } @$ary;
+		if (@pkeys) {
+			$com = $DB->update_match("${blogid}_com",
+				{ enable => 0 },
+				'enable',  1,
+				'a_pkey', \@pkeys
+			);
+		}
+	}
+
+	# イベント処理
+	if ($cnt) {
+		$keylist = ref($keylist) ? $keylist : [$keylist];
+		$self->call_event($event_name,            $keylist, $cnt);
+		$self->call_event('ARTICLE_STATE_CHANGE', $keylist);
+		if ($com) {
+			$self->call_event($cevent_name,           $keylist);
+			$self->call_event('COMMENT_STATE_CHANGE', $keylist);
+		}
+		$self->call_event('ARTCOM_STATE_CHANGE',  $keylist);
+	}
+
+	return wantarray ? (0, $cnt) : 0;
+}
+
+#------------------------------------------------------------------------------
+# ●コメントの表示状態変更、または削除
+#------------------------------------------------------------------------------
+sub edit_comment {
+	my ($self, $mode, $keylist) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $DB   = $self->{DB};
+	my $blogid = $self->{blogid};
+	if (! $self->{allow_edit}) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	if ($keylist !~ /^\d+$/ && $keylist->[0] !~ /^\d+$/) {
+		return (0,0);
+	}
+
+	# 該当する記事のリスト
+	my $ary = $DB->select_by_group("${blogid}_com",{
+		group_by => 'a_pkey',
+		match => { pkey => $keylist }
+	});
+	my @a_pkeys = map { $_->{a_pkey} } @$ary;
+
+	# 削除
+	my $cnt;
+	my $event_name;
+	if ($mode eq 'delete') {
+		$event_name = 'COMMENTS_DELETE';
+		$cnt = $DB->delete_match("${blogid}_com", 'pkey', $keylist);
+
+	} elsif ($mode eq 'enable') {
+		$event_name = 'COMMENTS_EDIT';
+
+		# 非公開記事のコメントは公開しない
+		my $ary = $DB->select_match("${blogid}_art", 
+			'pkey', \@a_pkeys,
+			'*cols', ['pkey', 'enable']
+		);
+		my @exlist;
+		foreach(@$ary) {
+			if ($_->{enable}) { next; }
+			push(@exlist, $_->{pkey});
+		}
+		$cnt = $DB->update_match("${blogid}_com",
+			{ enable => 1 },
+			'enable', 0,
+			'hidden', 0,
+			'pkey', $keylist,
+			'-a_pkey', \@exlist	# not match
+		);
+	} else {
+		$event_name = 'COMMENTS_EDIT';
+		$cnt = $DB->update_match("${blogid}_com",
+			{ enable => 0 },
+			'enable',  1,
+			'pkey', $keylist
+		);
+	}
+
+	# イベント処理
+	if ($cnt) {
+		foreach( @a_pkeys ) {
+			$self->calc_comments($blogid, $_);
+		}
+		$keylist = ref($keylist) ? $keylist : [$keylist];
+		$self->call_event($event_name,            \@a_pkeys, $keylist, $cnt);
+		$self->call_event('COMMENT_STATE_CHANGE', \@a_pkeys, $keylist);
+		$self->call_event('ARTCOM_STATE_CHANGE',  \@a_pkeys, $keylist);
+	}
+
+	return wantarray ? (0, $cnt) : 0;
+}
+
+###############################################################################
 # ■タグの編集処理
 ###############################################################################
 #------------------------------------------------------------------------------
