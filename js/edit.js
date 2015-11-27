@@ -13,8 +13,8 @@ var html_mode;		// html input mode
 $(function(){
 //############################################################################
 var body = $('#body');
-var tagsel = $('#tag-select');
-var upsel  = $('#upnode-select');
+var tagsel = $secure('#tag-select');
+var upsel  = $secure('#upnode-select');
 var parsel = $('#select-parser');
 var edit = $('#editarea');
 
