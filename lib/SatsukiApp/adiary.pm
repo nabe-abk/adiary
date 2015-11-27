@@ -1418,11 +1418,16 @@ sub load_tag_postprocessor {
 #------------------------------------------------------------------------------
 sub load_art_node {
 	my ($self, $pkey) = @_;
+
+	my $cache = $self->{_loadart_cache} ||= {};
+	my $key   = $self->{blogid} . ':' . $pkey;
+	if ($cache->{$key}) { return $cache->{$key}; }
+
 	my $con = $self->load_arts_cache( $pkey );
 	my %c = %{ $con->{$pkey} || {} };
 	$c{prev} = $con->{ $c{prev} };
 	$c{next} = $con->{ $c{next} };
-	return \%c;
+	return ($cache->{$key} = \%c);
 }
 sub load_arts_cache {
 	my $self = shift;
@@ -1449,6 +1454,11 @@ sub load_arts_postprocessor {
 #------------------------------------------------------------------------------
 sub load_content_node {
 	my ($self, $pkey) = @_;
+
+	my $cache = $self->{_loadcn_cache} ||= {};
+	my $key   = $self->{blogid} . ':' . $pkey;
+	if ($cache->{$key}) { return $cache->{$key}; }
+
 	my $con = $self->load_contents_cache();
 	my %c = %{ $con->{$pkey} || {} };
 	$c{upnode} = $con->{ $c{upnode} };
@@ -1464,7 +1474,7 @@ sub load_content_node {
 			if (@f) { $c{family} = \@f; }
 		}
 	}
-	return \%c;
+	return ($cache->{$key} = \%c);
 }
 sub load_contents_cache {
 	my $self = shift;
