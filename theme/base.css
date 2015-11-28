@@ -213,13 +213,25 @@ td.checkbox, th.checkbox {
 td.button, th.button {
 	text-align:		center;
 }
+
+/* ボタンデザイン */
 button {
-	padding:		2px 4px;
+	padding:		3px 6px;
 	text-indent:		0;
 	line-height:		100%;
+	vertical-align:		middle;
 	font-family:		"メイリオ","IPAGothic","VL Gothic",sans-serif;
 }
-
+#edit-helper button {
+	padding:		3px 4px;
+	margin:			2px 0px;
+}
+.Fx button {
+	padding:		2px 3px 3px 3px;
+}
+.Fx #edit-helper button {
+	padding:		2px 1px 3px 1px;
+}
 
 #com textarea {
 	-moz-tab-size:	4;
@@ -298,10 +310,6 @@ textarea {
 ul#edit-lockers {
 	margin-top:		2px;
 	margin-bottom:		2px;
-}
-#edit-helper button {
-	margin:			2px 0px;
-	padding:		2px 2px;
 }
 
 /* 記事タグ */
