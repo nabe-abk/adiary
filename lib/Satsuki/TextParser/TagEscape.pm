@@ -158,7 +158,7 @@ sub escape {
 
 	### コメント退避(保存) or 除去
 	my @comments;
-	if ($allow_any || exists $self->{allow_comment}) {		# 退避
+	if ($allow_any || $self->{allow_comment}) {		# 退避
 		# 正しくは <!(--.*?--\s*)+> だけど、ブウラザの対応がまちまちなので。
 		$inp =~ s/<!--(.*?)--\s*>/push(@comments,$1),"\x01$#comments\x01"/seg;
 		foreach(@comments) {	# security対策
