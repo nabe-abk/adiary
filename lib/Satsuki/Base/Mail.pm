@@ -4,7 +4,7 @@ use strict;
 #						(C)2006-2009 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
 package Satsuki::Base::Mail;
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 #------------------------------------------------------------------------------
 # ●sendmailコマンドのDetect
 #------------------------------------------------------------------------------
@@ -102,9 +102,9 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="$jcode->{email_default}"
 Content-Transfer-Encoding: 7bit
 X-Mailer: $self->{mailer}
-
-$text
 END
+	if ($h->{x}){ chomp($h->{x}); print $fh "$h->{x}\n"; }
+	print $fh "\n$text";
 	close($fh);
 	return 0;
 }
