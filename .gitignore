@@ -1,46 +1,55 @@
 #--------------------------------------
-# development files
+# ignore default
 #--------------------------------------
-.*/
-*.tar.bz2
-adiary-*
+/*
 
 #--------------------------------------
-# private data directory
+# root files
 #--------------------------------------
-__cache/*.cache
-data/*
+!/.gitignore
+!/adiary.cgi
+!/adiary.fcgi
+!/adiary.mod.cgi
+!/adiary.speedy.cgi
+!/adiary.env.cgi.sample
+!/adiary.conf.cgi.sample
+!/CHANGES.txt
+!/dot.htaccess
+!/index.html
+!/README.md
+
+#--------------------------------------
+# adiary files
+#--------------------------------------
+!info/
+!js/
+!lib/
+!plugin/
+!pub-dist/
+!skel/
+!theme/
+
+#--------------------------------------
+# private directory
+#--------------------------------------
+!__cache/.htaccess
+!__cache/index.html
+
 !data/.htaccess
 !data/index.html
 
-#--------------------------------------
-# public data directory
-#--------------------------------------
-pub/*
+!pub/*
 !pub/.gitkeep
 
-#--------------------------------------
-# local users directory
-#--------------------------------------
-static/*
-skel.local/*
 !skel.local/.htaccess
 !skel.local/README.txt
-plugin/@*
 
 #--------------------------------------
-# other files
+# ignore files
 #--------------------------------------
-.htaccess
-adiary.env.cgi
-adiary.conf.cgi
-mimetex.cgi
-robots.txt
-__tool/__*
-!__tool/.htaccess
+plugin/@3rd-party/
 lib/SatsukiApp/form.pm
 lib/SatsukiApp/form_2.pm
-info/textparser_site_tags.txt
 
 #--------------------------------------
 # for Special Edition files
