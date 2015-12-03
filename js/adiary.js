@@ -109,6 +109,9 @@ function set_browser_class_into_body() {
 	else if (ua.indexOf('BlackBerry')    != -1) x.push('berry');
 	else if (ua.indexOf('Windows Phone') != -1) x.push('wp');
 
+	// windows
+	if (ua.indexOf('Windows') != -1) $('html').addClass('win');
+
 	// adiary内部のスマホモード検出
 	var body = $('#body');
 	if (body.hasClass('sp')) {
