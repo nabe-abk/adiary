@@ -1193,6 +1193,7 @@ $marks{'*'}     = \&section;
 $marks{'**'}    = \&subsection;
 $marks{'***'}   = \&subsubsection;
 $marks{'****'}  = \&subsubsubsection;
+$marks{'*****'} = \&dummy;
 $marks{'='}     = \&dummy;
 $marks{'=='}    = \&dummy;
 $marks{'==='}   = \&dummy;
