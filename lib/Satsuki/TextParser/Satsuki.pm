@@ -406,11 +406,11 @@ sub text_parser {
 	# [01]ブロック処理、コメント除去処理
 	$lines = $self->block_parser($lines);
 
-	# 内部変数復元（[01]での最終オーバーライド結果を[03]で使わないため）
-	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
-
 	# [02]セクション、目次処理
 	$lines = $self->parse_section($lines);
+
+	# 内部変数復元（[01]での最終オーバーライド結果を[03]で使わないため）
+	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
 
 	# [03]記法タグの処理
 	$lines = $self->replace_original_tag($lines);
