@@ -399,11 +399,11 @@ function replace_selection( text ) {
 //############################################################################
 var paste_type;
 var dnd_files;
+var thumb= $('#thumbnail-info').detach();
 //----------------------------------------------------------------------------
 // ●アップロードダイアログ
 //----------------------------------------------------------------------------
 fileup.click( function(){
-	var thumb= $('#thumbnail-info').clone().removeAttr('id');
 	var form = $('<form>').append( thumb );
 	var div  = $('<div>') .append( form  );
 	var cnt  = 0;
@@ -459,10 +459,12 @@ fileup.click( function(){
 		paste_type = form.find('select[name="paste"]').val() || '';
 		ajax_upload( form[0], dnd_files, upload_files_insert );
 		div.dialog( 'close' );
+		thumb.detach();
 		div.remove();
 	};
 	buttons[ $('#ajs-cancel').text() ] = function(){
 		div.dialog( 'close' );
+		thumb.detach();
 		div.remove();
 	};
 	div.dialog({

@@ -760,7 +760,7 @@ initfunc.push( function(R){
 	// 確認メッセージがある？
 	var confirm = form.data('confirm');
 	if (!confirm) return true;
-  	if (confirmed) { confirmed=false; console.log(true); return true; }
+  	if (confirmed) { confirmed=false; return true; }
 
 	// 確認ダイアログ
 	if (c) confirm = confirm.replace("%c", c);
@@ -782,6 +782,7 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 //●フォーム値の保存	※表示、非表示よりも前に処理すること
 //////////////////////////////////////////////////////////////////////////////
+var opt_dummy_value = "\e\f\e\f\b\n";
 initfunc.push( function(R) {
 	R.findx('input.js-save, select.js-save').each( function(idx, dom) {
 		var obj = $(dom);
@@ -799,17 +800,62 @@ initfunc.push( function(R) {
 		}
 		obj.change( function(evt){
 			var obj = $(evt.target);
+			if (obj.val() == opt_dummy_value) return;
 			Storage.set(id, obj.val());
 		});
 		var val = Storage.get(id);
 		if (! val) return;
 		if (dom.tagName != 'SELECT') return obj.val( val );
 
-		// 記録されいてる値がない時のために、安易に val() しない
-		obj.find('option').each( function(idx, opt) {
-			if ($(opt).attr('value') != val) return;
-			obj.val( val );
-		});
+		// selectで記録されいてる値がない時は追加する
+		set_or_append_option( obj, val );
+	});
+});
+function set_or_append_option(sel, val) {
+	sel.val( val );
+	if (sel.val() == val) return;
+
+	var format = sel.data('format') || '%v';
+	var text = format.replace(/%v/g, val);
+	var opt  = $('<option>').attr('value', val).text( text );
+	sel.append( opt );
+	sel.val( val );
+	sel.change();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//●select boxに選択肢追加（コンボボックス）
+//////////////////////////////////////////////////////////////////////////////
+initfunc.push( function(R) {
+	function append_form(evt) {
+		var obj  = $(evt.target);
+		var val  = obj.val();
+		if (val != opt_dummy_value) return obj.data('default', val);
+		obj.val( obj.data('default') );
+
+		var tar  = $( obj.data('target') );
+		var form = { title: tar.data('title') };
+		form.elements = [{
+			type: '*',
+			html: tar
+		}];
+		tar.find('input').attr('name', 'data');
+		form.callback = function(h){
+			var data = h.data;
+			if (data == '') {
+				obj.val( opt_dummy_value );
+				return obj.change();
+			}
+			set_or_append_option( obj, data );
+		};
+		form_dialog(form);
+	}
+	R.findx('select.js-combo').each( function(idx, dom) {
+		var obj = $(dom);
+		var opt = $('<option>').attr('value',opt_dummy_value).text( $('#ajs-other').text() );
+		obj.append( opt );
+		obj.data('default', obj.val());
+		obj.change( append_form );
 	});
 });
 
@@ -1862,6 +1908,11 @@ function form_dialog(h) {
 	// ボタンの設定
 	var buttons = {};
 	var ok_func = buttons[ $('#ajs-ok').text() ] = function(){
+		var inputs = div.find('input');
+		for(var i=0; i<inputs.length; i++) {
+			var obj = inputs[i];
+			if (obj.validity && !obj.validity.valid) return; // validation error
+		}
 		div.dialog( 'close' );
 		var ret = {};
 		var ary = form.serializeArray();

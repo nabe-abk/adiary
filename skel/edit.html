@@ -276,7 +276,7 @@
 	<option value="<@tags.image>">大きい画像を貼付</option>
 </select>&ensp;
 
-サムネイル<select name="size" class="r js-save thumbnail-size">
+サムネイル<select name="size" id="thumbnail-size" class="r js-save js-combo" data-target="#size-other" data-format="%vpx">
 	<option value="120" selected>120px</option>
 	<option value="160">160px</option>
 	<option value="240">240px</option>
@@ -284,5 +284,10 @@
 	<option value="400">400px</option>
 	<option value="480">480px</option>
 </select></div>
+<div id="size-other" data-title="サムネイルサイズ">
+<input type="number" value="120" class="w50" min="60" max="800">px （60～800）
+</div>
+
+
 </div>
 
