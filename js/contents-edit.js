@@ -53,7 +53,8 @@ tree.dynatree({
 		var rootNode = tree.dynatree("getRoot");
 		rootNode.visit(function(node){
 			var data  = node.data;
-			data.href = base_url + data.link_key;
+			var elink_key = link_key_encode( data.link_key );
+			data.href = base_url + elink_key;
 			node.setTitle( data.title );
 
 			// ダブルタップで編集

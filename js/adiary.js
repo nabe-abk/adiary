@@ -1729,7 +1729,6 @@ function tag_esc_br(text) {
 function tag_esc_amp(text) {
 	return tag_esc( text.replace(/&/g,'&amp;') );
 }
-
 function tag_decode(text) {
 	return text
 	.replace(/&apos;/g, "'")
@@ -1746,9 +1745,10 @@ function tag_decode_amp(text) {
 // link_keyのエンコード :: adiary.pmと同一の処理
 //////////////////////////////////////////////////////////////////////////////
 function link_key_encode(text) {
-	return text.replace(/^\//, './/').replace(/[^\w!\(\)\*\-\.\~\/:;=&]+/g, function(data) {
-		return decodeURI(data).replace("'", '%27');
-	});
+	if (typeof text != 'string') { return ''; }
+	return text.replace(/[^^\w!\(\)\*\-\.\~\/:;=&]/g, function(data) {
+		return '%' + ('0' + data.charCodeAt().toString(16)).substr(-2);
+	}).replace(/^\//, './/');
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -12,6 +12,7 @@
 -【fix】{[*section_number]}等が無効になっていた。（[http://ac206223.ppp.asahi-net.or.jp/adiary/diary/hirosugu/018:Thanks to 平山]）
 -【fix】サムネイル再生成時のダイアログが正しくなかった。
 -【fix】?を含むコンテンツキーの処理で問題があった
+-【fix】コンテンツ一覧画面から右クリックでリンクを開いた時、正しく開けないことがあった
 
 *Ver3.0 RC2.1: 2015/11/29
 
