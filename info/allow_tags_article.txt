@@ -142,7 +142,7 @@ _module_start
 # YouTube モジュール
 #------------------------------------------------------------------------------
 *youtube
-<iframe class="youtube-player" style="width:#{width|420}px; height:#{height|315}px;" src="http://www.youtube.com/embed/${vid}" frameborder="0">
+<iframe class="youtube-player" style="width:#{width|420}px; height:#{height|315}px;" src="https://www.youtube.com/embed/${vid}" frameborder="0">
 </iframe>
 
 #------------------------------------------------------------------------------
@@ -174,13 +174,13 @@ _module_start
 <script src="https://gist.github.com${path}.js"></script>
 
 *gist-it
-<script src="http://gist-it.appspot.com/github${path}"></script>
+<script src="https://gist-it.appspot.com/github${path}"></script>
 
 #------------------------------------------------------------------------------
 # slideshare モジュール
 #------------------------------------------------------------------------------
 *slideshare
-<iframe src="http://www.slideshare.net/slideshow/embed_code/${sid}" style="width:#{width|420}px; height:#{height|315}px;" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>
+<iframe src="https://www.slideshare.net/slideshow/embed_code/${sid}" style="width:#{width|420}px; height:#{height|315}px;" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>
 
 #------------------------------------------------------------------------------
 # rabbit-shockerモジュール

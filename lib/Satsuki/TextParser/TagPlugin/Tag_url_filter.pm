@@ -75,16 +75,16 @@ sub _filter {
 	#------------------------------------------------------------
 	# ニコニコ動画
 	#------------------------------------------------------------
-	if ($url =~ m|^http://www\.nicovideo\.jp/watch/(\w+)$|) {
+	if ($url =~ m|^http://www\.nicovideo\.jp/watch/(\w+)(?:\?.*)?$|) {
 		return "<module name=\"nico\" vid=\"$1\">";
 	}
-	if ($url =~ m|^http://www.nicovideo.jp/mylist/(\w+)$|) {
+	if ($url =~ m|^http://www.nicovideo.jp/mylist/(\w+)(?:\?.*)?$|) {
 		return "<module name=\"nico:mylist\" mid=\"$1\">";
 	}
-	if ($url =~ m|^http://www.nicovideo.jp/user/(\w+)$|) {
+	if ($url =~ m|^http://www.nicovideo.jp/user/(\w+)(?:\?.*)?$|) {
 		return "<module name=\"nico:user\" uid=\"$1\">";
 	}
-	if ($url =~ m|^http://com\.nicovideo\.jp/community/(\w+)$|) {
+	if ($url =~ m|^http://com\.nicovideo\.jp/community/(\w+)(?:\?.*)?$|) {
 		return "<module name=\"nico:commu\" cid=\"$1\">";
 	}
 

@@ -5,6 +5,7 @@
 -.gitignoreの書式を変更
 -標準フォントに「メイリオ」を指定
 -アルバムのサムネイルにカスタムサイズを許可。（[http://ac206223.ppp.asahi-net.or.jp/adiary/diary/hirosugu/018:Thanks to 平山]）
+-iframeやimg等で外部サービスを埋め込む際、可能な限りhttpsで埋め込むように変更。（[http://adiary.blog.abk.nu/0381#c4:Thanks to リップル]）
 -【fix】同時編集ロック機能がオフにできない。
 -【fix】{[*section_number]}等が無効になっていた。（[http://ac206223.ppp.asahi-net.or.jp/adiary/diary/hirosugu/018:Thanks to 平山]）
 -【fix】サムネイル再生成時のダイアログが正しくなかった。
