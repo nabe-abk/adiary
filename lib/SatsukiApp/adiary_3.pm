@@ -1219,7 +1219,7 @@ sub contents_edit {
 	}
 
 	# タグの編集
-	my $edits = $form->{contents_ary};
+	my $edits = $form->{contents_txt_ary};
 	my $com_edit;
 	foreach(@$edits) {
 		my ($pkey,$upnode,$priority,$link_key) = split(',',$_,4);

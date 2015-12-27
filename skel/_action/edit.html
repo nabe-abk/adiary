@@ -12,7 +12,7 @@
 <$ifset(Form.draft, Form.enable, 0)>
 <$ifexec(Form.wiki, begin, begin)>
 	<$ifset(Form.priority<1,  Form.priority, v.default_wiki_priority)>
-	<$ifexec(Form.link_key eq '', begin)>
+	<$ifexec(Form.link_key eq '' && Form.link_key_txt eq '', begin)>
 		<$title = if(Form.title ne '', Form.title, Form.ymd)>
 		<$Form.link_key = if(match(title,'^\s*\d'), 't', '') . title>
 	<$end>

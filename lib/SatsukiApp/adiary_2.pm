@@ -342,7 +342,7 @@ sub regist_article {
 	$ctype =~ s/[^\w\-]//g;
 	if ($ctype ne '') {
 		# link_key/upnode の設定	※この２つは escpae しない
-		my $link_key = $form->{link_key};
+		my $link_key = $form->{link_key} || $form->{link_key_txt};
 		# 前後の空白を除去
 		$ROBJ->string_normalize($link_key);
 

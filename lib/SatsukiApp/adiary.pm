@@ -7,10 +7,10 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = '2.98';
+our $VERSION = '3.00';
 our $OUTVERSION = '3.00';
-our $SUBVERSION = 'RC2.1';
-our $DATA_VERSION = 2.98;
+our $SUBVERSION = '';
+our $DATA_VERSION = 3.00;
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
@@ -114,8 +114,8 @@ sub Finish {
 # ■メイン処理
 ###############################################################################
 sub main {
-	my $self  = shift;
-	my $ROBJ  = $self->{ROBJ};
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
 
 	# security for IE8-
 	$ROBJ->set_header('X-Content-Type-Options','nosniff');

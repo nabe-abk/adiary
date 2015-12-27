@@ -5,10 +5,13 @@
 -.gitignoreの書式を変更
 -標準フォントに「メイリオ」を指定
 -アルバムのサムネイルにカスタムサイズを許可。（[http://ac206223.ppp.asahi-net.or.jp/adiary/diary/hirosugu/018:Thanks to 平山]）
--iframeやimg等で外部サービスを埋め込む際、可能な限りhttpsで埋め込むように変更。（[http://adiary.blog.abk.nu/0381#c4:Thanks to リップル]）
+-iframeやimg等で外部サービスを埋め込む際、可能な限りhttpsで埋め込むように変更。（[key:0381:#c4:Thanks to リップル]）
+-コンテンツkeyの最大文字数を緩和しました。（[key:0381:#c7:Thanks to yosuke]）
+-Queryを含む外部リンクを記述可能にしました。（[key:0381:#c7:Thanks to yosuke]）
 -【fix】同時編集ロック機能がオフにできない。
 -【fix】{[*section_number]}等が無効になっていた。（[http://ac206223.ppp.asahi-net.or.jp/adiary/diary/hirosugu/018:Thanks to 平山]）
 -【fix】サムネイル再生成時のダイアログが正しくなかった。
+-【fix】?を含むコンテンツキーの処理で問題があった
 
 *Ver3.0 RC2.1: 2015/11/29
 

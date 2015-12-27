@@ -235,6 +235,12 @@ sub init_path {
 		$ENV{PATH_INFO} = substr($req_uri, length($request_base));
 	}
 
+	# %3fをQuery指定と見なさない
+	my $query = $ENV{REQUEST_URI};
+	$query = ($query =~ /\?(.*)/) ? $1 : '';
+	$ENV{QUERY_STRING_orig} = $ENV{QUERY_STRING};
+	$ENV{QUERY_STRING} = $query;
+
 	# 相対パスを使用
 	if ($self->{Use_relative_path}) { $basepath = './'; }
 

@@ -217,7 +217,7 @@
 			<li>親ノード<select name="upnode" id="upnode-select" data-default="<@art.upnode>" data-this-pkey="<@edit_pkey>" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'contents.json')>">
 				<option value="0">*トップ(root)</option>
 			</select></li>
-			<li>コンテンツkey<span class="help" data-help='"http://" や "/" ではじまるkeyを指定するとリンクになります。"FrontPage", "top", "index"のいずれかを指定するとブログトップの固定記事になります。'>?</span><input type="text" name="link_key" id="link-key" class="w240" value="<@if(art.ctype, esc(art.link_key))>" data-suggest="<@s.suggest_link_key>"></li>
+			<li>コンテンツkey<span class="help" data-help='"http://" や "/" ではじまるkeyを指定するとリンクになります。"FrontPage", "top", "index"のいずれかを指定するとブログトップの固定記事になります。'>?</span><input type="text" name="link_key_txt" id="link-key" class="w240" value="<@if(art.ctype, esc(art.link_key))>" data-suggest="<@s.suggest_link_key>"></li>
 		</ul>
 		</li>
 	</ul>

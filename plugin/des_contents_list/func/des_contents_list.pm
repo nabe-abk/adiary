@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# タグリストの生成モジュール
+# コンテンツリストの生成モジュール
 #-----------------------------------------------------------------------------
 sub {
 	my $self = shift;
@@ -10,6 +10,15 @@ sub {
 
 	if ($self->{event_name} ne 'CONTENT_STATE_CHANGE') {
 		$root = $self->load_contents_tree( $self->{blogid} );
+	}
+
+	# コンテンツキーの加工
+	my $all = $root->{_all};
+	foreach(@$all) {
+		if ($_->{ctype} ne 'link') { next; }
+		$_->{elink_key} =~ s/%25/%/g;
+		$_->{elink_key} =~ s/%2[bB]/+/g;
+		$_->{elink_key} =~ s/%3[fF]/?/;
 	}
 
 	my $node = int($self->load_plgset($name, 'node'));

@@ -175,7 +175,7 @@ form.submit(function(){
 			cnt += contents_priority_step;
 			var inp = $('<input>').attr({
 				type: 'hidden',
-				name: 'contents_ary',
+				name: 'contents_txt_ary',
 				value: val
 			});
 			div.append(inp);
