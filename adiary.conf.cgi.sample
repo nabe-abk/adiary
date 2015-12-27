@@ -253,7 +253,7 @@
 # ※trust_mode ではあらゆる拡張子が許可されます。
 
 # 許可する画像の拡張子
-<$v.album_image_ext = flagq(jpg, jpeg, gif, png, ico)>
+<$v.album_image_ext = flagq(jpg, jpeg, gif, png, ico, tif, tiff)>
 
 # 追加で許可する画像以外の拡張子
 #<$v.album_allow_ext = flagq(dat, msi)>
