@@ -1126,7 +1126,15 @@ $('#album-actions').change( function(evt){
 function remake_thumbnail(){
 	var div = $('#remake-thumbnail-dialog');
 	var buttons = {};
-	$('#dialog-thumbnail-size').val( $('#thumbnail-size').val() );
+	var sel = $('#dialog-thumbnail-size');
+	var val = $('#thumbnail-size').val();
+	sel.val( val );
+	if (sel.val() != val) {
+		var opt = $('<option>').attr('value', val);
+		opt.text( sel.data('format').replace('%v', val) );
+		sel.append(opt);
+		sel.val( val );
+	}
 
 	var ok_func = do_remake_thumbnail;
 	album_dialog(div, ok_func);
