@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="<@Basepath><@v.pubdist_dir>jquery-ui/jquery-ui.custom.css" id="jquery-ui-css">
 <link rel="stylesheet" href="<@Basepath><@v.pubdist_dir>lightbox/lightbox.css" id="lightbox-css">
 <@>
-<@forexec(t, v.load_jscss(Basepath, 'css'), begin)>
+<@forexec(t, v.load_jscss(Basepath, 'csslib'), begin)>
 <link rel="stylesheet" href="<@t>">
 <$end>
 <@>
@@ -38,7 +38,7 @@
 <link rel="stylesheet" href="<@Basepath><@file>?<@get_lastmodified(file)>" id="user-css">
 <$end>
 <@>
-<@forexec(t, v.load_jscss(Basepath, 'postcss'), begin)>
+<@forexec(t, v.load_jscss(Basepath, 'css'), begin)>
 <link rel="stylesheet" href="<@t>">
 <$end>
 <@>

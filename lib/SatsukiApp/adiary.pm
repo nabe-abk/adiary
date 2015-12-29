@@ -1297,10 +1297,6 @@ sub load_jscss_events {
 	foreach(split("\n", $evt)) {
 		my ($name, $file) = $self->split_equal($_);
 		if (!$name) { next; }
-		if (substr($file,0,3) ne 'js/') {
-			$self->{ROBJ}->error("[plugin=%s] JS event error : %s", $name, $file);
-			next;
-		}
 		push(@ary, "$dir$file");
 	}
 	return \@ary;
@@ -1708,13 +1704,13 @@ sub regist_js {
 	my $self = shift;
 	push(@{ $self->{jsfiles} ||=[] }, @_);
 }
+sub regist_csslib {
+	my $self = shift;
+	push(@{ $self->{csslibfiles} ||=[] }, @_);
+}
 sub regist_css {
 	my $self = shift;
 	push(@{ $self->{cssfiles} ||=[] }, @_);
-}
-sub regist_postcss {
-	my $self = shift;
-	push(@{ $self->{postcssfiles} ||=[] }, @_);
 }
 sub load_jscss {
 	my $self = shift;
