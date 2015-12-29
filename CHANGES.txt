@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.00 : 2015/12/xx
+*Ver3.00 : 2015/12/30
 
 -cuteテーマを収録しました
 -.gitignoreの書式を変更
