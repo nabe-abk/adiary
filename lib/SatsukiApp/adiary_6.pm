@@ -39,7 +39,7 @@ sub system_update {
 	my $cur = $self->{sys}->{VERSION};
 	foreach my $h (@update_versions) {
 		if ($cur >= $h->{ver}) { next; }
-		$ROBJ->message("System update for Ver %s", $h->{ver});
+		$ROBJ->message("System update for Ver %.2f", $h->{ver});
 		$opt{rebuild} ||= $h->{rebuild};	# 全記事再構築
 		$opt{plugin}  ||= $h->{plugin};		# プラグイン更新
 		$opt{theme}   ||= $h->{theme};		# テーマカスタムCSS更新

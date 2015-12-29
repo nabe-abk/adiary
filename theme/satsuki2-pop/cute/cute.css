@@ -452,7 +452,7 @@ a.next-page:after {
 ---------------------------------------------------------------------*/
 article.article, article.system {
     background-color:       white;
-    background-color:       rgba(255,255,255,0.45);
+    background-color:       rgba(255,255,255,0.75);
     padding-top:            5px;
     margin-bottom:          1.5em;
     background-image:       url("article-bg.png");
@@ -864,7 +864,7 @@ form textarea {
 
 #com {
 	background-color:       white;
-	background-color:       rgba(255,255,255,0.45);
+	background-color:       rgba(255,255,255,0.75);
 }
 #com div.ip-host-agent {
 	color:			#080;
@@ -899,7 +899,7 @@ div.hatena-module {
     margin-bottom:          10px;
     background-image:       url("sidebar-bg.png");
     background-color:       white;
-    background-color:       rgba(255,255,255,0.45);
+    background-color:       rgba(255,255,255,0.75);
     background-repeat:      repeat-y;
     background-position:    right;
     min-height:             120px;
@@ -907,11 +907,11 @@ div.hatena-module {
 }
 
 /*--------------------------------
-$option3=opacity-0.75
+$option3=opacity-0.45
 article.article, article.system,
 div.hatena-module,
 #com {
-	background-color:       rgba(255,255,255,0.75);
+	background-color:       rgba(255,255,255,0.45);
 }
 --------------------------------*/
 /*--------------------------------

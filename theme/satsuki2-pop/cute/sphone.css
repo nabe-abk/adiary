@@ -74,7 +74,7 @@ div.main {
 /* div.hatena-moduletitle の transform の影響で
    最下部に余白が出ないようにする対策 */
 #footer {
-	margin-top:		50px;
+	margin-top:		56px;
 }
 /*--------------------------------------------------------------------
 ■サイドバー
