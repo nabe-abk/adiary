@@ -421,7 +421,7 @@ function update_css() {
 			lines[i] = x;
 		}
 		// オプション
-		var ma = in_opt || x.match(/\$(option\d*)=([\w-]+)/);
+		var ma = in_opt || x.match(/\$(option\d*)=([\w-\.]+)/);
 		if (ma) {
 			if (!in_opt) {
 				in_opt  = true;

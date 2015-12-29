@@ -1395,7 +1395,7 @@ sub css_rewrite {
 		if ($_ =~ m|\$theme=([\w\-]+/[\w\-]+)|) {
 			$theme=$1;
 		}
-		if ($in_opt || $_ =~ /\$(option\d*)=([\w-]+)/) {
+		if ($in_opt || $_ =~ /\$(option\d*)=([\w-\.]+)/) {
 			if (!$in_opt) {
 				$in_opt  = 1;
 				$opt_sel = $opt->{$1} eq $2;
@@ -1445,7 +1445,7 @@ sub load_theme_info {
 	if (-r $file) {
 		my $lines = $ROBJ->fread_lines( $file );
 		foreach(@$lines) {
-			if ($_ =~ /\$(option\d*)=([\w-]+)/) {
+			if ($_ =~ /\$(option\d*)=([\w-\.]+)/) {
 				$opt->{"$1$append"} = $2;
 				next;
 			}
@@ -1493,7 +1493,7 @@ sub load_theme_colors {
 	foreach(@$lines) {
 		$line_c++;
 		$_ =~ s/\r\n?/\n/;
-		if ($in_opt || $_ =~ /\$(option\d*)=([\w-]+)/) {	# オプション中
+		if ($in_opt || $_ =~ /\$(option\d*)=([\w-\.]+)/) {	# オプション中
 			if (!$in_opt) {
 				$in_opt=1;
 				if ($2 ne 'default') {
