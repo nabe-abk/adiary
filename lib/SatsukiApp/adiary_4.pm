@@ -325,6 +325,8 @@ sub load_plugin_info {
 	my $id = $h->{module_id} || $self->plugin_name_id( $name, 1 );
 	$h->{files}  =~ s/<\@this>/$name/g;
 	$h->{events} =~ s/<\@this>/$name/g;
+	$h->{files}  =~ s/\r\n/\n/g;
+	$h->{events} =~ s/\r\n/\n/g;
 	my @ary = grep { /^module\w*_html$/ } keys(%$h);
 	push(@ary, 'sample_html');
 	foreach(@ary) {
