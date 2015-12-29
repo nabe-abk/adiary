@@ -43,6 +43,9 @@ body {
 #sp-header {
 	margin-bottom:		1em;
 }
+#sp-header.no-menu:after {
+	display:		none;
+}
 #sp-nav-header {
 	font-size:		9pt;
 	text-align:		right;
@@ -76,10 +79,6 @@ body {
 	background-image:	none;
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
 }
-#sp-head-search.no-menu {
-	background-color:	#e8e8e8;
-}
-
 
 /*--------------------------------------------------------------------
 ■サイドバー

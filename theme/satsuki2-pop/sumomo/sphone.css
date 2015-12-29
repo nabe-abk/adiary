@@ -96,6 +96,9 @@ article.article div.body:before {
 #sp-header {
 	width:			auto;
 }
+#sp-header.no-menu:after {
+	display:		none;
+}
 #sp-nav-header, #sp-nav-header a, #sp-nav-header a:link, #sp-nav-header a:visited {
 	color:			#fff;
 	font-size:		9pt;
@@ -118,7 +121,7 @@ h1 a:before {
 #sp-head-search .search-btn {
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
 }
-#sp-head-search.no-menu {
+.no-menu #sp-head-search {
 	margin-top:		10px;
 	background-color:	rgba(200,200,200,0.4);
 }

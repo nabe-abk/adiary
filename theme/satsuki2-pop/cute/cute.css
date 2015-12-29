@@ -34,7 +34,6 @@ Change Log
 * {
     margin:                 0;
     padding:                0;
-    font-family:            sans-serif;
 /*      text-shadow:            -1px -1px 4px #f0d4cf, -1px 1px 3px #f0d4cf, */
 /*                                  1px 1px 3px #f0d4cf, 1px -1px 3px #f0d4cf; */
 }
@@ -122,7 +121,7 @@ button:disabled
 ●jQuery UI アイコン設定
 ---------------------------------------------------------------------*/
 #ui-icon-autoload {
-	background-color:	#f05;
+	background-color:	#c48;
 }
 
 /*--------------------------------------------------------------------
@@ -157,26 +156,35 @@ body {
 }
 --------------------------------*/
 
-/* ブラウザ描画領域上部 */
-body:before {
-}
 
-/* ブラウザ描画領域下部 */
-/* バージョン */
-body:after {
+/* フッター */
+#footer {
     padding:                5px 0;
     background-repeat:      repeat;
-    height:                 15px;
-    display:                block;
     background-color:       #f08daa;
-    content:                "cute: adiary C87 Special Edition Theme";
-    width:                  960px;
-    margin:                 0 auto;
+    box-sizing:             border-box;
+    width:                  100%;
     color:                  white;
     font-size:              13px;
     text-align:             center;
     text-shadow:            none;
+    line-height:            120%;
 }
+#footer:before {
+    display:                block;
+    content:                "cute: adiary C87 Special Edition Theme";
+}
+#footer a:link, #footer a:visited {
+	color:		#fff;
+}
+
+/*--------------------------------
+$option4=no-theme-name
+#footer:before {
+	display:		none;
+}
+--------------------------------*/
+
 
 /* 本文部 ----------------------------------------------------------*/
 /* 管理メニュー + ブログタイトル + サイドバー + 記事部 */
@@ -349,7 +357,7 @@ h1 a:link, h1 a:hover, h1 a:visited {
 /* 選択色 */
 .dropdown-menu>ul li:hover,
 .dropdown-menu>ul li.hover {
-	background-color:	#f69;
+	background-color:	#d68;
 }
 /* 枠線 */
 .dropdown-menu>ul li {
@@ -371,16 +379,16 @@ h1 a:link, h1 a:hover, h1 a:visited {
 /* 矢印の色 */
 .dropdown-menu li ul li ul:before,
 .dropdown-menu.sp li ul:before {
-	border-left-color:	#c00;
+	border-left-color:	#d12;
 }
 .dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
-	border-right-color:	#c00;
+	border-right-color:	#d12;
 }
 
 /* 設定画面に矢印の色を自動取得させるための指定 */
 .dropdown-menu {
-	color:			#c00;
+	color:			#d12;
 }
 /* 影をつける */
 /*
@@ -417,6 +425,26 @@ nav.page-head {
 
 nav.page-foot {
     text-align:             right;
+}
+
+a.prev-page:before,
+a.upnode-page:before,
+a.next-page:after {
+	display:		inline-block;
+	width:			16px;
+	height:			16px;
+/*	background-image:	url(ui-icons.png);	*/
+	content:		' ';
+	vertical-align:		bottom;
+}
+a.prev-page:before {
+	background-position: -208px -16px;
+}
+a.upnode-page:before {
+	background-position: -224px -16px;
+}
+a.next-page:after {
+	background-position: -240px -16px;
 }
 
 /*--------------------------------------------------------------------
@@ -875,7 +903,7 @@ div.hatena-module {
     background-repeat:      repeat-y;
     background-position:    right;
     min-height:             120px;
-  
+    position:               relative;
 }
 
 /*--------------------------------
@@ -900,24 +928,20 @@ div.hatena-moduletitle {
     font-weight:            bold;
     font-size:              14px;
     line-height:            25px;
-    text-shadow:            none;
-    padding:                2px 4px 0 4px;
-    margin:                 0;
-    -moz-transform-origin:      top left;
-    -webkit-transform-origin:   top left;
+    transform-origin:           top left;
     -khtml-transform-origin:    top left;
     -o-transform-origin:        top left;
     -ms-transform-origin:       top left;
-    transform-origin:           top left;
-    -moz-transform:         rotate(90deg);
-    -webkit-transform:      rotate(90deg);
+    transform:              rotate(90deg);
     -khtml-transform:       rotate(90deg);
     -o-transform:           rotate(90deg);
     -ms-transform:          rotate(90deg);
+
+    width:                  206px;
+    height:                 206px;
     position:               absolute;
-    margin-left:            220px;
+    right:                  -200px;
     color:                  white;
-    width:                  120px;
 }
 div.hatena-moduletitle a, 
 div.hatena-moduletitle a:link, 
@@ -1016,17 +1040,6 @@ div.hatena-module:not(.system-module) li {
     background-color:   #f6dbd6;
     background-color:   rgb(240, 140, 171);
     background-color:   rgba(240, 140, 171, 0.3);
-}
-
-/*--------------------------------------------------------------------
-● フッター (adiary Version ?)
----------------------------------------------------------------------*/
-footer#footer {
-    font-size:          13px;
-    text-align:         center;
-    padding-top:        1em;
-    padding-right:      12px;
-    padding-bottom:     1em;
 }
 
 /*--------------------------------------------------------------------

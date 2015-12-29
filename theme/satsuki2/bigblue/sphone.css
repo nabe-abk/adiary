@@ -43,11 +43,6 @@ body, #adiary-body {
 #sp-header {
 	margin-bottom:		1em;
 }
-#sp-header:after {
-	content:		"";
-	display:		block;
-	clear:			both;
-}
 #sp-nav-header {
 	font-size:		9pt;
 	text-align:		right;

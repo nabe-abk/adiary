@@ -37,6 +37,9 @@ body, #adiary-body {
 #sp-header {
 	margin-bottom:		1em;
 }
+#sp-header.no-menu:after {
+	display:		none;
+}
 #sp-nav-header {
 	font-size:		10pt;
 	text-align:		right;
@@ -62,10 +65,9 @@ body, #adiary-body {
 #sp-head-search .search-btn {
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
 }
-#sp-head-search.no-menu {
-	background-color:	#e8e8e8;
+.no-menu #sp-head-search {
+	background-color:	rgba(255,220,220,0.4);
 }
-
 
 /*--------------------------------------------------------------------
 ■サイドバー

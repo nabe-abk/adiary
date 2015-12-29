@@ -77,11 +77,7 @@ h1
 	background-image:	none;
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
 }
-#sp-header:after {
-	content:		"";
-	display:		block;
-	clear:			both;
-}
+
 
 /*--------------------------------------------------------------------
 ■サイドバー

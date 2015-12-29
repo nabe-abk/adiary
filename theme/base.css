@@ -569,10 +569,16 @@ span.tag span.ui-icon-close,
 }
 
 /* ダイアログの閉じるボタン位置調整 */
-.ui-dialog-titlebar .ui-dialog-titlebar-close {
+.ui-dialog-titlebar .ui-dialog-titlebar-close,
+button.ui-button {
 	width:  19px;
 	height: 19px;
 	padding: 1px 2px 2px 1px;
+}
+/* 検索ボタン */
+span.ui-icon.ui-icon-search {
+	width:  19px;
+	height: 19px;
 }
 
 /*--------------------------------------------------------------------
@@ -1283,7 +1289,12 @@ ul.menu {
 	float:			right;
 
 	padding:		4px;
-	margin-right:		2px;
+	margin:			0 2px 1px 0;
+}
+#sp-header:after {
+	content:		"";
+	display:		block;
+	clear:			both;
 }
 #sp-head-search .search-btn {
 	padding:		0;
@@ -1302,6 +1313,11 @@ ul.menu {
 /*--------------------------------------------------------------------
 ●スマホ用ドロップダウンメニュー
 ---------------------------------------------------------------------*/
+.dropdown-menu.sp {
+	position:	absolute;
+	bottom:		0;
+	margin-bottom:	0;
+}
 /* PC用の設定解除 */
 .dropdown-menu.sp>ul {
 	margin-right:	0;

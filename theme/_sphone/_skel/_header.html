@@ -3,7 +3,7 @@
 <$s=v.blog>
 
 <!--ヘッダ部================================================================-->
-<header id="sp-header"><div>
+<header id="sp-header"<@if(!v.system_mode && !s.spmenu, ' class="no-menu"')>><div>
 <nav id="sp-nav-header" data-module-name="deh_login" data-fix="1">
 	<@ifexec(Auth.ok, begin)><span class="welcome"><a href="<@if(v.subdomain_mode , "http://<@v.subdomain_mode>/" ,Myself)>" class="welcome-prefix">ようこそ</a><a<@if(v.exists_my_blog, #' href="<@v.myself3>"')> class="welcome-name"><@Auth.name></a><span class="welcome-postfix">さん</span></span><$end>
 
@@ -33,7 +33,7 @@
 <@>----------------------------------------------------------------------------
 <@ifexec(v.blogid && !v.system_mode, begin)>
 <!--検索ボックス============================================================-->
-<div id="sp-head-search" class="<@if(!s.spmenu, 'no-menu')>">
+<div id="sp-head-search">
 <form method="GET" action="<@v.myself>">
 <input type="search" class="search-box" name="q" value="<@esc(Query.q)>" required><button class="search-btn js-submit ui-button ui-corner-all"><span class="ui-icon ui-button-icon-primary ui-icon-search"></span></button>
 <input type="hidden" name="all" value="1">

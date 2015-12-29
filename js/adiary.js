@@ -1414,7 +1414,7 @@ initfunc.push( function(R){
 			var li = $(ch[i]);
 			width += li.data('width') || li.outerWidth();
 		}
-		if (IE8) width+=2;
+		width+=2;	// for IE and GC bug?
 		obj.width(width);
 	});
 });
