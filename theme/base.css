@@ -569,8 +569,7 @@ span.tag span.ui-icon-close,
 }
 
 /* ダイアログの閉じるボタン位置調整 */
-.ui-dialog-titlebar .ui-dialog-titlebar-close,
-button.ui-button {
+.ui-dialog-titlebar .ui-dialog-titlebar-close {
 	width:  19px;
 	height: 19px;
 	padding: 1px 2px 2px 1px;
