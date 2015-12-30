@@ -861,7 +861,9 @@ form.comment {
 form textarea {
     margin:                 12px 0 12px 0;
 }
-
+hr#com-form-separator {
+    border:                 none;
+}
 #com {
 	background-color:       white;
 	background-color:       rgba(255,255,255,0.75);
