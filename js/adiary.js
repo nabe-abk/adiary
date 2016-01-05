@@ -1445,7 +1445,7 @@ $(function(){
 	var post = $('#post-comment');
 	post.prop('disabled', true);
 
-	// 10key押されるか、5秒経ったら設定
+	// 10key押されるか、10秒経ったら設定
 	var cnt=0;
 	var tarea = form.find('textarea');
 	var enable_func = function(){
@@ -1458,7 +1458,7 @@ $(function(){
 		if (cnt<10) return;
 		enable_func()
 	});
-	// setTimeout(enable_func, 5000);
+	setTimeout(enable_func, 10000);
 });
 //////////////////////////////////////////////////////////////////////////////
 // ●検索条件表示の関連処理
