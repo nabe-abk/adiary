@@ -387,6 +387,9 @@ sub do_ajax_image_upload {
 	my $form = shift;
 	my $ROBJ = $self->{ROBJ};
 
+	# 画像フォルダ初期化
+	$self->init_image_dir();
+
 	# ディレクトリ生成
 	my $dir = $self->image_folder_to_dir();
 	my @ary  = split('/', $form->{folder});
