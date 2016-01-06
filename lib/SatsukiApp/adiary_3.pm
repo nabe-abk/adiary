@@ -198,7 +198,7 @@ sub make_thumbnail_for_image {
 
 	# リサイズ
 	if ($size <  60) { $size= 60; }
-	if (600 < $size) { $size=600; }
+	if (800 < $size) { $size=800; }
 
 	# print "0\n";
 	my $img = $self->load_image_magick( 'jpeg:size'=>"$size x $size" );
