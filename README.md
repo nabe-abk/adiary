@@ -18,7 +18,7 @@ And, '__cache' and 'data/' directories not permit to access from web.
 
   1. 解凍してでてきたファイルをサーバ上の任意の位置に置く
   2. adiary.cgi に実行属性を付ける
-  3. __cache/ data/, pub/ を www 権限で書き込めるようにする。（suEXEC の場合は不要）
+  3. __cache/, data/, pub/ を www 権限で書き込めるようにする。（suEXEC の場合は不要）
   4. adiary.conf.cgi.sample を adiary.conf.cgi としてコピーし適当にいじる
   5. adiary.cgi にアクセスし、ID、パスワードを適当に入力してログイン。
   6. その後、自分自身をユーザーとして追加する。
@@ -27,7 +27,7 @@ And, '__cache' and 'data/' directories not permit to access from web.
 
 # 著作権表示(Copryright)
 
- Copyright (C)2013-2015 nabe@abk.
+ Copyright (C)2013-2016 nabe@abk.
 
 本プログラム（システム）はフリーソフトウェアです。
 
