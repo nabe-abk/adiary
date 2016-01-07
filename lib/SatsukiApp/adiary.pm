@@ -310,7 +310,7 @@ sub blogid_and_pinfo {
 	# pinfoの保存
 	my $pinfo = join('/', @pinfo);
 	$self->{pinfo}   = $pinfo;
-	$ROBJ->encode_uri( $pinfo );
+	$self->link_key_encode( $pinfo );
 	$self->{e_pinfo} = $pinfo;
 	$self->{thisurl} = $pinfo eq '' ? $self->{myself} : ($self->{myself2} . $pinfo);
 
