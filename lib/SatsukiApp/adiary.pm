@@ -1152,7 +1152,7 @@ sub load_comments {
 	my $loads  = $opt->{loads} ne '' ? int($opt->{loads}) : undef;
 	my %h;
 	$h{match} = {a_pkey => int($a_pkey)};
-	$h{sort}  = 'tm';
+	$h{sort}  = ['num', 'tm'];
 	if ($opt->{enable_only}) {
 		$h{flag} = { enable => 1 };
 	}
