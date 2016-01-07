@@ -1,11 +1,11 @@
 use strict;
 #------------------------------------------------------------------------------
 # Base system functions for satsuki system
-#						Copyright(C)2005-2015 nabe@abk
+#						Copyright(C)2005-2016 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.03';
+our $VERSION = '2.04';
 our $RELOAD;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
@@ -1514,7 +1514,12 @@ sub change_hour {
 	my $tm = shift || $self->{TM};
 	my $change_hour = shift || $self->{Change_hour};
 
-	my ($sec, $min, $hour) = localtime($tm % 86400);
+	my ($sec, $min, $hour, $day, $mon, $year) = localtime($tm);
+	my $ch_func = $self->{Change_hour_func};
+	if ($change_hour && $ch_func) {
+		$change_hour = &$ch_func($sec, $min, $hour, $day, $mon+1, $year+1900) ? $change_hour : 0;
+	}
+
 	my $ch_flag=0;
 	if ($hour < $change_hour) {	# 日付変更時間 処理
 		$ch_flag =1;

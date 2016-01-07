@@ -1,7 +1,7 @@
 use strict;
 #-------------------------------------------------------------------------------
 # ブログシステム - adiary
-#					(C)2006-2015 nabe@abk / ABK project
+#					(C)2006-2016 nabe@abk / ABK project
 #-------------------------------------------------------------------------------
 package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
@@ -59,6 +59,12 @@ sub new {
 
 	# 現在の日時設定（日付変更時間対策）
 	$self->{now} = $ROBJ->{Now};
+
+	# 日付変更時間を「元日とエイプリルフール」は無視する設定
+	$ROBJ->{Change_hour_func} = sub {
+		my ($s,$m,$h, $day, $mon) = @_;
+		return ! ($day==1 && ($mon == 1 || $mon == 4));
+	};
 
 	# スマホ判別
 	my $ua = $ENV{HTTP_USER_AGENT};
@@ -461,6 +467,8 @@ sub set_and_select_blog {
 	$self->{blog_admin} = undef;
 	$self->{blog_dir}    = undef;
 	$self->{blogpub_dir} = undef;
+	$ROBJ->{Change_hour} = 0;
+	$self->{now} = $ROBJ->{Now};
 
 	# スケルトン登録の削除
 	$ROBJ->delete_skeleton($self->{user_skeleton_level});
@@ -498,11 +506,12 @@ sub set_and_select_blog {
 		$ROBJ->regist_skeleton($self->{blog_dir} . 'skel/', $self->{user_skeleton_level});
 	}
 
-	# 日付変更時間の設定（元日とエイプリルフールは日付変更時間を無視）
-	my $now = $ROBJ->{Now};
-	my $change_hour = ($now->{day}==1 && ($now->{mon}==1 || $now->{mon}==4)) ? 0 : $blog->{change_hour_int};
-	$ROBJ->{Change_hour} = $change_hour;
-	$self->{now} = $change_hour ? $ROBJ->time2timehash( $ROBJ->{TM} ) : $ROBJ->{Now};
+	# 日付変更時間設定
+	my $ch_hour = $blog->{change_hour_int};
+	$ROBJ->{Change_hour} = $ch_hour;
+	if ($ch_hour) {
+		$self->{now} = $ROBJ->time2timehash( $ROBJ->{TM} );
+	}
 
 	return $blog;
 }
