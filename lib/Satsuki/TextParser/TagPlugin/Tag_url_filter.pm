@@ -129,16 +129,17 @@ sub _filter {
 			my $res = $http->get($url);
 			if (!ref($res)) { last; }
 			foreach(@$res) {
-				if ($_ !~ m|http://www\.slideshare\.net/slideshow/embed_code/(\d+)|) { next; }
+				# https://www.slideshare.net/slideshow/embed_code/key/sqUybEjkhm2G5P
+				if ($_ !~ m|https?://www\.slideshare\.net/slideshow/embed_code/key/(\w+)|) { next; }
 				$sid=$1;
 				last;
 			}
 			last;
 		}
-		my $w = 429;
-		my $h = 357;
-		if ($ary->[0] eq 'small') { $w=344; $h=292; }
-		if ($ary->[0] eq 'large') { $w=599; $h=487; }
+		my $w = 425;
+		my $h = 355;
+		if ($ary->[0] eq 'small') { $w=340; $h=290; }
+		if ($ary->[0] eq 'large') { $w=595; $h=485; }
 		return "<module name=\"slideshare\" sid=\"$sid\" width=\"$w\" height=\"$h\">";
 	}
 
