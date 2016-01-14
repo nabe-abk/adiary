@@ -717,7 +717,7 @@ function inline_tag(evt, func) {
 	if (text) {
 		text = parse_lines(text, function(str) {
 			if (func) return func({str: str}, obj);
-			return tag_st + esc_satsuki_tag(str) + tag_end;
+			return tag_st + esc_satsuki_tag_nested(str) + tag_end;
 		})
 		return replace_selection(text);
 	}
@@ -818,7 +818,7 @@ function http_tag(evt) {
 		var ma = h.str1.match(/^(https?:\/\/)(.+)/i);
 		if (! ma) return;
 		if (h.str2 != '') h.str2 = ':' + h.str2;
-		var url = ma[1] + esc_satsuki_tag(ma[2]);
+		var url = ma[1] + esc_satsuki_tag_nested(ma[2]);
 		replace_selection( '[' + url + h.str2 + ']' );
 	});
 }
@@ -927,6 +927,29 @@ function parse_lines_for_block(text, tag) {
 		ary[i] = tag + ary[i];
 	}
 	return ary.join("\n");
+}
+
+//----------------------------------------------------------------------------
+// ●satsuki tagのエスケープ処理
+//----------------------------------------------------------------------------
+function esc_satsuki_tag_nested(str) {
+	var buf = [];
+	str = str.replace(/[\x01-\x03]/g, '');
+	str = str.replace(/\\\[/g, "\x01");
+	str = str.replace(/\\\]/g, "\x02");
+	var ma;
+	var cnt = 10000;
+	while(ma = str.match(/^(.*)(\[[^\[\]]*\])(.*)$/)) {
+		str = ma[1] + "\x03" + buf.length + ma[3];
+		buf.push(ma[2]);
+		cnt--;
+		if (!cnt) { console.log("error in esc_satsuki_tag_nested()"); break; }
+	}
+	str = esc_satsuki_tag(str);
+	str = str.replace(/\x03(\d+)/, function(all, num) { return buf[num] });
+	str = str.replace(/\x02/g, "\\]");
+	str = str.replace(/\x01/g, "\\[");
+	return str;
 }
 
 //############################################################################
