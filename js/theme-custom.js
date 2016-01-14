@@ -393,6 +393,13 @@ function relation_colors(name) {
 //////////////////////////////////////////////////////////////////////////////
 // ●カスタマイズフォーム設定
 //////////////////////////////////////////////////////////////////////////////
+var CSS_ReInit;
+setInterval(function(){
+	if (!CSS_ReInit) return;
+	CSS_ReInit = false;
+	iframe[0].contentWindow.css_inital();
+},500);
+
 function update_css() {
 	var col = {};
 	input_cols.each(function(idx,dom){
@@ -454,7 +461,8 @@ function update_css() {
 	}
 
 	// CSSによる設定反映
-	iframe[0].contentWindow.css_inital();
+	// iframe[0].contentWindow.css_inital();
+	CSS_ReInit = true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
