@@ -521,6 +521,7 @@ function change_hsv() {
 	var s = s_slider.slider( "value" );
 	var v = v_slider.slider( "value" );
 
+	var d = new Date();
 	var cols = input_cols;
 	for(var i=0; i<cols.length; i++) {
 		var obj = $(cols[i]);
@@ -565,40 +566,12 @@ function RGBtoHSV(str) {
 	var g = parseInt('0x' + ma[2]);
 	var b = parseInt('0x' + ma[3]);
 
-	if (r==0 && g==0 && b==0)
-		return {h:0, s:0, v:0};
+	var v  =  0.29900*r + 0.58700*g + 0.114*b;	// =Y
+	var cb = -0.16874*r - 0.33126*g + 0.500*b;
+	var cr =  0.50000*r - 0.41869*g - 0.081*b;
 
-	// 最大値 = V
-	var max = r;
-	if (max<g) max=g;
-	if (max<b) max=b;
-	var v = max;
-
-	// 最小値
-	var min = r;
-	var min_is = 'r';
-	if (min > g) {
-		min = g;
-		min_is = 'g';
-	}
-	if (min > b) {
-		min = b;
-		min_is = 'b';
-	}
-	// S
-	var s = (max-min)*255/max;
-	// h
-	var h;
-	if (max == min) h=0;
-	else if (min_is == 'b')
-		h = 60*(g-r)/(max-min) + 60;
-	else if (min_is == 'r')
-		h = 60*(b-g)/(max-min) + 180;
-	else if (min_is == 'g')
-		h = 60*(r-b)/(max-min) + 300;
-	if (h<0)   h+=360;
-	if (h>360) h-=360;
-
+	var h = 180 * Math.atan2(cr, cb) / Math.PI;
+	var s = Math.sqrt(cb*cb + cr*cr);
 	return { h: h, s: s, v: v };
 }
 
@@ -606,46 +579,16 @@ function RGBtoHSV(str) {
 // ●HSVtoRGB
 //////////////////////////////////////////////////////////////////////////////
 function HSVtoRGB( hsv ) {
-	if (hsv.s<0) hsv.s=0;
-	if (hsv.v<0) hsv.v=0;
-	var max = hsv.v;
-	var min = max - (hsv.s*max/255);
-
-	var r;
-	var g;
-	var b;
 	var h = hsv.h;
-	if (h<0)   h+=360;
-	if (h>360) h-=360;
-	if (h<60) {
-		r = max;
-		g = (h/60) * (max-min) + min;
-		b = min;
-	} else if (h<120) {
-		r = ((120-h)/60) * (max-min) + min;
-		g = max;
-		b = min;
-	} else if (h<180) {
-		r = min;
-		g = max;
-		b = ((h-120)/60) * (max-min) + min;
-	} else if (h<240) {
-		r = min;
-		g = ((240-h)/60) * (max-min) + min;
-		b = max;
-	} else if (h<300) {
-		r = ((h-240)/60) * (max-min) + min;
-		g = min;
-		b = max;
-	} else {
-		r = max;
-		g = min;
-		b = ((360-h)/60) * (max-min) + min;
-	}
+	while(h>180) h-=360;
+	var rad = Math.PI * h / 180;
+	var cb  = hsv.s * Math.cos( rad );
+	var cr  = hsv.s * Math.sin( rad );
+	var r  = Math.round(hsv.v            + 1.402*cr);
+	var g  = Math.round(hsv.v - 0.344*cb - 0.714*cr);
+	var b  = Math.round(hsv.v + 1.772*cb           );
+
 	// safety
-	r = Math.round(r);
-	g = Math.round(g);
-	b = Math.round(b);
 	if (r<0) r=0;
 	if (g<0) g=0;
 	if (b<0) b=0;
