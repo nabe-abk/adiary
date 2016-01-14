@@ -541,7 +541,7 @@ function change_hsv() {
 		// 色変換
 		hsv.h += h;
 		hsv.s *= (s/160);
-		hsv.v *= (v/160);
+		hsv.v *= (v/256);
 		var rgb = HSVtoRGB( hsv );
 		set_color(obj, rgb);
 	}
@@ -550,7 +550,7 @@ function change_hsv() {
 $('#h-slider, #s-slider, #v-slider').slider({
 	range: "min",
 	max: 512,
-	value: 256,
+	value: 160,
 //	change: change_hsv,
 	slide: change_hsv
 });
@@ -560,7 +560,7 @@ form_reset();
 function form_reset() {
 	h_slider.slider('value', 0);
 	s_slider.slider('value', 160);
-	v_slider.slider('value', 160);
+	v_slider.slider('value', 256);
 }
 
 //////////////////////////////////////////////////////////////////////////////
