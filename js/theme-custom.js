@@ -533,7 +533,7 @@ function change_hsv() {
 		// 色変換
 		hsv.h += h;
 		hsv.s *= (s/160);
-		hsv.v += (v-256);
+		hsv.v *= (v/160);
 		var rgb = HSVtoRGB( hsv );
 		set_color(obj, rgb);
 	}
@@ -552,7 +552,7 @@ form_reset();
 function form_reset() {
 	h_slider.slider('value', 0);
 	s_slider.slider('value', 160);
-	v_slider.slider('value', 256);
+	v_slider.slider('value', 160);
 }
 
 //////////////////////////////////////////////////////////////////////////////
