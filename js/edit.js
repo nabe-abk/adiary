@@ -934,21 +934,18 @@ function parse_lines_for_block(text, tag) {
 //----------------------------------------------------------------------------
 function esc_satsuki_tag_nested(str) {
 	var buf = [];
-	str = str.replace(/[\x01-\x03]/g, '');
-	str = str.replace(/\\\[/g, "\x01");
-	str = str.replace(/\\\]/g, "\x02");
+	str =str.replace(/[\x01-\x03]/g, '')
+		.replace(/\\\[/g, "\x01")
+		.replace(/\\\]/g, "\x02");
 	var ma;
-	var cnt = 10000;
 	while(ma = str.match(/^(.*)(\[[^\[\]]*\])(.*)$/)) {
 		str = ma[1] + "\x03" + buf.length + ma[3];
 		buf.push(ma[2]);
-		cnt--;
-		if (!cnt) { console.log("error in esc_satsuki_tag_nested()"); break; }
 	}
-	str = esc_satsuki_tag(str);
-	str = str.replace(/\x03(\d+)/, function(all, num) { return buf[num] });
-	str = str.replace(/\x02/g, "\\]");
-	str = str.replace(/\x01/g, "\\[");
+	str = esc_satsuki_tag(str)
+		.replace(/\x03(\d+)/, function(all, num) { return buf[num] })
+		.replace(/\x02/g, "\\]")
+		.replace(/\x01/g, "\\[");
 	return str;
 }
 
