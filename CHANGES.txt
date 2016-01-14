@@ -5,6 +5,7 @@
 -\displaystyleで数式を表示する{[mathd:]}タグを追加。
 -slideshareに対するフィルター記法や埋め込み表紙を更新。
 -[http://adiary.org/v3man/Satsuki/block:#pc-sp:pcのみ表示/スマホのみ表示]のCSS定義。
+-【fix】太字や文字色などの記法ヘルパーが、記法の入れ子をうまく処理できていなかった。
 
 *Ver3.01 : 2015/01/09
 
