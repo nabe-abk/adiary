@@ -92,7 +92,7 @@ table.plugins button { margin: 0; }
 
 
 /*--------------------------------------------------------------------
-●互換性維持
+●互換性維持 (for Special Edition theme)
 ---------------------------------------------------------------------*/
 #footer {
 	clear:			both;
@@ -197,6 +197,14 @@ blockquote p:first-child {
 }
 blockquote p:last-child {
 	margin-bottom:	0;
+}
+
+/* スマホ用出力。PC用出力 */
+.sp .for-pc {
+	display:	none;
+}
+body:not(.sp) .for-sp {
+	display:	none;
 }
 
 /* pre */
