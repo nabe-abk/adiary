@@ -231,12 +231,12 @@ function get_value_from_css(id, attr) {
 		span.remove();
 		return attr;
 	}
-	var size = span.css('font-size');	// 1pxの時のみ有効
+	var size = span.css('min-width');	// 1pxの時のみ有効
 	var str  = span.css('font-family');
 	span.remove();
 	if (str == null || size != '1px') return '';
 	str = str.replace(/["']/g, '');
-	return str;
+	return str || size;
 }
 </pre>
 </section>

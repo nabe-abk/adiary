@@ -31,7 +31,7 @@ div.body p {
 /* highlight.js demo https://highlightjs.org/static/demo/ */
 /*
 #syntax-highlight-theme {
-	font-size:	1px;
+	min-width:	1px;
 	font-family:	"tomorrow-night-blue";
 }
 */
