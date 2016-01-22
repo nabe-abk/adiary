@@ -1,0 +1,40 @@
+Common
+-Apache
+-Bash
+-C#
+-C++
+-CSS
+-CoffeeScript
+-Device Tree (*.dts)
+-Diff
+-HTML, XML
+-HTTP
+-Ini
+-JSON
+-Java
+-JavaScript
+-Makefile
+-Markdown
+-Nginx
+-Objective-C
+-PHP
+--Perl
+-Python
+-Ruby
+-SQL
+
+Other options
+-Intel x86 Assembly
+-MIPS Assembly
+-ARM Assembly
+-AVR Assembler
+-VHDL
+-Verilog
+-Basic
+-DOS.bat
+-PowerShell
+-VB.NET
+-VBScript
+-Swift
+-Lisp
+-TeX
