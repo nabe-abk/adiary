@@ -288,7 +288,7 @@ sub fwrite_hash {
 		if (ref $val || (!$append && $val eq '')) { next; }
 		if ($_ =~ /[\r\n=]/ || substr($_,0,1) eq '*') { next; } # 改行や「=」を含むか*で始まるkeyは無視
 		if (0 <= index($val, "\n")) {	# 値に改行を含む
-			$val =~ s/(?:^|\n)__END_BLK_DATA\n/__END_BLK_DATA \n/g;
+			$val =~ s/(^|\n)__END_BLK_DATA\n/$1__END_BLK_DATA \n/g;
 			push(@ary, "*$_=<<__END_BLK_DATA\n$val\n__END_BLK_DATA\n");
 		} else {
 			push(@ary, "$_=$val\n");
