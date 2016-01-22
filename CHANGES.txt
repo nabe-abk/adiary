@@ -12,6 +12,7 @@
 -【fix】ブログの説明に「?」を入力すると「{<br>}」に変換される。
 -【fix】ユーザーcssのsyntaxハイライトサンプルが間違っていた。（[http://www.ujiya.net/0268:#k268p2:Thanks to ぉゅぅ]）
 -【fix】Text-DB使用時、「__END_BLK_DATA」のみの行を書くと前の行と連結される。
+-【fix】2つめのRSS配信が設定できない。
 
 *Ver3.01 : 2015/01/09
 
