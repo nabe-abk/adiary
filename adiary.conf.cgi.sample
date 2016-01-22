@@ -144,9 +144,9 @@
 #-------------------------------------------------------------------------------
 <$If_post_exec_pre = begin>
 	# このサイズは記事データなどの最大サイズ(byte)になります
-	<$Form_options.total_max_size = 160K>
+	<$Form_options.total_max_size = if(Auth.ok, 256K, 64K)>
 	<$Form_options.str_max_chars  = 80>  ※文字数
-	<$Form_options.txt_max_chars  = 64K> ※文字数
+	<$Form_options.txt_max_chars  =  0>  ※文字数（0=無制限）
 
 	# マルチパート用の設定
 	<$Form_options.allow_multipart = Auth.ok>

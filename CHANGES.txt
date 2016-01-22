@@ -8,6 +8,8 @@
 -テーマの配色変更で使うHSV変換式をまともなものに変更しました。((HSV各値が「255」に収まる変換式は使い勝手は良いのですが、色の変更に使うと色相(H)を変更しているのに、SやVも微妙に変化してしまい配色がアンバランスになっていました。今回、HSV定義式に則ったものに変更してあります。))
 -テーマの配色変更でのHSVの動作を軽くしました。
 -highlight.jsをアップデートしました。[https://github.com/nabe-abk/adiary/blob/master/js/highlight.txt:対応言語]を増やしました。（[http://www.ujiya.net/0268:#k268p2:Thanks to ぉゅぅ]）
+-フォーム値の長さ制限がかかった場合に警告を出すようにしました。（[http://ac206223.ppp.asahi-net.or.jp/adiary/diary/hirosugu/024:#k24p1.2:Thanks to 平山]）
+-それに伴い、フォーム値のデフォルトの制限値を変更しました。((追従する場合は、adiary.conf.cgi.sample の If_post_exec_pre の設定を参考にしてください。))
 -【fix】太字や文字色などの記法ヘルパーが、記法の入れ子をうまく処理できない。
 -【fix】ブログの説明に「?」を入力すると「{<br>}」に変換される。
 -【fix】ユーザーcssのsyntaxハイライトサンプルが間違っていた。（[http://www.ujiya.net/0268:#k268p2:Thanks to ぉゅぅ]）

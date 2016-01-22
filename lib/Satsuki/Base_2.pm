@@ -694,7 +694,7 @@ sub _read_form {
 	### データサイズの確認
 	my $length = $ENV{CONTENT_LENGTH};
 	if ($options->{total_max_size} && $length > $options->{total_max_size}) {
-		$self->message('Too large form data'); return ;
+		$self->message('Too large form data (max %dKB)', $options->{total_max_size} >> 10); return ;
 	}
 	### 通常のフォーム処理
 	my $content;
@@ -865,8 +865,11 @@ sub form_data_check_and_save {
 		my $bytes = length($val);
 		if ($type eq '_txt') {	# テキストエリア系なら改行を統一
 			$val =~ s/\r\n?/\n/g;
-			my $txt_max_chars = $options->{txt_max_chars} || 65536;
-			if ($txt_max_chars && $bytes >$txt_max_chars) { $val = &$substr($val, 0, $txt_max_chars); }
+			my $txt_max_chars = $options->{txt_max_chars};
+			if ($txt_max_chars && $bytes >$txt_max_chars) {
+				$self->message("Too long form data '%s', limit %d chars", $name, $txt_max_chars);
+				$val = &$substr($val, 0, $txt_max_chars);
+			}
 		} elsif ($type eq '_int') {	# 整数値
 			if ($val ne '') { $val=int($val); }
 		} elsif ($type eq '_num') {	# 数値
@@ -874,9 +877,12 @@ sub form_data_check_and_save {
 		} elsif ($type eq '_flg') {	# フラグ
 			$val = $val ? 1 : 0;
 		} else {
-			my $str_max_chars = $options->{str_max_chars} || 256;
+			my $str_max_chars = $options->{str_max_chars};
 			$val =~ s/[\r\n]//g;	# 改行を除去
-			if ($str_max_chars && $bytes >$str_max_chars) { $val = &$substr($val, 0, $str_max_chars); }
+			if ($str_max_chars && $bytes >$str_max_chars) {
+				$self->message("Too long form data '%s', limit %d chars", $name, $str_max_chars);
+				$val = &$substr($val, 0, $str_max_chars);
+			}
 		}
 	}
 
