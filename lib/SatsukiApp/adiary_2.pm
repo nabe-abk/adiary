@@ -1642,7 +1642,7 @@ sub update_lock_file {
 #------------------------------------------------------------------------------
 sub generate_spmenu {
 	my $self = shift;
-	my $blog = $self->{blog};
+	my $blog  = $self->{blog};
 
 	my $ary = $self->load_spmenu_info();
 	if (! @$ary) {

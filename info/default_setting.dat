@@ -1,5 +1,4 @@
 blog_name=（ブログのタイトルを入力）
-spmenu_title=メニュー
 enable=1
 com_ok=1
 hcom_ok=1
@@ -12,3 +11,4 @@ exif_tag=%271 %272 / %37386mm F%33437 %33434秒 ISO%34855
 suggest_link_key=1
 
 p:dea_art-info:wiki_tm=3
+

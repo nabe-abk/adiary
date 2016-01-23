@@ -3,7 +3,6 @@
 *Ver3.02 : 2015/01/xx
 
 -[http://adiary.org/devman/files/:adiaryのファイル構造の説明]を開発マニュアルに書きました。
--スマホメニューを設定し忘れる人が多いので、設定するよう警告を出すようにしました。
 -\displaystyleで数式を表示する{[mathd:]}タグを追加。
 -slideshareに対するフィルター記法や埋め込み表紙を更新。
 -[http://adiary.org/v3man/Satsuki/block:#pc-sp:pcのみ表示/スマホのみ表示]のCSS定義。
@@ -13,6 +12,8 @@
 -フォーム値の長さ制限がかかった場合に警告を出すようにしました。（[http://ac206223.ppp.asahi-net.or.jp/adiary/diary/hirosugu/024:#k24p1.2:Thanks to 平山]）
 -それに伴い、フォーム値のデフォルトの制限値を変更しました。((追従する場合は、adiary.conf.cgi.sample の If_post_exec_pre の設定を参考にしてください。))
 -adiary.js中のIE67フラグを除去しました。
+-スマホメニューを設定し忘れる人が多いので、設定するよう警告を出すようにしました。
+-スマホメニューの設定の有無に関わらず、スマホ表示でメニュー領域を出力するようにしました。
 -【fix】太字や文字色などの記法ヘルパーが、記法の入れ子をうまく処理できない。
 -【fix】ブログの説明に「?」を入力すると「{<br>}」に変換される。
 -【fix】ユーザーcssのsyntaxハイライトサンプルが間違っていた。（[http://www.ujiya.net/0268:#k268p2:Thanks to ぉゅぅ]）

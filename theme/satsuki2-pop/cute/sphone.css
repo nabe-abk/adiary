@@ -38,9 +38,6 @@ div.main {
 	margin-bottom:		1em;
 	line-height:		100%;
 }
-#sp-header.no-menu:after {
-	display:		none;
-}
 #sp-nav-header {
 	font-size:		10pt;
 	text-align:		right;
