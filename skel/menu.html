@@ -38,6 +38,10 @@
 	<strong class="notice">新着コメントがあります</strong> &gt;<a href="<@v.myself>?comlist">コメント一覧から確認</a><br>
 	<$end>
 
+	<@ifexec(v.blog_admin && !v.blog.spmenu_info && v.spmenu_items_check(), begin)>
+	<strong class="notice"><a href="<@v.myself>?design/spmenu">スマホメニュー</a>を設定してください</strong><br>
+	<$end>
+
 	<@ifexec(!v.exists_my_blog && (!v.sys.create_blog_only_admin || Auth.isadmin), begin)>
 	<ul class="menu">
 		<li><a href="<@Myself>?etc/myblog_create">自分のブログを作成</a></li>

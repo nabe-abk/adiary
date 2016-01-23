@@ -1676,18 +1676,16 @@ sub load_spmenu_info {
 	my $blog = $self->{blog};
 	my $info = $blog->{spmenu_info};
 
-	my @ary = split("\n", $info);
-	my @ary2;
-	my $f;
-	foreach(@ary) {
-		chomp($_);		# $_に処理しないように
+	my @ary;
+	foreach(split("\n", $info)) {
+		chomp($_);
 		my ($name,$title) = split(/=/, $_, 2);
-		push(@ary2, {
+		push(@ary, {
 			name  => $name,
 			title => $title
 		});
 	}
-	return \@ary2;
+	return \@ary;
 }
 
 #------------------------------------------------------------------------------

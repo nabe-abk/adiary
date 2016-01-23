@@ -20,7 +20,7 @@
 		<li><a href="<@v.myself>?<@v.skel_dir>edit">デザイン編集</a><span class="help" data-help="ブログのHTML要素をカスタマイズします。モジュールの配置換えや、モジュール個別の表示カスタマイズなどが行えます。\nデザイン編集画面でのみ一部の表示が崩れることがあります。">?</span></li>
 		<li><a href="<@v.myself>?<@v.skel_dir>reset">デザインの初期化</a><span class="help" data-help="デザイン編集で行ったデザインの変更を初期化します。カスタマイズをやり直したい時に使用してください。">?</span></li>
 		<li><a href="<@v.myself>?<@v.skel_dir>usercss">ユーザーCSS</a><span class="help" data-help="テーマやデザイン編集では不十分な場合、直接CSSを記述して見た目をカスタマイズします。">?</span></li>
-		<li><a href="<@v.myself>?<@v.skel_dir>spmenu">スマホ用メニュー設定</a><span class="help" data-help="スマホでアクセスしたときに表示されるドロップダウンメニューに何を表示するか選択します。">?</span><@if(!v.blog.spmenu_info, ' ←なるべく設定してください')></li>
+		<li><a href="<@v.myself>?<@v.skel_dir>spmenu">スマホメニュー設定</a><span class="help" data-help="スマホでアクセスしたときに表示されるドロップダウンメニューに何を表示するか選択します。">?</span><@if(!v.blog.spmenu_info && v.spmenu_items_check(), ' <strong class="warning">←設定してください</strong>')></li>
 	</ul>
 
 	<br>

@@ -7,6 +7,8 @@
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
 	<$message('ブログを作成しました')>
-	<$ifcall(Form.load_design, '_sub/load_default_design', Auth.id)>
+	<$ifexec(Form.load_design, begin)>
+		<$v.load_default_design(Auth.id)>
+	<$end>
 	<$jump('_sub/reload_message', v.myself3 . '?set/')>
 <$end>

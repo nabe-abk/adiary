@@ -1197,7 +1197,7 @@ sub load_and_call_module_html {
 #------------------------------------------------------------------------------
 sub reset_design {
 	my $self = shift;
-	my $all  = shift;
+	my $opt  = shift;
 	my $ROBJ = $self->{ROBJ};
 	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
 
@@ -1216,7 +1216,7 @@ sub reset_design {
 	$self->save_design_info({});
 
 	# 個別の設定もすべて消す
-	if ($all) {
+	if ($opt->{all}) {
 		my $blog = $self->{blog};
 		foreach(keys(%$blog)) {
 			if ($_ !~ /p:de\w_/) { next; }
@@ -1224,6 +1224,33 @@ sub reset_design {
 		}
 		$self->update_blogset($blog);
 	}
+
+	if ($opt->{load_design}) {
+		$self->load_default_design();
+	} else {
+		$self->call_event('EDIT_DESIGN');
+	}
+
+	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●デフォルトデザインのロード
+#------------------------------------------------------------------------------
+sub load_default_design {
+	my $self = shift;
+	my $id   = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $blogid = $self->{blogid};
+	if (!$id && !$blogid) { return -1; }
+	if ($id && $id ne $blogid) {
+		my $r = $self->set_and_select_blog($id);
+		if (!$r) { return -1; }
+	}
+
+	my $h = $self->parse_design_dat( $ROBJ->fread_hash( $self->{default_design_file} ) );
+	$self->save_design( $h );
 
 	return 0;
 }
@@ -1654,8 +1681,13 @@ sub update_design_info {
 #------------------------------------------------------------------------------
 # ●スマホメニュー要素ロード
 #------------------------------------------------------------------------------
+sub spmenu_items_check {
+	my $self = shift;
+	return $self->load_spmenu_items(1);
+}
 sub load_spmenu_items {
 	my $self = shift;
+	my $check= shift;	# 存在確認のみ
 	my $set = $self->{blog};
 	if (!$set) { return; }
 
@@ -1670,6 +1702,7 @@ sub load_spmenu_items {
 		my $h = $self->parse_html_for_spmenu( $set->{$_} );
 		if (!$h->{html}) { next; }
 		# save
+		if ($check) { return 1; }
 		my $h = {
 			title=> $h->{title},
 			html => $h->{html},

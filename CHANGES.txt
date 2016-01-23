@@ -3,6 +3,7 @@
 *Ver3.02 : 2015/01/xx
 
 -[http://adiary.org/devman/files/:adiaryのファイル構造の説明]を開発マニュアルに書きました。
+-スマホメニューを設定し忘れる人が多いので、設定するよう警告を出すようにしました。
 -\displaystyleで数式を表示する{[mathd:]}タグを追加。
 -slideshareに対するフィルター記法や埋め込み表紙を更新。
 -[http://adiary.org/v3man/Satsuki/block:#pc-sp:pcのみ表示/スマホのみ表示]のCSS定義。
@@ -17,6 +18,7 @@
 -【fix】ユーザーcssのsyntaxハイライトサンプルが間違っていた。（[http://www.ujiya.net/0268:#k268p2:Thanks to ぉゅぅ]）
 -【fix】Text-DB使用時、「__END_BLK_DATA」のみの行を書くと前の行と連結される。
 -【fix】2つめのRSS配信が設定できない。
+-【fix】デザイン初期化時、標準デザインをロードしないとスマホメニューを再生成していなかった。
 
 *Ver3.01 : 2015/01/09
 
