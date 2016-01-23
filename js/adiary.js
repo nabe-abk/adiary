@@ -11,8 +11,8 @@ var TouchDnDTime  = 600;
 var DoubleTapTime = 400;
 var PopupOffsetX  = 15;
 var PopupOffsetY  = 10;
-var IE8=false;
-var IE9=false;
+var IE8=false;	// IE8以下
+var IE9=false;	// IE9以下
 var SP;		// adiary内部がスマホモード
 var Storage;
 var SettedBrowserClass;
