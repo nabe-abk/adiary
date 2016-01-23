@@ -11,7 +11,6 @@ var TouchDnDTime  = 600;
 var DoubleTapTime = 400;
 var PopupOffsetX  = 15;
 var PopupOffsetY  = 10;
-var IE67=false;
 var IE8=false;
 var IE9=false;
 var SP;		// adiary内部がスマホモード
@@ -67,7 +66,7 @@ String.prototype.rsubstr = function(n) {
 if (!Array.isArray) Array.isArray = function (vArg) {
 	return Object.prototype.toString.call(vArg) === "[object Array]";  
 }
-if (!String.prototype.trim ) String.prototype.trim = function(){
+if (!String.prototype.trim) String.prototype.trim = function(){
 	return this.toString().replace(/^\s+|\s+$/g, '');
 }
 // IE で repeat が使えない
@@ -98,7 +97,6 @@ function set_browser_class_into_body() {
 	if (n) { x = []; m = n; }		// IE11
 	if (m) x.push('IE', 'IE' + m[1]);
 	  else x.push('NotIE');
-	if (m && m[1]<8)  IE67=true;
 	if (m && m[1]<9)  IE8=true;
 	if (m && m[1]<10) IE9=true;
 

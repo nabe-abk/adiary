@@ -2,6 +2,7 @@
 
 *Ver3.02 : 2015/01/xx
 
+-[http://adiary.org/devman/files/:adiaryのファイル構造の説明]を開発マニュアルに書きました。
 -\displaystyleで数式を表示する{[mathd:]}タグを追加。
 -slideshareに対するフィルター記法や埋め込み表紙を更新。
 -[http://adiary.org/v3man/Satsuki/block:#pc-sp:pcのみ表示/スマホのみ表示]のCSS定義。
@@ -10,6 +11,7 @@
 -highlight.jsをアップデートしました。[https://github.com/nabe-abk/adiary/blob/master/js/highlight.txt:対応言語]を増やしました。（[http://www.ujiya.net/0268:#k268p2:Thanks to ぉゅぅ]）
 -フォーム値の長さ制限がかかった場合に警告を出すようにしました。（[http://ac206223.ppp.asahi-net.or.jp/adiary/diary/hirosugu/024:#k24p1.2:Thanks to 平山]）
 -それに伴い、フォーム値のデフォルトの制限値を変更しました。((追従する場合は、adiary.conf.cgi.sample の If_post_exec_pre の設定を参考にしてください。))
+-adiary.js中のIE67フラグを除去しました。
 -【fix】太字や文字色などの記法ヘルパーが、記法の入れ子をうまく処理できない。
 -【fix】ブログの説明に「?」を入力すると「{<br>}」に変換される。
 -【fix】ユーザーcssのsyntaxハイライトサンプルが間違っていた。（[http://www.ujiya.net/0268:#k268p2:Thanks to ぉゅぅ]）
