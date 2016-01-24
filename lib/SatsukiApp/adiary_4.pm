@@ -66,66 +66,8 @@ sub save_usercss {
 	if ($css_txt =~ /^\s*$/s) {
 		return $self->delete_dynamic_css( '_usercss' );
 	}
-	# XSS対策チェック
-	if (! $self->{trust_mode}) { $css_txt = $self->css_escape( \$css_txt ); }
 
 	return $self->save_dynamic_css( '_usercss', $css_txt );
-}
-
-#------------------------------------------------------------------------------
-# ●スタイルシートのエスケープ処理（XSS対策）
-#------------------------------------------------------------------------------
-sub css_escape {
-	my ($self, $_css) = @_;
-	my $css;
-	if (ref($_css) eq 'ARRAY')  { $_css = join('', @$_css); }
-	if (ref($_css) eq 'SCALAR') { $css = $_css; } else { $css = \$_css; }
-
-	# tab lf 以外の制御文字を除去
-	$$css =~ s/[\x00-\x08\x0b-\x1f]//g;
-	# コメントの退避
-	my @comment;
-	$$css =~ s|/\*(.*?)\*/ ? ?|push(@comment, $1), "\x01$#comment\x01"|seg;
-	# 文字列退避
-	my @str;
-	$$css =~ s/(['"])((?:\\.|.)*?)\1/push(@str, $2), "\x02$#str\x02"/seg;
-	foreach(@str) {
-		$_ =~ s/\x0a//g;	# 改行除去
-		$_ =~ s/\\"|"/\\22/g;
-		$_ =~ s/\\'|'/\\27/g;
-		if (ord(substr($_, -1)) > 0x7f) { $_ = $_ . ' '; }
-	}
-	# \ による実体参照の防止
-	$$css =~ s/\\([^"'\*\#])/$1/g;
-	# 全角文字を除去
-	$$css =~ s/[\x80-\xff]//g;
-	# 危険文字の除去
-	$$css =~ s/\@//g;
-	while($$css =~ m[/\*|\*/&#|script|behavior|behaviour|java|exp|eval|cookie|include]i) {	# 危険記号の除去
-		$$css =~ s[/\*|\*/&#|script|behavior|behaviour|java|exp|eval|cookie|include][]ig;
-	}
-	my $check = $$css;
-	$check =~ s/[\x02-\x1f]//g;	# 制御記号除去
-	if ($check =~ m[/\*|\*/&#|script|behavior|behaviour|java|exp|eval|cookie|include]i) {	# 危険記号あり
-		$$css =~ s/([\x02-\x1f])/ $1/g;	# space追加
-	}
-	# url() の確認
-	$$css =~ s#url\(\s*(.*?)\s*\)#
-		my $x  = $1;
-		$x =~ s/'/%27/g;
-		$x =~ s/"/%22/g;
-		$x =~ s|\x02(\d+)\x02|$str[$1]|;
-		if (substr($x,0,7) ne 'http://' && substr($x,0,8) ne 'http://' && substr($x,0,1) ne '/' && substr($x,0,2) ne './' && substr($x,0,3) ne '../') {
-			$x = "./$x";
-		}
-		"url('$x')";
-		#sieg;
-	# 文字列の復元
-	$$css =~ s|\x02(\d+)\x02|"$str[$1]"|g;
-	# コメントの復元
-	$$css =~ s|\x01(\d+)\x01|/*$comment[$1]*/  |g;
-
-	return $$css;
 }
 
 ###############################################################################
