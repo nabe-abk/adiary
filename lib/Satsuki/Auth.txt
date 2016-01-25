@@ -228,7 +228,7 @@ Set:	成功時のみ、次の値を未定義にする。
 $h = $self->get_uid('id');
 $h = $self->get_uid('id', $col);
 
-　誰でも実行可能。
+　誰でも実行可能。未指定時は $col = ['id']。ロードできるのは拡張カラムのみ。
 
 Ret:
 	undef	ユーザーが見つからない。
@@ -240,7 +240,10 @@ Ret:
 ・一般ユーザ
 $h = $self->get_userinfo();
 ・管理者
-$h = $self->get_userinfo('id', $col);
+$h = $self->get_userinfo('search id');
+$h = $self->get_userinfo('search val', $col);
+
+	$col	検索対象カラム
 
 　ユーザー情報テーブルのデータが入ります。
 　IDや検索カラム指定は管理者のみ可能。一般ユーザーが指定しても無視されます。

@@ -119,10 +119,21 @@ sub rebuild_blog {
 	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
 
 	my $blogid = $self->{blogid};
-	my $arts = $DB->select_match("${blogid}_art", '*cols', ['pkey', '_text', 'parser', 'yyyymmdd', 'tm', 'link_key']);
 
-	my $r=0;
+	# trust_mode解除処理
+	my $t = $self->{trust_mode};
+	local($self->{trust_mode}) = $t;
+	if ($self->{admin_trust_mode} && $t) {
+		my $auth = $ROBJ->{Auth};
+		my $user = $auth->sudo('get_userinfo', $blogid);
+		if ($user && !$user->{isadmin}) {
+			$self->{trust_mode} = 0;
+		}
+	}
+
+	my $arts = $DB->select_match("${blogid}_art", '*cols', ['pkey', '_text', 'parser', 'yyyymmdd', 'tm', 'link_key']);
 	my %update;
+	my $r=0;
 	foreach(@$arts) {
 		my $parser_name = $_->{parser};
 		if ($parser_name eq '') { next; }
