@@ -89,8 +89,8 @@ sub save_dynamic_css {
 	}
 
 	# 中身があるかチェック / usercssを除く
-	if ($name !~ /^_/ && !$self->check_css_content($css)) {
-		$css = '';
+	if ($name !~ /^_/) {
+		$css = $self->check_css_content($css);
 	}
 
 	my $dir = $self->dynamic_css_dir();
@@ -137,9 +137,8 @@ sub update_dynamic_css {
 	my @ary;
 	foreach(@$files) {
 		my $css = join('', @{ $ROBJ->fread_lines("$dir$_") });
-		if (!$self->check_css_content($css)) {
-			next;			# 中身のないファイルを無視
-		}
+		$css = $self->check_css_content($css);
+		if (!$css) { next; }		# 中身のないファイルを無視
 		push(@ary, "\n/* from '$_' */\n\n");
 		push(@ary, $css);
 	}
@@ -183,9 +182,11 @@ sub check_css_content {
 	$css =~ s/(['"])(?:\\.|.)*?\1/str/sg;			# 文字列を置換
 	$css =~ s|[\w\-\[\]=,\.*>~:\s\(\)\#]*\{\s*\}||sg;	# 中身のない定義を除去
 	if ($css =~ /^\s*$/s) {					# 残りが空白だけ
-		return 0;
+		return '';
 	}
-	return 1;
+	$css =~ s/[\s*\n]+/\n/g;
+	$css =~ s/^\n//;
+	return $css;
 }
 ###############################################################################
 # ■プラグインの設定
