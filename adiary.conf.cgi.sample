@@ -86,12 +86,15 @@
 
 # PostgreSQL の場合（データベース名、ユーザー名、パスワード）
 #<$DB = loadpm('DB_pg', 'database=adiary', 'adiary', 'test', {Pool=>1} )>
+#<$DB = loadpm('DB_pg', 'database=adiary;host=pgsql.example.com', 'adiary', 'test', {Pool=>1})>
 
 # MySQL の場合（データベース名、ユーザー名、パスワード）
 #<$DB = loadpm('DB_mysql', 'database=adiary', 'adiary', 'test', {Pool=>1})>
 #<$DB = loadpm('DB_mysql', 'database=adiary;host=mysql.example.com', 'adiary', 'test', {Pool=>1})>
+#<$DB = loadpm('DB_mysql', 'database=adiary;host=mysql.example.com;port=3306', 'adiary', 'test', {Pool=>1})>
 
 # データベースのデバッグ
+# ※外部DB使用時、Developフラグの設定が設定されていればSQLを見ることができる。
 #<$DB.set_debug(1.on)>
 
 #-------------------------------------------------------------------------------
@@ -103,7 +106,7 @@
 # パスワード最低文字数
 #<$auth.pass_min = 4>
 # セッション保持時間（秒） 180 days
-#<$Auth.expires = 180 * 86400>
+#<$Auth.expires = 180day>
 
 # 多重ログインを許可する
 #<$Auth.multisession = 1>
