@@ -1,11 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # skeleton parser / 構文解析コンパイラ
-#						(C)2006-2015 nabe@abk
+#						(C)2006-2016 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.72';
+our $VERSION = '1.73';
 #(簡易履歴)
+# 2016/01 Ver1.73  load_from_aryのバグ修正
 # 2015/11 Ver1.72  関数展開時の出力書式を綺麗に（実行結果に変化なし）
 # 2015/05 Ver1.71  <@ifcall(cond,f)>バグ修正。begin_array等で最後の空白行を除去。
 # 2014/09 Ver1.70  begin_hash/array/string中にコマンドを書けるように。
@@ -487,7 +488,7 @@ sub {
 		$a[$i] = $a[$r];
 		$a[$r] = $x;
 	}
-	return [ splice(@a, $num) ];
+	return [ splice(@a, 0, $num) ];
 }
 FUNC
 

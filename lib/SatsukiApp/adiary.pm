@@ -7,8 +7,8 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = '3.01';
-our $OUTVERSION = '3.01';
+our $VERSION = '3.02';
+our $OUTVERSION = '3.02';
 our $SUBVERSION = '';
 our $DATA_VERSION = 3.01;
 ###############################################################################
@@ -1474,8 +1474,10 @@ sub load_content_node {
 	if ($c{upnode} && $c{upnode}->{children}) {
 		my @fam;
 		my @fam = map { $con->{$_} } split(",",$c{upnode}->{children});
+		$self->debug("$key : " . join(' ', map {$_->{pkey}} @fam));
 		if (@fam) {
 			my @f = grep {$_->{pkey} != $pkey} @fam;
+			$self->debug("$key : " . join(' ', map {$_->{pkey}} @f));
 			if (@f) { $c{family} = \@f; }
 		}
 	}
