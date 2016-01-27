@@ -863,6 +863,11 @@ article.edit span.tag:after {
 	border-radius:		4px;
 }
 
+/* ダイアログ内のタブヘッダ */
+.ui-dialog .ui-tabs .ui-widget-header {
+	background-color:	transparent;
+}
+
 
 
 /*--------------------------------------------------------------------

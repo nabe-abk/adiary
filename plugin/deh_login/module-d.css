@@ -20,11 +20,7 @@
 	padding:		<@ps.padding0>px <@ps.padding1>px <@ps.padding2>px <@ps.padding3>px;
 <$end>
 <@ifexec(ps.nav_bg, begin)>
-	background-color:	<@ps.nav_bg>;
-	background-image:	none;
-<$end>
-<@ifexec(ps.nav_trans, begin)>
-	background-color:	transparent;
+	background-color:	rgba(<@v.hex2rgb(ps.nav_bg)>, <@ps.nav_bg_alpha>);
 	background-image:	none;
 <$end>
 <@ifexec(ps.absolute, begin)>
@@ -50,6 +46,9 @@
 <@ifexec(ps.bgfile ne '', begin)>
 	background-image:	url('<@Basepath><@v.plugin_image_dir(ps.bgfile)>?<@TM>');
 <$end>
+<@ifexec(ps.bg_attach, begin)>
+	background-attachment:	<@ps.bg_attach>;
+<$end>
 }
 <@>----------------------------------------------------------------------------
 #adiary-body {
@@ -59,17 +58,20 @@
 	width:			<@ps.width>px;
 <$end>
 <@ifexec(ps.body_bg ne '', begin)>
-	background-color:	<@ps.body_bg>;
+	background-color:	rgba(<@v.hex2rgb(ps.body_bg)>, <@ps.body_bg_alpha>);
 	background-image:	none;
 <$end>
 <@ifexec(ps.body_bgfile ne '', begin)>
 	background-image:	url('<@Basepath><@v.plugin_image_dir(ps.body_bgfile)>?<@TM>');
 <$end>
+<@ifexec(ps.body_bg_attach, begin)>
+	background-attachment:	<@ps.body_bg_attach>;
+<$end>
 }
 <@>----------------------------------------------------------------------------
 #header {
 <@ifexec(ps.head_bg ne '', begin)>
-	background-color:	<@ps.head_bg>;
+	background-color:	rgba(<@v.hex2rgb(ps.head_bg)>, <@ps.head_bg_alpha>);
 	background-image:	none;
 <$end>
 <@>

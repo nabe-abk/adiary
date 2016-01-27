@@ -2,6 +2,14 @@
 <@local(ps)>
 <$ps=argv#0>
 
+<div class="jqueryui-tabs">
+	<ul>
+		<li><a href="#set-login">ログインヘッダ設定</a></li>
+		<li><a href="#set-header">ヘッダ設定</a></li>
+		<li><a href="#set-all">全体設定</a></li>
+	</ul>
+<div class="body">
+<div id="set-login">
 	<table class="blog-setting">
 	<tbody>
 	<tr><th>ログイン表示の消去<span class="help" data-help="画面右上（等）に表示されるログインリンクを見えなくします。見えないだけ（空白文字になるだけ）でリンク自体は残ります。">?</span></th>
@@ -20,8 +28,7 @@
 	<tr><th>背景色<span class="help" data-help="ログインヘッダ部分の背景を設定します。">?</span></th>
 		<td>
 			<input type="text" id="nav-bg" name="nav_bg" value="<@ps.nav_bg || '#ffffff'>" class="color-picker">
-			<input type="checkbox" id="nav-bgtrans" name="nav_trans" value="1"<@if(ps.nav_trans,' checked')>><label>透明にする</label>
-			<input type="checkbox" class="js-disable" data-target="#nav-bg,#nav-bgtrans"<@if(ps.nav_bg eq '' && !ps.nav_trans,' checked')>><label>変更しない</label>
+			透過<input type="number" class="w50" name="nav_bg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.nav_bg_alpha || 1>" id="nav-bg-alpha">(0=透明) 			<input type="checkbox" class="js-disable" data-target="#nav-bg,#nav-bg-alpha"<@if(ps.nav_bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr><th>タイトル内への配置</th>
@@ -52,57 +59,15 @@
 	</tbody>
 	</table>
 
-	<p>画面全体の設定</p>
-
-	<table class="blog-setting">
-	<tbody>
-	<tr><th>全体の背景<span class="help" data-help="ウィンドウ全体のベースとなる背景を指定します。">?</span></th>
-		<td>
-			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#bg"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
-		</td>
-	</tr>
-	<tr><th>全体の背景画像</th>
-		<td>
-			<input type="file" class="js-fileup" name="bgfile"><span class="help js-ie9" data-help="IE8/9ではアップロードできません。">?</span><br>
-			<@ifexec(ps.bgfile, begin)>
-			<input type="checkbox" name="bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
-			<$end>
-		</td>
-	</tr>
-	<tr><th>表示領域の横幅<span class="help" data-help="横幅がフリー設定（ウィンドウに合わせる）になっているテーマに対し、表示領域の横幅を固定で設定します。">?</span></th>
-		<td>
-			<input type="number" class="int w60" name="width" value="<@ps.width || 800>" min="600" max="2000" id="width">px &ensp;
-			<input type="checkbox" class="js-disable" data-target="#width"<@if(!ps.width,' checked')>><label>変更しない</label>
-		</td>
-	</tr>
-	<tr><th>表示領域の背景<span class="help" data-help="実際の表示領域の背景を指定します。">?</span></th>
-		<td>
-			<input type="text" id="body-bg" name="body_bg" value="<@ps.body_bg || '#ffffff'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#body-bg"<@if(ps.body_bg eq '',' checked')>><label>変更しない</label>
-		</td>
-	</tr>
-	<tr><th>表示領域の背景画像</th>
-		<td>
-			<input type="file" class="js-fileup" name="body_bgfile"><span class="help js-ie9" data-help="IE8/9ではアップロードできません。">?</span><br>
-			<@ifexec(ps.body_bgfile, begin)>
-			<input type="checkbox" name="body_bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
-			<$end>
-		</td>
-	</tr>
-	</tbody>
-	</table>
-
-
-
-	<p>ヘッダ領域の表示設定</p>
+</div>
+<div id="set-header">
 
 	<table class="blog-setting">
 	<tbody>
 	<tr><th>ヘッダ領域の背景<span class="help" data-help="ログインヘッダやタイトル部分の背景を指定します。">?</span></th>
 		<td>
 			<input type="text" id="head-bg" name="head_bg" value="<@ps.head_bg || '#ffffff'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#head-bg"<@if(ps.head_bg eq '',' checked')>><label>変更しない</label>
+			透過<input type="number" class="w50" name="head_bg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.head_bg_alpha || 1>" id="head-bg-alpha">(0=透明)			<input type="checkbox" class="js-disable" data-target="#head-bg,#head-bg-alpha"<@if(ps.head_bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr><th>ヘッダの背景画像</th>
@@ -139,6 +104,65 @@
 
 	</tbody>
 	</table>
+</div>
+<div id="set-all">
+
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>全体の背景<span class="help" data-help="ウィンドウ全体のベースとなる背景を指定します。">?</span></th>
+		<td>
+			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
+			<input type="checkbox" class="js-disable" data-target="#bg"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>全体の背景画像</th>
+		<td>
+			<input type="file" class="js-fileup" name="bgfile"><span class="help js-ie9" data-help="IE8/9ではアップロードできません。">?</span><br>
+			<@ifexec(ps.bgfile, begin)>
+			<input type="checkbox" name="bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<$end>
+		</td>
+	</tr>
+	<tr><th>背景スクロール</th>
+		<td>
+			<input type="radio" name="bg_attach" value="fixed" <@if(ps.bg_attach eq 'fixed',' checked')>><label>固定</label>
+			<input type="radio" name="bg_attach" value="scroll"<@if(ps.bg_attach eq 'scroll',' checked')>><label>スクロール</label>
+			<input type="radio" name="bg_attach" value=""      <@if(ps.bg_attach eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>表示領域の横幅<span class="help" data-help="横幅がフリー設定（ウィンドウに合わせる）になっているテーマに対し、表示領域の横幅を固定で設定します。">?</span></th>
+		<td>
+			<input type="number" class="int w60" name="width" value="<@ps.width || 800>" min="600" max="2000" id="width">px &ensp;
+			<input type="checkbox" class="js-disable" data-target="#width"<@if(!ps.width,' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>表示領域の背景<span class="help" data-help="実際の表示領域の背景を指定します。">?</span></th>
+		<td>
+			<input type="text" id="body-bg" name="body_bg" value="<@ps.body_bg || '#ffffff'>" class="color-picker">
+			透過<input type="number" class="w50" name="body_bg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.body_bg_alpha || 1>" id="body-bg-alpha">(0=透明)			<input type="checkbox" class="js-disable" data-target="#body-bg,#body-bg-alpha"<@if(ps.body_bg eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	<tr><th>表示領域の背景画像</th>
+		<td>
+			<input type="file" class="js-fileup" name="body_bgfile"><span class="help js-ie9" data-help="IE8/9ではアップロードできません。">?</span><br>
+			<@ifexec(ps.body_bgfile, begin)>
+			<input type="checkbox" name="body_bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<$end>
+		</td>
+	</tr>
+	<tr><th>背景スクロール</th>
+		<td>
+			<input type="radio" name="body_bg_attach" value="fixed" <@if(ps.body_bg_attach eq 'fixed',' checked')>><label>固定</label>
+			<input type="radio" name="body_bg_attach" value="scroll"<@if(ps.body_bg_attach eq 'scroll',' checked')>><label>スクロール</label>
+			<input type="radio" name="body_bg_attach" value=""      <@if(ps.body_bg_attach eq '',' checked')>><label>変更しない</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+</div>
+</div><!-- body -->
+</div><!-- jqueryui-tabs -->
 
 <script>
 $(function(){

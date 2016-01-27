@@ -99,7 +99,13 @@
 	position:		absolute;
 	margin:			0;
 	top:			<@ps.top>px;
+	<@ifexec(ps.centering, begin, begin)>
+	left:			0px;
+	width:			100%;
+	text-align:		center;
+	<$else>
 	left:			<@ps.left>px;
+	<$end>
 <$end>
 }
 <@>
@@ -111,7 +117,8 @@
 	height:			<@ps.height - ps.border0 - ps.border2>px;
 <$end>
 <@ifexec(ps.bg ne '', begin)>
-	background-color:	<@ps.bg>;
+	background-image:	none;
+	background-color:	rgba(<@v.hex2rgb(ps.bg)>, <@ps.bg_alpha>);
 <$end>
 <@ifexec(ps.bgfile, begin)>
 	background-image:	url('<@Basepath><@v.plugin_image_dir(ps.bgfile)>?<@TM>');

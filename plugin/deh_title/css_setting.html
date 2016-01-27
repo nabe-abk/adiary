@@ -57,7 +57,9 @@
 		<th>文字の位置<td>
 			上<input type="number" class="int w50" name="top"  value="<@ps.top  || 0>" min="0" max="999" id="top">px 
 			左<input type="number" class="int w50" name="left" value="<@ps.left || 0>" min="0" max="999" id="left">px 
-			<input type="checkbox" class="js-disable" data-target="#left,#top"<@if(ps.left eq '',' checked')>><label>変更しない</label>
+			<input type="checkbox" name="centering" value="1" class="js-disable" data-target="#left" id="centering"<@if(ps.centering,' checked')>><label>センタリング</label>
+
+			<input type="checkbox" class="js-disable" data-target="#left,#top,#centering"<@if(ps.top eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tbody>
 	</table>
@@ -73,7 +75,8 @@
 	<tr><th>背景色</th>
 		<td>
 			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#bg"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
+			透過<input type="number" class="w50" name="bg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.bg_alpha || 1>" id="bg-alpha">(0=透明) &ensp;
+			<input type="checkbox" class="js-disable" data-target="#bg,#bg-alpha"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr><th>背景画像</th>

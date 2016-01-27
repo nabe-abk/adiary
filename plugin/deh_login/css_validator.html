@@ -11,8 +11,12 @@
 	nav_bg = ログインヘッダの背景
 	nav_bg:filter0 = rgb
 	nav_bg:default = 
-	nav_trans = flag
 
+	nav_bg_alpha = ログインヘッダ背景の透過度
+	nav_bg_alpha:type = num
+	nav_bg_alpha:min  = 0
+	nav_bg_alpha:max  = 1
+	nav_bg_alpha:default = 
 
 	width = 全体の横幅
 	width:type =  int
@@ -31,14 +35,30 @@
 	bg   = 全体の背景
 	bg:filter0 = rgb
 	bg:default = 
+	bg_attach = 全体の背景スクロール
+	bg_attach:enum = fixed, scroll,
 
 	body_bg = 表示領域の背景
 	body_bg:filter0 = rgb
 	body_bg:default = 
+	body_bg_attach = 全体の背景スクロール
+	body_bg_attach:enum = fixed, scroll,
+
+	body_bg_alpha = 表示領域背景の透過度
+	body_bg_alpha:type = num
+	body_bg_alpha:min  = 0
+	body_bg_alpha:max  = 1
+	body_bg_alpha:default = 
 
 	head_bg = ヘッダ領域の背景
 	head_bg:filter0 = rgb
 	head_bg:default = 
+
+	head_bg_alpha = ヘッダ領域背景の透過度
+	head_bg_alpha:type = num
+	head_bg_alpha:min  = 0
+	head_bg_alpha:max  = 1
+	head_bg_alpha:default = 
 
 	head_bgfile_fit = flag
 	head_bgfile_norep = flag
