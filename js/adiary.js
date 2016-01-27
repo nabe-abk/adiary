@@ -706,7 +706,7 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	var objs = R.findx('input.js-enable, input.js-disable');
-	function btn_evt(evt) {
+	function btn_evt(evt, init) {
 		var btn = $(evt.target);
 		var form = myfind( btn.data('target') );
 
@@ -719,13 +719,21 @@ initfunc.push( function(R){
 			flag = btn.data("state");
 		} else
 			flag = ! (btn.val() + '').match(/^\s*$/);
-		if (btn.hasClass('js-disable')) flag=!flag;
 
 		// disabled設定
-		form.prop('disabled', !flag);
+		flag = flag ? 1 : (init ? 0 : -1);
+		var disable = btn.hasClass('js-disable');
+		for(var i=0; i<form.length; i++) {
+			var obj = $(form[i]);
+			var c = parseInt(obj.data('_jsdisable_c'));
+			if (isNaN(c)) c=0;
+			c += flag;
+			obj.data('_jsdisable_c', c);
+			obj.prop('disabled', c ? disable : !disable);
+		}
 	}
 	objs.change( btn_evt );
-	objs.each(function(idx,ele){ btn_evt({target: ele}) });
+	objs.each(function(idx,ele){ btn_evt({target: ele}, 1) });
 });
 
 
