@@ -34,7 +34,7 @@
 <$end>
 <@>
 <$file = "<@v.blogpub_dir>dynamic.css">
-<@ifexec(!v.system_mode && file_size(file), begin)>
+<@ifexec(!v.system_mode && !v.stop_all_plugins && file_size(file), begin)>
 <link rel="stylesheet" href="<@Basepath><@file>?<@get_lastmodified(file)>" id="user-css">
 <$end>
 <@>
