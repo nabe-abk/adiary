@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.02 : 2015/01/xx
+*Ver3.02 : 2015/01/28
 
 -[http://adiary.org/devman/files/:adiaryのファイル構造の説明]を開発マニュアルに書きました。
 -\displaystyleで数式を表示する{[mathd:]}タグを追加。
