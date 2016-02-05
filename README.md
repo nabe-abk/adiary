@@ -25,7 +25,7 @@ And, '__cache' and 'data/' directories not permit to access from web.
 
 詳細は[オンラインマニュアル](http://adiary.org/v3man/)を参照してください。
 
-# 著作権表示(Copryright)
+# 著作権表示(Copyright)
 
  Copyright (C)2013-2016 nabe@abk.
 
