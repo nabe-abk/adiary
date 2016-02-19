@@ -1,6 +1,6 @@
 //############################################################################
 // adiaryデザイン編集用JavaScript
-//							(C)2013-2015 nabe@abk
+//							(C)2013-2016 nabe@abk
 //############################################################################
 //[TAB=8]  require jQuery
 'use strict';
@@ -76,13 +76,6 @@ iframe.on('load', function(){
 		init_module( $(obj) );
 	});
 
-	// sortable設定
-	var selector = '>' + module_selector + not_sortable;
-	side_a.sortable({ items: selector, connectWith: side_b });
-	side_b.sortable({ items: selector, connectWith: side_a });
-	f_main.sortable({ items: selector + ', #article-box' + ',#articles , #main-between-article ' + selector });
-	f_hdiv.sortable({ items: selector });
-
 	// 記事本体（単一表示）
 	var artbody = $f('#article-box div.body');
 	var arthead = artbody.children('div.body-header');
@@ -109,12 +102,17 @@ iframe.on('load', function(){
 	var marthead = martbody.children('div.body-header');
 	var martfoot = martbody.children('div.body-footer');
 	var martmain = martbody.children('div.body-main');
-	marthead.sortable({ items: selector, connectWith: martfoot });
-	martfoot.sortable({ items: selector, connectWith: marthead });
 	marthead.css('min-height', '16px');
 	martfoot.css('min-height', '16px');
-	var mbetween= $('<div>').css('min-height', '16px').attr('id', 'main-between-article');
-	$f('#art-1').after(mbetween);
+
+	// sortable設定
+	var selector = '>' + module_selector + not_sortable;
+	side_a.sortable({ items: selector, connectWith: side_b });
+	side_b.sortable({ items: selector, connectWith: side_a });
+	f_hdiv.sortable({ items: selector });
+	f_main.sortable({ items: selector + ', #article-box' + ', #articles>article, #articles ' + selector, cancel: 'article' });
+	marthead.sortable({ items: selector, connectWith: martfoot });
+	martfoot.sortable({ items: selector, connectWith: marthead });
 
 	// iframe内のリンク書き換え
 	$f('a').each(function(idx,dom) {
@@ -153,6 +151,32 @@ $('#view-mode').change(function(evt){
 }).change();
 
 //////////////////////////////////////////////////////////////////////////////
+// ●要素の位置調整
+//////////////////////////////////////////////////////////////////////////////
+//※複数表示モードでの main_a/b 相当の位置にある要素を、正しい位置に移動。
+//
+f_main.on( "sortupdate", function() {
+	var items = articles.children( module_selector + ', #art-1, #art-2' );
+
+	// main_a
+	var i=0;
+	for(; i<items.length; i++) {
+		var id = $(items[i]).attr('id');
+		if (id == 'art-1') break;
+		article_box.before( items[i] );
+	}
+	for(i++; i<items.length; i++) {
+		var id = $(items[i]).attr('id');
+		if (id == 'art-2') break;
+	}
+	// main_b
+	for(i++; i<items.length; i++) {
+		var id = $(items[i]).attr('id');
+		articles.after( items[i] );
+	}
+});
+
+//////////////////////////////////////////////////////////////////////////////
 // ●要素タイプの選択
 //////////////////////////////////////////////////////////////////////////////
 var mod_type = $('#module-type');
@@ -181,8 +205,11 @@ mod_type.change(function(evt){
 			.text(mod.attr('title'))
 		);
 	}
-	if (type == 'between')
-		$('#view-mode').val('_main').change();
+	if (type == 'between') {
+		$('#view-mode').val('_main').change().prop('disabled', true);
+	} else {
+		$('#view-mode').prop('disabled', false);
+	}
 	if (type == 'main')
 		$('#view-mode').val('_article').change();
 });
@@ -237,7 +264,7 @@ $('#add-module').change(function(evt){
 	if (type == 'header')	f_hdiv.append(obj);
 	if (type == 'main') 	f_main.prepend(obj);
 	if (type == 'sidebar')	side_a.prepend(obj);
-	if (type == 'between')	mbetween.append(obj);
+	if (type == 'between')  $f('#art-2').before(obj);
 	if (type == 'article') {
 		if (view_mode == '_article')  artfoot.append(obj);
 		if (view_mode == '_main')    martfoot.append(obj);
@@ -488,7 +515,7 @@ function module_setting(obj, mode) {
 //////////////////////////////////////////////////////////////////////////////
 // ●結果を保存する
 //////////////////////////////////////////////////////////////////////////////
-btn_save.click(function(){
+btn_save.click(function(evt){
 	$('#js-form input.js-value').detach();	// 戻るをされた時の対策
 	var form = $secure('#js-form');
 	if (!form.length) return;
@@ -552,8 +579,9 @@ btn_save.click(function(){
 	// 複数表示
 	form_append('mart_h_ary',  marthead.children(module_selector), 'dea_art-info');
 	form_append('mart_f_ary',  martfoot.children(module_selector));
-	form_append('between_ary', mbetween.children(module_selector));
+	form_append('between_ary', articles.children(module_selector));
 
+	// if (evt.ctrlKey) form.submit();
 	form.submit();
 });
 

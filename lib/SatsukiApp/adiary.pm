@@ -7,8 +7,8 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = '3.02';
-our $OUTVERSION = '3.02';
+our $VERSION = '3.03';
+our $OUTVERSION = '3.03';
 our $SUBVERSION = '';
 our $DATA_VERSION = 3.01;
 ###############################################################################
