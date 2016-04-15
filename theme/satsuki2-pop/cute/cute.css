@@ -64,7 +64,12 @@ input[type="file"]:focus {
     box-shadow:             3px -3px 10px rgba(240, 140, 171, 1),
                                 -3px 3px 10px rgba(240, 140, 171, 1);
 }
-
+/* フォーカス時 */
+select:disabled, input[type="text"]:disabled, input[type="search"]:disabled,
+input[type="date"]:disabled, input[type="password"]:disabled,
+input[type="file"]:disabled {
+    background-color:       rgba(230,230,230,0.8);
+}
 textarea {
     width:                  680px;
     font-size:              13px;
