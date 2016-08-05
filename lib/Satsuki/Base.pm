@@ -195,7 +195,7 @@ sub init_path {
 	# ModRewrite flag
 	my $mod_rewrite = $self->{Mod_rewrite};
 	if (!defined $mod_rewrite && exists $ENV{REDIRECT_URL} && $ENV{REDIRECT_STATUS}==200) { 
-		if (index($req_uri, $cgi_file)<0) {	# Fail safe trap / URIにCGI名か無い
+		if (index($req_uri, $cgi_file)<0) {	# Fail safe trap / URIにCGI名が無い
 			$self->{Mod_rewrite} = $mod_rewrite = 1;
 		}
 	}
