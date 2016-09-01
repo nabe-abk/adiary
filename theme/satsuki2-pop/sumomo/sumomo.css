@@ -544,12 +544,18 @@ div.body h3 {
 	font-weight:		bold;
 	margin:			20px 0 0 -10px;
 }
-div.body h3 a:before {
+div.body h3 a:before,
+div.body h4 a:before {
 	display:		inline-block;
 	content:		"";
 
 	margin-right:		4px;
 	border:			6px solid #f05;		/* $c=h3 = link */
+}
+div.body h4 a:before {
+	margin-right:		2px;
+	border-width:		4px;
+	border-radius:		4px;
 }
 
 div.body h3 span.timestamp {
@@ -566,7 +572,8 @@ div.body h6 {
 	margin:			0 0 0 -10px;
 }
 div.body h4 {
-	margin-top:		2em;
+	margin-top:		24px;
+	font-size:		14px;
 }
 div.body h3 + h4 {
 	margin-top:		0;
