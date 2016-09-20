@@ -33,7 +33,7 @@ my %allow_override = (asid => 1, chain_line => 2,
  http_target  => 1, http_class  => 1, http_rel  => 1,
  image_target => 1, image_class => 1, image_rel => 1,
  autolink => 2, br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
- list_br => 2, seemore_msg => 1);
+ list_br => 2, seemore_msg => 1, tex_mode => 2);
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -1474,6 +1474,7 @@ sub replace_original_tag {
 	my ($self, $lines) = @_;
 
 	my $autolink = $self->{autolink};
+	my $tex_mode = $self->{tex_mode};
 	my @ary;
 	foreach(@$lines) {
 		if (ref($_)) { push(@ary, $_); next; }
@@ -1491,6 +1492,11 @@ sub replace_original_tag {
 
 		if ($autolink && $_ =~ /https?:|ftp:/) {
 			$_ = $self->do_autolink( $_ );
+		}
+
+		if ($tex_mode) {
+			$line =~ s/^\$\$(.*?)\$\$/\[\[mathd:$1\]\]/g;
+			$line =~ s/^\$(.*?)\$/\[\[math:$1\]\]/g;
 		}
 
 		# タグ処理

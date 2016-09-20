@@ -156,7 +156,12 @@ gtex = Google Chart API, ASCII, 1, <img src="https://chart.googleapis.com/chart?
 # mimeTeX（要インストール http://adiary.org/v3man/Satsuki-tag/tex#mimetex）
 mtex = mimeTeX, ASCII, 1, <img src="${Basepath}mimetex.cgi?$1" alt="#1" title="#1" class="tex">
 
+# マクロ
+*tex
+::tex_mode=1
 
+*tex:off
+::tex_mode=0
 
 #------------------------------------------------------------------------------
 # 画像プラグイン／画像アルバム
