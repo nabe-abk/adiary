@@ -1473,8 +1473,6 @@ HTML
 sub replace_original_tag {
 	my ($self, $lines) = @_;
 
-	my $autolink = $self->{autolink};
-	my $tex_mode = $self->{tex_mode};
 	my @ary;
 	foreach(@$lines) {
 		if (ref($_)) { push(@ary, $_); next; }
@@ -1490,11 +1488,11 @@ sub replace_original_tag {
 			next;
 		}
 
-		if ($autolink && $_ =~ /https?:|ftp:/) {
+		if ($self->{autolink} && $_ =~ /https?:|ftp:/) {
 			$_ = $self->do_autolink( $_ );
 		}
 
-		if ($tex_mode) {
+		if ($self->{tex_mode}) {
 			$_ =~ s/^\$\$(.*?)\$\$/\[\[mathd:$1\]\]/g;
 			$_ =~ s/^\$(.*?)\$/\[\[math:$1\]\]/g;
 		}
