@@ -858,11 +858,12 @@ sub form_data_check_and_save {
 		my $jcode = $self->load_codepm_if_needs( $val );
 		$jcode && $jcode->from_to( \$val, $self->{UA_code} || $self->{System_coding}, $self->{System_coding} );
 		my $substr = $jcode ? sub { $jcode->jsubstr(@_) } : sub { substr($_[0],$_[1],$_[2]) };
+		my $length = $jcode ? sub { $jcode->jlength(@_) } : sub { length($_[0]) };
 
 		# TAB LF CR以外の制御コードを除去
 		$val =~ s/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]//g;
 
-		my $bytes = length($val);
+		my $bytes = &$length($val);
 		if ($type eq '_txt') {	# テキストエリア系なら改行を統一
 			$val =~ s/\r\n?/\n/g;
 			my $txt_max_chars = $options->{txt_max_chars};
