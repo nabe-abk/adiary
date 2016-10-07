@@ -1473,6 +1473,12 @@ HTML
 sub replace_original_tag {
 	my ($self, $lines) = @_;
 
+	sub tex_escape() {
+		my $t = shift;
+		$t =~ s/([\[\{])/"&#" . ord($1) . ';'/eg;
+		return $t;
+	}
+
 	my @ary;
 	foreach(@$lines) {
 		if (ref($_)) { push(@ary, $_); next; }
@@ -1493,8 +1499,8 @@ sub replace_original_tag {
 		}
 
 		if ($self->{tex_mode}) {
-			$_ =~ s/\$\$(.*?)\$\$/\[\[mathd:$1\]\]/g;
-			$_ =~ s/\$(.*?)\$/\[\[math:$1\]\]/g;
+			$_ =~ s/\$\$(.*?)\$\$/'[[mathd:' . &tex_escape($1) . ']]'/eg;
+			$_ =~ s/\$(.*?)\$/    '[[math:'  . &tex_escape($1) . ']]'/eg;
 		}
 
 		# タグ処理
