@@ -1463,7 +1463,7 @@ sub super_more_read {
 	$self->{more_read} = 1;
 	my $seemore_msg = $self->{seemore_msg} || 'See More...';
 	return <<HTML;
-$self->{indent}<p class="seemore"><a class="seemore" href="$self->{thisurl}#$self->{now_anchor_name}">$self->{seemore_msg}</a></p><!--%SeeMore%-->
+$self->{indent}<p class="seemore"><a href="$self->{thisurl}#$self->{now_anchor_name}">$self->{seemore_msg}</a></p><!--%SeeMore%-->
 HTML
 }
 

@@ -604,6 +604,9 @@ div.body p {
 div.body section h3 + p {
 	margin-top:		0;
 }
+div.body p.seemore {
+	margin-top:		2em;
+}
 
 
 div.body ul,
