@@ -332,7 +332,7 @@ sub do_sql {
 		$self->error($sql);
 		$self->error($dbh->errstr);
 	}
-	return $sth && $sth->rows;
+	return $sth;
 }
 
 #------------------------------------------------------------------------------

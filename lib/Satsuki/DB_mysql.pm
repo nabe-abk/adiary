@@ -1,13 +1,13 @@
 use strict;
 #-------------------------------------------------------------------------------
 # データベースプラグイン for mysql
-#						(C)2006-2015 nabe@abk
+#						(C)2006-2016 nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::DB_mysql;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-our $VERSION = '1.11';
+our $VERSION = '1.12';
 #-------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my $DB_attr = {AutoCommit => 1, RaiseError => 0, PrintError => 0};
@@ -291,6 +291,9 @@ sub generate_select_where {
 			$add =~ s/'//g;
 		}
 		$where .= ' AND '.$add;
+		if ($h->{RDB_values}) {
+			push(@ary, @{ $h->{RDB_values} });
+		}
 	}
 	if ($where) { $where = ' WHERE' . substr($where, 4); }
 
