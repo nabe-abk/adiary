@@ -231,7 +231,7 @@ sub make_thumbnail_for_image {
  		}
 	}
 	# ファイルに書き出し
-	$img->Set( quality => ($self->{jpeg_quality} || 80) );
+	$img->Set( quality => ($self->{album_jpeg_quality} || 80) );
 	$img->Write("${dir}.thumbnail/$file.jpg");
 	return 0;
 }

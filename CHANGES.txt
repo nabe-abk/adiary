@@ -5,6 +5,7 @@
 -sumomoテーマを微修正。
 -cuteテーマを微修正。
 -【記法】数式入力を簡単にするTeXモードの実装
+-【fix】adiary.conf.cgiの album_jpeg_quality の設定が有効にならない。（[http://adiary.blog.abk.nu/0387#c9:Thanks to 平山]）
 -【fix】システムメニューを辿れないことがある。
 -【fix】自動リンクを入力テキスト中で有効にしても、有効になっていなかった。
 -【fix】【Markdown】記事が見出しで始まっているとき、空の{<section>}が出力されてしまう。
