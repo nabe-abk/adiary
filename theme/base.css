@@ -128,6 +128,11 @@ div.ascii-art {
 	margin-bottom:	0px;
 	font-family: "Mona", "MS PGothic", "ＭＳ Ｐゴシック", "IPA MONAPGOTHIC", "IPA モナー Pゴシック", sans-serif;
 }
+/* 麻雀記法 */
+img.mahjong {
+	vertical-align:	middle;
+}
+
 /* mathjax.js */
 :not(span.mathref) > span.MathJax {
 	margin-left:	0.2em;

@@ -42,11 +42,11 @@ sub new {
 ###############################################################################
 my %jihai=(
 # 字牌
-'ton'=>1,'nan'=>1,'sha'=>1,'pei'=>1,'haku'=>1,'hatu'=>1,'tyun'=>1,
+'ton'=>1,'nan'=>1,'sha'=>1,'pei'=>1,'haku'=>1,'hatu'=>1,'chun'=>1,
 # 裏、スペース
 'ura'=>1,'sp'=>1,
 # alias
-'hatsu'=>'hatu','chun'=>'tyun');
+'hatsu'=>'hatu','tyun'=>'chun');
 my %suji=('m'=>'man', 'p'=>'pin', 's'=>'sou');
 
 #------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ sub mahjong {
 				if (substr($line, $s, 1) eq 'y') {	# 横
 					$yoko='y'; $s++;
 				}
-				push(@pi, "$yoko$x$r$suji{$y}");
+				push(@pi, "$yoko$suji{$y}$x$r");
 			}
 			$jihai='';
 			next;
@@ -108,7 +108,7 @@ sub mahjong {
 	my $dir  = $pobj->replace_vars( $tags->{'mj:img'}->{data} );
 	my $name = $pobj->make_name($ary, 'mahjong');
 
-	my $img = join('', map {"<img class=\"mahjong\" alt=\"$_\" src=\"$dir$_.gif\">"} @pi);
+	my $img = join('', map {"<img class=\"mahjong\" alt=\"$_\" src=\"$dir$_.png\">"} @pi);
 	return "<div class=\"mahjong\">$img</div>";
 }
 
