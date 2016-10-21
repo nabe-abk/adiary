@@ -205,7 +205,7 @@ sub parse_special_block {
 			my $level = length($1);
 			my $n = $self->{section_hnum} + $level - 1;
 			if ($n>6) { $n=6; }
-			if ($level == 1 && $sectioning) {
+			if ($level == 1 && $sectioning && @ary) {
 				push(@ary, "</section>\x02");
 				push(@ary, "<section>\x02");
 				$in_section=1;
@@ -506,7 +506,7 @@ sub parse_block {
 		if ($self->{gmf_ext} && $blank
 		 && $x =~ /|/
 		 && $lines->[0] =~ /^[\s\|\-:]+$/
-		 && $lines->[0] =~ /\|\s*---|---\s*\|/
+		 && $lines->[0] =~ /\s*(?:\-+)?\s*\|\s*\-+\s*/
 		) {
 			$self->p_block_end(\@ary, \@p_block);
 
@@ -527,7 +527,7 @@ sub parse_block {
 			my @class;
 			foreach(@hr) {
 				if ($#class >= $#th) { next; }		# [GMF] thの分しか読み込まない
-				if ($_ !~ /^(:)?----*(:)?/) { $err=1; last; }
+				if ($_ !~ /^(:)?-*(:)?/) { $err=1; last; }
 
 				my $c;
 				if ($1 && $2) {
