@@ -14,7 +14,7 @@ sub {
 	}
 
 	# タグのない記事を探す
-	my $ary = $DB->select_match("${blogid}_art", 'tags', '', '*cols', 'pkey');
+	my $ary = $DB->select_match("${blogid}_art", 'tags', '', '*cols', 'pkey', 'enable', 1);
 	my $notag_arts = @$ary;
 
 	# スケルトンの実行と保存
