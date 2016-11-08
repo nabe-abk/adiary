@@ -20,6 +20,7 @@
 	change_hour_int:min = 0
 	change_hour_int:max = 8
 
+	markdown = flag
 	autolink = flag
 	private = flag
 	ping = flag
@@ -46,6 +47,10 @@
 <$end>
 <$ifbreak(form_error())>
 <$ifset(h2.iconfile, h.iconfile, v.plugin_image_dir(h2.iconfile))>
+
+<$ifset( h.markdown, h.parser, 'markdown')>
+<$ifset(!h.markdown && h.parser ne 'markdown', h.parser, 'default')>
+<$delete(h.markdown)>
 
 
 <@> 設定保存

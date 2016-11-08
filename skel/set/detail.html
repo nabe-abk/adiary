@@ -34,7 +34,7 @@
 
 	<table class="blog-setting">
 	<tbody>
-	<tr><th>ブログトップの記事表示</th>
+	<tr><th>トップ画面の記事</th>
 		<td>
 		<$x=s.load_items || 5>
 		<select name="load_items" class="int">
@@ -48,10 +48,10 @@
 			<option value="8" <@if(x == 8, ' selected')>>8件</option>
 			<option value="9" <@if(x == 9, ' selected')>>9件</option>
 			<option value="10"<@if(x ==10, ' selected')>>10件</option>
-		</select>
+		</select>表示
 		</td>
 	</tr>
-	<tr><th>コメントの表示件数</th>
+	<tr><th>コメント表示</th>
 		<td>
 		<$x=s.view_coms || 20>
 		<select name="view_coms" class="int">
@@ -71,7 +71,7 @@
 	</tr>
 	<tr><th>コンテンツページの扱い</th>
 		<td>
-			<input type="checkbox" name="separate_blog" value="1"<@if(s.separate_blog, ' checked')>><label>ブログとコンテンツページを分離して扱う</label><span class="help" data-help="この設定を行うとコンテンツページは「ページ送り」「RSS」等で表示されなくなります。検索では表示されますが、コンテンツは日付を持たないものとして扱われます。">?</span>
+			<input type="checkbox" name="separate_blog" value="1"<@if(s.separate_blog, ' checked')>><label>通常記事とコンテンツページを分離して扱う</label><span class="help" data-help="この設定を行うとコンテンツページは「ページ送り」「RSS」等で表示されなくなります。検索では表示されますが、コンテンツは日付を持たないものとして扱われます。">?</span>
 
 		</td>
 	</tr>
@@ -132,7 +132,7 @@
 		</select>
 		</td>
 	</tr>
-	<tr><th>RSSにコメントを含めない</th>
+	<tr><th>RSSオプション</th>
 		<td>
 		<input type="checkbox" name="rss_no_comment" value="1"<@if(s.rss_no_comment, ' checked')>><label>コメントを含めない</label>
 		</td>

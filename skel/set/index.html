@@ -38,7 +38,7 @@
 	</tr>
 	<tr>
 		<th>ブログの説明（紹介）<br>（RSSにも出力）<br><a href="<@v.myself>?etc/allow_tags&amp;n=description" target="_blank">使用可能なHTMLタグ</a></th><td><textarea name="description_txt" class="description w400" cols="50" rows="3" wrap="soft"><@replace(x = s.description_txt, "<br>", "\n")></textarea>
-		改行有効。紹介目的の内容以外は<a href="<@v.myself>?design/edit">デザイン編集</a>をご利用ください。</td>
+		改行有効。紹介文以外は<a href="<@v.myself>?design/edit">デザイン編集</a>をご利用ください。</td>
 	</tr>
 	<tr>
 		<th>日付変更時間<span class="help" data-help="例えば「20日1時」を「19日深夜1時」として表示する機能です。元日と4/1は常に無効。">?</span><td>午前 
@@ -59,6 +59,11 @@
 		<input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label>
 		</td>
 	</tr>
+	<tr><th>標準の入力方法<span class="help" data-help="詳しくは「編集画面の設定」で行えます。">?</span></th>
+		<td>
+		<input type="checkbox" name="markdown" value="1"<@if(s.parser eq 'markdown' || s.markdown, ' checked')>><label>Markdownで入力する</label>
+		</td>
+	</tr>
 	<tr><th>URLを自動リンク<span class="help" data-help="通常は [http://adiary.org/] と書いてリンクします">?</span></th>
 		<td>
 		<input type="checkbox" name="autolink" value="1"<@if(s.autolink, ' checked')>><label>自動でリンクする</label>
@@ -67,18 +72,6 @@
 	<tr><th>プライベートモード<span class="help" data-help="ログインしているブログ所有者（＋書き込み権限保持者）以外にはブログ全体が非表示になるモードです。画像等はURLを直指定すれば表示されます。">?</span></th>
 		<td>
 		<input type="checkbox" name="private" value="1"<@if(s.private eq '1', ' checked')>><label>プライベートモードに設定する</label>
-		</td>
-	</tr>
-	<tr><th>Google Analytics ID<span class="help" data-help="Googleによるログ解析サービス。Google Analytics をご利用の方はトラッキングID（例：UA-012345-2）を設定してください。">?</span></th>
-		<td>
-		<input type="text" name="gaid" class="w160" value="<@tag_escape(s.gaid)>" id="gaid">
-		<button type="button" data-title="Google Analyticsの自動設定" id="gaid-setting" data-msg="Google Analyticsのトラッキングコードを貼り付けてください。">コードから自動設定する</button>
-		</td>
-	</tr>
-	<tr><th>AmazonアフィリエイトID<span class="help" data-help="Amazonアソシエイトを利用する方は、トラッキングIDを設定してください。ここで設定したIDは、記法でAmazonの商品にリンクする際、自動的に挿入されます。">?</span></th>
-		<td>
-		<input type="text" name="asid" class="w160" value="<@s.asid>" id="asid">
-		<button type="button" data-title="AmazonアソシエイトIDの自動設定" id="asid-setting" data-msg="Amazonアソシエイトの<a href='https://widgets.amazon.co.jp/Widget-Source/' target='_blank'>ウィジェットコード</a>を貼り付けてください。">コードから自動設定する</button>
 		</td>
 	</tr>
 <@ifexec(!default, begin)>
@@ -93,6 +86,24 @@
 <$end>
 	</tbody>
 	</table>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>Google Analytics ID<span class="help" data-help="Googleによるログ解析サービス。Google Analytics をご利用の方はトラッキングID（例：UA-012345-2）を設定してください。">?</span></th>
+		<td>
+		<input type="text" name="gaid" class="w160" value="<@tag_escape(s.gaid)>" id="gaid">
+		<button type="button" data-title="Google Analyticsの自動設定" id="gaid-setting" data-msg="Google Analyticsのトラッキングコードを貼り付けてください。">コードから自動設定する</button>
+		</td>
+	</tr>
+	<tr><th>AmazonアフィリエイトID<span class="help" data-help="Amazonアソシエイトを利用する方は、トラッキングIDを設定してください。ここで設定したIDは、記法でAmazonの商品にリンクする際、自動的に挿入されます。">?</span></th>
+		<td>
+		<input type="text" name="asid" class="w160" value="<@s.asid>" id="asid">
+		<button type="button" data-title="AmazonアソシエイトIDの自動設定" id="asid-setting" data-msg="Amazonアソシエイトの<a href='https://widgets.amazon.co.jp/Widget-Source/' target='_blank'>ウィジェットコード</a>を貼り付けてください。">コードから自動設定する</button>
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
 
 	<button type="submit">この設定を保存する</button>
 
