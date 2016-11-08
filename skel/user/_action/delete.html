@@ -3,12 +3,6 @@
 <$ifbreak(! Auth.isadmin)>
 <$ifbreak(csrf_check())>
 
-確認用チェックボックス
-<$ifexec(! Form.delete_check, begin)>
-	<$message('削除確認エラー')>
-	<$break()>
-<$end>
-
 <$action_return = Auth.user_delete(Form.delete_ary)>
 
 POST成功時の処理
