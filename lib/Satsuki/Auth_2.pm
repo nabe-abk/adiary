@@ -82,14 +82,14 @@ sub login {
 	# ログイン成功
 	$self->set_logininfo($udata);
 
-	# 期限切れセッションの削除
+	# 同一IDの古いログインセッションを削除
 	my @del_pkeys;
 	my $sessions = $DB->select_match($table.'_sid', 'id', $id);
 	if ($#$sessions >= $self->{sessions}-1) {	# セッションが多い
 		# 降順ソート
 		$sessions = [ sort {$b->{login_tm} <=> $a->{login_tm}} @$sessions ];
-		my $max = $self->{sessions}-1;
-		if ($max<0) { $max=0; }		# safety logic
+		my $max = $self->{max_sessions}-1;	# 最大ログイン数
+		if ($max<0) { $max=0; }			# safety logic
 		while($#$sessions >= $max) {
 			my $x = pop(@$sessions);
 			push(@del_pkeys, $x->{pkey});
@@ -210,7 +210,7 @@ sub logout {
 
 	# セッション情報の消去
 	my $table = $self->{table} . '_sid';
-	if ($self->{all_logout} || $self->{sessions} < 2) {
+	if ($self->{all_logout} || $self->{max_sessions} < 2) {
 		$DB->delete_match($table, 'id', $id);
 	} else {
 		$DB->delete_match($table, 'id', $id, 'sid', $self->{_sid});
