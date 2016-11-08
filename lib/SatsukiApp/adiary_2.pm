@@ -1646,22 +1646,24 @@ sub generate_spmenu {
 
 	my $ary = $self->load_spmenu_info();
 	if (! @$ary) {
-		$self->update_cur_blogset('spmenu', '');
-		return 0;
+		my $info = $blog->{spmenu_info_all} || $self->save_spmenu_all_items();
+		$ary = $self->load_spmenu_info( $info );
 	}
 
 	# 要素がある
 	my $out = "<ul>\n";
 	foreach(@$ary) {
-		my $title = $_->{title};
 		my $html  = $blog->{"p:$_->{name}:html"};
 		my $h = $self->parse_html_for_spmenu($html);
-		my $url = $h->{url} || '#';
+		my $title = $h->{title} || $_->{title};
+		my $url   = $h->{url} || '#';
 		$out .= "<li><a href=\"$url\">$title</a>\n$h->{html}\n</li>\n";
 	}
 	$out .= "</ul>\n";
-	if ($#$ary > 0) {
+	if ($#$ary != 0) {
 		my $title = $blog->{spmenu_title} || 'menu';
+		if (!@$ary) { $title = '&ensp;'; }
+		
 		$out = "<ul><li><a href=\"#\">$title</a>\n$out</li></ul>\n";
 	}
 	$self->update_cur_blogset('spmenu', $out);
@@ -1674,7 +1676,7 @@ sub generate_spmenu {
 sub load_spmenu_info {
 	my $self = shift;
 	my $blog = $self->{blog};
-	my $info = $blog->{spmenu_info};
+	my $info = shift || $blog->{spmenu_info};
 
 	my @ary;
 	foreach(split("\n", $info)) {
@@ -1698,7 +1700,7 @@ sub parse_html_for_spmenu {
 
 	my %h;
 	my $title;
-	$html =~ s|<div\s*class="\s*hatena-moduletitle\s*">(.*?)</div>|$title=$1,''|e;
+	$html =~ s|<div\s*class="\s*hatena-moduletitle\s*">\s*(.*?)\s*</div>|$title=$1,''|e;
 	if ($title =~ /<a.*? href\s*=\s*"([^"]+)"/) {
 		$h{url} = $1;
 	}

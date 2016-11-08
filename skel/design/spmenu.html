@@ -85,6 +85,9 @@ $(function(){
 <@ifexec(!v.sphone, begin)>
 	<p><button type="button" id="sp-emulation">スマートフォン表示のサンプル</button><span class="help" data-help="管理画面等ではスマホモードは解除されます。">?</span></p>
 <$end>
+
+	<p>※何も設定しないと、すべての要素が出力されます。</p>
+
 	<table class="blog-setting">
 	<thead><tr>
 		<th>使用</th>
@@ -98,7 +101,7 @@ $(function(){
 			<input type="checkbox" name="mod_ary" value="<@t.name>"<@if(t.on, ' checked')>>
 		</td>
 		<td class="no-drag">
-			<input type="text" class="<@if(v.sphone, 'w80', 'w140')>" name="<@t.name>" value="<@t.title || pi.title>">
+			<input type="text" class="<@if(v.sphone, 'w80', 'w140')>" name="<@t.name>" value="<@t.title || pi.title>"<@if(t.title, ' readonly')>>
 		</td>
 		<td class="name"><@t.name></td>
 		<td class="html"><@t.html></td>

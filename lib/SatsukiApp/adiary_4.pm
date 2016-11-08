@@ -1628,10 +1628,6 @@ sub update_design_info {
 #------------------------------------------------------------------------------
 # ●スマホメニュー要素ロード
 #------------------------------------------------------------------------------
-sub spmenu_items_check {
-	my $self = shift;
-	return $self->load_spmenu_items(1);
-}
 sub load_spmenu_items {
 	my $self = shift;
 	my $check= shift;	# 存在確認のみ
@@ -1695,7 +1691,8 @@ sub save_spmenu_items {
 		$info .= "$_=$title\n";
 	}
 	chomp($info);
-	$self->update_cur_blogset('spmenu_info', $info);
+	$self->update_cur_blogset('spmenu_info',  $info);
+	$self->update_cur_blogset('spmenu_info_all', '');
 
 	# タイトル保存
 	my $title = $form->{spmenu_title};
@@ -1704,6 +1701,25 @@ sub save_spmenu_items {
 	$self->update_cur_blogset('spmenu_title', $title);
 
 	return $self->generate_spmenu();
+}
+
+#------------------------------------------------------------------------------
+# ●スマホメニュー要素のセーブ
+#------------------------------------------------------------------------------
+sub save_spmenu_all_items {
+	my $self = shift;
+	my $blog = $self->{blog};
+
+	my $ary  = $self->load_spmenu_items();
+	my $info = '';
+	foreach(@$ary) {
+		my $title = $_->{title} || $_->{pi}->{title};
+		$info .= "$_->{name}=$title\n";
+	}
+	chomp($info);
+	$self->update_cur_blogset('spmenu_info_all', $info);
+	$self->debug($info);
+	return $info;
 }
 
 #------------------------------------------------------------------------------
