@@ -1718,7 +1718,6 @@ sub save_spmenu_all_items {
 	}
 	chomp($info);
 	$self->update_cur_blogset('spmenu_info_all', $info);
-	$self->debug($info);
 	return $info;
 }
 
