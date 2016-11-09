@@ -1,0 +1,43 @@
+######################################################################
+title=はてなスター
+version=1.00
+#					(C)2016 nabe
+######################################################################
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+adiary_version=2.94
+module_type=main
+
+module_id=hatena-star-call
+
+*events=<<EVENTS
+JS=https://s.hatena.ne.jp/js/HatenaStar.js
+EVENTS
+
+*sample_html=<<HTML
+<div id="<@id>">
+記事タイトル部にはてなスターを表示
+</div>
+HTML
+
+*module_html=<<HTML
+<div class="display-none" id="<@id>" data-module-name="<@this>">
+記事タイトル部にはてなスターを表示
+<$v.regist_post_html(exec(begin))>
+<script><!--
+Hatena.Star.Token = '<@v.load_plgset('<@this>', 'token')>';
+Hatena.Star.SiteConfig = {
+	entryNodes: {
+		'article.article': {
+			uri: 'h2 a.title',
+			title: 'h2 a.title',
+			container: 'h2'
+		}
+	}
+};
+</script>
+<$end>
+</div>
+HTML
