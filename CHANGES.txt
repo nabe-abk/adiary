@@ -5,6 +5,7 @@
 -sumomoテーマを微修正。
 -cuteテーマを微修正。
 -IE9以前の互換モードで起こる、CSSXSS対策をオフにしました。
+-HTMLヘッダを自由に設定できるようになりました。([https://twitter.com/nomura_games/status/773850665340710912:Thanks to nomura])
 -【記法】数式入力を簡単にするTeXモードの実装
 -【記法】麻雀記法の画像を別のものに変更しました。((麻雀記法を利用中の方は、ブログの再構築を実行してください。))
 -【fix】adiary.conf.cgiの album_jpeg_quality の設定が有効にならない。（[http://adiary.blog.abk.nu/0387#c9:Thanks to 平山]）
@@ -15,6 +16,7 @@
 -【fix】【アルバム】ファイル名変更時、サムネイルが再生成される。
 -【fix】【Markdown】記事が見出しで始まっているとき、空の{<section>}が出力されてしまう。
 -【fix】【Markdown】GFM拡張のテーブル記法の判定条件が厳しすぎた。
+-【Security】第3者にレンタル時、コメント文に「{<!--[if IE]><script>alert(1)</script><![endif]-->}」などと記述することでIE9以前でスクリプトが実行可能だった。
 -他
 
 *Ver3.03 : 2016/02/19

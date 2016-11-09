@@ -1,0 +1,18 @@
+#-------------------------------------------------------------------------------
+# 許可タグリスト for ヘッダー
+#-------------------------------------------------------------------------------
+# タグ制限を完全になくしたい場合は trust_mode を検討ください。
+_base		id
+_protocol	http, https
+_comment
+
+### 基本 ########################
+meta		http-equiv, name, content, charset
+link		rel, type, href, title
+style
+
+
+# style 指定子によるXSS対策
+#_style_secure
+# 相対パスを絶対パスに書き換え
+_force_absolute_path

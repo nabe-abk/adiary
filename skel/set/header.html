@@ -1,0 +1,43 @@
+<@6>
+<@local(s, err, default)>
+<$err=FormError>
+<$default = if(Query.blogid eq '*' && Auth.isadmin, 1, 0)>
+
+<@> システムモード
+<$v.system_mode("ヘッダ設定")>
+
+<!--========================================================================-->
+<@> 階層ツリー、初期処理
+<@call("<@v.skel_dir>_dir_tree")>
+
+<$s = set>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<@ifexec(Auth.isadmin, begin)>
+	<@ifexec(default, begin, begin)>
+		<p><a href="<@v.myself>?<@v.skeleton>">&gt;ブログ固有の設定に戻る</a></p>
+	<$else>
+		<p><a href="<@v.myself>?<@v.skeleton>&amp;blogid=*">&gt;標準設定を変更する</a></p>
+	<$end>
+	<$end>
+
+	<form action="<@v.myself>?<@v.skeleton><@if(default, '&amp;blogid=*')>" method="POST">
+	<input type="hidden" name="action" value="<@v.skeleton>">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<p>HTMLヘッダ（&lt;head&gt;～&lt;/head&gt;）への出力を設定します。管理画面では無効です。</p>
+
+	<textarea name="html_header_txt" rows="16" class="w98p html_header" id="editarea"><@tag_escape_amp((x = s.html_header_txt))></textarea>
+
+	<p><a href="<@v.myself>?etc/allow_tags&amp;n=header" target="_blank">使用可能なHTMLタグ</a></p>
+
+	<button type="submit">この設定を保存する</button>
+
+	</form>
+</div>
+</article>
+
+

@@ -1,0 +1,23 @@
+<@20>
+<@local(h)>
+<$ifbreak(!v.allow_edit)>
+<$ifbreak(csrf_check())>
+
+<$h = validator(begin_hash, Form)>
+	html_header_txt = ヘッダ
+	html_header_txt:filter0     = file:<@v.allow_tags_head>header.txt
+	html_header_txt:filter0_opt = <@v.trust_mode>
+<$end>
+<$ifbreak(form_error())>
+
+<@> 設定保存
+<$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("HTMLヘッダの設定を保存しました")>
+	<$url = v.myself .'?'. v.query0 . if(Query.blogid eq '*', '&amp;blogid=*')>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+
