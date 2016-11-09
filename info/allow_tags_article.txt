@@ -120,7 +120,7 @@ wbr
 time	datetime, pubdate
 
 # style 指定子によるXSS対策
-_style_secure
+#_style_secure
 # 相対パスを絶対パスに書き換え
 _force_absolute_path
 

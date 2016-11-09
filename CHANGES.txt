@@ -4,6 +4,7 @@
 
 -sumomoテーマを微修正。
 -cuteテーマを微修正。
+-IE9以前の互換モードで起こる、CSSXSS対策をオフにしました。
 -【記法】数式入力を簡単にするTeXモードの実装
 -【記法】麻雀記法の画像を別のものに変更しました。((麻雀記法を利用中の方は、ブログの再構築を実行してください。))
 -【fix】adiary.conf.cgiの album_jpeg_quality の設定が有効にならない。（[http://adiary.blog.abk.nu/0387#c9:Thanks to 平山]）
