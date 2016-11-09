@@ -373,6 +373,9 @@ sub v2convert {
 		}, $id);
 		$ROBJ->notice("Blog create : %s : %s", $id, $s->{blog_name});
 
+		# ブログの選択
+		$self->set_and_select_blog($id);
+
 		# 対応テーマがあるときはそれを選択
 		my $templ = $s->{template};	# ex)nature
 		my $theme = $s->{theme};	# ex)sky
@@ -390,9 +393,6 @@ sub v2convert {
 				theme => $themes{$theme} . $theme
 			});
 		}
-
-		# ブログの選択
-		$self->set_and_select_blog($id);
 
 		# ユーザー定義タグ
 		{
