@@ -1078,10 +1078,12 @@ sub parse_table {
 			}
 		}
 
-		# |aa|bb|cc  → |aa|bb|cc|
-		# |aa|bb|cc| → |aa|bb|cc|
-		$line =~ s/\|?\s*$/|/;
+		# |aa|bb|cc  → |aa|bb|cc|*
+		# |aa|bb|cc| → |aa|bb|cc|*
+		$line  =~ s/\|?\s*$/|/;
+		$line .= '*';
 		my @l = split(/\s*\|\s*/, $line);
+		pop(@l);	# 最後を読み捨て
 		shift(@l);	# 最初を読み捨て
 
 		my @cols;
