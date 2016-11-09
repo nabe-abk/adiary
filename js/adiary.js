@@ -1586,7 +1586,11 @@ function load_taglist(id, func) {
 		};
 		r_func(data, '', 0);
 	};
-	$.getJSON( sel.data('url'), func );
+	$.getJSON( add_no_cache_query( sel.data('url') ), func );
+}
+function add_no_cache_query(url) {
+	if(url.indexOf('?') > 0) return url;
+	return url + '?' + (new Date().getTime());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1594,7 +1598,7 @@ function load_taglist(id, func) {
 //////////////////////////////////////////////////////////////////////////////
 function load_contents_list(id) {
 	var obj = $(id);
-	$.getJSON( obj.data('url'), function(data){
+	$.getJSON( add_no_cache_query( obj.data('url') ), function(data){
 		var _default  = obj.data('default');
 		var this_pkey = obj.data('this-pkey');
 

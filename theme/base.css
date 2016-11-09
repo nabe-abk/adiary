@@ -714,6 +714,9 @@ ul.dynatree-container a {
 	background-color:	#f88;
 }
 /* ファイル名一覧 */
+#album-folder-view.name-view {
+	font-size:		14px;
+}
 #album-folder-view.name-view a {
 	display:		block;
 	width:			100%;
@@ -727,16 +730,19 @@ ul.dynatree-container a {
 	background-color:	#fcc;
 }
 #album-folder-view.name-view span.filename {
-	width:			62%;
+	width:			calc(100% - 230px);
 	display:		inline-block;
+	vertical-align:		middle;
 }
 #album-folder-view.name-view span.filedate {
-	width:			26%;
+	width:			160px;
 	display:		inline-block;
+	vertical-align:		middle;
 }
 #album-folder-view.name-view span.filesize {
-	width:			12%;
+	width:			64px;
 	display:		inline-block;
+	vertical-align:		middle;
 	text-align:		right;
 }
 #adiary-body #album-dnd-name-view {
