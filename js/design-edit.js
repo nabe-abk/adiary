@@ -305,10 +305,11 @@ function init_module(obj) {
 		title = title || modules[name].attr('title') ||  obj.data('module-name') || '(unknown)';
 		obj.attr('title', title);
 	}
-
+	
+	// <button type="button" class="js-info" data-class="pre" data-title="notify_mailのREADME" data-url="/~nabe/adiary/?set2/plugin_readme&amp;name=notify_mail">README</button>
 	if (obj.data('readme')) {
 		var info = $('<span>');
-		info.addClass('ui-icon ui-icon-help ui-button ui-button-icon-only ui-corner-all ui-state-default info');
+		info.addClass('ui-icon ui-icon-help ui-button ui-button-icon-only ui-corner-all ui-state-default js-info');
 		info.attr({
 			onclick: '',
 			'data-url': obj.data("readme-url")
