@@ -162,6 +162,7 @@ sub escape {
 		# 正しくは <!(--.*?--\s*)+> だけど、ブウラザの対応がまちまちなので。
 		$inp =~ s/<!--(.*?)--\s*>/push(@comments,$1),"\x01$#comments\x01"/seg;
 		foreach(@comments) {	# security対策
+			$_ =~ s/^\[/ [/;		# <!--[if IE]>等の対策
 			$_ =~ s/--/==/g;
 		}
 	} else {		# 除去
