@@ -39,6 +39,7 @@ agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0
 <$end>
 
 <$js_stop = 1>
+<$art_sample_mode=1>
 <@call('_article', t, ret)>
 
 
@@ -52,6 +53,5 @@ agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0
 <$art_dummy.elink_key='02'>
 <$art_dummy.text = '<section><strong>※この上の部分に配置したモジュールは「記事と記事の間」に出力されます。</strong></section>'>
 
-<$art_sample_mode=1>
 <@call('_main', logs, ret)>
 

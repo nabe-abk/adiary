@@ -25,8 +25,12 @@ HTML
 *module_html=<<HTML
 <div class="display-none" id="<@id>" data-module-name="<@this>">
 記事タイトル部にはてなスターを表示
+<@ifexec(!art_sample_mode, begin)>
 <$v.regist_post_html(exec(begin))>
 <script><!--
+var Hatena;
+if (!Hatena) Hatena = {};
+if (!Hatena.Star) Hatena.Star = {};
 Hatena.Star.Token = '<@v.load_plgset('<@this>', 'token')>';
 Hatena.Star.SiteConfig = {
 	entryNodes: {
@@ -38,6 +42,7 @@ Hatena.Star.SiteConfig = {
 	}
 };
 </script>
+<$end>
 <$end>
 </div>
 HTML
