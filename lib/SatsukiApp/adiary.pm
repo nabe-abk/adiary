@@ -1306,7 +1306,7 @@ sub load_jscss_events {
 	foreach(split("\n", $evt)) {
 		my ($name, $file) = $self->split_equal($_);
 		if (!$name) { next; }
-		push(@ary, "$dir$file");
+		push(@ary, ($file =~ m!^/|^https?://!i ? '' : $dir) . $file);
 	}
 	return \@ary;
 }
