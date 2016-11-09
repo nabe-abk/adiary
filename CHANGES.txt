@@ -2,8 +2,7 @@
 
 *Ver3.04 : 2016/xx/xx
 
--sumomoテーマを微修正。
--cuteテーマを微修正。
+-全文検索時、記事のタグも検索対象にしました。
 -IE9以前の互換モードで起こる、CSSXSS対策をオフにしました。
 -HTMLヘッダを自由に設定できるようになりました。([https://twitter.com/nomura_games/status/773850665340710912:Thanks to nomura])
 -【記法】数式入力を簡単にするTeXモードの実装

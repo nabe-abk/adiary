@@ -1500,7 +1500,7 @@ function word_highlight(id) {
 		words.push( w.toLowerCase() );
 	}
 
-	var target = $("#articles article h2 .title, #articles article div.body div.body-main");
+	var target = $("#articles article h2 .title, #articles article div.body div.body-main, #articles span.tags");
 	var h_cnt = 0;
 	rec_childnodes(target, words);
 

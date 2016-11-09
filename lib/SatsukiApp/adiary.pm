@@ -837,7 +837,7 @@ sub load_articles {
 				$_ =~ s/\x04\[(\d+)\]/$buf[$1]/;
 			}
 			$q{search_words} = \@words;
-			$q{search_cols}  = $query->{all} ? ['title','_text'] : ['title'];
+			$q{search_cols}  = $query->{all} ? ['title','_text', 'tags'] : ['title'];
 			if ($query->{all}) {
 				$title_tag = 0;
 			} else {
