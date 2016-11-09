@@ -8,6 +8,7 @@
 -HTMLヘッダを自由に設定できるようになりました。([https://twitter.com/nomura_games/status/773850665340710912:Thanks to nomura])
 -【記法】数式入力を簡単にするTeXモードの実装
 -【記法】麻雀記法の画像を別のものに変更しました。((麻雀記法を利用中の方は、ブログの再構築を実行してください。))
+-【デザイン編集】はてなスタープラグインを追加（メイン部）。
 -【fix】adiary.conf.cgiの album_jpeg_quality の設定が有効にならない。（[http://adiary.blog.abk.nu/0387#c9:Thanks to 平山]）
 -【fix】タグなし記事数に、非公開記事がカウントされてしまう。（[http://adiary.blog.abk.nu/0387#c4:Thanks to t-hide]）
 -【fix】システムメニューを辿れないことがある。
