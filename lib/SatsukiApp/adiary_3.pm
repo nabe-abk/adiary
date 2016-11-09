@@ -656,9 +656,10 @@ sub rename_file {
 	if ( !$self->check_file_name($old ) || !$self->album_check_ext($old ) ) { return -2; }
 	if ( !$self->check_file_name($name) || !$self->album_check_ext($name) ) { return -1; }
 
-	my $r = rename("$dir$old", "$dir$name") ? 0 : 1;
-	if (!$r) {
-		# 成功時、古いサムネイルの削除
+	my $r  = rename("$dir$old", "$dir$name") ? 0 : 1;
+	my $r2 = rename("$dir.thumbnail/$old.jpg", "$dir.thumbnail/$name.jpg") ? 0 : 1;
+	if (!$r && $r2) {
+		# サムネイルだけ失敗時、古いサムネイルの削除
 		$ROBJ->file_delete( "${dir}.thumbnail/$old.jpg" );
 		# 新しいサムネイル生成
 		$self->make_thumbnail( $dir, [$name], {
