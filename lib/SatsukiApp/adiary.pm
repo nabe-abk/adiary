@@ -7,8 +7,8 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = '3.03';
-our $OUTVERSION = '3.03';
+our $VERSION = '3.04';
+our $OUTVERSION = '3.04';
 our $SUBVERSION = '';
 our $DATA_VERSION = 3.01;
 ###############################################################################
@@ -424,7 +424,7 @@ sub load_blogset {
 	if ($self->{'_loaded_bset'}->{$blogid}) { return $self->{'_loaded_bset'}->{$blogid}; }
 	if ($blogid ne '*' && !$self->find_blog($blogid)) { return undef; }
 
-	my $file = $self->blog_dir($blogid) . 'setting.dat';
+	my $file = $ROBJ->get_filepath( $self->blog_dir($blogid) . 'setting.dat' );
 	if ($blogid eq '*' || !-e $file) {
 		$file = $ROBJ->get_filepath($self->{my_default_setting_file});
 		if (!-e $file) {
@@ -1519,7 +1519,7 @@ sub blog_dir {
 	my ($self, $blogid) = @_;
 	$blogid ||= $self->{blogid};
 	$blogid =~ s/\W//;
-	return ($self->{ROBJ}->get_filepath("$self->{data_dir}blog/$blogid/"));
+	return "$self->{data_dir}blog/$blogid/";
 }
 sub blogpub_dir {
 	my ($self, $blogid) = @_;
@@ -1527,7 +1527,7 @@ sub blogpub_dir {
 	$blogid =~ s/\W//;
 	my $blog = $self->load_blogset($blogid);
 	my $postfix = $blog ? $blog->{blogpub_dir_postfix} : '';
-	return ($self->{ROBJ}->get_filepath("$self->{pub_dir}$blogid$postfix/"));
+	return "$self->{pub_dir}$blogid$postfix/";
 }
 sub blogimg_dir {
 	my $self = shift;
