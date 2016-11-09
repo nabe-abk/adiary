@@ -9,6 +9,8 @@ license=WTFPL
 adiary_version=2.94
 module_type=sidebar
 
+module_id=side-serika-memo
+
 *files=<<FILES
 js/<@this>.js
 FILES
@@ -18,7 +20,7 @@ JS=js/<@this>.js
 EVENTS
 
 *sample_html=<<HTML
-<div class="hatena-module" id="side-serika-memo">
+<div class="hatena-module" id="<@id>">
 <div class="hatena-moduletitle">メモ</div>
 <div class="hatena-modulebody">
 <textarea rows="5">自由にメモしておけるテキストエリアです
@@ -29,7 +31,7 @@ HTML
 
 *module_html=<<HTML
 <$x = v.load_plgset('<@this>')>
-<div class="hatena-module" id="side-serika-memo" data-module-name="<@this>">
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
 <div class="hatena-moduletitle">メモ</div>
 <div class="hatena-modulebody"><textarea rows="5"></textarea>
 </div>
