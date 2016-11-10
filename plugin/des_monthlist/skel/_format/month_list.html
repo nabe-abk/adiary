@@ -1,18 +1,32 @@
 <@6>
-<@local(s,y,nclose,name)>
+<@local(ps,y,yc,yyyymm,nclose,name)>
 <$name = argv#0>
-<$s = v.blog>
-<$nclose = if(v.load_plgset(name, 'nclose') ne '0', 1, 0)>
+<$ps = v.load_plgset(name)>
+<$nclose = if(ps.nclose ne '0', 1, 0)>
 <@>
 <@>---------------------------------------------------------------------
 <@>月別記事数リスト
 <@>---------------------------------------------------------------------
-<ul class="hatena-section">
 <$yc=new>  <@>年別の計算
 <$forexec(t, argv#1, begin)>
 	<$yc.(t.year) += t.count>
 <$end>
 <$y=0>
+<@ifexec(ps.select_box, begin, begin)>
+<@>---------------------------------------------------------------------
+<select id="month-list-select-box" data-url="1">
+	<option value="">【年月を選択】</option>
+<@forexec(t, argv#1, begin)>
+	<@ifexec(t.year != y, begin)><$y=t.year>
+	<option value="<@t.year>"><@t.year>年 (<@yc.(t.year)>)</option>
+	<$end>
+		<option value="<@t.yyyymm>">&emsp;<@t.year>年<@t.mon>月 (<@t.count>)</option>
+<$end>
+</select>
+<@>---------------------------------------------------------------------
+<$else>
+<@>---------------------------------------------------------------------
+<ul class="hatena-section">
 <@forexec(t, argv#1, begin)>
 	<@ifexec(t.year != y, begin)>
 	<@if(y, "\t</ul>\n")>
@@ -24,3 +38,5 @@
 <$end>
 <@if(y, "\t</ul>\n")>
 </ul>
+<@>---------------------------------------------------------------------
+<$end>

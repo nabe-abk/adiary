@@ -1696,6 +1696,23 @@ function css_fix(css_text, width) {
 ///
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//●月別過去ログリストのリロード
+//////////////////////////////////////////////////////////////////////////////
+$(function(){
+	var selbox = $('#month-list-select-box');
+	selbox.change(function(evt){
+		var obj = $(evt.target);
+		if(!obj.data('url')) return;	// for security
+		var val = obj.val(); 
+		if (val=='') return;
+		window.location = Vmyself2 + val;
+	});
+	var cur = $('#yyyymm-cond').data('yyyymm');
+	if (!cur || typeof(cur) != 'number') return;
+	selbox.val( cur.toString() );
+});
+
 //############################################################################
 // ■サブルーチン
 //############################################################################

@@ -17,7 +17,6 @@
 	<$art_day  = ret.day>
 <$end>
 
-
 <@> OGP/Twitter Cards
 <$ifexec(Develop || index(ENV.HTTP_USER_AGENT, 'Mozilla/')<0, begin)>
 	<$call('_sub/set_ogp', 'website', v.myself)>
@@ -98,7 +97,7 @@
 
 	<@>### 年・年月指定 ###
 	<@ifexec(ret.yyyymm || ret.day, begin)>
-	<div class="yyyymm cond">
+	<div class="yyyymm cond" id="yyyymm-cond" data-yyyymm="<@ret.yyyymm>">
 	<span class="search-caption">指定期間</span> <span class="yyyymm"><@ret.year>年<@if(ret.mon, "<@ret.mon>月")><@if(ret.day, "<@ret.day>日")>の記事</span><br>
 	</div>
 	<$end>
