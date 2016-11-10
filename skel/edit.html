@@ -74,11 +74,13 @@
 <div class="body">
 	<select name="open_draft" id="select-draft" data-base-url="<@v.myself2>">
 	<@forexec(t, logs, begin)>
-		<option value="<@t.pkey>"<@if(edit_pkey == t.pkey,' selected')>><@v.format_ymd(t.yyyymmdd)> <@t.title> by <@t.name></option>
+		<option value="<@t.pkey>"<@if(edit_pkey == t.pkey,' selected')>><@v.format_ymd(t.yyyymmdd)> <@t.title><@if(t.id ne Auth.id, " by <@t.name>")></option>
 	<$end>
 	</select>
+	<div>
 	<button type="button" id="open-draft">開く</button>
 	<button type="button" id="open-template" class="btn-help" data-help="テンプレートとして開くと、編集・保存しても元にした下書きは残り続けます。">テンプレートとして開く</button>
+	</div>
 </div>
 </article>
 <$end>
@@ -95,7 +97,7 @@
 
 <!--記事の編集=============================================================-->
 <article class="system edit" id="edit">
-<h2><@v.title></h2>
+<h2 ><@v.title></h2>
 <div class="body">
 
 <form method="POST" name="edit" class="no-enter-submit">
@@ -105,20 +107,27 @@
 <@ifexec(edit_pkey, begin)>
 	<input type="hidden" name="edit_pkey_int" value="<@edit_pkey>" id="edit-pkey">
 <$end>
+	<@ifexec(edit_pkey, begin)>
+	<div class="float-r">
+		<a href="<@v.myself2><@art.elink_key>">記事を開く</a>
+	</div>
+	<$end>
+	<div>
 	<span class="element" id="edit-yyyymmdd">
-	<span class="edit-caption">日付</span><input id="edit-date" type="date" name="ymd" class="w120" value="<@if(art_year, "<@art_year>-<@art_mon>-<@art_day>", "<@v.now.year>-<@v.now.mon>-<@v.now.day>")>" min="1980-01-01" max="2999-12-31" required></span>
+	<span class="edit-caption">日付</span><input id="edit-date" type="date" name="ymd" class="w120" value="<@if(art_year, "<@art_year>-<@art_mon>-<@art_day>", "<@v.now.year>-<@v.now.mon>-<@v.now.day>")>" min="1980-01-01" max="2999-12-31" required>
+	</span>
 
 	<span class="element" id="edit-tags"><span class="edit-caption">タグ</span>
 	<span id="tags"><$tags = split(',', art.tags)>
-	<@forexec(t, tags, begin)><span class="tag"><@t><input type="hidden" name="tag_ary" value="<@t>"></span><$end>
+	<@forexec(t, tags, begin)>
+		<span class="tag"><@t><input type="hidden" name="tag_ary" value="<@t>"></span>
+	<$end></span>
+	<button type="button" id="edit-add-tag" data-title="タグを選択か入力">追加</button>
 	</span>
-	
-	<select name="taglist" id="tag-select" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'taglist.json')>">
-		<option value="" class="special">【タグを追加】</option>
-		<option value="*" class="special" data-new="1">【新規に登録】</option>
-	</select></span><br>
+	</div>
 	<br>
 
+	<div>
 	<span class="element" id="edit-title"><span class="edit-caption">タイトル</span><input class="w360 no-enter-submit" type="text" name="title" value="<@art.title>"></span> 
 	<div id="edit-helper">
 	<button class="helper" type="button" id="btn-strong" data-msg="太字にしたい文字列を入力">太字</button>
@@ -171,7 +180,7 @@
 		<$end>
 	</select></span>
 
-	<button type="button" id="file-upload" class="btn-help js-fileup" data-folder="<@if(s.edit_upload ne '', s.edit_upload, 'adiary/%y/')>" data-title="ファイルを選択" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップすることもできます。IE8/9非対応。">Upload</button>
+	<button type="button" id="edit-file-upload" class="btn-help js-fileup" data-folder="<@if(s.edit_upload ne '', s.edit_upload, 'adiary/%y/')>" data-title="ファイルを選択" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップすることもできます。IE8/9非対応。">Upload</button>
 	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_text></button>
 	<@ifexec(!edit_pkey || art.draft, begin)>
 	<button type="submit" name="draft" value="1" id="save-draft" class="btn-help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">下書き<@if(edit_pkey, '保存', '作成')></button>
@@ -214,7 +223,7 @@
 		<li><input type="checkbox" name="wiki" value="1" data-target="#content-block" class="js-switch"<@if(art.ctype || art.wiki, ' checked')>><label>コンテンツページにする</label>
 		<input type="hidden" name="priority" value="<@art.priority>">
 		<ul id="content-block" style="display: none">
-			<li>親<select name="upnode" id="upnode-select" data-default="<@art.upnode>" data-this-pkey="<@edit_pkey>" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'contents.json')>">
+			<li>親 <select name="upnode" id="upnode-select" data-default="<@art.upnode>" data-this-pkey="<@edit_pkey>" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'contents.json')>">
 				<option value="0">*トップ(root)</option>
 			</select></li>
 			<li>コンテンツkey<span class="help" data-help='"http://" や "/" ではじまるkeyを指定するとリンクになります。"FrontPage", "top", "index"のいずれかを指定するとブログトップの固定記事になります。'>?</span><input type="text" name="link_key_txt" id="link-key" class="w240" value="<@if(art.ctype, esc(art.link_key))>" data-suggest="<@s.suggest_link_key>"></li>
@@ -255,8 +264,6 @@
 
 <input type="hidden" value="<@v.sys.edit_lock_time>" id="edit-lock-time">
 <div style="display:none">
-<span id="new-tag-title">タグを入力</span>
-<span id="new-tag-msg">※階層の区切りは「<span class="mono">::</span>」です。<br>※「,」は使用できません。</span>
 <span id="new-tag-append">追加</span>
 <span id="new-tag-cancel">キャンセル</span>
 <span id="edit-confirm">この記事を編集している人が他にいますが、編集を継続しますか？%u</span>
@@ -265,6 +272,19 @@
 <span id="msg-upload-error">アップロードに失敗しました。</span>
 <span id="msg-upload-fail">%n 個中 %f 個のアップロードに失敗しました。</span>
 <span id="image-dir"><@v.blogimg_dir()></span>
+
+
+<@> タグ追加フォーム
+<div id="tag-select-form">
+<div><select name="taglist" id="tag-select" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'taglist.json')>">
+	<option value="" class="special" data-new="1">【タグを選択か入力】</option>
+</select></div>
+<div style="margin-top: 1em;">
+入力 <input id="input-new-tag" type="text" class="w200 mono"><br>
+※階層の区切りは「<span class="mono">::</span>」です。<br>※「,」は使用できません。</span>
+</div>
+</div>
+
 
 <@> ファイルアップロード用データ
 <$tags = call('album/_load_tags')>

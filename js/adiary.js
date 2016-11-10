@@ -50,7 +50,7 @@ $(function(){
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//●for IE8
+//●for IE
 //////////////////////////////////////////////////////////////////////////////
 if (!('console' in window)) {
 	window.console = {};
@@ -1576,12 +1576,13 @@ function load_taglist(id, func) {
 		var r_func = function(ary, head, tab) {
 			for(var i=0; i<ary.length; i++) {
 				var val = head + ary[i].title;
-				var opt = $('<option>').attr('value', val).html( val );
-				opt.css('padding-left', tab);
+				var opt = $('<option>').attr('value', val);
+				//opt.css('padding-left', tab*8);	// Fx以外で効かないので以下で代用
+				opt.html('&emsp;'.repeat(tab) + val );
 				if ( val == _default ) opt.prop('selected', true);
 				sel.append(opt);
 				if (ary[i].children)
-					r_func( ary[i].children, head+val+'::', tab+8 );
+					r_func( ary[i].children, head+val+'::', tab+1 );
 			}
 		};
 		r_func(data, '', 0);
@@ -1607,13 +1608,14 @@ function load_contents_list(id) {
 				var pkey  = ary[i].key;
 				if (pkey == this_pkey) continue;
 				var title = ary[i].title;
-				var opt = $('<option>').attr('value', pkey).html( title );
+				var opt = $('<option>').attr('value', pkey);
+				//opt.css('padding-left', tab*8);	// Fx以外で効かないので以下で代用
+				opt.html('&emsp;'.repeat(tab) + title );
 				opt.data('link_key', ary[i].link_key);
-				if (tab) opt.css('padding-left', tab);
 				if ( pkey == _default ) opt.prop('selected', true);
 				obj.append(opt);
 				if (ary[i].children)
-					r_func( ary[i].children, tab+8 );
+					r_func( ary[i].children, tab+1 );
 			}
 		};
 		r_func(data, 0);

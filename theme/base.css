@@ -355,10 +355,14 @@ div.body-footer {
 .float, .float-l {
 	float:		left;
 	margin-right:	1em;
+	position:	relative;
+	z-index:	1;
 }
 .float-r {
 	float:		right;
 	margin-left:	1em;
+	position:	relative;
+	z-index:	1;
 }
 
 /*--------------------------------------------------------------------
@@ -499,6 +503,7 @@ em			{ font-style: normal; text-decoration: underline; }
 .sp .w640 {
 	width:	100%;
 }
+.sp input[type="date"].w120 { width: 120px; }
 
 /*--------------------------------------------------------------------
 ●検索とハイライトとタグ

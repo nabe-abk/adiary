@@ -16,9 +16,10 @@ var body = $('#body');
 var tagsel = $secure('#tag-select');
 var upsel  = $secure('#upnode-select');
 var parsel = $('#select-parser');
-var edit = $('#editarea');
+var edit   = $('#editarea');
 
-var fileup  = $secure('#file-upload');
+var addtag  = $secure('#edit-add-tag');
+var fileup  = $secure('#edit-file-upload');
 var dndbody = $('#edit');
 
 load_taglist(tagsel);
@@ -42,6 +43,9 @@ $('#open-template').click(function(){
 //############################################################################
 // ■タグの削除ボタン、タグの追加
 //############################################################################
+//----------------------------------------------------------------------------
+// ●タグの削除ボタン（×ボタン）
+//----------------------------------------------------------------------------
 var tagdel = $('<span>').addClass('ui-icon ui-icon-close');
 tagdel.click(function(evt){
 	var obj = $(evt.target);
@@ -50,15 +54,62 @@ tagdel.click(function(evt){
 $("#edit-tags span.tag").append( tagdel.clone(true) );
 
 //----------------------------------------------------------------------------
+// ●タグ追加ダイアログの表示
+//----------------------------------------------------------------------------
+var tagsel_dialog;
+var tagsel_form = $secure('#tag-select-form').detach();
+addtag.click( function(){
+	var form = $('<form>').append( tagsel_form );
+	var div  = $('<div>') .append( form  );
+
+	// 入力要素
+	var inp = form.find('#input-new-tag');
+
+	//enterで確定させる
+	function tag_append_func() {
+		var tag = inp.val();
+		if (tag.match(',')) return false;
+		tag_append( tag );
+		div.dialog('close');
+		return false;
+	}
+	inp.keydown(function(evt){
+		if (evt.keyCode != 13) return;
+		return tag_append_func();
+	});
+
+	// ボタンの設定
+	var buttons = {};
+	var ok_func = buttons[$('#new-tag-append').text()] = tag_append_func;
+	buttons[ $('#ajs-cancel').text() ] = function(){
+		div.dialog( 'close' );
+	};
+	div.dialog({
+		modal: true,
+		minWidth:  240,
+		minHeight: 200,
+		title:   addtag.data('title'),
+		buttons: buttons,
+		beforeClose: function(){
+			tagsel.val('');
+			inp.val('');
+		}
+	});
+	tagsel_dialog = div;
+});
+
+//----------------------------------------------------------------------------
+// ●タグ選択フォームの処理
+//----------------------------------------------------------------------------
+tagsel.change(function(){
+	if ($(':selected',tagsel).data('new')) return;
+	tag_append( tagsel.val() );
+	tagsel_dialog.dialog( 'close' );
+});
+
+//----------------------------------------------------------------------------
 // ●タグの追加
 //----------------------------------------------------------------------------
-tagsel.change(function(evt){
-	if ($(':selected',tagsel).data('new')) return new_tag_append();
-	var val = tagsel.val();
-	tag_append( val );
-});
-tagsel.val('');
-
 function tag_append(tag_text) {
 	if (tag_text=="") return;
 	var tags = $('#tags');
@@ -74,47 +125,6 @@ function tag_append(tag_text) {
 	});
 	tag.append( inp, tagdel.clone(true) );
 	tags.append(tag);
-}
-
-//----------------------------------------------------------------------------
-// ●新規タグの追加
-//----------------------------------------------------------------------------
-var newtag_dialog = $('<div>');
-body.append(newtag_dialog);
-function new_tag_append() {
-	var div = newtag_dialog;
-	div.empty();
-	var inp = $('<input>').attr('type', 'text').css('width', 200).addClass('mono');
-	var p = $('<div>').html( $('#new-tag-msg').html() );
-	div.append( inp, p );
-
-	var buttons = {};
-	buttons[ $('#new-tag-append').text() ] = tag_append_func;
-	buttons[ $('#new-tag-cancel').text() ] = function(){
-		div.dialog('close');
-		tagsel.val('');
-	}
-	// enterで確定させる
-	inp.keydown(function(evt){
-		if (evt.keyCode != 13) return;
-		return tag_append_func();
-	});
-
-	function tag_append_func() {
-		var tag = inp.val();
-		if (tag.match(',')) return false;
-		tag_append( inp.val() );
-		div.dialog('close');
-		tagsel.val('');
-	}
-
-	div.dialog({
-		modal: true,
-		minWidth:  240,
-		minHeight: 100,
-		title: $('#new-tag-title').text(),
-		buttons: buttons
-	});
 }
 
 //############################################################################
