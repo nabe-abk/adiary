@@ -1355,30 +1355,47 @@ ul.menu {
 	overflow:	visible;
 }
 /* ul階層表示 */
-.dropdown-menu.sp>ul>li>a {
+.dropdown-menu.sp ul a {
 	padding-left:	15px;
 }
-.dropdown-menu.sp>ul>li>ul>li>a {
+.dropdown-menu.sp ul ul a {
 	padding-left:	30px;
 }
-.dropdown-menu.sp>ul>li>ul>li>ul>li>a {
+.dropdown-menu.sp ul ul ul a {
 	padding-left:	45px;
 }
-.dropdown-menu.sp>ul>li>ul>li>ul>li>ul>li>a {
+.dropdown-menu.sp ul ul ul ul a {
 	padding-left:	60px;
 }
+.dropdown-menu.sp ul ul ul ul ul a {
+	padding-left:	75px;
+}
+.dropdown-menu.sp ul ul ul ul ul ul a {
+	padding-left:	90px;
+}
+
+
 /* 矢印 */
 .dropdown-menu.sp li {
 	position:	relative;
 }
-.dropdown-menu.sp>ul>li>ul:before {
+.dropdown-menu.sp ul ul:before {
 	left:		5px;
 }
-.dropdown-menu.sp>ul>li>ul>li>ul:before {
+.dropdown-menu.sp ul ul ul:before {
 	left:		20px;
 }
-.dropdown-menu.sp>ul>li>ul>li>ul>li>ul:before {
+.dropdown-menu.sp ul ul ul ul:before {
 	left:		35px;
+}
+.dropdown-menu.sp ul ul ul ul ul:before {
+	left:		50px;
+}
+.dropdown-menu.sp ul ul ul ul ul ul:before {
+	left:		65px;
+}
+.dropdown-menu.sp ul ul ul ul ul ul ul:before {
+	left:		80px;
 }
 
 /* border調整 */
