@@ -168,15 +168,33 @@ findx: function(sel){
 	x = x.add(y);
 	// 重複処理の防止
 	var r = [];
-	sel = '-f-' + sel;
+	sel = '-mark-' + sel.replace(/[^\w\-]/g, '-');
 	for(var i=0; i<x.length; i++) {
 		var obj = $(x[i]);
 		if (obj.parents('.js-hook-stop').length || obj.hasClass('js-hook-stop')) continue;
 		if (obj.data(sel)) continue;
-		obj.data(sel, true);
+		obj.attr('data-' + sel, '1');
 		r.push(x[i]);
 	}
 	return $(r);
+},
+//////////////////////////////////////////////////////////////////////////////
+//●[jQuery] findしエラーを無視する
+//////////////////////////////////////////////////////////////////////////////
+myfind: function(sel) {
+	try {
+		return this.find(sel);
+	} catch(e) {
+		console.log(e);
+	}
+	return this.find('#--not-fond--x**x');
+},
+//////////////////////////////////////////////////////////////////////////////
+//●[jQuery] 自分を含むrootからfindし、エラーを無視する
+//////////////////////////////////////////////////////////////////////////////
+rootfind: function(sel) {
+	var html = this.parents('html');
+	return html.myfind(sel);
 },
 //////////////////////////////////////////////////////////////////////////////
 //●[jQuery] スマホでDnDをエミュレーションする
@@ -314,18 +332,6 @@ $.event.special.mydbltap = {
 			mouse = false;
 		});
 	}
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//●[jQuery] find でのエラーを無視する
-//////////////////////////////////////////////////////////////////////////////
-function myfind(sel) {
-	try {
-		return $(document).find(sel);
-	} catch(e) {
-		console.log(e);
-	}
-	return $('#--not-found-');
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -687,7 +693,7 @@ initfunc.push( function(R){
   R.findx('input.js-checked').click( function(evt){
 	var obj = $(evt.target);
 	var target = obj.data( 'target' );
-	myfind(target).prop("checked", obj.is(":checked"));
+	obj.rootfind(target).prop("checked", obj.is(":checked"));
   })
 });
 
@@ -707,8 +713,8 @@ initfunc.push( function(R){
 initfunc.push( function(R){
 	var objs = R.findx('input.js-enable, input.js-disable');
 	function btn_evt(evt, init) {
-		var btn = $(evt.target);
-		var form = myfind( btn.data('target') );
+		var btn  = $(evt.target);
+		var form = btn.rootfind( btn.data('target') );
 
 		var flag;
 		var type=btn.attr('type').toLowerCase();
@@ -759,7 +765,7 @@ initfunc.push( function(R){
 	var target = form.data('target');	// 配列
 	var c = false;
 	if (target) {
-		c = myfind( target + ":checked" ).length;
+		c = obj.rootfind( target + ":checked" ).length;
 		if (!c) return false;	// ひとつもチェックされてない
 	}
 
@@ -883,7 +889,7 @@ initfunc.push( function(R){
 			if (!btn) return;
 			id = btn.data('target');
 		}
-		var target = myfind(id);
+		var target = btn.rootfind(id);
 		if (!target.length || !target.is) return false;
 		var speed  = btn.data('switch-speed');
 		speed = (speed === undefined) ? DefaultShowSpeed : parseInt(speed);
@@ -1225,7 +1231,7 @@ initfunc.push( function(R){
 	R.findx('[data-move]').each(function(idx,dom) {
 		var obj = $(dom);
 		obj.detach();
-		var target = myfind(obj.data('move'));
+		var target = obj.rootfind(obj.data('move'));
 		var type   = obj.data('move-type');
 		     if (type == 'prepend') target.prepend(obj);
 		else if (type == 'append')  target.append (obj);
@@ -1720,10 +1726,10 @@ $(function(){
 // セキュアなオブジェクト取得
 //////////////////////////////////////////////////////////////////////////////
 function $secure(id) {
-	var obj = myfind('[id="' + id.substr(1) + '"]');
+	var obj = $(document).myfind('[id="' + id.substr(1) + '"]');
 	if (obj.length >1) {
 		show_error('Security Error!<p>id="' + id + '" is duplicate.</p>');
-		return $('#--not-found--');	// 2つ以上発見された
+		return $([]);		// 2つ以上発見された
 	}
 	return obj;
 }
@@ -1980,7 +1986,7 @@ function adiary_session(_btn, opt){
   $(_btn).click( function(evt){
 	var btn = $(evt.target);
 	var myself = opt.myself || Vmyself;
-	var log = myfind(opt.log || btn.data('log-target') || '#session-log');
+	var log = btn.rootfind(opt.log || btn.data('log-target') || '#session-log');
 
 	var load_session = myself + '?etc/load_session';
 	var interval = opt.interval || log.data('interval') || 300;

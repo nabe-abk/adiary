@@ -509,7 +509,6 @@ function module_setting(obj, mode) {
 		}
 		body.append( errdiv );
 		formdiv.dialog( "open" );
-	//	adiary_init( body );
 	});
 }
 
