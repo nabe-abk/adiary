@@ -18,7 +18,7 @@ sub {
 		sort_rev => [ 1, 1 ],
 		limit    => $num
 	};
-	if ($blog_only) {
+	if ($self->{blog}->{separate_blog}) {
 		$h->{match} = { priority => 0 };
 	}
 	my $ary = $DB->select("${blogid}_art", $h);
