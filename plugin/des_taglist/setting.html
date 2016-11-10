@@ -6,8 +6,8 @@
 	<tr>
 		<th>タグのない記事</th>
 		<td>
-			タイトル <input type="text" id="notag-title" class="w200" name="notag_title" value="<@ps.notag_title || '(none)'>" maxlength="32"><br>
-			<input type="checkbox" name="nodisp_notag" value="1" class="js-disable" data-target="#notag-title"<@if(ps.disp_notag,' checked')>><label>表示しない</label>
+			<input type="checkbox" name="nodisp_notag" value="1" class="js-disable" data-target="#notag-title"<@if(ps.disp_notag,' checked')>><label>表示しない</label><br>
+			&emsp;分類名 <input type="text" id="notag-title" class="w160" name="notag_title" value="<@ps.notag_title || '(none)'>" maxlength="32">
 		</td>
 	</tr>
 	<tr>
