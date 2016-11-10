@@ -432,14 +432,21 @@ sub dir_delete {	# 再起関数
 # ●ファイルのシンボリックリンク作成
 #------------------------------------------------------------------------------
 sub file_symlink {
-	my ($self, $src, $_des) = @_;
+	my ($self, $_src, $_des) = @_;
+	my $src = $self->get_filepath($_src);
 	my $des = $self->get_filepath($_des);
+	my $d2  = $des;
+	while((my $x = index($src,'/')+1) > 0) {
+		if(substr($src, 0, $x) ne substr($d2, 0, $x)) { last; }
+		$src = substr($src, $x);
+		$d2  = substr($d2,  $x);
+	}
 	if (ord($src) != 0x2f && substr($src,0,2) ne '~/') {
-		$_des =~ s|/| $src = "../$src";'/' |eg;
+		$d2 =~ s|/| $src = "../$src";'/' |eg;
 	}
 	my $r = symlink($src, $des);
 	if (!$r) {
-		$self->error("Create symlink error '%s' $src $des", $!);
+		$self->error("Create symlink error '%s' $_src $_des", $!);
 		return 1;
 	}
 	return 0;

@@ -18,6 +18,7 @@
 -【fix】プラグイン等で、タグ一覧やコンテンツ一覧のキャッシュが効き表示が更新されないことがある。
 -【fix】Version2からの移行ツールで、関係ないブログのテーマが引き継がれてしまう。最初のブログのテーマ引き継ぎに失敗する。（[http://adiary.blog.abk.nu/0387#c1:Thanks to Yorkfield]）
 -【fix】記事入力画面などで、タグやコンテンツの階層が、Firefox以外で分かりにくかった。
+-【fix】mod_perlでの動作に問題があった。
 -【fix】【記法】テーブル記法の末尾にある空コラムが無視されてしまう。（[http://adiary.blog.abk.nu/0387#c2:Thanks to Yorkfield]）
 -【fix】【Markdown】記事が見出しで始まっているとき、空の{<section>}が出力されてしまう。
 -【fix】【Markdown】GFM拡張のテーブル記法の判定条件が厳しすぎた。
