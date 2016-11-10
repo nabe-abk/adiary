@@ -1,6 +1,6 @@
-"adiary Version3" is HTML5 blog and CMS.
+The "adiary" is HTML5 CMS.
 This software licensed under AGPL version 3 or later.
-Current Version is Japanese text only.
+Current Version is Japanese message only.
 
 Require permission setting which '__cache' and 'data/' and 'pub/' is writable.
 And, '__cache' and 'data/' directories not permit to access from web.
