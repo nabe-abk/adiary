@@ -1710,7 +1710,7 @@ sub parse_html_for_spmenu {
 	$title = $escaper->escape( $title );
 	$html  = $escaper->escape( $html  );
 
-	$html =~ s|</a>(.*?)</li>|$1</a></li>|g;
+	$html =~ s!</a>(.*?)(</li>|\n?\s*<ul>)!$1</a>$2!g;
 	$html =~ s/^[\s\n\r]+//;
 	$html =~ s/[\s\n\r]+$//;
 	if ($html !~ m|^<ul>|) { return; }
