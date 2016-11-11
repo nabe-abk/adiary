@@ -20,7 +20,13 @@
 <$p = "\t" %x depth>
 <@p><ul<@if(!depth && !ps.no_centering, ' class="js-auto-width"')>>
 <@forexec(t, tree, begin.forexec)>
-<$ifset(tagmode, link, encode_uricom(link = t.name), t.elink_key)>
+<$ifexec(tagmode, begin, begin)>
+	<$link = encode_uricom(link = t.name)>
+<$else>
+	<$link = t.elink_key)>
+	<@> / で始まるlink_keyに link_key_encode() での細工した先頭 ./ を除去する
+	<$ifset(substr(link,0,2) eq './', link, substr(link,2))>
+<$end>
 <$ifnext(t.tstat & v.tstat_nomenu)>
 <@ifexec(t.children && depth<max_depth, begin, begin)>
 <@p>	<li><a href="<@if(t.ctype eq 'link', link, "<@myself><@link>")>"><@if(tagmode, t.sname, t.title)></a>

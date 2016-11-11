@@ -20,6 +20,8 @@
 <$p = "\t" %x depth>
 <@p><ul id="sidecon<@num>-<@if(node.root,'root',node.pkey)>"<@if(!depth, ' class="hatena-section"')><@if(depth && nclose, ' style="display: none"')>>
 <@forexec(t, tree, begin.forexec)>
+<@> / で始まるlink_keyに link_key_encode() での細工した先頭 ./ を除去する
+<$ifset(substr(t.elink_key,0,2) eq './', t.elink_key, substr(t.elink_key,2))>
 <$ifnext(t.tstat & v.tstat_nomenu)>
 <@ifexec(t.children && depth<max_depth, begin, begin)>
 <@p>	<li> <@\>
