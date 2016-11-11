@@ -20,11 +20,10 @@ $(function(){
 var ajax = window.FormData;
 if (location.search.indexOf('&ajax=0') > 0) ajax=0; // for debug
 $('#input-ajax').val( ajax ? 1 : 0 );
-if (!ajax) {
+if (!ajax) {	// IE9用
 	$('#no-ajax-link').remove();
 	//$('button,input').prop('disabled', true);
 	//show_error('#js-no-FormData');
-	// IE8-9用
 
 	// 押したボタンに応じてフォームを設定
 	var type = $('<input>').attr({type: 'hidden', name: 'type'});

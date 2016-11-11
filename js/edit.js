@@ -6,7 +6,6 @@
 'use strict';
 var insert_text;	// global function
 var insert_image;	// global function for album.js
-var IE8;
 var IE9;
 var DialogWidth;
 var html_mode;		// html input mode
@@ -246,7 +245,7 @@ function start_edit(){
 	if (!window.FormData) $('#edit').find('.js-fileup').prop('disabled', true);
 	init_helper();
 
-	// ページを離れるときにunlock	※IE8では無効
+	// ページを離れるときにunlock
 	$(window).on('unload', function(){
 		console.log('ajax_unlock');
 		ajax_edit_lock('ajax_lock', function(){}, 1);
@@ -365,19 +364,6 @@ function get_selection() {
 	var ta = edit[0];
 	var start = range_st  = ta.selectionStart;
 	var end   = range_end = ta.selectionEnd;
-	if (start == undefined) {	// for IE8
-		edit.focus();
-		var len = function(text) {
-			return text.replace(/\r/g, "").length;
-		};
-		var sel = document.selection.createRange();
-		var p   = document.body.createTextRange();
-		p.moveToElementText( ta );
-		p.setEndPoint( "StartToStart", sel );
-		range_st  = len(ta.value) - len(p.text);
-		range_end = range_st + len(sel.text);
-		return sel.text;
-	}
 	return ta.value.substring(start, end);
 }
 
@@ -388,15 +374,6 @@ function replace_selection( text ) {
 	var ta = edit[0];
 	var start = IE9 ? range_st  : ta.selectionStart;	// for IE9
 	var end   = IE9 ? range_end : ta.selectionEnd;
-	if (ta.selectionStart == undefined) {	// for IE8
-		edit.focus();
-		var range = ta.createTextRange();
-		range.collapse();
-		range.moveStart('character', range_st );
-		range.moveEnd  ('character', range_end - range_st );
-		range.text = text;
-		return ;
-	}
 	// 置き換え
 	ta.value = ta.value.substring(0, start) + text + ta.value.substr(end);
 	// カーソル移動
@@ -770,9 +747,6 @@ function html_inline_style(evt) {
 // ●ブロックタグ汎用処理
 //----------------------------------------------------------------------------
 function block_tag(evt) {
-	if (edit[0].selectionStart == undefined)	// IE8 非対応
-		return show_error('#msg-for-ie8');
-
 	var obj = $(evt.target);
 	block_selection_fix(evt);	// 選択範囲調整
 
@@ -847,9 +821,6 @@ function html_http_tag(evt) {
 // ●引用タグの処理
 //----------------------------------------------------------------------------
 function satsuki_quote_tag(evt) {
-	if (edit[0].selectionStart == undefined)	// IE8 非対応
-		return show_error('#msg-for-ie8');
-
 	var obj = $(evt.target);
 	obj.data('start', obj.data('start-base'));
 	if (IE9) return block_tag(evt);			// ダイアログを出すと選択範囲が消えてしまう

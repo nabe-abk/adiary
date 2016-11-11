@@ -401,12 +401,11 @@ css_initial_functions.push(function(){
 	var vals = [0, 0x40, 0x80, 0xC0, 0xff];
 	var color = get_value_from_css('ui-icon-autoload', 'background-color');
 	if (!color || color == 'transparent') return;
-	color = color.replace(/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])$/, "#$1$1$2$2$3$3");	// for IE8
 	if (color.match(/\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0/)) return;
 
 	var ma = color.match(/#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})/);
 	var cols = [];
-	if (ma) {	// IE8 is #0000ff
+	if (ma) {
 		cols[0] = parseInt('0x' + ma[1]);
 		cols[1] = parseInt('0x' + ma[2]);
 		cols[2] = parseInt('0x' + ma[3]);
@@ -437,10 +436,7 @@ css_initial_functions.push(function(){
 		+ 'url("' + PubdistDir + 'ui-icon/' + file + '.png") }';
 	var style = $('<style>').attr('type','text/css');
 	$('head').append(style);
-	if (IE8)
-		style[0].styleSheet.cssText = css;
-	else
-		style.html(css);
+	style.html(css);
 
 });
 
@@ -455,7 +451,6 @@ $(function(){
 	var codes = $('pre.syntax-highlight');
 	if (!codes.length) return;
 	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
-	if (IE8) return;	// Not work, for IE8
 
 	$.getScript(ScriptDir + 'highlight.pack.js', function(){
 		$('pre.syntax-highlight').each(function(i, block) {
@@ -687,13 +682,11 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●IE8/9でのみ有効/無効にする
+//●IE9でのみ有効/無効にする
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
 	if (!IE9) R.findx('.js-ie9').hide(0);
-	if (!IE8) R.findx('.js-ie8').hide(0);
 	if ( IE9) R.findx('.js-not-ie9').hide(0);
-	if ( IE8) R.findx('.js-not-ie8').hide(0);
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -903,7 +896,6 @@ initfunc.push( function(R){
 		}
 
 		// 変更後の状態を設定
-		speed = IE8 ? undefined : speed;
 		if (flag) {
 			btn.addClass('sw-show');
 			btn.removeClass('sw-hide');
@@ -928,7 +920,6 @@ initfunc.push( function(R){
 			if (dom.tagName == 'INPUT' || dom.tagName == 'BUTTON') return true;
 			var span = $('<span>');
 			span.addClass('ui-icon switch-icon');
-			if (IE8) span.css('display', 'inline-block');
 			btn.prepend(span);
 		}
 		return true;
@@ -1810,12 +1801,6 @@ function find_parent(obj, filter) {
 //////////////////////////////////////////////////////////////////////////////
 function insert_to_textarea(ta, text) {
 	var start = ta.selectionStart;	// カーソル位置
-	if (start == undefined) {
-		// for IE8
-		var tmp = document.selection.createRange();
-		tmp.text = text;
-		return;
-	}
 	// カーソル移動
 	ta.value = ta.value.substring(0, start)	+ text + ta.value.substring(start);
 	start += text.length;

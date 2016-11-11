@@ -649,7 +649,6 @@ function load_module_css(obj, call) {
 				var r = if_cw.reload_user_css();
 				if (!r) return;	// 成功
 			}
-			if (IE8) return;	// 以下が動かない	
 
 			// CSSテキストを適用
 			var id = 'js-css-' + name.replace(/[_,]/g, '-');
@@ -724,12 +723,10 @@ function view_html_source(_obj) {
 //############################################################################
 // FX : rgb(200,200,200), tranparent
 // GC : rgb(200,200,200), rgb(0, 0, 0, 0)
-// IE8: #ccf / #ccccff
 function parse_color(col) {
 	if (col == '') return '';
 	col = col.toLowerCase();
 	if (col == 'transparent') return '';
-	col = col.replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/, "#$1$1$2$2$3$3");
 	if (col.match(/^#[0-9a-f]{6}$/)) return col;
 
 	var ma = col.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);

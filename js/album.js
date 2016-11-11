@@ -55,10 +55,6 @@ $( function(){
 	var upfiles  = [];
 
 	var isMac = /Mac/.test(navigator.platform);
-	var isIE8 = ('IE'.substr(-1) === 'IE');
-	if (isIE8) thumb_size.prop('disabled', true);
-	if (isIE8) $('#auto-upload-box').hide();
-
 	var isSphone = $('#sp-alubm').length;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -189,9 +185,9 @@ var visible_on_stop;
 var img_draggable_option = {
 	connectToDynatree: true,
 	zIndex: 100,
-	opacity: 	isIE8 ? null : 0.7,
-	opacity_text:	isIE8 ? null : 0.95,	// filename-view
-	delay:   	isIE8 ? null : 200,
+	opacity: 	0.7,
+	opacity_text:	0.95,	// filename-view
+	delay:   	200,
 	cursorAt: { top: -5, left:-5 },
 	//----------------------------------------
 	// ドラッグ中の画像要素
@@ -1032,7 +1028,6 @@ var apeend_style;
 function thumb_size_change() {
 	var size = Number( thumb_size.val() );
 	if (size<20 || 600<size) return;
-	if (IE8) return;
 
 	if (apeend_style) apeend_style.remove();
 	apeend_style = $('<style>').text(
@@ -1351,7 +1346,7 @@ upform.submit(function(){
 
 function upload_post_process(text) {
 	upform_reset();	// フォームリセット
-	var ary = text.split(/[\r\n]/);		// \r for IE8
+	var ary = text.split(/[\r\n]/);
 	var ret = ary.shift();
 	var reg = ret.match(/^ret=\d*/);
 	if (reg) {

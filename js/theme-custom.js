@@ -350,7 +350,6 @@ function init_custom_form(data, data2) {
 			}
 			obj.append( sel );
 			select_opts.push( sel );
-			if (IE8) sel.val('');	// なぜかこうするとうまく動く
 		}
 		custom_cols.prepend( obj );
 		select_opts = $(select_opts);
@@ -452,13 +451,7 @@ function update_css() {
 		lines[i] = x.replace(/#[0-9A-Fa-f]+/, col[ ma[1] ]);
 	}
 	var new_css = lines.join("\n");
-	try {
-		if_css.html( new_css );
-	} catch(e) {
-		// for IE8
-		iframe.contents().find('head').append(if_css);
-		if_css[0].styleSheet.cssText = new_css;
-	}
+	if_css.html( new_css );
 
 	// CSSによる設定反映
 	// iframe[0].contentWindow.css_inital();
