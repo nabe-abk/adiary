@@ -1566,7 +1566,7 @@ function do_highlight_string(node, words) {
 //////////////////////////////////////////////////////////////////////////////
 // ●タグ一覧のロード
 //////////////////////////////////////////////////////////////////////////////
-function load_taglist(id, func) {
+function load_tags_list(id, func) {
 	var sel = $(id);	// セレクトボックス
 	var _default = sel.data('default') || '';
 	func = func ? func : function(data){

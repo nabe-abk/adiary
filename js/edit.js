@@ -22,7 +22,7 @@ var addtag  = $secure('#edit-add-tag');
 var fileup  = $secure('#edit-file-upload');
 var dndbody = $('#edit');
 
-load_taglist(tagsel);
+load_tags_list(tagsel);
 load_contents_list(upsel);
 
 var csrf_key = $('#csrf-key').val();
