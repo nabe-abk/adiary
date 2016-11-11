@@ -270,8 +270,8 @@ function init_custom_form(data, data2) {
 	for(var i=0; i<cols.length; i++) {
 		var name = cols[i].name;
 		var val  = cols[i].val;
-		var cval = data[name+'-cst'] || val; // 初期値
-		var rel  = data[name+'-rel'];	// 他に連動
+		var cval = data[name+'-cst'] || val;	// 初期値
+		var rel  = data[name+'-rel'];		// 他に連動
 		var msg  = name2msg(name);
 
 		var span = $('<span>').addClass('color-box');
@@ -302,12 +302,7 @@ function init_custom_form(data, data2) {
 		})();
 		span.append(inp);
 		input_cols.push(inp);
-		if (rel) {
-			rel_col[name] = rel;
-			var p = exp_to_poland(rel);
-			if (p)	rel_pol[name] = p;	// 連動色？
-			else	show_error('#css-exp-error', {s: rel});
-		}
+		if (rel) rel_col[name] = rel;
 
 		// 要素を追加
 		var div = rel ? custom_detail : custom_cols;
@@ -372,14 +367,16 @@ function init_custom_form(data, data2) {
 //////////////////////////////////////////////////////////////////////////////
 function relation_colors(name) {
 	if (detail_mode.prop('checked')) return;
-	for(var k in rel_pol) {
-		var pol  = rel_pol[k];
+	for(var k in rel_col) {
+		var col = rel_col[k];
 		var v;
-		if (pol[0] == 'auto:')
-			v = automatic(k, pol[1]);
-		else
-			v = exec_poland( pol, k );
-		// console.log(k + ' = ' + v + ' = ' + rel_col[k] );
+		if (col.substr(0,5) == 'auto:')
+			v = automatic(k, col.substr(5));
+		else {
+			var src = $('#inp-' + col);
+			v = src.data('val') || src.val();
+		}
+		// console.log(k + ' = ' + v + ' = ' + col );
 		if (!v) {
 			show_error('#css-exp-error', {s: rel_col[k]});
 			continue;
@@ -626,180 +623,6 @@ function name2msg(name) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// ●逆ポーランドに変換
-//////////////////////////////////////////////////////////////////////////////
-// 演算子優先度
-var oph = {
-	'(': 1,
-	')': 1,
-	'+': 10,
-	'-': 10,
-	'*': 20,
-	'/': 20,
-	'@': 999	// 関数呼び出し
-};
-
-function exp_to_poland(exp) {
-	var m;
-	if (m = exp.match(/^\s*auto\s*:\s*(\w+)\s*$/)) {
-		return ['auto:', m[1]];
-	}
-
-	exp = exp.replace(/^\s*(.*?)\s*$/, "$1");
-	exp = exp.replace(/\s*([\+\-\(\)\*])\s*/g, "$1");
-	exp = exp.replace(/\(-/g,'(0-');
-	exp = exp.replace(/\s+/g, ' ');
-	exp = exp.replace(/(\w+)\s*\(/g, "_$1@(");
-	exp = '(' + exp + ')';
-
-	var ary = [];
-	while(exp.length) {
-		var re = exp.match(/^(.*?)([ \+\-\(\)\*\/\@])(.*)/);
-		if (!re) return;		// error
-		if (re[2] == ' ') return;	// error
-		if (re[1] != '') {
-			var x = re[1].replace(/^\#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/, "#$1$1$2$2$3$3");
-			if (!( x.match(/^\#[0-9a-fA-F]{6}$/)
-			    || x.match(/^\d+(?:\.\d+)?$/)
-			    || x.match(/^[A-Za-z_]\w*$/)
-			   ) ) return ;			// error;
-			ary.push(x);
-		}
-		ary.push(re[2]);
-		exp = re[3];
-	}
-
-	// 変換処理
-	var st = [];
-	var out= [];
-	for(var i=0; i<ary.length; i++) {
-		var x = ary[i];
-		if (! x.match(/[\+\-\(\)\*\/\@]/)) {
-			out.push(x);
-			continue;
-		}
-		// 演算子
-		var xp = oph[x];	// そのまま積む
-		if (x == '(' || st.length == 0 || oph[ st[st.length-1] ]<xp) {
-			if (x == ')') return;	// error
-			st.push(x);
-			continue;
-		}
-		// 優先度の低い演算子が出るまでスタックから取り出す
-		while(st.length) {
-			var y  = st.pop();
-			var yp = oph[y];
-			if (yp < xp)  break;
-			if (y == '(') break;
-			out.push(y);
-		}
-		if (x != ')') st.push(x);
-	}
-	if (st.length) return;	// error
-
-	return out;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// ●逆ポーランド式を実行
-//////////////////////////////////////////////////////////////////////////////
-var color_funcs = [];
-function exec_poland(p) {
-	var st = [];
-	// console.log(p.join(' '));
-	
-	for(var z=0; z<p.length; z++) {
-		var op = p[z];
-		if (!oph[op]) {
-			var x = op;
-			try {
-				if (x.substr(0,1) == '#')
-					x = parse_rgb(x);
-				else if (x.match(/^[A-Za-z]\w*$/)) {
-					var obj = $('#inp-'+x);
-					x = parse_rgb( obj.data('val') || obj.val() || '' );
-				} else if (x.substr(0,1) != '_')
-					x = parseFloat( x );
-			} catch(e) {
-				return;
-			}
-			if (x === '') return;	// error
-			st.push(x);
-			continue;
-		}
-
-		// 演算子
-		var y = st.pop();
-		var x = st.pop();
-		var xary = x instanceof Array;
-		var yary = y instanceof Array;
-		if (x === '' || y === '') return;	// error
-
-		if (op == '@') {
-			var func = color_funcs[ x.substr(1) ];
-			if (!func) return;		// error
-			x = func(y);
-		}
-		if (op == '+' || op == '-') {
-			var func = (op=='+')
-				 ? function(a,b) { return a+b; }
-				 : function(a,b) { return a-b; }
-			if (!xary && !yary)
-				x = func(x,y);
-			else if (xary && yary)
-				for(var i=0; i<3; i++)
-					x[i] = func(x[i], y[i]);
-			else return;	// error
-		}
-
-		if (op == '*' || op == '/') {
-			var func = (op=='*')
-				 ? function(a,b) { return a*b; }
-				 : function(a,b) { return a/b; }
-			if (!xary && !yary)
-				x = func(x,y);
-			else if (xary && !yary)
-				for(var i=0; i<3; i++)
-					x[i] = func(x[i], y);
-			else if (!xary && yary)
-				for(var i=0; i<3; i++)
-					x[i] = func(x, y[i]);
-			else return;	// error
-		}
-
-		st.push(x);
-	}
-	if (st.length != 1 || !st[0] instanceof Array) return;	// error
-	return rgb2hex( st[0] );
-}
-
-function parse_rgb(rgb) {
-	var ma = rgb.match(/#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})/);
-	if (!ma) return ;
-	return [parseInt('0x' + ma[1]), parseInt('0x' + ma[2]), parseInt('0x' + ma[3])];
-}
-
-function rgb2hex(ary) {
-	for(var i=0; i<3; i++) {
-		ary[i] = Math.round(ary[i]);
-		if (ary[i]<   0) ary[i]=0;
-		if (ary[i]>0xff) ary[i]=0xff;
-	}
-	// 文字列変換
-	var r = (ary[0]<16 ? '0' : '') + ary[0].toString(16);
-	var g = (ary[1]<16 ? '0' : '') + ary[1].toString(16);
-	var b = (ary[2]<16 ? '0' : '') + ary[2].toString(16);
-	return '#' + r + g + b;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// ●関数
-//////////////////////////////////////////////////////////////////////////////
-color_funcs['test'] = function() {
-	return [16,32,64];
-}
-
-//////////////////////////////////////////////////////////////////////////////
 // ●値の自動連動
 //////////////////////////////////////////////////////////////////////////////
 function automatic(des_name, src_name) {
@@ -833,28 +656,6 @@ function automatic(des_name, src_name) {
 
 	return HSVtoRGB( hsv );
 }
-
-
-//////////////////////////////////////////////////////////////////////////////
-// ●式解析デバッグ
-//////////////////////////////////////////////////////////////////////////////
-$('#parse').click( function() {
-	$('#solution').val('');
-
-	var exp = $('#expression').val();
-	var pol = exp_to_poland( exp );
-	if (!pol) return;
-	$('#solution').val( pol );
-
-	var sol = pol[0] == 'auto:' ? automatic('btnbg0', pol[1]) : exec_poland( pol, 'btnbg1' );
-	if (sol == null) sol='';
-	$('#solution').val( pol + ' >>> ' + sol );
-});
-$('#expression').keypress(function(evt){
-	if (evt.keyCode != 13) return;
-	evt.preventDefault();
-	$('#parse').click();
-});
 
 
 //############################################################################

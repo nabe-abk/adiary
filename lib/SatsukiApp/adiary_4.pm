@@ -1494,7 +1494,7 @@ sub load_theme_colors {
 		if ($_ =~ /^\s*\@/) { next; }
 
 		# /* $c=xxxcol=main */
-		if ($_ =~ /\$c=\s*([\w]+)\s*=\s*([\s\w\+\-\*\/\.#:]*?)\s*\*\//) {
+		if ($_ =~ /\$c=\s*([\w]+)\s*=\s*([\s\w#:]*?)\s*\*\//) {
 			if ($col{"$1-rel"} && $col{"$1-rel"} ne $2) {
 				$col{"-err-$1"} = "[$line_c]$_<br> &emsp; $1=" . $col{"$1-rel"};
 			}
