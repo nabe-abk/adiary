@@ -17,7 +17,7 @@
 			<input type="text" class="int w300" name="font_f" id="font-f" value="<@esc(ps.font_f)>">
 		</td>
 	</tr>
-	<tr><th>文字の装飾<span class="help" data-help="CSS3を使用するため、IE8/9は非対応のため装飾されない状態で表示されます。">?</span></th>
+	<tr><th>文字の装飾<span class="help" data-help="CSS3を使用します。IE9は非対応のため装飾されない状態で表示されます。">?</span></th>
 		<td>
 			<select id="s-mode" name="s_mode">
 				<option value="">使用しない</option>
@@ -81,7 +81,7 @@
 	</tr>
 	<tr><th>背景画像</th>
 		<td>
-			<input type="file" class="js-fileup" id="head-file" name="bgfile"><span class="help" data-help="IE8/9ではアップロードできません。">?</span><br>
+			<input type="file" class="js-fileup" id="head-file" name="bgfile"><span class="help" data-help="IE9ではアップロードできません。">?</span><br>
 			<input type="checkbox" name="bgfile_fit" value="1"<@if(ps.bgfile_fit,' checked')>><label>領域の高さを画像にフィットさせる</label>
 			<span class="help" data-help="画像がタイトル領域がより大きい場合のみ有効になります。">?</span><br>
 			<@ifexec(ps.bgfile, begin)>

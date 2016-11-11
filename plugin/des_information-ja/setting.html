@@ -40,13 +40,12 @@
 <!-- information内のモジュールデータ -->
 <div id="information-modules" style="display: none">
 
-<@> IE8で不具合がでるため textarea にしてある（本来はdiv）
-<textarea id="current-elements">
+<div id="current-elements">
 <@if(ps.elements || ps.title, ps.elements, begin_string)>
 description
 artlist-link
 print-link
-<$end></textarea>
+<$end></div>
 
 <div data-module-name="description" title="ブログの説明">
 ※<a href="<@v.myself>?set/" target="_blank">ここで設定</a>

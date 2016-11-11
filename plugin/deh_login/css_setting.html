@@ -72,7 +72,7 @@
 	</tr>
 	<tr><th>ヘッダの背景画像</th>
 		<td>
-			<input type="file" class="js-fileup" name="head_bgfile"><span class="help js-ie9" data-help="IE8/9ではアップロードできません。">?</span><br>
+			<input type="file" class="js-fileup" name="head_bgfile"><span class="help js-ie9" data-help="IE9ではアップロードできません。">?</span><br>
 			<input type="checkbox" name="head_bgfile_fit" value="1"<@if(ps.head_bgfile_fit,' checked')>><label>ヘッダの高さを画像にフィットさせる</label>
 			<span class="help" data-help="画像がヘッダがより大きい場合のみ有効になります。">?</span><br>
 			<input type="checkbox" name="head_bgfile_norep" value="1"<@if(ps.head_bgfile_norep,' checked')>><label>ヘッダ画像を繰り返し表示しない</label><br>
@@ -117,7 +117,7 @@
 	</tr>
 	<tr><th>全体の背景画像</th>
 		<td>
-			<input type="file" class="js-fileup" name="bgfile"><span class="help js-ie9" data-help="IE8/9ではアップロードできません。">?</span><br>
+			<input type="file" class="js-fileup" name="bgfile"><span class="help js-ie9" data-help="IE9ではアップロードできません。">?</span><br>
 			<@ifexec(ps.bgfile, begin)>
 			<input type="checkbox" name="bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
 			<$end>
@@ -144,7 +144,7 @@
 	</tr>
 	<tr><th>表示領域の背景画像</th>
 		<td>
-			<input type="file" class="js-fileup" name="body_bgfile"><span class="help js-ie9" data-help="IE8/9ではアップロードできません。">?</span><br>
+			<input type="file" class="js-fileup" name="body_bgfile"><span class="help js-ie9" data-help="IE9ではアップロードできません。">?</span><br>
 			<@ifexec(ps.body_bgfile, begin)>
 			<input type="checkbox" name="body_bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
 			<$end>

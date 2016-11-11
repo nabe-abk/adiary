@@ -36,13 +36,13 @@
 <@id>>ul>li>ul li {
 	width:		<@x2=ps.width2>px;	/* ２段目の幅 = X2 */
 }
-body:not(.IE8) <@id>>ul>li:last-child:not(:first-child)>ul {
+body <@id>>ul>li:last-child:not(:first-child)>ul {
 	left:		<@x1-x2>px;	/* = X1-X2 */
 }
-body:not(.IE8) <@id>>ul>li:last-child:not(:first-child)>ul ul {
+body <@id>>ul>li:last-child:not(:first-child)>ul ul {
 	left:		<@-x2>px;	/* = -X2 */
 }
-body:not(.IE8) <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
+body <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
 	left:		<@x2>px;	/* = X2 */
 }
 <$end>
@@ -84,7 +84,7 @@ body:not(.IE8) <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
 <@id> li a {
 	text-align:	left;
 }
-body:not(.IE8) <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
+body <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
 	left:		<@(ps.width2 || 200)*2 - 20>px;
 }
 <$end>
