@@ -77,9 +77,9 @@
 		<option value="<@t.pkey>"<@if(edit_pkey == t.pkey,' selected')>><@v.format_ymd(t.yyyymmdd)> <@t.title><@if(t.id ne Auth.id, " by <@t.name>")></option>
 	<$end>
 	</select>
-	<div>
+	<div id="open-draft-buttons">
 	<button type="button" id="open-draft">開く</button>
-	<button type="button" id="open-template" class="btn-help" data-help="テンプレートとして開くと、編集・保存しても元にした下書きは残り続けます。">テンプレートとして開く</button>
+	<button type="button" id="open-template" class="btn-help" data-help="テンプレートとして開くと、編集・保存しても元にした下書きは残り続けます。">テンプレートに</button>
 	</div>
 </div>
 </article>

@@ -335,7 +335,9 @@ ul#edit-lockers {
 	margin-top:		2px;
 	margin-bottom:		2px;
 }
-
+#open-draft-buttons {
+	display:		inline-block;
+}
 /* 記事タグ */
 article.edit span.tag {
 	font-size:		9pt;
