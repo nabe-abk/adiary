@@ -76,22 +76,6 @@ body
 #footer a:hover {
 	text-decoration:	underline;
 }
-/*--------------------------------------------------------------------
-○for IE8 bugs
----------------------------------------------------------------------*/
-.IE8 #hatena-body>div,
-.IE8 #header>div,
-.IE8 #footer>div {
-	margin:			0 auto;
-	width:			920px;
-}
-.IE8 .main {
-	float:			left;
-	width:			680px;
-}
-.IE8 #nav-header {
-	margin:			0;
-}
 
 /*--------------------------------------------------------------------
 ■リンク配色
@@ -750,8 +734,7 @@ button:disabled
 .system .main {
 	padding-top:		1em;
 }
-article.system div.body,
-.IE8 article.system div.body {
+article.system div.body {
 	background-color:	#f8f8e8;		/* $c=sysartbg */
 }
 article.system:not(.ui-tabs) {

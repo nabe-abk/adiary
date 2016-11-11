@@ -74,16 +74,6 @@ body
 }
 
 /*--------------------------------------------------------------------
-○for IE8 (not support calc)
----------------------------------------------------------------------*/
-.IE8 #adiary-body {
-	width:			800px;
-}
-.IE8 .main {
-	width:			612px;
-}
-
-/*--------------------------------------------------------------------
 ■表示オプション（右サイドバー）
 ---------------------------------------------------------------------*/
 /* $option=right-sidebar
@@ -118,20 +108,6 @@ body
 #side-b {
 	float:			right;
 	width:			160px;
-}
-.IE8 #adiary-body {
-	width:			920px;
-}
-.IE8 .main {
-	width:			64%;
-	padding-right:		0px;
-}
-.IE8 #sidebar {
-	width:			100%;
-}
-.IE8 #side-a,
-.IE8 #side-b {
-	width:			17%;
 }
 -------------------- */
 
@@ -237,7 +213,6 @@ button:disabled
 	border-left-color:	#333;			/* $c=titlebg7 = auto:titlebg */
 	border-bottom-color:	#303030;		/* $c=titlebg8 = auto:titlebg */
 }
-.IE8 #nav-header:before,
 .IE9 #nav-header:before {
 	border-left-color:	#000;			/* $c=titlebg9 = auto:titlebg */
 	border-bottom-color:	#000;			/* $c=titlebg9 */

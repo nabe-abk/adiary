@@ -75,16 +75,6 @@ body
 #footer a:hover {
 	text-decoration:	underline;
 }
-/*--------------------------------------------------------------------
-○for IE8 (not support calc)
----------------------------------------------------------------------*/
-.IE8 #adiary-body {
-	width:			800px;
-}
-.IE8 .main {
-	width:			550px;
-	padding-top:		1px;
-}
 
 /*--------------------------------------------------------------------
 ■ヘッダ部
@@ -745,8 +735,7 @@ button:disabled
 .system .main {
 	padding-top:		1em;
 }
-article.system div.body,
-.IE8 article.system div.body {
+article.system div.body {
 	background-color:	#eeeeff;		/* $c=sysartbg */
 }
 article.system:not(.ui-tabs) {

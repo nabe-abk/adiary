@@ -149,7 +149,7 @@ button:disabled
 ■ヘッダ
 ****************************************************************************/
 #header, #sp-header {
-	background-color:	#ffc3b8;	/* for IE8, IE9 */
+	background-color:	#ffc3b8;	/* for IE9 */
 	background-image:	linear-gradient(to bottom, #fff2f0, #ff9480);
 	background-position:	0 20px;
 	position:		relative;

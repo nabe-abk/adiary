@@ -409,7 +409,6 @@ div.body-footer {
 
 .ui-widget-overlay {
 	background-color: #000;
-	filter:		alpha(opacity=25);	/* for IE8 */
 	opacity:	0.25;
 }
 
@@ -1183,7 +1182,7 @@ ul.menu {
 .dropdown-menu:not(.sp)>ul>li>ul li {
 	width:		200px;	/* ２段目の幅 = X2 */
 }
-/* 最後の要素だけ左にサブメニューを開く。IE8非対応 */
+/* 最後の要素だけ左にサブメニューを開く。 */
 .dropdown-menu:not(.sp)>ul>li:last-child:not(:first-child)>ul {
 	left:		-92px;	/* = X1-X2 */
 }
@@ -1447,23 +1446,6 @@ ul.menu {
 /* 影を多重に重ねないように */
 .dropdown-menu.sp>ul>li>ul>li ul {
 	box-shadow:	none;
-}
-
-/*--------------------------------------------------------------------
-●IEバグ対応
----------------------------------------------------------------------*/
-.IE8 span.tag {
-	margin-left:	3px;
-	margin-right:	3px;
-}
-.IE8 .ui-icon {
-	display:	inline-block;
-}
-.IE8 header,
-.IE8 nav,
-.IE8 footer,
-.IE8 aside {
-	margin:		0;
 }
 
 /*--------------------------------------------------------------------
