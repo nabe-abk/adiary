@@ -187,7 +187,7 @@ myfind: function(sel) {
 	} catch(e) {
 		console.log(e);
 	}
-	return this.find('#--not-fond--x**x');
+	return this.find('#--not-fond--***--');
 },
 //////////////////////////////////////////////////////////////////////////////
 //●[jQuery] 自分を含むrootからfindし、エラーを無視する
@@ -1581,14 +1581,15 @@ function load_taglist(id, func) {
 	func = func ? func : function(data){
 		var r_func = function(ary, head, tab) {
 			for(var i=0; i<ary.length; i++) {
-				var val = head + ary[i].title;
+				var name= ary[i].title;
+				var val = head + name;
 				var opt = $('<option>').attr('value', val);
 				//opt.css('padding-left', tab*8);	// Fx以外で効かないので以下で代用
 				opt.html('&emsp;'.repeat(tab) + val );
 				if ( val == _default ) opt.prop('selected', true);
 				sel.append(opt);
 				if (ary[i].children)
-					r_func( ary[i].children, head+val+'::', tab+1 );
+					r_func( ary[i].children, head+name+'::', tab+1 );
 			}
 		};
 		r_func(data, '', 0);
