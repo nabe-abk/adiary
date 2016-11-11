@@ -723,19 +723,22 @@ initfunc.push( function(R){
 		else if (type == 'radio') {
 			if (! btn.prop("checked")) return;
 			flag = btn.data("state");
+		} else if (type == 'number') {
+			var val = btn.val();
+			flag = val.length && val > 0;
 		} else
 			flag = ! (btn.val() + '').match(/^\s*$/);
 
 		// disabled設定
-		flag = flag ? 1 : (init ? 0 : -1);
 		var disable = btn.hasClass('js-disable');
+		var id = set_dom_id(btn);
 		for(var i=0; i<form.length; i++) {
 			var obj = $(form[i]);
-			var c = parseInt(obj.data('_jsdisable_c'));
-			if (isNaN(c)) c=0;
-			c += flag;
-			obj.data('_jsdisable_c', c);
-			obj.prop('disabled', c ? disable : !disable);
+			var h   = obj.data('_jsdisable_list') || {};
+			if (flag) h[id] = true;
+			     else delete h[id];
+			obj.data('_jsdisable_list', h);
+			obj.prop('disabled', Object.keys(h).length ? disable : !disable);
 		}
 	}
 	objs.change( btn_evt );
@@ -1152,21 +1155,8 @@ initfunc.push( function(R){
 		var label = obj.next();
 		if (!label.length || label[0].tagName != 'LABEL' || label.attr('for')) return;
 
-		var id = obj.attr("id");
-		if (!id) {
-			var flag;
-			for(var i=0; i<100; i++) {
-				id = 'js-generate-id-' + Math.floor( Math.random()*0x80000000 );
-				if (! $('#' + id).length ) {
-					flag=true;
-					break;
-				}
-			}
-			if (!flag) return;
-			obj.attr('id', id);
-		}
-		// labelに設定
-		label.attr('for', id);
+		var id = set_dom_id(obj);
+		label.attr('for', id);		// labelに設定
 	});
 ///
 });
@@ -1733,6 +1723,29 @@ function $secure(id) {
 		return $([]);		// 2つ以上発見された
 	}
 	return obj;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// 使われてないHTML idを生成
+//////////////////////////////////////////////////////////////////////////////
+function generate_dom_id() {
+	for(var i=0; i<100; i++) {
+		var id = 'js-generate-id-' + Math.floor( Math.random()*0x80000000 );
+		if (! $('#' + id).length ) return id;
+	}
+	throw new UserException("Failed generate_dom_id()");
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// オブジェクトにidを設定
+//////////////////////////////////////////////////////////////////////////////
+function set_dom_id(_obj) {
+	var obj = $(_obj);
+	var id  = obj.attr('id');
+	if (id && id.length) return id;
+	id = generate_dom_id();
+	obj.attr('id', id);
+	return id;
 }
 
 //////////////////////////////////////////////////////////////////////////////
