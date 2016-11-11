@@ -11,7 +11,6 @@ var TouchDnDTime  = 600;
 var DoubleTapTime = 400;
 var PopupOffsetX  = 15;
 var PopupOffsetY  = 10;
-var IE8=false;	// IE8以下
 var IE9=false;	// IE9以下
 var SP;		// adiary内部がスマホモード
 var Storage;
@@ -52,6 +51,7 @@ $(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●for IE
 //////////////////////////////////////////////////////////////////////////////
+// for IE9
 if (!('console' in window)) {
 	window.console = {};
 	var func = function(x){return x};
@@ -59,17 +59,7 @@ if (!('console' in window)) {
 	window.console.warn  = func;
 	window.console.error = func;
 }
-// IE8ではsubstr(-1)が効かない
-String.prototype.rsubstr = function(n) {
-	return this.substr(this.length-n, n);
-}
-if (!Array.isArray) Array.isArray = function (vArg) {
-	return Object.prototype.toString.call(vArg) === "[object Array]";  
-}
-if (!String.prototype.trim) String.prototype.trim = function(){
-	return this.toString().replace(/^\s+|\s+$/g, '');
-}
-// IE で repeat が使えない
+// for IE11
 if (!String.repeat) String.prototype.repeat = function(num){
 	var str='';
 	var x = this.toString();
@@ -97,7 +87,6 @@ function set_browser_class_into_body() {
 	if (n) { x = []; m = n; }		// IE11
 	if (m) x.push('IE', 'IE' + m[1]);
 	  else x.push('NotIE');
-	if (m && m[1]<9)  IE8=true;
 	if (m && m[1]<10) IE9=true;
 
 	// スマホ

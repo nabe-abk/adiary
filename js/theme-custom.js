@@ -250,8 +250,8 @@ function init_custom_form(data, data2) {
 			err += '<div>' + data[k] + '</div>';
 			continue;
 		}
-		if (k.rsubstr(4) == '-cst') continue;
-		if (k.rsubstr(4) == '-rel') continue;
+		if (k.substr(-4) == '-cst') continue;
+		if (k.substr(-4) == '-rel') continue;
 		cols.push({name: k, val: data[k], priority: get_priority(k) });
 	}
 	if (err.length) show_error({html: err});
@@ -323,7 +323,7 @@ function init_custom_form(data, data2) {
 	select_opts = [];
 	if (data2) {
 		for(var k in data2) {
-			if (k.rsubstr(4) == '-cst') continue;
+			if (k.substr(-4) == '-cst') continue;
 			opts.push({name: k, val: data2[k + '-cst'], list: data2[k] });
 		}
 		opts = opts.sort(function(a, b) {

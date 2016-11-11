@@ -53,14 +53,7 @@
 <$end>
 <@>
 <!-- JavaScript ============================================-->
-<!--[if lt IE 9]>
-<script src="<@Basepath><@v.script_dir>jquery-1.min.js"></script>
-<script src="<@Basepath><@v.script_dir>IE9.js"></script>
-<script src="<@Basepath><@v.script_dir>css3-mediaqueries.js"></script>
-<![endif]-->
-<!--[if gte IE 9]><!-->
 <script src="<@Basepath><@v.script_dir>jquery-2.min.js"></script>
-<!--<![endif]-->
 <script src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
 <script src="<@Basepath><@v.script_dir>adiary.js?<@tm>"></script>
 <@forexec(t, v.load_jscss(Basepath, 'jslib'), begin)>

@@ -169,7 +169,7 @@ upsel.change(function(){
 	if (!opt.length) return;
 
 	var set = opt.data('link_key');
-	if (set.rsubstr(1) != '/') set += '/';
+	if (set.substr(-1) != '/') set += '/';
 	lkey.val( set );
 	lkey.data('set', set);
 });
@@ -192,11 +192,11 @@ if (edit_pkey && el_time>9) {
 		el_sid = window.location.hash.substr(1).replace('%20', ' ');
 	} else {
 		el_sid = d.getFullYear()
-		+ '/' + ('00'+(d.getMonth()+1)).rsubstr(2)
-		+ '/' + ('00' + d.getDate()   ).rsubstr(2)
-		+ ' ' + ('00' + d.getHours()  ).rsubstr(2)
-		+ ':' + ('00' + d.getMinutes()).rsubstr(2)
-		+ ':' + ('00' + d.getSeconds()).rsubstr(2);
+		+ '/' + ('00'+(d.getMonth()+1)).substr(-2)
+		+ '/' + ('00' + d.getDate()   ).substr(-2)
+		+ ' ' + ('00' + d.getHours()  ).substr(-2)
+		+ ':' + ('00' + d.getMinutes()).substr(-2)
+		+ ':' + ('00' + d.getSeconds()).substr(-2);
 		window.location.hash = el_sid;
 	}
 
@@ -290,9 +290,9 @@ function display_lock_state(data) {
 	}
 	var d = new Date();
 	$('#check-time').text(
-		('00' + d.getHours()  ).rsubstr(2)
-	+ ':' + ('00' + d.getMinutes()).rsubstr(2)
-	+ ':' + ('00' + d.getSeconds()).rsubstr(2)
+		('00' + d.getHours()  ).substr(-2)
+	+ ':' + ('00' + d.getMinutes()).substr(-2)
+	+ ':' + ('00' + d.getSeconds()).substr(-2)
 	);
 }
 
@@ -902,7 +902,7 @@ function block_selection_fix(evt) {
 		// 行の途中なら次の行頭へ
 		var x = ta.value.indexOf("\n", start);
 		if (x<0) {
-			if (ta.value.rsubstr(1) != "\n") ta.value += "\n";
+			if (ta.value.substr(-1) != "\n") ta.value += "\n";
 			start = end = ta.value.length;
 		} else
 			start = end = x+1;
