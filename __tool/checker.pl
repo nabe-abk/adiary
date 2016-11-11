@@ -15,7 +15,7 @@ print "---adiary Release checker-------------------------------------------\n";
 	open(my $fh, 'grep -ERni "debug\(|#\s*debug" skel/ lib/ plugin/ |');
 	my @ary = <$fh>;
 	close($fh);
-	
+
 	foreach(@ary) {
 		my ($file, $linenum, $line) = split(/:/, $_, 3);
 		if ($file !~ /\.(?:pm|html)$/) { next; }
@@ -128,7 +128,22 @@ print "---adiary Release checker-------------------------------------------\n";
 	}
 }
 
+#------------------------------------------------------------------------------
+# CHANGES.txt check
+#------------------------------------------------------------------------------
+{
+	open(my $fh, "CHANGES.txt");
+	my @files = <$fh>;
+	close($fh);
 
+	foreach(@files) {
+		chomp($_);
+		if ($_ !~ m|/xx|) { next; }
+
+		print "## CHANGES.txt error : $_ \n";
+		$errors++;
+	}
+}
 
 #------------------------------------------------------------------------------
 # exit
