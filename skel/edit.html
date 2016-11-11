@@ -180,7 +180,7 @@
 		<$end>
 	</select></span>
 
-	<button type="button" id="edit-file-upload" class="btn-help js-fileup" data-folder="<@if(s.edit_upload ne '', s.edit_upload, 'adiary/%y/')>" data-title="ファイルを選択" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップすることもできます。IE8/9非対応。">Upload</button>
+	<button type="button" id="edit-file-upload" class="btn-help js-fileup" data-folder="<@if(s.edit_upload ne '', s.edit_upload, 'adiary/%y/')>" data-title="ファイルを選択" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップすることもできます。IE9非対応。">Upload</button>
 	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_text></button>
 	<@ifexec(!edit_pkey || art.draft, begin)>
 	<button type="submit" name="draft" value="1" id="save-draft" class="btn-help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">下書き<@if(edit_pkey, '保存', '作成')></button>
