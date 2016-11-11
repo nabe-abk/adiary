@@ -20,7 +20,6 @@
 <$p = "\t" %x depth>
 <@p><ul id="sidecon<@num>-<@if(node.root,'root',node.pkey)>"<@if(!depth, ' class="hatena-section"')><@if(depth && nclose, ' style="display: none"')>>
 <@forexec(t, tree, begin.forexec)>
-<$ifset(substr(t.elink_key,0,2) eq './', t.elink_key, substr(t.elink_key,2))>
 <$ifnext(t.tstat & v.tstat_nomenu)>
 <@ifexec(t.children && depth<max_depth, begin, begin)>
 <@p>	<li> <@\>

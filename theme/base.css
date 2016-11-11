@@ -1107,11 +1107,16 @@ ul.menu {
 .dropdown-menu:not(.sp)>ul>li ul>li:first-child {
 	margin-top:	0;
 }
-/* ３階層目 */
+/* 3階層目 */
 .dropdown-menu:not(.sp)>ul ul ul {
 	left:		100%;
 	margin-top:	-2px;
 }
+/* 5階層目以降は表示しない */
+.dropdown-menu>ul ul ul ul ul {
+	display:	none;
+}
+
 /* on/off する細工 */
 .dropdown-menu>ul li {
  	overflow:	hidden;

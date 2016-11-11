@@ -4,14 +4,25 @@
 sub {
 	my ($self, $name) = @_;
 	my $evt = $self->{event_name};
+	my $ps  = $self->load_plgset($name);
 
 	# 記事のロード？
-	my $pkey = $self->load_plgset($name, 'art_pkey');
+	my $pkey = $ps->{art_pkey};
 	if ($pkey) {
 		if ($evt eq 'CONTENT_STATE_CHANGE') { return 0; }
+		if ($evt eq 'TAG_STATE_CHANGE')     { return 0; }
 		return &make_from_article(@_);
 	}
-	if ($evt eq 'ARTICLE_AFTER') { return 0; }
+	# タグ一覧を表示？
+	my $tag = $ps->{tag};
+	if ($tag ne '') {
+		if ($evt eq 'CONTENT_STATE_CHANGE') { return 0; }
+		if ($evt eq 'ARTICLE_AFTER')        { return 0; }
+		return &make_tags_tree(@_);
+	}
+	# コンテンツ一覧の表示
+	if ($evt eq 'TAG_STATE_CHANGE') { return 0; }
+	if ($evt eq 'ARTICLE_AFTER')    { return 0; }
 	return &make_contents_tree(@_);
 #-----------------------------------------------------------------------------
 # コンテンツツリーのロード
@@ -52,6 +63,39 @@ sub make_contents_tree {
 	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/ddmenu', $name, $tree));
 	return 0;
 }
+
+#-----------------------------------------------------------------------------
+# タグツリーのロード
+#-----------------------------------------------------------------------------
+sub make_tags_tree {
+	my $self = shift;
+	my $name = shift;
+	my $root = shift;
+	my $ROBJ   = $self->{ROBJ};
+	my $blogid = $self->{blogid};
+
+	if ($self->{event_name} ne 'TAG_STATE_CHANGE') {
+		$root = $self->load_tag_tree( $blogid );
+	}
+
+	my $node = $self->load_plgset($name, 'tag');
+	my $tree = [];
+	if ($node && $node ne ',') {
+		my $all = $root->{_all};
+		foreach(@$all) {
+			if ($_->{name} ne $node) { next; }
+			$tree = $_;
+			last;
+		}
+	} else {
+		$tree = $root;
+	}
+
+	# スケルトンの実行
+	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/ddmenu', $name, $tree, 'tag-mode-flag'));
+	return 0;
+}
+
 #-----------------------------------------------------------------------------
 # 記事からメニューリストの作成
 #-----------------------------------------------------------------------------
@@ -81,6 +125,9 @@ sub make_from_article {
 		$ROBJ->trim( $text );
 		if ($text =~ m|^<ul>(.*)</ul>$|s) {
 			$text = $1;
+			$text =~ s!<li>\s*(<a|[^<]+?)(\s*<)!
+					(substr($1,0,1) eq '<') ? "<li>$1$2" : "<li><a>$1</a>$2";
+				!ieg;
 		} else {
 			$text = "<li><a>Format error!</a></li>";
 		}

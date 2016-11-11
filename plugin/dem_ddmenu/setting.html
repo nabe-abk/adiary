@@ -12,20 +12,30 @@
 		</td>
 	</tr>
 	<tr>
-		<th>表示階層<span class="help" data-help="指定したノードからどれくらい深くのノードまで表示するか指定します。">?</span></th>
+		<th>タグを表示<span class="help" data-help="コンテンツではなく指定したタグから下をリスト表示します。">?</span></th>
+		<td>
+			<select name="tag" id="tag-select" class="js-disable" data-target="#node-select" data-default="<@tag_escape_amp(x = ps.tag)>" data-url="<@Basepath><@v.blogpub_dir>taglist.json">
+				<option value="">【コンテンツを表示】</option>
+				<option value=",">*トップ(root)</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<th>表示階層<span class="help" data-help="指定したノードからどれくらい深くのノードまで表示するか指定します。4階層以降は表示が崩れることがあります。また記事表示の場合、この指定は無効です。">?</span></th>
 		<td>
 			<$x=ps.depth || 3>
 			<select name="depth" class="int" id="depth">
 				<option value="1" <@if(x == 1, ' selected')>>1</option>
 				<option value="2" <@if(x == 2, ' selected')>>2</option>
 				<option value="3" <@if(x == 3, ' selected')>>3</option>
+				<option value="4" <@if(x == 4, ' selected')>>4</option>
 			</select>階層まで表示
 		</td>
 	</tr>
 	<tr>
-		<th>記事を表示<span class="help" data-help="コンテンツツリーではなく特定の記事（非公開でも可）に書かれたリスト（<ul>～</ul>）を表示することができます。「投稿情報」にある記事番号を入力してください。">?</span></th>
+		<th>記事を表示<span class="help" data-help="コンテンツ等ではなく特定の記事（非公開でも可）に書かれたリスト（<ul>～</ul>）を表示することができます。「投稿情報」にある記事番号を入力してください。コンテンツ等に戻す場合は値を空にします。">?</span></th>
 		<td>
-			<input type="number" class="int w100 js-disable" data-target="#depth, #node-select" name="art_pkey" value="<@ps.art_pkey>" min="1">
+			<input type="number" class="int w100 js-disable" data-target="#depth, #node-select, #tag-select" name="art_pkey" value="<@ps.art_pkey>" min="0">
 		</td>
 	</tr>
 	<tr>
@@ -42,4 +52,5 @@
 <!-- JavaScript ==========================================================-->
 <script>
 load_contents_list('#node-select');
+load_taglist('#tag-select');
 </script>

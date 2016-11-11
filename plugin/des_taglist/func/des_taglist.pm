@@ -8,7 +8,7 @@ sub {
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
 	my $blogid = $self->{blogid};
-	
+
 	if ($self->{event_name} ne 'TAG_STATE_CHANGE') {
 		$tree = $self->load_tag_tree( $blogid );
 	}

@@ -1,8 +1,10 @@
 <@6>
-<@local(ps,name,root,num,max_depth)>
+<@local(ps,name,root,myself,tagmode,num,max_depth)>
 <@>
 <$name = argv#0>
 <$root = argv#1>
+<$tagmode = argv#2>
+<$ifset(tagmode, myself, "<@v.myself>?&amp;t=", v.myself2)>
 <$ps = v.load_plgset(name)>
 <$num= v.plugin_num(name)>
 <$max_depth = (ps.depth || 3)-1>
@@ -11,22 +13,22 @@
 <@>再帰サブルーチン
 <@>---------------------------------------------------------------------
 <$sub = begin.function>
-<@local(t, p, node, tree, depth, x)>
+<@local(t, p, node, tree, depth, link)>
 <$node  = argv#0>
-<$tree  = node.children>
+<$tree  = node.children || array()>
 <$depth = argv#1><@>prefix
 <$p = "\t" %x depth>
 <@p><ul<@if(!depth && !ps.no_centering, ' class="js-auto-width"')>>
 <@forexec(t, tree, begin.forexec)>
-<$ifset(substr(t.elink_key,0,2) eq './', t.elink_key, substr(t.elink_key,2))>
+<$ifset(tagmode, link, encode_uricom(link = t.name), t.elink_key)>
 <$ifnext(t.tstat & v.tstat_nomenu)>
 <@ifexec(t.children && depth<max_depth, begin, begin)>
-<@p>	<li><a href="<@if(t.ctype eq 'link', t.elink_key, "<@v.myself2><@t.elink_key>")>"><@t.title></a>
+<@p>	<li><a href="<@if(t.ctype eq 'link', link, "<@myself><@link>")>"><@if(tagmode, t.sname, t.title)></a>
 <@exec(sub, t, depth+1)>
 <@p>	</li>
 <$else>
 <@p>	<li> <@\>
-	<a href="<@if(t.ctype eq 'link', t.elink_key, "<@v.myself2><@t.elink_key>")>"><@t.title></a></li>
+	<a href="<@if(t.ctype eq 'link', link, "<@myself><@link>")>"><@if(tagmode, t.sname, t.title)></a></li>
 <$end>
 <$end.forexec>
 <@p></ul>

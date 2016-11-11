@@ -711,13 +711,14 @@ initfunc.push( function(R){
 //●フォーム操作による、enable/disableの自動変更
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	var objs = R.findx('input.js-enable, input.js-disable');
-	function btn_evt(evt, init) {
+	var objs = R.findx('input.js-enable, input.js-disable, select.js-enable, select.js-disable');
+	function btn_evt(evt) {
 		var btn  = $(evt.target);
 		var form = btn.rootfind( btn.data('target') );
 
 		var flag;
-		var type=btn.attr('type').toLowerCase();
+		var type=btn.attr('type');
+		if (type) type = type.toLowerCase();
 		if (type == 'checkbox')
 			flag = btn.prop("checked");
 		else if (type == 'radio') {
@@ -742,7 +743,7 @@ initfunc.push( function(R){
 		}
 	}
 	objs.change( btn_evt );
-	objs.each(function(idx,ele){ btn_evt({target: ele}, 1) });
+	objs.change();
 });
 
 
@@ -1583,6 +1584,7 @@ function load_taglist(id, func) {
 			}
 		};
 		r_func(data, '', 0);
+		sel.change();
 	};
 	$.getJSON( add_no_cache_query( sel.data('url') ), func );
 }
@@ -1616,6 +1618,7 @@ function load_contents_list(id) {
 			}
 		};
 		r_func(data, 0);
+		obj.change();
 	});
 }
 

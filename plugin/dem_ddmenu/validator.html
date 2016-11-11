@@ -3,16 +3,20 @@
 <$h = validator(begin_hash, argv#0) )>
 	node = 表示開始ノード
 	node:filter0 = normalize
+	tag  = 表示開始タグ
+	tag:filter0  = normalize
+
 	depth = 深さ
 	depth:type = int
 	depth:min  =   1
-	depth:max  =   3
+	depth:max  =   4
 	art_pkey = リスト記事
 	art_pkey:type = int
-	art_pkey:min  =   1
+	art_pkey:min  =   0
 
 	no_centering  = flag
 <$end>
+<$ifset(!h.art_pkey, h.art_pkey, undef)>
 
 
 <$ifbreak(form_error())>
