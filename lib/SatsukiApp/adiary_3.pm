@@ -1137,6 +1137,10 @@ sub tag_edit {
 		my ($pkey,$upnode,$priority,$name) = split(',',$_,4);
 		$ROBJ->string_normalize($name);
 		$ROBJ->tag_escape_amp($name);
+		if ($name =~ /::/ || $name =~ /,/ || $name eq '') {
+			$ROBJ->message("Tag name error '%s'", $name);
+			next;
+		}
 		if($upnode) {
 			$name = $tags[ $upnode ]->{name} . '::' . $name;
 		}

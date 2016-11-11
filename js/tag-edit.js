@@ -160,7 +160,16 @@ function editNode( node ) {
 				$(this).blur();
 				break;
 			case 13: // [enter]
-				node.data.name = tag_esc_amp( inp.val() );
+				var name = tag_esc_amp( inp.val() );
+				if (name.match(/^\s*$/)) {
+					$(this).blur();
+					break;
+				}
+				if (name.match(/[,]|::/)) {
+					show_error('#tag-name-error');
+					break;
+				}
+				node.data.name = name;
 				$(this).blur();
 				break;
 		}
