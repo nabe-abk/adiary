@@ -298,7 +298,7 @@ sub reinstall_design_plugins {
 		$h->{mart_f_ary} = [ 'dea_com-count' ];
 	}
 	# uninstall
-	$self->reset_design();
+	$self->reset_design({no_event => 1});
 
 	# dem_footer を無効にする
 	$h->{main_b_ary} = [ grep {$_ ne 'dem_footer'} @{$h->{main_b_ary}} ];

@@ -7,8 +7,8 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = '3.04';
-our $OUTVERSION = '3.04';
+our $VERSION = '3.05';
+our $OUTVERSION = '3.05';
 our $SUBVERSION = '';
 our $DATA_VERSION = 3.04;
 ###############################################################################
@@ -33,6 +33,7 @@ $SysEvt{ARTCOM_STATE_CHANGE} = [qw(
 	generate_rss
 )];
 $SysEvt{EDIT_DESIGN} = [qw(
+	save_spmenu_all_items
 	check_spmenu_items
 	generate_spmenu
 )];

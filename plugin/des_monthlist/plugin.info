@@ -69,6 +69,7 @@ FILES
 ARTICLE_STATE_CHANGE=func/<@this>.pm
 INSTALL=func/<@this>.pm
 SETTING=func/<@this>.pm
+SETTING=skel/_sub/generate_spmenu
 UNINSTALL=func/<@this>-uninstall.pm
 EVENTS
 

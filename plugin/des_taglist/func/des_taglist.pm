@@ -20,9 +20,6 @@ sub {
 	# スケルトンの実行と保存
 	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/taglist', $name, $tree, $notag_arts));
 
-	# spmenu再生成
-	$self->generate_spmenu( $name );
-
 	return 0;
 }
 

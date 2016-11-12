@@ -1646,7 +1646,7 @@ sub generate_spmenu {
 
 	my $ary = $self->load_spmenu_info();
 	if (! @$ary) {
-		my $info = $blog->{spmenu_info_all} || $self->save_spmenu_all_items();
+		my $info = $blog->{spmenu_info_all};
 		$ary = $self->load_spmenu_info( $info );
 	}
 
