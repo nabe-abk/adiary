@@ -1174,7 +1174,7 @@ sub reset_design {
 
 	if ($opt->{load_design}) {
 		$self->load_default_design();
-	} else {
+	} elsif(! $opt->{no_event}) {
 		$self->call_event('EDIT_DESIGN');
 	}
 
@@ -1692,7 +1692,6 @@ sub save_spmenu_items {
 	}
 	chomp($info);
 	$self->update_cur_blogset('spmenu_info',  $info);
-	$self->update_cur_blogset('spmenu_info_all', '');
 
 	# タイトル保存
 	my $title = $form->{spmenu_title};
@@ -1718,6 +1717,7 @@ sub save_spmenu_all_items {
 	}
 	chomp($info);
 	$self->update_cur_blogset('spmenu_info_all', $info);
+
 	return $info;
 }
 
