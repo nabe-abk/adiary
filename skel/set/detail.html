@@ -171,7 +171,7 @@
 		<td>
 			<input type="file" name="blog_image"><br>
 			<@ifexec(s.blog_image, begin)>
-			<input type="checkbox" name="blog_image_void" value="1"><label>現在<a href="<@Basepath><@s.blog_image>">使用している画像</a>を無効にする</label>
+			<input type="checkbox" name="blog_image_void" value="1"><label><a data-lightbox="box" href="<@Basepath><@s.blog_image>">現在使用している画像</a>を無効にする</label>
 			<$end>
 		</td>
 	</tr>

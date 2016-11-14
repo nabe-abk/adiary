@@ -79,7 +79,7 @@
 		<td>
 			<input type="file" name="iconfile"><br>
 			<@ifexec(s.iconfile, begin)>
-			<input type="checkbox" name="iconfile_void" value="1"><label>現在<a href="<@Basepath><@s.iconfile>">使用している画像</a>を無効にする</label>
+			<input type="checkbox" name="iconfile_void" value="1"><label><a data-lightbox="box" href="<@Basepath><@s.iconfile>">現在使用している画像</a>を無効にする</label>
 			<$end>
 		</td>
 	</tr>
