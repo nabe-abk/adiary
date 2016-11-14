@@ -14,7 +14,7 @@ else
 	fi
 	if [ "$SUBVERISON" != '' ]
 	then
-		VERSION=$VERSION-$SUBVERISON
+		VERSION=$VERSION$SUBVERISON
 	fi
 fi
 RELEASE=adiary-$VERSION
