@@ -6,8 +6,8 @@ package Satsuki::DB_text;
 use Satsuki::DB_text ();
 use Satsuki::DB_text_2 ();
 use Satsuki::DB_share_3;
-our $filename_format;
-our %index_cache;
+our $FileNameFormat;
+our %IndexCache;
 ###############################################################################
 # ■テーブルの操作
 ###############################################################################
@@ -154,7 +154,7 @@ sub index_rebuild {
 
 	$self->{"$table.serial"} = $serial +1;
 	$self->{"$table.tbl"}    = \@db;
-	$index_cache{$table}     = \@db;
+	$IndexCache{$table}     = \@db;
 	$self->save_index($table, 1);	# force
 }
 

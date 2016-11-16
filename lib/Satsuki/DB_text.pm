@@ -14,8 +14,8 @@ use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 
 our $VERSION = '1.20';
-our $filename_format = "%05d";
-our %index_cache;
+our $FileNameFormat = "%05d";
+our %IndexCache;
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -494,9 +494,9 @@ sub load_index {
 	$self->{"$table.idx"} = { map { $_ => 1} @idx_cols };
 
 	# キャッシュの確認。ランダム値を見て書き換えを検出する。
-	if ($index_cache{"$table.rand"} eq $random) {
-		$self->{"$table.load_all"} = $index_cache{"$table.load_all"};
-		return ($self->{"$table.tbl"} = $index_cache{$table});
+	if ($IndexCache{"$table.rand"} eq $random) {
+		$self->{"$table.load_all"} = $IndexCache{"$table.load_all"};
+		return ($self->{"$table.tbl"} = $IndexCache{$table});
 	}
 	# ファイルが書き換わっていればキャッシュを消す
 	$self->clear_cache($table);
@@ -519,8 +519,8 @@ sub load_index {
 	### $ROBJ->debug("[$table] " . $#$lines . " lines parse = ".int($ROBJ->{Timer}->stop('x2')*10000+0.5)/10 ."ms");
 
 	$self->{"$table.tbl"} = $lines;		# table 内容保存
-	$index_cache{$table}  = $lines;		# キャッシュ保存
-	$index_cache{"$table.rand"} = $random;
+	$IndexCache{$table}  = $lines;		# キャッシュ保存
+	$IndexCache{"$table.rand"} = $random;
 	return $lines;
 }
 
@@ -535,7 +535,7 @@ sub read_rowfile {
 
 	my $ext = $self->{ext};
 	my $dir = $self->{dir} . $table . '/';
-	my $h = $ROBJ->fread_hash_cached($dir . sprintf($filename_format, $h->{pkey}). $ext);
+	my $h = $ROBJ->fread_hash_cached($dir . sprintf($FileNameFormat, $h->{pkey}). $ext);
 	$h->{'*'}=1;	# ロード済フラグ
 	return $h;
 }
@@ -554,8 +554,8 @@ sub load_allrow {
 	my $dir = $self->{dir} . $table . '/';
 	$self->{"$table.tbl"} = [ map { $self->read_rowfile($table, $_) } @{$self->{"$table.tbl"}} ];
 	$self->{"$table.load_all"} = 1;
-	$index_cache{"$table.load_all"} = 1;
-	return ($index_cache{$table} = $self->{"$table.tbl"});
+	$IndexCache{"$table.load_all"} = 1;
+	return ($IndexCache{$table} = $self->{"$table.tbl"});
 }
 
 #------------------------------------------------------------------------------

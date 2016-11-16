@@ -6,8 +6,8 @@ package Satsuki::DB_text;
 use Satsuki::DB_text ();
 use Fcntl ();
 
-our $filename_format;
-our %index_cache;
+our $FileNameFormat;
+our %IndexCache;
 ###############################################################################
 # ■データの挿入・削除
 ###############################################################################
@@ -326,8 +326,8 @@ sub load_unique_hash {
 	my $table = shift;
 
 	# キャッシュを返す
-	if ($index_cache{"$table.unique-cache"}) {
-		return $index_cache{"$table.unique-cache"};
+	if ($IndexCache{"$table.unique-cache"}) {
+		return $IndexCache{"$table.unique-cache"};
 	}
 
 	# UNIQUEカラム制約の確認
@@ -356,7 +356,7 @@ FUNC
 
 	my $db = $self->{"$table.tbl"};
 	my $unique_hash = &$conv_hash_func( $db );
-	$index_cache{"$table.unique-cache"} = $unique_hash;
+	$IndexCache{"$table.unique-cache"} = $unique_hash;
 	return $unique_hash;
 }
 
@@ -368,7 +368,7 @@ sub add_unique_hash {
 	my ($table, $h) = @_;
 
 	# hashロード
-	my $unique_hash = $index_cache{"$table.unique-cache"};
+	my $unique_hash = $IndexCache{"$table.unique-cache"};
 	if (!$unique_hash) { return; }
 
 	# 追加処理
@@ -386,7 +386,7 @@ sub del_unique_hash {
 	my ($table, $h) = @_;
 
 	# hashロード
-	my $unique_hash = $index_cache{"$table.unique-cache"};
+	my $unique_hash = $IndexCache{"$table.unique-cache"};
 	if (!$unique_hash) { return; }
 
 	# 削除処理
@@ -401,7 +401,7 @@ sub del_unique_hash {
 #------------------------------------------------------------------------------
 sub clear_unique_cache {
 	my ($self, $table) = @_;
-	delete $index_cache{"$table.unique-cache"};
+	delete $IndexCache{"$table.unique-cache"};
 }
 
 ###############################################################################
@@ -740,7 +740,7 @@ sub save_index {
 	# pkeyの昇順に全データを並べる
 	my @newary = sort { $a->{pkey} <=> $b->{pkey} } @$db;
 	$self->{"$table.tbl"} = \@newary;	# 内部保持を書き換え
-	$index_cache{$table}  = \@newary;	# indexキャッシュ
+	$IndexCache{$table}  = \@newary;	# indexキャッシュ
 
 	# indexカラムを並べる
 	my @idx_cols;
@@ -794,7 +794,7 @@ FUNC
 	if ($r) { $self->clear_cache($table); return $r; }
 
 	# キャッシュ更新
-	$index_cache{$table} = $self->{"$table.tbl"};
+	$IndexCache{$table} = $self->{"$table.tbl"};
 	return 0;
 }
 
@@ -838,7 +838,7 @@ sub write_rowfile {
 	my $dir  = $self->{dir} . $table . '/';
 
 	delete $h->{'*'};	# ロード済フラグ
-	my $r = $ROBJ->fwrite_hash($dir . sprintf($filename_format, $h->{pkey}). $ext, $h);
+	my $r = $ROBJ->fwrite_hash($dir . sprintf($FileNameFormat, $h->{pkey}). $ext, $h);
 	$h->{'*'}=1;		# ロード済フラグ再設定
 	return $r;
 }
@@ -861,7 +861,7 @@ sub delete_rowfile {
 	my $ROBJ = $self->{ROBJ};
 	my $ext  = $self->{ext};
 	my $dir  = $self->{dir} . $table . '/';
-	return $ROBJ->file_delete($dir . sprintf($filename_format, $pkey). $ext);
+	return $ROBJ->file_delete($dir . sprintf($FileNameFormat, $pkey). $ext);
 }
 
 #------------------------------------------------------------------------------
@@ -873,10 +873,10 @@ sub clear_cache {
 	# index の予備を保存
 	delete $self->{"$table.tbl"};
 	delete $self->{"$table.load_all"};
-	delete $index_cache{$table};
-	delete $index_cache{"$table.rand"};
-	delete $index_cache{"$table.load_all"};
-	delete $index_cache{"$table.unique-cache"};
+	delete $IndexCache{$table};
+	delete $IndexCache{"$table.rand"};
+	delete $IndexCache{"$table.load_all"};
+	delete $IndexCache{"$table.unique-cache"};
 }
 
 ###############################################################################
