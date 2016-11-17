@@ -240,7 +240,6 @@ sub tagart_rebuild {
 	$DB->commit();
 }
 
-
 ###############################################################################
 # ■プラグイン/デザイン関連
 ###############################################################################
@@ -414,6 +413,77 @@ sub load_all_blogid {
 	my $blogs = $DB->select_match($self->{bloglist_table}, '*cols', 'id');
 	$blogs = [ map { $_->{id} } @$blogs ];
 	return $blogs;
+}
+
+###############################################################################
+# ■HTMLキャッシュ処理
+###############################################################################
+my %CACHE;
+my %CACHE_TM;
+my $CACHE_cnt = 0;
+#------------------------------------------------------------------------------
+# ●cache処理
+#------------------------------------------------------------------------------
+sub regist_cache_checker {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	if ($ROBJ->{cache_checker}) { return; }
+
+	# クロージャ
+	my $sys = $self->{sys};
+	my $search_cache = $sys->{search_cache};
+	my $cache_max    = $sys->{html_cache_max}     ||  16;
+	my $timeout      = $sys->{html_cache_timeout} || 600;
+
+	my $checker = sub {
+		my $ROBJ = shift;
+		$ROBJ->{cache_checker} = 1;
+
+		if ($ENV{REQUEST_METHOD} ne 'GET' && $ENV{REQUEST_METHOD} ne 'HEAD') { return; }
+		if (index($ENV{HTTP_COOKIE}, 'session=') > 0) { return; }
+
+		my $sphone = &{ \&sphone_checker }();
+		my $pinfo  = $ENV{PATH_INFO};
+		my $query  = $ENV{QUERY_STRING};
+		my $key = "$sphone$pinfo?$query";
+		if (!$search_cache && $query ne '') { return; }
+
+		# キャッシュ処理
+		my $tm = $ROBJ->{TM};
+		my $c = $CACHE{$key};
+		$CACHE_TM{$key} = $tm;
+		if ($c) {
+			print $$c;
+		} else {
+			$ROBJ->regist_html_cache($CACHE{$key} = \$c);
+		}
+
+		# キャッシュアウト処理を行うか？
+		$CACHE_cnt++;
+		if ($CACHE_cnt <16) { return $c; }
+		$CACHE_cnt=0;
+
+		# キャッシュアウト処理 (LRU)
+		my @k = sort {$CACHE_TM{$b} <=> $CACHE_TM{$a}} keys(%CACHE_TM);
+		my $max   = $cache_max;
+		my $tmout = $tm - $timeout;
+		foreach(@k) {
+			if ($max-- > 0 && $CACHE_TM{$_} > $tmout) { next; }
+			delete $CACHE_TM{$_};
+			delete $CACHE{$_};
+		}
+		return $c;
+	};
+	$ROBJ->regist_cache_cheker( $checker );
+}
+#------------------------------------------------------------------------------
+# ●cacheのクリア
+#------------------------------------------------------------------------------
+sub clear_cache {
+	my $self = shift;
+	%CACHE = ();
+	%CACHE_TM = ();
+	$CACHE_cnt = 0;
 }
 
 ###############################################################################

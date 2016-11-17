@@ -55,13 +55,18 @@ sub init_for_speedycgi {
 # ●FastCGI用のモジュールリロードチェック
 #------------------------------------------------------------------------------
 sub init_for_fastcgi {
-	my ($self, $req) = @_;
+	my ($self, $req, $sock) = @_;
 	if (!$req->IsFastCGI()) { return ; }	# フラグ確認
 
 	$self->{CGI_cache}= 1;
 	$self->{FastCGI}  = 1;
 	$self->{Not_exit} = 1;		# exit しない
 	$self->{CGI_mode} = 'FastCGI';
+
+	if ($sock) {	# FCGI server mode
+		$ENV{SCRIPT_NAME} = $ENV{SCRIPT_FCGI_NAME};
+		$ENV{REWRITE}     = 1;
+	}
 }
 
 

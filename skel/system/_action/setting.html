@@ -55,10 +55,19 @@
 	clip_append:filter0 = trim
 	clip_append:filter1 = tag
 
-	phone_proxy = 携帯HTML変換サイト
-	phone_proxy:protocol = http, https
-	phone_proxy:filter0 = url
-	phone_sjis = flag
+	html_cache   = flag
+	search_cache = flag
+
+	html_cache_max = キャッシュ件数
+	html_cache_max:type = int
+	html_cache_max:min = 4
+	html_cache_max:max = 256
+
+	html_cache_timeout = タイムアウト
+	html_cache_timeout:type = int
+	html_cache_timeout:min = 60
+	html_cache_timeout:max = 3600
+
 <$end>
 <$id = if(v.subdomain_mode, '', Form.default_blogid)>
 <$ifform_error( id ne '' && !v.find_blog(id), 'default_blogid', "指定のブログが見つかりません" )>
@@ -69,6 +78,9 @@
 
 <$old_d_blogid = v.sys.default_blogid>
 <$new_d_blogid = id>
+
+<$ifset(!h.html_cache, h.search_cache,   undef)>
+<$ifset(!h.html_cache, h.html_cache_max, undef)>
 
 <@> 設定更新
 <$v.update_sysdat(h)>

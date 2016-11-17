@@ -7,14 +7,23 @@ use Satsuki::AutoReload ();
 use FCGI;
 #-------------------------------------------------------------------------------
 # Satsuki system - Startup routine (for FastCGI)
-#						Copyright 2005-2013 nabe@abk
+#						Copyright 2005-2016 nabe@abk
 #-------------------------------------------------------------------------------
-# Last Update : 2013/07/09
-
+# Last Update : 2016/11/18
+#--------------------------------------------------
+# socket open?
+#--------------------------------------------------
+my $socket;
+my $request;
+if ($ARGV[0]) {
+	$socket  = FCGI::OpenSocket($ARGV[0], $ARGV[1] || 10);
+	$request = FCGI::Request( \*STDIN, \*STDOUT, \*STDERR, \%ENV, $socket );
+} else {
+	$request = FCGI::Request();
+}
 #--------------------------------------------------
 # FastCGI メインループ
 #--------------------------------------------------
-my $request = FCGI::Request();
 while($request->Accept() >= 0) {
 	#--------------------------------------------------
 	# ライブラリの更新確認
@@ -42,7 +51,7 @@ while($request->Accept() >= 0) {
 	$ROBJ->{Timer} = $timer;
 	$ROBJ->{AutoReload} = $flag;
 
-	$ROBJ->init_for_fastcgi($request);
+	$ROBJ->init_for_fastcgi($request, $socket);
 
 	#--------------------------------------------------
 	# メイン

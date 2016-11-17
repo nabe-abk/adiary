@@ -79,6 +79,45 @@
 	</table>
 
 
+	<h3>キャッシュ設定</h3>
+<@ifexec(CGI_cache, begin, begin)>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>HTMLキャッシュ<span class="help" data-help="HTML出力をキャッシュし、さらに高速にレスポンスを返すことができます。通常でも十分な性能があるので無理に設定する必要はありません。">?</span></th>
+		<td>
+			<input type="checkbox" class="js-enable" data-target="#search_cache, #html_cache_max, #html_cache_timeout" name="html_cache" value="1"<@if(s.html_cache, ' checked')>><label>出力をキャッシュする</label>
+		</td>
+	</tr>
+	<tr>
+		<th>検索結果キャッシュ</th>
+		<td>
+			<input type="checkbox" id="search_cache" name="search_cache" value="1"<@if(s.search_cache, ' checked')>><label>検索結果もキャッシュする</label>
+		</td>
+	</tr>
+	<tr>
+		<th>キャッシュ件数<span class="help" data-help="設定件数を「目安」にキャッシュ件数を制御します。件数はサイト全体での件数になります。あまり大きな値を設定するとメモリを圧迫します。">?</span></th>
+		<td<@err.html_cache_max>>
+			<input type="number" id="html_cache_max" name="html_cache_max" min="4" max="256" class="w50" value="<@s.html_cache_max || 16>">件
+		</td>
+	</tr>
+	<tr>
+		<th>キャッシュのタイムアウト</th>
+		<td<@err.html_cache_max>>
+			<input type="number" id="html_cache_timeout" name="html_cache_timeout" min="60" max="3600" class="w50" value="<@s.html_cache_timeout || 600>">秒
+		</td>
+	</tr>
+	</tbody>
+	</table>
+
+	<p class="ni"><strong class="warning">※この設定を行うとアクセスごとに状態が変わるプラグイン（デザインモジュール）や、アクセスごとに動作するプラグインは動作しなくなります。</strong></p>
+
+<$else>
+	<p>CGI動作時は設定できません。まず、<a href="http://adiary.org/v3man/install2/cgi-cache">CGI動作の高速化</a>を導入してください。</p>
+<$end>
+
+
 	<h3>詳細動作設定</h3>
 
 	<table class="blog-setting">

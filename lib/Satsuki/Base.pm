@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.06';
+our $VERSION = '2.10';
 our $RELOAD;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
@@ -110,15 +110,18 @@ sub new {
 ###############################################################################
 # ■メイン
 ###############################################################################
+my %CacheChecker;
 #------------------------------------------------------------------------------
 # ●スタートアップ (起動スクリプトから最初に呼ばれる)
 #------------------------------------------------------------------------------
 sub start_up {
 	my $self = shift;
 
-	my $cmd = $0;
+	my $cmd = $0;	# $ENV{SCRIPT_NAME} はレンタルサーバでは信用できない
 	if (substr($^O,0,5) eq 'MSWin') { $cmd =~ tr|\\|/|; }
-	my $cgi = substr($cmd, rindex($cmd, '/')+1);
+	my $cgi = substr($cmd, rindex($cmd, '/')+1) || $cmd;
+	$self->{CMD_file} = $cmd;
+	$self->{CGI_file} = $cgi;
 	if ((my $x = rindex($cgi, '.'))>0) { $cgi=substr($cgi, 0, $x); }
 	if ((my $x = rindex($cgi, '.'))>0) { $cgi=substr($cgi, 0, $x); }
 
@@ -126,6 +129,13 @@ sub start_up {
 	$self->{ENV_file} = $self->get_filepath( $cgi . '.env.cgi' );
 	if (-r $self->{ENV_file}) {
 		$self->_call($self->{ENV_file});
+	}
+
+	# cache checker
+	my $checker = %CacheChecker{$cmd};
+	if ($checker && (my $out = &$checker($self))) {
+		print $out;
+		return;
 	}
 
 	# 初期化処理
@@ -175,85 +185,71 @@ sub init_tm {
 # ●初期環境変数の設定（パス解析など）
 #------------------------------------------------------------------------------
 # 動作確認環境：Apache 1.3.x/2.x, lighttpd, AnHttpd
-# Last update : 2006/11/10 --- この部分は無闇に書き換えないこと。
+# Last update : 2016/11/17 --- この部分は無闇に書き換えないこと。
 #
 sub init_path {
 	my $self = shift;
 	if ($self->{Initialized_path}) { return; }
-
-	# cgiファイル名の取得（$ENV{SCRIPT_NAME} はレンタルサーバでは信用できない）
-	my $cgi_file = $0;
-	$cgi_file =~ s|\\|/|g;	# for Windows
-	if ((my $x = rindex($cgi_file, '/')) >= 0) { $cgi_file = substr($cgi_file, $x+1); }
-	$self->{CGI_file} = $cgi_file;
+	my $cgi = $self->{CGI_file};
 
 	# cgiファイル名、ディレクトリ設定
 	my $req_uri = $ENV{REQUEST_URI};
-	if ((my $x = index($req_uri, '?')) >= 0) { $req_uri = substr($req_uri, 0, $x); }
-	$req_uri =~ s/%([0-9A-Fa-f][0-9A-Fa-f])/chr(hex($1))/eg;
+	my $query   = '';
+	if ((my $x = index($req_uri, '?')) >= 0) {
+		$query   = substr($req_uri, $x+1);
+		$req_uri = substr($req_uri, 0, $x);
+	}
+	if (index($req_uri, '%') >= 0) {
+		$req_uri =~ s/%([0-9A-Fa-f][0-9A-Fa-f])/chr(hex($1))/eg;
+	}
+
+	# mod_rewrite時に %3f が"?"に復元されてしまうバグ対処（Apache）
+	$ENV{QUERY_STRING_orig} = $ENV{QUERY_STRING};
+	$ENV{QUERY_STRING} = $query;
 
 	# ModRewrite flag
-	my $mod_rewrite = $self->{Mod_rewrite};
-	if (!defined $mod_rewrite && exists $ENV{REDIRECT_URL} && $ENV{REDIRECT_STATUS}==200) { 
-		if (index($req_uri, $cgi_file)<0) {	# Fail safe trap / URIにCGI名が無い
-			$self->{Mod_rewrite} = $mod_rewrite = 1;
-		}
+	my $rewrite = $self->{Mod_rewrite} || $ENV{REWRITE};
+	if (!defined $rewrite && exists $ENV{REDIRECT_URL} && $ENV{REDIRECT_STATUS}==200) {
+		$self->{Mod_rewrite} = $rewrite = 1;
 	}
 
 	# REQUEST URI からベースパスを割り出す
 	my $basepath = $self->{Basepath};
-	my $request_base;
 	if (!defined $basepath) {
 		my $script = $ENV{SCRIPT_NAME};
-		$request_base = $script;
 		if (index($req_uri, $script)==0) {
-			$basepath = substr($script, 0, length($script) - length($cgi_file));
+			$basepath = substr($script, 0, length($script) - length($cgi));
 		} else {
-			while($request_base =~ m|^(.*/)[^/]+?/?$|) {
-				$request_base = $1;
-				if (index($req_uri, $request_base)==0) { last; }
+			while( index($req_uri, $script)!=0 ) {
+				chop($script);
+				my $x = rindex($script, '/');
+				$script = substr($script, 0, $x+1);
 			}
-			$basepath = $request_base;
-			chop($request_base);	# 最後の / を取る
+			$basepath = $script;
 		}
 		$self->{Basepath} = $basepath;
-		# Request_base の Fail safe trap
-		if (index($req_uri, "$request_base/$cgi_file")==0) {
-			$request_base .= "/$cgi_file";
-		}
-	} elsif($mod_rewrite) {
-		$request_base = $basepath;
-		chop($request_base);
-	} else {
-		$request_base = $basepath . $cgi_file;
 	}
-	$self->{Request_base}=$request_base;	# Save for debug
+
+	my $req_base = $basepath . ($rewrite ? '' : $cgi);
+	if ($rewrite) { chop($req_base); }
+	$self->{Request_base} = $req_base;
 
 	# PATH_INFO 文字コード問題、// が / になる問題の対応のため REQUEST_URI から PATH_INFO を生成
 	if (exists $ENV{PATH_INFO} && !$self->{Use_PATH_INFO_orig}) {
 		$ENV{PATH_INFO_orig} = $ENV{PATH_INFO};
-		$ENV{PATH_INFO} = substr($req_uri, length($request_base));
+		$ENV{PATH_INFO} = substr($req_uri, length($req_base));
 	}
-
-	# %3fをQuery指定と見なさない
-	my $query = $ENV{REQUEST_URI};
-	$query = ($query =~ /\?(.*)/) ? $1 : '';
-	$ENV{QUERY_STRING_orig} = $ENV{QUERY_STRING};
-	$ENV{QUERY_STRING} = $query;
-
-	# 相対パスを使用
-	if ($self->{Use_relative_path}) { $basepath = './'; }
 
 	# 自分自身（スクリプト）にアクセスする URL/path
 	if (!exists $self->{Myself}) {
-		if ($mod_rewrite) {
+		if ($rewrite) {
 			$self->{Myself}  = $self->{Myself2} = $basepath;
-		} elsif (substr($request_base, rindex($request_base, '/')+1) eq $cgi_file) {	# 通常のcgi
-			$self->{Myself}  = $basepath . $cgi_file;
-			$self->{Myself2} = $basepath . $cgi_file . '/';	# PATH_INFO用
+		} elsif (substr($req_base, rindex($req_base, '/')+1) eq $cgi) {		# 通常のcgi
+			$self->{Myself}  = $basepath . $cgi;
+			$self->{Myself2} = $basepath . $cgi . '/';	# PATH_INFO用
 		} else {	# cgi が DirectoryIndex
 			$self->{Myself}  = $basepath;
-			$self->{Myself2} = $basepath . $cgi_file . '/';	# PATH_INFO用
+			$self->{Myself2} = $basepath . $cgi . '/';	# PATH_INFO用
 		}
 	}
 
@@ -261,15 +257,14 @@ sub init_path {
 	if (!$self->{Server_url}) {
 		my $port = int($ENV{SERVER_PORT});
 		my $protocol = ($port == 443) ? 'https://' : 'http://';
-		$self->{Server_url} ||= $protocol . $ENV{SERVER_NAME}
-		 . (($port != 80 && $port != 443) ? ":$port" : '');
+		$self->{Server_url} = $protocol . $ENV{SERVER_NAME} . (($port != 80 && $port != 443) ? ":$port" : '');
 	} else {
 		substr($self->{Server_url},-1) eq '/' && chop($self->{Server_url});
 	}
 
 	# copyright
 	$ENV{PATH_INFO} eq '/__getcpy' && print "X-Satsuki-System: Ver$VERSION (C)nabe\@abk\n";
-	# パス初期化したことを記録
+	# パス初期化済フラグ
 	$self->{Initialized_path} = 1;
 }
 ###############################################################################
@@ -775,19 +770,30 @@ sub set_content_type {
 	$self->{Content_type} = shift;
 }
 #------------------------------------------------------------------------------
-# ●content_typeを出力（ヘッダの最後に出力すること）
+# ●ヘッダを出力
 #------------------------------------------------------------------------------
 sub print_http_headers {
 	my ($self, $content_type, $charset) = @_;
 	if ($self->{No_httpheader}) { return; }
+	my $x;
+	my $rs = ($self->{Status} <400) && $self->{html_cache} || \$x;
+
 	# Status
-	print "Status: ". $self->{Status} ."\n";
-	print @{ $self->{Headers} };	# その他のヘッダ
+	$$rs .= "Status: $self->{Status}\n";
+	$$rs .= $self->{html_cache} ? "X-HTML-Cache: 1\n" : '';
+	$$rs .= join('', @{ $self->{Headers} });	# その他のヘッダ
 
 	# Content-Type;
 	$content_type ||= $self->{Content_type};
 	$charset ||= $self->{System_coding};
-	print "Cache-Control: no-cache\nPragma: no-cache\nContent-Type: $content_type; charset=$charset;\n\n";
+	$$rs .= <<HEADER;
+Cache-Control: no-cache
+Pragma: no-cache
+Content-Type: $content_type; charset=$charset;
+X-Content-Type-Options: nosniff
+
+HEADER
+	print $$rs;
 }
 
 #------------------------------------------------------------------------------
@@ -795,19 +801,37 @@ sub print_http_headers {
 #------------------------------------------------------------------------------
 sub output_array {
 	my ($self, $ary) = @_;
-	if (!ref($ary)) { print $ary; return; }
-	return $self->_output_array( $ary );
+	my $c = $self->{html_cache};
+	if (!ref($ary)) { print $ary; $c && ($$c .= $ary); return; }
+	return $self->_output_array( $ary, $c );
 }
 sub _output_array {
 	# 2009/07/09 速度検証テストによる最適化
-	my ($self, $ary) = @_;
+	my ($self, $ary, $c) = @_;
 	foreach(@$ary) {
 		if (ref($_) eq 'ARRAY') {
-			$self->_output_array($_);
+			$self->_output_array($_, $c);
 			next;
 		}
 		print $_;
+		$c && ($$c .= $_);
 	}
+}
+
+#------------------------------------------------------------------------------
+# ●出力キャッシュの登録
+#------------------------------------------------------------------------------
+sub regist_html_cache {
+	my $self  = shift;
+	$self->{html_cache} = shift;
+}
+
+#------------------------------------------------------------------------------
+# ●キャッシュ判定ルーチン登録
+#------------------------------------------------------------------------------
+sub regist_cache_cheker {
+	my $self  = shift;
+	$CacheChecker{ $self->{CMD_file} } = shift;
 }
 
 ###############################################################################

@@ -68,17 +68,21 @@ sub new {
 	};
 
 	# スマホ判別
-	my $ua = $ENV{HTTP_USER_AGENT};
-	if (0<index($ua,'iPhone') || 0<index($ua,'iPod') || 0<index($ua,'Android')
-	 || 0<index($ua,'BlackBerry') || 0<index($ua,'Windows Phone')) {
-		$self->{sphone} = 1;
-	}
+	$self->{sphone} = $self->sphone_checker();
 
 	# Cache環境向け Timer のロード
 	if ($ROBJ->{CGI_cache} && $ENV{Timer} ne '0' && !$Satsuki::Timer::VERSION) {
 		require Satsuki::Timer;
 	}
 	return $self;
+}
+sub sphone_checker {
+	my $ua = $ENV{HTTP_USER_AGENT};
+	if (0<index($ua,'iPhone') || 0<index($ua,'iPod') || 0<index($ua,'Android')
+	 || 0<index($ua,'BlackBerry') || 0<index($ua,'Windows Phone')) {
+		return 1;
+	}
+	return ;
 }
 
 #------------------------------------------------------------------------------
@@ -124,9 +128,6 @@ sub main {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	# security for IE8-
-	$ROBJ->set_header('X-Content-Type-Options','nosniff');
-
 	# システム情報のロード
 	my $sys = $self->load_sysdat();
 
@@ -135,6 +136,11 @@ sub main {
 
 	# pinfoとブログの選択。テーマ選択
 	my $blogid = $self->blogid_and_pinfo();
+
+	# キャッシュの処理
+	if ($ROBJ->{CGI_cache} && $sys->{html_cache}) {
+		$self->regist_cache_checker();
+	}
 
 	# Query/Form処理  ※テーマ選択より後に処理
 	$self->read_query_form();
@@ -158,6 +164,11 @@ sub main {
 	if ($ROBJ->{POST} && (my ($dir,$file) = $self->parse_skel($action))) {
 		local($self->{skel_dir}) = $dir;
 		$self->{action_data} = $ROBJ->call( "${dir}_action/$file" );
+
+		# キャッシュのクリア
+		if ($ROBJ->{Auth}->{ok} || $ROBJ->{action_return} eq '0') {
+			$self->clear_cache();
+		}
 	}
 
 	#-------------------------------------------------------------
@@ -186,43 +197,6 @@ sub authorization {
 	# 管理者 trust mode 設定
 	if ($self->{admin_trust_mode} && $auth->{isadmin}) {
 		$self->{trust_mode} = 1;
-	}
-}
-
-#------------------------------------------------------------------------------
-# ●Query/Form処理
-#------------------------------------------------------------------------------
-sub read_query_form {
-	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-
-	$ROBJ->read_form();
-	my $query = $ENV{QUERY_STRING};
-	my $q = $ROBJ->read_query({'t'=>1});
-	delete $q->{''};
-
-	# 特殊Queryの処理
-	foreach(qw(_sphone _theme)) {
-		if (!$q->{$_}) { next; }
-		my $v = $q->{$_};
-		$v =~ s|[^\w\-/]||g;
-
-		if ($_ eq '_sphone') {		# スマホ表示
-			$self->{sphone}=$v;
-		} elsif ($_ eq '_theme') {	# テーマ指定
-			$self->load_theme( $v );
-		}
-		$self->{no_robots}=1;
-		$self->{sp_query} .= "&$_=$v";
-		delete $q->{$_};
-	}
-
-	# スケルトン指定解釈
-	if (%$q) {
-		$self->{query} = $query;
-		$query =~ m|^([\w/=]+)|;
-		my $q0 = $self->{query0} = index($1,'=')<0 ? $1 : '';	# 検索Queryをスケルトン指定と誤解しないため
-		if ($q0 ne '') { delete $q->{$q0}; }
 	}
 }
 
@@ -314,6 +288,43 @@ sub blogid_and_pinfo {
 	if ($blogid ne '') {	# ブログIDの指定あり
 		$self->{path_blogid} = $blogid;
 		$self->{others_blog} = ($blogid ne $authid) ? 1 : 0;
+	}
+}
+
+#------------------------------------------------------------------------------
+# ●Query/Form処理
+#------------------------------------------------------------------------------
+sub read_query_form {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	$ROBJ->read_form();
+	my $query = $ENV{QUERY_STRING};
+	my $q = $ROBJ->read_query({'t'=>1});
+	delete $q->{''};
+
+	# 特殊Queryの処理
+	foreach(qw(_sphone _theme)) {
+		if (!$q->{$_}) { next; }
+		my $v = $q->{$_};
+		$v =~ s|[^\w\-/]||g;
+
+		if ($_ eq '_sphone') {		# スマホ表示
+			$self->{sphone}=$v;
+		} elsif ($_ eq '_theme') {	# テーマ指定
+			$self->load_theme( $v );
+		}
+		$self->{no_robots}=1;
+		$self->{sp_query} .= "&$_=$v";
+		delete $q->{$_};
+	}
+
+	# スケルトン指定解釈
+	if (%$q) {
+		$self->{query} = $query;
+		$query =~ m|^([\w/=]+)|;
+		my $q0 = $self->{query0} = index($1,'=')<0 ? $1 : '';	# 検索Queryをスケルトン指定と誤解しないため
+		if ($q0 ne '') { delete $q->{$q0}; }
 	}
 }
 

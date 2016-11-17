@@ -131,7 +131,7 @@ sub embed_timer_wrapper {	# 時間計測用の細工
 			if ((caller)[0] eq $pkg) {
 				return $self->$wrap_func(@_);
 			}
-			ref($self) && $self->{ROBJ}->debug("[Timer] $org_func");
+			# ref($self) && $self->{ROBJ}->debug("[Timer] $org_func $_[0]");
 			my $timer = $self->{ROBJ}->{Timer};
 			(!$self->{NoTimer})  && $timer && $timer->start('db');
 			$self->{timer_debug} && $timer && $timer->start('db2');
