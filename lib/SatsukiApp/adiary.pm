@@ -152,16 +152,6 @@ sub main {
 	if ($self->{sys}->{mainte_mode} || $self->{require_update}) { $self->mainte_mode(); }
 
 	#-------------------------------------------------------------
-	# pop タイマー処理
-	#-------------------------------------------------------------
-	if ($self->{pop_timer}) {
-		my $tm = $ROBJ->get_file_modtime( $self->{pop_log_file} );
-		if ($tm + $self->{pop_timer} < $ROBJ->{TM}) {
-			$self->{pop_check_flag} = 1;
-		}
-	}
-
-	#-------------------------------------------------------------
 	# POST actionの呼び出し
 	#-------------------------------------------------------------
 	my $action = $ROBJ->{Form}->{action};
