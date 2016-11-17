@@ -208,7 +208,7 @@ sub init_path {
 	$ENV{QUERY_STRING} = $query;
 
 	# ModRewrite flag
-	my $rewrite = $self->{Mod_rewrite} || $ENV{REWRITE};
+	my $rewrite = $self->{Mod_rewrite} ||= $ENV{Mod_rewrite};
 	if (!defined $rewrite && exists $ENV{REDIRECT_URL} && $ENV{REDIRECT_STATUS}==200) {
 		$self->{Mod_rewrite} = $rewrite = 1;
 	}
@@ -234,11 +234,9 @@ sub init_path {
 	if ($rewrite) { chop($req_base); }
 	$self->{Request_base} = $req_base;
 
-	# PATH_INFO 文字コード問題、// が / になる問題の対応のため REQUEST_URI から PATH_INFO を生成
-	if (exists $ENV{PATH_INFO} && !$self->{Use_PATH_INFO_orig}) {
-		$ENV{PATH_INFO_orig} = $ENV{PATH_INFO};
-		$ENV{PATH_INFO} = substr($req_uri, length($req_base));
-	}
+	# 文字コード問題、// が / になる問題の対応のため REQUEST_URI から PATH_INFO を生成
+	$ENV{PATH_INFO_orig} = $ENV{PATH_INFO};
+	$ENV{PATH_INFO} = substr($req_uri, length($req_base));
 
 	# 自分自身（スクリプト）にアクセスする URL/path
 	if (!exists $self->{Myself}) {

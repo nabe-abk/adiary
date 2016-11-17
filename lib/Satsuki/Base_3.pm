@@ -62,10 +62,6 @@ sub init_for_fastcgi {
 	$self->{FastCGI}  = 1;
 	$self->{Not_exit} = 1;		# exit しない
 	$self->{CGI_mode} = 'FastCGI';
-
-	if ($sock) {	# FCGI server mode
-		$ENV{REWRITE} = 1;
-	}
 }
 
 

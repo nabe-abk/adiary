@@ -55,7 +55,7 @@ while($request->Accept() >= 0) {
 	$ROBJ->{Timer} = $timer;
 	$ROBJ->{AutoReload} = $flag;
 
-	$ROBJ->init_for_fastcgi($request, $socket);
+	$ROBJ->init_for_fastcgi($request);
 
 	#--------------------------------------------------
 	# メイン
@@ -81,3 +81,5 @@ TEXT
 		&Satsuki::AutoReload::save_lib();
 	}
 }
+# close
+$socket && FCGI::CloseSocket($socket);
