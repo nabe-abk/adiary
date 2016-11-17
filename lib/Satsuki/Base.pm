@@ -184,8 +184,8 @@ sub init_tm {
 #------------------------------------------------------------------------------
 # ●初期環境変数の設定（パス解析など）
 #------------------------------------------------------------------------------
-# 動作確認環境：Apache 1.3.x/2.x, lighttpd, AnHttpd
-# Last update : 2016/11/17 --- この部分は無闇に書き換えないこと。
+# 動作確認環境：Apache 1.3.x/2.x, Nginx
+# Last update : 2016/11/18 --- この部分は無闇に書き換えないこと。
 #
 sub init_path {
 	my $self = shift;
@@ -214,7 +214,7 @@ sub init_path {
 	}
 
 	# REQUEST URI からベースパスを割り出す
-	my $basepath = $self->{Basepath};
+	my $basepath = $self->{Basepath} ||= $ENV{Basepath};
 	if (!defined $basepath) {
 		my $script = $ENV{SCRIPT_NAME};
 		if (index($req_uri, $script)==0) {
@@ -776,7 +776,7 @@ sub print_http_headers {
 	my ($self, $content_type, $charset) = @_;
 	if ($self->{No_httpheader}) { return; }
 	my $x;
-	my $rs = ($self->{Status} <400) && $self->{html_cache} || \$x;
+	my $rs = ($self->{Status}==200) && $self->{html_cache} || \$x;
 
 	# Status
 	$$rs .= "Status: $self->{Status}\n";
@@ -801,7 +801,7 @@ HEADER
 #------------------------------------------------------------------------------
 sub output_array {
 	my ($self, $ary) = @_;
-	my $c = $self->{html_cache};
+	my $c = ($self->{Status}==200) && $self->{html_cache};
 	if (!ref($ary)) { print $ary; $c && ($$c .= $ary); return; }
 	return $self->_output_array( $ary, $c );
 }

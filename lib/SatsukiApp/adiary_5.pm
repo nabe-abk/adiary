@@ -443,10 +443,8 @@ sub regist_cache_checker {
 		if (index($ENV{HTTP_COOKIE}, 'session=') > 0) { return; }
 
 		my $sphone = &{ \&sphone_checker }();
-		my $pinfo  = $ENV{PATH_INFO};
-		my $query  = $ENV{QUERY_STRING};
-		my $key = "$sphone$pinfo?$query";
-		if (!$search_cache && $query ne '') { return; }
+		my $key    = $sphone . $ENV{REQUEST_URI};
+		if (!$search_cache && $ENV{QUERY_STRING} ne '') { return; }
 
 		# キャッシュ処理
 		my $tm = $ROBJ->{TM};
@@ -484,6 +482,7 @@ sub clear_cache {
 	%CACHE = ();
 	%CACHE_TM = ();
 	$CACHE_cnt = 0;
+	$self->{ROBJ}->regist_cache_cheker();
 }
 
 ###############################################################################

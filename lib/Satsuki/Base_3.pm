@@ -64,8 +64,7 @@ sub init_for_fastcgi {
 	$self->{CGI_mode} = 'FastCGI';
 
 	if ($sock) {	# FCGI server mode
-		$ENV{SCRIPT_NAME} = $ENV{SCRIPT_FCGI_NAME};
-		$ENV{REWRITE}     = 1;
+		$ENV{REWRITE} = 1;
 	}
 }
 
