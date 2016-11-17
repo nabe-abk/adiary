@@ -1,7 +1,11 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-BEGIN { unshift(@INC, './lib'); }
+BEGIN {
+	unshift(@INC, './lib');
+	$0 =~ m|^(.*?)[^/]*$|;
+	chdir($1);
+}
 use Satsuki::Base ();
 use Satsuki::AutoReload ();
 use FCGI;
