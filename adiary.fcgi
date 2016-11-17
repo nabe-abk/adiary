@@ -16,7 +16,7 @@ use FCGI;
 my $socket;
 my $request;
 if ($ARGV[0]) {
-	$socket  = FCGI::OpenSocket($ARGV[0], $ARGV[1] || 10);
+	$socket  = FCGI::OpenSocket($ARGV[0], $ARGV[1] || 100);
 	$request = FCGI::Request( \*STDIN, \*STDOUT, \*STDERR, \%ENV, $socket );
 } else {
 	$request = FCGI::Request();
