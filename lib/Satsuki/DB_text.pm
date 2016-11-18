@@ -1,7 +1,7 @@
 use strict;
 #-------------------------------------------------------------------------------
 # テキストデータベース
-#					(C)2005-2009 nabe / ABK project
+#					(C)2005-2016 nabe / ABK project
 #-------------------------------------------------------------------------------
 # 旧名 : DB_pseudo（擬似データベース）
 #
@@ -13,7 +13,7 @@ package Satsuki::DB_text;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 
-our $VERSION = '1.20';
+our $VERSION = '1.21';
 our $FileNameFormat = "%05d";
 our %IndexCache;
 ###############################################################################
@@ -498,8 +498,8 @@ sub load_index {
 		$self->{"$table.load_all"} = $IndexCache{"$table.load_all"};
 		return ($self->{"$table.tbl"} = $IndexCache{$table});
 	}
-	# ファイルが書き換わっていればキャッシュを消す
-	$self->clear_cache($table);
+	# キャッシュを消す
+	if( exists($IndexCache{$table}) ) { $self->clear_cache($table); }
 
 	my $parse_func='sub{return{';
 	foreach (0..$#idx_cols) {
