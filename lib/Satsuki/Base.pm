@@ -784,7 +784,6 @@ sub print_http_headers {
 	$charset ||= $self->{System_coding};
 	$$rs .= <<HEADER;
 Cache-Control: no-cache
-Pragma: no-cache
 Content-Type: $content_type; charset=$charset;
 X-Content-Type-Options: nosniff
 
