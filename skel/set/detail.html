@@ -103,38 +103,13 @@
 	<table class="blog-setting">
 	<tbody>
 	<tr><th>RSSの配信件数</th>
-		<td>
-		<$x=s.rss_items_int>
-		<select name="rss_items_int" class="int">
-			<option value="0" <@if(x == 0, ' selected')>>配信しない</option>
-			<option value="1" <@if(x == 1, ' selected')>>1件</option>
-			<option value="2" <@if(x == 2, ' selected')>>2件</option>
-			<option value="3" <@if(x == 3, ' selected')>>3件</option>
-			<option value="4" <@if(x == 4, ' selected')>>4件</option>
-			<option value="5" <@if(x == 5, ' selected')>>5件</option>
-			<option value="6" <@if(x == 6, ' selected')>>6件</option>
-			<option value="7" <@if(x == 7, ' selected')>>7件</option>
-			<option value="8" <@if(x == 8, ' selected')>>8件</option>
-			<option value="9" <@if(x == 9, ' selected')>>9件</option>
-			<option value="10"<@if(x ==10, ' selected')>>10件</option>
-			<option value="11"<@if(x ==11, ' selected')>>11件</option>
-			<option value="12"<@if(x ==12, ' selected')>>12件</option>
-			<option value="13"<@if(x ==13, ' selected')>>13件</option>
-			<option value="14"<@if(x ==14, ' selected')>>14件</option>
-			<option value="15"<@if(x ==15, ' selected')>>15件</option>
-			<option value="16"<@if(x ==16, ' selected')>>16件</option>
-			<option value="17"<@if(x ==17, ' selected')>>17件</option>
-			<option value="18"<@if(x ==18, ' selected')>>18件</option>
-			<option value="19"<@if(x ==19, ' selected')>>19件</option>
-			<option value="20"<@if(x ==20, ' selected')>>20件</option>
-			<option value="25"<@if(x ==25, ' selected')>>25件</option>
-			<option value="30"<@if(x ==30, ' selected')>>30件</option>
-		</select>
+		<td<@err.rss_items_int>>
+			<input type="number" class="int w50 js-enable" data-target="#rss_no_comment, #tag-select, #rss2_title, #rss2_no_comment" name="rss_items_int" value="<@s.rss_items_int>" min="0" max="30">件（0～30）
 		</td>
 	</tr>
 	<tr><th>RSSオプション</th>
 		<td>
-		<input type="checkbox" name="rss_no_comment" value="1"<@if(s.rss_no_comment, ' checked')>><label>コメントを含めない</label>
+		<input type="checkbox" id="rss_no_comment" name="rss_no_comment" value="1"<@if(s.rss_no_comment, ' checked')>><label>コメントを含めない</label>
 		</td>
 	</tr>
 	<tr><th rowspan="3">2つ目のRSS配信</th>
@@ -146,12 +121,12 @@
 	</tr>
 	<tr>
 		<td>タイトル<span class="help" data-help="無記入の場合は「ブログ名」。RSSリーダーでのタイトルとなるのでブログ名もわかるようにしましょう。">?</span>
-		<input type="text" name="rss2_title" class="w240" value="<@s.rss2_title>">
+		<input type="text" id="rss2_title" name="rss2_title" class="w240" value="<@s.rss2_title>">
 		</td>
 	</tr>
 	<tr>
 		<td>
-		<input type="checkbox" name="rss2_no_comment" value="1"<@if(s.rss2_no_comment, ' checked')>><label>コメントを含めない</label>
+		<input type="checkbox" id="rss2_no_comment" name="rss2_no_comment" value="1"<@if(s.rss2_no_comment, ' checked')>><label>コメントを含めない</label>
 		</td>
 	</tr>
 	</tbody>

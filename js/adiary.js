@@ -708,7 +708,7 @@ initfunc.push( function(R){
 			if (! btn.prop("checked")) return;
 			flag = btn.data("state");
 			id   = '-form-name-' + btn.attr('name');
-		} else if (type == 'number') {
+		} else if (type == 'number' || btn.data('type') == 'int') {
 			var val = btn.val();
 			flag = val.length && val > 0;
 		} else
