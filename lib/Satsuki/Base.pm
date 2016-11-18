@@ -511,7 +511,6 @@ sub __call {
 	#------------------------------------------------------------
 	my $c = $self->{__cont_level};
 	local ($self->{argv}, $self->{__src_file}, $self->{__skeleton}, $self->{Nest_count_base});
-#	my @arg = @_;
 	$self->{argv}            = \@_;
 	$self->{__src_file}      = $src_file;
 	$self->{__skeleton}      = $skeleton_name;
