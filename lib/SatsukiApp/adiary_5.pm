@@ -431,6 +431,8 @@ sub regist_cache_checker {
 
 	# クロージャ
 	my $sys = $self->{sys};
+	my $sysconf = $self->{system_config_file};
+	my $systm   = $ROBJ->get_lastmodified( $sysconf );
 	my $search_cache = $sys->{search_cache};
 	my $cache_max    = $sys->{html_cache_max}     ||  16;
 	my $timeout      = $sys->{html_cache_timeout} || 600;
@@ -439,8 +441,17 @@ sub regist_cache_checker {
 		my $ROBJ = shift;
 		$ROBJ->{cache_checker} = 1;
 
+		# キャッシュクリア？
+		if ($systm != $ROBJ->get_lastmodified( $sysconf )) {
+			%CACHE = ();
+			%CACHE_TM = ();
+			$CACHE_cnt = 0;
+			$ROBJ->regist_cache_cheker('');	# 自分自身を破棄
+			return ;
+		}
+
 		if ($ENV{REQUEST_METHOD} ne 'GET' && $ENV{REQUEST_METHOD} ne 'HEAD') { return; }
-		if (index($ENV{HTTP_COOKIE}, 'session=') > 0) { return; }
+		if (index($ENV{HTTP_COOKIE}, 'session=') >= 0) { return; }
 
 		my $sphone = &{ \&sphone_checker }();
 		my $key    = $sphone . $ENV{REQUEST_URI};
@@ -450,6 +461,7 @@ sub regist_cache_checker {
 		my $tm = $ROBJ->{TM};
 		my $c = $CACHE{$key};
 		$CACHE_TM{$key} = $tm;
+		$ROBJ->{html_cache_key} = $key;
 		if ($c) {
 			print $$c;
 		} else {
@@ -479,10 +491,7 @@ sub regist_cache_checker {
 #------------------------------------------------------------------------------
 sub clear_cache {
 	my $self = shift;
-	%CACHE = ();
-	%CACHE_TM = ();
-	$CACHE_cnt = 0;
-	$self->{ROBJ}->regist_cache_cheker();
+	$self->update_sysdat();		# cacheを飛ばす
 }
 
 ###############################################################################

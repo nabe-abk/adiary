@@ -133,8 +133,7 @@ sub start_up {
 
 	# cache checker
 	my $checker = %CacheChecker{$cmd};
-	if ($checker && (my $out = &$checker($self))) {
-		print $out;
+	if ($checker && &$checker($self)) {
 		return;
 	}
 
@@ -778,7 +777,6 @@ sub print_http_headers {
 
 	# Status
 	$$rs .= "Status: $self->{Status}\n";
-	$$rs .= $self->{html_cache} ? "X-HTML-Cache: 1\n" : '';
 	$$rs .= join('', @{ $self->{Headers} });	# その他のヘッダ
 
 	# Content-Type;
@@ -1103,7 +1101,7 @@ sub get_lastmodified {
 	my $self = shift;
 	my $file = $self->get_filepath(shift);
 	if ($self->{"STcache-$file"}) { return $self->{"STcache-$file"}->[9]; }
-	if (!-r $file) { return ; }	# 読み込めない。存在しないファイルを
+	if (!-r $file) { return ; }	# 読み込めない。存在しないファイル
 	my $st = $self->{"STcache-$file"} = [ stat($file) ];
 	return $st->[9];
 }

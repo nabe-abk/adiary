@@ -82,6 +82,7 @@ DB time : <span id="system-info-db-time"><@int(Timer.check('db')*10000 + 0.5)/10
 Runtime : <@CGI_mode><br>
 RDBMS : <@DB._RDBMS><br>
 <@if(Status != 200, "HTTP Status: <@Status><br>")>
+<@if(Develop && html_cache_key, "<span title='<@html_cache_key>'>HTML Cache: 1</span><br>")>
 <@if(Develop && AutoReload, "AutoReload : 1<br>")>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
