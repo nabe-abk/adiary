@@ -698,6 +698,7 @@ initfunc.push( function(R){
 		var btn  = $(evt.target);
 		var form = btn.rootfind( btn.data('target') );
 
+		var id;
 		var flag;
 		var type=btn.attr('type');
 		if (type) type = type.toLowerCase();
@@ -706,6 +707,7 @@ initfunc.push( function(R){
 		else if (type == 'radio') {
 			if (! btn.prop("checked")) return;
 			flag = btn.data("state");
+			id   = '-form-name-' + btn.attr('name');
 		} else if (type == 'number') {
 			var val = btn.val();
 			flag = val.length && val > 0;
@@ -714,7 +716,7 @@ initfunc.push( function(R){
 
 		// disabled設定
 		var disable = btn.hasClass('js-disable');
-		var id = set_dom_id(btn);
+		id = id ? id : set_dom_id(btn);
 		for(var i=0; i<form.length; i++) {
 			var obj = $(form[i]);
 			var h   = obj.data('_jsdisable_list') || {};
