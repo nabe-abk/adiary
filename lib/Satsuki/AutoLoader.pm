@@ -41,7 +41,7 @@ sub AUTOLOAD {
 			if (!$dir) { last; }		# 自動ロードファイルが見つからない
 
 			eval { require $file; };
-			if ($ROBJ->{Autoloader_debug}) {
+			if ($ROBJ->{AutoLoader_debug}) {
 				my $msg = "[AutoLoader] Try load $file for $func.";
 				warn $msg; $ROBJ->debug($msg);	# debug-safe
 			}
