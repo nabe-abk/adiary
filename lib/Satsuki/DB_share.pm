@@ -108,13 +108,13 @@ my @timer_functions = qw(new find_table select generate_pkey
  insert update_match delete_match select_by_group
  begin rollback commit create_table drop_table
  add_column drop_column add_index
- );
+);
 #------------------------------------------------------------------------------
 # ●ラッパーを仕込むルーチン
 #------------------------------------------------------------------------------
-sub embed_timer_wrapper {	# 時間計測用の細工
+sub embed_timer_wrapper {	# 処理時間計測の細工
 	no strict 'refs';
-	if (!defined $Satsuki::Timer::VERSION) { return; }
+	if (!defined $Satsuki::AutoReload::VERSION) { return; }
 
 	my $pkg = shift;
 	my $pkgcc = $pkg . '::';
@@ -127,25 +127,24 @@ sub embed_timer_wrapper {	# 時間計測用の細工
 		*{"$pkgcc$wrap_func"} = *{"$pkgcc$_"}{CODE};
 		*{"$pkgcc$_"} = sub {
 			my $self = shift;
+			my $timer = $self->{ROBJ}->{Timer};
 			# 同じパッケージから呼び出されたときは、単に呼び出すのみ
-			if ((caller)[0] eq $pkg) {
+			if ((caller)[0] eq $pkg || !$timer) {
 				return $self->$wrap_func(@_);
 			}
-			# ref($self) && $self->{ROBJ}->debug("[Timer] $org_func $_[0]");
-			my $timer = $self->{ROBJ}->{Timer};
-			(!$self->{NoTimer})  && $timer && $timer->start('db');
-			$self->{timer_debug} && $timer && $timer->start('db2');
+			my $t0 = $self->{timer_debug} && $timer->check('db');
+			$timer->start('db');
 			my @r; wantarray ? (@r=$self->$wrap_func(@_)) : ($r[0]=$self->$wrap_func(@_));
-			(!$self->{NoTimer}) && $timer && $timer->stop('db');
-			if ($self->{timer_debug} && $timer) {
+			my $t1 = $timer->stop('db');
+			if ($self->{timer_debug}) {
 				my @c = caller(0);
-				my $x = int($timer->stop('db2')*10000+0.5)/10;
+				my $x = int(($t1-$t0)*10000+0.5)/10;
 				$self->{ROBJ}->debug("[DB] $org_func $_[0] : $x ms from $c[1] at $c[2]");	# debug-safe
-				$timer->clear('db2');
 			}
 			return wantarray ? @r : $r[0];
 		};
 	}
 }
+
 
 1;

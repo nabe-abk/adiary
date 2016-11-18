@@ -27,12 +27,11 @@ sub AUTOLOAD {
 	$pmfile .= '_';
 
 	# ロード
-	my ($can, $i);
-	my $obj  = shift(@_);
-	my $ref  = ref $obj;
-	my $ROBJ = {};
+	my $obj  = shift;
+	my $ROBJ = ref $obj ? $obj->{ROBJ} : {};
+	my $can;
 	my $i=2;
-	while(! $can) {
+	while(1) {
 		my $file = $pmfile . $i . '.pm';
 		if (!exists $INC{$file}) {
 			my $dir;
@@ -65,9 +64,6 @@ sub AUTOLOAD {
 sub debug {
 	my $self = shift;
 	$self->{ROBJ}->debug($_[0], 1);		# debug-safe
-}
-sub ROBJ {
-	return $_[0]->{ROBJ};
 }
 sub DESTROY {
 	my $self = shift;
