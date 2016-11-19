@@ -66,8 +66,6 @@ MITライセンスやWTFPLだと大変助かります。
     * Color Picker (MIT / GPL)
   * Lightbox2 (Creative Commons Attribution 2.5)
   * highlight.js (BSD)
-  * css3-mediaqueries.js (MIT)
-  * IE9.js (MIT)
 
 ## Perl
 
