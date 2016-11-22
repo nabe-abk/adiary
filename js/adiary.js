@@ -769,7 +769,7 @@ initfunc.push( function(R){
 	var target = form.data('target');	// 配列
 	var c = false;
 	if (target) {
-		c = obj.rootfind( target + ":checked" ).length;
+		c = form.rootfind( target + ":checked" ).length;
 		if (!c) return false;	// ひとつもチェックされてない
 	}
 
