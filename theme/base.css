@@ -32,7 +32,8 @@ h1, h2, h3, h4, h5, h6, .dropdown-menu, button {
 }
 
 /* 不可視ログインリンク */
-#nav-header a.erase-login {
+#nav-header a.erase-login,
+#sp-nav-header a.erase-login {
 	display:		inline-block;
 	width:			64px;
 }
