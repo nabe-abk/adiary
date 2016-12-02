@@ -114,7 +114,8 @@ my @timer_functions = qw(new find_table select generate_pkey
 #------------------------------------------------------------------------------
 sub embed_timer_wrapper {	# 処理時間計測の細工
 	no strict 'refs';
-	if (!defined $Satsuki::AutoReload::VERSION) { return; }
+	if (!defined $Satsuki::Timer::VERSION
+	 && !defined $Satsuki::AutoReload::VERSION) { return; }
 
 	my $pkg = shift;
 	my $pkgcc = $pkg . '::';
