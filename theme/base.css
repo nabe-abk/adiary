@@ -547,6 +547,17 @@ span.tag span.ui-icon-close,
 	margin-top:	4px;
 }
 
+/* slider */
+.ui-slider {
+	border: 1px solid #aaaaaa;
+	background-color: #ffffff;
+}
+.ui-slider-range {
+	border: 1px solid #aaaaaa;
+	background-color: #cccccc;
+}
+
+
 /*--------------------------------------------------------------------
 ●jQuery UI カスタマイズ
 ---------------------------------------------------------------------*/
