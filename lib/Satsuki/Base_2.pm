@@ -69,8 +69,8 @@ sub save_cache {
 #------------------------------------------------------------------------------
 \0
 TEXT
-	# バージョン／コンパイラ・元スケルトンの更新時刻
-	push(@lines, "Version = 1.01\n\0");
+	# バージョン／コンパイラ・スケルトンの更新時刻
+	push(@lines, "Version=1.01\n\0");
 	push(@lines, ($self->{Compiler_tm}) . "\0");
 	push(@lines, $src_file_tm . "\0");
 
