@@ -965,6 +965,9 @@ div.hatena-modulebody {
     background-position:    bottom right;
     background-repeat:      no-repeat;
     min-height:             120px;
+
+    /* こうしないとリンクがクリックできない */
+    position:               relative;
 }
 
 div.hatena-modulebody ul {
