@@ -65,7 +65,7 @@ sub save_cache {
 	push(@lines, <<TEXT);
 # $tms : Generate from '$src_file';
 #------------------------------------------------------------------------------
-# Caution) Don't edit this file . If you edit this, will be occoued error.
+# [WARNING] Don't edit this file. If you edit this, will be occoued error.
 #------------------------------------------------------------------------------
 \0
 TEXT
