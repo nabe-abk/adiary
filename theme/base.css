@@ -557,7 +557,6 @@ span.tag span.ui-icon-close,
 	background-color: #cccccc;
 }
 
-
 /*--------------------------------------------------------------------
 ●jQuery UI カスタマイズ
 ---------------------------------------------------------------------*/
@@ -758,6 +757,20 @@ span.ui-icon.ui-icon-search {
 .ui-icon-gripsmall-diagonal-se { background-position: -64px -224px; }
 .ui-icon-grip-diagonal-se { background-position: -80px -224px; }
 
+/* adiary original */
+.ui-icon.prev-page   { background-position: -208px -16px; }
+.ui-icon.upnode-page { background-position: -224px -16px; }
+.ui-icon.next-page   { background-position: -240px -16px; }
+
+.sw-show .ui-icon.switch-icon {
+	background-position:	-224px 0px;
+	width:			13px;
+}
+.sw-hide .ui-icon.switch-icon {
+	background-position:	-240px 0px;
+	width:			13px;
+}
+
 /*--------------------------------------------------------------------
 ●UIアイコン, RSSアイコン
 ---------------------------------------------------------------------*/
@@ -770,23 +783,6 @@ span.ui-icon.ui-icon-search {
 	cursor:		pointer;
 }
 
-.sw-show .ui-icon.switch-icon {
-	background-position:	-224px 0px;
-	width:			13px;
-}
-.sw-hide .ui-icon.switch-icon {
-	background-position:	-240px 0px;
-	width:			13px;
-}
-.ui-icon.prev-page {
-	background-position: -208px -16px;
-}
-.ui-icon.upnode-page {
-	background-position: -224px -16px;
-}
-.ui-icon.next-page {
-	background-position: -240px -16px;
-}
 .rss-icon img {
 	vertical-align:		middle;
 }
