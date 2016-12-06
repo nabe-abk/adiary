@@ -1,13 +1,13 @@
 ######################################################################
 title=最近の記事
-version=1.00
+version=1.01
 #					(C)2013 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=2.94
+adiary_version=3.09
 module_type=sidebar
 load_module_html_in_edit=1
 
