@@ -55,9 +55,6 @@
 </div>
 	Total <@##list+1> blogs.<br>
 
-	<@ifexec(Auth.isadmin && v.sys.default_blogid eq '', begin)>
-	<p class="adiary-hint">※<@if(v.query eq '', 'このページの代わりに')>特定のブログを<a href="<@v.myself>?system/setting">標準で表示させる設定（デフォルトブログ機能）</a>があります。</p>
-	<$end>
 </div>
 </article>
 

@@ -17,8 +17,13 @@
 <article class="system">
 <h2>ようこそ</h2>
 	<div class="body">
-	<p>「adiary Ver3」へようこそ。ログインは右上です。</p>
+	<p>ログインは右上です。</p>
 	<p>このページを書き換えたい時は "skel/_top.html" を "skel.local/_top.html" にコピーして編集してください。</p>
+
+	<@ifexec(Auth.isadmin && v.sys.default_blogid eq '', begin)>
+	<p class="adiary-hint">※このページの代わりに、特定のブログを<a href="<@v.myself>?system/setting">標準で表示させる設定（デフォルトブログ）</a>があります。</p>
+	<$end>
+
 	</div>
 </article>
 
