@@ -228,7 +228,7 @@ dndEmulation: function(opt){
 	var orig_touch;
 
 	// mousedownエミュレーション
-	this.bind('touchstart', function(_evt){
+	this.on('touchstart', function(_evt){
 		var evt = _evt.originalEvent;
 		prev = evt.target;
 		orig_touch = evt.touches[0];
@@ -244,7 +244,7 @@ dndEmulation: function(opt){
 	});
 
 	// mouseupエミュレーション
-	this.bind('touchend', function(_evt){
+	this.on('touchend', function(_evt){
 		var evt = _evt.originalEvent;
 		if (timer) clearTimeout(timer);
 		timer = false;
@@ -253,7 +253,7 @@ dndEmulation: function(opt){
 	});
 
 	// ドラッグエミュレーション
-	this.bind('touchmove', function(_evt){
+	this.on('touchmove', function(_evt){
 		var evt = _evt.originalEvent;
 
 		// 一定時間立たなければ、処理を開始しない

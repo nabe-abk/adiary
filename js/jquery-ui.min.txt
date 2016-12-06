@@ -1,3 +1,3 @@
-Version 1.11.4	default (current)
+Version 1.12.1	default (current)
 
-	Not include 'Datepicker' and 'Spinner'.
+	Not include 'jQuery 1.7 Support' and 'Datepicker' and 'Spinner'.
