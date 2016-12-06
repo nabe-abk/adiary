@@ -1589,6 +1589,9 @@ function load_contents_list(id) {
 				var pkey  = ary[i].key;
 				if (pkey == this_pkey) continue;
 				var title = ary[i].title;
+				if (title.length > 20)
+					title = title.substr(0,20) + '...';
+
 				var opt = $('<option>').attr('value', pkey);
 				//opt.css('padding-left', tab*8);	// Fx以外で効かないので以下で代用
 				opt.html('&emsp;'.repeat(tab) + title );
