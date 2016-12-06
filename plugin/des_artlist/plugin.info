@@ -55,6 +55,6 @@ INSTALL=func/<@this>.pm
 SETTING=func/<@this>.pm
 SETTING=skel/_sub/generate_spmenu
 BLOG_SETTING=func/<@this>.pm
-BLOG_SETTING=skel/_sub/generate_spmenu
+BLOG_SETTING#after=skel/_sub/generate_spmenu
 UNINSTALL=func/<@this>-uninstall.pm
 EVENTS

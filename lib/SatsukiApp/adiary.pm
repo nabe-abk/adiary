@@ -23,7 +23,7 @@ $SysEvt{ARTICLE_STATE_CHANGE} = [qw(
 	update_taglist
 	update_contents_list
 )];
-$SysEvt{_ARTICLE_STATE_CHANGE} = [qw(
+$SysEvt{'ARTICLE_STATE_CHANGE#after'} = [qw(
 	generate_spmenu
 )];
 $SysEvt{COMMENT_STATE_CHANGE} = [qw(
@@ -1181,48 +1181,59 @@ sub load_comments {
 #------------------------------------------------------------------------------
 sub call_event {
 	my $self = shift;
-	my $evt_name = shift;	# イベント名
+	my $evt  = shift;	# イベント名
+	if ($evt eq '') {
+		$self->{ROBJ}->message('"event name" is null.');
+		return -99;
+	}
+	my $r=0;
+	$r += $self->do_call_event("$evt#before", @_);
+	$r += $self->do_call_event( $evt        , @_);
+	$r += $self->do_call_event("$evt#after" , @_);
+	return $r;
+}
+
+sub do_call_event {
+	my $self = shift;
+	my $evt  = shift;	# イベント名
 	my $ROBJ = $self->{ROBJ};
 	my $blog = $self->{blog};
 	if (!$blog) { return 0; }
-	if ($evt_name eq '') {
-		$ROBJ->message('"event name" is null.');
-		return -99;
-	}
 
-	my $evt = $self->{stop_all_plugins} ? '' : $blog->{"event:$evt_name"};
-	my @evt = split(/\r?\n/, $evt);
-	my $sys = $SysEvt{$evt_name}    || [];
-	my $sys2= $SysEvt{"_$evt_name"} || [];
-	my @ary = (@$sys, @evt, @$sys2);
-	if (!@ary) { return 0; }
+	my @evt = $self->{stop_all_plugins} ? () : split(/\r?\n/, $blog->{"event:$evt"});
+	push(@evt, @{ $SysEvt{$evt} || [] });
+	if (!@evt) { return 0; }
 
 	my $ret=0;
-	$evt_name =~ s/^([^:]*):.*$/$1/;	# : 以降を除去
-	local($self->{event_name}) = $evt_name;
-	foreach(@ary) {
-		# $self->debug("$self->{blogid} $_");
+	$evt =~ s/^(.*):.*$/$1/;	# : 以降を除去
+	local($self->{event_name}) = $evt;
+	my %h;
+	my $once = 0 < index($evt, '#');
+	foreach(@evt) {
 		my $x = index($_, '=');
+		my $name = $x<0 ? '' : substr($_, 0, $x);
+		my $op   = substr($_, $x+1);
+
+		if ($h{$op}) { next; }
+		$h{$op} = $once;
+
+		# system 設定のイベント処理
 		if ($x == -1) {
-			# system 設定のイベント処理
 			my $r = $self->$_(@_);
 			$ret += $r ? 1 : 0;
 			next;
 		}
 
 		# プラグインによるイベント処理
-		my $v = substr($_, $x+1);
-		my $name = substr($_, 0, $x);
-
 		my $r;
-		if ($v =~ m|^func/([\w\-]+\.pm)$|) {
+		if ($op =~ m|^func/([\w\-]+\.pm)$|) {
 			# ファイルをロードして無名ルーチンを呼び出す
 			$r = $self->call_plugin_function($1, $name, @_);
-		} elsif ($v =~ m|^skel/([\w/-]+)$|) {
+		} elsif ($op =~ m|^skel/([\w/-]+)$|) {
 			# スケルトンファイルを呼び出す
 			$r = $ROBJ->call($1, $name, @_);
 		} else {
-			$ROBJ->error("[plugin=%s] Unknown method : %s", $name, $v);
+			$ROBJ->error("[plugin=%s] Unknown method : %s", $name, $op);
 			$r = -1;
 		}
 		# 結果の保存

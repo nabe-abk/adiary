@@ -660,7 +660,7 @@ sub set_event_info {
 		}
 	}
 
-	# 登録済イベントを初期化
+	# 登録済イベントを削除
 	foreach(keys(%$blog)) {
 		if (substr($_,0,6) ne 'event:') { next; }
 		delete $blog->{$_};

@@ -8,12 +8,11 @@ sub {
 	my $DB   = $self->{DB};
 	my $blogid = $self->{blogid};
 
-	my $blog_only = $self->load_plgset($name, 'blog_only');
 	my $h = {
 		flag     => { enable => 1 },
 		cols     => [ 'yyyymmdd' ]
 	};
-	if ($blog_only) {
+	if ($self->{blog}->{separate_blog}) {
 		$h->{match} = { priority => 0 };
 	}
 	my $ary = $DB->select("${blogid}_art", $h);
