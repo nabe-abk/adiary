@@ -532,8 +532,7 @@ sub load_cache {
 
 	shift(@$lines);	# 注意書き読み捨て
 	my $version = shift(@$lines);
-	chop($version);		# LF
-	$version = (split('=',$version))[1];
+	$version = substr($version, index($version, '=')+1);
 	if ($version < 1.01) { return (1); }	# 失敗
 
 	# このキャッシュを生成したコンパイラのタイムスタンプ(UTC)
