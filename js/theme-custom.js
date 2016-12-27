@@ -335,7 +335,11 @@ function init_custom_form(data, data2) {
 			var list = opts[i].list;
 			var val  = opts[i].val || '';
 			sel.data('default', val);
+			var h = {};
 			for(var j=0; j<list.length; j++) {
+				if (h[list[j]]) continue;	// 重複チェック
+				h[list[j]]=1;
+
 				var n = name2msg( list[j] );	// 翻訳
 				var o = $('<option>')
 					.attr('value', list[j])
