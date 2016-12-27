@@ -41,7 +41,7 @@
 /* 入力要素 */
 input, select {
 	font-size:			  15px;
-	vertical-align:			top;
+	vertical-align:			middle;
 }
 
 /* テキストボックス類 */
@@ -54,8 +54,9 @@ input[type="date"], input[type="password"], input[type="file"] {
 	border:					none;
 	margin:					0 0.2em 0.2em 0.3em;
 	padding:				0 0.2em;
-	vertical-align:			top;
+	vertical-align:			middle;
 }
+
 
 /* フォーカス時 */
 select:focus, input[type="text"]:focus, input[type="search"]:focus,
@@ -1358,7 +1359,6 @@ ul.dynatree-container a {
 .ui-progressbar .label,
 .ui-corner-left {
 	height:				 20px;
-	vertical-align:		 center;
 }
 .ui-corner-left {
 	padding:				1px 0 0 1px;
