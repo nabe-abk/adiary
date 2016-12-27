@@ -493,7 +493,7 @@ em			{ font-style: normal; text-decoration: underline; }
 .sp .w200 { width: 140px; }
 .sp .w240 { width: 160px; }
 .sp .w280 { width: 180px; }
-.sp .w300,
+.sp .w300 { width: 200px; }
 .sp .w320,
 .sp .w360,
 .sp .w400,
