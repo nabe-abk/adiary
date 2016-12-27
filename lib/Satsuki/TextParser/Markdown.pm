@@ -199,6 +199,32 @@ sub parse_special_block {
 			next;
 		}
 
+		#----------------------------------------------
+		# [GMF] シンタックスハイライト
+		#----------------------------------------------
+		if ($self->{gmf_ext} && $x =~ /^```([^`]*?)\s*$/) {
+			my ($lang,$file) = split(':', $1, 2);
+			my @code;
+			$x = shift(@$lines);
+			while(@$lines && $x !~ /^```\s*$/) {
+				$self->escape_in_code($x);
+				push(@code, "$x\x02");
+				$x = shift(@$lines);
+			}
+			my $class='';
+			if ($self->{satsuki_syntax_h}) {	# [S] Satsuki記法準拠
+				if ($lang ne '') {
+					$class = ' ' . $lang;
+				}
+				$class = " class=\"syntax-highlight$class\"";
+			}
+			my $first = shift(@code);
+			push(@ary, "<div class=\"highlight\"><pre$class>$first");
+			push(@ary, @code);
+			push(@ary, "</pre></div>\x02");
+			next;
+		}
+
 		# h3などの見出し
 		if ($x =~ /^(#+)\s*(.*?)\s*\#*$/) {
 			if (!$newblock) { push(@ary,''); }
@@ -470,33 +496,6 @@ sub parse_block {
 			push(@ary, "<pre><code>$first\x02");
 			push(@ary, @code);
 			push(@ary, "</code></pre>\x02");
-			next;
-		}
-
-		#----------------------------------------------
-		# [GMF] シンタックスハイライト
-		#----------------------------------------------
-		if ($self->{gmf_ext} && $x =~ /^```([^`]*?)\s*$/) {
-			$self->p_block_end(\@ary, \@p_block);
-			my ($lang,$file) = split(':', $1, 2);
-			my @code;
-			$x = shift(@$lines);
-			while(@$lines && $x !~ /^```\s*$/) {
-				$self->escape_in_code($x);
-				push(@code, "$x\x02");
-				$x = shift(@$lines);
-			}
-			my $class='';
-			if ($self->{satsuki_syntax_h}) {	# [S] Satsuki記法準拠
-				if ($lang ne '') {
-					$class = ' ' . $lang;
-				}
-				$class = " class=\"syntax-highlight$class\"";
-			}
-			my $first = shift(@code);
-			push(@ary, "<div class=\"highlight\"><pre$class>$first");
-			push(@ary, @code);
-			push(@ary, "</pre></div>\x02");
 			next;
 		}
 
