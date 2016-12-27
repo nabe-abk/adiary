@@ -151,9 +151,12 @@ img.mahjong {
 /* インデント */
 p, p.i, .indent p { text-indent: 1em; }
 p.ni, .noindent p { text-indent: 0; }
-ul li > p:first-child {
+ul li > p, ol li > p {
 	text-indent:	0;
-	margin:		0;
+}
+ul li > p:first-child,
+ol li > p:first-child {
+	margin-top:	0;
 }
 
 /* はてなブックマーク数の表示 */
