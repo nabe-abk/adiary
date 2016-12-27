@@ -1,0 +1,255 @@
+@charset "UTF-8";
+/*****************************************************************************
+  patch for smart phone
+					2015/05 (C)nabe@abk.nu
+*****************************************************************************/
+/*--------------------------------------------------------------------
+■全体配置
+---------------------------------------------------------------------*/
+body, #adiary-body {
+	width:			auto;
+        box-shadow:             none;
+}
+html {
+	min-width:		0;
+}
+div.main {
+	margin-left:		0px;
+	margin-right:		0px;
+	padding:		0 2px;
+	width:			auto;
+	float:			none;
+}
+#adiary-body {
+	margin:			0;
+	width:			auto;
+	min-width:		0px;	/* for GC bugs */
+	max-width:		auto;
+}
+#hatena-body {
+	margin-left:		8px;
+	margin-right:		8px;
+}
+#sidebar {
+	float:			none;
+	margin:			40px 4px 0 4px;
+	padding:		0;
+	width:			auto;
+	border:			none;
+}
+
+/*--------------------------------------------------------------------
+■ヘッダ、フッタ
+---------------------------------------------------------------------*/
+#sp-header {
+	margin-bottom:		1em;
+	line-height:		100%;
+}
+#sp-nav-header {
+	font-size:		10pt;
+	text-align:		right;
+	vertical-align:		top;
+}
+#sp-page-title {
+	margin:			0px 0 1em 0;
+	padding:		20px 12px;
+	font-weight:		bold;
+	text-shadow:
+		-1px -1px 0px #fee,
+		 1px -1px 0px #fee,
+		 1px  1px 0px #fee,
+		-1px  1px 0px #fee,
+		 3px  3px 2px #999;
+}
+#sp-page-title a {
+	font-size: 100%;
+}
+
+/* 検索ボックス */
+.dropdown-menu {
+	padding:		0;
+	margin:			0;
+	width:			100%;
+}
+
+/* 検索ボックス */
+#sp-head-search {
+	padding:		4px 4px;
+	border-radius:		4px;
+	background-color:	rgba(255,220,220,0.7);
+}
+#sp-head-search form {
+}
+#sp-head-search button {
+	height:			20px;
+	width:			20px;
+	padding:		0;
+}
+
+#sp-head-search input {
+	background-color:	rgba(255,255,255,0.5);
+	margin:			0;
+}
+#sp-head-search input:focus {
+	background-color:	rgba(255,255,255,0.7);
+}
+#sp-head-search .search-btn {
+	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
+}
+
+/* div.hatena-moduletitle の transform の影響で
+   最下部に余白が出ないようにする対策 */
+#footer {
+	margin-top:		56px;
+}
+/*--------------------------------------------------------------------
+■サイドバー
+---------------------------------------------------------------------*/
+#sidebar {
+	font-size:		12pt;
+}
+span.switch-icon {
+	margin-right:		1em;
+}
+#sidebar ul.hatena-section {
+	line-height:		200%;
+}
+not(.Fx) #side-search {		/* for Fx bug */
+	text-align:		center;
+}
+#side-search input.search-box {
+	width:			180px;
+}
+
+/*--------------------------------------------------------------------
+■コメント欄
+---------------------------------------------------------------------*/
+#com {
+	font-size:		10pt;
+
+}
+#com form input.comment-author {
+	width:			100px;
+}
+#com form textarea {
+	width:			340px;
+}
+
+/*--------------------------------------------------------------------
+■記事部の設定
+---------------------------------------------------------------------*/
+#adiary-body {
+	word-wrap:		break-word;
+}
+
+#adiary-body img,
+#adiary-body figure {
+	max-width:		100%;
+	height:			auto;
+	float:			none;
+}
+#adiary-body textarea,
+#adiary-body input,
+#adiary-body video,
+#adiary-body audio {
+	max-width:		100%;
+}
+
+article ul,
+article ol {
+	padding-left:		2em;
+}
+article ul ul,
+article ol ol {
+	padding-left:		1em;
+}
+article div.body {
+	padding-left:		12px;
+	padding-right:		12px;
+}
+
+/*--------------------------------------------------------------------
+○table, blockquote, pre
+---------------------------------------------------------------------*/
+.body table {
+	margin-left:		1em;
+	margin-right:		1em;
+}
+.body blockquote table,
+.body div.box table {
+	margin-left:		0;
+	margin-right:		0;
+}
+
+blockquote, pre, div.box {
+	margin:			0.5em 1.0em 0.5em 1.0em;
+	padding:		0.2em 0.5em 0.2em 0.5em;
+}
+pre {
+	margin-left:		0;
+	margin-right:		0;
+	overflow-x:		scroll;
+}
+
+
+/*--------------------------------------------------------------------
+■ブログ一覧
+---------------------------------------------------------------------*/
+#table-view table {
+	margin-left:		4px;
+	margin-right:		4px;
+}
+#table-view table th {
+	font-size:		9pt;
+}
+#table-view table .large {
+	font-size:		100%;
+}
+#table-view table .hhmm {
+	display:		none;
+}
+
+/*--------------------------------------------------------------------
+■システムモード
+---------------------------------------------------------------------*/
+article.system div.body {
+	padding-left:		6px;
+	padding-right:		6px;
+}
+article.system div.body table {
+	margin-left:		0px;
+	margin-right:		0px;
+}
+article.system ul:not(.dynatree-container):not(.ui-tabs-nav) {
+	padding-left:		2em;
+}
+nav.tree {
+	font-size:		8pt;
+	line-height:		200%;
+}
+nav.tree span.items {
+	display:		block;
+}
+
+article.edit span.element {
+	display:		block;
+}
+#edit-tags + br,
+#edit-tags + br + br {
+	display:		none;
+}
+article.edit button,
+article.edit select {
+	margin-top:		6px;
+	margin-bottom:		6px;
+}
+article.edit span.edit-writer {
+	display:		none;
+}
+
+.system button {
+	padding:		2px 3px;
+}
+#edit .helper + .help {
+	margin-left:		0px;
+}
