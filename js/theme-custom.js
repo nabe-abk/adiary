@@ -328,7 +328,7 @@ function init_custom_form(data, data2) {
 		var obj = $('<span>').attr('id', 'options');
 		for(var i=0; i<opts.length; i++) {
 			var sel = $('<select>').attr('name', opts[i].name);
-			sel.append($('<option>').attr('value','').text( name2msg('default') ));
+			sel.append($('<option>').attr('value','').text( name2msg('option') ));
 			sel.change( function(evt){
 				update_css();
 			});
@@ -424,7 +424,7 @@ function update_css() {
 			lines[i] = x;
 		}
 		// オプション
-		var ma = in_opt || x.match(/\$(option\d*)=([\w-\.]+)/);
+		var ma = in_opt || x.match(/\$(option\d*)=(.+)/);
 		if (ma) {
 			if (!in_opt) {
 				in_opt  = true;
