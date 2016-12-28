@@ -1479,7 +1479,7 @@ ul.menu {
 }
 
 /* ボタン */
-.sp button,
+.sp article:not(.search) button,
 .sp #edit-helper button {
 	margin-top:		6px;
 	margin-bottom:		6px;
@@ -1519,6 +1519,10 @@ ul.menu {
 	content:		"";
 	display:		block;
 	clear:			both;
+}
+#sp-head-search input {
+	font-size:		14px;
+	height:			16px;
 }
 #sp-head-search .search-btn {
 	padding:		0;
