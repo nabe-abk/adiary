@@ -1,0 +1,230 @@
+######################################################################
+title=時計
+version=1.00
+#					(C)2016 serika
+######################################################################
+author=serika
+license=WTFPL
+
+adiary_version=3
+module_type=sidebar
+
+module_id=side-serika-clock
+
+*files=<<FILES
+js/<@this>.js
+FILES
+
+*events=<<EVENTS
+JS=js/<@this>.js
+EVENTS
+
+*sample_html=<<HTML
+<div class="hatena-module" id="side-serika-clock">
+<div class="hatena-moduletitle">時計</div>
+<div class="hatena-modulebody">
+<svg viewBox="0 0 340 40">
+<g transform="translate(0,5)">
+<path stroke="black" stroke-width="1" fill="none" d="M 57 -2 l -4 34 M 112 -2 l -4 34" />
+<g transform="translate(5,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+<g transform="translate(30,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+<g transform="translate(60,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+<g transform="translate(85,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+<g transform="translate(115,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+<g transform="translate(140,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+</g>
+
+<g transform="translate(175,5)">
+<path stroke="black" stroke-width="2" fill="none" d="M 55 7 l 0 2 m 0 13 l 0 2 M 110 7 l 0 2 m 0 13 l 0 2" />
+<g transform="translate(5,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+<g transform="translate(30,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+<g transform="translate(60,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+<g transform="translate(85,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+<g transform="translate(115,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g>
+<g transform="translate(140,0)">
+<path stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+</path></g></g>
+</svg>
+</div>
+</div> <!-- hatena-module -->
+HTML
+
+*module_html=<<HTML
+<$ps = v.load_plgset('<@this>')>
+<div class="hatena-module" id="<@id>" data-module-name="<@this>">
+<div class="hatena-moduletitle">時計</div>
+<div class="hatena-modulebody">
+<svg id="<@id>-svg" viewBox="0 0 340 40" data-show="<@ps.show>" data-caltype="<@ps.caltype>">
+<g id="<@id>-date" transform="translate(0,5)">
+<path id="<@id>-c"  stroke="black" stroke-width="1" fill="none" d="M 57 -2 l -4 34 M 112 -2 l -4 34" />
+<g transform="translate(5,0)">
+<path id="<@id>-c1" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-c1a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c1a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c1a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c1a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c1a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c1a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c1a6" attributeName="d" to="M 0 15 l 20 0 0 15 -20 0 0 -30 20 0 -20 0 0 30 20 0 0 -15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c1a7" attributeName="d" to="M 0 7 l 0 -7 20 0 0 7 -10 23 10 -23 0 -7 -10 0 -10 0 0 7 0 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c1a8" attributeName="d" to="M 0 30 l 0 -15 0 -15 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c1a9" attributeName="d" to="M 20 15 l 0 -15 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -30 -20 0 0 15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+<g transform="translate(30,0)">
+<path id="<@id>-c2" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-c2a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c2a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c2a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c2a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c2a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c2a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c2a6" attributeName="d" to="M 0 15 l 20 0 0 15 -20 0 0 -30 20 0 -20 0 0 30 20 0 0 -15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c2a7" attributeName="d" to="M 0 7 l 0 -7 20 0 0 7 -10 23 10 -23 0 -7 -10 0 -10 0 0 7 0 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c2a8" attributeName="d" to="M 0 30 l 0 -15 0 -15 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c2a9" attributeName="d" to="M 20 15 l 0 -15 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -30 -20 0 0 15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+<g transform="translate(60,0)">
+<path id="<@id>-c3" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-c3a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c3a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c3a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c3a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c3a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c3a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c3a6" attributeName="d" to="M 0 15 l 20 0 0 15 -20 0 0 -30 20 0 -20 0 0 30 20 0 0 -15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c3a7" attributeName="d" to="M 0 7 l 0 -7 20 0 0 7 -10 23 10 -23 0 -7 -10 0 -10 0 0 7 0 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c3a8" attributeName="d" to="M 0 30 l 0 -15 0 -15 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c3a9" attributeName="d" to="M 20 15 l 0 -15 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -30 -20 0 0 15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+<g transform="translate(85,0)">
+<path id="<@id>-c4" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-c4a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c4a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c4a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c4a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c4a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c4a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c4a6" attributeName="d" to="M 0 15 l 20 0 0 15 -20 0 0 -30 20 0 -20 0 0 30 20 0 0 -15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c4a7" attributeName="d" to="M 0 7 l 0 -7 20 0 0 7 -10 23 10 -23 0 -7 -10 0 -10 0 0 7 0 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c4a8" attributeName="d" to="M 0 30 l 0 -15 0 -15 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c4a9" attributeName="d" to="M 20 15 l 0 -15 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -30 -20 0 0 15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+<g transform="translate(115,0)">
+<path id="<@id>-c5" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-c5a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c5a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c5a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c5a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c5a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c5a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c5a6" attributeName="d" to="M 0 15 l 20 0 0 15 -20 0 0 -30 20 0 -20 0 0 30 20 0 0 -15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c5a7" attributeName="d" to="M 0 7 l 0 -7 20 0 0 7 -10 23 10 -23 0 -7 -10 0 -10 0 0 7 0 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c5a8" attributeName="d" to="M 0 30 l 0 -15 0 -15 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c5a9" attributeName="d" to="M 20 15 l 0 -15 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -30 -20 0 0 15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+<g transform="translate(140,0)">
+<path id="<@id>-c6" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-c6a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c6a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c6a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c6a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c6a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c6a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c6a6" attributeName="d" to="M 0 15 l 20 0 0 15 -20 0 0 -30 20 0 -20 0 0 30 20 0 0 -15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c6a7" attributeName="d" to="M 0 7 l 0 -7 20 0 0 7 -10 23 10 -23 0 -7 -10 0 -10 0 0 7 0 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c6a8" attributeName="d" to="M 0 30 l 0 -15 0 -15 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-c6a9" attributeName="d" to="M 20 15 l 0 -15 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -30 -20 0 0 15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+</g>
+
+<g id="<@id>-clock" transform="translate(175,5)">
+<path id="<@id>-c"  stroke="black" stroke-width="2" fill="none" d="M 55 7 l 0 2 m 0 13 l 0 2 M 110 7 l 0 2 m 0 13 l 0 2" />
+<g transform="translate(5,0)">
+<path id="<@id>-d1" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-d1a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d1a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d1a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+<g transform="translate(30,0)">
+<path id="<@id>-d2" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-d2a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d2a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d2a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d2a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d2a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d2a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d2a6" attributeName="d" to="M 0 15 l 20 0 0 15 -20 0 0 -30 20 0 -20 0 0 30 20 0 0 -15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d2a7" attributeName="d" to="M 0 7 l 0 -7 20 0 0 7 -10 23 10 -23 0 -7 -10 0 -10 0 0 7 0 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d2a8" attributeName="d" to="M 0 30 l 0 -15 0 -15 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d2a9" attributeName="d" to="M 20 15 l 0 -15 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -30 -20 0 0 15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+<g transform="translate(60,0)">
+<path id="<@id>-d3" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-d3a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d3a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d3a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d3a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d3a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d3a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+<g transform="translate(85,0)">
+<path id="<@id>-d4" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-d4a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d4a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d4a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d4a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d4a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d4a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d4a6" attributeName="d" to="M 0 15 l 20 0 0 15 -20 0 0 -30 20 0 -20 0 0 30 20 0 0 -15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d4a7" attributeName="d" to="M 0 7 l 0 -7 20 0 0 7 -10 23 10 -23 0 -7 -10 0 -10 0 0 7 0 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d4a8" attributeName="d" to="M 0 30 l 0 -15 0 -15 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d4a9" attributeName="d" to="M 20 15 l 0 -15 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -30 -20 0 0 15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+<g transform="translate(115,0)">
+<path id="<@id>-d5" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-d5a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d5a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d5a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d5a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d5a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d5a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g>
+<g transform="translate(140,0)">
+<path id="<@id>-d6" stroke="black" stroke-width="1" fill="none" d="M 0 0 l 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0 -10 0 0 -15">
+ <animate id="<@id>-d6a0" attributeName="d" to="M 0 0 l 20 0 0 7 0 8 0 8 0 7 -20 0 0 -15 0 -8 0 -7 20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d6a1" attributeName="d" to="M 10 7 l 10 -7 0 7 0 8 0 8 0 7 0 -7 0 -8 0 -8 0 -7 -10 7" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d6a2" attributeName="d" to="M 0 15 l 0 15 20 0 -20 0 0 -15 20 0 0 -15 -20 0 20 0 0 15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d6a3" attributeName="d" to="M 0 0 l 10 0 10 0 0 7 0 8 -20 0 20 0 0 8 0 7 -10 0 -10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d6a4" attributeName="d" to="M 20 15 l -10 0 -10 0 0 -15 0 15 20 0 0 -15 0 15 0 15 0 -7 0 -8" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d6a5" attributeName="d" to="M 0 0 l 20 0 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -15 -20 0 0 -15" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d6a6" attributeName="d" to="M 0 15 l 20 0 0 15 -20 0 0 -30 20 0 -20 0 0 30 20 0 0 -15 -20 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d6a7" attributeName="d" to="M 0 7 l 0 -7 20 0 0 7 -10 23 10 -23 0 -7 -10 0 -10 0 0 7 0 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d6a8" attributeName="d" to="M 0 30 l 0 -15 0 -15 20 0 0 15 -10 0 10 0 0 15 -20 0 0 -15 10 0" begin="indefinite" dur="0.300" fill="freeze"/>
+ <animate id="<@id>-d6a9" attributeName="d" to="M 20 15 l 0 -15 -20 0 0 15 20 0 0 15 -20 0 20 0 0 -30 -20 0 0 15" begin="indefinite" dur="0.300" fill="freeze"/>
+</path></g></g>
+</svg>
+</div>
+</div> <!-- hatena-module -->
+HTML
