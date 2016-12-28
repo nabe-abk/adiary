@@ -4,12 +4,6 @@
 	<table class="blog-setting">
 	<tbody>
 	<tr>
-		<th>タイトル表示</th>
-		<td>
-			<input type="checkbox" name="title_none" value="1"<@if(ps.title_none,' checked')>><label>非表示にする</label>
-		</td>
-	</tr>
-	<tr>
 		<th>標準の検索タイプ</th>
 		<td>
 			<input type="radio" name="all" value="0"<@if(ps.all eq '0',' checked')>><label>タイトル</label>
@@ -17,9 +11,10 @@
 		</td>
 	</tr>
 	<tr>
-		<th>検索ボタンの直後で改行する</th>
+		<th>検索ボタン</th>
 		<td>
-			<input type="checkbox" name="br" value="1"<@if(ps.br,' checked')>><label>改行する</label>
+			<input type="radio" name="button" value="0"<@if(ps.button eq '0',' checked')>><label>非表示</label>
+			<input type="radio" name="button" value="1"<@if(ps.button ne '0',' checked')>><label>表示</label>
 		</td>
 	</tr>
 	</tbody>

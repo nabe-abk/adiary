@@ -16,12 +16,9 @@ module_id=head-search
 *sample_html=<<HTML
 <div id="<@id>" data-module-name="<@this>">
 <form method="GET" action="./" onsubmit="return false;">
-<span class="title">検索</span>
 <input type="search" class="search-box w100" name="q" value="" required>
+<input type="hidden" name="all" value="1">
 <button type="submit" class="search-btn">検索</button>
-<span class="search-radio">
-<input class="search-title" type="radio" name="all" value="0"><label>タイトル</label><input class="search-text"  type="radio" name="all" value="1" checked><label>全文</label>
-</span>
 </form>
 </div>
 HTML
@@ -30,14 +27,12 @@ HTML
 <$ps = v.load_plgset('<@this>')>
 <div id="<@id>" data-module-name="<@this>">
 <form method="GET" action="<@v.myself>">
-<@if(!ps.title_none, '<span class="title">検索</span>')>
 <input type="search" class="search-box w100" name="q" value="<@tag_escape(x = Query.q)>" required>
-<button type="submit" class="search-btn">検索</button><@if(ps.br, '<br>')>
-<$ifset(exists(Query.all), all, Query.all, ps.all)>
-<span class="search-radio">
-<input class="search-title" type="radio" name="all" value="0" <@if(all eq '0', "checked")>><label>タイトル</label>
-<input class="search-text"  type="radio" name="all" value="1" <@if(all ne '0', "checked")>><label>全文</label>
-</span>
+<@ifexec(ps.button ne '0', begin)>
+<button class="search-btn js-submit ui-button ui-corner-all"><span class="ui-icon ui-button-icon-primary ui-icon-search"></span></button>
+<$end>
+<$ifset(ps.all eq '', ps.all, 1)>
+<input type="hidden" name="all" value="<@if(exists(Query.all), Query.all, ps.all)>">
 </form>
 </div>
 HTML
