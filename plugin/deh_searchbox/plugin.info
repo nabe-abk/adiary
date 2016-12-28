@@ -29,7 +29,11 @@ HTML
 <form method="GET" action="<@v.myself>">
 <input type="search" class="search-box w100" name="q" value="<@tag_escape(x = Query.q)>" required>
 <@ifexec(ps.button ne '0', begin)>
-<button class="search-btn js-submit ui-button ui-corner-all"><span class="ui-icon ui-button-icon-primary ui-icon-search"></span></button>
+  <@ifexec(ps.button == 1, begin, begin)>
+	<button type="submit" class="search-btn">検索</button>
+  <$else>
+	<button class="search-btn js-submit ui-button ui-corner-all"><span class="ui-icon ui-button-icon-primary ui-icon-search"></span></button>
+  <$end>
 <$end>
 <$ifset(ps.all eq '', ps.all, 1)>
 <input type="hidden" name="all" value="<@if(exists(Query.all), Query.all, ps.all)>">

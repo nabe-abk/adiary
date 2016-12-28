@@ -18,6 +18,7 @@
 <@id>>ul>li a,
 <@id>>ul li:hover>ul>li {
 	height:		<@ps.height-2>px;	/* = Y-2 */
+	line-height:	<@ps.height-2>px;	/* = Y-2 */
 }
 <@id>>ul ul ul {
 	top:		<@3 - ps.height>px;	/* = 3-Y */

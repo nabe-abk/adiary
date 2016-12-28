@@ -2,7 +2,9 @@
 <@local(h)>
 <$h = validator(begin_hash, argv#0) )>
 	all = flag
-	button = flag
+	button = int
+	button:min = 0
+	button:max = 2
 <$end>
 
 <$ifbreak(form_error())>

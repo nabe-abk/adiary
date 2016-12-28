@@ -332,6 +332,7 @@ h1 img, h1 a img {
 .dropdown-menu:not(.sp)>ul>li>a,
 .dropdown-menu:not(.sp)>ul li:hover>ul>li {
 	height:		22px;	/* = Y-2 */
+	line-height:	22px;
 }
 .dropdown-menu:not(.sp)>ul ul ul {
 	top:		-21px;	/* = 3-Y */

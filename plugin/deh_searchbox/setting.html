@@ -13,8 +13,9 @@
 	<tr>
 		<th>検索ボタン</th>
 		<td>
-			<input type="radio" name="button" value="0"<@if(ps.button eq '0',' checked')>><label>非表示</label>
-			<input type="radio" name="button" value="1"<@if(ps.button ne '0',' checked')>><label>表示</label>
+			<input type="radio" name="button" value="0"<@if(ps.button eq '0',' checked')>><label>非表示</label><br>
+			<input type="radio" name="button" value="1"<@if(ps.button ne '0',' checked')>><label>表示</label><br>
+			<input type="radio" name="button" value="2"<@if(ps.button == 2,' checked')>><label>アイコン表示</label>
 		</td>
 	</tr>
 	</tbody>

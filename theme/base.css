@@ -1358,6 +1358,7 @@ ul.menu {
 .dropdown-menu:not(.sp)>ul>li>a,
 .dropdown-menu:not(.sp)>ul li:hover>ul>li {
 	height:		28px;	/* = Y-2 */
+	line-height:	28px;
 }
 .dropdown-menu:not(.sp)>ul ul ul {
 	top:		-27px;	/* = 3-Y */
@@ -1431,7 +1432,7 @@ ul.menu {
 .dropdown-menu {
 	color:			#338;
 }
-/* 枠線を消す */
+/* 枠線を消す（必ず下記3項目が必要） */
 /*
 .dropdown-menu>ul li {
 	border:			none;
@@ -1634,6 +1635,7 @@ ul.menu {
 .dropdown-menu.sp>ul>li a,
 .dropdown-menu.sp>ul li.open>ul>li {
 	height:		30px;	/* Y */
+	line-height:	30px;
 }
 .dropdown-menu.sp li ul:before {
 	top:		10px;	/* = (Y-10)/2 */
