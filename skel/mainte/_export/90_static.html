@@ -69,7 +69,7 @@ adiary_session($('#static-export'), {
 
 	<$files = begin_array>
 		adiary.js
-		jquery-2.min.js
+		jquery-3.min.js
 		jquery-ui.min.js
 		lightbox.min.js
 		highlight.pack.js
@@ -140,6 +140,15 @@ adiary_session($('#static-export'), {
 		<$session.msg("\tcopy to '<@dir><@t>'")>
 		<$dir_copy("<@v.pubdist_dir><@t>", "<@dir><@t>")>
 	<$end>
+
+
+<@>////////////////////////////////////////////////////////////////////////////
+<@> jsプラグインのコピー
+<@>////////////////////////////////////////////////////////////////////////////
+
+<$dir = v.static_output_dir . v.static_theme_dir>
+<$session.msg("Plugin's js files copy to '<@dir>'")>
+<$dir_copy(v.blogpub_dir() . 'js/', dir)>
 
 
 <@>////////////////////////////////////////////////////////////////////////////

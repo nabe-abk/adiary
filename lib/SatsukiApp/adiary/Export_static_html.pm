@@ -84,14 +84,20 @@ sub export {
 	my $escape = $ROBJ->loadpm('TextParser::TagEscape');
 	$escape->allow_anytag();
 
+	my $theme_dir = $aobj->{static_theme_dir};
+
 	my $qr_basepath = $ROBJ->{Basepath};
 	my $qr_myself2  = $aobj->{myself2};
+	my $qr_pluginjs = $theme_dir . 'js/';
+	
 	my $qr_imgdir   = $ROBJ->{Basepath} . $aobj->blogimg_dir();
 	$qr_basepath =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
 	$qr_myself2  =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
+	$qr_pluginjs =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
 	$qr_imgdir   =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
 	$qr_basepath = qr/^$qr_basepath/;
 	$qr_myself2  = qr/^$qr_myself2/;
+	$qr_pluginjs = qr/^(\.\/)?$qr_pluginjs/;
 	$qr_imgdir   = qr/^$qr_imgdir/;
 	my $url_wrapper = sub {
 		my $proto = shift;
@@ -99,6 +105,9 @@ sub export {
 		if ($url =~ m|^\w+://|) {
 			return $url;
 		}
+
+		$url =~ s|\?\d+$||;	# ?123456789 : リロード用Query除去
+		$url =~ s|$qr_pluginjs|$1$aobj->{static_theme_dir}|g;
 		$url =~ s|$qr_imgdir|$aobj->{static_files_dir}|g;
 		if ($proto eq 'href') {
 			if ($url eq $aobj->{myself2}) {
@@ -125,7 +134,6 @@ sub export {
 	#---------------------------------------------------------------------
 	$session->msg("\nCreate html files");
 
-	my $theme_dir = $aobj->{static_theme_dir};
 	my $auth = $ROBJ->{Auth};
 	local($ROBJ->{Basepath}) = './';
 	local($auth->{ok})         = undef;
