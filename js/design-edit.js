@@ -712,7 +712,7 @@ function view_html_source(_obj) {
 	div.attr('title', $('#msg-html-source').text() );
 	div.addClass( 'pre' );
 	div.text( obj[0].outerHTML );
-	div.dialog({ width: DialogWidth });
+	div.dialog({ width: DialogWidth, maxHeight: $(window).height() });
 }
 
 //############################################################################
