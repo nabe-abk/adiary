@@ -10,9 +10,9 @@
 		<th>項目幅</th>
 		<td>
 			1段目<input type="number" class="int w60" name="width1" value="<@ps.width1 || 110>" min="40" max="9999" id="width1">px &ensp;
-			<input type="checkbox" name="width1_free" value="1"<@if(ps.width1_free, ' checked')> id="width1-free"><label>フリーサイズ<span class="help" data-help="項目内容に応じてアイテム幅を可変させます。設定時は各項目のpaddingも設定してください。">?</span></label><br>
+			<input type="checkbox" name="width1_free" value="1"<@if(ps.width1_free, ' checked')> id="width1-free" class="js-disable" data-target="#width1"><label>フリーサイズ<span class="help" data-help="項目内容に応じてアイテム幅を可変させます。設定時は各項目のpaddingも設定してください。">?</span></label><br>
 			2段目以降<input type="number" class="int w60" name="width2" value="<@ps.width2 || 200>" min="40" max="9999" id="width2">px &ensp;
-			<input type="checkbox" class="js-disable" data-target="#width1,#width1-free,#width2"<@if(ps.width1 eq '',' checked')>><label>変更しない</label>
+			<input type="checkbox" class="js-disable" data-target="#width1,#width1-free,#width2"<@if(ps.width2 eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -50,8 +50,9 @@
 		<td>
 			全体<input type="number" class="int w60" name="padding" value="<@ps.padding || 0>" min="0" max="999" id="padding">px &ensp;
 			<input type="checkbox" class="js-disable" data-target="#padding"<@if(ps.padding eq '',' checked')>><label>変更しない</label><br>
-			各項目<input type="number" class="int w60" name="item_padding" value="<@ps.item_padding || 0>" min="0" max="999" id="item-padding">px &ensp;
-			<input type="checkbox" class="js-disable" data-target="#item-padding"<@if(ps.item_padding eq '',' checked')>><label>変更しない</label>
+			各項目：トップ<input type="number" class="int w60" name="item_padding" value="<@ps.item_padding || 0>" min="0" max="999" id="item-padding">px 
+			以降<input type="number" class="int w60" name="item_padding2" value="<@ps.item_padding2 || 0>" min="0" max="999" id="item-padding2">px &ensp;
+			<input type="checkbox" class="js-disable" data-target="#item-padding,#item-padding2"<@if(ps.item_padding eq '',' checked')>><label>変更しない</label>
 		</td>
 	</tr>
 	<tr>

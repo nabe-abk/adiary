@@ -28,17 +28,36 @@
 }
 <$end>
 <@>
-<@ifexec(ps.width1 ne '' && ps.width2 ne '', begin)>
 /* 項目の幅の設定 */
+<@ifexec(ps.width1 ne '', begin)>
 <@id>>ul>li {
 	width:		<@x1=ps.width1>px;	/* １段目の幅 = X1 */
 }
+<$end>
+<@ifexec(ps.width1_free, begin)>
+<@id>>ul>li, <@id>>ul>li>a {
+	width:		auto;
+}
+<$end>
+<@ifexec(ps.width2 ne '', begin)>
 <@id>>ul>li>ul,
 <@id>>ul>li>ul li {
 	width:		<@x2=ps.width2>px;	/* ２段目の幅 = X2 */
 }
+<$end>
+<@ifexec(ps.width1 ne '' && ps.width2 ne '', begin, begin)>
 body <@id>>ul>li:last-child:not(:first-child)>ul {
 	left:		<@x1-x2>px;	/* = X1-X2 */
+}
+body <@id>>ul>li:last-child:not(:first-child)>ul ul {
+	left:		<@-x2>px;	/* = -X2 */
+}
+body <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
+	left:		<@x2>px;	/* = X2 */
+}
+<$else>
+body <@id>>ul>li:last-child:not(:first-child)>ul {
+	left:		0px;
 }
 body <@id>>ul>li:last-child:not(:first-child)>ul ul {
 	left:		<@-x2>px;	/* = -X2 */
@@ -114,8 +133,11 @@ body <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
 }
 <$end>
 <@ifexec(ps.item_padding ne '', begin)>
-<@id> li a {
+<@id>>ul>li>a {
 	padding:	0 <@ps.item_padding>px;
+}
+<@id>>ul>li>ul li a {
+	padding:	0 <@ps.item_padding2>px;
 }
 <$end>
 <@>----------------------------------------------------------------

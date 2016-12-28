@@ -1384,10 +1384,11 @@ initfunc.push( function(R){
 	R.findx('.js-ddmenu-free-item-width').each(function(idx,dom) {
 		var ch = $(dom).children('ul').children();
 		for(var i=0; i<ch.length; i++) {
-			var a = $(ch[i]).children('a');
-			a.css('width', 'auto').css('display', 'inline-block');
-			var w = a.outerWidth()+2;
-			$(ch[i]).width( w ).data('width', w);
+			var li = $(ch[i]);
+			var a  = li.children('a');
+			a.css('display', 'inline-block');
+			var w = Math.ceil( a.outerWidth() );
+			li.width( w );
 			a.css('display', 'block');
 		}
 	});
@@ -1396,10 +1397,9 @@ initfunc.push( function(R){
 		var ch = obj.children();
 		var width = 0;
 		for(var i=0; i<ch.length; i++) {
-			var li = $(ch[i]);
-			width += li.data('width') || li.outerWidth();
+			width += Math.ceil( $(ch[i]).outerWidth() );
 		}
-		width+=2;	// for IE and GC bug?
+		width += 1;
 		obj.width(width);
 	});
 });

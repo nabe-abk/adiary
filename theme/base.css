@@ -1279,6 +1279,7 @@ ul.menu {
 	text-decoration: none;
 	overflow:	hidden;
 	width:		100%;
+	box-sizing:	border-box;
 }
 /* 項目文字列を上下中央揃えする細工 */
 .dropdown-menu>ul a:after {
