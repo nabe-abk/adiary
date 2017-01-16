@@ -471,22 +471,16 @@ sub plugin_install {
 	my $name   = $plugin->{name};			# インストール名
 	my $n      = $self->plugin_name_check( $name );	# プラグイン名
 
-	# インストールディレクトリ
-	my $func_dir = $self->{blog_dir} . 'func/';
-	my $skel_dir = $self->{blog_dir} . 'skel/';
-	my $js_dir   = $self->{blogpub_dir} . 'js/';
-	my $css_dir  = $self->{blogpub_dir} . 'css/';
-	my $cssd_dir = $self->{blogpub_dir} . 'css.d/';	# 自動ロードcss
-	my $plg_dir  = $self->plugin_name_dir($n);	# plugin/ : 読み込み用
-
-	my $copy = $self->{plugin_symlink} ? 'file_symlink' : 'file_copy';
-
 	# 必要なディレクトリの作成
-	$ROBJ->mkdir( $func_dir );
-	$ROBJ->mkdir( $skel_dir );
-	$ROBJ->mkdir( $js_dir   );
-	$ROBJ->mkdir( $css_dir  );
-	$ROBJ->mkdir( $cssd_dir );
+	$ROBJ->mkdir( $self->{blog_dir} . 'func/' );
+	$ROBJ->mkdir( $self->{blog_dir} . 'skel/' );
+	$ROBJ->mkdir( $self->{blogpub_dir} . 'js/'    );
+	$ROBJ->mkdir( $self->{blogpub_dir} . 'css/'   );
+	$ROBJ->mkdir( $self->{blogpub_dir} . 'css.d/' );
+
+	# インストールディレクトリ
+	my $plg_dir  = $self->plugin_name_dir($n);	# plugin/ : 読み込み用
+	my $copy = $self->{plugin_symlink} ? 'file_symlink' : 'file_copy';
 
 	# ファイルのインストール
 	my $err=0;
@@ -498,6 +492,9 @@ sub plugin_install {
 
 		# タイプ別のフィルタ
 		my $des = $self->get_plugin_install_dir( $_ );
+		if ($des && substr($_,0,5) eq 'skel/') {
+			$self->mkdir_with_filepath( $des, $_ );
+		}
 
 		if (!$des) {
 			$ROBJ->error("[plugin:%s] Not allow directory name : %s", $name, $_);
