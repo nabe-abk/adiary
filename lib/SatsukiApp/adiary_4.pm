@@ -580,6 +580,9 @@ sub plugin_uninstall {
 	my $cssd=0;
 	foreach(split("\n", $files)) {
 		my $r = $ROBJ->file_delete( $_ );
+		if (!$r) {	# 削除失敗でもファイルがなければ良しとする
+			$r = !(-x $ROBJ->get_filepath( $_ ) );
+		}
 		if ($r) {	# 成功
 			if ($_ =~ m|/css\.d/|) { $cssd=1; }
 			next;
