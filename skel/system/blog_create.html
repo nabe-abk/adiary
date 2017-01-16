@@ -17,7 +17,7 @@
 	<table>
 	<tbody>
 	<tr>
-	<th>ブログID</th>
+	<th>ブログID<span class="help" data-help="先頭文字は「a-z」。2文目以降は「a-z, 0-9, _」のみ使用可能。">?</span></th>
 	<td<@FormError.c_id>>
 		<input type="text" class="w80" name="id" id="blogid" value="<@esc(Form.id) || Auth.id>" pattern="^[a-z][a-z0-9_]*$" required>
 	</td>
@@ -29,10 +29,19 @@
 		<input type="checkbox" name="load_design" value="1"<@if(Form.load_design || Form.load_design eq '',' checked')>><label>標準デザインをロードする</label>
 	</td>
 	</tr>
+	<tr>
+	<th>コピー元ブログ<span class="help" data-help="存在するブログのコピーブログを作成します。画像やあらゆる設定が引き継がれます。">?</span></th>
+	<td>
+		<select name="copy_id">
+			<option value="">（コピーしない）</option>
+			<@forexec(t, v.load_blog_list('id'), begin)>
+			<option value="<@t.id>"<@if(s.default_blogid eq t.id,' selected')>><@if(t.private, "【非公開】")><@t.id>: <@t.blog_name></option>
+			<$end>
+		</select>
+	</td>
+	</tr>
 	</tbody>
 	</table>
-
-	<p>※先頭は「a-z」。2文目以降は「a-z, 0-9, _」のみ使用可能。
 
 	<button type="submit">ブログを作成</button>
 	</form>

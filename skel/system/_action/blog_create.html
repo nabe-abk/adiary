@@ -2,12 +2,13 @@
 <$ifbreak(csrf_check())>
 <$ifbreak(! Auth.isadmin)>
 
-<$action_return = v.blog_create(Form.id)>
+<$action_return = v.blog_create(Form.id, Form.copy_id)>
 
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
 	<$message('ブログを作成しました')>
-	<$ifexec(Form.load_design, begin)>
+	<$ifmessage(Form.copy_id, "ブログ「<@Form.copy_id>」からデータをコピーしました")>
+	<$ifexec(!Form.copy_id && Form.load_design, begin)>
 		<$v.load_default_design(Form.id)>
 	<$end>
 	<$jump('_sub/reload_message', v.get_blog_path(Form.id) . '?set/')>

@@ -22,6 +22,8 @@ sub blog_create {
 	my $DB   = $self->{DB};
 	my $auth = $ROBJ->{Auth};
 	my $id   = shift;
+	my $copy_id = shift;
+
 	if (! $auth->{ok}) { $ROBJ->message('Not login'); return 1; }
 	if ($self->{sys}->{blog_create_root_only} && ! $auth->{isadmin}) {
 		$ROBJ->message('Operation not permitted');
@@ -29,6 +31,11 @@ sub blog_create {
 	}
 	if (! $auth->{isadmin}) {
 		$id = $auth->{id};
+		$copy_id = undef;
+	}
+	if ($copy_id && !$self->find_blog($copy_id)) {
+		$ROBJ->message("Can't find copy blog id '%s'", $copy_id);
+		return 20;
 	}
 	# blogidの確認
 	if (! $auth->{isadmin}) {
@@ -55,6 +62,21 @@ sub blog_create {
 		# キャッシュ除去
 		delete $self->{_cache_find_blog}->{$id};
 	}
+
+	if ($r || !$copy_id) { return $r; }
+
+	# ブログデータのコピー
+	$ROBJ->dir_copy( $self->blog_dir   ( $copy_id ), $self->blog_dir   ( $id ) );
+	$ROBJ->dir_copy( $self->blogpub_dir( $copy_id ), $self->blogpub_dir( $id ) );
+	$self->copy_tables($copy_id, $id);
+
+	# 再構築
+	my $current = $self->{blogid};
+	$self->set_and_select_blog( $id );
+	$self->rebuild_blog();
+	$self->reinstall_plugins();
+
+	$self->set_and_select_blog_force( $current );
 	return $r;
 }
 
@@ -498,7 +520,7 @@ sub clear_cache {
 # ■データベースがらみサブルーチン
 ###############################################################################
 #------------------------------------------------------------------------------
-# ●記事テーブルの作成
+# ●ブログテーブルの作成
 #------------------------------------------------------------------------------
 sub create_tables {
 	my ($self, $table) = @_;
@@ -564,13 +586,13 @@ sub create_tables {
 } # End of create_tanble
 
 #------------------------------------------------------------------------------
-# ●記事テーブルの削除
+# ●ブログテーブルの削除
 #------------------------------------------------------------------------------
 sub drop_tables {
 	my ($self, $table) = @_;
 	my $DB = $self->{DB};
 
-	my $r = 0;
+	my $r = 0;	# blog_create の copy も変更するの忘れず
 	$r += $DB->drop_table("${table}_com");
 	$r += $DB->drop_table("${table}_tagart");
 	$r += $DB->drop_table("${table}_tag");
@@ -580,6 +602,24 @@ sub drop_tables {
 	$self->delete_bloglist($table);
 
 	return $r;
+}
+
+#------------------------------------------------------------------------------
+# ●ブログテーブルのコピー
+#------------------------------------------------------------------------------
+sub copy_tables {
+	my ($self, $src, $des) = @_;
+	my $DB = $self->{DB};
+
+	my @tables = qw(_art _tag _tagart _com);
+	$DB->begin();
+	foreach my $table (@tables) {
+		my $items = $DB->select("${src}$table");
+		foreach(@$items) {
+			$DB->insert("${des}$table", $_);
+		}
+	}
+	$DB->commit();
 }
 
 ###############################################################################
