@@ -452,7 +452,7 @@ $(function(){
 	if (!codes.length) return;
 	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
 
-	$.getScript(ScriptDir + 'highlight.pack.js', function(){
+	cached_getScript(ScriptDir + 'highlight.pack.js', function(){
 		$('pre.syntax-highlight').each(function(i, block) {
 			hljs.highlightBlock(block);
 		});
@@ -490,7 +490,7 @@ $(function(){
 		},
 		extensions: ['jsMath2jax.js']
 	};
-	$.getScript( MathJaxURL );
+	cached_getScript( MathJaxURL );
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -999,7 +999,7 @@ initfunc.push( function(R){
 	// color pickerのロード
 	var dir = ScriptDir + 'colorpicker/';
 	prepend_css_file(dir + 'css/colorpicker.css');
-	$.getScript(dir + "colorpicker.js", initfunc);
+	cached_getScript(dir + "colorpicker.js", initfunc);
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1748,6 +1748,19 @@ function prepend_css_file(file) {
 	});
 	$("head").prepend(css);
 	return css;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//cacheするgetScript
+//////////////////////////////////////////////////////////////////////////////
+function cached_getScript(url, func) {
+	var opt = {
+		dataType: 'script',
+		cache: true,
+		url: url
+	};
+	if (func) opt.success=func;
+	return $.ajax( opt );
 }
 
 //////////////////////////////////////////////////////////////////////////////
