@@ -496,29 +496,9 @@ sub plugin_install {
 		# 親ディレクトリ参照などの防止
 		$ROBJ->clean_path($_);
 
-		# 最初のディレクトリ名分離
-		my ($dir, $file) = $self->split_equal($_, '/');
-		if ($dir eq '') { next; }
-
 		# タイプ別のフィルタ
-		my $des;
-		if ($dir eq 'func') {
-			$des = $func_dir . $file;
-		}
-		if ($dir eq 'js') {
-			$des = $js_dir . $file;
-		}
-		if ($dir eq 'css') {
-			$des = $css_dir . $file;
-		}
-		if ($dir eq 'css.d') {
-			$des = $cssd_dir . $file;
-			$cssd=1;
-		}
-		if ($dir eq 'skel') {
-			$self->mkdir_with_filepath( $skel_dir, $file );
-			$des = $skel_dir . $file;
-		}
+		my $des = $self->get_plugin_install_dir( $_ );
+
 		if (!$des) {
 			$ROBJ->error("[plugin:%s] Not allow directory name : %s", $name, $_);
 			$err++;
@@ -531,7 +511,8 @@ sub plugin_install {
 		}
 
 		# 既にファイルが存在している場合はエラー
-		$des = $ROBJ->get_filepath($des);
+		$des .= $_;
+		$des  = $ROBJ->get_filepath($des);
 		if (-e $des) {
 			$ROBJ->error("[plugin:%s] File already exists : %s", $name, $des);
 			$err++;
@@ -547,13 +528,13 @@ sub plugin_install {
 		}
 
 		# インストールしたファイルを記録
-		push(@copy_files, $des);
+		push(@copy_files, $_);
 	}
 	if ($cssd) { $self->update_dynamic_css(); }
 
 	if ($err) {
 		foreach(@copy_files) {
-			$ROBJ->file_delete( $_ );
+			$ROBJ->file_delete( $self->get_plugin_install_dir($_) . $_ );
 		}
 		return $err;
 	}
@@ -566,6 +547,21 @@ sub plugin_install {
 
 	return 0;
 }
+
+sub get_plugin_install_dir() {
+	my $self = shift;
+	my $file = shift;
+	my ($dir, $file) = $self->split_equal($_, '/');
+
+	if ($dir eq 'func' || $dir eq 'skel') {
+		return $self->{blog_dir};
+	}
+	if ($dir eq 'js' || $dir eq 'css' || $dir eq 'css.d') {
+		return $self->{blogpub_dir};
+	}
+	return ;
+}
+
 #------------------------------------------------------------------------------
 # ●プラグインのアンインストール
 #------------------------------------------------------------------------------
@@ -579,16 +575,17 @@ sub plugin_uninstall {
 	my $err=0;
 	my $cssd=0;
 	foreach(split("\n", $files)) {
-		my $r = $ROBJ->file_delete( $_ );
+		my $file = $self->get_plugin_install_dir($_) . $_;
+		my $r = $ROBJ->file_delete( $file );
 		if (!$r) {	# 削除失敗でもファイルがなければ良しとする
-			$r = !(-x $ROBJ->get_filepath( $_ ) );
+			$r = !(-x $ROBJ->get_filepath( $file ) );
 		}
 		if ($r) {	# 成功
 			if ($_ =~ m|/css\.d/|) { $cssd=1; }
 			next;
 		}
 		$err++;
-		$ROBJ->error("[plugin:%s] File delete failed : %s", $name, $_);
+		$ROBJ->error("[plugin:%s] File delete failed : %s", $name, $file);
 	}
 	if ($cssd && !$plugin->{module_dcss}) {
 		$self->update_dynamic_css();
