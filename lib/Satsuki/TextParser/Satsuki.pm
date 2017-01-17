@@ -1,13 +1,13 @@
 use strict;
 #------------------------------------------------------------------------------
 # システム標準パーサー／Satsukiパーサー
-#                                             (C)2006-2015 nabe / nabe@abk
+#                                             (C)2006-2017 nabe / nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::TextParser::Satsuki;
 # ※注意。パッケージ名変更時は78行目付近も修正のこと！
 
 use Satsuki::AutoLoader;
-our $VERSION = '2.10';
+our $VERSION = '2.20';
 #------------------------------------------------------------------------------
 # \x00-\x03は内部で使用するため、処理の過程で除去されます。
 #	\x00 文字列の一時退避用
@@ -514,7 +514,7 @@ push(@Blocks, {
 	pre    => 1
 });
 push(@Blocks, {
-	start  => sub {		# Hatena's pre class >|class|
+	start  => sub {		# syntax highlight >|js|
 		if ($_[0] !~ /^>\|([\w#\-]+)\|(.*)/) { return; }
 		return [$1, $2];
 	},
@@ -621,7 +621,7 @@ push(@Blocks, {
 	atag   => 1,
 	p      => 1
 });
-push(@Blocks, {		# Hatena quote, >http://example.com/
+push(@Blocks, {		# Hatena's blockquote, >http://example.com/
 	start  => sub {
 		if ($_[0] !~ m|^>(https?://[^>]*)>(.*)|) { return; }
 		return ["[$1]", $2];
@@ -1500,8 +1500,10 @@ sub replace_original_tag {
 		if (ref($_)) { push(@ary, $_); next; }
 
 		# 自由変数書き換え
-		if ($_ =~ /^:::([A-Za-z]\w*)\s*=\s*(.*)/) {
-			$self->{vars}->{$1} = $2;
+		if ($_ =~ /^:::([^\s]+)\s*=\s*(.*)/) {
+			my $n = $1;
+			my $v = $2;	# 自由変数定義中の記法タグを処理
+			$self->{vars}->{$n} = $self->parse_tag( $v );
 			next;
 		}
 		# 内部変数書き換え
@@ -1568,8 +1570,17 @@ sub parse_tag {
 	# [ ] タグを処理
 	while ($count>0 && $this =~ /(^|.*?[^\\])\[((?:\\\[|\\\]|[^\[\]])+)\](.*)/s) {
 		my $p0 = $1;	# tagより前
+		my $cmd= $2;	# コマンド
 		my $p1 = $3;	# tagより後ろ
-		$this = $self->special_command( $2 );
+
+		# [$name] → 自由変数nameの中身を出力
+		if ($cmd =~ /^\$(.*)$/) {
+			$this = $self->{vars}->{$1};
+			$this =~ s/\$/&#36;/g;
+			$this = $p0 . $this . $p1;
+			next;
+		}
+		$this = $self->special_command( $cmd );
 		$this =~ s/\[/&#91;/g;
 		$this =~ s/\]/&#93;/g;
 		$this =~ s/:/&#58;/g;
@@ -1594,11 +1605,7 @@ sub special_command {
 	# [&icon-name] → [icon:icon-name]
 	$cmd_line =~ s/^&(\w+)$/icon:$1/g;
 	# [&http://youtube.com/] → [filter:http://youtube.com]
-	$cmd_line =~ s/^&(.+)$/filter:$1/g;
-	# [$name] → 自由変数nameの中身を出力
-	if ($cmd_line =~ /^\$(.*)$/) {
-		return $self->{vars}->{$1};
-	}
+	$cmd_line =~ s/^&([^#].*)$/filter:$1/g;
 
 	# cmd:arg1:arg2 ... のパース
 	if (!$opt->{verb}) {
@@ -2018,7 +2025,7 @@ sub tag_delete {
 sub un_escape {
 	my $self=shift;
 	foreach(@_) {
-		$_ =~ s/&#(40|41|91|93|123|125|124|58|42|94|126|61|43|45);/chr($1)/eg;
+		$_ =~ s/&#(36|40|41|91|93|123|125|124|58|42|94|126|61|43|45);/chr($1)/eg;
 	}
 	return $_[0];
 }

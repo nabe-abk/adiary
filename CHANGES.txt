@@ -5,12 +5,15 @@
 -大きな変更点
 --IE8以前のサポートを止めました（関連コードを削除しました）。
 --pop/akaneテーマを収録しました。
---[http://adiary.org/v3man/Satsuki-detail/MathJax:MathJax/TeX記法]を使いやすくしました。
 -システム面
 --nginxに正式対応しました。((以前のものでも設定次第では動きます))
 --ページキッシュ機能を実装しました。
 --jQuery 3にアップデート。
 --jQuery UIをアップデート。
+-入力記法
+--[http://adiary.org/v3man/Satsuki-detail/MathJax:MathJax/TeX記法]を使いやすくしました。
+--自由変数展開後に、更に記法タグを処理するよう仕様変更しました。（[http://field-city.xsrv.jp/nomura/iot/0183:Thanks to nomura]）
+--自由変数定義中の記法タグが展開されるようになりました。（[http://field-city.xsrv.jp/nomura/iot/0183:Thanks to nomura]）
 -_top.htmlのサイドバーが反映されなかったのを修正し、その他更新しました。
 -月別の記事一覧も、ブログ設定のコンテンツ分離を参照するようにしました。
 -静的出力で、プラグインJSも自動処理するようにしました。
@@ -38,7 +41,7 @@
 
 -全文検索時、記事のタグも検索対象にしました。
 -IE9以前の互換モードで起こるCSS XSS対策がまだ一部残っていたのでオフにしました。
--HTMLヘッダを自由に設定できるようになりました。([https://twitter.com/nomura_games/status/773850665340710912:Thanks to nomura])
+-HTMLヘッダを自由に設定できるようになりました。（[https://twitter.com/nomura_games/status/773850665340710912:Thanks to nomura]）
 -ドロップダウンメニューにタグ一覧を表示できるようになりました。（[https://twitter.com/goro_sanNomura/status/702506093340037121:Thanks to nomura]）
 -記事入力画面を少し改良しました。
 -【記法】数式入力を簡単にするTeXモードの実装
