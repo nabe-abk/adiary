@@ -514,7 +514,7 @@ push(@Blocks, {
 	pre    => 1
 });
 push(@Blocks, {
-	start  => sub {
+	start  => sub {		# Hatena's pre class >|class|
 		if ($_[0] !~ /^>\|([\w#\-]+)\|(.*)/) { return; }
 		return [$1, $2];
 	},
@@ -621,9 +621,9 @@ push(@Blocks, {
 	atag   => 1,
 	p      => 1
 });
-push(@Blocks, {
+push(@Blocks, {		# Hatena quote, >http://example.com/
 	start  => sub {
-		if ($_[0] !~ m|>(https?://[^>]*)>(.*)|) { return; }
+		if ($_[0] !~ m|^>(https?://[^>]*)>(.*)|) { return; }
 		return ["[$1]", $2];
 	},
 	end    => '<<',
@@ -631,6 +631,15 @@ push(@Blocks, {
 	htag   => 1,
 	atag   => 1,
 	p      => 1
+});
+push(@Blocks, {
+	start  => sub {
+		my ($line, $self) = @_;
+		if (!$self->{tex_mode} || $line !~ m|^\\\[(.*)|) { return; }
+		return ['math', $1];
+	},
+	end    => '\]',
+	tag    => 'div'
 });
 foreach(@Blocks) {
 	$_->{len} = length($_->{start});
@@ -681,6 +690,11 @@ sub block_parser_main {
 				$line  =~ s/ +$//;	# \ の手前のスペース除去
 				$line .= shift(@$lines);
 			}
+			# TeXモード
+			if ($self->{tex_mode}) {
+				$line =~ s/\$\$(.*?)\$\$/'[[mathd:' . &tex_escape($1) . ']]'/eg;
+				$line =~ s/\$(.*?)\$/    '[[math:'  . &tex_escape($1) . ']]'/eg;
+			}
 			# mini verbatim表記  {xxx}, {<tag>}, {[xxx:tag]}
 			$line =~ s/\\([\{\}])/ "\x01#" . ord($1) . ';'/eg;	# { } のエスケープ
 			$line =~ s/\{\{(.*?)\s?\}\}|(\[\[.*?\]\])/
@@ -712,7 +726,7 @@ sub block_parser_main {
 			my $opt;
 			foreach(@Blocks) {
 				my $start = $_->{start};
-				if (ref($start) && (my $ma = &$start($line))) {
+				if (ref($start) && (my $ma = &$start($line, $self))) {
 					$opt = join(' ', @$ma);
 					$blk = $_;
 					last;
@@ -1498,11 +1512,6 @@ sub replace_original_tag {
 
 		if ($self->{autolink} && $_ =~ /https?:|ftp:/) {
 			$_ = $self->do_autolink( $_ );
-		}
-
-		if ($self->{tex_mode}) {
-			$_ =~ s/\$\$(.*?)\$\$/'[[mathd:' . &tex_escape($1) . ']]'/eg;
-			$_ =~ s/\$(.*?)\$/    '[[math:'  . &tex_escape($1) . ']]'/eg;
 		}
 
 		# タグ処理

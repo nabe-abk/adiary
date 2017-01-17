@@ -484,7 +484,7 @@ $(function(){
 		TeX: { equationNumbers: {autoNumber: "AMS"} },
 		tex2jax: {
 			inlineMath: [],
-			DisplayMath: [],
+			displayMath: [],
 			processEnvironments: false,
 			processRefs: false
 		},
