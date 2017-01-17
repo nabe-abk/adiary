@@ -1281,9 +1281,11 @@ sub parse_section {
 		push(@ary, $line);
 	}
 
-	if ($self->{more_read})  { push(@ary, "<!--%MoreEnd%-->\n"); }
 	if ($self->{in_section}) {
 		push(@ary, {section_end => 1});	# 位置をマーキング
+	}
+	if ($self->{more_read})  { push(@ary, "<!--%MoreEnd%-->\n"); }
+	if ($self->{in_section}) {
 		push(@ary, "</section>\n");
 	}
 
