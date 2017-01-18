@@ -42,69 +42,7 @@
 		<input type="hidden" id="sort-type" value="name">
 		<input type="hidden" id="sort-rev"  value="0">
 	</div>
-	<div id="album-folder-view"></div>
-
-	<form action="<@v.myself>?edit" method="POST" id="paste-form" data-tag="<@tags.file>" data-exif-tag="<@tags.exif>">
-	<input type="hidden" name="action" value="etc/dummy">
-	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
-	<input type="hidden" name="paste_txt" value="" id="paste-txt">
-	<button type="submit" id="paste-thumbnail" data-tag="<@tags.thumb>">サムネイルを貼付</button>
-	<button type="submit" id="paste-original"  data-tag="<@tags.image>">元画像を貼付</button>
-	<input type="checkbox" class="js-switch js-save" data-target="#paste-detail"><label>詳細</label><br>
-	<div id="paste-detail">
-		キャプション <input type="text" name="paste_caption" id="paste-caption" class="w160"><br>
-		表示 <select id="paste-class" name="paste_class" class="js-save">
-			<option value="">そのまま</option>
-			<option value="center">センタリング</option>
-			<option value="float-l">左寄せ（回り込み）</option>
-			<option value="float-r">右寄せ（回り込み）</option>
-		</select><br>
-		<br>
-	</div>
-
-	<select id="album-actions">
-		<option value="" selected>その他の操作</option>
-		<option value="album-move-files" data-select="1">ファイルの移動</option>
-		<option value="remake-thumbnail" data-select="1">サムネイル再生成</option>
-		<option value="select-exifjpeg">Exif検索</option>
-		<option value="remove-exifjpeg"  data-select="1">Exif削除</option>
-	</select>
-	</form>
-
-	<section>
-	<!--========================================================================-->
-	<h3>アップロード</h3>
-	<div class="messages" id="upload-messages" style="display: none;"><@join("\n", Message)></div>
-
-	<form action="<@v.myself>?etc/ajax_dummy" method="POST" enctype="multipart/form-data" id="upload-form" target="form_response">
-	<input type="hidden" name="action" value="<@v.skel_dir>upload_form">
-	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
-	<input type="hidden" name="folder" value="" id="upload-folder">
-	<div id="dnd-files"></div><div id="file-elements"><input type="file" name="file0_ary" multiple id="file"></div>
-	<button type="submit" id="upload">upload</button>
-	サムネイル<select name="size" id="thumbnail-size" class="r js-save js-combo" data-target="#size-other" data-format="%vpx">
-			<option value="120" selected>120px</option>
-			<option value="160">160px</option>
-			<option value="240">240px</option>
-			<option value="320">320px</option>
-			<option value="400">400px</option>
-			<option value="480">480px</option>
-	</select>
-	<input type="hidden" value="1" id="auto-upload">
-	<span id="delete-exif-box"><input type="checkbox" id="delete-exif" class="js-save" name="del_exif" value="1"><label>Exif削除</label><span class="help" data-help="アップロード時、JPEG画像に含まれるExif情報を削除します。">?</span></span>
-	</form>
-	</section>
-
-	<!-- 許可拡張子 -->
-	<br>
-	<input type="checkbox" class="js-switch" data-target="#upload-information"><label>最大サイズ、拡張子情報</label>
-	<section id="upload-information">
-	<div>最大サイズ : <@(v.uplaod_files_max>>20)>MB</div>
-	<div>画像拡張子 : <@join(' ', sort_str(keys(v.album_image_ext)))></div>
-	<$call('album/_load_extensions')>
-	<$x = copy(v.album_allow_ext)><$delete(x.('.'))><$delete(x.('..'))>
-	<div>許可拡張子 : <@join(' ', sort_str(keys(x)))></div>
-	</section>
+<@call('album/_main-view')>
 </div>
 </article>
 

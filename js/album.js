@@ -1304,7 +1304,12 @@ function input_change() {
 		if ($(obj).val() == '') flag=false;
 	});
 	if (!flag) return;
-	apeend_input_file();
+
+	// 送信フォームの追加
+	// apeend_input_file()
+
+	// アップロードの実行
+	upform.submit();
 }
 //-----------------------------
 // 新しい要素の追加

@@ -1002,7 +1002,7 @@ ul.dynatree-container > li > ul {
 #file-elements input {
 	display:		block;
 }
-#upload-information {
+#upload-information-view {
 	font-size:		90%;
 	line-height:		130%;
 	margin-bottom:		1em;
@@ -1481,6 +1481,9 @@ ul.menu {
 }
 #sp-album #album-folder-view {
 	min-height:		60px;
+}
+.sp #upload-information {
+	margin-top:		2em;
 }
 .ui-dialog #album-folder-tree ul {
 	margin:			0;
