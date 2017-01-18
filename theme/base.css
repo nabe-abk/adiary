@@ -884,6 +884,9 @@ span.ui-icon.ui-icon-search {
 ul.dynatree-container a {
 	font-weight:		normal;
 }
+ul.dynatree-container > li > ul {
+	padding-left:		8px;
+}
 .side-folder-tree ul.dynatree-container {
 	min-height:		300px;
 	margin-bottom:		2px;
