@@ -1,9 +1,10 @@
 <@6>
-<@local(ps,name,nclose)>
+<@local(ps,name,switch,nclose)>
 <@>
 <$name = argv#0>
 <$ps = v.load_plgset(name)>
-<$nclose = if(ps.nclose ne '0', 1, 0)>
+<$switch = ps.switch)>
+<$nclose = ps.nclose>
 <$notag_arts = argv#2>
 <@>
 <@>---------------------------------------------------------------------
@@ -15,13 +16,15 @@
 <$tree  = node.children>
 <$depth = argv#1><@>prefix
 <$p = "\t" %x depth>
-<@p><ul id="sidetag-<@if(node.root,'root',node.pkey)>"<@if(node.root, ' class="hatena-section"')><@if(!node.root && nclose, ' style="display: none"')>>
+<@p><ul id="sidetag-<@if(node.root,'root',node.pkey)>"<@if(node.root, ' class="hatena-section"')>>
 <@forexec(t, tree, begin.forexec)>
 <$ifnext(!ps.disp_noart_tag && !t.qtall)>
 <@ifexec(t.children, begin, begin)>
 <$tid="sidetag-<@t.pkey>">
 <@p>	<li> <@\>
-	<span class="js-switch" data-save="1" data-target="#<@tid>"> <@\>
+	<@ifexec(switch, begin)>
+	<span class="js-switch" data-save="1" data-target="#<@tid>"<@if(nclose, ' data-default="hide"')>> <@\>
+	<$end>
 	<a href="<@v.myself>?&amp;t=<@encode_uricom(x =t.name)>"><@t.sname></a></span> <span class="qt">(<span><@t.qtall></span>)</span>
 <@exec(sub, t, depth+1)>
 <@p>	</li>

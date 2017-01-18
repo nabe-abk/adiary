@@ -16,5 +16,13 @@
 			<input type="checkbox" name="disp_noart_tag" value="1"<@if(ps.disp_noart_tag,' checked')>><label>表示する</label>
 		</td>
 	</tr>
+	<tr>
+		<th>折り畳みスイッチ<span class="help" data-help="ノードを開いたり閉じたりするスイッチを表示するか指定します。">?</span></th>
+		<td>
+			<input type="checkbox" name="switch" value="1"<@if(ps.switch, ' checked')>
+			 class="js-enable" data-target="#des-taglist-nclose"><label>表示する</label>
+			&emsp;<input type="checkbox" name="nclose" id="des-taglist-nclose" value="1"<@if(ps.nclose, ' checked')>><label>標準で閉じる</label>
+		</td>
+	</tr>
 	</tbody>
 	</table>

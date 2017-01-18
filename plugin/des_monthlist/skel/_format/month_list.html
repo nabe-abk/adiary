@@ -1,8 +1,7 @@
 <@6>
-<@local(ps,y,yc,yyyymm,nclose,name)>
+<@local(ps,y,yc,yyyymm,name)>
 <$name = argv#0>
 <$ps = v.load_plgset(name)>
-<$nclose = if(ps.nclose ne '0', 1, 0)>
 <@>
 <@>---------------------------------------------------------------------
 <@>月別記事数リスト
@@ -30,8 +29,8 @@
 <@forexec(t, argv#1, begin)>
 	<@ifexec(t.year != y, begin)>
 	<@if(y, "\t</ul>\n")>
-	<li><span class="month-list-year js-switch" data-save="1" data-target="#month-list-<@t.year>"><a href="<@v.myself2><@t.year>"><@t.year>年</a></span> <span class="qt">(<span><@yc.(t.year)></span>)</span>
-	<ul id="month-list-<@t.year>"<@if(y && nclose, ' style="display: none"')>>
+	<li><span class="month-list-year js-switch" data-save="1" data-target="#month-list-<@t.year>"<@if(y, ' data-default="hide"')>><a href="<@v.myself2><@t.year>"><@t.year>年</a></span> <span class="qt">(<span><@yc.(t.year)></span>)</span>
+	<ul id="month-list-<@t.year>">
 	<$end>
 		<li><a href="<@v.myself2><@t.yyyymm>"><@t.year>年<@t.mon>月</a> <span class="count">(<span><@t.count></span>)</span></li>
 	<$y=t.year>

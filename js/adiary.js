@@ -866,6 +866,7 @@ initfunc.push( function(R) {
 // (例)
 // <input type="button" value="ボタン" class="js-switch" data-target="xxx"
 //  data-switch-speed="500" data-hide-val="表示する" data-show-val="非表示にする">
+//  data-default="show/hide">
 initfunc.push( function(R){
 	function display_toggle(btn, init) {
 		if (btn[0].tagName == 'A') return false;	// リンククリックは無視
@@ -893,6 +894,8 @@ initfunc.push( function(R){
 			if (type == 'checkbox' || type == 'radio') btn.prop("checked", flag);
 		} else if (type == 'checkbox' || type == 'radio') {
 			flag = btn.prop("checked");
+		} else if (init && btn.data('default')) {
+			flag = (btn.data('default') != 'hide');
 		} else {
 			flag = init ? !target.is(':hidden') : target.is(':hidden');
 		}
