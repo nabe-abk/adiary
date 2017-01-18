@@ -344,6 +344,7 @@ insert_image = function(text, caption, fclass) {
 	//------------------------------------------------------------------
 	// キャプションとブロックの処理
 	//------------------------------------------------------------------
+	if (caption) caption = caption.replace(/^\s+/,'').replace(/\s+$/,'');
 	if (caption || fclass) {
 		caption = caption ? caption : '';
 		fclass  = fclass  ? fclass  : '';
@@ -458,7 +459,15 @@ fileup.click( function(){
 		});
 		if(!dnd_files && !flag) return;	// 1つもセットされていない
 		paste_type = form.find('select[name="paste"]').val() || '';
-		ajax_upload( form[0], dnd_files, upload_files_insert );
+
+		var exif    = $('#paste-to-exif').prop('checked');
+		var caption = $('#paste-caption').val();
+		var fclass  = $('#paste-class').val();
+		ajax_upload( form[0], dnd_files, function(data, folder){
+			upload_files_insert(data, folder, exif, caption, fclass);
+		});
+
+		dnd_files = null;
 		div.dialog( 'close' );
 		thumb.detach();
 		div.remove();
@@ -479,7 +488,7 @@ fileup.click( function(){
 //----------------------------------------------------------------------------
 // ●アップロード後の処理
 //----------------------------------------------------------------------------
-function upload_files_insert(data, folder) {
+function upload_files_insert(data, folder, exif, caption, fclass) {
 	if (data['fail']) {
 		show_error('#msg-upload-fail', {
 			n: data['fail'] + data['success'],
@@ -496,6 +505,7 @@ function upload_files_insert(data, folder) {
 	var ary = data['files'];
 	if (!data['success'] || !ary) return;
 
+	var exiftag = exif ? $('#paste-tag').data('exif') : null;
 	var text = '';
 	var esc_dir = esc_satsuki_tag(folder);
 	for(var i=0; i<ary.length; i++) {
@@ -508,13 +518,18 @@ function upload_files_insert(data, folder) {
 			f: esc_satsuki_tag(name),
 			c: ''
 		};
+		if (exiftag && name.match(/\.jpe?g$/i)) {
+			rep.c = exiftag.replace(/%([def])/g, function($0,$1){ return rep[$1] });
+		}
+
 		// タグ生成
 		var tag = ary[i].isImg ? img_tag : file_tag;
 		tag = tag.replace(/%([cdef])/g, function($0,$1){ return rep[$1] });
 		// 記録
-		text += tag;
+		text += (text ? "\n" : "") + tag;
 	}
-	insert_image( text );
+
+	insert_image(text, caption, fclass);
 }
 
 //----------------------------------------------------------------------------
@@ -548,7 +563,6 @@ function ajax_upload( form_dom, upfiles, callback ) {
 			if (!upfiles[i]) continue;
 			fd.append('file_ary', upfiles[i]);
 		}
-		upfiles = null;
 	}
 
 	// submit処理

@@ -1084,11 +1084,10 @@ function paste_button(evt) {
 		ary.push(tag);
 	}
 	var text= ary.join(evt.ctrlKey ? " \\\n" : "\n");
+	// この仕様を変更したら、edit画面の upload の変更も検討のこと
 
 	var caption = $('#paste-caption').val();
 	var fclass  = $('#paste-class').val();
-	if (caption) caption = caption.replace(/^\s+/,'').replace(/\s+$/,'');
-
 	if (window.opener) {
 		// 子ウィンドウとして開かれていたら
 		window.opener.insert_image(text, caption, fclass);

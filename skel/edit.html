@@ -296,7 +296,7 @@
 
 <@> ファイルアップロード用データ
 <$tags = call('album/_load_tags')>
-<span id="paste-tag" data-file="<@tags.file>"></span>
+<span id="paste-tag" data-file="<@tags.file>" data-exif="<@tags.exif>"></span>
 
 <div id="thumbnail-info"><br>
 <select name="paste">
@@ -311,11 +311,25 @@
 	<option value="320">320px</option>
 	<option value="400">400px</option>
 	<option value="480">480px</option>
-</select></div>
+</select>
+	<input type="checkbox" class="js-switch js-save" data-target="#paste-detail"><label>詳細</label><br>
+
+<ul id="paste-detail">
+	<li><input type="checkbox" id="paste-to-exif" class="js-save"><label>Exifも貼り付ける</label>
+	<li>キャプション <input type="text" name="paste_caption" id="paste-caption" class="w200">
+	<li>表示 <select id="paste-class" name="paste_class" class="js-save">
+		<option value="">そのまま</option>
+		<option value="center">センタリング</option>
+		<option value="float-l">左寄せ（回り込み）</option>
+		<option value="float-r">右寄せ（回り込み）</option>
+	</select>
+</ul>
+</div>
+
+
 <div id="size-other" data-title="サムネイルサイズ">
 <input type="number" value="120" class="w50" min="60" max="800">px （60～800）
 </div>
-
 
 </div>
 
