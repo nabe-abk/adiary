@@ -12,7 +12,8 @@ body, #adiary-body {
 }
 html {
 	min-width:		0;
-	background-color:       rgba(255,255,255,0.7);
+}
+body {
 }
 div.main {
 	margin-left:		0px;
@@ -26,6 +27,7 @@ div.main {
 	width:			auto;
 	min-width:		0px;	/* for GC bugs */
 	max-width:		auto;
+	background-color:	rgba(255,255,255,0.5);
 }
 #hatena-body {
 	padding-left:		4px;

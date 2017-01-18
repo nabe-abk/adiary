@@ -103,6 +103,12 @@ html {
 
 body {
     position:               relative;
+
+    background-image:       url("bg.jpg");
+    background-position:    top right;
+    background-attachment:  fixed;
+    background-color:       white;
+    background-repeat:      no-repeat;
 }
 
 /* ブラウザ描画領域上部 */
@@ -147,11 +153,6 @@ $option=no-theme-name
 #adiary-body {
     width:                  960px;
     margin:                 0 auto;
-    background-image:       url("bg.jpg");
-    background-position:    top right;
-    background-attachment:  fixed;
-    background-color:       white;
-    background-repeat:      no-repeat;
 }
 
 /* 管理メニュー部 */
