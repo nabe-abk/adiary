@@ -19,7 +19,7 @@ body {
 }
 #adiary-body {
 	min-width:		0;
-	max-width:		auto;
+	max-width:		none;
 	width:			auto;
 }
 #hatena-body {

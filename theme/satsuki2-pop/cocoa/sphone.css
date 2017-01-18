@@ -26,7 +26,7 @@ div.main {
 	margin:			0;
 	width:			auto;
 	min-width:		0px;	/* for GC bugs */
-	max-width:		auto;
+	max-width:		none;
 	background-color:	rgba(255,255,255,0.5);
 }
 #hatena-body {

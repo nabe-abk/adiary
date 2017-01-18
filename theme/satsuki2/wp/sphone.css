@@ -15,7 +15,7 @@ body {
 #side-b {
 	width:			auto;
 	min-width:		1px;	/* for GC bugs */
-	max-width:		auto;
+	max-width:		none;
 }
 #hatena-body {
 	padding:		0 4px;
