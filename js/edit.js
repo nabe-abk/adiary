@@ -127,14 +127,6 @@ function tag_append(tag_text) {
 }
 
 //############################################################################
-// ■パーサーの変更
-//############################################################################
-parsel.change( function(){
-	init_helper( parsel.val() );
-});
-$( function(){ parsel.change() } );
-
-//############################################################################
 // ■公開状態の変更
 //############################################################################
 var echk = $('#enable-chk');
@@ -322,7 +314,7 @@ function ajax_edit_lock(action, func, unlock) {
 // ●カーソル位置にテキスト挿入
 //----------------------------------------------------------------------------
 // save to global for album.js
-insert_image = function(text) {
+insert_image = function(text, caption, fclass) {
 	if (html_mode) {
 		var imgdir = $('#image-dir').text();
 		text = text.replace(/\[image:((?:\\[:\[\]]|[^\]])+)\]/g, function(ma, m1){
@@ -347,6 +339,28 @@ insert_image = function(text) {
 			return '<a href="' + imgdir + ary[1] + ary[2] + '">'
 				+ ary[3] + '</a>';
 		});
+	}
+
+	//------------------------------------------------------------------
+	// キャプションとブロックの処理
+	//------------------------------------------------------------------
+	if (caption || fclass) {
+		caption = caption ? caption : '';
+		fclass  = fclass  ? fclass  : '';
+		if (helper_mode == 'default') {
+			if (caption) fclass = fclass + ((fclass == '') ? '' : ' ') + "caption=" + caption
+			if (fclass) {
+				text = ">>|figure " + fclass + "\n"
+					+ text + "\n" +
+					"|<<\n";
+			}
+		} else {
+			text = (helper_mode == 'markdown' ? ' ' : '')
+				+ '<figure class="' + fclass + '">'
+				+ text
+				+ (caption ? '<figcaption>'+ tag_esc_amp(caption) +'</figcaption>' : '').toString()
+				+ "</figure>\n";
+		}
 	}
 	return insert_text(text);
 }
@@ -688,6 +702,14 @@ function init_helper(parser_name) {
 	if (info.init) info.init(mode);
 }
 
+//----------------------------------------------------------------------------
+// ●パーサーの変更
+//----------------------------------------------------------------------------
+parsel.change( function(){
+	init_helper( parsel.val() );
+});
+parsel.change();	// call init_helper()
+
 //////////////////////////////////////////////////////////////////////////////
 // ■記法ヘルパーの各機能
 //////////////////////////////////////////////////////////////////////////////
@@ -849,7 +871,8 @@ function satsuki_quote_tag(evt) {
 // ■画像アルバムを開く
 //----------------------------------------------------------------------------
 function open_album(evt) {
-	var win = window.open($(evt.target).data('url'), 'album', 'location=yes, menubar=no, resizable=yes, scrollbars=yes');
+	var url = $(evt.target).data('url');
+	var win = window.open(url, 'album', 'location=yes, menubar=no, resizable=yes, scrollbars=yes');
 	win.focus();
 };
 
@@ -930,5 +953,14 @@ function esc_satsuki_tag_nested(str) {
 	return str;
 }
 
+//############################################################################
+// ■paste処理 / init_helper() 後に呼び出すこと
+//############################################################################
+(function() {
+	var txt = $('#paste-txt');
+	if (!txt || $('#editarea').val() != "") return;
+
+	insert_image( txt.text(), $('#paste-caption').text(),  $('#paste-class').text() );
+})();
 //############################################################################
 });

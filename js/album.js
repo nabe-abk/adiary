@@ -1079,14 +1079,19 @@ function paste_button(evt) {
 		if (exiftag && img.data('isimg') && name.match(/\.jpe?g$/i)) {
 			rep.c = exiftag.replace(/%([def])/g, function($0,$1){ return rep[$1] });
 		}
+
 		tag = tag.replace(/%([cdef])/g, function($0,$1){ return rep[$1] });
 		ary.push(tag);
 	}
-	var text= ary.join( evt.ctrlKey ? " \\\n" : "\n" )
+	var text= ary.join(evt.ctrlKey ? " \\\n" : "\n");
+
+	var caption = $('#paste-caption').val();
+	var fclass  = $('#paste-class').val();
+	if (caption) caption = caption.replace(/^\s+/,'').replace(/\s+$/,'');
 
 	if (window.opener) {
 		// 子ウィンドウとして開かれていたら
-		window.opener.insert_image(text);
+		window.opener.insert_image(text, caption, fclass);
 		window.close();
 		return false;
 	}

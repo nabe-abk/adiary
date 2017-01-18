@@ -591,6 +591,13 @@ push(@Blocks, {
 	tag    => 'blockquote'
 });
 push(@Blocks, {
+	start  => '>>|figure',
+	end    => '|<<',
+	tag    => 'figure',
+	htag   => 1,
+	atag   => 1
+});
+push(@Blocks, {
 	start  => '>>|',
 	end    => '|<<',
 	tag    => 'blockquote',
@@ -609,6 +616,14 @@ push(@Blocks, {
 	start  => '>>ins',
 	end    => '<<',
 	tag    => 'ins',
+	htag   => 1,
+	atag   => 1,
+	p      => 1
+});
+push(@Blocks, {
+	start  => '>>figure',
+	end    => '<<',
+	tag    => 'figure',
 	htag   => 1,
 	atag   => 1,
 	p      => 1
@@ -752,6 +767,12 @@ sub block_parser_main {
 						}
 						my %b = %$blk; $blk = \%b;
 						$blk->{after} = "<cite>$tag</cite>";
+					}
+				}
+				if ($tag eq 'figure') {
+					if ($opt =~ /^(.*)caption=\s*(.*?)\s*$/) {
+						$opt = $1;
+						$blk->{after} = "<figcaption>$2</figcaption>";
 					}
 				}
 				# クラス, ID指定
@@ -1811,6 +1832,10 @@ sub paragraph_processing {
 		# モジュールのみの行を段落処理しないでdivブロック化する
 		if ($_ =~ /^\s*(?:<module [^>]*>\s*)+\s*$/) {
 		 	$_ = "<div class=\"module\">$_</div>\n";
+		}
+		# figureのみの行を段落処理しない
+		if ($p_mode && $_ =~ m|^\s*<figure>.*</figure>\s*$|) {
+		 	$_ .= ($p_mode==1 || $br_mode ? '<br>' : '') . "\n";
 		}
 
 		# 行送り措置

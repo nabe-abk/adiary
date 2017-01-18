@@ -6,7 +6,7 @@
 <div class="body">
 	<div id="album-header">
 		<div>
-			操作<span class="help" data-help="クリック：選択\nダブルクリック：表示\nSHIFT+クリック：範囲選択\nCTRL+クリック：ダウンロード\nCTRL+記事に : 改行せずに貼り付け">?</span>
+			操作<span class="help" data-help="クリック：選択\nダブルクリック：表示\nSHIFT+クリック：範囲選択\nCTRL+クリック：ダウンロード">?</span>
 			<input type="checkbox" id="all-select"><label>全選択</label>
 		</div>
 		<div class="view-option">
@@ -54,7 +54,17 @@
 	<input type="hidden" name="paste_txt" value="" id="paste-txt">
 	<button type="submit" id="paste-thumbnail" data-select="1" data-tag="<@tags.thumb>">サムネイルを記事に</button>
 	<button type="submit" id="paste-original"  data-select="1" data-tag="<@tags.image>">元画像を記事に</button>
-	<input type="checkbox" id="paste-to-exif" class="js-save"><label>Exifも記事に</label><br>
+	<input type="checkbox" class="js-switch js-save" data-target="#paste-detail"><label>詳細</label><br>
+	<ul id="paste-detail">
+		<li><input type="checkbox" id="paste-to-exif" class="js-save"><label>Exifも貼り付ける</label>
+		<li>キャプション <input type="text" name="paste_caption" id="paste-caption" class="w200">
+		<li>表示 <select id="paste-class" name="paste_class" class="js-save">
+			<option value="">そのまま</option>
+			<option value="center">センタリング</option>
+			<option value="float-l">左寄せ（回り込み）</option>
+			<option value="float-r">右寄せ（回り込み）</option>
+		</select>
+	</ul>
 	<select id="album-actions">
 		<option value="" selected>その他の操作</option>
 		<option value="album-move-files" data-select="1">ファイルの移動</option>

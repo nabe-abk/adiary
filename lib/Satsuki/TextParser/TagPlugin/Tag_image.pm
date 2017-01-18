@@ -100,9 +100,10 @@ sub image {
 	my $attr = $pobj->make_attr($ary, \%tag2, $tagclass || 'image');
 	   $name = $pobj->make_name($ary, $name);
 
-	return "<figure class=\"image\"><a href=\"$link\"$attr><img alt=\"$name\"$size src=\"$url\"></a>$caption</figure>";
+	my $tag = "<a href=\"$link\"$attr><img alt=\"$name\"$size src=\"$url\"></a>";
+	if (!$caption) { return $tag; }
+
+	return "<figure>$tag$caption</figure>";
 }
-
-
 
 1;

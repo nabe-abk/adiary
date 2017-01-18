@@ -48,8 +48,20 @@
 	<input type="hidden" name="action" value="etc/dummy">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="paste_txt" value="" id="paste-txt">
-	<button type="submit" id="paste-thumbnail" data-tag="<@tags.thumb>">サムネイルを記事に</button>
-	<button type="submit" id="paste-original"  data-tag="<@tags.image>">元画像を記事に</button><br>
+	<button type="submit" id="paste-thumbnail" data-tag="<@tags.thumb>">サムネイルを貼付</button>
+	<button type="submit" id="paste-original"  data-tag="<@tags.image>">元画像を貼付</button>
+	<input type="checkbox" class="js-switch js-save" data-target="#paste-detail"><label>詳細</label><br>
+	<div id="paste-detail">
+		キャプション <input type="text" name="paste_caption" id="paste-caption" class="w160"><br>
+		表示 <select id="paste-class" name="paste_class" class="js-save">
+			<option value="">そのまま</option>
+			<option value="center">センタリング</option>
+			<option value="float-l">左寄せ（回り込み）</option>
+			<option value="float-r">右寄せ（回り込み）</option>
+		</select><br>
+		<br>
+	</div>
+
 	<select id="album-actions">
 		<option value="" selected>その他の操作</option>
 		<option value="album-move-files" data-select="1">ファイルの移動</option>

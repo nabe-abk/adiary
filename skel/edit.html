@@ -61,6 +61,15 @@
 <@> スクリプトをロード
 <$v.regist_js("<@v.script_dir>edit.js")>
 
+<@> pasteの処理
+<@ifexec(form_.paste_txt, begin)>
+<div style="display: none">
+<div id="paste-txt"><@tag_escape_amp(form_.paste_txt)></div>
+<div id="paste-caption"><@tag_escape_amp(form_.paste_caption)></div>
+<div id="paste-class"><@tag_escape_amp(form_.paste_class)></div>
+</div>
+<$end>
+
 <@ifexec(!edit_pkey && !form_.paste_txt, begin)>
 <@><!--下書きのロード=======================================================-->
 <$logs2 = v.load_arts_list( { draft_only => 1} )>
@@ -136,7 +145,7 @@
 	<button class="helper" type="button" id="btn-list"   data-msg="箇条書きにしたい項目を１行ずつ入力">箇条<@if(!v.sphone,'書き')></button>
 	<button class="helper" type="button" id="btn-quote"  data-msg="引用したい文章を入力" data-sp-msg="引用元サイトがある場合、そのURLを入力してください">引用</button>
 	<button class="helper" type="button" id="btn-annotation" data-msg="注釈にしたい文字列を入力">注釈</button>
-	<button class="helper btn-help" type="button" id="album-open" data-url="<@v.myself>?album/#edit" data-help="画像アルバムからファイルを選択して貼り付けます。">画像</button>
+	<button class="helper btn-help" type="button" id="album-open" data-url="<@v.myself>?album/" data-help="画像アルバムからファイルを選択して貼り付けます。">画像</button>
 	<select class="helper" id="select-color" title="選択した文字列に色を付けます。" data-msg="色を変更したい文字列を入力">
 		<option value="" selected>色</option>
 		<option value="#FF0000" style="color:#FF0000;">■</option>
@@ -171,7 +180,7 @@
 	<$end>
 	</div>
 
-	<textarea name="body_txt" id="editarea" cols="60" rows="16" class="edit-article"><@tag_escape_amp( txt = art._text || form_.paste_txt)></textarea>
+	<textarea name="body_txt" id="editarea" cols="60" rows="16" class="edit-article"><@tag_escape_amp( txt = art._text )></textarea>
 
 	<span class="element" id="select-parser-span">
 <@>		<span class="edit-caption">入力記法</span>

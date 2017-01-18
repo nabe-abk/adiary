@@ -38,8 +38,8 @@ h1, h2, h3, h4, h5, h6, .dropdown-menu, button {
 	width:			64px;
 }
 
-/* アイコン */
-li.icons {
+/* inline-box, アイコン */
+.inline-box, li.icons {
 	display:		inline-block;
 }
 
@@ -355,7 +355,8 @@ article.edit span.tag {
 /*--------------------------------------------------------------------
 ●フロートオブジェクト
 ---------------------------------------------------------------------*/
-h3,h4,.clear
+/* 記事からはみ出し防止 */
+h3, h4, .clear,
 div.body-footer {
 	clear:		both;
 }
@@ -1014,6 +1015,12 @@ figure {
 	display:		inline-block;
 	margin:			0;
 }
+figcaption {
+	line-height:		100%;
+	text-align:		center;
+}
+
+
 
 /*--------------------------------------------------------------------
 ●デザイン編集
