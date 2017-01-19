@@ -1398,6 +1398,11 @@ sub css_rewrite {
 		if ($_ !~ /\$c=\s*(\w+)/) { next; }
 		my $name = $1;
 		$_ =~ s/#[0-9A-Fa-f]+/$col->{$name}/g;
+
+		# rgba() の場合
+		my $c = $col->{$name};
+		my $rgba = hex(substr($c,1,2)) . ',' . hex(substr($c,3,2)) . ',' . hex(substr($c,5,2));
+		$_ =~ s/rgba\(\d+,\d+,\d+/rgba($rgba/g;
 	}
 	return \@ary;
 }
@@ -1513,8 +1518,9 @@ sub load_theme_colors {
 		if ($_ =~ /\$c=\s*([\w]+)/) {	# /* $c=main */ 等の色名定義
 			my $name = $1;
 			$_ =~ s/#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])([^0-9A-Fa-f])/#$1$1$2$2$3$3$4/g;
+			$_ =~ s/rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d\.]+)\s*\)/rgba($1,$2,$3,$4)/ig;
 
-			if ($_ =~ /(#[0-9A-Fa-f]+)/) {
+			if ($_ =~ /(#[0-9A-Fa-f]+)/ || $_ =~ /(rgba\(\d+,\d+,\d+,[\d\.]+\))/) {
 				if ($col{$name} && $col{$name} ne $1) {
 					$col{"-err-$name"} = "[$line_c]$_<br> &emsp; " . $col{$name};
 				}

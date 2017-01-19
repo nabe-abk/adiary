@@ -250,6 +250,16 @@ function init_custom_form(data, data2) {
 			err += '<div>' + data[k] + '</div>';
 			continue;
 		}
+		// rgbaを変更
+		var ma = data[k].match(/rgba\((\d+),(\d+),(\d+)/);	// rgba(255,255,255, 0.7)
+		if (ma) {
+			var val = '#';
+			for(var i=1; i<4; i++)
+				val += ('0' + (parseInt(ma[i])).toString(16)).substr(-2);
+			data[k] = val;
+			console.log(val);
+		}
+
 		if (k.substr(-4) == '-cst') continue;
 		if (k.substr(-4) == '-rel') continue;
 		cols.push({name: k, val: data[k], priority: get_priority(k) });
@@ -409,7 +419,7 @@ function update_css() {
 	input_cols.each(function(idx,dom){
 		var obj = $(dom);
 		var val = obj.data('val') || obj.val();
-		if (val.match(/#[0-9A-Fa-f]{3}/) || val.match(/#[0-9A-Fa-f]{6}/))
+		if (val.match(/#[0-9A-Fa-f]{6}/))
 			col[ obj.attr('name').substr(2) ] = val;
 	});
 	var opt = {};
@@ -453,7 +463,8 @@ function update_css() {
 		// 色カスタム
 		var ma = x.match(/\$c=(\w+)/);
 		if (!ma) continue;
-		lines[i] = x.replace(/#[0-9A-Fa-f]+/, col[ ma[1] ]);
+		lines[i] = x.replace(/#[0-9A-Fa-f]+/,     col[ ma[1] ])
+		            .replace(/rgba\(\d+,\d+,\d+/, RGBtoRGBA( col[ ma[1] ] ));
 	}
 	var new_css = lines.join("\n");
 	if_css.html( new_css );
@@ -461,6 +472,16 @@ function update_css() {
 	// CSSによる設定反映
 	// iframe[0].contentWindow.css_inital();
 	CSS_ReInit = true;
+}
+
+function RGBtoRGBA(rgb) {
+	var ma = rgb.match(/#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})/);
+	if (!ma) return "rgba(0,0,0";
+
+	var r = parseInt('0x' + ma[1]);
+	var g = parseInt('0x' + ma[2]);
+	var b = parseInt('0x' + ma[3]);
+	return 'rgba(' + r + ',' + g + ',' + b;
 }
 
 //////////////////////////////////////////////////////////////////////////////
