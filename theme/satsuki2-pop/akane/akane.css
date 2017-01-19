@@ -134,7 +134,7 @@ body {
 	background-color:		#ffe8f4;
 }
 /* 全体背景オプション ---------------------------------------------- */
-/* $option=bg:check
+/* $option:default=bg:check
 body {
 	background-image:		url("bg_check.png");
 }
