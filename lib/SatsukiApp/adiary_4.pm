@@ -1323,7 +1323,7 @@ sub save_theme {
 	my %opt;
 	my $diff;
 	foreach(keys(%$opt)) {
-		if ($_ !~ /^(.*)-cst$/) { next; }
+		if ($_ !~ /^(.*)-default$/) { next; }
 		# デフォルトを含む
 		$diff=1;
 		if ($form->{$1} ne '') { next; }
@@ -1478,7 +1478,8 @@ sub load_theme_colors {
 				$opt{$1} ||= [];
 				push(@{ $opt{$1} }, $3);
 				if ($2) {
-					$opt{"$1-cst"} = $3;	# default value
+					$opt{"$1-cst"}     = $3;	# default value
+					$opt{"$1-default"} = $3;	# default value
 					$_ =~ s/(\$option\d*):default/$1/;
 				}
 			}

@@ -327,14 +327,18 @@ function init_custom_form(data, data2) {
 
 		var obj = $('<span>').attr('id', 'options');
 		for(var i=0; i<opts.length; i++) {
-			var sel = $('<select>').attr('name', opts[i].name);
+			var name = opts[i].name;
+			
+			if (name.substr(-8) == '-default') continue;
+			var sel = $('<select>').attr('name', name);
 			sel.append($('<option>').attr('value','').text( name2msg('option') ));
 			sel.change( function(evt){
 				update_css();
 			});
 			var list = opts[i].list;
 			var val  = opts[i].val || '';
-			sel.data('default', val);
+			sel.data('default',  val);
+			sel.data('original', data2[name + '-default'] || '');
 			var h = {};
 			for(var j=0; j<list.length; j++) {
 				if (h[list[j]]) continue;	// 重複チェック
@@ -491,7 +495,7 @@ $('#btn-super-reset').click( function() {
 	});
 	select_opts.each(function(idx,dom){
 		var obj = $(dom)
-		obj.val('');
+		obj.val( obj.data('original') );
 	});
 	form_reset();
 	update_css();
