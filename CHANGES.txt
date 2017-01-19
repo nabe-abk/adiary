@@ -16,6 +16,8 @@
 --自由変数定義中の記法タグが展開されるようになりました。（[http://field-city.xsrv.jp/nomura/iot/0183:Thanks to nomura]）
 --figureブロック記法を追加しました。
 -_top.htmlのサイドバーが反映されなかったのを修正し、その他更新しました。
+-簡単に[http://adiary.org/v3man/Satsuki-tag/base:#banner:画像でリンクできる]ようになりました。（[https://twitter.com/uni_sio/status/768243697435541504:Thanks to しおこんぶ]）
+--【例】[http://adiary.org:[image:S::banner.jpg]]
 -月別の記事一覧も、ブログ設定のコンテンツ分離を参照するようにしました。
 -静的出力で、プラグインJSも自動処理するようにしました。
 -管理者メニューからブログを作成するとき、存在するブログをコピーできるようになりました。
