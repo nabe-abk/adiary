@@ -949,8 +949,8 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 //●色選択ボックスを表示。 ※input[type=text] のリサイズより先に行うこと
 //////////////////////////////////////////////////////////////////////////////
+var load_picker;
 initfunc.push( function(R){
-	var load_picker;
 	var cp = R.findx('input.color-picker');
 	if (!cp.length) return;
 
@@ -998,6 +998,8 @@ initfunc.push( function(R){
 	};
 
 	if (cp.ColorPicker) return initfunc();
+	if (load_picker) return load_picker.push(cp);
+	load_picker = cp;
 
 	// color pickerのロード
 	var dir = ScriptDir + 'colorpicker/';

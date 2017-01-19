@@ -1322,6 +1322,13 @@ sub save_theme {
 	my %col;
 	my %opt;
 	my $diff;
+	foreach(keys(%$opt)) {
+		if ($_ !~ /^(.*)-cst$/) { next; }
+		# デフォルトを含む
+		$diff=1;
+		if ($form->{$1} ne '') { next; }
+		$css .= "\n/* \$$1= */";
+	}
 	foreach(keys(%$form)) {
 		if ($_ =~ /^option\d*$/ && $form->{$_} ne '') {
 			$opt{$_} = $form->{$_};
@@ -1465,12 +1472,14 @@ sub load_theme_colors {
 	foreach(@$lines) {
 		$line_c++;
 		$_ =~ s/\r\n?/\n/;
-		if ($in_opt || $_ =~ /\$(option\d*)=(.+)/) {	# オプション中
+		if ($in_opt || $_ =~ /\$(option\d*)(:default)?=([^\s]+)/) {	# オプション中
 			if (!$in_opt) {
 				$in_opt=1;
-				if ($2 ne 'default') {
-					$opt{$1} ||= [];
-					push(@{ $opt{$1} }, $2);
+				$opt{$1} ||= [];
+				push(@{ $opt{$1} }, $3);
+				if ($2) {
+					$opt{"$1-cst"} = $3;	# default value
+					$_ =~ s/(\$option\d*):default/$1/;
 				}
 			}
 			if ($_ =~ m|\*/|) {
