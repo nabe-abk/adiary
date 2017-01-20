@@ -14,3 +14,6 @@ https://www.google.com/webmasters/tools/
 生成した xml ファイルの実態は、
 	pub/<blogid>/sitemap.xml
 に置かれています。
+
+記事を更新するごとに sitemap.xml は再生成されますので、
+記事が多いと、処理が重くなるかも知れません。
