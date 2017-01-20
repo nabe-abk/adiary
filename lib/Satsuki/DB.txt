@@ -361,8 +361,10 @@ $self->rollback();
 ・Text-DB
 select/insert/update/delete のみ対応。
 同じテーブルに対し同時に１つしかトランザクションは走らない。
+
 ・PostgreSQL
 正しくトランザクションが処理されます。
+
 ・MySQL(MyISAM)
 一切のトランザクション動作が期待できません。
 
