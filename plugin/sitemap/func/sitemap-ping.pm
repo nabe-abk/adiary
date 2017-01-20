@@ -28,7 +28,7 @@ sub {
 		# Ping送信
 		$http->get("$_$sitemap");
 	}
-	$ROBJ->notice("sitemap.xml update ping sended");
+	$ROBJ->notice("Sitemap update notification sent");
 
 	return 0;
 }
