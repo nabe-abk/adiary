@@ -1,7 +1,7 @@
 <@6>
 <@local(ps)>
 <$ps=argv#0>
-	<$txt = ps.msg_txt><$ifexec(ps.msg, begin)><$replace(txt, '<br>', "\n")><$end>
+	<$txt = ps.msg_txt><$ifexec(ps.lf2br, begin)><$replace(txt, '<br>', "\n")><$end>
 	フォームの後ろに出力する内容。
 	<textarea class="w512" rows="4" name="msg_txt"><@esc(txt)></textarea>
 	<a href="<@v.myself>?etc/allow_tags&amp;n=usertext" target="_blank">※使用可能なHTMLタグ</a><br>
