@@ -1,9 +1,9 @@
 use strict;
 #-------------------------------------------------------------------------------
 # テキストデータベース
-#					(C)2005-2016 nabe / ABK project
+#					(C)2005-2017 nabe / ABK project
 #-------------------------------------------------------------------------------
-# 旧名 : DB_pseudo（擬似データベース）
+# 旧名 : DB_pseudo
 #
 #■■■編集時の注意■■■
 # 　値を返し、または変更するとき、内部ハッシュ配列 $db および
@@ -13,7 +13,7 @@ package Satsuki::DB_text;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 
-our $VERSION = '1.21';
+our $VERSION = '1.22';
 our $FileNameFormat = "%05d";
 our %IndexCache;
 ###############################################################################
@@ -472,6 +472,8 @@ sub load_index {
 	# 6行目 = floatカラム名
 	if ($version > 3) {	# Ver4以降のみ存在
 		$self->{"$table.float"}= { map { $_ => 1} split(/\t/, shift(@$lines)) };
+	} else {
+		$self->{"$table.float"} = {};
 	}
 	# 7行目 = flagカラム名
 	$self->{"$table.flag"} = { map { $_ => 1} split(/\t/, shift(@$lines)) };

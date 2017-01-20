@@ -39,7 +39,7 @@ sub create_table {
 			$self->error("Column %s is dupulicate or 'pkey' is not allow", $table, $col);
 			return 10;
 		}
-		$cols{$col}=1;
+		$cols{$col}=1;	# ここを書き換えたら add_column も変更すること
 		if    ($_->{type} eq 'int')   { $int_cols  {$col}=1; }
 		elsif ($_->{type} eq 'float') { $float_cols{$col}=1; }
 		elsif ($_->{type} eq 'flag')  { $flag_cols {$col}=1; }
@@ -189,9 +189,11 @@ sub add_column {
 		return 8;
 	}
 	# テーブル情報の書き換え
-	if    ($h->{type} eq 'int')  { $self->{"$table.int"} ->{$col}=1; }
-	elsif ($h->{type} eq 'flag') { $self->{"$table.flag"}->{$col}=1; }
-	elsif ($h->{type} eq 'text') { $self->{"$table.str"} ->{$col}=1; }
+	if    ($h->{type} eq 'int')   { $self->{"$table.int"}  ->{$col}=1; }
+	elsif ($h->{type} eq 'float') { $self->{"$table.float"}->{$col}=1; }
+	elsif ($h->{type} eq 'flag')  { $self->{"$table.flag"} ->{$col}=1; }
+	elsif ($h->{type} eq 'text')  { $self->{"$table.str"}  ->{$col}=1; }
+	elsif ($h->{type} eq 'ltext') { $self->{"$table.str"}  ->{$col}=1; }
 	else {
 		$self->error('Column "%s" have invalid type "%s"', $col, $h->{type});
 		return 10;
@@ -241,6 +243,16 @@ sub drop_column {
 	delete $self->{"$table.unique"}->{$column};
 	delete $self->{"$table.notnull"}->{$column};
 	delete $self->{"$table.idx"}->{$column};
+
+	# 削除カラムのデータ消去
+	$self->load_allrow($table);
+	my $all = $self->{"$table.tbl"};
+	foreach(@$all) {
+		if ($_->{$column} eq '') { next; }
+
+		delete $_->{$column};
+		$self->write_rowfile($table, $_);
+	}
 
 	# index の保存
 	$self->save_index($table);
