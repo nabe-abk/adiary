@@ -11,7 +11,7 @@ sub {
 	my $plg  = $self->load_plgset($name);
 	if (!$form->{ping} || !$plg->{ping}) { return; }
 
-	my $urls = $plg->{urls_txt} || 'http://www.google.com/webmasters/tools/ping';
+	my $urls = $plg->{urls_txt} || 'http://google.com/ping?sitemap=';
 	my @url  = split(/\n/, $urls);
 	my $sitemap  = $ROBJ->{Server_url} . $self->{myself} . '?sitemap';
 	$ROBJ->encode_uricom($sitemap);
@@ -22,12 +22,11 @@ sub {
 
 	foreach(@url) {
 		$_ =~ s/^\s*(.*?)\s*$/$1/;
-		if (!$_ || $_ =~ /^#/) { continue; }
-		if ($_ !~ m|^https?://|i) { continue; }
+		if (!$_ || $_ =~ /^#/)    { next; }
+		if ($_ !~ m|^https?://|i) { next; }
 
 		# Ping送信
-		$http->get("$_?$sitemap");
-		$self->debug("$_?$sitemap");
+		$http->get("$_$sitemap");
 	}
 	$ROBJ->notice("sitemap.xml update ping sended");
 

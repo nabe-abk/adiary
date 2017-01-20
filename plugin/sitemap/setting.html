@@ -14,13 +14,14 @@
 		<th>更新通知</th>
 		<td>
 			<input type="checkbox" name="ping" value="1"<@if(ps.ping, ' checked')>>
-			<label>新たに記事を書いたら更新を通知する</label>
+			<label>新たに記事を書いたら更新を通知する</label><br>
+			注意：<a href="https://www.google.com/webmasters/tools/">GoogleへサイトマップURLを予め登録</a>してください。
 		</td>
 	</tr>
 	<tr>
 		<th>通知先リスト</th>
 		<td>
-			<textarea name="urls_txt" id="urls-txt" class="w400" rows="3"><@esc(ps.ping_txt || 'http://www.google.com/webmasters/tools/ping')></textarea>
+			<textarea name="urls_txt" id="urls-txt" class="w400" rows="3"><@esc(ps.urls_txt || "# Google\nhttp://google.com/ping?sitemap=")></textarea>
 		</td>
 	</tr>
 	</table>
