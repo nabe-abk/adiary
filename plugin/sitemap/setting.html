@@ -1,0 +1,26 @@
+<@6>
+<@local(ps)>
+<$ps=argv#0>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>サイトマップURL</th>
+		<td>
+			<a href="<@Server_url><@v.myself>?sitemap"><@Server_url><@v.myself>?sitemap</a>
+		</td>
+	</tr>
+	<tr>
+		<th>更新通知</th>
+		<td>
+			<input type="checkbox" name="ping" value="1"<@if(ps.ping, ' checked')>>
+			<label>新たに記事を書いたら更新を通知する</label>
+		</td>
+	</tr>
+	<tr>
+		<th>通知先リスト</th>
+		<td>
+			<textarea name="urls_txt" id="urls-txt" class="w400" rows="3"><@esc(ps.ping_txt || 'http://www.google.com/webmasters/tools/ping')></textarea>
+		</td>
+	</tr>
+	</table>

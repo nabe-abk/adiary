@@ -1,0 +1,17 @@
+<@6>
+<@local(logs, t, tz, url)>
+<$logs = argv#0>
+<$tz   = argv#1>
+<$url  = "<@Server_url><@v.myself2>">
+<@>
+<@> sitemap.xml スケルトン
+<@>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<@forexec(t, logs, begin)>
+<url>
+<loc><@url><@esc_xml(t.elink_key)></loc>
+<lastmod><@tm_printf('%Y-%m-%dT%H:%M:%S')><@tz></lastmod>
+</url>
+<$end>
+</urlset>

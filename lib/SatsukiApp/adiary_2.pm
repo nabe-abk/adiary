@@ -235,9 +235,6 @@ sub edit_article {
 	$art->{first_visible} = $opt{first_visible};
 
 	# イベント呼び出しと固定の後処理
-	if ($opt{first_visible}) {
-		$self->call_event('ARTICLE_FIRST_VISIBLE', $art, $form);
-	}
 	$self->call_event('ARTICLE_AFTER', $art, $form);
 	if ($opt{edit_pkey})  { $self->call_event('ARTICLE_AFTER_EDIT', $art, $form); }
 			 else { $self->call_event('ARTICLE_AFTER_POST', $art, $form); }
@@ -249,6 +246,11 @@ sub edit_article {
 		$self->call_event('COMMENT_STATE_CHANGE', [ $art->{pkey} ]);
 	}
 	$self->call_event('ARTCOM_STATE_CHANGE', [ $art->{pkey} ]);
+
+	# 初公開
+	if ($opt{first_visible}) {
+		$self->call_event('ARTICLE_FIRST_VISIBLE', $art, $form);
+	}
 
 	# 正常終了
 	return wantarray ? (0, $art) : 0;

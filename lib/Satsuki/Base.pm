@@ -1529,7 +1529,7 @@ sub time2timehash {
 sub change_hour {
 	my $self = shift;
 	my $tm = shift || $self->{TM};
-	my $change_hour = shift || $self->{Change_hour};
+	my $change_hour = (defined $_[0]) ? shift : $self->{Change_hour};
 
 	my ($sec, $min, $hour, $day, $mon, $year) = localtime($tm);
 	my $ch_func = $self->{Change_hour_func};

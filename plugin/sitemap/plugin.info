@@ -1,0 +1,29 @@
+######################################################################
+title=サイトマップ
+version=1.00
+#					(C)2017 nabe@abk
+######################################################################
+description=サイトマップを生成し、検索エンジンに更新を通知します。
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=2.90
+
+*files=<<FILES
+func/<@this>.pm
+func/<@this>-uninstall.pm
+func/<@this>-ping.pm
+skel/_format/sitemap.html
+skel/sitemap.html
+FILES
+
+*events=<<EVENTS
+ARTICLE_FIRST_VISIBLE=func/<@this>-ping.pm
+ARTICLE_STATE_CHANGE=func/<@this>.pm
+INSTALL=func/<@this>.pm
+SETTING=func/<@this>.pm
+UNINSTALL=func/<@this>-uninstall.pm
+EVENTS
+

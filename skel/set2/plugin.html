@@ -24,17 +24,17 @@
 	<thead><tr>
 		<th>タイトル</th>
 		<th>使用設定</th>
-		<th class="small">ライセンス</th>
+<@>		<th class="small">ライセンス</th>
 		<th>説明・概要</th>
 	</tr></thead>
 	<tbody>
 	<$pd = v.load_plugins_dat()>
 	<@forexec(t, v.load_plugins_info(), begin)>
 	<tr>
-		<td><span class="plg-title"><@t.title></span></td>
+		<td class="nowrap"><span class="plg-title"><@t.title></span></td>
 		
 		<@ifexec(t.adiary_version <= v.VERSION, begin, begin)>
-		<td class="nowrap">
+		<td class="nowrap small">
 			<input type="radio" name="<@t.name>" value="1"<@if( pd.(t.name),' checked')>><label>ON</label>
 			<input type="radio" name="<@t.name>" value="0"<@if(!pd.(t.name),' checked')>><label>OFF</label>
 		</td>
@@ -43,7 +43,7 @@
 			<strong class="warning">非対応</strong><span class="help" data-help="このプラグインは「adiary Version <@t.adiary_version>」以降で使用できます。">?</span
 		</td>
 		<$end>
-		<td class="c"><@t.license></td>
+<@>		<td class="c"><@t.license></td>
 		<td>
 		<span class="plg-name"><@t.name></span>
 		<span class="plg-version">Ver<@t.version></span>
@@ -88,13 +88,13 @@
 		<th>タイトル</th>
 		<th>使用</th>
 		<th>タイプ</th>
-		<th class="small">ライセンス</th>
+<@>		<th class="small">ライセンス</th>
 		<th>説明・概要</th>
 	</tr></thead>
 	<tbody>
 	<@forexec(t, v.load_plugins_info(1), begin)>
 	<tr>
-		<td><span class="plg-title"><@t.title></span></td>
+		<td ><span class="plg-title"><@t.title></span></td>
 		<td class="c">
 		<@ifexec(t.adiary_version <= v.VERSION, begin, begin)>
 			OK
@@ -102,8 +102,8 @@
 			<strong class="warning">NG</strong><span class="help" data-help="このプラグインは「adiary Version <@t.adiary_version>」以降で使用できます。">?</span
 		<$end>
 		</td>
-		<td><@t.module_type></td>
-		<td class="c"><@t.license></td>
+		<td><@replace(t.module_type, ',', ', ')></td>
+<@>		<td class="c"><@t.license></td>
 		<td>
 		<span class="plg-name"><@t.name></span>
 		<span class="plg-version">Ver<@t.version></span>
