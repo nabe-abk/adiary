@@ -1,11 +1,11 @@
 use strict;
 #------------------------------------------------------------------------------
 # Base system functions for satsuki system
-#						Copyright(C)2005-2016 nabe@abk
+#						Copyright(C)2005-2017 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.10';
+our $VERSION = '2.11';
 our $RELOAD;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
@@ -1493,14 +1493,24 @@ sub split_cookie {
 # Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 2822
 sub rfc_date {
 	my $self = shift;
+	my($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(shift);
 
-	my($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($_[0]);
 	my($wd, $mn);
 	$wd = substr('SunMonTueWedThuFriSat',$wday*3,3);
 	$mn = substr('JanFebMarAprMayJunJulAugSepOctNovDec',$mon*3,3);
 
 	return sprintf("$wd, %02d $mn %04d %02d:%02d:%02d GMT"
 		, $mday, $year+1900, $hour, $min, $sec);
+}
+
+#------------------------------------------------------------------------------
+#●W3C Date
+#------------------------------------------------------------------------------
+sub w3c_date {
+	my $self = shift;
+	my($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(shift);
+	return sprintf("%04d-%02d-%02dT%02d:%02d:%02d+00:00"
+		,$year+1900, $mon+1, $mday, $hour, $min, $sec);
 }
 
 #------------------------------------------------------------------------------

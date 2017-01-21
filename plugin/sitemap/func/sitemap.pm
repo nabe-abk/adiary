@@ -19,19 +19,8 @@ sub {
 		$self->link_key_encode( $_->{elink_key} );
 	}
 
-	# タイムゾーンの取得
-	my $now  = time();
-	my @ltm  = localtime($now);
-	my @gtm  = gmtime($now);
-
-	my $hour = $ltm[2] - $gtm[2];
-	my $min  = $ltm[1] - $gtm[1];
-	if ($min < 0) { $hour--; $min+=60; }
-	if ($min >60) { $hour++; $min-=60; }
-	my $tz   = sprintf( "%+03d:%02d", $hour, $min);
-
 	# generate XML
-	my $xml  = $ROBJ->call_and_chain('_format/sitemap', $ary, $tz);
+	my $xml  = $ROBJ->call_and_chain('_format/sitemap', $ary);
 
 	# sitemap.xml
 	my $file = $self->{blogpub_dir} . 'sitemap.xml';

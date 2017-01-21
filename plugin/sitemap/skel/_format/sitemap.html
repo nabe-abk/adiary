@@ -1,7 +1,6 @@
 <@6>
-<@local(logs, t, tz, url)>
+<@local(logs, t, url)>
 <$logs = argv#0>
-<$tz   = argv#1>
 <$url  = "<@Server_url><@v.myself2>">
 <@>
 <@> sitemap.xml スケルトン
@@ -11,7 +10,7 @@
 <@forexec(t, logs, begin)>
 <url>
 <loc><@url><@esc_xml(t.elink_key)></loc>
-<lastmod><@tm_printf('%Y-%m-%dT%H:%M:%S')><@tz></lastmod>
+<lastmod><@w3c_date(t.update_tm)></lastmod>
 </url>
 <$end>
 </urlset>
