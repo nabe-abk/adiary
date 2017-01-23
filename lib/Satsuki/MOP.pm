@@ -5,14 +5,14 @@ use strict;
 #-------------------------------------------------------------------------------
 # Class::MOPのまね事です。
 package Satsuki::MOP;
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 our $AUTOLOAD;
 #------------------------------------------------------------------------------
 # ●コンストラクタ
 #------------------------------------------------------------------------------
 sub new {
 	my $class = shift;
-	return bless({ROBJ => shift}, $class);
+	return bless({ROBJ => shift, _FILENAME => shift}, $class);
 }
 #------------------------------------------------------------------------------
 # ●メソッドの追加
@@ -36,7 +36,7 @@ sub AUTOLOAD {
 	
 	# error
 	my ($pack, $file, $line) = caller;
-	if ($self->{this_filename}) { $file = $self->{this_filename}; }
+	if ($self->{_FILENAME}) { $file = $self->{_FILENAME}; }
 	die "[MOP] Can't find method '$name' at $file line $line"; 	
 }
 

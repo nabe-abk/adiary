@@ -46,9 +46,8 @@ my $noday_html = "\t<td></td>\n";
 #------------------------------------------------------------------------------
 	my $aobj = shift;
 	my $ROBJ = $aobj->{ROBJ};
-	my $self = $ROBJ->loadpm('MOP');	# 無名クラス生成用obj
+	my $self = $ROBJ->loadpm('MOP', $aobj->{call_file});	# 無名クラス生成用obj
 	$self->{aobj} = $aobj;
-	$self->{this_filename} = $aobj->{call_file};
 
 #------------------------------------------------------------------------------
 # ●カレンダー生成
