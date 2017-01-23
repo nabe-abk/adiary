@@ -149,7 +149,7 @@ _module_start
 # Twitterのツイート表示モジュール
 #------------------------------------------------------------------------------
 *tweet
-<blockquote class="twitter-tweet"><a href="https://twitter.com/${uid}/statuses/${status-id}"></a></blockquote>
+<blockquote class="twitter-tweet"><a href="https://twitter.com/${uid}/status/${status-id}"></a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 #------------------------------------------------------------------------------
