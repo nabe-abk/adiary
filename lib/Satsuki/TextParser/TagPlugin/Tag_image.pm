@@ -101,7 +101,7 @@ sub image {
 	   $name = $pobj->make_name($ary, $name);
 
 	my $tag = "<a href=\"$link\"$attr><img alt=\"$name\"$size src=\"$url\"></a>";
-	if (!$caption) { return $tag; }
+	## if (!$caption) { return $tag; }
 
 	return "<figure>$tag$caption</figure>";
 }
