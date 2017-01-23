@@ -174,7 +174,7 @@ sub add_column {
 	if (!defined $db) {
 		$self->edit_index_exit($table);
 		$self->error("Can't find '%s' table", $table);
-		return 9;
+		return 7;
 	}
 
 	my $col = $h->{name};
@@ -220,7 +220,7 @@ sub drop_column {
 	my $ROBJ = $self->{ROBJ};
 	$table  =~ s/\W//g;
 	$column =~ s/\W//g;
-	if ($table eq '' || $column eq '') { return 9; }
+	if ($table eq '' || $column eq '') { return 7; }
 
 	# テーブルindex のロード
 	$table =~ s/\W//g;
@@ -228,9 +228,10 @@ sub drop_column {
 	if (!defined $db) {
 		$self->edit_index_exit($table);
 		$self->error("Can't find '%s' table", $table);
-		return 9;
+		return 8;
 	}
 	if (! $self->{"$table.cols"}->{$column}) {
+		$self->edit_index_exit($table);
 		$self->error("Can't find '%s' column in relation '%s'", $column, $table);
 		return 9;
 	}
