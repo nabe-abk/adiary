@@ -39,5 +39,12 @@ sub AUTOLOAD {
 	if ($self->{_FILENAME}) { $file = $self->{_FILENAME}; }
 	die "[MOP] Can't find method '$name' at $file line $line"; 	
 }
+#------------------------------------------------------------------------------
+# ●debug
+#------------------------------------------------------------------------------
+sub debug {
+	my $self = shift;
+	$self->{ROBJ}->debug($_[0], 1);		# debug-safe
+}
 
 1;

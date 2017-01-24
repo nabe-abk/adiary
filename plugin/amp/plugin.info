@@ -1,0 +1,28 @@
+######################################################################
+title=AMP
+version=1.00
+#					(C)2017 nabe@abk
+######################################################################
+description=サイトをGoogle AMP(Accelerated Mobile Pages)に対応させます
+author=nabe@abk
+url=https://twitter.com/nabe_abk
+license=WTFPL
+
+# 対応するadiary Version
+adiary_version=3.09
+
+*files=<<FILES
+func/<@this>.pm
+func/<@this>-install.pm
+func/<@this>-uninstall.pm
+skel/_func/<@this>-article.html
+skel/amp.html
+skel/_frame-amp.html
+FILES
+
+*events=<<EVENTS
+INSTALL=func/<@this>-install.pm
+UNINSTALL=func/<@this>-uninstall.pm
+VIEW_ARTICLE=skel/_func/<@this>-article.html
+EVENTS
+

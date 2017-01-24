@@ -217,16 +217,18 @@ Upload: %s=アップロード : %s
 Upload fail: %s=アップロード失敗 : %s
 
 # plugin
-[plugin:%s] Install success=[plugin:%s] インストールが成功しました
-[plugin:%s] Install failed=[plugin:%s] インストールが失敗しました
-[plugin:%s] Uninstall success=[plugin:%s] アンインストールが成功しました
-[plugin:%s] Uninstall failed=[plugin:%s] アンインストールが失敗しました
+[plugin:%s] Install success=[plugin:%s] インストールに成功しました
+[plugin:%s] Install failed=[plugin:%s] インストールに失敗しました
+[plugin:%s] Uninstall success=[plugin:%s] アンインストールに成功しました
+[plugin:%s] Uninstall failed=[plugin:%s] アンインストールに失敗しました
 [plugin:%s] Uninstall event failed=[plugin:%s] アンインストールのイベント処理に失敗しました
 [plugin:%s] Not allow directory name : %s=[plugin:%s] 許可されていないディレクトリ名です : %s
 [plugin:%s] Original file not exists : %s=[plugin:%s] インストール元のファイルが読み込めません : %s
 [plugin:%s] File already exists : %s=[plugin:%s] ファイルが既に存在します : %s
 [plugin:%s] File delete failed : %s=[plugin:%s] ファイルの削除に失敗しました : %s
 [plugin:%s] Module's html generate failed : %s=[plugin:%s] モジュールHTMLの生成に失敗しました : %s
+[plugin:%s] %s event error (skeleton only) : %s=[plugin:%s] %s イベントが不正です（skeletonのみ許可) : %s
+
 File is not image : %s=画像をアップロードしてください : %s
 
 ###############################################################################

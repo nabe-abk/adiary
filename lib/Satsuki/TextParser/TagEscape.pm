@@ -128,7 +128,7 @@ sub escape {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $inp  = shift;
-	my $url_wrapper = shift;
+	my $wrapper = shift;
 	## $ROBJ->{Timer}->start('tag');
 
 	# タグ処理
@@ -180,9 +180,15 @@ sub escape {
 		my $tag      = $3;	# タグ部分
 		my $tag_end  = $4 ? ' /' : '';	# " />" 部分
 
-		my $y;
 		$x   =~ s[</(.+?)\s*>][
-				$y=$1; ($allow_any || ($y=~tr/A-Z/a-z/,exists $tag_list->{$y})) && "\x02/$y\x03"
+				my $y=$1;
+				$allow_any || ($y=~tr/A-Z/a-z/,exists $tag_list->{$y}) || return;
+				if ($wrapper->{close_tag}) {
+					$y = &{$wrapper->{close_tag}}($y);
+					$y =~ s/</\x02/g;
+					$y =~ s/>/\x03/g;
+				}
+				"\x02/$y\x03"
 			]seg;
 		$x   =~ s/</&lt;/g;
 		$x   =~ s/>/&gt;/g;
@@ -265,7 +271,7 @@ sub escape {
 			# リンクプロトコル確認 href, src など（XSS対策）
 			if (($PROTOCOL_CHECK{$_} || $DATA_PROTOCOL_CHECK{$data_attr})
 			 && (!$allow_any || $v !~ /^javascript:/i)) {
-				if ($url_wrapper) { $v = &$url_wrapper($_, $v); }	# URLラッパー
+				if ($wrapper->{url}) { $v = &{$wrapper->{url}}($_, $v); }	# URLラッパー
 				# URLの実際参照をデコード
 				my $p = &decode_ncr($v);
 				# 特殊文字のエンコード
@@ -301,6 +307,7 @@ sub escape {
 			$last_val = $v;
 		}
 		unshift(@y, $tag_name);
+		if ($wrapper->{tag}) { &{$wrapper->{tag}}(\@y, $inp); }	# tagラッパー
 		if ($#y >= 0) {
 			push(@out, '<' . join(' ', @y) . $tag_end . '>');
 		}

@@ -1,30 +1,24 @@
-<@>$HEADER$--------------------------------------------------------------------
 <@6>
 <@local(ret,s,t,t2,c,permalink,x,node,ps)>
+<@>
+<@> AMP page / See more info https://syncer.jp/amp
+<@>
+<$v.frame_skeleton = '_frame-amp'>
+<@local(ret,t)>
 <$s = v.blog>
 
-<$ifexec(argv#0, begin, begin)>
-	<$t   = argv#0>
-	<$ret = argv#1>
-	<$art_year = t.year>
-	<$art_mon  = t.mon>
-	<$art_day  = t.day>
-<$else>
-	<$(t,ret) = v.load_article_current_blog(if(v.pinfo ne '', v.pinfo, s.frontpage))>
-	<$ifset(v.pinfo eq '', frontpage, 1)>
-	<$art_year = ret.year>
-	<$art_mon  = ret.mon>
-	<$art_day  = ret.day>
-<$end>
+<$(t,ret) = v.load_article_current_blog(if(v.pinfo ne '', v.pinfo, s.frontpage))>
+<$ifset(v.pinfo eq '', frontpage, 1)>
 <$v.title = s.blog_name>
+
+<@> save to global
+<$art = t>
 
 <@ifexec(!v.blogid, begin)>
 	<$ifmessage(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません")>
 	<$ifmessage(v.path_blogid && ! Auth.ok, "もしあなたが「ID:<@v.path_blogid>」ならばログインしてください。")>
 <$end>
-<$ifexec(v.blogid && !t, begin)>
-	<$message("該当する記事がありません")>
-<$end>
+<$ifmessage(!t, "該当する記事がありません")>
 <$ifjump_clear(!t || @Message, "_sub/error_message_404")>
 
 <@>URL
@@ -36,14 +30,11 @@
 <@>記事タイトル
 <$ifset(frontpage, v.subtitle, s.fp_title, t.title)>
 
-<@> OGP/Twitter Cards
-<$ifexec(Develop || index(ENV.HTTP_USER_AGENT, 'Mozilla/')<0, begin)>
-	<$img = if(t.main_image, v.blogimg_dir() . t.main_image, '')>
-	<$call('_sub/set_ogp', 'article', permalink, v.subtitle, t.description, img)>
-<$end>
+<@><!-- AMPの処理 =============================================================-->
+<$amp = v.call_plugin_function('amp.pm', 'amp')>
 
 
-<@>$HEADER:END$----------------------------------------------------------------
+
 
 <@><!--========================================================================-->
 <$node = if(t.ctype, v.load_content_node(t.pkey), v.load_art_node(t.pkey))>
@@ -62,8 +53,6 @@
 <$end.function>
 </nav>
 <$end.page>
-<@>$ARTICLE$-------------------------------------------------------------------
-<@>$ARTICLE_TOP$---------------------------------------------------------------
 
 <!--========================================================================-->
 <@>
@@ -72,7 +61,6 @@
 <h2><@if(!t.priority, #'<a class="date" href="<@permalink>"><span class="y"><@t.year></span><span class="sep">/</span><span class="m"><@t.mon></span><span class="sep">/</span><span class="d"><@t.day></span><span class="wd">(<@t.wday_name>)</span></a>')><a href="<@permalink>" class="title"><@t.title></a></h2>
 <div class="body" id="s<@t.pkey>">
 <div class="body-header">
-<@>$ARTICLE_TOP:END$-----------------------------------------------------------
 	<$ps = v.load_plgset('dea_art-info')>
 	<div class="art-info" data-module-name="dea_art-info" data-fix="1">
 		<@ifexec(ps.hatena_bicon, begin)>
@@ -85,18 +73,17 @@
 		<@ifexec(ps.author, begin)><span class="author" title="<@t.id>"><@t.name></span><$end>
 		<@ifexec(v.check_editor(t), begin)><a href="<@v.myself2>0<@t.pkey>?edit" class="edit-article">（編集）</a><$end>
 	</div>
-<@>$ARTICLE_MIDDLE$------------------------------------------------------------
 </div><!-- body-header -->
 <div class="body-main">
 	<@if( t.draft,  '<div><strong class="warning">【この記事は下書きです】</strong></div>' )>
 	<@if(!t.draft && !t.enable, '<div><strong class="warning">【この記事は非公開です】</strong></div>')>
-<@t.text>
+<@amp.amp_txt(t)>
 	<@ifexec(t.ctype eq 'link', begin)>
 	<$x=esc(t.link_key)><p class="link"><a href="<@x>"><@x></a></p>
 	<$end>
 </div><!-- body-main -->
+
 <div class="body-footer">
-<@>$ARTICLE_MIDDLE:END$--------------------------------------------------------
 <@>記事リスト・関連記事
 <div data-module-name="dea_node-list">
 <@ifexec(node.children, begin)>
@@ -116,13 +103,10 @@
 </ul>
 <$end>
 </div>
-<@>$ARTICLE_BOTTOM$------------------------------------------------------------
 </div> <!-- body-footer -->
 </div> <!-- body -->
 </article>
-<@>$ARTICLE_BOTTOM:END$--------------------------------------------------------
 
-<@>$COMMENT_TOP$---------------------------------------------------------------
 <$coms = if(v.allow_edit, t.coms_all, t.coms)>
 <@ifexec(t.com_ok || coms, begin)>
 <$view = if(Query.c ne 'all', s.view_coms || 20)>
@@ -181,37 +165,10 @@
 	</div><!-- end of comemntview -->
 	<@if(coms && t.com_ok && v.allow_com, '<hr id="com-form-separator">')>
 
-<@>$COMMENT_TOP:END$-----------------------------------------------------------
-
-	<@ifexec(t.com_ok && v.allow_com, begin)>
-	<$ps = v.load_plgset('dec_comment-form')>
-	<form method="POST" action="<@permalink>" class="comment" id="comment-form" data-module-name="dec_comment-form" data-fix="1"
-	 data-secure="<$x=t.pkey & 255><@forexec(c, secure_ary, begin)><@c ^ x>,<$end>25">
-		<input type="hidden" name="action" value="comment_post">
-		<@if(Auth.ok, #'\t\t<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">\n')>
-		<input type="hidden" name="a_pkey" value="<@t.pkey>" id="comment-form-apkey">
-		<input type="hidden" name="secure_id" value="" id="comment-form-sid">
-		<span class="caption-name">名前</span><span class="separater">:</span>
-		<@ifexec(Auth.ok, begin, begin)><span class="comment-author"><@Auth.name></span><$else><input type="text" name="name" class="w160 comment-author" value="<@esc(Form.name)>" required><$end>
-		<@if(t.hcom_ok, '&emsp;<input type="checkbox" name="hidden" value="1"><label>非公開<span class="sp-hidden">コメント</span></label>')>
-		<button type="submit" id="post-comment">投稿</button><span class="help" data-help="返信は「>>n」\n空白、タブ有効。タグ無効。\n押せない時はちょっと待ってね。">?</span><br>
-		<textarea class="comment-txt w600" name="comment_txt" rows="3" required><@esc(Form.comment_txt)></textarea>
-		<@ifexec(ps.email, begin)>
-		<div class="post-comment-email"><span class="caption-email">E-Mail(任意/非公開)</span><span class="separater">:</span><input class="w300" type="email" name="email" value="<@esc(Form.email)>"></div>
-		<$end>
-		<@ifexec(ps.url, begin)>
-		<div class="post-comment-url"><span class="caption-url">URL(任意)</span><span class="separater">:</span><input class="w300" type="url" name="url" value="<@esc(Form.url)>"></div>
-		<$end>
-		<@ps.msg>
-	</form> <!-- comment form -->
-	<$end>
-<@>$COMMENT_BOTTOM$------------------------------------------------------------
 	</div> <!-- commentbody -->
 </aside> <!-- comment -->
 <$end>
 </div> <!-- article-box -->
-<@>$COMMENT_BOTTOM:END$--------------------------------------------------------
-<@>$ARTICLE:END$---------------------------------------------------------------
 
 
 <@ifexec(page_nav, begin.page)>
@@ -219,9 +176,3 @@
 <@page_nav>
 </nav>
 <$end.page>
-
-<@>$FOOTER$--------------------------------------------------------------------
-<@>save to global for view event
-<$permalink_ = permalink>
-<$art = t>
-

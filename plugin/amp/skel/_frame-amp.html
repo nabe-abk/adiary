@@ -1,0 +1,110 @@
+<@6>
+<@local(s,ps,tm,t,file)>
+<$inframe = argv#0>
+<@>
+<$ifset(v.title eq '', v.title, 'adiary')>
+<$tm=get_lastmodified(v.script_dir)>
+<$s = v.blog>
+<@>
+<!DOCTYPE html>
+<html amp lang="ja">
+<head>
+	<meta charset="<@System_coding>">
+	<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+	<meta name="generator" content="adiary <@v.VERSION>">
+	<meta name="author" content="<@v.blogid>">
+	<link rel="canonical" href="<@canonical_url>">
+<@>
+	<title><@v.title></title>
+<@>
+	<script type="application/ld+json">
+	{
+		"@context": "http://schema.org",
+		"@type": "NewsArticle",
+		"headline": "<@s.s.blog_name>",
+		"datePublished": "<@w3c_date(art.update_tm)>"
+	}
+	</script>
+<@>
+	<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+<@ifexec(s.gaid, begin)>
+	<script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
+<$end>
+	<script async src="https://cdn.ampproject.org/v0.js"></script>
+<@art.amp_head> 
+<style amp-custom>
+<@amp.amp_css(begin_array)>
+	<@v.theme_dir>base.css
+	<@v.theme_dir><@v.theme>/<@v.theme_name>.css
+	<@v.theme_dir><@v.theme>/sphone.css
+	<@s.theme_custom> 
+	<@v.blogpub_dir>dynamic.css
+<$end>
+
+blockquote.twitter-tweet {	/* <amp-twitter> bug */
+	border:			none;
+	background-color:	transparent;
+	background-image:	none;
+	text-indent:		-1000000px;
+}
+</style>
+</head>
+<body id="body" class="sp <@if(v.blog_admin, ' blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system')>">
+<@>
+<div id="adiary-body" class="container">
+
+<@>-----------------------------------------------------------------------------
+<@> header
+<@>-----------------------------------------------------------------------------
+<header id="sp-header"><div>
+	<h1 id="page-title" data-module-name="deh_title">
+		<a href="<@v.myself>"><@v.title></a>
+	</h1>
+</div></header>
+
+<@>-----------------------------------------------------------------------------
+<@> main
+<@>-----------------------------------------------------------------------------
+<!--Start of body ==========================================================-->
+<div id="hatena-body"><div>
+
+<!--内容====================================================================-->
+<div class="main" id="main-first">
+<@inframe>
+</div> <!-- End of main -->
+
+
+<@ifcall(Develop && (@Error || @Debug || @Warning) || ENV_print, '_sub/debug')>
+</div></div> <!-- End of #hatena-body -->
+<!--End of body ============================================================-->
+
+<$ps = v.load_plgset('def_footer')>
+<footer id="footer" data-module-name="def_footer" data-fix="1"><div><!--フッタ-->
+<@ps.footer_txt>
+<@ifexec(ps.outver ne '0', begin)>
+<div class="adiary"><a href="http://adiary.org/" title="HTML5 open source CMS">adiary</a> Version <@v.OUTVERSION><@v.SUBVERSION></div>
+<$end>
+</div></footer>
+</div> <!-- End of #adiary-body -->
+
+
+<@ifexec(s.gaid, begin)>
+<@> See more https://developers.google.com/analytics/devguides/collection/amp-analytics/
+<amp-analytics type="googleanalytics" id="analytics1">
+<script type="application/json">
+{
+  "vars": {
+    "account": "<@s.gaid>"
+  },
+  "triggers": {
+    "trackPageview": {
+      "on": "visible",
+      "request": "pageview"
+    }
+  }
+}
+</script>
+</amp-analytics>
+<$end>
+</body>
+</html>

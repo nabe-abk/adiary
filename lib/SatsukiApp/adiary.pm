@@ -366,9 +366,9 @@ sub select_default_skeleton {
 	if ($mode eq '' && !$self->{path_blogid}) {
 		return $self->{top_skeleton};
 	} elsif ($mode ne '' && $mode !~ /^[1-9]\d+$/ || $mode eq '' && $self->{query} eq '' && $self->{blog}->{frontpage}) {
-		return $self->{article_skeleton};
+		return ($self->{view_event} = $self->{article_skeleton});
 	}
-	return $self->{main_skeleton};
+	return ($self->{view_event} = $self->{main_skeleton});
 }
 
 #------------------------------------------------------------------------------
@@ -384,6 +384,15 @@ sub output_html {
 		$out = $self->{action_data};
 	} else {
 		$out = $ROBJ->call( $self->{skeleton} );
+	}
+
+	# view event?
+	my $view = $self->{view_event};	# _article, _main
+	if ($view) {
+		$view =~ tr/a-z/A-Z/;
+		if ($self->{blog}->{"event:VIEW$view"}) {
+			$ROBJ->call( '_view' . $self->{view_event} );
+		}
 	}
 
 	# mainフレームあり？

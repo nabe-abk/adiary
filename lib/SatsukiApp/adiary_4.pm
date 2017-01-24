@@ -471,6 +471,17 @@ sub plugin_install {
 	my $name   = $plugin->{name};			# インストール名
 	my $n      = $self->plugin_name_check( $name );	# プラグイン名
 
+	# イベントチェック
+	my @ary = split(/\n/, $events);
+	foreach(@ary) {
+		if ($_ !~ /_VIEW/) { next; }
+		my ($evt, $file) = split(/=/, $_, 2);
+		if ($file =~ m|^skel/|) { next; }
+
+		$ROBJ->error('[plugin:%s] %s event error (skeleton only) : %s', $n, $evt, $file);
+		return 1000;
+	}
+
 	# 必要なディレクトリの作成
 	$ROBJ->mkdir( $self->{blog_dir} . 'func/' );
 	$ROBJ->mkdir( $self->{blog_dir} . 'skel/' );
@@ -550,7 +561,7 @@ sub get_plugin_install_dir() {
 	my $file = shift;
 	my ($dir, $file) = $self->split_equal($_, '/');
 
-	if ($dir eq 'func' || $dir eq 'skel') {
+	if ($dir eq 'func' || $dir eq 'skel' || $dir eq 'etc') {
 		return $self->{blog_dir};
 	}
 	if ($dir eq 'js' || $dir eq 'css' || $dir eq 'css.d') {
@@ -669,7 +680,44 @@ sub set_event_info {
 	}
 	$self->update_blogset($blog);
 
+	# viewイベント用html生成
+	$self->update_view_event($blog);
+
 	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●プラグインviewイベントの更新
+#------------------------------------------------------------------------------
+sub update_view_event {
+	my $self = shift;
+	my $blog = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my @evt = qw(
+		VIEW_MAIN
+		VIEW_ARTICLE
+	);
+	foreach my $name (@evt) {
+		my $file = $name;
+		$file =~ tr/A-Z/a-z/;
+		$file = $self->{blog_dir} . 'skel/_' . $file . '.html';
+
+		# イベントが存在しない
+		my $evt = $blog->{"event:$name"};
+		if (!$evt) {
+			$ROBJ->file_delete( $file );
+			next;
+		}
+
+		my @html = ("<\@20>\n");
+		foreach(split(/\n/, $evt)) {
+			my ($e,$f) = split(/=/, $_, 2);
+			push(@html, "<@> '$f' from '$e' plugin\n");
+			push(@html, @{ $ROBJ->fread_lines($self->{blog_dir} . $f) });
+		}
+		$ROBJ->fwrite_lines($file, \@html);
+	}
 }
 
 #------------------------------------------------------------------------------
@@ -1353,6 +1401,10 @@ sub save_theme {
 
 	# カスタマイズ情報の保存
 	$self->update_cur_blogset('theme_custom', $file);
+
+	# イベント
+	$self->call_event('EDIT_THEME');
+
 	return 0;
 }
 

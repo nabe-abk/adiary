@@ -1,0 +1,99 @@
+#-------------------------------------------------------------------------------
+# HMTL5 許可タグリスト for AMP
+#-------------------------------------------------------------------------------
+_base		id, title, class, style
+_protocol	http, https, ftp, mailto
+_comment
+### 基本 ########################
+a		href, name, target, rel
+p
+span
+br
+h3
+h4
+h5
+h6
+hr
+
+### ブロック要素 ###############
+div
+section
+header
+footer
+aside
+nav
+details
+summary
+
+blockquote	cite
+pre
+code
+
+### 修飾 ########################
+ins		cite, datetime
+del		cite, datetime
+q		cite
+strong
+em
+i
+s
+u
+sup
+sub
+ruby
+rt
+rp
+mark
+cite
+
+### list ########################
+ul		type
+ol		type
+li		value
+dt
+dl
+dd
+
+### テーブル ####################
+table		alt
+caption
+thead
+tfoot
+tbody
+tr
+th		colspan, rowspan, nowrap
+td		colspan, rowspan, nowrap
+colgroup	span
+col		span
+
+### iframe ######################
+iframe		src, seamless, sandbox, width, height, allowfullscreen, allowtransparency, referrerpolicy
+
+### メディア ####################
+audio		src, controls, type
+video		src, controls, type
+source		src, type
+track		subtitles, label, src, srclang, default
+
+### 画像 ########################
+figure
+figcaption
+img		alt, src, width, height, usemap, ismap
+canvas		width, height
+map		name
+area		alt, cooords, shape, href, target, ping, rel, media, hreflang, type
+
+### その他 ######################
+address
+dfn
+samp
+kbd
+var
+abbr
+bdi
+bdo
+wbr
+time	datetime, pubdate
+
+# 相対パスを絶対パスに書き換え
+_force_absolute_path
