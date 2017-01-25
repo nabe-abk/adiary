@@ -65,7 +65,7 @@ sub http {
 	my $name = $pobj->make_name($ary, $url);
 
 	# 中の a を取り除く
-	$name =~ s!^<a(?:\s+[\w\-]+\s*=\s*"[^\"]*"|\s+[\w\-])*>(.*)</a>$!$1!i;
+	$name =~ s!<a(?:\s+[\w\-]+\s*=\s*"[^\"]*"|\s+[\w\-])*\s*>(.*)</a>!$1!i;
 
 	return "<a href=\"$url\"$attr>$name$bookmark</a>";
 }
