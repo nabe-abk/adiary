@@ -1181,7 +1181,6 @@ sub load_comments {
 	return $comments;
 }
 
-
 ###############################################################################
 # ■プラグインシステム
 ###############################################################################
@@ -1196,17 +1195,17 @@ sub call_event {
 		return -99;
 	}
 	my $r=0;
-	$r += $self->do_call_event("$evt#before", @_);
-	$r += $self->do_call_event( $evt        , @_);
-	$r += $self->do_call_event("$evt#after" , @_);
+	$r += $self->do_call_event("$evt#before", undef, @_);
+	$r += $self->do_call_event( $evt        , undef, @_);
+	$r += $self->do_call_event("$evt#after" , undef, @_);
 	return $r;
 }
 
 sub do_call_event {
 	my $self = shift;
 	my $evt  = shift;	# イベント名
+	my $blog = shift || $self->{blog};
 	my $ROBJ = $self->{ROBJ};
-	my $blog = $self->{blog};
 	if (!$blog) { return 0; }
 
 	my @evt = $self->{stop_all_plugins} ? () : split(/\r?\n/, $blog->{"event:$evt"});

@@ -377,13 +377,14 @@ sub save_use_plugins {
 	my $err = 0;
 	my $flag= 0;
 	my %fail;
-	my @install_plugins;
 	foreach(@$ary) {
 		my $name = $_->{name};
 		my $inst = $form->{$name} ? 1 : 0;
 		if ($_->{adiary_version} > $self->{VERSION})  { $inst=0; }	# 非対応バージョン
 		if ($_->{trust_mode} && !$self->{trust_mode}) { $inst=0; }	# trust_mode専用
 		if ($pd->{$name} == $inst) { next; }				# 変化なし
+
+		my $prev_install;
 
 		# 状態変化あり
 		my $func = $inst ? 'plugin_install' : 'plugin_uninstall';
@@ -412,7 +413,6 @@ sub save_use_plugins {
 
 				$pd->{"$name"} = 1;
 				$pd->{"$name:events"} = $_->{events};
-				push(@install_plugins, $name);
 
 				# common名でのイベント登録を削除
 				delete $pd->{"$cname:events"};
@@ -428,6 +428,14 @@ sub save_use_plugins {
 		# install/uninstall 実行
 		my $r = $fail{$name} ? 100 : $self->$func( $pd, $_ );
 		$err += $r;
+		if (!$r && $inst) {
+			my $h = {};
+			$self->set_event_info($h, $pd);
+			$r = $self->do_call_event("INSTALL:$name", $h);
+			if ($r) {
+				$self->plugin_uninstall($pd, $_);
+			}
+		}
 		if ($r) {
 			$fail{$name}=1;
 			$ROBJ->message("[plugin:%s] $msg failed", $name);
@@ -437,7 +445,6 @@ sub save_use_plugins {
 		if (! $self->{stop_plugin_install_msg}) {
 			$ROBJ->message("[plugin:%s] $msg success", $name);
 		}
-		if ($inst) { push(@install_plugins, $name); }
 	}
 	# 状態変更があった？
 	if ($flag) {
@@ -446,11 +453,6 @@ sub save_use_plugins {
 
 		# イベント情報の登録
 		$self->set_event_info($self->{blog}, $pd);
-
-		# インストールイベントの呼び出し
-		foreach(@install_plugins) {
-			$self->call_event("INSTALL:$_");
-		}
 
 		# イベント
 		$self->call_event('PLUGIN_STATE_CHANGE');
