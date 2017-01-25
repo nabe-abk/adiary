@@ -1,0 +1,32 @@
+<@40.is_function>
+<@local(h, this, txt)>
+<$this = argv#1>
+<$h = validator(begin_hash, argv#0) )>
+	head_txt = ヘッダの後
+	head_txt:filter0 = trim
+	head_txt:filter1 = file:<@v.plugin_dir><@this>/allow_tags.txt
+	head_txt:filter1_opt = <@v.trust_mode>
+
+	foot_txt = フッタの前
+	foot_txt:filter0 = trim
+	foot_txt:filter1 = file:<@v.plugin_dir><@this>/allow_tags.txt
+	foot_txt:filter1_opt = <@v.trust_mode>
+
+	art0_txt = 記事の直前
+	art0_txt:filter0 = trim
+	art0_txt:filter1 = file:<@v.plugin_dir><@this>/allow_tags.txt
+	art0_txt:filter1_opt = <@v.trust_mode>
+
+	art1_txt = 記事の直後
+	art1_txt:filter0 = trim
+	art1_txt:filter1 = file:<@v.plugin_dir><@this>/allow_tags.txt
+	art1_txt:filter1_opt = <@v.trust_mode>
+<$end>
+
+<$txt = h.head_txt . h.foot_txt . h.art0_txt . h.art1_txt>
+<$h.amp_head = if(0<=index(txt, '<amp-ad'), begin_string)>
+<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
+<$end>
+
+<$ifbreak(form_error())>
+<$return(h)>

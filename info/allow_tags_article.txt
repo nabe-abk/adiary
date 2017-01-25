@@ -119,6 +119,13 @@ bdo
 wbr
 time	datetime, pubdate
 
+### AMP ######################
+amp-ad
+amp-analytics
+amp-experiment
+amp-pixel
+amp-sticky-ad
+
 # style 指定子によるXSS対策
 #_style_secure
 # 相対パスを絶対パスに書き換え

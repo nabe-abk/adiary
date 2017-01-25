@@ -29,6 +29,17 @@ article.setting	.help .highlight .search .ui-icon- .social-button
 );
 
 #------------------------------------------------------------------------------
+# ●AMPの拡張SCRIPT
+#------------------------------------------------------------------------------
+	my %amp_scripts = (
+'amp-ad'	=> '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>',
+'amp-audio'	=> '<script async custom-element="amp-audio" src="https://cdn.ampproject.org/v0/amp-audio-0.1.js"></script>',
+'amp-iframe'	=> '<script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>',
+'amp-youtube'	=> '<script async custom-element="amp-youtube" src="https://cdn.ampproject.org/v0/amp-youtube-0.1.js"></script>',
+'amp-twitter'	=> '<script async custom-element="amp-twitter" src="https://cdn.ampproject.org/v0/amp-twitter-0.1.js"></script>'
+);
+
+#------------------------------------------------------------------------------
 # ●AMP用のCSS生成
 #------------------------------------------------------------------------------
 $self->{amp_css} = sub {
@@ -57,9 +68,20 @@ $self->{amp_css} = sub {
 	#------------------------------------------------------------
 	my $css;
 	foreach(@$files) {
+		if (!$_) { next; }
 		local ($/) = "\0";
 		my $lines = $ROBJ->fread_lines($_);
+		my $dir = ($_ =~ m|^(.*/)[^/]+$|) ? $ROBJ->{Basepath} . $1 : '';
 		foreach(@$lines) {
+			# オプション内に画像ファイルを含む
+			$_ =~ s!url\s*\(\s*(['"])([^'"]+)\1\s*\)!
+				my $q = $1;
+				my $file = $2;
+				if ($file =~ m|^(?:\./)*[\w-]+(?:\.[\w-]+)*$|) {
+					$file = $dir . $file;
+				}
+				"url($q$file$q)";
+			!ieg;
 			$css .= $_;
 		}
 	}
@@ -71,9 +93,19 @@ $self->{amp_css} = sub {
 
 	my @out;
 	my $uiicon;
-	$css =~ s!\s*([^\{]*)(\{[^\}]*\})!
-		my $sels = $1;
-		my $attr = $2;
+	$css =~ s!\s*(\@media[^\{]*{)?([^\{]*)(\{[^\}]*\})!
+		my $media = $1;
+		my $sels  = $2;
+		my $attr  = $3;
+		if ($media) {
+			$media =~ s/\s+/ /g;
+			$media =~ s/\s*([\{\};:,])\s*/$1/g;
+			push(@out, $media);
+		}
+		if ($sels =~ /\}(.*)/) {
+			$out[$#out] .= '}';
+			$sels = $1;
+		}
 
 		if ($sels =~ /#ui-icon-autoload/ && $attr =~ /background-color\s*:\s*#([0-9A-Fa-f]+);/) {
 			$uiicon = $1;
@@ -164,7 +196,7 @@ $self->{amp_txt} = sub {
 	my $text = $escaper->escape( $art->{text}, {
 		tag => sub {
 			my $r = $self->tag_wrapper(@_);
-			$head{$r}=1;
+			if ($r) { $head{$r}=1; }
 		},
 		close_tag => $self->{close_tag_wrapper}
 	} );
@@ -186,7 +218,6 @@ $self->{amp_txt} = sub {
 # ●AMP用のHTML tag置換ルーチン
 #------------------------------------------------------------------------------
 # https://www.ampproject.org/docs/reference/components
-# https://syncer.jp/amp
 #
 my %replace;
 $self->{tag_wrapper_init} = sub {
@@ -195,6 +226,7 @@ $self->{tag_wrapper_init} = sub {
 $self->{tag_wrapper} = sub {
 	my $self = shift;
 	my $ary  = shift;
+	my $deny = shift;	# 不許可属性
 	my $html = shift;	# このタグ以降のHTML
 	my $ROBJ = $self->{ROBJ};
 
@@ -220,11 +252,27 @@ $self->{tag_wrapper} = sub {
 		$self->chain_attr($ary, $h);
 	}
 	#------------------------------------------------------------
+	# Google AdSense
+	#------------------------------------------------------------
+	if ($tag eq 'ins' && $h->{class} eq 'adsbygoogle') {
+		foreach(keys(%$h)) {
+			if (substr($_,0,5) eq 'data-') { next; }
+			delete $h->{$_};
+		}
+		$h->{type}   = "adsense";
+		$h->{layout} = "responsive";
+		$h->{width}  = 300;
+		$h->{height} = 250;
+		$self->chain_attr($ary, $h);
+
+		$tag = 'amp-ad';
+		$replace{ins} = 'amp-ad';
+	}
+	#------------------------------------------------------------
 	# audio
 	#------------------------------------------------------------
 	if ($tag eq 'audio') {
 		$tag  = 'amp-audio';
-		$head = '<script async custom-element="amp-audio" src="https://cdn.ampproject.org/v0/amp-audio-0.1.js"></script>';
 	}
 	#------------------------------------------------------------
 	# video
@@ -238,22 +286,21 @@ $self->{tag_wrapper} = sub {
 	#------------------------------------------------------------
 	if ($tag eq 'iframe') {
 		$tag  = 'amp-iframe';
-		$head = '<script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>';
 		my $url = $h->{src};
 		#------------------------------------------------------------
 		# YouTube
 		#------------------------------------------------------------
 		if ($url =~ m!^https?://(?:www\.youtube\.com|youtu\.be)/!) {
 			$tag  = 'amp-youtube';
-			$head = '<script async custom-element="amp-youtube" src="https://cdn.ampproject.org/v0/amp-youtube-0.1.js"></script>';
 
 			delete $h->{src};
 			$url =~ m/([\w]*)$/;
 			$h->{"data-videoid"} = $1;
 			$h->{layout} = 'responsive';
 
-			if ($h->{style} =~  /width\s*:\s*(\d+)(?:px)?/i) { $h->{width} = $1; }
-			if ($h->{style} =~ /height\s*:\s*(\d+)(?:px)?/i) { $h->{height}= $1; }
+			my $h2 = $self->perse_attr($deny, 0);
+			if ($h2->{style} =~  /width\s*:\s*(\d+)(?:px)?/i) { $h->{width} = $1; }
+			if ($h2->{style} =~ /height\s*:\s*(\d+)(?:px)?/i) { $h->{height}= $1; }
 
 			$self->chain_attr($ary, $h);
 			$replace{iframe} = 'amp-youtube';
@@ -280,12 +327,13 @@ $self->{tag_wrapper} = sub {
 	if ($tag eq 'blockquote' && $h->{class} eq 'twitter-tweet'
 	 && $html =~ m|https://twitter\.com/[^/]*/status(?:es)?/(\d+)|) {
 		$tag  = "amp-twitter layout=\"flex-item\" data-tweetid=\"$1\"><blockquote";
-		$head = '<script async custom-element="amp-twitter" src="https://cdn.ampproject.org/v0/amp-twitter-0.1.js"></script>';
 
 		$replace{blockquote} = 'blockquote></amp-twitter';
 	}
 	$ary->[0] = $tag;
-	return $head;
+
+	$tag =~ s/[^\w\-].*$//;
+	return $amp_scripts{$tag};
 };
 
 #------------------------------------------------------------------------------
@@ -307,8 +355,9 @@ $self->{close_tag_wrapper} = sub {
 $self->{perse_attr} = sub {
 	my $self = shift;
 	my $ary  = shift;
+	my $i    = $_[0] eq '' ? 1 : shift;
 	my %h;
-	foreach(my $i=1; $i<=$#$ary; $i++) {
+	foreach(; $i<=$#$ary; $i++) {
 		if ($ary->[$i] =~ m/^([\w-]+)(?:="([^\"]*)")?$/) {
 			my $k = $1;
 			my $v = $2;
@@ -330,7 +379,6 @@ $self->{chain_attr} = sub {
 	@$ary = ( $ary->[0] );	# $ary=[] is don't work!
 	foreach(keys(%$h)) {
 		my $v = $h->{$_};
-		if ($_ eq 'style') { next; }
 		if ($v ne '') {
 			push(@$ary, "$_=\"$v\"");
 			next;

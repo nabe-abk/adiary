@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # HMTL5 許可タグリスト for AMP
 #-------------------------------------------------------------------------------
-_base		id, title, class, style
+_base		id, title, class, fallback, heights, layout, media, noloading, on, placeholder, sizes, width, height, data-
 _protocol	http, https, ftp, mailto
 _comment
 ### 基本 ########################
@@ -95,5 +95,17 @@ bdo
 wbr
 time	datetime, pubdate
 
+### AMP ######################
+# https://www.ampproject.org/docs/reference/components
+amp-ad		type, src, json
+amp-sticky-ad	
+
+amp-img		
+amp-audio	autoplay, loop, muted
+amp-video	src, poster, autoplay, controls, loop, muted
+amp-iframe	src, sandbox
+
+
 # 相対パスを絶対パスに書き換え
 _force_absolute_path
+

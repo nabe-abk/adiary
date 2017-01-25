@@ -31,7 +31,8 @@
 	<script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
 <$end>
 	<script async src="https://cdn.ampproject.org/v0.js"></script>
-<@art.amp_head> 
+<@art.amp_head>
+<#@v.load_plgset('amp', 'amp_head')>
 <style amp-custom>
 <@amp.amp_css(begin_array)>
 	<@v.theme_dir>base.css
@@ -49,7 +50,7 @@ blockquote.twitter-tweet {	/* <amp-twitter> bug */
 }
 </style>
 </head>
-<body id="body" class="sp <@if(v.blog_admin, ' blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system')>">
+<body id="body" class="sp amp <@if(v.blog_admin, ' blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system')>">
 <@>
 <div id="adiary-body" class="container">
 
@@ -57,7 +58,7 @@ blockquote.twitter-tweet {	/* <amp-twitter> bug */
 <@> header
 <@>-----------------------------------------------------------------------------
 <header id="sp-header"><div>
-	<h1 id="page-title" data-module-name="deh_title">
+	<h1 id="sp-page-title" data-module-name="deh_title">
 		<a href="<@v.myself>"><@v.title></a>
 	</h1>
 </div></header>
@@ -70,7 +71,9 @@ blockquote.twitter-tweet {	/* <amp-twitter> bug */
 
 <!--内容====================================================================-->
 <div class="main" id="main-first">
+<@v.load_plgset('amp', 'head_txt')>
 <@inframe>
+<@v.load_plgset('amp', 'foot_txt')>
 </div> <!-- End of main -->
 
 

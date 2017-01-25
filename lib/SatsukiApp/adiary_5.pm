@@ -477,7 +477,9 @@ sub regist_cache_checker {
 
 		my $sphone = &{ \&sphone_checker }();
 		my $key    = $sphone . $ENV{REQUEST_URI};
-		if (!$search_cache && $ENV{QUERY_STRING} ne '') { return; }
+		my $query  = $ENV{QUERY_STRING};
+		if (!$search_cache && $query ne '') { return; }
+		if ($query !~ /^q=/ && $query =~ /^\w+/) { return; }
 
 		# キャッシュ処理
 		my $tm = $ROBJ->{TM};

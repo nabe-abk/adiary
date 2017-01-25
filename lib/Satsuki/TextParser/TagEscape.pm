@@ -173,7 +173,7 @@ sub escape {
 	&escape_amp( $inp );	# & → &amp;
 
 	### print "Content-Type: text/plain;\n\n";
-	while($inp =~ /^(.*?)<([A-Za-z][\w]*)((?:\s*[A-Za-z_][\w\-]*(?:=".*?"|='.*?'|[^\s>]*))*)\s*(\/)?>(.*)/s) {
+	while($inp =~ /^(.*?)<([A-Za-z][\w\-]*)((?:\s*[A-Za-z_][\w\-]*(?:=".*?"|='.*?'|[^\s>]*))*)\s*(\/)?>(.*)/s) {
 		my $x   = $1;		# 前部分
 		$inp    = $5;		# 残り
 		my $tag_name = $2;
@@ -246,6 +246,7 @@ sub escape {
 		my @y = ();
 
 		my ($last_at, $last_val);
+		my @deny_at;
 		foreach(@x) {
 			my $v = $at{$_};	# $_=属性名 $v=属性値
 			my $data_attr;
@@ -261,7 +262,10 @@ sub escape {
 				$_ =~ m/-([^-]*)$/;
 				$data_attr = $1;	# data-xxxx-url の最後の "url" を抽出
 			}
-			if (!$allow_any && (!$attrs->{$_} || $deny_attr->{$_})) { next; }	# 属性を無視
+			if (!$allow_any && (!$attrs->{$_} || $deny_attr->{$_})) {	# 属性を無視
+				push(@deny_at, "$_=\"$v\"");
+				next;
+			}
 
 			# 値無し属性 （例）selected
 			if (!exists $at{$_}) { unshift(@y, $_); next; }
@@ -307,7 +311,7 @@ sub escape {
 			$last_val = $v;
 		}
 		unshift(@y, $tag_name);
-		if ($wrapper->{tag}) { &{$wrapper->{tag}}(\@y, $inp); }	# tagラッパー
+		if ($wrapper->{tag}) { &{$wrapper->{tag}}(\@y, \@deny_at, $inp); }	# tagラッパー
 		if ($#y >= 0) {
 			push(@out, '<' . join(' ', @y) . $tag_end . '>');
 		}

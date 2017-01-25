@@ -89,7 +89,9 @@ section, article {
 span.plg-author {
 	margin:			0 0.5em;
 }
-table.plugins button { margin: 0; }
+table.plugins button {
+	margin:			0;
+}
 
 
 /*--------------------------------------------------------------------
@@ -213,6 +215,9 @@ blockquote p:last-child {
 	display:	none;
 }
 body:not(.sp) .for-sp {
+	display:	none;
+}
+body:not(.amp) .for-amp {
 	display:	none;
 }
 

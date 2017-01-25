@@ -1,0 +1,75 @@
+<@6>
+<@local(ps)>
+<$ps=argv#0>
+
+	<p>AMP表示に対応したHTMLを入力してください。特に<a href="https://www.google.co.jp/search?q=amp-ad" target="_blank">広告は&lt;amp-ad&gt;タグを使用する</a>ことに注意してください。</p>
+
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>ヘッダの後</th>
+		<td>
+			<textarea data-type="0" id="amp-head_txt" name="head_txt" class="w400" rows="3"><@esc(ps.head_txt)></textarea>
+		</td>
+	</tr>
+	<tr>
+		<th>記事の直前</th>
+		<td>
+			<textarea data-type="0" id="amp-art0_txt" name="art0_txt" class="w400" rows="3"><@esc(ps.art0_txt)></textarea>
+		</td>
+	</tr>
+	<tr>
+		<th>記事の直後</th>
+		<td>
+			<textarea data-type="1" id="amp-art1_txt" name="art1_txt" class="w400" rows="3"><@esc(ps.art1_txt)></textarea>
+		</td>
+	</tr>
+	<tr>
+		<th>フッタの前</th>
+		<td>
+			<textarea data-type="1" id="amp-foot_txt" name="foot_txt" class="w400" rows="3"><@esc(ps.foot_txt)></textarea>
+		</td>
+	</tr>
+	</table>
+	<select id="amp-target">
+		<option value="amp-head_txt">ヘッダの後</option>
+		<option value="amp-art0_txt">記事の直前</option>
+		<option value="amp-art1_txt">記事の直後</option>
+		<option value="amp-foot_txt">フッタの前</option>
+
+	</select>
+	へ
+	<button type="button" data-title="Google AdSenseの自動設定" id="gad-setting" data-msg="Google AdSenseの自動設定のコードを貼り付けてください。">Google AdSenseをコードから自動設定</button>
+
+
+<script>
+$('#gad-setting').click(function(evt){
+	textarea_dialog(evt.target, function(data){
+		var x;
+		var client;
+		if (x = data.match(/data-ad-client="([^\"]+)"/i)) {
+			client = x[1];
+		}
+		var slot;
+		if (x = data.match(/data-ad-slot="([^\"]+)"/i)) {
+			slot = x[1];
+		}
+		if (!slot || !client) return;
+
+		// Ads code
+		//	https://support.google.com/adsense/answer/7183212
+		//
+		var $obj = $('#' + $('#amp-target').val());
+		var html = $obj.data('type') == '0'
+			? '<amp-ad layout="fixed-height" height="100"'
+			: '<amp-ad layout="responsive" width="300" height="250"';
+
+		html   += ' type="adsense"'
+			+ ' data-ad-client="' + client + '"'
+			+ ' data-ad-slot="' + slot + '"'
+			+ '></amp-ad>';
+		$obj.val(html);
+	});
+});
+</script>
+
