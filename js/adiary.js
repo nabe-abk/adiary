@@ -1802,7 +1802,7 @@ function tag_decode_amp(text) {
 //////////////////////////////////////////////////////////////////////////////
 function link_key_encode(text) {
 	if (typeof text != 'string') { return ''; }
-	return text.replace(/[^^\w!\(\)\*\-\.\~\/:;=&]/g, function(data) {
+	return text.replace(/[^^\w!\(\)\*\-\.\~\/:;=]/g, function(data) {
 		return '%' + ('0' + data.charCodeAt().toString(16)).substr(-2);
 	}).replace(/^\//, './/');
 }

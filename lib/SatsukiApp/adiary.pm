@@ -1709,7 +1709,7 @@ sub link_key_encode {
 		if ($_ eq $fp) { $_=''; next; }
 
 		# ここを修正したら adiary.js、contents_list.html も修正のこと
-		$_ =~ s/([^\w!\(\)\*\-\.\~\/:;=&])/'%' . unpack('H2',$1)/eg;
+		$_ =~ s/([^\w!\(\)\*\-\.\~\/:;=])/'%' . unpack('H2',$1)/eg;
 		$_ =~ s|^/|.//|;
 		# myself2が / のとき //lkey となって http://lkey と解釈されるのを防ぐ
 	}
