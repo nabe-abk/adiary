@@ -26,6 +26,7 @@ Net::SSLeay
 
 -<img>
 -<audio>
+-<iframe> : width/heightの指定が無いとエラーになります。
 -YouTube
 -Twitter
 

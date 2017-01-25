@@ -10,7 +10,10 @@ sub {
 	$DB->drop_column($table, 'amp_head');
 	$DB->drop_column($table, 'amp_tm');
 
-	$self->update_cur_blogset('amp:css_info');
+	$self->update_plgset('amp', 'css_info');
+	$self->update_plgset('amp', 'logo_tm');
+	$self->update_plgset('amp', 'logo_width');
+	$self->update_plgset('amp', 'logo_height');
 	return 0;
 }
 

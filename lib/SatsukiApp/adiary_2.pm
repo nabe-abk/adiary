@@ -602,6 +602,44 @@ sub set_description {
 }
 
 #------------------------------------------------------------------------------
+# ●メイン画像の取得
+#------------------------------------------------------------------------------
+sub get_main_image_size {
+	my $self = shift;
+	my $art  = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $img  = $art->{main_image};
+	if (!$img || $art->{main_image_w} && $art->{main_image_h}) {
+		return $img;
+	}
+
+	my $im = $self->load_image_magick();
+	if (!$im) { return; }
+
+	$img =~ s/\?.*//;
+
+	my $file = $img;
+	$file =~ s/%([0-9A-Fa-f][0-9A-Fa-f])/chr(hex($1))/eg;
+	$file =~ s|^/+||g;
+	$file =~ s|\.+/||g;
+	$self->debug($file);
+
+	$im->Read( $ROBJ->get_filepath( $self->blogimg_dir() . $file ) );
+	my ($w, $h) = $im->Get('width', 'height');
+
+	$art->{main_image_w} = $w;
+	$art->{main_image_h} = $h;
+
+	# save
+	my $DB = $self->{DB};
+	$DB->update_match("$self->{blogid}_art", {
+		main_image => "$img?$w,$h"
+	}, 'pkey', $art->{pkey});
+	return $img;
+}
+
+#------------------------------------------------------------------------------
 # ●更新通知Pingの送信
 #------------------------------------------------------------------------------
 sub send_update_ping {

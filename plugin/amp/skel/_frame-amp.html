@@ -1,5 +1,5 @@
 <@6>
-<@local(s,ps,tm,t,file)>
+<@local(s,ps,tm,t,file,img,logo)>
 <$inframe = argv#0>
 <@>
 <$ifset(v.title eq '', v.title, 'adiary')>
@@ -15,14 +15,39 @@
 	<meta name="author" content="<@v.blogid>">
 	<link rel="canonical" href="<@canonical_url>">
 <@>
-	<title><@v.title></title>
+	<title><@v.subtitle> - <@v.title></title>
 <@>
 	<script type="application/ld+json">
 	{
 		"@context": "http://schema.org",
 		"@type": "NewsArticle",
-		"headline": "<@s.s.blog_name>",
-		"datePublished": "<@w3c_date(art.update_tm)>"
+		"headline": "<@v.subtitle>",
+		"author": {
+			"@type": "Person",
+			"name": "<@art.name>"
+		},
+		"datePublished": "<@w3c_date(art.tm)>",
+		"dateModified": "<@w3c_date(art.update_tm)>",
+		"mainEntityOfPage": {
+			"@type": "WebPage",
+			"@id": "<@Server_url><@v.myself>"
+		},
+		"publisher": {
+			"@type": "Organization",
+			"name": "<@s.blog_name>",
+			"logo": {
+				"@type": "ImageObject",
+				"url": "<@logo = amp.get_logo()>",
+				"width": "<@v.load_plgset('amp', 'logo_width')>",
+				"height": "<@v.load_plgset('amp', 'logo_height')>"
+			}
+		},
+		"image": {<$img=v.get_main_image_size(art)><$img = if(img, "<@Server_url><@Basepath>" . v.blogimg_dir() . img)>
+			"@type": "ImageObject",
+			"url": "<@img || logo>",
+			"width": "<@ art.main_image_w || v.load_plgset('amp', 'logo_width' )>",
+			"height": "<@art.main_image_h || v.load_plgset('amp', 'logo_height')>"
+		}
 	}
 	</script>
 <@>

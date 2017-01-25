@@ -7,31 +7,41 @@ sub {
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
 
+	my @cols;
 	my $table = "$self->{blogid}_art";
-	my $r = $DB->add_column($table, {
-		name => 'amp_txt',
-		type => 'ltext'
-	});
-	if ($r) { return $r; }
+	my $r;
+	while(1) {
+		my $r = $DB->add_column($table, {
+			name => 'amp_txt',
+			type => 'ltext'
+		});
+		if ($r) { last; }
+		push(@cols, 'amp_txt');
 
-	my $r = $DB->add_column($table, {
-		name => 'amp_head',
-		type => 'ltext'
-	});
-	if ($r) {
-		$DB->drop_column($table, 'amp_txt');
+		my $r = $DB->add_column($table, {
+			name => 'amp_head',
+			type => 'text'
+		});
+		if ($r) { last; }
+		push(@cols, 'amp_head');
+
+		my $r = $DB->add_column($table, {
+			name => 'amp_tm',
+			type => 'int'
+		});
+		if ($r) { last; }
+		push(@cols, 'amp_tm');
+		last;
+	}
+
+	if ($r) {	# error exit
+		while(@cols) {
+			my $col = pop(@cols);
+			$DB->drop_column($table, $col);
+		}
 		return $r;
 	}
 
-	my $r = $DB->add_column($table, {
-		name => 'amp_tm',
-		type => 'int'
-	});
-	if ($r) {
-		$DB->drop_column($table, 'amp_txt');
-		$DB->drop_column($table, 'amp_head');
-		return $r;
-	}
 	return 0;
 }
 

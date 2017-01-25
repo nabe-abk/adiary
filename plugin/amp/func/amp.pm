@@ -5,12 +5,56 @@ sub {
 #------------------------------------------------------------------------------
 # ●コンストラクタ（無名クラスを生成する）
 #------------------------------------------------------------------------------
+my $self;
+my $name;
+{
 	my $aobj = shift;
-	my $name = shift;
+	$name = shift;
 	my $ROBJ = $aobj->{ROBJ};
-	my $self = $ROBJ->loadpm('MOP', $aobj->{call_file});	# 無名クラス生成用obj
+	$self = $ROBJ->loadpm('MOP', $aobj->{call_file});	# 無名クラス生成用obj
 	$self->{aobj} = $aobj;
 	$self->{this_tm} = $ROBJ->get_lastmodified($aobj->{call_file});
+}
+#------------------------------------------------------------------------------
+# ●ロゴ情報の取得
+#------------------------------------------------------------------------------
+$self->{get_logo} = sub {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $aobj = $self->{aobj};
+	my $blog = $aobj->{blog};
+
+	my $file = $blog->{blog_image} || $aobj->{pubdist_dir} . 'default-logo.png';
+	my $url  = $ROBJ->{Server_url} . $ROBJ->{Basepath} . $file;
+
+	my $tm = $ROBJ->get_lastmodified( $file );
+	if ($tm == $aobj->load_plgset('amp', 'logo_tm')) {
+		return $url;
+	}
+
+	my $img = $aobj->load_image_magick();
+	if (!$img) { return; }
+
+	$img->Read( $ROBJ->get_filepath( $file ) );
+	my ($x, $y) = $img->Get('width', 'height');
+
+	$aobj->update_plgset('amp', 'logo_tm',    $tm);
+	$aobj->update_plgset('amp', 'logo_width',  $x);
+	$aobj->update_plgset('amp', 'logo_height', $y);
+	return $url;
+};
+
+#------------------------------------------------------------------------------
+# ●メイン画像の取得
+#------------------------------------------------------------------------------
+$self->{get_main_image} = sub {
+	my $self = shift;
+	my $art  = shift;
+
+	if ($art->{main_image}) { return ; }
+
+	my $txt = $art->{amp_txt};
+};
 
 #------------------------------------------------------------------------------
 # ●AMP用のCSSで不要なセレクタリスト
@@ -45,9 +89,8 @@ article.setting	.help .highlight .search .ui-icon- .social-button
 $self->{amp_css} = sub {
 	my $self = shift;
 	my $files= shift;
+	my $ROBJ = $self->{ROBJ};
 	my $aobj = $self->{aobj};
-	my $ROBJ = $aobj->{ROBJ};
-	my $blog = $aobj->{blog};
 
 	my $amp_css_file = $aobj->{blogpub_dir} . 'amp.css';
 
@@ -59,7 +102,7 @@ $self->{amp_css} = sub {
 		$amp_css .= "$_?$tm\n";
 	}
 	chomp($amp_css);
-	if ($blog->{"amp:css_info"} eq $amp_css) {
+	if ($aobj->load_plgset('amp', 'css_info') eq $amp_css) {
 		return $ROBJ->fread_lines_cached($amp_css_file);
 	}
 
@@ -140,7 +183,7 @@ $self->{amp_css} = sub {
 	# save amp css
 	#------------------------------------------------------------
 	$ROBJ->fwrite_lines($amp_css_file, $css);
-	$aobj->update_blogset($blog, "amp:css_info", $amp_css);
+	$aobj->update_plgset('amp', 'css_info', $amp_css);
 
 	return $css;
 };
@@ -181,8 +224,8 @@ $self->{amp_txt} = sub {
 	my $self = shift;
 	my $art  = shift;
 	my $aobj = $self->{aobj};
+	my $ROBJ = $self->{ROBJ};
 	my $DB   = $aobj->{DB};
-	my $ROBJ = $aobj->{ROBJ};
 
 	if ($art->{update_tm} < $art->{amp_tm}
 	 && $self->{this_tm}  < $art->{amp_tm}) {
@@ -245,9 +288,8 @@ $self->{tag_wrapper} = sub {
 
 		if (!$h->{width} || !$h->{height}) {
 			$self->load_image_size($h);
-		} else {
-			$self->set_lastmodified($h);
 		}
+		$self->set_lastmodified($h);
 		$tag = 'amp-img';
 		$self->chain_attr($ary, $h);
 	}
@@ -265,33 +307,31 @@ $self->{tag_wrapper} = sub {
 		$h->{height} = 250;
 		$self->chain_attr($ary, $h);
 
-		$tag = 'amp-ad';
-		$replace{ins} = 'amp-ad';
+		$tag = $replace{$tag} = 'amp-ad';
 	}
 	#------------------------------------------------------------
 	# audio
 	#------------------------------------------------------------
 	if ($tag eq 'audio') {
-		$tag  = 'amp-audio';
+		$tag = $replace{$tag} = 'amp-audio';
 	}
 	#------------------------------------------------------------
 	# video
 	#------------------------------------------------------------
 	if ($tag eq 'video') {
-		$tag = 'amp-video';
+		$tag = $replace{$tag} = 'amp-video';
 		# サムネイル自動生成等未対応のため、実際には使えず
 	}
 	#------------------------------------------------------------
 	# iframe
 	#------------------------------------------------------------
 	if ($tag eq 'iframe') {
-		$tag  = 'amp-iframe';
 		my $url = $h->{src};
 		#------------------------------------------------------------
 		# YouTube
 		#------------------------------------------------------------
 		if ($url =~ m!^https?://(?:www\.youtube\.com|youtu\.be)/!) {
-			$tag  = 'amp-youtube';
+			$tag = $replace{iframe} = 'amp-youtube';
 
 			delete $h->{src};
 			$url =~ m/([\w]*)$/;
@@ -303,7 +343,15 @@ $self->{tag_wrapper} = sub {
 			if ($h2->{style} =~ /height\s*:\s*(\d+)(?:px)?/i) { $h->{height}= $1; }
 
 			$self->chain_attr($ary, $h);
-			$replace{iframe} = 'amp-youtube';
+		#------------------------------------------------------------
+		# iframe
+		#------------------------------------------------------------
+		} else {
+			$tag = $replace{$tag} = 'amp-iframe';
+			push(@$ary, 'layout="responsive"');
+			my $file = $ROBJ->{Server_url} . $ROBJ->{Basepath}
+				 . $self->{aobj}->{pubdist_dir} . 'trans.png';
+			push(@$ary, "><amp-img layout=\"fill\" src=\"$file\" placeholder></amp-img");
 		}
 	}
 	#------------------------------------------------------------
@@ -394,6 +442,7 @@ $self->{chain_attr} = sub {
 $self->{set_lastmodified} = sub {
 	my $self = shift;
 	my $h    = shift;
+	my $ROBJ = $self->{ROBJ};
 	my $url  = $h->{src};
 
 	if (index($url, '?') >= 0) { return; }
@@ -427,51 +476,61 @@ $self->{load_image_size} = sub {
 		return;
 	}
 
-	my $basepath = $ROBJ->{Basepath};
-	my $base_len = length($basepath);
+	my ($x, $y) = $self->get_image_size($h->{src});
+	if (!$h->{width})  { $h->{width} =$x; }
+	if (!$h->{height}) { $h->{height}=$y; }
+	return;
+};
 
-	my $url = $h->{src};
-	if (substr($url, 0, $base_len) eq $basepath) {
-		my $file = substr($url, $base_len);
-		$ROBJ->tag_unescape($file);
-		$file =~ s/%([0-9A-Fa-f][0-9A-Fa-f])/chr(hex($1))/eg;
+#------------------------------------------------------------------------------
+# ●指定URLから画像サイズ取得
+#------------------------------------------------------------------------------
+$self->{get_image_size} = sub {
+	my $self = shift;
+	my $url  = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $aobj = $self->{aobj};
 
-		$img->Read( $ROBJ->get_filepath( $file ) );
-		my ($x, $y) = $img->Get('width', 'height');
-		if (!$h->{width})  { $h->{width} =$x; }
-		if (!$h->{height}) { $h->{height}=$y; }
-
-		# cache
-		if (index($url, '?') < 0) {
-			my $tm = $ROBJ->get_lastmodified($file);
-			$url .= "?$tm";
-			$h->{src} = $url;
-		}
+	my $img = $aobj->load_image_magick();
+	if (!$img) {
+		$ROBJ->error('Image::Magick Load Error');
 		return;
 	}
 
-	if (substr($url,0,2) eq '//') { $url = 'http:' . $url; }
-	if (substr($url,0,1) eq '/')  { $url = $ROBJ->{Server_url} . $url; }
+	my $basepath = $ROBJ->{Basepath};
+	my $base_len = length($basepath);
 
-	if ($url !~ m|^https?://|i) { return; }
+	my $file = substr($url, $base_len);
+	if (substr($url, 0, $base_len) ne $basepath) {
+		if (substr($url,0,2) eq '//') { $url = 'http:' . $url; }
+		if (substr($url,0,1) eq '/')  { $url = $ROBJ->{Server_url} . $url; }
 
-	# 指定のURLから情報取得
-	my $http = $ROBJ->loadpm('Base::HTTP');
-	my ($status, $header, $data) = $http->get($url);
-	if ($status != 200) { return; }
+		if ($url !~ m|^https?://|i) { return; }
 
-	$data = join('', @$data);
-	my ($fh, $file) = $ROBJ->open_tmpfile();
-	syswrite($fh, $data, length($data));
-	seek($fh, 0, 0);
-	$img->Read( file => $fh );
-	close($fh);
-	$ROBJ->file_delete($file);
+		# 指定のURLから情報取得
+		my $http = $ROBJ->loadpm('Base::HTTP');
+		my ($status, $header, $data) = $http->get($url);
+		if ($status != 200) { return; }
+
+		$data = join('', @$data);
+		my ($fh, $file) = $ROBJ->open_tmpfile();
+		syswrite($fh, $data, length($data));
+		seek($fh, 0, 0);
+		$img->Read( file => $fh );
+		close($fh);
+		$ROBJ->file_delete($file);
+	} else {
+		$ROBJ->tag_unescape($file);
+		$file =~ s/%([0-9A-Fa-f][0-9A-Fa-f])/chr(hex($1))/eg;
+		$file =~ s|^/+||g;
+		$file =~ s|\.+/||g;
+		$img->Read( $ROBJ->get_filepath( $file ) );
+	}
 
 	my ($x, $y) = $img->Get('width', 'height');
-	if (!$h->{width})  { $h->{width} =$x; }
-	if (!$h->{height}) { $h->{height}=$y; }
+	return ($x, $y);
 };
+
 #--------------------------------------------------------------------
 
 ###############################################################################

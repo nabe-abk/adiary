@@ -1068,26 +1068,33 @@ sub load_articles {
 #------------------------------------------------------------------------------
 sub post_process_article {
 	my $self = shift;
-	my ($dat, $opt) = @_;
+	my ($art, $opt) = @_;
 	my $ROBJ = $self->{ROBJ};
 
-	my $yyyymmdd = $dat->{yyyymmdd};
-	my $year = $dat->{year} = substr($yyyymmdd, 0, 4);
-	my $mon  = $dat->{mon}  = substr($yyyymmdd, 4, 2);
-	my $day  = $dat->{day}  = substr($yyyymmdd, 6, 2);
+	my $yyyymmdd = $art->{yyyymmdd};
+	my $year = $art->{year} = substr($yyyymmdd, 0, 4);
+	my $mon  = $art->{mon}  = substr($yyyymmdd, 4, 2);
+	my $day  = $art->{day}  = substr($yyyymmdd, 6, 2);
 
 	# コンテンツkey関連
-	my $key = $dat->{link_key};
-	$dat->{elink_key} = $key;
-	$self->link_key_encode( $dat->{elink_key} );
+	my $key = $art->{link_key};
+	$art->{elink_key} = $key;
+	$self->link_key_encode( $art->{elink_key} );
 
 	# 下書き?
-	$dat->{draft} = $dat->{tm} ? 0 : 1;
+	$art->{draft} = $art->{tm} ? 0 : 1;
 
 	# 曜日の取得
-	$dat->{wday} = $self->get_dayweek($dat->{year}, $dat->{mon}, $dat->{day});
-	$dat->{wday_name} = $ROBJ->{WDAY_name}->[ $dat->{wday} ];
-	return $dat;
+	$art->{wday} = $self->get_dayweek($art->{year}, $art->{mon}, $art->{day});
+	$art->{wday_name} = $ROBJ->{WDAY_name}->[ $art->{wday} ];
+
+	# メイン画像
+	if ($art->{main_image} =~ /^(.*?)\?(\d+),(\d+)/) {
+		$art->{main_image}   = $1;
+		$art->{main_image_w} = $2;
+		$art->{main_image_h} = $3;
+	}
+	return $art;
 }
 
 # link_key処理のみ
@@ -1770,6 +1777,7 @@ sub regist_post_html {
 	my $self = shift;
 	push(@{ $self->{post_html} ||=[] }, @_);
 }
+
 #------------------------------------------------------------------------------
 # ●記事編集権限チェック
 #------------------------------------------------------------------------------
