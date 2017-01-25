@@ -662,6 +662,7 @@ initfunc.push( function(R){
 	}
 	var url = obj.data("url");
 	div2.load( url, function(){
+		div2.text( div2.text().replace(/\n*$/, "\n\n") );
 		div.dialog({ width: DialogWidth, height: 320, close: close_func });
 	});
   })

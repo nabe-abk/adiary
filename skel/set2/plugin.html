@@ -44,26 +44,27 @@
 		</td>
 		<$end>
 <@>		<td class="c"><@t.license></td>
-		<td>
-		<span class="plg-name"><@t.name></span>
-		<span class="plg-version">Ver<@t.version></span>
-		<@ifexec(t.url, begin, begin)>
-		<span class="plg-author"><a href="<@encode_uri(x = t.url)>" target="_blank"><@t.author></a></span><br>
-		<$else>
-		<span class="plg-author"><@t.author></span><br>
-		<$end>
-		<@if(t.description, #'<@t.description><br>')>
-		<@ifexec(t.files, begin)>
-		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</button>
-		<$end)>
-		<@ifexec(t.events_display, begin)>
-		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events_display>">登録イベント</button>
-		<$end>
+		<td><div>
+			<span class="plg-name"><@t.name></span>
+			<span class="plg-version">Ver<@t.version></span>
+			<@ifexec(t.url, begin, begin)>
+			<span class="plg-author"><a href="<@encode_uri(x = t.url)>" target="_blank"><@t.author></a></span><br>
+			<$else>
+			<span class="plg-author"><@t.author></span><br>
+			<$end>
+			<@t.description>
+		</div>
 		<@ifexec(t.readme, begin)>
 		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>
 		<$end>
 		<@ifexec(t.module_setting, begin)>
 		<button type="button" class="setting" data-title="<@t.name>の設定" data-module-name="<@t.name>" data-url="<@v.myself>?<@v.skel_dir>plugin_setting&amp;name=<@t.name>">設定</button>
+		<$end>
+		<@ifexec(t.files, begin)>
+		<a href="javascript:void(0)" class="js-info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</a>
+		<$end)>
+		<@ifexec(t.events_display, begin)>
+		<a href="javascript:void(0)" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events_display>">登録イベント</a>
 		<$end>
 		</td>
 	</tr>
@@ -104,23 +105,24 @@
 		</td>
 		<td><@replace(t.module_type, ',', ', ')></td>
 <@>		<td class="c"><@t.license></td>
-		<td>
-		<span class="plg-name"><@t.name></span>
-		<span class="plg-version">Ver<@t.version></span>
-		<@ifexec(t.url, begin, begin)>
-		<span class="plg-author"><a href="<@encode_uri(x = t.url)>" target="_blank"><@t.author></a></span>
-		<$else>
-		<span class="plg-author"><@t.author></span>
-		<$end>
-		<@if(t.description, #'<@t.description><br>')>
-		<@ifexec(t.files, begin)>
-		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</button>
-		<$end)>
-		<@ifexec(t.events_display, begin)>
-		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events_display>">登録イベント</button>
-		<$end>
+		<td><div>
+			<span class="plg-name"><@t.name></span>
+			<span class="plg-version">Ver<@t.version></span>
+			<@ifexec(t.url, begin, begin)>
+			<span class="plg-author"><a href="<@encode_uri(x = t.url)>" target="_blank"><@t.author></a></span>
+			<$else>
+			<span class="plg-author"><@t.author></span>
+			<$end>
+			<@t.description>
+		</div>
 		<@ifexec(t.readme, begin)>
 		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>
+		<$end>
+		<@ifexec(t.files, begin)>
+		<a href="javascript:void(0)" class="js-info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</a>
+		<$end)>
+		<@ifexec(t.events_display, begin)>
+		<a href="javascript:void(0)" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events_display>">登録イベント</a>
 		<$end>
 		</td>
 	</tr>
