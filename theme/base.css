@@ -774,10 +774,12 @@ span.ui-icon.ui-icon-search {
 .sw-show .ui-icon.switch-icon {
 	background-position:	-224px 0px;
 	width:			13px;
+	height:			13px;
 }
 .sw-hide .ui-icon.switch-icon {
 	background-position:	-240px 0px;
 	width:			13px;
+	height:			13px;
 }
 
 /*--------------------------------------------------------------------
