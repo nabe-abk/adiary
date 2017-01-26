@@ -175,7 +175,6 @@ sub escape {
 	# 閉じタグの処理
 	sub close_tag {
 		my $y = shift;
-		$ROBJ->debug($y);
 		$allow_any || ($y=~tr/A-Z/a-z/,exists $tag_list->{$y}) || return;
 		if ($wrapper->{close_tag}) {
 			$y = &{$wrapper->{close_tag}}($y);

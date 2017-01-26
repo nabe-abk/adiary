@@ -623,7 +623,6 @@ sub get_main_image_size {
 	$file =~ s/%([0-9A-Fa-f][0-9A-Fa-f])/chr(hex($1))/eg;
 	$file =~ s|^/+||g;
 	$file =~ s|\.+/||g;
-	$self->debug($file);
 
 	$im->Read( $ROBJ->get_filepath( $self->blogimg_dir() . $file ) );
 	my ($w, $h) = $im->Get('width', 'height');
