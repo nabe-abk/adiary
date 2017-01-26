@@ -1,7 +1,7 @@
 use strict;
 #-------------------------------------------------------------------------------
 # 匿名クラス生成のためのモジュール
-#					(C)2013 nabe / ABK project
+#					(C)2013-2017 nabe@abk
 #-------------------------------------------------------------------------------
 # Class::MOPのまね事です。
 package Satsuki::MOP;
@@ -13,16 +13,6 @@ our $AUTOLOAD;
 sub new {
 	my $class = shift;
 	return bless({ROBJ => shift, _FILENAME => shift}, $class);
-}
-#------------------------------------------------------------------------------
-# ●メソッドの追加
-#------------------------------------------------------------------------------
-sub add_method {
-	my $self = shift;
-	while(@_) {
-		my $n = shift;
-		$self->{$_} = shift;
-	}
 }
 #------------------------------------------------------------------------------
 # ●呼び出し機構
@@ -37,7 +27,7 @@ sub AUTOLOAD {
 	# error
 	my ($pack, $file, $line) = caller;
 	if ($self->{_FILENAME}) { $file = $self->{_FILENAME}; }
-	die "[MOP] Can't find method '$name' at $file line $line"; 	
+	die "[MOP] Can't find method '$name' at $file line $line";
 }
 #------------------------------------------------------------------------------
 # ●debug

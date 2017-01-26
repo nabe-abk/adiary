@@ -1711,6 +1711,7 @@ sub load_spmenu_items {
 		if (! $pi->{sphone_menu}) { next; }
 
 		my $h = $self->parse_html_for_spmenu( $set->{$_} );
+
 		if (!$h->{html}) { next; }
 		# save
 		if ($check) { return 1; }

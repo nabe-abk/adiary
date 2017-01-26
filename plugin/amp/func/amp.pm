@@ -292,6 +292,7 @@ $self->{tag_wrapper} = sub {
 		$self->set_lastmodified($h);
 		$tag = 'amp-img';
 		$self->chain_attr($ary, $h);
+		push(@$ary, '></amp-img');
 	}
 	#------------------------------------------------------------
 	# Google AdSense
@@ -331,7 +332,7 @@ $self->{tag_wrapper} = sub {
 		# YouTube
 		#------------------------------------------------------------
 		if ($url =~ m!^https?://(?:www\.youtube\.com|youtu\.be)/!) {
-			$tag = $replace{iframe} = 'amp-youtube';
+			$tag = $replace{$tag} = 'amp-youtube';
 
 			delete $h->{src};
 			$url =~ m/([\w]*)$/;
