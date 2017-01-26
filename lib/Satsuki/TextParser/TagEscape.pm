@@ -172,6 +172,19 @@ sub escape {
 	# & の正規化
 	&escape_amp( $inp );	# & → &amp;
 
+	# 閉じタグの処理
+	sub close_tag {
+		my $y = shift;
+		$ROBJ->debug($y);
+		$allow_any || ($y=~tr/A-Z/a-z/,exists $tag_list->{$y}) || return;
+		if ($wrapper->{close_tag}) {
+			$y = &{$wrapper->{close_tag}}($y);
+			$y =~ s/</\x02/g;
+			$y =~ s/>/\x03/g;
+		}
+		"\x02/$y\x03";
+	}
+
 	### print "Content-Type: text/plain;\n\n";
 	while($inp =~ /^(.*?)<([A-Za-z][\w\-]*)((?:\s*[A-Za-z_][\w\-]*(?:=".*?"|='.*?'|[^\s>]*))*)\s*(\/)?>(.*)/s) {
 		my $x   = $1;		# 前部分
@@ -180,16 +193,7 @@ sub escape {
 		my $tag      = $3;	# タグ部分
 		my $tag_end  = $4 ? ' /' : '';	# " />" 部分
 
-		$x   =~ s[</(.+?)\s*>][
-				my $y=$1;
-				$allow_any || ($y=~tr/A-Z/a-z/,exists $tag_list->{$y}) || return;
-				if ($wrapper->{close_tag}) {
-					$y = &{$wrapper->{close_tag}}($y);
-					$y =~ s/</\x02/g;
-					$y =~ s/>/\x03/g;
-				}
-				"\x02/$y\x03"
-			]seg;
+		$x   =~ s!</(.+?)\s*>!&close_tag($1)!seg;
 		$x   =~ s/</&lt;/g;
 		$x   =~ s/>/&gt;/g;
 		&escape_amp( $x );	# & → &amp;
@@ -321,7 +325,7 @@ sub escape {
 			push(@out, $1);
 		}
 	}
-	$inp =~ s[</(.+?)>][($allow_any || exists $tag_list->{$1}) && "\x02/$1\x03"]seg;
+	$inp =~ s!</(.+?)\s*>!&close_tag($1)!seg;
 	$inp =~ s/</&lt;/g;
 	$inp =~ s/>/&gt;/g;
 	my $out = join('', @out) . $inp;
