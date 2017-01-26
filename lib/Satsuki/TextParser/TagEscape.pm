@@ -173,7 +173,7 @@ sub escape {
 	&escape_amp( $inp );	# & → &amp;
 
 	# 閉じタグの処理
-	sub close_tag {
+	my $close_tag = sub {
 		my $y = shift;
 		$allow_any || ($y=~tr/A-Z/a-z/,exists $tag_list->{$y}) || return;
 		if ($wrapper->{close_tag}) {
@@ -182,7 +182,7 @@ sub escape {
 			$y =~ s/>/\x03/g;
 		}
 		"\x02/$y\x03";
-	}
+	};
 
 	### print "Content-Type: text/plain;\n\n";
 	while($inp =~ /^(.*?)<([A-Za-z][\w\-]*)((?:\s*[A-Za-z_][\w\-]*(?:=".*?"|='.*?'|[^\s>]*))*)\s*(\/)?>(.*)/s) {
@@ -192,7 +192,7 @@ sub escape {
 		my $tag      = $3;	# タグ部分
 		my $tag_end  = $4 ? ' /' : '';	# " />" 部分
 
-		$x   =~ s!</(.+?)\s*>!&close_tag($1)!seg;
+		$x   =~ s!</(.+?)\s*>!&$close_tag($1)!seg;
 		$x   =~ s/</&lt;/g;
 		$x   =~ s/>/&gt;/g;
 		&escape_amp( $x );	# & → &amp;
@@ -324,7 +324,7 @@ sub escape {
 			push(@out, $1);
 		}
 	}
-	$inp =~ s!</(.+?)\s*>!&close_tag($1)!seg;
+	$inp =~ s!</(.+?)\s*>!&$close_tag($1)!seg;
 	$inp =~ s/</&lt;/g;
 	$inp =~ s/>/&gt;/g;
 	my $out = join('', @out) . $inp;
