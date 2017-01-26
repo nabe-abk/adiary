@@ -339,13 +339,13 @@ sub save_use_plugins {
 	my $pd      = $self->load_plugins_dat();
 	my $plugins = $self->load_plugins_info($modf);
 	my $ary = $plugins;
+	my %common;
 	if ($modf) {
 		# モジュールの場合
 		# ※1つのモジュールを複数配置することがあるので、その対策。
-		# 　その場合 $name:"des_name,1", $n:"des_name" となる
+		# 　その場合 $name="des_name,1", $n="des_name" となる
 		my %pl = map { $_->{name} => $_ } @$plugins;
 		my %names;
-		my %common;
 		$ary = [];
 		foreach(keys(%$form)) {
 			my $n = $self->plugin_name_check( $_ );
@@ -414,6 +414,11 @@ sub save_use_plugins {
 				$pd->{"$name"} = 1;
 				$pd->{"$name:events"} = $_->{events};
 
+				# install event
+				my $h = {};
+				$self->set_event_info($h, $pd);
+				$self->do_call_event("INSTALL:$name", $h);
+
 				# common名でのイベント登録を削除
 				delete $pd->{"$cname:events"};
 			} else {
@@ -428,7 +433,7 @@ sub save_use_plugins {
 		# install/uninstall 実行
 		my $r = $fail{$name} ? 100 : $self->$func( $pd, $_ );
 		$err += $r;
-		if (!$r && $inst) {
+		if (!$r && $inst && !$common{$name}) {
 			my $h = {};
 			$self->set_event_info($h, $pd);
 			$r = $self->do_call_event("INSTALL:$name", $h);
