@@ -260,14 +260,27 @@ sub escape {
 				map { $attrs->{$_}=1 } @$attrs_all;
 				$tag_list->{$tag_name} = $attrs;	# cache
 			}
-			if ($attrs->{'data-'} && substr($_,0,5) eq 'data-' && length($_)>5) {
-				$attrs->{$_}=1;
-				$_ =~ m/-([^-]*)$/;
-				$data_attr = $1;	# data-xxxx-url の最後の "url" を抽出
+			if (! $attrs->{_wild}) {	# data- 等への対応
+				my @wild;
+				foreach(keys(%$attrs)) {
+					if (substr($_,-1) ne '-') { next; }
+					push(@wild, $_);
+				}
+				$attrs->{_wild} = \@wild;
 			}
 			if (!$allow_any && (!$attrs->{$_} || $deny_attr->{$_})) {	# 属性を無視
-				push(@deny_at, "$_=\"$v\"");
-				next;
+				my $f=1;
+				# data- 等のワイルドカードチェック
+				if ($attrs->{_wild} && index($_,'-') > 0) {
+					foreach my $w (@{$attrs->{_wild}}) {
+						if (substr($_, 0, length($w)) ne $w) { next; }
+						$f=0; last;
+					}
+				}
+				if ($f) {
+					push(@deny_at, "$_=\"$v\"");
+					next;
+				}
 			}
 
 			# 値無し属性 （例）selected
