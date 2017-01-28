@@ -14,7 +14,10 @@ my $name;
 	$self = $ROBJ->loadpm('MOP', $aobj->{call_file});	# 無名クラス生成用obj
 	$self->{aobj} = $aobj;
 	$self->{this_tm} = $ROBJ->get_lastmodified($aobj->{call_file});
+
+	$self->{trans_png} = $ROBJ->{Server_url} . $ROBJ->{Basepath} . $aobj->{pubdist_dir} . 'trans.png';
 }
+
 #------------------------------------------------------------------------------
 # ●ロゴ情報の取得
 #------------------------------------------------------------------------------
@@ -78,6 +81,7 @@ article.setting	.help .highlight .search .ui-icon- .social-button
 	my %amp_scripts = (
 'amp-ad'	=> '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>',
 'amp-audio'	=> '<script async custom-element="amp-audio" src="https://cdn.ampproject.org/v0/amp-audio-0.1.js"></script>',
+'amp-video'	=> '<script async custom-element="amp-video" src="https://cdn.ampproject.org/v0/amp-video-0.1.js"></script>',
 'amp-iframe'	=> '<script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>',
 'amp-youtube'	=> '<script async custom-element="amp-youtube" src="https://cdn.ampproject.org/v0/amp-youtube-0.1.js"></script>',
 'amp-twitter'	=> '<script async custom-element="amp-twitter" src="https://cdn.ampproject.org/v0/amp-twitter-0.1.js"></script>'
@@ -321,7 +325,11 @@ $self->{tag_wrapper} = sub {
 	#------------------------------------------------------------
 	if ($tag eq 'video') {
 		$tag = $replace{$tag} = 'amp-video';
-		# サムネイル自動生成等未対応のため、実際には使えず
+
+		$h->{poster} ||= $self->{trans_png};
+		$self->layout($h, $deny, 180);
+
+		$self->chain_attr($ary, $h);
 	}
 	#------------------------------------------------------------
 	# iframe
@@ -337,22 +345,19 @@ $self->{tag_wrapper} = sub {
 			delete $h->{src};
 			$url =~ m/([\w]*)$/;
 			$h->{"data-videoid"} = $1;
-			$h->{layout} = 'responsive';
 
-			my $h2 = $self->perse_attr($deny, 0);
-			if ($h2->{style} =~  /width\s*:\s*(\d+)(?:px)?/i) { $h->{width} = $1; }
-			if ($h2->{style} =~ /height\s*:\s*(\d+)(?:px)?/i) { $h->{height}= $1; }
-
+			$self->layout($h, $deny);
 			$self->chain_attr($ary, $h);
 		#------------------------------------------------------------
 		# iframe
 		#------------------------------------------------------------
 		} else {
 			$tag = $replace{$tag} = 'amp-iframe';
-			push(@$ary, 'layout="responsive"');
-			my $file = $ROBJ->{Server_url} . $ROBJ->{Basepath}
-				 . $self->{aobj}->{pubdist_dir} . 'trans.png';
-			push(@$ary, "><amp-img layout=\"fill\" src=\"$file\" placeholder></amp-img");
+
+			$self->layout($h, $deny);
+			$self->chain_attr($ary, $h);
+
+			push(@$ary, "><amp-img layout=\"fill\" src=\"$self->{trans_png}\" placeholder></amp-img");
 		}
 	}
 	#------------------------------------------------------------
@@ -383,6 +388,28 @@ $self->{tag_wrapper} = sub {
 
 	$tag =~ s/[^\w\-].*$//;
 	return $amp_scripts{$tag};
+};
+
+#------------------------------------------------------------
+# layoutの処理
+#------------------------------------------------------------
+$self->{layout} = sub {
+	my $self = shift;
+	my $h    = shift;
+	my $deny = shift;
+	my $default = shift;
+
+	my $h2 = $self->perse_attr($deny, 0);
+	if ($h2->{style} =~  /(?:^|\s)width\s*:\s*(\d+)(?:px)?/i) { $h->{width} = $1; }
+	if ($h2->{style} =~ /(?:^|\s)height\s*:\s*(\d+)(?:px)?/i) { $h->{height}= $1; }
+
+	if ($h->{width} && $h->{height}) {
+		$h->{layout} = 'responsive';
+	} else {
+		$h->{layout} = 'fixed-height';
+		$h->{height} ||= $default || 240;
+		delete $h->{width};
+	}
 };
 
 #------------------------------------------------------------------------------

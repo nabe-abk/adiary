@@ -26,9 +26,7 @@ Net::SSLeay
 
 -<img>
 -<audio>
--<iframe> : width/heightの指定が無いとエラーになります。
+-<video>  : width / height を指定するようにしてください。
+-<iframe> : width / height を指定するようにしてください。
 -YouTube
 -Twitter
-
-videoタグは動画サムネイル等、難しい問題があるので未対応です。
-amp-videoに変換はしますが AMP valid にはなりません。

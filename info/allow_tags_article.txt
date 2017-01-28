@@ -93,9 +93,9 @@ meter		value, min, max, low, height, optimum
 menu		type, label
 command		type, label, icon, disabled, checked, radiogroup, title
 
-### メディア ####################
+### メディア ####################  poster, width, height for amp-video
 audio		src, controls, type
-video		src, controls, type
+video		src, controls, type, poster, width, height
 source		src, type
 track		subtitles, label, src, srclang, default
 

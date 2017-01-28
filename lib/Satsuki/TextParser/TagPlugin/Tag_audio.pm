@@ -55,12 +55,18 @@ sub new {
 sub audio_video {
 	my ($pobj, $tag, $cmd, $ary) = @_;
 	my $tname = $tag->{name};
+	my $width;
+	my $height;
 
 	my $ftag = $pobj->{tags}->{file};
 	if ($ftag && $cmd =~ /^file:(\w+)/) {
 		# [file:xxx] タグからのaliasの時
 		unshift(@$ary, $1);
 		my $url = $pobj->replace_link($ftag->{data}, $ary, $ftag->{argc});
+		foreach(@$ary) {
+			if ($_ =~ /^w(\d+)$/) { $width =$1; }
+			if ($_ =~ /^h(\d+)$/) { $height=$1; }
+		}
 		$ary = [ $url ];
 	}
 
@@ -72,6 +78,8 @@ sub audio_video {
 			$url .= ':' . shift(@$ary);
 		}
 		$url0 ||= $url;
+		if ($url =~ /^w(\d+)$/) { $width =$1; }
+		if ($url =~ /^h(\d+)$/) { $height=$1; }
 
 		my $mime='';
 		my $url2 = $url;
@@ -84,7 +92,10 @@ sub audio_video {
 	}
 	if (!$src) { return''; }
 
-	return "<$tname controls>$src(Browser not support $tname tag) <a class=\"$tname\" href=\"$url0\">$url0</a></$tname>";
+	$width  = $width  ?  " width=\"$width\""  : '';
+	$height = $height ? " height=\"$height\"" : '';
+
+	return "<$tname$width$height controls>$src(Browser not support $tname tag) <a class=\"$tname\" href=\"$url0\">$url0</a></$tname>";
 }
 
 1;
