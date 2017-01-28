@@ -1,7 +1,7 @@
 use strict;
 #-------------------------------------------------------------------------------
 # デフォルトmain
-#							(C)2006-2009 nabe@abk
+#							(C)2006-2017 nabe@abk
 #-------------------------------------------------------------------------------
 package SatsukiApp::default;
 #-------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ sub new {
 	my ($class, $ROBJ, $self) = @_;
 	if (ref($self) ne 'HASH') { $self={}; }
 	bless($self, $class);	# $self をこのクラスと関連付ける
+	$self->{ROBJ} = $ROBJ;
 	return $self;
 }
 ###############################################################################
@@ -71,7 +72,7 @@ sub output_html {
 	if ($self->{action_is_main}) {	# actionの中身で代用する
 		$out = $self->{action_data};
 	} else {
-		$out = $ROBJ->call($skeleton, @$arg);
+		$out = $ROBJ->call($skeleton);
 	}
 
 	# フレームあり？
