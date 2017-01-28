@@ -577,7 +577,9 @@ span.tag span.ui-icon-close,
 .ui-icon.ui-button {
 	padding:		0;
 }
-
+.ui-button-icon-only {
+	box-sizing:		content-box;
+}
 .ui-dialog-buttonpane button {
 	font-weight:	normal;
 }
