@@ -694,13 +694,14 @@ sub _read_form {
 	### マルチパート form か
 	my $content_type = $ENV{CONTENT_TYPE};
 	if (index($content_type, 'multipart/form-data') == 0) {
-		if (!$options->{allow_multipart}) { return; }
+		if (exists $options->{allow_multipart} && !$options->{allow_multipart}) { return; }
 		return $self->read_multipart_form( $content_type );
 	}
 	### データサイズの確認
 	my $length = $ENV{CONTENT_LENGTH};
-	if ($options->{total_max_size} && $length > $options->{total_max_size}) {
-		$self->message('Too large form data (max %dKB)', $options->{total_max_size} >> 10); return ;
+	my $total_max = $options->{total_max_size};	# 1MB
+	if ($total_max && $length > $total_max) {
+		$self->message('Too large form data (max %dKB)', $total_max >> 10); return ;
 	}
 	### 通常のフォーム処理
 	my $content;
@@ -742,10 +743,10 @@ sub read_multipart_form {
 		$self->message('Too large form data (max %dKB)', $total_max >> 10); return ;
 	}
 
-	my $file_max_size   = $options->{multipart_file_max_size} || $total_max || 0x100000;	#  1MB
-	my $data_max_size   = $options->{multipart_data_max_size} || 0x10000;			# 64KB
-	my $header_max_size = 1024;
+	my $file_max_size   = $options->{multipart_file_max_size};
+	my $data_max_size   = $options->{multipart_data_max_size};
 	my $use_temp_dir    = $options->{multipart_use_temp_dir};
+	my $header_max_size = 1024;
 
 	# boundary の読み出し
 	binmode(STDIN);		# for DOS/Windows

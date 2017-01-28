@@ -47,9 +47,6 @@ sub read_line {
 	if (ref($output) ne 'SCALAR' && ($output eq '' || !fileno($output))) { $output = \( $_[0] ); }
 	if (ref($output) eq 'SCALAR') { $$output = ''; }
 
-	# 出力最大サイズ
-	if ($output_max_size eq '') { $output_max_size = 0x10000; }		# 1MB
-
 	# buffer の状態読み込み
 	my $read_size = $self->{read_size};
 	my $read_max  = $self->{read_max};
@@ -120,7 +117,7 @@ sub read_line {
 sub output {
 	my ($output, $out_size, $out_max_size, $buf, $offset, $size) = @_;
 	my $new_out_size = $$out_size + $size;
-	if ($new_out_size > $out_max_size) {
+	if ($out_max_size && $new_out_size > $out_max_size) {
 		$size = $size - ($new_out_size - $out_max_size);
 	}
 	if ($size < 1) { return $$out_size; }	# 0以下なら出力せず return
