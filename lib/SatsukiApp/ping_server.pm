@@ -1,7 +1,7 @@
 use strict;
 #-------------------------------------------------------------------------------
 # 更新通知Ping Server / XML-RPC for adiary only
-#						(C)2013 nabe / ABK project
+#							(C)2013 nabe@abk
 #-------------------------------------------------------------------------------
 # [UTF-8]
 package SatsukiApp::ping_server;
