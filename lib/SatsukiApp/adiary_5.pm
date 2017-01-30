@@ -68,13 +68,15 @@ sub blog_create {
 	# ブログデータのコピー
 	$ROBJ->dir_copy( $self->blog_dir   ( $copy_id ), $self->blog_dir   ( $id ) );
 	$ROBJ->dir_copy( $self->blogpub_dir( $copy_id ), $self->blogpub_dir( $id ) );
-	$self->copy_tables($copy_id, $id);
 
-	# 再構築
+	# データコピーはプラグインインストール後に
 	my $current = $self->{blogid};
 	$self->set_and_select_blog( $id );
-	$self->rebuild_blog();
 	$self->reinstall_plugins();
+
+	# 再構築
+	$self->copy_tables($copy_id, $id);
+	$self->rebuild_blog();
 
 	$self->set_and_select_blog_force( $current );
 	return $r;
