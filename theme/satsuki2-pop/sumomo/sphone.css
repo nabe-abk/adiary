@@ -116,6 +116,8 @@ h1 a:before {
 	background-color:	rgba(255,255,255,0.4);
 }
 #sp-head-search .search-btn {
+	background-color:	rgba(255,255,255,0.5);
+	background-image:	none;
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
 }
 
