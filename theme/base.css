@@ -1329,7 +1329,7 @@ ul.menu {
 	margin-top:	-2px;
 }
 /* 5階層目以降は表示しない */
-.dropdown-menu>ul ul ul ul ul {
+.dropdown-menu:not(.sp)>ul ul ul ul ul {
 	display:	none;
 }
 
