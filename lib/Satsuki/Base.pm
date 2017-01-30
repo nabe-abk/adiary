@@ -952,7 +952,17 @@ sub _loadpm {
 	$pm_file =~ s|::|/|g;
 	eval { require $pm_file; };
 	if ($@) { delete $INC{$pm_file}; die($@); }
+	{
+		no strict 'refs'; 	# ルーチン埋め込み
+		my $dbg = $pm . '::debug';
+		if (! *$dbg{CODE}) { *$dbg = \&export_debug; }
+	}
 	return $pm->new($self, @a);
+}
+
+sub export_debug {
+	my $self = shift;
+	$self->{ROBJ}->debug($_[0], 1);		# debug-safe
 }
 
 ###############################################################################
