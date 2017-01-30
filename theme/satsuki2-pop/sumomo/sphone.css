@@ -110,17 +110,15 @@ h1 a:before {
 
 /* 検索ボックス */
 #sp-head-search {
-	margin-top:		2px;
-	padding:		3px 4px 3px 4px;
-	border-radius:		4px;
+	padding-right:		0px;
+}
+#sp-head-search form {
 	background-color:	rgba(255,255,255,0.4);
 }
 #sp-head-search .search-btn {
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
 }
-#sp-head-search .search-box {
-	width:			100px;
-}
+
 
 /*--------------------------------------------------------------------
 ■サイドバー

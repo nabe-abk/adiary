@@ -70,9 +70,7 @@ h1
 }
 
 /* 検索ボックス */
-#sp-head-search {
-	padding:		3px 4px 3px 4px;
-	border-radius:		4px;
+#sp-head-search form {
 	background-color:	rgba(255,255,255,0.4);
 }
 #sp-head-search .search-btn  {

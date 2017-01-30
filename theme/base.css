@@ -584,12 +584,6 @@ span.tag span.ui-icon-close,
 	font-weight:	normal;
 }
 
-/* 検索ボタン */
-span.ui-icon.ui-icon-search {
-	width:  19px;
-	height: 19px;
-}
-
 /* positioning */
 .ui-icon-blank { background-position: 16px 16px; }
 .ui-icon-carat-1-n { background-position: 0 0; }
@@ -1535,9 +1529,16 @@ ul.menu {
 	position:		relative;
 	z-index:		1000;
 	float:			right;
+	line-height:		1;
 
-	padding:		4px;
-	margin:			0 2px 1px 0;
+	height:			28px;
+	padding:		1px 2px 1px 0px;
+}
+#sp-head-search form {
+	height:			22px;
+	margin:			0;
+	padding:		3px 5px;
+	border-radius:		4px;
 }
 #sp-header:after {
 	content:		"";
@@ -1546,9 +1547,13 @@ ul.menu {
 }
 #sp-head-search input {
 	font-size:		14px;
-	height:			16px;
+	height:			22px;
+	box-sizing:		border-box;
 }
+/* 検索ボタン */
 #sp-head-search .search-btn {
+	width:			22px;
+	height:			22px;
 	padding:		0;
 	margin:			0 0 0 2px;
 }

@@ -47,12 +47,7 @@ body, #adiary-body {
 	margin:			10px 0 0 0;
 	padding:		20px 6px;
 	font-weight:		bold;
-	text-shadow:
-		-1px -1px 0px #dde,
-		 1px -1px 0px #dde,
-		 1px  1px 0px #dde,
-		-1px  1px 0px #dde,
-		 3px  3px 3px #66c;
+	text-shadow:		3px 3px 5px #66b;
 }
 #sp-nav-header,
 #sp-nav-header a,
@@ -63,15 +58,14 @@ body, #adiary-body {
 }
 
 /* 検索ボックス */
-#sp-head-search {
-	padding:		3px 4px 4px 4px;
-	border-radius:		4px;
-	background-color:	rgba(255,255,255,0.4);
+#sp-head-search form {
+	background-color:	rgba(255,255,255,0.3);
 }
 #sp-head-search .search-btn {
-	background-color:	#bbb;
+	border-color:		#00a;
+	background-color:	#bbd;
 	background-image:	none;
-	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
+	box-shadow:		1px 1px 1px rgba(0,0,0, 0.6);
 }
 
 /*--------------------------------------------------------------------

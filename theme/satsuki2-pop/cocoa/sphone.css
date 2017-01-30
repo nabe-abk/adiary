@@ -79,20 +79,9 @@ div.main {
 }
 
 /* 検索ボックス */
-#sp-head-search {
-	padding:		4px 8px;
-	margin:			0 0.5em 0 0;
-	border-radius:		4px;
+#sp-head-search form {
 	background-color:	rgba(255,220,220,0.7);
 }
-#sp-head-search form {
-}
-#sp-head-search button {
-	height:			20px;
-	width:			20px;
-	padding:		0;
-}
-
 #sp-head-search input {
 	background-color:	rgba(255,255,255,0.5);
 	margin:			0;

@@ -54,17 +54,11 @@
 		 3px  3px 2px #999;
 }
 /* 検索ボックスボタン */
-#sp-head-search {
-	padding:		3px 4px 4px 4px;
-	border-radius:		4px;
-	background-color:	rgba(255,255,255,0.4);
+#sp-head-search form {
+	background-color:	rgba(255,255,255,0.6);
 }
 #sp-head-search .search-btn {
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4)
-	padding:		2px;
-	height:			20px;
-	width:			20px;
-	margin:			0;
 }
 
 /* フッター */

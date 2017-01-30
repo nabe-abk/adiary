@@ -55,16 +55,15 @@ div.main {
 		 3px  3px 2px #999;
 }
 /* 検索ボックス */
-#sp-head-search {
-	padding:		4px 4px;
-	border-radius:		4px;
-	background-color:	rgba(255,220,220,0.7);
+#sp-head-search form {
+	background-color:	rgba(255,255,255,0.7);
 }
 #sp-head-search input,
 #sp-head-search button {
 	margin:			0;
 }
 #sp-head-search .search-btn {
+	background-image:	linear-gradient(to bottom, #fde, #fcd);
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
 }
 

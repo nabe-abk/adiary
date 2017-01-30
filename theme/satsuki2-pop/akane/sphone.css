@@ -73,19 +73,9 @@ div.main {
 }
 
 /* 検索ボックス */
-#sp-head-search {
-	padding:		4px 4px;
-	border-radius:		4px;
+#sp-head-search form {
 	background-color:	rgba(255,220,220,0.7);
 }
-#sp-head-search form {
-}
-#sp-head-search button {
-	height:			20px;
-	width:			20px;
-	padding:		0;
-}
-
 #sp-head-search input {
 	background-color:	rgba(255,255,255,0.5);
 	margin:			0;
@@ -94,6 +84,8 @@ div.main {
 	background-color:	rgba(255,255,255,0.7);
 }
 #sp-head-search .search-btn {
+	border:			none;
+	background-color:	#fff6f6;
 	box-shadow:		1px 1px 1px rgba(0,0,0, 0.4);
 }
 
