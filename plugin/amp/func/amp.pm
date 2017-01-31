@@ -149,7 +149,7 @@ $self->{amp_css} = sub {
 			$media =~ s/\s*([\{\};:,])\s*/$1/g;
 			push(@out, $media);
 		}
-		if ($sels =~ /\}(.*)/) {
+		if ($sels =~ /\}(.*)/s) {
 			$out[$#out] .= '}';
 			$sels = $1;
 		}
