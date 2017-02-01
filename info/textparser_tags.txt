@@ -268,6 +268,13 @@ wbr     = html:wbr
 code	= html:code
 quote	= html:q
 
+for-pc  = html:span.for-pc
+for-sp  = html:span.for-sp
+for-amp = html:span.for-amp
+pc  = >for-pc
+sp  = >for-sp
+amp = >for-amp
+
 #------------------------------------------------------------------------------
 # テキスト色
 #------------------------------------------------------------------------------
