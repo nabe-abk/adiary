@@ -140,7 +140,7 @@ iframe.on('load', function(){
 	// 選択中テーマがちゃんとロードされているか確認
 	var ftheme = iframe.contents().find('#theme-css').attr('href');
 	if (!ftheme) return;
-	ftheme = ftheme.replace(/^.*\/([\w\-]+\/[\w\-]+)\/[\w\-]+\.css$/, "$1");
+	ftheme = ftheme.replace(/^.*\/([\w\-]+\/[\w\-]+)\/[\w\-]+\.css(?:\?.*)?$/, "$1");
 	if (ftheme != current_theme) return;
 
 	if_css = $('<style>').attr('type','text/css', 'id', 'theme-realtime-custom-css');
