@@ -286,10 +286,10 @@ my $base64table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345678
 my @base64ary = (
  0, 0, 0, 0,  0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0,	# 0x00〜0x1f
  0, 0, 0, 0,  0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0,	# 0x10〜0x1f
- 0, 0, 0, 0,  0, 0, 0, 0,   0, 0, 0,62,  0, 0, 0,63,	# 0x20〜0x2f
+ 0, 0, 0, 0,  0, 0, 0, 0,   0, 0, 0,62,  0,62, 0,63,	# 0x20〜0x2f
 52,53,54,55, 56,57,58,59,  60,61, 0, 0,  0, 0, 0, 0,	# 0x30〜0x3f
  0, 0, 1, 2,  3, 4, 5, 6,   7, 8, 9,10, 11,12,13,14,	# 0x40〜0x4f
-15,16,17,18, 19,20,21,22,  23,24,25, 0,  0, 0, 0, 0,	# 0x50〜0x5f
+15,16,17,18, 19,20,21,22,  23,24,25, 0,  0, 0, 0,63,	# 0x50〜0x5f
  0,26,27,28, 29,30,31,32,  33,34,35,36, 37,38,39,40,	# 0x60〜0x6f
 41,42,43,44, 45,46,47,48,  49,50,51, 0,  0, 0, 0, 0	# 0x70〜0x7f
 );
@@ -438,15 +438,14 @@ sub decode_quoted_printable {	# Content-Transfer-Encoding: quoted-printable
 	return $text;
 }
 
-sub base64decode {
+sub base64decode {	# 'normal' or 'URL safe'
 	my $self = shift;
 	my $str  = shift;
 
 	my $ret;
 	my $buf;
 	my $f;
-	if (substr($str, -1) eq  '=') { $f=1; }
-	if (substr($str, -2) eq '==') { $f=2; }
+	$str =~ s/[=\.]+$//;
 	for(my $i=0; $i<length($str); $i+=4) {
 		$buf  = ($buf<<6) + $base64ary[ ord(substr($str,$i  ,1)) ];
 		$buf  = ($buf<<6) + $base64ary[ ord(substr($str,$i+1,1)) ];
@@ -455,8 +454,9 @@ sub base64decode {
 		$ret .= chr(($buf & 0xff0000)>>16) . chr(($buf & 0xff00)>>8) . chr($buf & 0xff);
 
 	}
-	if ($f>0) { chop($ret); }
-	if ($f>1) { chop($ret); }
+	my $f = length($str) & 3;	# mod 4
+	if ($f >1) { chop($ret); }
+	if ($f==2) { chop($ret); }
 	return $ret;
 }
 
