@@ -1187,7 +1187,7 @@ sub get_rand_string {
 	my $len = int(shift) || 20;
 	my $salt='';
 	foreach(0..$len) {
-		$salt .= chr((((ord(substr($str, $_, 1)) * int(rand(0x10000)))>>8) & 0xff)+1);
+		$salt .= chr(((ord(substr($str, $_, 1)) * int(rand(0x10000)))>>8) & 0xff);
 	}
 	return $salt;
 }
