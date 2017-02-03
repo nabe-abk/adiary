@@ -1,12 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # HTTPモジュール
-#						(C)2006-2013 nabe / nabe@abk
+#						(C)2006-2017 nabe / nabe@abk
 #------------------------------------------------------------------------------
-# 簡易実装の HTTP モジュールです。本格的な使用には耐えません。
+# 簡易実装の HTTP モジュールです。
 #
 package Satsuki::Base::HTTP;
-our $VERSION = '1.31';
+our $VERSION = '1.32';
 #------------------------------------------------------------------------------
 use Socket;
 ###############################################################################
@@ -218,7 +218,7 @@ sub do_request {
 				# print "Cookie : $v->{name}=$v->{value}\n";
 			}
 		}
-		if ($http_cookie) { $http_cookie = "Cookie: $http_cookie\n"; }
+		if ($http_cookie) { $http_cookie = "Cookie: $http_cookie\r\n"; }
 	}
 
 	#----------------------------------------------------------------------
@@ -259,7 +259,7 @@ sub do_request {
 		my $v = $header{$_};
 		$v =~ s/^\s*//;
 		$v =~ s/[\s\r\n]*$//;
-		$header .= "$_: $v\n";
+		$header .= "$_: $v\r\n";
 	}
 	$header .= $http_cookie;
 
@@ -292,7 +292,7 @@ sub do_request {
 		push(@$res, '');
 		push(@$res, $page);
 	} else {
-		my $request = "$method $path HTTP/1.0\n$header\n$content";
+		my $request = "$method $path HTTP/1.0\r\n$header\r\n$content";
 		$res = $self->get_data($host, $port, $request);
 		if (ref($res) ne 'ARRAY') { return $res; }	# fail to return
 	}
