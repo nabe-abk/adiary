@@ -156,6 +156,7 @@ function append_element(name, val) {
 		 && obj[0].tagName == 'TEXTAREA') {
 		 	if (name == 'free_txt')   val = val.replace(/<!--br-->/g, "\n");
 		 	if (name == 'freebr_txt') val = val.replace(/<br>/g,      "\n");
+		 	
 			obj.val( val );
 		}
 		obj.attr('name', count + ',' + key);
@@ -168,7 +169,7 @@ function append_element(name, val) {
 /// 初期化
 function init() {
 	var ele = $secure('#current-elements');
-	var list = ele.text().split(/\n/);
+	var list = ele.html().split(/\n/);
 	for (var i=0; i<list.length; i++) {
 		var x = list[i].split(",",2);
 		var name = x[0];
