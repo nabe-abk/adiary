@@ -1328,7 +1328,7 @@ $( function(){
 
 	var share_link = share.attr('href');
 	var count_link = count.attr('href');
-	if (obj.hasClass('hatena-bookmark') || obj.hasClass('twitter-share')) {
+	if (obj.hasClass('twitter-share')) {
 		share_link += url;
 		count_link += url_orig.replace(/^https?:\/\/(?:www\.)?/i, '').replace(/^www\./i, '');
 	} else {
