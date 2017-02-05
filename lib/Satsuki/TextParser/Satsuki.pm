@@ -1787,7 +1787,7 @@ sub replace_link {
 	# 全引数置換
 	shift(@argv);
 	my $all = join(':', @argv);
-	$url =~ s/\$\$/$all/g;
+	$url =~ s/\$0/$all/g;
 	return $url;
 }
 

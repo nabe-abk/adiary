@@ -69,15 +69,33 @@ sub image {
 	#  構成
 	my $url  = $tag->{data};
 	my $link = (exists $tags->{"$tag_name#link"}) ? $tags->{"$tag_name#link"}->{data} : $url;
+
+	# http/httpsの特殊処理
+	if ($ary->[0] =~ /^https?$/i && $ary->[1] =~ m|^//|) {
+		my $p = shift(@$ary);
+		$ary->[0] = $p . ':' . $ary->[0];
+	}
+
 	# URL生成
-	my @ary2 = @$ary;
-	$url  = $pobj->replace_link($url,   $ary,  $argc);
-	$link = $pobj->replace_link($link, \@ary2, $argc);
+	{
+		my @ary2 = @$ary;
+		$url  = $pobj->replace_link($url,   $ary,  $argc);
+		$link = $pobj->replace_link($link, \@ary2, $argc);
+	}
 
 	# 画像サイズ
 	my $size;
-	if    ($mode =~ /^w(\d+%?)$/) { $size=" width=\"$1\"";  shift(@$ary); }
-	elsif ($mode =~ /^h(\d+%?)$/) { $size=" height=\"$1\""; shift(@$ary); }
+	{
+		my @ary2;
+		my ($w,$h);
+		foreach(@$ary) {
+			if ($_ =~ /^\s*w(\d+%?)\s*$/) { $w=" width=\"$1\"";  next; }
+			if ($_ =~ /^\s*h(\d+%?)\s*$/) { $h=" height=\"$1\""; next; }
+			push(@ary2, $_);
+		}
+		$size=$w . $h;
+		$ary = \@ary2;
+	}
 
 	# Captionあり？
 	my $caption;

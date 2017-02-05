@@ -196,7 +196,8 @@ sub _filter {
 	# その他（画像）
 	#------------------------------------------------------------
 	if ($url =~ m{\.(?:jpg|jpeg|png|gif|bmp)}i) {
-		return $pobj->parse_tag("[img:$url]");
+		my $opt = (@$ary ? ':' : '') . join(':',@$ary);
+		return $pobj->parse_tag("[img:$url$opt]");
 	}
 
 	#------------------------------------------------------------

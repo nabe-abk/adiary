@@ -171,8 +171,6 @@ mtex = mimeTeX, ASCII, 1, <img src="${Basepath}mimetex.cgi?$1" alt="#1" title="#
 
 # ただの画像
 img        = 画像, image
-img#2      = 画像, image, 2, $1:$2
-img#2#link = 画像, image, 2, $1:$2
 
 # アルバム管理画像
 image:L      = 画像アルバム, image, 2,  ${image}$1$2
