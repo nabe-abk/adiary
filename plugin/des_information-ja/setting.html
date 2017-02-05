@@ -168,7 +168,7 @@ function append_element(name, val) {
 /// 初期化
 function init() {
 	var ele = $secure('#current-elements');
-	var list = ele.val().split(/\n/);
+	var list = ele.text().split(/\n/);
 	for (var i=0; i<list.length; i++) {
 		var x = list[i].split(",",2);
 		var name = x[0];
