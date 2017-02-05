@@ -26,6 +26,7 @@ BEGIN {
 	$SIG{__DIE__} = sub {
 		return if $^S ne '0';	# if eval, no operation.
 		$RELOAD = 1;
+		return if !$ENV{SERVER_PROTOCOL};
 		print <<HTML;
 Status: 500 Internal Server Error
 Content-Type: text/plain; charset=$SYSTEM_CODING
