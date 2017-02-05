@@ -1218,7 +1218,7 @@ sub reset_design {
 	if ($opt->{all}) {
 		my $blog = $self->{blog};
 		foreach(keys(%$blog)) {
-			if ($_ !~ /p:de\w_/) { next; }
+			if ($_ !~ /^p:de\w_/) { next; }
 			delete $blog->{$_};
 		}
 		$self->update_blogset($blog);
