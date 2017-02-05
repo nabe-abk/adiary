@@ -31,10 +31,10 @@ $(function(){
 	if (!SettedBrowserClass) set_browser_class_into_body();
 
 	// Google Analytics
-	if (_gaq) {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	if (window.ga) {
+		var ga = document.createElement('script');
+		ga.src = 'https://www.google-analytics.com/analytics.js';
+		(document.getElementsByTagName('head')[0]).appendChild(ga);
 	}
 });
 

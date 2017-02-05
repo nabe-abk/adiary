@@ -132,11 +132,12 @@ var PubdistDir ='<@Basepath><@v.pubdist_dir>';
 var SpecialQuery = '<@v.sp_query>';
 <@ifexec(!v.system_mode && s.gaid, begin)>
 // Google Analytics
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', '<@s.gaid>']);
-_gaq.push(['_trackPageview']);
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', '<@s.gaid>', 'auto');
+ga('send', 'pageview');
 <$end>
 <@ifexec(Timer, begin)>
+// Timer
 $(function(){
 $('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');
 $('#system-info-total-time').text('<@int(Timer.check()*10000 + 0.5)/10>');
