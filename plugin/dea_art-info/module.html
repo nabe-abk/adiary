@@ -1,7 +1,7 @@
 	<$ps = v.load_plgset('<@this>')>
 	<div class="art-info" data-module-name="<@this>" data-fix="1">
 		<@ifexec(ps.hatena_bicon, begin)>
-		<a class="http-bookmark" href="http://b.hatena.ne.jp/entry/<@url>"><img src="http://b.st-hatena.com/entry/image/<@url>" alt="はてブ数"></a>
+		<a class="http-bookmark" href="http://b.hatena.ne.jp/entry/<@url>"><img src="//b.st-hatena.com/entry/image/<@url>" alt="はてブ数"></a>
 		<$end>
 		<$x = if(t.priority, ps.wiki_tm, ps.tmdate)>
 		<@ifexec(x==3,      begin)><span class="write-date"><@t.year>/<@t.mon>/<@t.day></span><$end>
