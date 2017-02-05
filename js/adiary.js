@@ -1356,16 +1356,16 @@ $( function(){
 
 	// 値のロード
 	if (obj.hasClass('twitter-share'))
-		return; // load_and_set_counter(count, 'http://urls.api.twitter.com/1/urls/count.json?url=' + url, 'count');
+		return; // load_and_set_counter(count, '//urls.api.twitter.com/1/urls/count.json?url=' + url, 'count');
 	if (obj.hasClass('facebook-share'))
-		return load_and_set_counter(count, 'http://graph.facebook.com/?id=' + url, 'shares');
+		return load_and_set_counter(count, '//graph.facebook.com/?id=' + url, 'shares');
 	if (obj.hasClass('hatena-bookmark'))
-		return load_and_set_counter(count, 'http://api.b.st-hatena.com/entry.count?url=' + url);
+		return load_and_set_counter(count, '//api.b.st-hatena.com/entry.count?url=' + url);
 
 	if (obj.hasClass('pocket-bookmark')) {
 		$.ajax({
 			dataType: "html",
-			url: "http://query.yahooapis.com/v1/public/yql",
+			url: "//query.yahooapis.com/v1/public/yql",
 			data: {
 				q: "SELECT content FROM data.headers WHERE url='http://widgets.getpocket.com/v1/button?v=1&count=horizontal&url=" + url + "'",
 				// noncache: new Date().getTime(),
