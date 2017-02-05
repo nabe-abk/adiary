@@ -89,8 +89,8 @@ sub image {
 		my @ary2;
 		my ($w,$h);
 		foreach(@$ary) {
-			if ($_ =~ /^\s*w(\d+%?)\s*$/) { $w=" width=\"$1\"";  next; }
-			if ($_ =~ /^\s*h(\d+%?)\s*$/) { $h=" height=\"$1\""; next; }
+			if ($_ =~ /^\s*w(\d+)\s*$/) { $w=" width=\"$1\"";  next; }
+			if ($_ =~ /^\s*h(\d+)\s*$/) { $h=" height=\"$1\""; next; }
 			push(@ary2, $_);
 		}
 		$size=$w . $h;
