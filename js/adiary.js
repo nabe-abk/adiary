@@ -77,29 +77,17 @@ function set_browser_class_into_body() {
 	var x = [];
 	var ua = navigator.userAgent;
 
-	     if (ua.indexOf('Chrome') != -1) x.push('GC');
-	else if (ua.indexOf('WebKit') != -1) x.push('GC');
-	else if (ua.indexOf('Opera')  != -1) x.push('Op');
-	else if (ua.indexOf('Gecko')  != -1) x.push('Fx');
+	     if (ua.indexOf('Edge/')   != -1) x.push('Edge');
+	else if (ua.indexOf('WebKit/') != -1) x.push('GC');
+	else if (ua.indexOf('Gecko/')  != -1) x.push('Fx');
 
 	var m = ua.match(/MSIE (\d+)/);
 	var n = ua.match(/Trident\/\d+.*rv:(\d+)/);
 	if (n) { x = []; m = n; }		// IE11
 	if (m) x.push('IE', 'IE' + m[1]);
-	  else x.push('NotIE');
 	if (m && m[1]<10) IE9=true;
 
-	// スマホ
-	     if (ua.indexOf('Android') != -1) x.push('android');
-	else if (ua.indexOf('iPhone')  != -1) x.push('iphone');
-	else if (ua.indexOf('iPad')    != -1) x.push('iphone');
-	else if (ua.indexOf('BlackBerry')    != -1) x.push('berry');
-	else if (ua.indexOf('Windows Phone') != -1) x.push('wp');
-
-	// windows
-	if (ua.indexOf('Windows') != -1) $('html').addClass('win');
-
-	// adiary内部のスマホモード検出
+	// adiaryのスマホモード検出
 	var body = $('#body');
 	if (body.hasClass('sp')) {
 		SP = 1;
