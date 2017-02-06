@@ -184,7 +184,9 @@ article div.body .hidden em {
 .nowrap {
 	white-space:		nowrap;
 }
-
+dl {
+	margin-left:	2em;
+}
 ul.none, ol.none {
 	list-style:	none;
 }
