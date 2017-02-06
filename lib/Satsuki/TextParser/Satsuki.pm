@@ -835,8 +835,8 @@ sub block_parser_main {
 		my $s2 = substr($line, 0, 2);
 		if ($s1 eq '+') { $s1='-'; }
 
-		if ($st->{atag} && !$list_mark &&
-		   ($s1 eq '-' || ($s1 eq ':' && $s2 ne '::')) ) {
+		if ($st->{atag} && !$list_mark
+		&& ($s1 eq '-' || ($s1 eq ':' && $s2 ne '::')) ) {
 			$list_mark = $s1;
 			$list_ext  = (length($line) == 1);	# 拡張リストブロック
 			$ary_bak = $ary;
@@ -1035,6 +1035,9 @@ sub list_line_chain {
 			$br = $self->acsii_line_chain($out[$#out], $line) ? "\n" : '';
 		}
 		$out[$#out] .= $br . $line;
+	}
+	if ($#out > 0) {	# うしろに連結するものがあったら
+		$out[0] =~ s/\n*$/\n/;	# 最初の行を、行処理済とする。
 	}
 	return \@out;
 }
