@@ -1,0 +1,11 @@
+<@40.is_function>
+<$ifsuperjump_clear(! Auth.ok,       '_sub/error_message_403', 'ログインしていません')>
+<$ifsuperjump_clear(! v.blog_admin,  '_sub/error_message_403', 'ブログが存在しないか権限がありません')>
+<$return(begin_hash)>
+	search = 記事と検索
+	comment= コメント
+	system = システム
+	dialog = ダイアログとツリー
+	import = インポート
+	_order = 1
+<$end>

@@ -1,0 +1,8 @@
+<@40.is_function>
+<$ifsuperjump_clear(! Auth.ok,      '_sub/error_message_403', 'ログインしていません')>
+<$ifsuperjump_clear(! Auth.isadmin, '_sub/error_message_403', '権限がありません')>
+<$return( begin_hash )>
+	index = ユーザーの一覧
+	add = ユーザーの追加
+	_order = 1
+<$end>

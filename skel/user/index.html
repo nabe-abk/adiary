@@ -2,20 +2,11 @@
 <@local(t,h)>
 
 <!--========================================================================-->
-<@>権限確認
-<$ifredirect(! Auth.isadmin, Myself)>
-
-<@>CSRFチェック
-<$if_post_csrf_check()>
-
 <@> システムモード
 <$v.system_mode("ユーザーの一覧")>
 
-<@> 階層ツリー
-<@call("<@v.skel_dir>_dir_tree")>
-
-<@> エラー表示
-<@call('_sub/error_message')>
+<@> 階層ツリー、権限チェック、エラー表示
+<@call("_sub/menu_tree")>
 
 <$ifset(POST, h, array2hash(Form.delete_ary))>
 

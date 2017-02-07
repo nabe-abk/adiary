@@ -5,9 +5,6 @@
 <@> システムモード
 <$v.system_mode("記事の編集")>
 
-<@>CSRFチェック
-<$if_post_csrf_check()>
-
 <@> ログインしていない
 <$ifjump(!Auth.ok && ENV.REQUEST_METHOD ne 'POST', 'login')>
 

@@ -4,19 +4,17 @@
 <$ifbreak(!v.blog_admin)>
 
 <@> システムモード
-<$v.system_mode("プラグインの更新")>
+<$v.system_mode("プラグインのメンテナンス")>
 
 <!--========================================================================-->
-<@> 階層ツリー、初期処理
-<@call("<@v.skel_dir>_dir_tree")>
+<@> 階層ツリー、権限チェック、エラー表示
+<@call("_sub/menu_tree")>
 
 <!--========================================================================-->
 <article class="system setting">
 <h2><@v.title></h2>
 <div class="body">
-	<p>更新機能はまだありません。</p>
-
-	<p>デザインモジュールはプラグインの一種です。</p>
+	<p>デザインモジュールを含めた、すべてのプラグインを再インストールします。プラグインを手動で更新した時などに必要です。</p>
 
 	<form action="<@v.myself>?<@v.skeleton>" method="POST">
 	<input type="hidden" name="action" value="<@v.skel_dir>reinstall_plugins">

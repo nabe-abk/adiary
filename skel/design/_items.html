@@ -1,0 +1,20 @@
+<@40.is_function>
+<$ifsuperjump_clear(! Auth.ok,       '_sub/error_message_403', 'ログインしていません')>
+<$ifsuperjump_clear(! v.blog_admin,  '_sub/error_message_403', 'ブログが存在しないか権限がありません')>
+<$return( if(!v.sphone, begin_hash, begin_hash) )>
+	index = メニュー
+	theme = テーマ選択
+	viewtest/ = 表示テスト
+	edit  = デザイン編集
+	reset = 初期化
+	usercss = CSS
+	spmenu  = スマホメニュー
+	_order = 1
+<$else>
+	index = メニュー
+	viewtest/ = 表示テスト
+	reset = 初期化
+	usercss = CSS
+	spmenu  = スマホメニュー
+	_order = 1
+<$end>

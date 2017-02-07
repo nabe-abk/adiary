@@ -1,0 +1,68 @@
+<@6>
+<@local(t,pd,err)>
+<$err=FormError>
+<$ifbreak(!v.blog_admin)>
+
+<@> システムモード
+<$v.system_mode("テザインモジュール一覧")>
+
+<$v.regist_js("<@v.script_dir>plugin-setting.js")>
+
+<!--========================================================================-->
+<@> 階層ツリー、権限チェック、エラー表示
+<@call("_sub/menu_tree")>
+
+<!--========================================================================-->
+<article id="design-modules" class="system setting">
+<h2>デザインモジュール</h2>
+<div class="body">
+
+	<p>使用設定は<a href="<@v.myself>?design/">デザイン編集</a>から行なってください。</p>
+
+	<table class="plugins">
+	<thead><tr>
+		<th>タイトル</th>
+		<th>使用</th>
+		<th>タイプ</th>
+<@>		<th class="small">ライセンス</th>
+		<th>説明・概要</th>
+	</tr></thead>
+	<tbody>
+	<@forexec(t, v.load_plugins_info(1), begin)>
+	<tr>
+		<td ><span class="plg-title"><@t.title></span></td>
+		<td class="c">
+		<@ifexec(t.adiary_version <= v.VERSION, begin, begin)>
+			OK
+		<$else>
+			<strong class="warning">NG</strong><span class="help" data-help="このプラグインは「adiary Version <@t.adiary_version>」以降で使用できます。">?</span
+		<$end>
+		</td>
+		<td><@replace(t.module_type, ',', ', ')></td>
+<@>		<td class="c"><@t.license></td>
+		<td><div>
+			<span class="plg-name"><@t.name></span>
+			<span class="plg-version">Ver<@t.version></span>
+			<@ifexec(t.url, begin, begin)>
+			<span class="plg-author"><a href="<@encode_uri(x = t.url)>" target="_blank"><@t.author></a></span>
+			<$else>
+			<span class="plg-author"><@t.author></span>
+			<$end>
+			<@t.description>
+		</div>
+		<@ifexec(t.readme, begin)>
+		<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>
+		<$end>
+		<@ifexec(t.files, begin)>
+		<a href="javascript:void(0)" class="js-info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</a>
+		<$end)>
+		<@ifexec(t.events_display, begin)>
+		<a href="javascript:void(0)" class="js-info" data-class="pre" data-title="<@t.name>の登録イベント一覧" data-info="<@t.events_display>">登録イベント</a>
+		<$end>
+		</td>
+	</tr>
+	<$end>
+	</tbody>
+	</table>
+</div>
+</article>

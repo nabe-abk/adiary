@@ -1,0 +1,61 @@
+<@6>
+<@local(dir, x, t, sep, query)>
+<$x = index(v.skel_dir, '/')>
+<$dir = if(0<x, substr(v.skel_dir, 0, x+1), v.skel_dir)>
+<$query = argv#0>
+<@>
+<nav class="tree">
+<a href="<@v.myself>?menu" class="dir">メニュー</a>
+ <span class="splitter">&gt;</span>
+<@>----------------------------------------------------------------------------
+<select class="dir" onchange="location.href = $(this).val()">
+<optgroup label="ブログ">
+<@ifexec(v.blog_admin, begin)>
+	<option value="<@v.myself>?set/"<@if(dir eq 'set/', ' selected')>>基本設定</option>
+<$end>
+<@ifexec(v.allow_edit, begin)>
+	<option value="<@v.myself>?set2/"<@if(dir eq 'set2/', ' selected')>>その他の設定</option>
+<$end>
+<@ifexec(v.blog_admin, begin)>
+	<option value="<@v.myself>?plugin/"<@if(dir eq 'plugin/', ' selected')>>プラグイン設定</option>
+	<option value="<@v.myself>?design/"<@if(dir eq 'design/', ' selected')>>デザイン設定</option>
+	<option value="<@v.myself>?mainte/"<@if(dir eq 'mainte/', ' selected')>>ブログの管理</option>
+<$end>
+</optgroup>
+	<option value="<@v.myself>?personal/"<@if(dir eq 'personal/', ' selected')>>アカウント設定</option>
+<@ifexec(Auth.isadmin, begin)>
+	<optgroup label="システム">
+	<option value="<@v.myself>?user/"<@if(dir eq 'user/', ' selected')>>ユーザー管理</option>
+	<option value="<@v.myself>?system/"<@if(dir eq 'system/', ' selected')>>システム管理</option>
+	</optgroup>
+<$end>
+</select>
+<@>----------------------------------------------------------------------------
+<@ifexec(dir ne v.skel_dir, begin)>
+ <span class="splitter">&gt;</span>
+<select class="dir" onchange="location.href = $(this).val()">
+<@forexec_hash(t, call("<@dir>/_items"), begin.for)>
+	<option value="<@v.myself>?<@dir><@t.key>"<@if(v.skel_dir eq "<@dir><@t.key>", ' selected')>><@t.val></option>
+<$end.for>
+</select>
+<$end>
+<@>----------------------------------------------------------------------------
+ <span class="splitter">&gt;</span>
+ <span class="items">
+ <span class="item-start">[</span>
+<$sep=''>
+<@forexec_hash(t, call("<@v.skel_dir>_items"), begin)>
+  <@sep>
+  <@ifexec(v.skel_name eq t.key, begin, begin)>
+	<span class="select"><@t.val></span> <@\>
+  <$else>
+	<a href="<@v.myself>?<@v.skel_dir><@t.key><@query>"><@t.val></a> <@\>
+  <$end> <@\>
+  <$sep=','> <@\>
+<$end>
+ <span class="item-end">]</span>
+ </span>
+</nav>
+
+<@> エラー表示
+<@call('_sub/error_message')>

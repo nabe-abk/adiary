@@ -1144,19 +1144,13 @@ sub validator {
 sub csrf_check {
 	my $self = shift;
 	my $post_key = shift || $self->{Form}->{csrf_check_key};
-	if ($self->{CSRF_no_check}) { return 0; }
+	if (!$self->{POST} || $self->{CSRF_no_check}) { return; }
 	my $check_key = $self->{CSRF_check_key};
 	if ($post_key ne '' && $post_key eq $check_key) { return 0; }
 
 	$self->form_clear();
 	$self->message("This post may be CSRF attack");
 	return 1;
-}
-
-sub if_post_csrf_check {
-	my $self = shift;
-	if ($self->{POST}) { return $self->csrf_check(@_); }
-	return $self->form_clear();
 }
 
 #------------------------------------------------------------------------------

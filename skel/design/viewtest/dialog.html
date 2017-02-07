@@ -5,8 +5,8 @@
 <$v.system_mode("テーマの表示テスト")>
 
 <!--========================================================================-->
-<@> 階層ツリー、初期処理
-<@call("<@v.skel_dir>_dir_tree")>
+<@> 階層ツリー
+<@call("_sub/menu_tree")>
 
 <$v.special_sidebar_module = "<@v.skel_dir>_special_sidebar">
 
@@ -33,8 +33,8 @@
 
 	<@ifexec(v.theme eq v.default_theme, begin)>
 	<p>
-		<button type="button" id="setting1" data-url="<@v.myself>?set2/plugin_setting&amp;name=des_searchbox">プラグイン設定１</button>
-		<button type="button" id="setting2" data-url="<@v.myself>?set2/plugin_setting&amp;name=dem_freetext&amp;mode=css">プラグイン設定２</button>
+		<button type="button" id="setting1" data-url="<@v.myself>?plugin/plugin_setting&amp;name=des_searchbox">プラグイン設定１</button>
+		<button type="button" id="setting2" data-url="<@v.myself>?plugin/plugin_setting&amp;name=dem_freetext&amp;mode=css">プラグイン設定２</button>
 		※ok押すとエラー表示
 	</p>
 	<$end>

@@ -6,21 +6,16 @@
 <@>権限確認
 <$ifredirect(! Auth.isadmin, Myself)>
 
-<@>CSRFチェック
-<$if_post_csrf_check()>
-
 <@> システムモード
 <$v.system_mode("ユーザーの編集")>
 
-<@> 階層ツリー
-<@call("<@v.skel_dir>_dir_tree", v.title)>
-
 <$t = Auth.get_userinfo(Query.id)>
 <$ifmessage(Query.id eq '', "IDが指定されていません")>
-<$ifmessage(Query.id ne '' && !defined t.id,  "ID「<@t.id>」がみつかりません")>
+<$ifmessage(Query.id ne '' && !defined t.id,  "ID「<@Query.id>」がみつかりません")>
 
-<@> エラー表示
-<@call('_sub/error_message')>
+<@> 階層ツリー、権限チェック、エラー表示
+<@call("_sub/menu_tree")>
+
 <$ifbreak(!defined t.id)>
 
 <!--========================================================================-->

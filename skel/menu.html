@@ -54,13 +54,14 @@
 		<li><a href="<@v.myself>?set/">基本設定</a></li>
 	<$end>
 	<@ifexec(v.allow_edit, begin)>
-		<li><a href="<@v.myself>?set2/">その他の設定</a><span class="help" data-help="記事タグ、コンテンツツリー、記法タグ、ユーザーCSS<@if(v.blog_admin,'、プラグイン設定')>">?</span></li>
+		<li><a href="<@v.myself>?set2/">その他の設定</a><span class="help" data-help="記事タグ、コンテンツツリー、記法タグ、ヘッダ設定">?</span></li>
 	<$end>
 	<@ifexec(v.blog_admin, begin)>
-		<li><a href="<@v.myself>?design/">デザイン設定</a><span class="help" data-help="テーマ選択、デザイン編集">?</span></li>
+		<li><a href="<@v.myself>?plugin/">プラグイン設定</a></li>
+		<li><a href="<@v.myself>?design/">デザイン設定</a><span class="help" data-help="テーマ選択、デザイン編集、ユーザーCSS">?</span></li>
 		<li><a href="<@v.myself>?mainte/">ブログの管理</a><span class="help" data-help="ブログの再構築・削除、インポート、エクスポート">?</span></li>
 	<$end>
-		<li><a href="<@v.myself>?personal/">個人の設定</a><span class="help" data-help="ユーザー名の変更、パスワードの変更">?</span></li>
+		<li><a href="<@v.myself>?personal/">アカウント設定</a><span class="help" data-help="ユーザー名の変更、パスワードの変更">?</span></li>
 	</ul>
 
 	<@ifexec(Auth.isadmin, begin)>

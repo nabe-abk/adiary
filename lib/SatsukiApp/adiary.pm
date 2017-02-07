@@ -165,6 +165,9 @@ sub main {
 		local($self->{skel_dir}) = $dir;
 		$self->{action_data} = $ROBJ->call( "${dir}_action/$file" );
 
+		# CSRFチェック（無関係なactionを指定して, CSRFされるのを防ぐ）
+		if ($ROBJ->{Auth}->{ok}) { $ROBJ->csrf_check(); }
+
 		# キャッシュのクリア
 		if ($ROBJ->{Auth}->{ok} || $ROBJ->{action_return} eq '0') {
 			$self->clear_cache();
