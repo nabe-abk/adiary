@@ -13,7 +13,7 @@
 --jQuery 3にアップデート。
 --jQuery UIをアップデート。
 -入力記法
---[http://adiary.org/v3man/Satsuki-detail/MathJax:MathJax/TeX記法]を使いやすくしました。
+--MathJax/TeX記法を使いやすくしました。特に[https://adiary.org/v3man/Satsuki-detail/MathJax:#TeX:TeXモード]を強化しました。
 --簡単に[http://adiary.org/v3man/Satsuki-tag/base:#banner:画像でリンクできる]ようになりました。（[https://twitter.com/uni_sio/status/768243697435541504:Thanks to しおこんぶ]）
 --自由変数展開後に、更に記法タグを処理するよう仕様変更しました。（[http://field-city.xsrv.jp/nomura/iot/0183:Thanks to nomura]）
 --自由変数定義中の記法タグが展開されるようになりました。（[http://field-city.xsrv.jp/nomura/iot/0183:Thanks to nomura]）
