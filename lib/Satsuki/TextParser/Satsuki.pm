@@ -283,11 +283,14 @@ sub load_tagdata {
 				}
 			}
 			if ($url ne '') {
-				my $s1 = substr($url, 0, 1);
-				$tag_hash->{data} = $url;
 				if (substr($url,0,1) eq '<') {	# HTML置換
 					$tag_hash->{replace_html}=1;
 				}
+				if ($url =~ /^html:(.*)/) {	# HTML置換
+					$tag_hash->{replace_html}=1;
+					$url = $1;
+				}
+				$tag_hash->{data} = $url;
 			}
 		}
 	}
@@ -515,7 +518,8 @@ push(@Blocks, {
 });
 push(@Blocks, {
 	start  => sub {		# syntax highlight >|js|
-		if ($_[0] !~ /^>\|([\w#\-]+)\|(.*)/) { return; }
+		my ($self, $line) = @_;
+		if ($line !~ /^>\|([\w#\-]+)\|(.*)/) { return; }
 		return [$1, $2];
 	},
 	end    => '||<',
@@ -638,7 +642,8 @@ push(@Blocks, {
 });
 push(@Blocks, {		# Hatena's blockquote, >http://example.com/
 	start  => sub {
-		if ($_[0] !~ m|^>(https?://[^>]*)>(.*)|) { return; }
+		my ($self, $line) = @_;
+		if ($line !~ m|^>(https?://[^>]*)>(.*)|) { return; }
 		return ["[$1]", $2];
 	},
 	end    => '<<',
@@ -649,12 +654,26 @@ push(@Blocks, {		# Hatena's blockquote, >http://example.com/
 });
 push(@Blocks, {
 	start  => sub {
-		my ($line, $self) = @_;
+		my ($self, $line) = @_;
 		if (!$self->{tex_mode} || $line !~ m|^\\\[(.*)|) { return; }
-		return ['math', $1];
+		return ['math'];
 	},
 	end    => '\]',
 	tag    => 'div'
+});
+push(@Blocks, {
+	start  => sub {
+		my ($self, $line) = @_;
+		$self->debug($line);
+		if (!$self->{tex_mode} || $line !~ m|^\\begin{([^\}]*)\}$|) { return; }
+		return {
+			before => $line,
+			after  => "\\end{$1}",
+			end    => "\\end{$1}",
+			tag    => 'div',
+			opt    => 'math'
+		}
+	},
 });
 foreach(@Blocks) {
 	$_->{len} = length($_->{start});
@@ -695,64 +714,35 @@ sub block_parser_main {
 			$in_comment = 0;
 			$line = substr($line, $x +3);	# 残り
 		}
+
 		#-------------------------------------------------
-		# エスケープ記法の置換処理
-		#-------------------------------------------------
-		if ($st->{atag}) {
-			# 行末 \ による行連結
-			while($self->{chain_line} && substr($line, -1) eq "\\") {
-				chop($line);
-				$line  =~ s/ +$//;	# \ の手前のスペース除去
-				$line .= shift(@$lines);
-			}
-			# TeXモード
-			if ($self->{tex_mode}) {
-				$line =~ s/\$\$(.*?)\$\$/'[[mathd:' . &tex_escape($1) . ']]'/eg;
-				$line =~ s/\$(.*?)\$/    '[[math:'  . &tex_escape($1) . ']]'/eg;
-			}
-			# mini verbatim表記  {xxx}, {<tag>}, {[xxx:tag]}
-			$line =~ s/\\([\{\}])/ "\x01#" . ord($1) . ';'/eg;	# { } のエスケープ
-			$line =~ s/\{\{(.*?)\s?\}\}|(\[\[.*?\]\])/
-				$2 ? $2 : $self->mini_pre($1) /eg;		# mini pre {{ xxx }}
-			$line =~ s/\{(.*?)\s?\}|(\[\[.*?\]*\]\])/
-				$2 ? $2 : $self->mini_verbatim($1) /eg;		# mini varbatim {<xxx>}
-			# $line =~ tr/\x01/&/;	# \x01 を & に戻す
-			$line =~ s/\x01#(\d+);/chr($1)/eg;	# { } を戻す
-			# マクロ展開
-			$line =~ s#\[\*toc(\d*)(?:|:(.*?))\]#<toc>level=$1:$2</toc>\n#g;
-			$line =~ s/\[\*(.*?)\]/ $macros->{$1} && unshift(@$lines, @{ $macros->{$1} }), ''/eg;
-		}
-		#-------------------------------------------------
-		# コメント除去
-		#-------------------------------------------------
-		if ($st->{atag}) {
-			$line =~ s/<!--.*?-->//g;		# コメント除去
-			my $x = index($line, '<!--');
-			if ($x >= 0) {				# コメントがある
-				$in_comment = 1;
-				$line = substr($line, 0, $x);	# 手前
-			}
-		}
-		#-------------------------------------------------
-		# ブロック記法の開始処理
+		# ブロック記法の開始 / \begin{}があるため先に処理
 		#-------------------------------------------------
 		if ($st->{atag}) {
 			my $blk;
 			my $opt;
 			foreach(@Blocks) {
 				my $start = $_->{start};
-				if (ref($start) && (my $ma = &$start($line, $self))) {
-					$opt = join(' ', @$ma);
+
+				if (!ref($start)) {
+					if (substr($line, 0, $_->{len}) ne $start) { next; }
+
+					# ブロック発見
+					my $len = $_->{len} + ($start =~ /\w$/ ? 1 : 0);
+					$opt = substr($line, $len);
 					$blk = $_;
 					last;
 				}
-				if (substr($line, 0, $_->{len}) ne $start) { next; }
-
-				# ブロック発見
-				my $len = $_->{len} + ($start =~ /\w$/ ? 1 : 0);
-				$opt = substr($line, $len);
-				$blk = $_;
-				last;
+			  	if (my $ma = &$start($self, $line)) {
+					if (ref($ma) eq 'ARRAY') {
+						$opt = join(' ', @$ma);
+						$blk = $_;
+					} else {
+						$opt = $ma->{opt};
+						$blk = $ma;
+					}
+					last;
+				}
 			}
 			# ブロック発見
 			if ($blk) {
@@ -785,6 +775,46 @@ sub block_parser_main {
 
 				push(@$ary, "$blk->{after}" . ($tag ? "</$tag>" : '') . "\n$mark");
 				next;
+			}
+		}
+
+		#-------------------------------------------------
+		# エスケープ記法の置換処理
+		#-------------------------------------------------
+		if ($st->{atag}) {
+			# 行末 \ による行連結
+			while($self->{chain_line} && substr($line, -1) eq "\\") {
+				chop($line);
+				$line  =~ s/ +$//;	# \ の手前のスペース除去
+				$line .= shift(@$lines);
+			}
+			# TeXモード
+			if ($self->{tex_mode}) {
+				$line =~ s/\$\$(.*?)\$\$/'[[mathd:' . &tex_escape($1) . ']]'/eg;
+				$line =~ s/\$(.*?)\$/    '[[math:'  . &tex_escape($1) . ']]'/eg;
+				$line =~ s/\\ref(a)?\{([^\]\}]*)\}/[mref$1:$2]/g;
+			}
+			# mini verbatim表記  {xxx}, {<tag>}, {[xxx:tag]}
+			$line =~ s/\\([\{\}])/ "\x01#" . ord($1) . ';'/eg;	# { } のエスケープ
+			$line =~ s/\{\{(.*?)\s?\}\}|(\[\[.*?\]\])/
+				$2 ? $2 : $self->mini_pre($1) /eg;		# mini pre {{ xxx }}
+			$line =~ s/\{(.*?)\s?\}|(\[\[.*?\]*\]\])/
+				$2 ? $2 : $self->mini_verbatim($1) /eg;		# mini varbatim {<xxx>}
+			# $line =~ tr/\x01/&/;	# \x01 を & に戻す
+			$line =~ s/\x01#(\d+);/chr($1)/eg;	# { } を戻す
+			# マクロ展開
+			$line =~ s#\[\*toc(\d*)(?:|:(.*?))\]#<toc>level=$1:$2</toc>\n#g;
+			$line =~ s/\[\*(.*?)\]/ $macros->{$1} && unshift(@$lines, @{ $macros->{$1} }), ''/eg;
+		}
+		#-------------------------------------------------
+		# コメント除去
+		#-------------------------------------------------
+		if ($st->{atag}) {
+			$line =~ s/<!--.*?-->//g;		# コメント除去
+			my $x = index($line, '<!--');
+			if ($x >= 0) {				# コメントがある
+				$in_comment = 1;
+				$line = substr($line, 0, $x);	# 手前
 			}
 		}
 
@@ -1585,6 +1615,7 @@ sub parse_tag {
 		my $cmd =       $x<0 ? $2 :        substr($2,$x+2);
 		my $p1  = $3;	# tagより後ろ
 		$this = $self->special_command( $cmd, {verb => 1} );
+		$this =~ s/\(/&#40;/g;
 		$this =~ s/\[/&#91;/g;
 		$this =~ s/\]/&#93;/g;
 		$this =~ s/:/&#58;/g;
@@ -1607,6 +1638,7 @@ sub parse_tag {
 			next;
 		}
 		$this = $self->special_command( $cmd );
+		$this =~ s/\(/&#40;/g;
 		$this =~ s/\[/&#91;/g;
 		$this =~ s/\]/&#93;/g;
 		$this =~ s/:/&#58;/g;
@@ -1680,7 +1712,7 @@ sub special_command {
 		my $data   = $tag->{data};
 		my $option = $self->load_tag("&$tag->{option}");	# 特殊オプション？
 
-		if (ref($option)) {			# 特殊オプションによる置換
+		if (ref($option)) {		# 特殊オプションによる置換
 			return &$option($self, $tag, $cmd, \@cmd);
 		} elsif (ref($data)) {		# CODE ref のときは指定の専用ルーチンコール
 			return &$data($self, $tag, $cmd, \@cmd);
