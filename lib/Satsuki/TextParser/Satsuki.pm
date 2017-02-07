@@ -664,7 +664,6 @@ push(@Blocks, {
 push(@Blocks, {
 	start  => sub {
 		my ($self, $line) = @_;
-		$self->debug($line);
 		if (!$self->{tex_mode} || $line !~ m|^\\begin{([^\}]*)\}$|) { return; }
 		return {
 			before => $line,
