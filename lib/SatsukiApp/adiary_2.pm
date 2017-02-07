@@ -1330,10 +1330,12 @@ sub post_comment {
 
 	# 新着記録
 	if (! $self->{allow_edit}) {
-		$self->update_blogset($blog, 'newcom_flag', 1);
+		my $ncom = $blog->{newcom_flag};
+		$ncom = $ncom . ($ncom ? ',' : '') . $pkey;
+		$self->update_blogset($blog, 'newcom_flag', $ncom);
+
 		# 新着コメントイベント
 		$self->call_event('COMMENT_NEW', $form, $art);
-
 	}
 	$self->call_event('COMMENT_STATE_CHANGE', [$a_pkey], [$pkey]);
 	$self->call_event('ARTCOM_STATE_CHANGE',  [$a_pkey], [$pkey]);
@@ -1454,6 +1456,28 @@ sub calc_comments {
 	$update{coms}     = $c;
 	$update{coms_all} = $#$com + 1;
 	return $DB->update_match("${blogid}_art", \%update, 'pkey', $a_pkey);
+}
+
+#------------------------------------------------------------------------------
+# ●新着コメントから表示したものを除去
+#------------------------------------------------------------------------------
+sub remove_newcom_flag {
+	my $self = shift;
+	my $coms = shift;
+	my $blog = $self->{blog};
+
+	# 権限がないか、新着コメントがないなら無視
+	my $nc = $blog->{newcom_flag};
+	if (!$self->{allow_edit} || !@$coms || !$nc) { return; }
+
+	my %h = map {$_ => 1} split(',', $nc);
+	foreach(@$coms) {
+		delete $h{ $_->{pkey} };
+	}
+	my $n = join(',',keys(%h));
+	if (length($n) < length($nc)) {
+		$self->update_blogset($blog, 'newcom_flag', $n);
+	}
 }
 
 ###############################################################################
