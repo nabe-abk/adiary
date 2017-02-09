@@ -6,14 +6,14 @@ BEGIN {
 	$0 =~ m|^(.*?)[^/]*$|;
 	chdir($1);
 }
+use FCGI;
 use Satsuki::Base ();
 use Satsuki::AutoReload ();
-use FCGI;
 #-------------------------------------------------------------------------------
 # Satsuki system - Startup routine (for FastCGI)
-#						Copyright 2005-2016 nabe@abk
+#						Copyright 2005-2017 nabe@abk
 #-------------------------------------------------------------------------------
-# Last Update : 2016/11/18
+# Last Update : 2017/02/10
 #--------------------------------------------------
 # socket open?
 #--------------------------------------------------
@@ -25,61 +25,81 @@ if ($ARGV[0]) {
 } else {
 	$request = FCGI::Request();
 }
+
 #--------------------------------------------------
 # FastCGI メインループ
 #--------------------------------------------------
+my $modtime = (stat($0))[9];
+my $reload;
 while($request->Accept() >= 0) {
-	#--------------------------------------------------
-	# ライブラリの更新確認
-	#--------------------------------------------------
-	my $flag;
-	if (! $ENV{SatsukiReloadStop}) {
-		$flag = &Satsuki::AutoReload::check_lib();
-		if ($flag) { require Satsuki::Base; }
-	}
-
-	#--------------------------------------------------
-	# 時間計測開始
-	#--------------------------------------------------
-	if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }
-	my $timer;
-	if (defined $Satsuki::Timer::VERSION) {
-		$timer = Satsuki::Timer->new();
-		$timer->start();
-	}
-
-	#--------------------------------------------------
-	# FastCGI環境初期化
-	#--------------------------------------------------
-	my $ROBJ = Satsuki::Base->new();	# ルートオブジェクト生成
-	$ROBJ->{Timer} = $timer;
-	$ROBJ->{AutoReload} = $flag;
-
-	$ROBJ->init_for_fastcgi($request);
-
-	#--------------------------------------------------
-	# メイン
-	#--------------------------------------------------
 	eval {
+		#--------------------------------------------------
+		# ライブラリの更新確認
+		#--------------------------------------------------
+		my $flag = &Satsuki::AutoReload::check_lib();
+		if ($flag) {
+			$Satsuki::Base::RELOAD = 1;	# Base.pmコンパイルエラー時
+			require Satsuki::Base;		# 次回、強制RELOADさせる。
+			$Satsuki::Base::RELOAD = 0;
+		}
+
+		#--------------------------------------------------
+		# 時間計測開始
+		#--------------------------------------------------
+		if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }
+		my $timer;
+		if (defined $Satsuki::Timer::VERSION) {
+			$timer = Satsuki::Timer->new();
+			$timer->start();
+		}
+
+		#--------------------------------------------------
+		# FastCGI環境初期化
+		#--------------------------------------------------
+		my $ROBJ = Satsuki::Base->new();	# ルートオブジェクト生成
+		$ROBJ->{Timer} = $timer;
+		$ROBJ->{AutoReload} = $flag;
+
+		$ROBJ->init_for_fastcgi($request);
+
+		#--------------------------------------------------
+		# メイン
+		#--------------------------------------------------
 		$ROBJ->start_up();
 		$ROBJ->finish();
 	};
-	if (!$ROBJ->{DIE_alter_exit} && $@) {
-		print <<TEXT;
+	#--------------------------------------------------
+	# エラー表示
+	#--------------------------------------------------
+	if (!$ENV{SatsukiExit} && $@) {
+		print <<HTML;
 Status: 500 Internal Server Error
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF8
+X-FCGI-Br: <br>
 
 $@
-TEXT
-		last;
+HTML
 	}
-
 	#--------------------------------------------------
 	# ライブラリのタイムスタンプ保存
 	#--------------------------------------------------
-	if (! $ENV{SatsukiReloadStop}) {
-		&Satsuki::AutoReload::save_lib();
-	}
+	&Satsuki::AutoReload::save_lib();
+
+	#--------------------------------------------------
+	# 自分自身の更新チェック
+	#--------------------------------------------------
+	if ($modtime != (stat($0))[9]) { $reload=1; last; }
 }
 # close
+$request->Finish();
 $socket && FCGI::CloseSocket($socket);
+
+#--------------------------------------------------
+# 自分自身を再起動
+#--------------------------------------------------
+if ($reload && $socket) {
+	my $opt = $ARGV[0];
+	my $max = $ARGV[1];
+	$max =~ s/[^\d]//g;
+	while(1) { exec($0, $opt, $max); }
+}

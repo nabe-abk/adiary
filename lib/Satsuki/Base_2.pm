@@ -89,38 +89,6 @@ TEXT
 }
 
 ###############################################################################
-# ■終了命令
-###############################################################################
-#------------------------------------------------------------------------------
-# ●エラーによる終了
-#------------------------------------------------------------------------------
-sub error_exit {
-	my ($self, $err) = @_;
-	my ($pack, $file, $line) = caller(1);
-	# HTTP mode
-	if ($ENV{SERVER_PROTOCOL} && $self->{Content_type} eq 'text/html') {
-		$err =~ s/\n/<br>\n/g;
-		$self->set_status(500);	# Internal Server Error
-		$self->print_http_headers();
-		print <<HTML;
-<html><body>
-<h1>Perl interpreter error (exit)</h1>
-<p><span style="font-family: monospace;">$err</p>
-<!-- $file at $line -->
-HTML
-		foreach(sort keys(%ENV)) {
-			print "$_=$ENV{$_}<br>\n";
-		}
-		print "</body></html>\n";
-	} else {
-		$self->tag_unescape($err);
-		$err =~ s/<br>/\n/g;
-		print "*** Perl interpreter error (exit) ***\n$err\n";
-	}
-	$self->exit(-1);	# 終了
-}
-
-###############################################################################
 # ■スケルトンのcall
 ###############################################################################
 #------------------------------------------------------------------------------
@@ -1263,24 +1231,18 @@ sub put_cookie {
 # ●リダイレクト (RFC2616準拠)
 #------------------------------------------------------------------------------
 sub redirect {
-	my ($self, $uri) = @_;
-	$uri =~ s/[\x00-\x1f]//g;	# 不正文字除去
-	my $status;
-	if ($ENV{SERVER_PROTOCOL} ne 'HTTP/1.0') {
-		$status = "303 See Other";	# HTTP/1.1, GETメソッドに変更
-	} elsif ($ENV{REQUEST_METHOD} eq 'POST') {
-		$status = "200 OK"; 		# redirect不可
-	} else {
-		$status = "302 Found"; 		# HTTP/1.0, メソッド変更なし
-	}
-	if ($self->{Is_phone}) { $status="302 Found"; }
+	my ($self, $uri, $status) = @_;
+	$status ||= "302 Moved Temporarily";	# GETへメソッド変更なし
+
+	$uri =~ s/[\x00-\x1f]//g;		# 不正文字除去
+
 	# 相対パスの場合絶対URIに書き換え
 	if (! $self->{Redirect_use_relative_url} && index($uri, '://') < 0) {
 		if (substr($uri,0,1) ne '/') { $uri = $self->{Basepath} . $uri; }
 		$uri = $self->{Server_url} . $uri;
 	}
 	if ($self->{No_redirect}) { $status='200 OK'; }
-	if ($status ne '200 OK') { $self->set_header('Location', $uri); }
+	if ($status !~ /^200/) { $self->set_header('Location', $uri); }
 	$self->set_status($status);
 	$self->print_http_headers('text/html');
 

@@ -1,10 +1,10 @@
 use strict;
 #------------------------------------------------------------------------------
 # 更新されたライブラリの自動リロード
-#						(C)2013 nabe / nabe@abk
+#						(C)2013-2017 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::AutoReload;
-our $VERSION = '1.00';
+our $VERSION = '1.10';
 #------------------------------------------------------------------------------
 my $Satsuki_pkg = 'Satsuki';
 my %Libtime;
@@ -16,6 +16,7 @@ $mypkg =~ s|::|/|g;
 # ●ライブラリの情報保存
 ###############################################################################
 sub save_lib {
+	if ($ENV{SatsukiReloadStop}) { return; }
 	while (my ($pkg, $file) = each(%INC)) {
 		if (index($pkg, $Satsuki_pkg) != 0) { next; }
 		if ($pkg eq $mypkg)        { next; }
@@ -31,6 +32,7 @@ sub save_lib {
 sub check_lib {
 	my $flag = shift || $Satsuki::Base::RELOAD;
 	if (!$flag) {
+		if ($ENV{SatsukiReloadStop}) { return; }
 		foreach(@Libs) {
 			if ($Libtime{$_} == (stat($INC{$_}))[9]) { next; }
 			$flag=1;
@@ -53,8 +55,6 @@ sub check_lib {
 	delete $INC{$mypkg};
 	require $mypkg;
 
-	# Base.pmでのエラー対策
-	delete $INC{'Satsuki/Base.pm'};
 	return 1;
 }
 

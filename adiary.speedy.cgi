@@ -6,17 +6,18 @@ use Satsuki::Base ();
 use Satsuki::AutoReload ();
 #-------------------------------------------------------------------------------
 # Satsuki system - Startup routine (for speedycgi)
-#						Copyright 2005-2012 nabe@abk
+#						Copyright (C)2005-2017 nabe@abk
 #-------------------------------------------------------------------------------
-# Last Update : 2013/07/09
-{
+# Last Update : 2017/02/10
+eval {
 	#--------------------------------------------------
 	# ライブラリの更新確認
 	#--------------------------------------------------
-	my $flag;
-	if (! $ENV{SatsukiReloadStop}) {
-		$flag = &Satsuki::AutoReload::check_lib();
-		if ($flag) { require Satsuki::Base; }
+	my $flag = &Satsuki::AutoReload::check_lib();
+	if ($flag) {
+		$Satsuki::Base::RELOAD = 1;	# Base.pmコンパイルエラー時
+		require Satsuki::Base;		# 次回、強制RELOADさせる。
+		$Satsuki::Base::RELOAD = 0;
 	}
 
 	#--------------------------------------------------
@@ -28,6 +29,7 @@ use Satsuki::AutoReload ();
 		$timer = Satsuki::Timer->new();
 		$timer->start();
 	}
+
 	#--------------------------------------------------
 	# SpeedyCGI環境初期化
 	#--------------------------------------------------
@@ -43,10 +45,22 @@ use Satsuki::AutoReload ();
 	$ROBJ->start_up();
 	$ROBJ->finish();
 
-	#--------------------------------------------------
-	# ライブラリのタイムスタンプ保存
-	#--------------------------------------------------
-	if (! $ENV{SatsukiReloadStop}) {
-		&Satsuki::AutoReload::save_lib();
-	}
+};
+#--------------------------------------------------
+# エラー表示
+#--------------------------------------------------
+if (!$ENV{SatsukiExit} && $@) {
+	print <<HTML;
+Status: 500 Internal Server Error
+Content-Type: text/plain; charset=UTF-8
+X-Speedy-Br: <br>
+
+$@
+HTML
 }
+
+#--------------------------------------------------
+# ライブラリのタイムスタンプ保存
+#--------------------------------------------------
+&Satsuki::AutoReload::save_lib();
+

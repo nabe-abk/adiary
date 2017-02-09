@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.11';
+our $VERSION = '2.20';
 our $RELOAD;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
@@ -18,24 +18,6 @@ my $LOCALE = 'ja';
 #------------------------------------------------------------------------------
 use Satsuki::AutoLoader;
 use Fcntl;		# for sysopen/flock
-###############################################################################
-# ●die hook
-###############################################################################
-BEGIN {
-	if (exists $ENV{MOD_PERL}) { return; }
-	$SIG{__DIE__} = sub {
-		return if $^S ne '0';	# if eval, no operation.
-		$RELOAD = 1;
-		return if !$ENV{SERVER_PROTOCOL};
-		print <<HTML;
-Status: 500 Internal Server Error
-Content-Type: text/plain; charset=$SYSTEM_CODING
-
-HTML
-		print "<br>\n",shift,"\n";
-	}
-}
-
 ###############################################################################
 # ■コンストラクタ
 ###############################################################################
@@ -93,14 +75,9 @@ sub new {
 	$self->{Compiler_tm} = $self->get_libfile_modtime( 'Satsuki/Base/Compiler.pm' );
 
 	#-------------------------------------------------------------
-	# ModPerl check
-	#-------------------------------------------------------------
-	if (exists $ENV{MOD_PERL}) { $self->init_for_mod_perl(); }
-
-	#-------------------------------------------------------------
 	# スケルトンキャッシュ関連
 	#-------------------------------------------------------------
-	my $cache_dir = $self->get_filepath( $ENV{Satsuki_cache_dir} || $SYSTEM_CACHE_DIR );
+	my $cache_dir = $self->get_filepath( $ENV{SatsukiCacheDir} || $SYSTEM_CACHE_DIR );
 	$self->{__cache_dir_default} = $cache_dir;
 	if (-d $cache_dir && -w $cache_dir) {
 		$self->{__cache_dir} = $cache_dir;
@@ -149,7 +126,10 @@ sub start_up {
 	# 致命的エラーがあった場合、表示して終了
 	if ($self->{Error_flag}) {
 		my $err = $self->error_load_and_clear("\n");
-		$self->error_exit($err);
+		$self->set_status(500);
+		$self->print_http_headers('text/plain');
+		$self->output_array([$err]);
+		$self->exit(-1);
 	}
 
 	# メインルーチンの実行
@@ -319,20 +299,12 @@ sub object_free_finish {
 sub exit {
 	my $self = shift;
 	$self->finish();	# 終了前処理
+	$self->{Exit}  = \@_;
+	$self->{Break} = -2;
+	$ENV{SatsukiExit} = 1;
 
-	# mod_perl2 において eval 内で exit しない対策（executor 参照）
-	$self->{Exit_flag} = \@_;
-	$self->{Break}     = -2;
-
-	$self->do_exit(@_);
-}
-sub do_exit {
-	my $self = shift;
-	if ($self->{Not_exit}) {
-		$self->{DIE_alter_exit}=1;	# for fcgi
-		die(@_);
-	}
-	exit(@_);
+	my ($pack, $file, $line) = caller;
+	die(@_, " at $file line $line called exit. #");
 }
 
 ###############################################################################
@@ -371,8 +343,8 @@ sub execute {
 		my $v_ref;
 		$self->{Return} = undef;
 		eval{ $self->{Return} = &$subroutine(\@output, $self, $line, $v_ref); };
-		$v_ref && ($self->{v} = $$v_ref);	# vを書き戻す
-		if ($self->{Exit_flag}) { $self->do_exit(@{ $self->{Exit_flag} }); }
+		$v_ref && ($self->{v} = $$v_ref);			# vを書き戻す
+		if ($self->{Exit}) { die(@{ $self->{Exit} }); }		# exit代わりのdie検出
 		## ($self->{"times"} ||= {})->{"$self->{__src_file}"} = $self->{Timer}->stop($self->{__src_file});
 	}
 
@@ -769,7 +741,7 @@ sub set_content_type {
 # ●ヘッダを出力
 #------------------------------------------------------------------------------
 sub print_http_headers {
-	my ($self, $content_type, $charset) = @_;
+	my ($self, $ctype, $charset) = @_;
 	if ($self->{No_httpheader}) { return; }
 	my $x;
 	my $rs = ($self->{Status}==200) && $self->{html_cache} || \$x;
@@ -779,11 +751,11 @@ sub print_http_headers {
 	$$rs .= join('', @{ $self->{Headers} });	# その他のヘッダ
 
 	# Content-Type;
-	$content_type ||= $self->{Content_type};
+	$ctype   ||= $self->{ctype};
 	$charset ||= $self->{System_coding};
 	$$rs .= <<HEADER;
 Cache-Control: no-cache
-Content-Type: $content_type; charset=$charset;
+Content-Type: $ctype; charset=$charset;
 X-Content-Type-Options: nosniff
 
 HEADER
@@ -954,7 +926,7 @@ sub _loadpm {
 	eval { require $pm_file; };
 	if ($@) { delete $INC{$pm_file}; die($@); }
 	{
-		no strict 'refs'; 	# ルーチン埋め込み
+		no strict 'refs'; 	# デバッグルーチン埋め込み
 		my $dbg = $pm . '::debug';
 		if (! *$dbg{CODE}) { *$dbg = \&export_debug; }
 	}

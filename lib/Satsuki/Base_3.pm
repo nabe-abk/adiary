@@ -10,17 +10,10 @@ package Satsuki::Base;
 ###############################################################################
 sub init_for_mod_perl {
 	my $self = shift;
+	my $ver  = $ENV{MOD_PERL_API_VERSION};
 	$self->{CGI_cache} = 1;
-	$self->{Mod_perl}  = 1;
-	$self->{CGI_mode}  = 'mod_perl';
-	$self->{Not_exit}  = 1;
-
-	if ($ENV{MOD_PERL_API_VERSION} == 2) {
-		$self->{Mod_perl} = 2;
-		$self->{CGI_mode} = 'mod_perl2';
-	} elsif (!exists $ENV{MOD_PERL_API_VERSION}) {	# mod_perl version1
-		*CORE::exit = \&Apache::exit;
-	}
+	$self->{Mod_perl}  = $ver || 1;
+	$self->{CGI_mode}  = "mod_perl$ver";
 
 	# 擬似的なカレントディレクトリを抽出（設定）
 	# ・mod_perl2 + thread 環境では、カレントディレクトリが変更できないため必須
@@ -37,15 +30,9 @@ my %lib_modtime;
 #------------------------------------------------------------------------------
 sub init_for_speedycgi {
 	my $self = shift;
-	eval { require CGI::SpeedyCGI; };
-	if ($@ || ! CGI::SpeedyCGI->i_am_speedy) { return ; }
-
 	$self->{CGI_cache}=  1;
 	$self->{SpeedyCGI} = 1;
 	$self->{CGI_mode}  = 'SpeedyCGI';
-
-	# SpeedyCGIのバグ対応
-	delete $INC{'Image/Magick.pm'};
 }
 
 ###############################################################################
@@ -60,10 +47,8 @@ sub init_for_fastcgi {
 
 	$self->{CGI_cache}= 1;
 	$self->{FastCGI}  = 1;
-	$self->{Not_exit} = 1;		# exit しない
 	$self->{CGI_mode} = 'FastCGI';
 }
-
 
 ###############################################################################
 # ■システムチェック用ルーチン
@@ -72,7 +57,7 @@ sub get_system_info {
 	my ($self) = @_;
 	my %h;
 	my $v = $];
-	if ($v >= 5.006) { $v =~ s/(\d+)\.(\d\d\d)(\d\d\d)/$1.'.'. ($2+0).'.'.($3+0)/eg; }
+	$v =~ s/(\d+)\.(\d\d\d)(\d\d\d)/$1.'.'. ($2+0).'.'.($3+0)/e;
 	$h{perl_version} = $v;
 	$h{perl_cmd}     = $^X;
 	return \%h;
@@ -89,9 +74,9 @@ sub write_check {
 }
 
 sub lib_check {
-	my ($self, $lib_name) = @_;
-	$lib_name =~ s|::|/|g;
-	eval { require "$lib_name.pm"; };
+	my ($self, $lib) = @_;
+	$lib =~ s|::|/|g;
+	eval { require "$lib.pm"; };
 	return !$@ ? 1 : 0;
 }
 
@@ -143,11 +128,5 @@ sub dump_all {
 	}
 	return $ret;
 }
-
-
-
-
-
-
 
 1;

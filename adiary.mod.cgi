@@ -2,26 +2,22 @@
 use 5.8.1;
 use strict;
 BEGIN { unshift(@INC, './lib'); }
-use Satsuki::Base ();
+# use Satsuki::Base ();
 use Satsuki::AutoReload ();
 #-------------------------------------------------------------------------------
 # Satsuki system - Startup routine (for mod_perl)
-#						Copyright 2005-2013 nabe@abk
+#						Copyright 2005-2017 nabe@abk
 #-------------------------------------------------------------------------------
-# Last Update : 2013/07/09
-our $RELOAD;
-{
+# Last Update : 2017/02/10
+eval {
 	#--------------------------------------------------
 	# ライブラリの更新確認
 	#--------------------------------------------------
-	my $flag;
-	if (! $ENV{SatsukiReloadStop}) {
-		$flag = &Satsuki::AutoReload::check_lib( $RELOAD );
-		if ($flag) {
-			require Satsuki::Base;
-			$RELOAD = 0;
-		}
-	}
+	my $flag = &Satsuki::AutoReload::check_lib();
+
+	$Satsuki::Base::RELOAD = 1;	# Base.pmコンパイルエラー時
+	require Satsuki::Base;		# 次回、強制RELOADさせる。
+	$Satsuki::Base::RELOAD = 0;
 
 	#--------------------------------------------------
 	# 時間計測開始
@@ -32,28 +28,38 @@ our $RELOAD;
 		$timer = Satsuki::Timer->new();
 		$timer->start();
 	}
+
 	#--------------------------------------------------
-	# メイン
+	# FastCGI環境初期化
 	#--------------------------------------------------
 	my $ROBJ = Satsuki::Base->new();	# ルートオブジェクト生成
 	$ROBJ->{Timer} = $timer;
 	$ROBJ->{AutoReload} = $flag;
 
-	eval {
-		$ROBJ->start_up();
-		$ROBJ->finish();
-	};
-	if (!$ROBJ->{DIE_alter_exit} && $@) {
-		$RELOAD=1;
-		print "Status: 500 Internal Server Error\n";
-		print "Content-Type: text/plain;\n\n";
-		print "<br>\n",$@;
-	} else {
-		#--------------------------------------------------
-		# ライブラリのタイムスタンプ保存
-		#--------------------------------------------------
-		if (! $ENV{SatsukiReloadStop}) {
-			&Satsuki::AutoReload::save_lib();
-		}
-	}
+	$ROBJ->init_for_mod_perl();
+
+	#--------------------------------------------------
+	# メイン
+	#--------------------------------------------------
+	$ROBJ->start_up();
+	$ROBJ->finish();
+
+};
+#--------------------------------------------------
+# エラー表示
+#--------------------------------------------------
+if (!$ENV{SatsukiExit} && $@) {
+	print <<HTML;
+Status: 500 Internal Server Error
+Content-Type: text/plain; charset=UTF-8
+X-modperl-Br: <br>
+
+$@
+HTML
 }
+
+#--------------------------------------------------
+# ライブラリのタイムスタンプ保存
+#--------------------------------------------------
+&Satsuki::AutoReload::save_lib();
+
