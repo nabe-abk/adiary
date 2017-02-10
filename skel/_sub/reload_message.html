@@ -1,5 +1,5 @@
 <@6>
-<@local(url,rtime)>
+<@local(url,rtime, warn)>
 <@>
 <@> リロード処理
 <@>
@@ -8,6 +8,9 @@
 <@> システムモード
 <$v.system_mode()>
 <$v.title = if(v.title, v.title, v.set.blog_name) || "reload">
+
+<$warn = message_split('warn')>
+<$ifset(@warn, reload_stop, 1)>
 
 <@> アクションファイルから呼び出された場合、
 <@> このファイルをmain skeleton代わりにする
@@ -46,10 +49,15 @@ $(function(){
 	<div class="add-msg"><@argv#1></div>
 	<$end>
 
+	<@ifexec(@warn, begin)>
+	<div class="messages add-msg"><@join("\n", warn)></div>
+	<input type="checkbox" class="js-switch" data-target="#reload"><label>確認しました</label>
+	<$end>
+
 <@ifexec(rtime, begin, begin)>
-	<p><a href="<@url>" id="reload-link"><strong id="reload-msg"><@v.sys.reload_time>秒後にリロードします</strong>(Enter)</a> <button id="reload-stop">STOP</button></p>
+	<p id="reload"><a href="<@url>" id="reload-link"><strong id="reload-msg"><@v.sys.reload_time>秒後にリロードします</strong>(Enter)</a> <button id="reload-stop">STOP</button></p>
 <$else>
-	<p><a href="<@url>" id="reload-link"><strong id="reload-msg">クリックするとリロードします</strong>(Enter)</a></p>
+	<p id="reload"><a href="<@url>" id="reload-link"><strong id="reload-msg">クリックするとリロードします</strong>(Enter)</a></p>
 <$end>
 
 </div> <!-- end of body -->

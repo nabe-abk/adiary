@@ -1671,39 +1671,6 @@ sub _message {
 	$self->tag_escape($class,$msg);
 	push(@$ary, "<div class=\"$class\">$msg</div>");
 }
-sub message_split {
-	my $self = shift;
-	my $class= shift;
-	my @ary;
-	my @msg;
-	foreach(@{ $self->{Message} }) {
-		if ($_ =~ /<div [^>]*class="([\w-]+)"/ && $1 eq $class) {
-			push(@ary, $_);
-		} else {
-			push(@msg, $_);
-		}
-	}
-	$self->{Message} = \@msg;
-	return \@ary;
-}
-
-#------------------------------------------------------------------------------
-# ●ディバグルーチン
-#------------------------------------------------------------------------------
-sub debug {
-	my ($self, $msg, $level) = @_;
-	$self->tag_escape_amp($msg);
-	$msg =~ s/\n/<br>/g;
-	$msg =~ s/ /&ensp;/g;
-	my ($pack, $file, $line) = caller(int($level));
-	push(@{$self->{Debug}}, $msg . "<!-- in $file line $line -->");
-}
-sub warning {
-	my $self = shift;
-	my $msg  = $self->message_translate(@_);
-	my ($pack, $file, $line) = caller;
-	push(@{$self->{Warning}}, '' . $msg . "<!-- in $file line $line -->");
-}
 
 #------------------------------------------------------------------------------
 # ●エラー処理ルーチン

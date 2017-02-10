@@ -229,6 +229,44 @@ pre {
 	overflow:		auto;
 }
 
+/* フロートオブジェクト */
+.float, .float-l {
+	float:		left;
+	margin-right:	1em;
+	position:	relative;
+	z-index:	1;
+}
+.float-r {
+	float:		right;
+	margin-left:	1em;
+	position:	relative;
+	z-index:	1;
+}
+/* 記事からはみ出し防止 */
+h3, h4, .clear,
+div.body-footer {
+	clear:		both;
+}
+
+/*--------------------------------------------------------------------
+●フォントサイズ／種類設定
+---------------------------------------------------------------------*/
+.xx-large		{ font-size: 200%; line-height: 130%; }
+.x-large,  .huge	{ font-size: 150%; line-height: 130%; }
+.large			{ font-size: 130%; line-height: 130%; }
+.midium, .normalsize	{ font-size: 100%; line-height: 135%; }
+.small			{ font-size: 90%;  line-height: 140%; }
+.x-small,  .tiny	{ font-size: 80%;  line-height: 140%; }
+.xx-small, .scriptsize	{ font-size: 50%;  line-height: 140%; }
+
+.it, .italic		{ font-style:  italic; }
+.bf, .bold		{ font-weight: bold;   }
+.u, .underline		{ text-decoration: underline; }
+.normal			{ font-weight: normal; text-decoration: none; }
+
+strong			{ font-weight: bold; }
+em			{ font-style: normal; text-decoration: underline; }
+
 /*--------------------------------------------------------------------
 ●フォーム関連
 ---------------------------------------------------------------------*/
@@ -360,27 +398,6 @@ article.edit span.tag {
 }
 
 /*--------------------------------------------------------------------
-●フロートオブジェクト
----------------------------------------------------------------------*/
-/* 記事からはみ出し防止 */
-h3, h4, .clear,
-div.body-footer {
-	clear:		both;
-}
-.float, .float-l {
-	float:		left;
-	margin-right:	1em;
-	position:	relative;
-	z-index:	1;
-}
-.float-r {
-	float:		right;
-	margin-left:	1em;
-	position:	relative;
-	z-index:	1;
-}
-
-/*--------------------------------------------------------------------
 ●フォームポップアップ
 ---------------------------------------------------------------------*/
 .help {
@@ -444,25 +461,6 @@ span.resize-parts {
 }
 
 /*--------------------------------------------------------------------
-●フォントサイズ／種類設定
----------------------------------------------------------------------*/
-.xx-large		{ font-size: 200%; line-height: 130%; }
-.x-large,  .huge	{ font-size: 150%; line-height: 130%; }
-.large			{ font-size: 130%; line-height: 130%; }
-.midium, .normalsize	{ font-size: 100%; line-height: 135%; }
-.small			{ font-size: 90%;  line-height: 140%; }
-.x-small,  .tiny	{ font-size: 80%;  line-height: 140%; }
-.xx-small, .scriptsize	{ font-size: 50%;  line-height: 140%; }
-
-.it, .italic		{ font-style:  italic; }
-.bf, .bold		{ font-weight: bold;   }
-.u, .underline		{ text-decoration: underline; }
-.normal			{ font-weight: normal; text-decoration: none; }
-
-strong			{ font-weight: bold; }
-em			{ font-style: normal; text-decoration: underline; }
-
-/*--------------------------------------------------------------------
 ●フォームサイズ指定部品
 ---------------------------------------------------------------------*/
 .w20 { width: 20px; }
@@ -518,6 +516,19 @@ em			{ font-style: normal; text-decoration: underline; }
 	width:	100%;
 }
 .sp input[type="date"].w120 { width: 120px; }
+
+/*--------------------------------------------------------------------
+●メッセージシステム
+---------------------------------------------------------------------*/
+div.messages div.message:last-child, div.warn {
+	font-weight:	bold;
+}
+div.messages div.notice {
+	margin-left:	2em;
+}
+div.add-msg {
+	margin-top:	1em;
+}
 
 /*--------------------------------------------------------------------
 ●検索とハイライトとタグ

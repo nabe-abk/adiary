@@ -668,20 +668,11 @@ table.calendar td a:link {
 /*--------------------------------------------------------------------
 ●メッセージ関連
 ---------------------------------------------------------------------*/
-strong.warning, strong.error, strong.notice,
+strong.warning, strong.error,
+div.messages div.warn,
 div.messages div.message {
 	color:		#c30;			/* $c=fixstrongfont */
 	font-weight:	bold;
-}
-div.messages div.notice {
-	margin-left:	2em;
-}
-div.messages div.message + div.notice {
-	display:	block;
-	margin-top:	0.5em;
-}
-.add-msg {
-	margin:			1em 0;
 }
 
 /*--------------------------------------------------------------------

@@ -985,10 +985,9 @@ table.login input[type="text"], table.login input[type="password"] {
     width:                  95%;
 }
 
-article.system div.message {
+div.messages div.warn,
+div.messages div.message {
     color:                  #b5001f;
-    margin-bottom:          1em;
-    font-weight:            bold;
 }
 
 /* ◆　記事編集
