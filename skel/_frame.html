@@ -75,7 +75,7 @@
 <@>
 <@ifexec(v.special_system_mode, begin.sp_sysmode, begin.sp_sysmode)>
 <@inframe>
-<@ifcall(Develop && (@Error || @Debug || @Warning) || ENV_print, '_sub/debug')>
+<@ifcall(Develop && (@Error || @Warning || @Debug) || ENV_print, '_sub/debug')>
 <$else.sp_sysmode>
 <div id="adiary-body" class="container">
 
@@ -101,7 +101,7 @@
 <!--sidebar=================================================================-->
 <@call( if(v.sidebar, v.sidebar, '_sidebar') )>
 
-<@ifcall(Develop && (@Error || @Debug || @Warning) || ENV_print, '_sub/debug')>
+<@ifcall(Develop && (@Error || @Warning || @Debug) || ENV_print, '_sub/debug')>
 </div></div> <!-- End of #hatena-body -->
 <!--End of body ============================================================-->
 

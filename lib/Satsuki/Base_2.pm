@@ -11,7 +11,7 @@ package Satsuki::Base;
 # ●コンパイル
 #------------------------------------------------------------------------------
 sub compile {
-	my ($self, $cache_file, $src_file, $src_filefull, $orig_tm) = @_;
+	my ($self, $cache_file, $src_file, $src_filefull, $src_tm) = @_;
 	#------------------------------------------------------------
 	# コンパイルログを残すか？
 	#------------------------------------------------------------
@@ -39,7 +39,7 @@ sub compile {
 	# キャッシュの保存
 	#------------------------------------------------------------
 	if ($cache_file && $errors == 0 && (!$warns || !$self->{Develop})) {
-		$self->save_cache($cache_file, $src_filefull, $orig_tm, $arybuf);
+		$self->save_cache($cache_file, $src_filefull, $src_tm, $arybuf);
 	}
 
 	return $arybuf;

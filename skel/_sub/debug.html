@@ -5,18 +5,20 @@
 <p><strong>debug</strong></p>
 
 <@ifexec(@Error, begin)>
+Error :<br>
 <div class="debug">
-Error : <strong><@error_load_and_clear("<br>\n")></strong><br>
-</div>
-<$end>
-<@ifexec(@Debug, begin)>
-<div class="debug">
-Debug : <strong><@join("<br>\n", Debug)></strong><br>
+<@error_load_and_clear("<br>\n")>
 </div>
 <$end>
 <@ifexec(@Warning, begin)>
+Warning :<br>
 <div class="debug">
-Warning : <strong><@join("<br>\n", Warning)></strong><br>
+<@join("<br>\n", Warning)><br>
+</div>
+<$end><@ifexec(@Debug, begin)>
+Debug :<br>
+<div class="debug">
+<@join("<br>\n", Debug)><br>
 </div>
 <$end>
 <@ifexec(ENV_print, begin.env_print)>

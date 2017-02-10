@@ -469,7 +469,9 @@ sub __call {
 		$skel->{executable} = 1;
 
 		# メモリキャッシュに保存
-		$SkelCache{$src_file} = $skel;
+		if (-r $cache_file) {
+			$SkelCache{$src_file} = $skel;
+		}
 	}
 
 	#------------------------------------------------------------
@@ -1700,7 +1702,7 @@ sub warning {
 	my $self = shift;
 	my $msg  = $self->message_translate(@_);
 	my ($pack, $file, $line) = caller;
-	push(@{$self->{Warning}}, $msg . "<!-- in $file line $line -->");
+	push(@{$self->{Warning}}, '' . $msg . "<!-- in $file line $line -->");
 }
 
 #------------------------------------------------------------------------------

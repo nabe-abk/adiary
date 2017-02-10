@@ -2,12 +2,12 @@
 <@ifexec(@Error, begin)>
 Error : <@error_load_and_clear("\n")>
 <$end>
+<@ifexec(@Warning, begin)>
+Warning : <@join("\n", Warning)>
+<$end>
 <@ifexec(@Debug, begin)>
 <$str=join("\n", Debug)>
 <$replace(str,'&ensp;',' ')>
 <$replace(str,'<br>',"\n")>
 Debug : <@str>
-<$end>
-<@ifexec(@Warning, begin)>
-Warning : <@join("\n", Warning)>
 <$end>
