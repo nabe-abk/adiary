@@ -249,6 +249,9 @@ sub edit_article {
 
 	# 初公開
 	if ($opt{first_visible}) {
+		if ($form->{ping}) {
+			$ROBJ->message("Ping sending");
+		}
 		$self->call_event('ARTICLE_FIRST_VISIBLE', $art, $form);
 	}
 
@@ -668,10 +671,6 @@ sub send_update_ping {
 	my $send;
 	foreach(@servers) {
 		if ($_ eq '' || substr($_, 0, 1) eq '#') { next; }
-		if (!$send) {
-			# $ROBJ->notice("***Ping sending result***");
-			$send=1
-		}
 		$ping{ping_server} = $_;
 		my $xml = $self->send_weblogUpdates_Ping(\%ping);
 		if (!ref $xml) { next; }
