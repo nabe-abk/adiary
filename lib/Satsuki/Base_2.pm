@@ -1216,10 +1216,10 @@ sub set_cookie {
 #==============================================================================
 sub put_cookie {
 	my ($self, $str, $path, $domain) = @_;
-	if ($path   eq '') { $path   = $self->{Cookie_path} || $self->{Basepath}; }
-	if ($domain eq '') { $domain = $self->{Cookie_domain}; }
-	if ($path   ne '') { $path   = ' path='   . $path . ';';    }
-	if ($domain ne '') { $domain = ' domain=' . $domain . ';';  }
+	$path   ||= $self->{Cookie_path} || $self->{Basepath};
+	$domain ||= $self->{Cookie_domain};
+	if ($path  ) { $path   = " path=$path;";      }
+	if ($domain) { $domain = " domain=$domain;";  }
 
 	$self->set_header('Set-Cookie', "$str$path$domain");
 }
