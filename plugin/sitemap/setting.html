@@ -7,7 +7,7 @@
 	<tr>
 		<th>サイトマップURL</th>
 		<td>
-		<@ifexec(v.blog.('event:UNINSTALL:sitemap'), begin, begin)>
+		<@ifexec(v.check_installed_plugin(name), begin, begin)>
 			<a href="<@Server_url><@v.myself>?sitemap"><@Server_url><@v.myself>?sitemap</a>
 		<$else>
 			インストール後に表示されます
