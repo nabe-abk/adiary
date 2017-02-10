@@ -143,7 +143,7 @@ h1 img, h1 a img {
 .dropdown-menu>ul li {
 	background-color:	transparent;
 }
-.dropdown-menu>ul>li li {
+header .dropdown-menu>ul>li li {
 	background-color:	#39f;		/* $c=ddbg = main */
 	background-image:	url("slant-tile.gif");
 }
@@ -186,18 +186,14 @@ h1 img, h1 a img {
 }
 
 /* main部に置いた場合 */
-.main .dropdown-menu,
-.main .dropdown-menu>ul li {
-	height:			20px;
-}
 .main .dropdown-menu {
+	color:			#fff;
 	margin:			1em 0;
 	font-size:		10pt;
 	background-color:	transparent;
 }
 .main .dropdown-menu>ul li {
-	background-color:	#fff;
-	padding:		0 4px;
+	background-color:	#39f;		/* $c=ddbg = main */
 }
 
 .main .dropdown-menu a:link,
@@ -207,7 +203,7 @@ h1 img, h1 a img {
 }
 .main .dropdown-menu>ul li:hover,
 .main .dropdown-menu>ul li.hover {
-	background-color:	#eef4ff;	/* $c=mainddhoverbg = prebg */
+	background-color:	#99c;	/* $c=mainddhoverbg = auto:prebg */
 }
 
 /*--------------------------------------------------------------------

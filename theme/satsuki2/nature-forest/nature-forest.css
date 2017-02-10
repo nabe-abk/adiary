@@ -142,7 +142,7 @@ h1 img, h1 a img {
 .dropdown-menu>ul li {
 	background-color:	transparent;
 }
-.dropdown-menu>ul>li li {
+header .dropdown-menu>ul>li li {
 	background-color:	#343;		/* $c=ddbg = titlebg */
 	background-image:	url("slant-tile.gif");
 }
@@ -185,10 +185,6 @@ h1 img, h1 a img {
 }
 
 /* main部に置いた場合 */
-.main .dropdown-menu,
-.main .dropdown-menu>ul li {
-	height:			20px;
-}
 .main .dropdown-menu {
 	margin:			1em 0;
 	font-size:		10pt;
@@ -196,7 +192,6 @@ h1 img, h1 a img {
 }
 .main .dropdown-menu>ul li {
 	background-color:	#fff;
-	padding:		0 4px;
 }
 
 .main .dropdown-menu a:link,
