@@ -14,7 +14,8 @@
 <$ifredirect(Auth.isadmin && !Develop && v.v2conf,  Myself . '?system/v2conv')>
 
 <@> 階層ツリー
-<@call("<@v.skel_dir>_dir_tree")>
+<@call("_sub/menu_tree")>
+
 <!--========================================================================-->
 <article class="system">
 <h2><@v.title></h2>

@@ -1,13 +1,14 @@
 <@6>
-<@local(dir, x, t, sep, query)>
+<@local(dir, x, t, sep, query, items)>
 <$x = index(v.skel_dir, '/')>
 <$dir = if(0<x, substr(v.skel_dir, 0, x+1), v.skel_dir)>
 <$query = argv#0>
 <@>
 <nav class="tree">
 <a href="<@v.myself>?menu" class="dir">メニュー</a>
- <span class="splitter">&gt;</span>
 <@>----------------------------------------------------------------------------
+<@ifexec(dir, begin)>
+ <span class="splitter">&gt;</span>
 <select class="dir" onchange="location.href = $(this).val()">
 <optgroup label="ブログ">
 <@ifexec(v.blog_admin, begin)>
@@ -30,6 +31,7 @@
 	</optgroup>
 <$end>
 </select>
+<$end>
 <@>----------------------------------------------------------------------------
 <@ifexec(dir ne v.skel_dir, begin)>
  <span class="splitter">&gt;</span>
@@ -40,13 +42,15 @@
 </select>
 <$end>
 <@>----------------------------------------------------------------------------
+<$items = call("<@v.skel_dir>_items")>
+<@ifexec(!items._order || @items._order, begin.items)>
  <span class="splitter">&gt;</span>
  <span class="items">
  <span class="item-start">[</span>
 <$sep=''>
 <@forexec_hash(t, call("<@v.skel_dir>_items"), begin)>
   <@sep>
-  <@ifexec(v.skel_name eq t.key, begin, begin)>
+  <@ifexec(v.skel_name eq t.key || v.skeleton eq t.key, begin, begin)>
 	<span class="select"><@t.val></span> <@\>
   <$else>
 	<a href="<@v.myself>?<@v.skel_dir><@t.key><@query>"><@t.val></a> <@\>
@@ -55,6 +59,7 @@
 <$end>
  <span class="item-end">]</span>
  </span>
+<$end.items>
 </nav>
 
 <@> エラー表示

@@ -6,7 +6,9 @@
 <$v.system_mode("画像アルバム")>
 
 <@> 階層ツリー
-<@call("_dir_tree")>
+<$bak = v.skel_dir><$v.skel_dir = ''>
+<@call("_sub/menu_tree")>
+<$v.skel_dir = bak>
 
 <!--========================================================================-->
 <$v.init_image_dir()>
