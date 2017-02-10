@@ -40,6 +40,14 @@ sub {
 			next;
 		}
 
+		# WebPush登録ボタン
+		if ($name eq 'webpush_btn') {
+			$ROBJ->trim($val);
+			$ROBJ->tag_escape($val);
+			push(@ary, "$name,$val");
+			next;
+		}
+
 		# フリーテキスト
 		if ($name eq 'free_txt' || $name eq 'freebr_txt') {
 			if ($name eq 'free_txt') {

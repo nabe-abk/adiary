@@ -72,18 +72,18 @@ print-link
 <a href="<@v.myself2>?&amp;_theme=satsuki2/_print" target="_blank">印刷用の表示</a>
 </div>
 
-<div data-module-name="bcounter" title="はてなブックマークカウンタ(https非対応)">
+<div data-module-name="bcounter" title="はてなブックマークカウンタ(https非対応)" data-alt="はてな<br>ブックマーク<br>カウンタ">
 	<input type="hidden" name="bcounter.default" value="de">
 	<input type="radio" name="bcounter" value="de"><label style="color: #1841CD">■</label>
 	<input type="radio" name="bcounter" value="dg"><label style="color: #6B6D7B">■</label>
 	<input type="radio" name="bcounter" value="gr"><label style="color: #4296A5">■</label>
 	<input type="radio" name="bcounter" value="pr"><label style="color: #6B3CA5">■</label>
-	<input type="radio" name="bcounter" value="br"><label style="color: #9C5D31">■</label>
+	<input type="radio" name="bcounter" value="br"><label style="color: #9C5D31">■</label><br>
 	<input type="radio" name="bcounter" value="rd"><label style="color: #CE2418">■</label>
 	<input type="radio" name="bcounter" value="sp"><label style="color: #B58135">■</label>
-	<input type="radio" name="bcounter" value="pk"><label style="color: #E98383">■</label><br>
+	<input type="radio" name="bcounter" value="pk"><label style="color: #E98383">■</label>
 	<input type="radio" name="bcounter" value="te"><label style="color: #8DA475">■</label>
-	<input type="radio" name="bcounter" value="lg"><label style="color: #B9B8B4">■</label>
+	<input type="radio" name="bcounter" value="lg"><label style="color: #B9B8B4">■</label><br>
 	<input type="radio" name="bcounter" value="wh"><label style="color: #FFFFFF">■</label>
 	<input type="radio" name="bcounter" value="bl"><label style="color: #000000">■</label>
 	<input type="radio" name="bcounter" value="li"><label style="color: #43BA83">■</label>
@@ -100,11 +100,15 @@ print-link
 </div>
 
 <div data-module-name="free_txt" data-duplicate="1" title="フリーテキスト" data-alt='フリーテキスト<br>改行無視<br><a target="_blank" href="<@v.myself>?etc/allow_tags&amp;n=usertext">使用可能タグ</a>'>
-	<textarea class="w300" rows="2" name="free_txt"></textarea>
+	<textarea class="w240" rows="2" name="free_txt"></textarea>
 </div>
 
 <div data-module-name="freebr_txt" data-duplicate="1" title="フリーテキスト（改行有効）" data-alt='フリーテキスト<br>改行有効<br><a target="_blank" href="<@v.myself>?etc/allow_tags&amp;n=usertext">使用可能タグ</a>'>
-	<textarea class="w300" rows="2" name="freebr_txt"></textarea>
+	<textarea class="w240" rows="2" name="freebr_txt"></textarea>
+</div>
+
+<div data-module-name="webpush_btn" title="WebPush登録ボタン（要:WebPushプラグイン）" data-alt="WebPush登録ボタン">
+	<input class="w200" type="text" name="webpush_btn" value="WebPush登録">
 </div>
 
 </div>
@@ -138,7 +142,7 @@ function append_element(name, val) {
 
 	var alt= mod.data('alt');
 	var tr = $('<tr>');
-	var th = $('<th>').addClass('nowrap').html( alt ? alt : mod.attr('title') );
+	var th = $('<th>').html( alt ? alt : mod.attr('title') );
 	var td = $('<td>').html( mod.html() );
 	var cl = $('<td>').addClass('c');
 	var span = $('<span>').addClass('ui-icon ui-icon-closethick ui-button');
@@ -152,11 +156,13 @@ function append_element(name, val) {
 		if (val && val != '' && name == 'bcounter' && obj.attr('type') == 'radio') {
 			if (val == obj.attr('value')) { obj.prop('checked', true); }
 		}
+		if (val && val != '' && obj.attr('type') == 'text') {
+			obj.val( tag_decode(val) );
+		}
 		if (val && val != '' && (name == 'free_txt' || name == 'freebr_txt')
 		 && obj[0].tagName == 'TEXTAREA') {
 		 	if (name == 'free_txt')   val = val.replace(/<!--br-->/g, "\n");
 		 	if (name == 'freebr_txt') val = val.replace(/<br>/g,      "\n");
-		 	
 			obj.val( val );
 		}
 		obj.attr('name', count + ',' + key);

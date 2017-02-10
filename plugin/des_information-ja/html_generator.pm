@@ -63,7 +63,9 @@ HTML
 	$modules{free_txt} = $modules{freebr_txt} =<<'HTML';
 	<li class="free-text"><#val></li>
 HTML
-
+	$modules{webpush_btn} = <<'HTML';
+	<li class="button"><button type="button" class="regist-webpush"><#val></button></li>
+HTML
 	my $ele = $set->{elements} ? $set->{elements} : <<'DEFAULT';
 description
 artlist-link
