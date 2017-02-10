@@ -23,7 +23,6 @@ FILES
 ARTICLE_FIRST_VISIBLE=func/<@this>-ping.pm
 ARTICLE_STATE_CHANGE=func/<@this>.pm
 INSTALL=func/<@this>.pm
-SETTING=func/<@this>.pm
 UNINSTALL=func/<@this>-uninstall.pm
 EVENTS
 
