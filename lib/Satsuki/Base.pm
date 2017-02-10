@@ -74,11 +74,13 @@ sub new {
 	# コンパイラの更新時間を保存
 	$self->{Compiler_tm} = $self->get_libfile_modtime( 'Satsuki/Base/Compiler.pm' );
 
+	# mod_perl初期化, get_filepath() 有効化
+	if ($ENV{MOD_PERL}) { $self->init_for_mod_perl(); }
+
 	#-------------------------------------------------------------
 	# スケルトンキャッシュ関連
 	#-------------------------------------------------------------
 	my $cache_dir = $self->get_filepath( $ENV{SatsukiCacheDir} || $SYSTEM_CACHE_DIR );
-	$self->{__cache_dir_default} = $cache_dir;
 	if (-d $cache_dir && -w $cache_dir) {
 		$self->{__cache_dir} = $cache_dir;
 	}
@@ -316,7 +318,7 @@ sub execute {
 	my ($self, $subroutine) = @_;
 	if (ref $subroutine ne 'CODE') {
 		my ($pack, $file, $line) = caller;
-		$self->error_from("line $line at $file / $self->{__src_file}", "[executor] Can't execute string '%s'", $subroutine);
+		$self->error_from("line $line at $file : $self->{__src_file}", "[executor] Can't execute string '%s'", $subroutine);
 		return ;
 	}
 
@@ -369,17 +371,17 @@ sub execute {
 		if ($break_level==1 && $self->{Nest_count} > $self->{Nest_count_base}) { last; }
 		# braek level 2 以上のとき、ネストレベル 0 まで break (super break)
 		if ($break_level >1 && $self->{Nest_count} > 0) { last; }
-		# 現在までの処理結果を破棄
+		# 負数は現在までの処理結果を破棄
 		if ($break < 0) { @output = (); }
 		$self->{Break} = 0;
 		# jump or call ?
 		if ($self->{Jump_file}) {		# jump 処理
 			$self->{Jump_count}++;
 			if ($self->{Jump_count} < $self->{Nest_max}) {
-				my ($jump_file, $jump_skeleton_name) = ($self->{Jump_file}, $self->{Jump_skeleton});
+				my ($jump_file, $jump_skel) = ($self->{Jump_file}, $self->{Jump_skeleton});
 				undef $self->{Jump_file};
 				undef $self->{Jump_skeleton};
-				push(@output, $self->__call($jump_file, $jump_skeleton_name, @{ $self->{Jump_argv} }));
+				push(@output, $self->__call($jump_file, $jump_skel, @{ $self->{Jump_argv} }));
 			} else {
 				my $err = $self->error_from('', "[executor] Too many jump (max %d)", $self->{Nest_max});
 				push(@output, "<h1>$err</h1>");
@@ -398,67 +400,65 @@ sub execute {
 #------------------------------------------------------------------------------
 # ●低レベル call
 #------------------------------------------------------------------------------
-my %skeleton_memory_chace;
+my %SkelCache;
 sub __call {
-	my $self     = shift;
-	my $src_file = shift;
-	my $skeleton_name = shift;
+	my $self         = shift;
+	my $src_file_org = shift;
+	my $skel_name    = shift;
 
-	my $src_filefull = $self->get_filepath($src_file);
+	my $src_file = $self->get_filepath($src_file_org);
 	my $cache_file;
-	if ($self->{__cache_dir} ne '') {
+	if ($self->{__cache_dir}) {
 		my $f = $src_file;
 		$f =~ s/([^\w\.\#])/'%' . unpack('H2', $1)/eg;
 		$cache_file = $self->{__cache_dir} . $f . '.cache';
 	}
 
-	my ($arybuf, $cache_compiler_tm, $srouce_file_tm);
-	my $orig_tm  = (stat($src_filefull))[9];
-	my $cache_tm = (stat($cache_file))  [9];
-
-	if (!-r $src_filefull) {	# 読み込めない
+	# ソースファイルを読み込めない
+	if (!-r $src_file) {
 		if ($cache_file) { unlink($cache_file); }	# キャッシュ削除
-		$self->error("[call] failed - Can't read file '%s'", $src_file || $skeleton_name . $self->{Skeleton_ext} );
+		$self->error("[call] failed - Can't read file '%s'", $src_file || $skel_name . $self->{Skeleton_ext} );
 		return undef;
 	}
-	# キャッシュファイル確認
-	my $is_cache;
-	my $loaded;
-	my $memory_cache_loaded;
-	if ($cache_file && -r $cache_file && $orig_tm < $cache_tm) {
-		#------------------------------------------------------------
-		# コンパイル済キャッシュ読み込み
-		#------------------------------------------------------------
-		# メモリキャッシュからロード
-		my $errors;
-		if ($skeleton_memory_chace{$src_filefull} == $cache_tm) {
-			$arybuf            = $skeleton_memory_chace{"arybuf_$src_filefull"};
-			$cache_compiler_tm = $skeleton_memory_chace{"compiler_tm_$src_filefull"};
-			$srouce_file_tm    = $skeleton_memory_chace{"srouce_file_tm$src_filefull"};
-			$memory_cache_loaded = 1;
-		} else {	# ファイルからロード
-			($errors, $arybuf, $cache_compiler_tm, $srouce_file_tm) = $self->load_cache($cache_file);
-		}
+
+	#------------------------------------------------------------
+	# メモリキャッシュロード
+	#------------------------------------------------------------
+	my $skel   = $SkelCache{$src_file};
+	my $src_tm = (stat($src_file)) [9];
+
+	# $self->debug("*** Call $src_file ***");
+	#------------------------------------------------------------
+	# 有効なキャッシュか確認
+	#------------------------------------------------------------
+	if ($cache_file && ($skel->{src_tm} != $src_tm || $skel->{compiler_tm} != $self->{Compiler_tm})) {
+		# ファイルからキャッシュロード
+		$skel = $self->load_cache($cache_file);
+
 		# キャッシュが有効か確認する
-		if ($errors || $cache_compiler_tm != $self->{Compiler_tm} || $srouce_file_tm != $orig_tm) {
-			# $self->debug("Unload cache file '$src_file'");
-			$memory_cache_loaded = 0;
+		if (!$skel || $skel->{compiler_tm} != $self->{Compiler_tm} || $skel->{src_tm} != $src_tm) {
+			# $self->debug("Unload cache file : $src_file");
 			unlink($cache_file);
-		} else {
-			$is_cache = 1;
-			$loaded = 1;	# ロード成功
+			$skel = undef
 		}
 	}
 
+	#------------------------------------------------------------
 	# キャッシュがない場合ソースファイルをコンパイル
-	if (! $loaded) {
-		$arybuf = $self->compile($cache_file, $src_file, $src_filefull, $orig_tm);
+	#------------------------------------------------------------
+	if (! $skel) {
+		$skel = {
+			arybuf => $self->compile($cache_file, $src_file_org, $src_file, $src_tm),
+			src_tm => $src_tm,
+			compiler_tm => $self->{Compiler_tm}
+		};
 	}
 
 	#------------------------------------------------------------
 	# Perl構文コンパイル
 	#------------------------------------------------------------
-	if (! $memory_cache_loaded) {
+	my $arybuf = $skel->{arybuf};
+	if (!$skel->{executable}) {
 		my $error;
 		foreach (@$arybuf) {
 			my $x = $_;
@@ -466,16 +466,10 @@ sub __call {
 			if ($@) { $self->error_from("at $src_file", "[perl-compiler] $@"); $error=1; }
 		}
 		if ($error) { return undef; }
-	}
+		$skel->{executable} = 1;
 
-	#------------------------------------------------------------
-	# ファイルキャッシュをメモリキャッシュへ保存
-	#------------------------------------------------------------
-	if ($is_cache && ! $memory_cache_loaded) {
-		$skeleton_memory_chace{"$src_filefull"}               = $cache_tm;
-		$skeleton_memory_chace{"arybuf_$src_filefull"}        = $arybuf;
-		$skeleton_memory_chace{"compiler_tm_$src_filefull"}   = $cache_compiler_tm;
-		$skeleton_memory_chace{"srouce_file_tm$src_filefull"} = $srouce_file_tm;
+		# メモリキャッシュに保存
+		$SkelCache{$src_file} = $skel;
 	}
 
 	#------------------------------------------------------------
@@ -484,8 +478,8 @@ sub __call {
 	my $c = $self->{__cont_level};
 	local ($self->{argv}, $self->{__src_file}, $self->{__skeleton}, $self->{Nest_count_base});
 	$self->{argv}            = \@_;
-	$self->{__src_file}      = $src_file;
-	$self->{__skeleton}      = $skeleton_name;
+	$self->{__src_file}      = $src_file_org;
+	$self->{__skeleton}      = $skel_name;
 	$self->{Nest_count_base} = $self->{Nest_count};
 	return $self->execute( $arybuf->[0] );
 }
@@ -497,6 +491,8 @@ sub load_cache {
 	my ($self, $file) = @_;
 	my %cache;
 
+	if (!-r $file) { return; }
+
 	local($/) = "\0";	# デリミタ変更
 	my $lines = $self->fread_lines($file);
 	# 全データからデリミタ除去
@@ -505,12 +501,12 @@ sub load_cache {
 	shift(@$lines);	# 注意書き読み捨て
 	my $version = shift(@$lines);
 	$version = substr($version, index($version, '=')+1);
-	if ($version < 1.01) { return (1); }	# 失敗
+	if ($version < 1.01) { return; }	# 失敗
 
 	# このキャッシュを生成したコンパイラのタイムスタンプ(UTC)
-	my $cache_compiler_tm = shift(@$lines);
-	# このキャッシュの生成に使用した元ファイルのタイムスタンプ(UTC)
-	my $srouce_file_tm    = shift(@$lines);
+	$cache{compiler_tm} = shift(@$lines);
+	# このキャッシュの生成に使用したソースファイルのタイムスタンプ(UTC)
+	$cache{src_tm}      = shift(@$lines);
 
 	# ルーチンバッファの読み込み
 	my @arybuf;
@@ -537,7 +533,8 @@ sub load_cache {
 	# @$lines が空であるかチェック
 	if ($#$lines != -1) { return (2); }	# 失敗
 
-	return (0, \@arybuf, $cache_compiler_tm, $srouce_file_tm);
+	$cache{arybuf} = \@arybuf;
+	return \%cache;
 }
 
 ###############################################################################
