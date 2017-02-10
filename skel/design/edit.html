@@ -92,6 +92,7 @@ select {
 <@forexec(t, mods, begin)>
 <$ifnext(t.adiary_version > v.VERSION)>  <@>  対応Versionチェック
 <$ifnext(t.trust_mode && !v.trust_mode)> <@>  trust_mode専用プラグイン
+<$ifnext(t.missing)>                     <@>  ライブラリ不足
 <div title="<@t.title>"
  data-module-name="<@t.name>"
  data-type="<@t.module_type>"

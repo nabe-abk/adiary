@@ -213,8 +213,11 @@ sub load_plugins_info {
 	foreach( sort @$files ) {
 		my $f = ($_ =~ /^de[smhacf]_/);		# デザインモジュール？
 		if (!$modf && $f || $modf && !$f) { next; }
+
 		# load
-		push(@ary, $self->load_plugin_info($_, $dir));
+		my $pi = $self->load_plugin_info($_, $dir) || next;
+		push(@ary, $pi);
+		$self->check_plugin_env($pi);
 	}
 	return \@ary;
 }
@@ -233,6 +236,28 @@ sub check_installed_plugin {
 	my $name = shift;
 	my $pd = $self->load_plugins_dat();
 	return $pd->{$name};
+}
+
+#------------------------------------------------------------------------------
+# ●必要な環境やライブラリが揃ってるか調べる
+#------------------------------------------------------------------------------
+sub check_plugin_env {
+	my $self = shift;
+	my $pi   = shift;
+	my @libs = split(/\n/, $pi->{require});
+	my $err=0;
+	my @missing;
+	foreach(@libs) {
+		if (!$_) { next; }
+		my $file = $_;
+		$file =~ s|::|/|g;
+		eval { require "$file.pm"; };
+		if ($@) {
+			$err++;
+			push(@missing, $_);
+		}
+	}
+	$pi->{missing} = @missing ? \@missing : undef;
 }
 
 #------------------------------------------------------------------------------
