@@ -747,7 +747,7 @@ sub print_http_headers {
 	$$rs .= join('', @{ $self->{Headers} });	# その他のヘッダ
 
 	# Content-Type;
-	$ctype   ||= $self->{ctype};
+	$ctype   ||= $self->{Content_type};
 	$charset ||= $self->{System_coding};
 	$$rs .= <<HEADER;
 Cache-Control: no-cache
@@ -1632,7 +1632,6 @@ sub load_codepm_if_needs {
 	return ;
 }
 
-
 #------------------------------------------------------------------------------
 # ●メッセージの翻訳
 #------------------------------------------------------------------------------
@@ -1648,11 +1647,6 @@ sub message_translate {
 #------------------------------------------------------------------------------
 # ●メッセージ処理ルーチン
 #------------------------------------------------------------------------------
-sub message_top {
-	my $self = shift;
-	my $ary = $self->_message('message', @_);
-	unshift(@$ary, pop(@$ary));
-}
 sub message {
 	my $self = shift;
 	$self->_message('message', @_);
@@ -1661,42 +1655,52 @@ sub notice {
 	my $self = shift;
 	$self->_message('notice', @_);
 }
+sub warn {
+	my $self = shift;
+	$self->_message('warn', @_);
+}
 sub _message {
 	my $self = shift;
 	my $class= shift;
 	if ($self->{Message_stop}) { return []; }
 
-	my $msg  = $self->message_translate(@_);
+	my $msg = $self->message_translate(@_);
 	my $ary = $self->{Message};
 	$self->tag_escape($class,$msg);
 	push(@$ary, "<div class=\"$class\">$msg</div>");
-	return $ary;
 }
-sub message_clear {
+sub message_split {
 	my $self = shift;
-	$self->{Message} = [];
+	my $class= shift;
+	my @ary;
+	my @msg;
+	foreach(@{ $self->{Message} }) {
+		if ($_ =~ /<div [^>]*class="([\w-]+)"/ && $1 eq $class) {
+			push(@ary, $_);
+		} else {
+			push(@msg, $_);
+		}
+	}
+	$self->{Message} = \@msg;
+	return \@ary;
 }
 
 #------------------------------------------------------------------------------
 # ●ディバグルーチン
 #------------------------------------------------------------------------------
 sub debug {
-	my ($self, $str, $level) = @_;
-	$self->tag_escape_amp($str);
-	$str =~ s/\n/<br>/g;
-	$str =~ s/ /&ensp;/g;
+	my ($self, $msg, $level) = @_;
+	$self->tag_escape_amp($msg);
+	$msg =~ s/\n/<br>/g;
+	$msg =~ s/ /&ensp;/g;
 	my ($pack, $file, $line) = caller(int($level));
-	push(@{$self->{Debug}}, $str . "<!-- in $file line $line -->");
+	push(@{$self->{Debug}}, $msg . "<!-- in $file line $line -->");
 }
 sub warning {
-	my $self  = shift;
+	my $self = shift;
 	my $msg  = $self->message_translate(@_);
-	return $self->_warning($msg);
-}
-sub _warning {
-	my ($self, $str) = @_;
-	my ($pack, $file, $line) = caller(1);
-	push(@{$self->{Warning}}, $str . "<!-- in $file line $line -->");
+	my ($pack, $file, $line) = caller;
+	push(@{$self->{Warning}}, $msg . "<!-- in $file line $line -->");
 }
 
 #------------------------------------------------------------------------------

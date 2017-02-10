@@ -41,9 +41,8 @@ sub new {
 sub compile {
 	my ($self, $lines, $src_file, $debugfile) = @_;
 	# エラー保存領域初期化
-	$self->{errors}    = 0;
-	$self->{warnings}  = 0;
-	$self->{error_msg} = [];
+	$self->{errors}   = 0;
+	$self->{warnings} = 0;
 	# エラー表示用
 	$self->{src_file} = $src_file;
 	# 組み込み関数使用状況の初期化
@@ -219,7 +218,7 @@ my %inline_if = (if=>-1, ifdef=>-1,
 	ifbreak=>1, ifbreak_clear=>1, ifsuperbreak=>1, ifsuperbreak_clear=>1,
 	ifjump=>1, ifjump_clear=>1, ifsuperjump=>1, ifsuperjump_clear=>1,
 	ifcall=>1, ifredirect=>1, ifform_error=>1, ifform_clear=>1,
-	ifmessage=>2, ifmessage_top=>2, ifnotice=>2,
+	ifmessage=>2, ifnotice=>2,
 	ifset_cookie=>1, ifclear_cookie=>1,
 	ifset=>-1, ifnext=>-1, iflast=>-1, ifset_status=>1,
 	ifpush=>4, ifpop=>4, ifshift=>4, ifunshift=>4,
@@ -782,7 +781,6 @@ sub convert_reversed_poland {
 		my @poland;		# 逆ポーランド記法記録用
 		my $x = $cmd . ')';
 		my $right_arc = 0;
-		my $out_debug_porland;	# debug-safe
 		while ($x =~ /(.*?)([=,\(\)\+\-<>\^\*\/&|%!;\#\@ ])(.*)/s) {
 			if ($1 ne '') { push(@poland,  $1); }	# 　演算子の手前を出力
 			my $op = $2;
@@ -846,9 +844,6 @@ sub convert_reversed_poland {
 		}
 		push(@poland, $cmd_flag);	# コマンドフラグを最後に追加
 		$_ = \@poland;			# 変換結果に置換
-		if ($out_debug_porland) {
-			$self->debug(join(' ', @poland));	# debug-safe
-		}
 	}
 	return ;
 }
@@ -2081,29 +2076,27 @@ sub recover_string {
 # ■エラー処理
 ###############################################################################
 sub error {
-	my $self  = shift;
-	my $line  = shift;
-	my $error = shift;
+	my $self = shift;
+	my $line = shift;
+	my $ROBJ = $self->{ROBJ};
 	$self->{errors}++;
-	if ($line) { $line="[line $line] "; }
-	$error = $line . $self->{ROBJ}->message_translate($error, @_);
-	push( @{ $self->{error_msg} }, $error);
+	if ($line) { $line=" at line " . int($line); }
+	$ROBJ->error("[Compiler] $self->{src_file}$line : " . $ROBJ->message_translate(@_));
+}
+sub warning {
+	my $self = shift;
+	my $line = shift;
+	my $ROBJ = $self->{ROBJ};
+	$self->{warnings}++;
+	if ($line) { $line=" at line " . int($line); }
+	$ROBJ->warning("[Compiler] $self->{src_file}$line : " . $ROBJ->message_translate(@_));
 }
 
 sub debug {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $str  = "[Compiler] $self->{src_file} : " . $ROBJ->message_translate(@_);
-	return $ROBJ->debug($str,1,@_); # debug-safe
-}
-sub warning {
-	my $self = shift;
-	my $line  = shift;
-	my $ROBJ = $self->{ROBJ};
-	$self->{warnings}++;
-	if ($line) { $line=" at line " . int($line); }
-	my $str = "[Compiler] $self->{src_file}$line : " . $ROBJ->message_translate(@_);
-	return $ROBJ->_warning($str,2,@_);
+	my $msg  = "[Compiler] $self->{src_file} : " . $ROBJ->message_translate(@_);
+	return $ROBJ->debug($msg,1,@_); # debug-safe
 }
 
 ###############################################################################

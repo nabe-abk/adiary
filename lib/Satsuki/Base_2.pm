@@ -31,25 +31,15 @@ sub compile {
 	my $c     = $self->loadpm('Base::Compiler');
 	my $lines = $self->fread_lines($src_filefull);
 	my ($errors, $warns, $arybuf) = $c->compile($lines, $src_file, $compile_log);
+	if ($errors) {
+		$self->set_status(500);
+	}
 
 	#------------------------------------------------------------
 	# キャッシュの保存
 	#------------------------------------------------------------
 	if ($cache_file && $errors == 0 && (!$warns || !$self->{Develop})) {
 		$self->save_cache($cache_file, $src_filefull, $orig_tm, $arybuf);
-	}
-	#------------------------------------------------------------
-	# コンパイルエラー
-	#------------------------------------------------------------
-	my $err_msg = $c->{error_msg};
-	if ($#$err_msg >= 0) {
-		foreach(@$err_msg) {
-			# 1 = warrning flag
-			$self->error_from('', "[Compiler] $src_file : $_");
-		}
-		$self->set_status(500);
-		# エラーがあっても処理継続（実行）する
-		# $self->{Error_flag}=1;	# これを設定すると実行が止まる
 	}
 
 	return $arybuf;
