@@ -298,13 +298,12 @@ sub object_free_finish {
 #------------------------------------------------------------------------------
 sub exit {
 	my $self = shift;
+	my $ext  = shift;
 	$self->finish();	# 終了前処理
-	$self->{Exit}  = \@_;
+	$self->{Exit}  = $ext;
 	$self->{Break} = -2;
 	$ENV{SatsukiExit} = 1;
-
-	my ($pack, $file, $line) = caller;
-	die(@_, " at $file line $line called exit. #");
+	die("exit($ext)");
 }
 
 ###############################################################################
@@ -344,7 +343,7 @@ sub execute {
 		$self->{Return} = undef;
 		eval{ $self->{Return} = &$subroutine(\@output, $self, $line, $v_ref); };
 		$v_ref && ($self->{v} = $$v_ref);			# vを書き戻す
-		if ($self->{Exit}) { die(@{ $self->{Exit} }); }		# exit代わりのdie検出
+		if ($ENV{SatsukiExit}) { die($self->{Exit}); }		# exit代わりのdie検出
 		## ($self->{"times"} ||= {})->{"$self->{__src_file}"} = $self->{Timer}->stop($self->{__src_file});
 	}
 
