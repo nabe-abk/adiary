@@ -1277,6 +1277,9 @@ ul.menu {
 	z-index:		950;		/* 900 to 999 */
 	font-weight:		bold;
 }
+.main .dropdown-menu {
+	z-index:		900;
+}
 .dropdown-menu>ul, .dropdown-menu>ul * {	/* 全称セレクタ */
 	margin:			0px;
 	padding:		0px;

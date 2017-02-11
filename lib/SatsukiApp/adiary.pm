@@ -23,14 +23,14 @@ $SysEvt{ARTICLE_STATE_CHANGE} = [qw(
 	update_taglist
 	update_contents_list
 )];
-$SysEvt{'ARTICLE_STATE_CHANGE#after'} = [qw(
-	generate_spmenu
-)];
 $SysEvt{COMMENT_STATE_CHANGE} = [qw(
 	update_bloginfo_comment
 )];
 $SysEvt{ARTCOM_STATE_CHANGE} = [qw(
 	generate_rss
+)];
+$SysEvt{'ARTCOM_STATE_CHANGE#after'} = [qw(
+	generate_spmenu
 )];
 $SysEvt{EDIT_DESIGN} = [qw(
 	save_spmenu_all_items
