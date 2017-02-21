@@ -2,6 +2,13 @@ $(function() {
 	var baseID = "side-serika-clock";
 	var show, caltype;
 
+	// SIML Support test -- by nabe@abk
+	var animate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+	if (!animate.beginElement) {
+		$('#side-serika-clock').remove();
+		return;
+	}
+
 	var ly, ly10, lmo, lmo10, ld, ld10;
 	var lh, lh10, lm, lm10, ls, ls10;
 	var ymd = '123456';
