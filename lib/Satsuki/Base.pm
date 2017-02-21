@@ -728,8 +728,14 @@ sub set_header {
 	if ($name eq 'Status') { $self->{Status} = $val; }
 }
 sub set_status {
-	my ($self, $status) = @_;
-	$self->{Status} = $status;
+	my $self = shift;
+	$self->{Status} = shift;
+}
+sub set_lastmodified {
+	my $self = shift;
+	my $date = $self->rfc_date(shift);
+	$self->{LastModified} = $date;
+	$self->set_header('Last-modified', $date);
 }
 sub set_content_type {
 	my $self = shift;
@@ -741,6 +747,12 @@ sub set_content_type {
 sub print_http_headers {
 	my ($self, $ctype, $charset) = @_;
 	if ($self->{No_httpheader}) { return; }
+
+	# Last-modified
+	if ($self->{Status}==200 && $self->{LastModified} && $ENV{HTTP_IF_MODIFIED_SINCE} eq $self->{LastModified}) {
+		$self->{Status}=304;
+	}
+	# Cache
 	my $x;
 	my $rs = ($self->{Status}==200) && $self->{html_cache} || \$x;
 
@@ -765,6 +777,7 @@ HEADER
 #------------------------------------------------------------------------------
 sub output_array {
 	my ($self, $ary) = @_;
+	if ($self->{Status}==304) { return; }
 	my $c = ($self->{Status}==200) && $self->{html_cache};
 	if (!ref($ary)) { print $ary; $c && ($$c .= $ary); return; }
 	return $self->_output_array( $ary, $c );
