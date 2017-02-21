@@ -754,7 +754,7 @@ sub print_http_headers {
 	}
 	# Cache
 	my $x;
-	my $rs = ($self->{Status}==200) && $self->{html_cache} || \$x;
+	my $rs = ($self->{Status}==200) && $self->{HTML_cache} || \$x;
 
 	# Status
 	$$rs .= "Status: $self->{Status}\n";
@@ -778,7 +778,7 @@ HEADER
 sub output_array {
 	my ($self, $ary) = @_;
 	if ($self->{Status}==304) { return; }
-	my $c = ($self->{Status}==200) && $self->{html_cache};
+	my $c = ($self->{Status}==200) && $self->{HTML_cache};
 	if (!ref($ary)) { print $ary; $c && ($$c .= $ary); return; }
 	return $self->_output_array( $ary, $c );
 }
@@ -800,7 +800,7 @@ sub _output_array {
 #------------------------------------------------------------------------------
 sub regist_html_cache {
 	my $self  = shift;
-	$self->{html_cache} = shift;
+	$self->{HTML_cache} = shift;
 }
 
 #------------------------------------------------------------------------------

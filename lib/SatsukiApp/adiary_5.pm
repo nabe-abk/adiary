@@ -487,7 +487,6 @@ sub regist_cache_checker {
 		my $tm = $ROBJ->{TM};
 		my $c = $CACHE{$key};
 		$CACHE_TM{$key} = $tm;
-		$ROBJ->{html_cache_key} = $key;
 		if ($c) {
 			print $$c;
 		} else {
