@@ -5,7 +5,7 @@ $(function() {
 	// SIML Support test -- by nabe@abk
 	var animate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
 	if (!animate.beginElement) {
-		$('#side-serika-clock').remove();
+		$('#' + baseID).remove();
 		return;
 	}
 
@@ -15,6 +15,8 @@ $(function() {
 
 	function init(){
 		var svg=$('#'+baseID+'-svg');
+		if (!svg.length) return;
+
 		show = svg.data('show') || 'yt';
 		caltype = svg.data('caltype') || 'ymd';
 
@@ -39,6 +41,8 @@ if(show=='t'){
 		}
 
 setInterval(function(){
+		if (!$('#'+baseID+'-svg').length) return;	// if remove on design/edit
+
 		var t = new Date();
 		var a,b;
 if(show=='yt'||show=='y'){
