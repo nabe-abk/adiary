@@ -6,23 +6,24 @@ sub {
 #------------------------------------------------------------------------------
 # ●コンストラクタ（無名クラスを生成する）
 #------------------------------------------------------------------------------
-my $self;
+my $mop;
 my $name;
 {
 	my $aobj = shift;
 	$name = shift;
 	my $ROBJ = $aobj->{ROBJ};
-	$self = $ROBJ->loadpm('MOP', $aobj->{call_file});	# 無名クラス生成用obj
+	my $self = $ROBJ->loadpm('MOP', $aobj->{call_file});	# 無名クラス生成用obj
 	$self->{aobj} = $aobj;
 	$self->{this_tm} = $ROBJ->get_lastmodified($aobj->{call_file});
 
 	$self->{trans_png} = $ROBJ->{Server_url} . $ROBJ->{Basepath} . $aobj->{pubdist_dir} . 'trans.png';
+	$mop = $self;
 }
 
 #------------------------------------------------------------------------------
 # ●ロゴ情報の取得
 #------------------------------------------------------------------------------
-$self->{get_logo} = sub {
+$mop->{get_logo} = sub {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $aobj = $self->{aobj};
@@ -51,7 +52,7 @@ $self->{get_logo} = sub {
 #------------------------------------------------------------------------------
 # ●メイン画像の取得
 #------------------------------------------------------------------------------
-$self->{get_main_image} = sub {
+$mop->{get_main_image} = sub {
 	my $self = shift;
 	my $art  = shift;
 
@@ -91,7 +92,7 @@ article.setting	.help .highlight .search .ui-icon- .social-button
 #------------------------------------------------------------------------------
 # ●AMP用のCSS生成
 #------------------------------------------------------------------------------
-$self->{amp_css} = sub {
+$mop->{amp_css} = sub {
 	my $self = shift;
 	my $files= shift;
 	my $ROBJ = $self->{ROBJ};
@@ -196,7 +197,7 @@ $self->{amp_css} = sub {
 #------------------------------------------------------------------------------
 # ●ui-iconロード用cssの生成
 #------------------------------------------------------------------------------
-$self->{load_uiicon_css} = sub {
+$mop->{load_uiicon_css} = sub {
 	my $self = shift;
 	my $col  = shift;
 
@@ -225,7 +226,7 @@ $self->{load_uiicon_css} = sub {
 #------------------------------------------------------------------------------
 # ●AMP用のHTML生成
 #------------------------------------------------------------------------------
-$self->{amp_txt} = sub {
+$mop->{amp_txt} = sub {
 	my $self = shift;
 	my $art  = shift;
 	my $aobj = $self->{aobj};
@@ -268,10 +269,10 @@ $self->{amp_txt} = sub {
 # https://www.ampproject.org/docs/reference/components
 #
 my %replace;
-$self->{tag_wrapper_init} = sub {
+$mop->{tag_wrapper_init} = sub {
 	%replace = ();
 };
-$self->{tag_wrapper} = sub {
+$mop->{tag_wrapper} = sub {
 	my $self = shift;
 	my $ary  = shift;
 	my $deny = shift;	# 不許可属性
@@ -394,7 +395,7 @@ $self->{tag_wrapper} = sub {
 #------------------------------------------------------------
 # layoutの処理
 #------------------------------------------------------------
-$self->{layout} = sub {
+$mop->{layout} = sub {
 	my $self = shift;
 	my $h    = shift;
 	my $deny = shift;
@@ -416,7 +417,7 @@ $self->{layout} = sub {
 #------------------------------------------------------------------------------
 # ●閉じタグ
 #------------------------------------------------------------------------------
-$self->{close_tag_wrapper} = sub {
+$mop->{close_tag_wrapper} = sub {
 	my $tag = shift;
 	if ($replace{$tag}) {
 		$tag = $replace{$tag};
@@ -429,7 +430,7 @@ $self->{close_tag_wrapper} = sub {
 #------------------------------------------------------------------------------
 # ●tagの属性解析
 #------------------------------------------------------------------------------
-$self->{perse_attr} = sub {
+$mop->{perse_attr} = sub {
 	my $self = shift;
 	my $ary  = shift;
 	my $i    = $_[0] eq '' ? 1 : shift;
@@ -449,7 +450,7 @@ $self->{perse_attr} = sub {
 #------------------------------------------------------------------------------
 # ●tagの属性再結合
 #------------------------------------------------------------------------------
-$self->{chain_attr} = sub {
+$mop->{chain_attr} = sub {
 	my $self = shift;
 	my $ary  = shift;
 	my $h    = shift;
@@ -468,7 +469,7 @@ $self->{chain_attr} = sub {
 #------------------------------------------------------------------------------
 # ●更新日時の追加
 #------------------------------------------------------------------------------
-$self->{set_lastmodified} = sub {
+$mop->{set_lastmodified} = sub {
 	my $self = shift;
 	my $h    = shift;
 	my $ROBJ = $self->{ROBJ};
@@ -492,7 +493,7 @@ $self->{set_lastmodified} = sub {
 #------------------------------------------------------------------------------
 # ●画像のサイズ取得
 #------------------------------------------------------------------------------
-$self->{load_image_size} = sub {
+$mop->{load_image_size} = sub {
 	my $self = shift;
 	my $h    = shift;	# tag attributes hash
 	my $ROBJ = $self->{ROBJ};
@@ -514,7 +515,7 @@ $self->{load_image_size} = sub {
 #------------------------------------------------------------------------------
 # ●指定URLから画像サイズ取得
 #------------------------------------------------------------------------------
-$self->{get_image_size} = sub {
+$mop->{get_image_size} = sub {
 	my $self = shift;
 	my $url  = shift;
 	my $ROBJ = $self->{ROBJ};
@@ -559,10 +560,8 @@ $self->{get_image_size} = sub {
 	my ($x, $y) = $img->Get('width', 'height');
 	return ($x, $y);
 };
-
-#--------------------------------------------------------------------
-
 ###############################################################################
-	return $self;
+###############################################################################
+	return $mop;
 }
 
