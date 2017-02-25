@@ -1,5 +1,5 @@
 <!--カレンダー===========================================-->
-<$cal  = v.call_plugin_function('<@this>.pm')>
+<$cal  = v.call_plugin_function('<@this>.pm', '<@this>')>
 <$year = if(art_year, art_year, v.now.year)>
 <$mon  = if(art_year, art_mon,  v.now.mon) || '01'>
 <$day  = if(art_year, art_day,  v.now.day)>
