@@ -86,7 +86,7 @@ TEXT
 #------------------------------------------------------------------------------
 sub call_dir {
 	my $self  = shift;
-	my $dir   = $self->{Skeleton_subdir} . shift;
+	my $dir   = shift;
 	my $level = shift || 0x7fffffff;
 	my $ext = $self->{Skeleton_ext};
 
@@ -752,10 +752,10 @@ sub read_multipart_form {
 					my $size = $buffer->read_line($fh, $boundary, $file_max_size);
 					close($fh);
 					my %h;
-					$form->{$name} = \%h;
 					$h{tmp_file}   = $file;		# tmp file name
 					$h{file_name}  = $filename;
 					$h{file_size}  = $size;
+					$value = \%h;
 				} else {
 					$buffer->read_line(\$value, $boundary, 0);	# データ読み捨て
 				}

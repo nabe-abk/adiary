@@ -1357,12 +1357,14 @@ function upload_post_process(text) {
 	upform_reset();	// フォームリセット
 	var ary = text.split(/[\r\n]/);
 	var ret = ary.shift();
-	var reg = ret.match(/^ret=\d*/);
+	var reg = ret.match(/^ret=(\d*)/);
 	if (reg) {
 		ret = reg[0];
 		message.html( ary.join("\n") );
-		message.delay_show();
+	} else {
+		message.html( '<div class="message error">upload error : ' + tag_esc(ret) + '</div>' );
 	}
+	message.delay_show();
 
 	// ファイル選択を初期化する
 	filesdiv.empty();
@@ -1382,7 +1384,7 @@ function ajax_upload() {
 		fd.append('file_ary', upfiles[i]);
 	}
 	// for IE bug。これをしないとフォームからのみファイルupしたとき失敗する
-	fd.append('dummy', 'dummy');
+	fd.append('dummy', 'dummy for IE');
 
 	// submit処理
 	$.ajax(upform.attr('action'), {
