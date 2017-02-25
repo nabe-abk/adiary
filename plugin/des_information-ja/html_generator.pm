@@ -63,6 +63,7 @@ HTML
 	$modules{free_txt} = $modules{freebr_txt} =<<'HTML';
 	<li class="free-text"><#val></li>
 HTML
+	$modules{'webpush_btn:default'} = 'Push通知登録';
 	$modules{webpush_btn} = <<'HTML';
 	<li class="button"><button type="button" class="regist-webpush"><#val></button></li>
 HTML
@@ -85,6 +86,10 @@ DEFAULT
 		}
 		my $mod = $modules{$key};
 		if (!$mod) { next; }
+
+		if ($val eq '') {
+			$val = $modules{"$key:default"};
+		}
 
 		# 保存
 		$mod =~ s/<#val>/$val/g;
