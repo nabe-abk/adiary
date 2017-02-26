@@ -34,7 +34,7 @@ sub new {
 	$self->{UID}  = $<;
 	$self->{GID}  = $(;
 	$self->{PID}  = $$;
-	$self->{Is_windows} = ($^O eq 'MSWin32' || $^O eq 'MSWin64');
+	$self->{Windows} = ($^O eq 'MSWin32' || $^O eq 'MSWin64');
 
 	# 初期設定
 	$self->{Status}  = 200;		# HTTP status (200 = OK)
@@ -1067,7 +1067,7 @@ sub parse_hash {
 #------------------------------------------------------------------------------
 sub read_lock {
 	my ($self, $fh) = @_;
-	$self->flock($fh, Fcntl::LOCK_SH() );
+	$self->flock($fh, $self->{Windows} ? Fcntl::LOCK_EX() : Fcntl::LOCK_SH() );
 }
 sub write_lock {
 	my ($self, $fh) = @_;
@@ -1077,14 +1077,12 @@ sub write_lock_nb {
 	my ($self, $fh) = @_;
 	$self->flock($fh, Fcntl::LOCK_EX() | Fcntl::LOCK_NB() );
 }
-sub unlock {
-	my ($self, $fh) = @_;
-	$self->flock($fh, Fcntl::LOCK_UN() );
-}
 sub flock {
 	my ($self, $fh, $mode) = @_;
-	if (defined $self->{Lock}) {
-		return $self->{Lock}->lock($fh, $mode);
+	if ($self->{Windows}) {
+		# Windowsでは、同一 $fh に2回以上 lock できない
+		if ($self->{WinLock}->{$fh}) { return 100; }
+		$self->{WinLock}->{$fh} = 1;
 	}
 	return flock($fh, $mode);
 }

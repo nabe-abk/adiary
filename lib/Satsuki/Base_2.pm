@@ -281,14 +281,14 @@ sub fedit_readlines {
 		}
 	}
 	binmode($fh);
-	if ($flags->{ReadLock} && !$self->{Is_windows}) {
-		$self->read_lock($fh);	# Windows環境では read_lock 後の書き換え時に不具合が起こる
-	} elsif ($flags->{NB}) {
+	if ($flags->{NB}) {
 		my $r = $self->write_lock_nb($fh);
 		if (!$r) { close($fh); return; }
 	} else {
-		$self->write_lock($fh);
+		my $method = $flags->{ReadLock} ? 'read_lock' : 'write_lock';
+		$self->$method($fh);
 	}
+
 	my @lines;
 	@lines = <$fh>;
 	$self->delete_file_cache($file);

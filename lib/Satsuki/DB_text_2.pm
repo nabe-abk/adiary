@@ -473,11 +473,7 @@ sub commit {
 			$self->delete_rowfile($table, $_);
 		}
 
-		# write block に変更可能ならば変更する。
-		# Windowsでは失敗するので変更しない。
-		if (! $ROBJ->{Is_windows}) {
-			$ROBJ->write_lock($self->{"$table.lock"});
-		}
+		$ROBJ->write_lock($self->{"$table.lock"});
 		$self->save_index($table);
 
 		# トランザクションlock を解く
@@ -782,11 +778,11 @@ FUNC
 	#--------------------------------------
 	my $dir   = $self->{dir} . $table . '/';
 	my $index = $dir . $self->{index_file};
-	# unlock
+
 	my $r;
 	if (exists $self->{"$table.lock"}) {
 		$r = $ROBJ->fedit_writelines($self->{"$table.lock"}, \@lines);
-		delete $self->{"$table.lock"};
+		delete $self->{"$table.lock"};	# unlock
 	} else {
 		$ROBJ->fwrite_lines($index, \@lines);
 	}
