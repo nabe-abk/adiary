@@ -31,7 +31,8 @@ Can't open temporary file '%s'=テンポラリファイルが開けません : %
 Too long %s (max %d characters)=%sが長すぎます。最長で%d文字（日本語文字なら半分）までです
 %s is duplicate '%s'=%sが重複しています : %s
 Create symlink error '%s'=シンボリックリンクの作成に失敗しました : %s
-Skeleton dir is '' in regist_skeleton.(level=%d)=スケルトンディレクトに ""（空文字）は指定できません（level=%d）
+Skeleton dir is '' in regist_skeleton (level=%d)=スケルトンディレクトに ""（空文字）は指定できません（level=%d）
+Not allow characters are used in skeleton name '%s'=スケルトン名に使用できない文字が指定されています : %s
 #-----------------------------------------------------------
 # validator
 #-----------------------------------------------------------

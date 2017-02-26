@@ -312,7 +312,7 @@ sub base64encode {
 	# 2 : 0000_0000 1111_1100
 	# 4 : 0000_0011 1111_0000
 	# 6 : 0000_1111 1100_0000
-	my ($i, $j, $x, $y);
+	my ($i, $j, $x);
 	for($i=$x=0, $j=2; $i<length($str); $i++) {
 		$x    = ($x<<8) + ord(substr($str,$i,1));
 		$ret .= substr($base64table, ($x>>$j) & 0x3f, 1);

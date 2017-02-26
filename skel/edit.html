@@ -216,7 +216,7 @@
 			<li><input type="checkbox" name="hcom_ok" value="1"<@if(art.hcom_ok, ' checked')>><label>非公開コメントを許可する</label></li>
 		<@ifexec(!s.private && (art.draft || !edit_pkey), begin)>
 			<@ifexec(v.sys.ping_servers_txt, begin)>
-			<li><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label><span class="help" data-help="更新通知を送ると他の人があなたの記事を見つけやすくなります。プラグインのTwitter通知もこの設定を参照します。\n【送信先】\n<@v.sys.ping_servers_txt>">?</span></li>
+			<li><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label><span class="help" data-help="Google等に更新通知を送ります。通知系のプラグインもこの設定を参照します。\n【送信先】\n<@v.sys.ping_servers_txt>">?</span></li>
 			<$end>
 		<$end>
 		<@ifexec(!art.draft && edit_pkey, begin)>

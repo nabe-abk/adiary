@@ -149,6 +149,7 @@ img.mahjong {
 .c:not(.syntax-highlight),
     .center	{ text-align: center; }
 .r, .right	{ text-align: right; }
+.middle		{ vertical-align: middle; }
 
 /* インデント */
 p, p.i, .indent p { text-indent: 1em; }

@@ -281,8 +281,11 @@ sub fedit_readlines {
 		}
 	}
 	binmode($fh);
-	if ($flags->{ReadLock} && ! $self->{Is_windows}) {
+	if ($flags->{ReadLock} && !$self->{Is_windows}) {
 		$self->read_lock($fh);	# Windows環境では read_lock 後の書き換え時に不具合が起こる
+	} elsif ($flags->{NB}) {
+		my $r = $self->write_lock_nb($fh);
+		if (!$r) { close($fh); return; }
 	} else {
 		$self->write_lock($fh);
 	}
@@ -555,7 +558,7 @@ sub file_lock {
 	}
 	$type ||= 'write_lock';
 	my $r = $self->$type($fh);
-	if (!$r) { return $r; }
+	if (!$r) { close($fh); return; }
 	return $fh;
 }
 
@@ -1354,6 +1357,67 @@ sub warning {
 	my $msg  = $self->message_translate(@_);
 	my ($pack, $file, $line) = caller;
 	push(@{$self->{Warning}}, '' . $msg . "<!-- in $file line $line -->");
+}
+
+###############################################################################
+# ■JSON関連
+###############################################################################
+#------------------------------------------------------------------------------
+# ●hash/arrayツリーからjsonを生成する
+#------------------------------------------------------------------------------
+sub generate_json {
+	my $self = shift;
+	my $data = shift;
+	my $opt  = shift || {};
+	my $tab  = shift || '';
+
+	my $cols = $opt->{cols};	# データカラム
+	my $ren  = $opt->{rename};	# カラムのリネーム情報
+	my $t = $opt->{strip} ? '' : "\t";
+	my $n = $opt->{strip} ? '' : "\n";
+	my $s = $opt->{strip} ? '' : ' ';
+	my @ary;
+
+	my $is_ary = ref($data) eq 'ARRAY';
+	my $dat = $is_ary ? $data : [$data];
+	foreach(@$dat) {
+		if (!ref($_)) {
+			push(@ary, $self->json_encode($_));
+			next;
+		}
+		my @a;
+		my @b;
+		my $_cols = $cols ? $cols : [ keys(%$_) ];
+		foreach my $x (@$_cols) {
+			my $k = exists($ren->{$x}) ? $ren->{$x} : $x;
+			my $v = $_->{$x};
+			if (!ref($v)) {
+				push(@a, "\"$k\":$s" . $self->json_encode( $v ));
+				next;
+			}
+			# 入れ子
+			my $ch = $self->generate_json( $v, $opt, "$t$tab" );
+			push(@b, "\"$k\": $ch");
+		}
+		push(@ary, $is_ary
+			? "$tab${t}{" . join(",$s"      , @a, @b) . "}"
+			: "{$n$tab$t" . join(",$n$tab$t", @a, @b) . "$n$tab}"
+		);
+	}
+	return $is_ary ? "[$n" . join(",$n", @ary) . "$n$tab]" : $ary[0];
+}
+
+sub json_encode {
+	my $self = shift;
+	my $v = shift;
+	if ($v =~ /^\d+$/) { return $v; }
+	if (ref($v) eq 'SCALAR') { return $$v; }	# true/false/null
+	# 文字列
+	$v =~ s/\\/&#92;/g;
+	$v =~ s/\n/\\n/g;
+	$v =~ s/\t/\\t/g;
+	$v =~ s/"/\\"/g;
+	return '"' . $v . '"';
 }
 
 ###############################################################################

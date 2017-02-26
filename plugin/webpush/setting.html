@@ -1,0 +1,62 @@
+<@6>
+<@local(ps,x)>
+<$ps=argv#0>
+
+	<@ifexec(index(Server_url, 'https://') != 0, begin)>
+	<p class="ni"><strong class="warning">※https接続以外では、ブラウザ側でWebPushが有効になりません。</strong></p>
+	<$end>
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>登録人数</th>
+		<td>
+			<@ps.cnt || 0>人<@ifexec(v.check_installed_plugin(name) && ps.cnt, begin)>
+			<input type="checkbox" name="reset" value="1"><label>登録情報をすべて削除する</label><span class="help" data-help="今まで登録した人に通知が届かなくなります。注意してください。">?</span>
+			<$end>
+		</td>
+	</tr>
+	<tr>
+		<th>最大登録数</th>
+		<td><$x = if(Auth.isadmin, 1000000, 10000)>
+			<input class="w100" type="number" name="max" value="<@ps.max || 1000>" min="100" max="<@x>" step="100">人（100～<@x>）
+		</td>
+	</tr>
+	<tr>
+		<th>更新通知</th>
+		<td>
+			<input type="checkbox" class="js-enable" data-target="#ping-txt" name="ping" value="1"<@if(ps.ping, ' checked')>><label>新しい記事を公開時に通知を送信する。</label>
+		</td>
+	</tr>
+	<tr>
+		<th>メッセージ</th>
+		<td>
+			<textarea name="ping_txt" id="ping-txt" class="w400" rows="3"><@esc(ps.ping_txt || "新しい記事が公開されました。\n\n「%t」")></textarea>
+			<div>%t: 記事タイトル, %u: 記事URL</div>
+		</td>
+	</tr>
+	<tr>
+		<th>通知アイコン</th>
+		<td><$icon = v.blog.iconfile || "<@v.pubdist_dir>icon.png">
+			<a href="<@Basepath><@icon>" data-lightbox="box"><img class="middle" src="<@Basepath><@icon>" style="max-width:24px; max-height:24px;"></a>
+			<span class="middle">変更は「ブログの基本設定」のサイトアイコンから。</span>
+		</td>
+	</tr>
+	<tr>
+		<th>登録ウエイト<span class="help" data-help="WebPush登録通知のためのダイアログを表示するまでの秒数です。\n0のときは自動登録しません。">?</span></th>
+		<td>
+			<input type="number" name="wait" min="0" max="600" class="w60" value="<@ps.wait || 5>">秒
+		</td>
+	</tr>
+	<@ifexec(v.check_installed_plugin(name), begin)>
+	<tr>
+		<th>手動で送信</th>
+		<td>
+			<input type="checkbox" class="js-enable" data-target="#ping-now-txt,#url" name="ping_now" value="1"><label>通知を送信する。</label>
+			<textarea name="ping_now_txt" id="ping-now-txt" class="w400" rows="3"></textarea>
+			URL<span class="help" data-help="通知をクリックした時に開くURLです。">?</span>
+			 <input name="url" id="url" type="url" class="w320" value="<@Server_url><@v.myself>">
+		</td>
+	</tr>
+	<$end>
+	</table>
+

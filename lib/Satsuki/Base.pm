@@ -643,14 +643,14 @@ sub continue {
 #------------------------------------------------------------------------------
 sub call {
 	my $self = shift;
-	my $skeleton_name = shift;
-	$skeleton_name =~ s|[^\w/\-]||g;
-	
-	my ($call_file, $dummy, $skel_level) = $self->check_skeleton($skeleton_name);
-	local ($self->{FILE}) = $skeleton_name;
+	my $name = shift;
+
+	my ($call_file, $dummy, $skel_level) = $self->check_skeleton($name);
+	if (!$call_file) { return; }
+	local ($self->{FILE}) = $name;
 	local ($self->{__cont_level});
 	$self->{__cont_level} = $skel_level -1;
-	return $self->__call($call_file, $skeleton_name, @_);
+	return $self->__call($call_file, $name, @_);
 }
 # 低レベルコール（ファイル指定）
 sub _call {
@@ -671,7 +671,7 @@ sub regist_skeleton {
 	my $dir  = shift;
 	my $level = shift || 0;
 	if ($dir eq '') { 
-		$self->message("Skeleton dir is '' in regist_skeleton.(level=%d)", $level);
+		$self->error("Skeleton dir is '' in regist_skeleton (level=%d)", $level);
 		return;
 	}
 
@@ -700,12 +700,18 @@ sub delete_skeleton {
 #
 sub check_skeleton {
 	my $self  = shift;
-	my $name  = $self->{Skeleton_subdir} . (shift) . $self->{Skeleton_ext};
+	my $name  = shift;
 	my $level = defined $_[0] ? shift : 0x7fffffff;
+
+	if ($name =~ m|[^\w/\.\-]| || $name =~ m|\.\.|) {
+		$self->error("Not allow characters are used in skeleton name '%s'", $name);
+		return;
+	}
 
 	my $dirs = $self->{Sekeleton_dir};
 	if (!$dirs || !%$dirs) { return; }	# error
 
+	$name .= $self->{Skeleton_ext};
 	foreach(@{ $self->{Sekeleton_dir_levels} }) {
 		if ($_>$level) { next; }
 		my $file = $dirs->{$_} . $name;

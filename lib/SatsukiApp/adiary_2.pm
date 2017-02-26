@@ -1570,7 +1570,7 @@ sub update_cur_blogset {
 }
 
 #------------------------------------------------------------------------------
-# ●プラグイン用の設定を保存
+# ●プラグイン用の設定の変更
 #------------------------------------------------------------------------------
 sub update_plgset {
 	my ($self,$name,$h,$val) = @_;
@@ -1858,47 +1858,7 @@ sub generate_json {
 	my $data = shift;
 	my $cols = shift;	# データカラム
 	my $ren  = shift || {};	# カラムのリネーム情報
-	my $tab  = shift || '';
-	my @ary;
-	
-	sub encode {
-		my $v = shift;
-		if ($v =~ /^\d+$/) { return $v; }
-		# 文字列
-		$v =~ s/\\/&#92;/g;
-		$v =~ s/\n/\\n/g;
-		$v =~ s/\t/\\t/g;
-		$v =~ s/"/\\"/g;
-		return '"' . $v . '"';
-	}
-
-	my $is_hash = ref($data) eq 'HASH';
-	my $dat = $is_hash ? [$data] : $data;
-	foreach(@$dat) {
-		if (!ref($_)) {
-			push(@ary, &encode($_));
-			next;
-		}
-		my @a;
-		my @b;
-		my $_cols = $cols ? $cols : [ keys(%$_) ];
-		foreach my $x (@$_cols) {
-			my $k = exists($ren->{$x}) ? $ren->{$x} : $x;
-			my $v = $_->{$x};
-			if (!ref($v)) {
-				push(@a, "\"$k\": " . &encode( $v ));
-				next;
-			}
-			# 入れ子
-			my $ch = $self->generate_json( $v, $cols, $ren, "\t$tab" );
-			push(@b, "\"$k\": $ch");
-		}
-		push(@ary, $is_hash
-			? "{\n$tab\t" . join(",\n$tab\t", @a, @b) . "\n$tab}"
-			: "$tab\t{"   . join(", "       , @a, @b) . "}"
-		);
-	}
-	return $is_hash ? $ary[0] : "[\n" . join(",\n", @ary) . "\n$tab]";
+	return $self->{ROBJ}->generate_json($data, {cols => $cols, rename => $ren});
 }
 
 #------------------------------------------------------------------------------

@@ -742,7 +742,7 @@ sub update_view_event {
 			next;
 		}
 
-		my @html = ("<\@20>\n");
+		my @html = ("<\@6>\n");
 		foreach(split(/\n/, $evt)) {
 			my ($e,$f) = split(/=/, $_, 2);
 			push(@html, "<@> '$f' from '$e' plugin\n");

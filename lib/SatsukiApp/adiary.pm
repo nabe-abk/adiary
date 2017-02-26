@@ -76,6 +76,10 @@ sub new {
 	}
 	return $self;
 }
+
+#------------------------------------------------------------------------------
+# ●スマホ判別
+#------------------------------------------------------------------------------
 sub sphone_checker {
 	my $ua = $ENV{HTTP_USER_AGENT};
 	if (0<index($ua,'iPhone') || 0<index($ua,'iPod') || 0<index($ua,'Android')
@@ -325,7 +329,7 @@ sub read_query_form {
 	# スケルトン指定解釈
 	if (%$q) {
 		$self->{query} = $query;
-		$query =~ m|^([\w/=]+)|;
+		$query =~ m|^([\w\.\-/=]+)|;
 		my $q0 = $self->{query0} = index($1,'=')<0 ? $1 : '';	# 検索Queryをスケルトン指定と誤解しないため
 		if ($q0 ne '') { delete $q->{$q0}; }
 	}
@@ -394,7 +398,7 @@ sub output_html {
 	if ($view) {
 		$view =~ tr/a-z/A-Z/;
 		if ($self->{blog}->{"event:VIEW$view"}) {
-			$ROBJ->call( '_view' . $self->{view_event} );
+			$self->{post_html} = $ROBJ->call( '_view' . $self->{view_event} );
 		}
 	}
 
@@ -1586,7 +1590,8 @@ sub get_blog_path {
 #------------------------------------------------------------------------------
 sub parse_skel {
 	my ($self, $str) = @_;
-	if ($str !~ m|^((?:[A-Za-z0-9]\w*/)*)([A-Za-z0-9]\w*)?$|) { return ; }
+	if ($str =~ m|\.\.|) { return; }	# safety
+	if ($str !~ m|^((?:[A-Za-z0-9][\w\-]*/)*)([A-Za-z0-9][\w\-]*)?$|) { return ; }
 	my $b = ($1 ne '' && $2 eq '') ? 'index' : $2;
 	return wantarray ? ($1,$b) : "$1$b";
 }

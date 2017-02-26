@@ -1,0 +1,38 @@
+<@40.is_function>
+<@local(h,h2,form)>
+<$form = argv#0>
+<$h2 = begin_hash>
+	ping = flag
+	ping_txt = 通知メッセージ
+	ping_txt:filter0 = trim
+
+	max = 最大登録数
+	max:type = int
+	max:default = 1000
+	max:min = 100
+	max:max = 10000
+
+	wait = 登録ウエイト
+	wait:type = int
+	wait:default = 3
+	wait:min = 0
+	wait:max = 600
+<$end>
+<$ifset(Auth.isadmin, h2.('max:max'), 1000000)>
+<$h = validator(h2, form) )>
+
+<@> 手動通知送信
+<$ifexec(form.ping_now, begin)>
+	<$h.url = form.url || v.myself>
+	<$h.msg = form.ping_now_txt>
+	<$trim(h.url, h.msg)>
+<$end>
+
+<@> リセット
+<$ifexec(form.reset, begin)>
+	<$wp = v.call_plugin_function('webpush.pm', 'webpush')>
+	<$wp.reset()>
+<$end>
+
+<$ifbreak(form_error())>
+<$return(h)>
