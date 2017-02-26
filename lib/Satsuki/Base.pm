@@ -112,7 +112,7 @@ sub start_up {
 	}
 
 	# cache checker
-	my $checker = %CacheChecker{$cmd};
+	my $checker = $CacheChecker{$cmd};
 	if ($checker && &$checker($self)) {
 		return;
 	}
