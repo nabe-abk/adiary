@@ -21,18 +21,6 @@ sub Finish {
 }
 
 #------------------------------------------------------------------------------
-# ●親class
-#------------------------------------------------------------------------------
-sub superclass {
-	my $self = shift;
-	$self->{ISA} = shift;
-}
-sub super {
-	my $self = shift;
-	return $self->{ISA};
-}
-
-#------------------------------------------------------------------------------
 # ●呼び出し機構
 #------------------------------------------------------------------------------
 sub AUTOLOAD {
@@ -41,10 +29,6 @@ sub AUTOLOAD {
 	my $name = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
 	my $func = $self->{ $name };
 	if (ref($func) eq 'CODE') { return &$func($self,@_); }
-
-	# superclass object
-	my $super = $self->{ISA};
-	if ($super->can($name)) { return $super->$name(@_); }
 
 	# error
 	my ($pack, $file, $line) = caller;

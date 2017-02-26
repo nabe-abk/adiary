@@ -26,19 +26,19 @@ my $name;
 	$name = shift;
 	my $ROBJ = $aobj->{ROBJ};
 	$self = $ROBJ->loadpm('MOP', $aobj->{call_file});	# 無名クラス生成用obj
-	$self->superclass( $aobj );
 
 	# Global var
+	$self->{aobj} = $aobj;
 	$self->{data_file} = $aobj->{blog_dir} . 'webpush.dat';
 
 	#-----------------------------------------------------------------------
 	# ●イベント処理（新記事公開）
 	#-----------------------------------------------------------------------
-	if ($self->super->{event_name} eq 'ARTICLE_FIRST_VISIBLE') {
+	if ($aobj->{event_name} eq 'ARTICLE_FIRST_VISIBLE') {
 		my $art  = shift;
 
 		# 購読者がいなければ何もしない
-		my $cnt = $self->load_plgset($name, 'cnt');
+		my $cnt = $aobj->load_plgset($name, 'cnt');
 		if (!$cnt) { return; }
 
 		# 公開情報登録（通知処理は遅延実行）
@@ -46,9 +46,9 @@ my $name;
 		if (!$url) { return; }
 		my $title = $art->{title} ne '' ? $art->{title} : 'new article';
 
-		$self->update_plgset($name, 'url',   $url   );
-		$self->update_plgset($name, 'title', $title );
-		$self->update_plgset($name, 'tag',   'art-' . $art->{pkey} . '-' . $art->{update_tm} );
+		$aobj->update_plgset($name, 'url',   $url   );
+		$aobj->update_plgset($name, 'title', $title );
+		$aobj->update_plgset($name, 'tag',   'art-' . $art->{pkey} . '-' . $art->{update_tm} );
 		return 0;
 	}
 	$mop = $self;
@@ -64,6 +64,7 @@ $mop->{regist} = sub {
 	my $self = shift;
 	my $form = shift;
 	my $ROBJ = $self->{ROBJ};
+	my $aobj = $self->{aobj};
 
 	my %h;
 	my $endp = $ROBJ->encode_uri( $form->{endp_txt} );
@@ -91,7 +92,7 @@ $mop->{regist} = sub {
 	}
 
 	# 最大数チェック
-	my $max = $self->load_plgset($name, 'max') || 1000;
+	my $max = $aobj->load_plgset($name, 'max') || 1000;
 	if (($#$list+1) > $max) {
 		$ROBJ->fedit_exit($fh);
 		return 1;
@@ -109,6 +110,7 @@ $mop->{reset} = sub {
 	my $self = shift;
 	my $form = shift;
 	my $ROBJ = $self->{ROBJ};
+	my $aobj = $self->{aobj};
 
 	# 中身を空にする
 	my ($fh, $list) = $ROBJ->fedit_readlines($self->{data_file});
@@ -121,8 +123,8 @@ $mop->{reset} = sub {
 	require Crypt::PK::ECC;
 	my $pk = Crypt::PK::ECC->new();
 	$pk->generate_key($ECC_NAME);
-	$self->update_plgset($name, 'spub', $self->base64urlsafe($pk->export_key_raw('public' )) );
-	$self->update_plgset($name, 'sprv', $self->base64urlsafe($pk->export_key_raw('private')) );
+	$aobj->update_plgset($name, 'spub', $self->base64urlsafe($pk->export_key_raw('public' )) );
+	$aobj->update_plgset($name, 'sprv', $self->base64urlsafe($pk->export_key_raw('private')) );
 
 	return 0;
 };
@@ -136,8 +138,9 @@ $mop->{reset} = sub {
 $mop->{send} = sub {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $blog = $self->super->{blog};
-	my $ps = $self->load_plgset($name);
+	my $aobj = $self->{aobj};
+	my $blog = $aobj->{blog};
+	my $ps   = $aobj->load_plgset($name);
 
 	my %h;
 	$h{spub} = $self->base64decode( $ps->{spub} );
@@ -157,10 +160,10 @@ $mop->{send} = sub {
 		$msg  =~ s/%t/$title/g;		# 記事タイトル
 		$msg  =~ s/%u/$ps->{url}/g;	# URL
 
-		my $icon = $self->super->{blog}->{iconfile}
-			|| $self->super->{pubdist_dir} . 'icon.png';
+		my $icon = $aobj->{blog}->{iconfile}
+			|| $aobj->{pubdist_dir} . 'icon.png';
 		$icon .= '?' . $ROBJ->get_lastmodified($icon);
-		$data = $self->generate_json({
+		$data = $ROBJ->generate_json({
 			title => $bname,
 			body  => $msg,
 			tag   => $tag,
@@ -212,9 +215,9 @@ $mop->{send} = sub {
 		$ary[0] = $send . ($send ? ' ' . $ps->{tag} : '') . "\n";
 	} else {
 		# 送信終了
-		$self->update_plgset($name, 'url',   undef );
-		$self->update_plgset($name, 'title', undef );
-		$self->update_plgset($name, 'msg',   undef );
+		$aobj->update_plgset($name, 'url',   undef );
+		$aobj->update_plgset($name, 'title', undef );
+		$aobj->update_plgset($name, 'msg',   undef );
 		$ary[0] = "0\n";
 	}
 	$self->save_list($fh, \@ary);
@@ -368,13 +371,14 @@ $mop->{load_list} = sub {
 $mop->{save_list} = sub {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
+	my $aobj = $self->{aobj};
 	my ($fh, $list) = @_;
 
 	if ($list->[0] !~ /^\d+/) {
 		unshift(@$list, "0\n");		# 送信済数
 	}
 	$ROBJ->fedit_writelines($fh, $list);
-	$self->update_plgset($name, 'cnt', $#$list);
+	$aobj->update_plgset($name, 'cnt', $#$list);
 };
 
 #------------------------------------------------------------------------------

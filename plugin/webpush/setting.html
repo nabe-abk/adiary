@@ -47,7 +47,7 @@
 			<input type="number" name="wait" min="0" max="600" class="w60" value="<@ps.wait || 5>">秒
 		</td>
 	</tr>
-	<@ifexec(v.check_installed_plugin(name), begin)>
+	<@ifexec(v.check_installed_plugin(name) && ps.cnt, begin)>
 	<tr>
 		<th>手動で送信</th>
 		<td>

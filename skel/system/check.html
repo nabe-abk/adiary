@@ -19,7 +19,7 @@ Server  : <@ENV.SERVER_SOFTWARE> (<@if(Is_thread, 'worker', 'prefork')>)
 Perl    : <@h.perl_cmd> (Ver <@h.perl_version>)
 Runtime : <@CGI_mode>
 RDBMS   : <@DB._RDBMS>
-Version : <@v.VERSION> <@if(v.VERSION != v.OUTVERSION || v.SUBVERSION, "(<@v.OUTVERSION>-<@v.SUBVERSION>)")>
+Version : <@v.VERSION> <@if(v.VERSION != v.OUTVERSION || v.SUBVERSION, "(<@v.OUTVERSION><@v.SUBVERSION>)")>
 Locale  : <@Locale> (<@Code_lib>)
 System-Coding : <@System_coding>
 </pre>
