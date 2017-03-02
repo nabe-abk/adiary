@@ -21,6 +21,7 @@
 --簡単に[http://adiary.org/v3man/Satsuki-tag/base:#banner:画像でリンクできる]ようになりました。（[https://twitter.com/uni_sio/status/768243697435541504:Thanks to しおこんぶ]）
 --自由変数展開後に、更に記法タグを処理するよう仕様変更しました。（[http://field-city.xsrv.jp/nomura/iot/0183:Thanks to nomura]）
 --自由変数定義中の記法タグが展開されるようになりました。（[http://field-city.xsrv.jp/nomura/iot/0183:Thanks to nomura]）
+--key/id記法でリンクの title 属性に、記事タイトルを設定するようにしました。（[http://adiary.blog.abk.nu/0388#c1:Thanks to t-hide]）
 --figureブロック記法を追加しました。
 -_top.htmlのサイドバーが反映されなかったのを修正し、その他更新しました。
 -新着コメント表示を、新着コメント欄から表示した場合でも除去するようにしました。

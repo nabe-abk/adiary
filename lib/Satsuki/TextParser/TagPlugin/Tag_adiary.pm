@@ -77,6 +77,7 @@ sub adiary_key {
 				my $h = $DB->select_match_limit1("${blogid}_art", 'link_key', $link_key, '*cols', ['title']);
 				if ($h) {
 					$name = $h->{title};
+					unshift(@$ary, "title=$name");
 				}
 			}
 		}
