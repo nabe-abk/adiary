@@ -285,6 +285,7 @@ sub generate_signature {
 	$self->oauth_urlencode($url, $msg);
 	my $sig = $self->hmac_sha1("$secret1&$secret2", "$method&$url&$msg");
 	$sig =~ s/=/%3D/g;
+	$sig =~ s/\+/%2B/g;
 	return $sig;
 }
 
