@@ -325,8 +325,24 @@ insert_image = function(text, caption, fclass) {
 			ary[2] = unesc_satsuki_tag( ary[2] );
 			var file = imgdir + ary[1] + ary[2];
 			var img  = imgdir + ary[1] + thumb1 + ary[2] + thumb2;
+			// 属性
+			var attr = '';
+			var $info = $('#imglink-info');
+			attr += $info.data('class')  ? ( ' class="' + $info.data('class')  + '"') : '';
+			attr += $info.data('target') ? (' target="' + $info.data('target') + '"') : '';
+			var data = $info.data('data');
+			if (data) {
+				var k = $('#edit-pkey').val()*1 || floor((new Date()).getTime());
+				var ary = data.replace(/%k/g, k).split(/\s+/);
+				for(var i=0; i<ary.length; i++) {
+					var at = ary[i];
+					var ma = at.match(/^([A-Za-z][\w\-]*)=(.*)/);
+					if (!ma) continue;
+					attr += ' data-' + ma[1] + '="' + ma[2] + '"';
+				}
+			}
 			return '<figure class="image">'
-				+ '<a href="' + file + '">'
+				+ '<a href="' + file + '"' + attr + '>'
 				+ '<img src="' + img + '">'
 				+ '</a></figure>';
 		});
