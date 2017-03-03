@@ -22,15 +22,16 @@
 		</td>
 	</tr>
 	<tr>
-		<th>登録ウエイト<span class="help" data-help="WebPush登録通知のためのダイアログを表示するまでの秒数です。\n0のときは自動登録しません。">?</span></th>
+		<th>登録ウエイト<span class="help" data-help="WebPush登録通知やダイアログを表示するまでの秒数です。\n0のときは自動登録しません。">?</span></th>
 		<td>
-			<input type="number" name="wait" min="0" max="600" class="w60" value="<@ps.wait || 5>">秒
+			<input type="number" name="wait" min="0" max="600" class="w60" value="<@if(ps.wait eq '', 5, ps.wait)>">秒
 		</td>
 	</tr>
 	<tr>
 		<th>登録前メッセージ<span class="help" data-help="登録ダイアログの前に表示するメッセージです。未設定の場合ダイアログを直接表示します。">?</span></th>
 		<td>
 			<textarea name="regist_txt" class="w400" rows="2"><@ps.regist_txt></textarea>
+			キャンセル時の非表示日数 <input type="number" name="days" min="0" max="999" class="w60" value="<@ps.days || 0>">日（0: 永久）
 		</td>
 	</tr>
 	<tr>
@@ -42,7 +43,7 @@
 	<tr>
 		<th>メッセージ</th>
 		<td>
-			<textarea name="ping_txt" id="ping-txt" class="w400" rows="3"><@esc(ps.ping_txt || "新しい記事が公開されました。\n\n「%t」")></textarea>
+			<textarea name="ping_txt" id="ping-txt" class="w400" rows="2"><@esc(ps.ping_txt || "新しい記事が公開されました。\n\n「%t」")></textarea>
 			<div>%t: 記事タイトル, %u: 記事URL</div>
 		</td>
 	</tr>

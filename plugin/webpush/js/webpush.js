@@ -68,8 +68,11 @@ function regist_confirm() {
 	if (!msg) return regist_sworker();
 
 	// 通知を2重に出さない。
+	var tm = Math.floor((new Date()).getTime() / 1000);	// msec to sec
 	var storage = load_PrefixStorage( Vmyself );
-	if (storage.get('webpush-stop')) return;
+	var cancel_tm = (storage.get('webpush-stop') || 0)*1;
+	var days = ($span.data('days') || 0)*1;
+	if (!days && cancel_tm || days && (cancel_tm + days*86400)>tm) return;
 
 	// 登録前メッセージの表示
 	var $div = $('<div>').addClass('foot-message-transion');
@@ -84,7 +87,7 @@ function regist_confirm() {
 		var flag =  $obj.data('flag');
 		$div.remove();
 		if (flag != 0) return regist_sworker();
-		storage.set('webpush-stop', 1);
+		storage.set('webpush-stop', tm);
 	};
 	$yes.click( click );
 	$no .click( click );
