@@ -1874,7 +1874,7 @@ function my_confirm(h, callback) {
 	};
 	div.dialog({
 		modal: true,
-		dialogClass: h.class_,
+		dialogClass: h.class,
 		buttons: btn,
 		open: function(){
 			div.siblings('.ui-dialog-buttonpane').find('button:eq(1)').focus();

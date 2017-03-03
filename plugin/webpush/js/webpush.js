@@ -44,30 +44,77 @@ function init() {
 	var str  = (String)($span.data('wait') || '5');
 	var wait = parseInt( str.replace(/[^\d]/, '') );
 	if (wait && !$("#body").hasClass('system'))
-		timer = setTimeout(regist_sworker, wait*1000);
+		timer = setTimeout(regist_confirm, wait*1000);
 	$btn.click( regist_sworker );
 }
 init();
+
+function clear_timer() {
+	if (timer) clearTimeout(timer);
+	timer = null;
+}
+///////////////////////////////////////////////////////////////////////////////
+// ServiceWorker Ready? (installed?)
+///////////////////////////////////////////////////////////////////////////////
+navigator.serviceWorker.ready.then(function(registration){
+	regist_sworker();
+});
+
+///////////////////////////////////////////////////////////////////////////////
+// Regist ServiceWorker
+///////////////////////////////////////////////////////////////////////////////
+function regist_confirm() {
+	var msg = $span.html();
+	if (!msg) return regist_sworker();
+
+	// 通知を2重に出さない。
+	var storage = load_PrefixStorage( Vmyself );
+	if (storage.get('webpush-stop')) return;
+
+	// 登録前メッセージの表示
+	var $div = $('<div>').addClass('foot-message-transion');
+	msg = msg.replace(/\n/g, "<br>");
+	var $buttons = $('<div>');
+	var $yes = $('<span>').text( $('#ajs-ok')    .text() ).data('flag', 1);
+	var $no  = $('<span>').text( $('#ajs-cancel').text() ).data('flag', 0);
+	$buttons.append($yes, $no);
+
+	var click = function(evt) {
+		var $obj = $(evt.target);
+		var flag =  $obj.data('flag');
+		$div.remove();
+		if (flag != 0) return regist_sworker();
+		storage.set('webpush-stop', 1);
+	};
+	$yes.click( click );
+	$no .click( click );
+
+	// 表示
+	$div.html( msg );
+	$div.append( $buttons );
+	$('#body').append( $div );
+
+	setTimeout(function(){	// for transition
+		$div.addClass('foot-message');
+		$buttons.addClass('fm-buttons');
+	}, 10);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Regist ServiceWorker
 ///////////////////////////////////////////////////////////////////////////////
 function regist_sworker(evt) {
-	var force = btnForce && evt && evt.target && true;
+	clear_timer();
 
-	if (timer) {
-		clearTimeout(timer);
-		timer = null;
-	}
-	if (!navigator.serviceWorker) return;
+	var force = btnForce && evt && evt.target && true;
 
 	Notification.requestPermission( function(permission) {
 		log('requestPermission', permission);
-		if (permission !== 'granted') return;
+		if (permission !== 'granted') return unregist_sworker();
 
 		log('serviceWorker.register()');
-		navigator.serviceWorker.register(script).then( function(reg) {
-			push_subscribe(reg, force);
+		navigator.serviceWorker.register(script).then( function(registration) {
+			push_subscribe(registration, force);
 		}).catch(function(error) {
 			log(error);
 		});

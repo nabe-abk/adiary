@@ -22,6 +22,18 @@
 		</td>
 	</tr>
 	<tr>
+		<th>登録ウエイト<span class="help" data-help="WebPush登録通知のためのダイアログを表示するまでの秒数です。\n0のときは自動登録しません。">?</span></th>
+		<td>
+			<input type="number" name="wait" min="0" max="600" class="w60" value="<@ps.wait || 5>">秒
+		</td>
+	</tr>
+	<tr>
+		<th>登録前メッセージ<span class="help" data-help="登録ダイアログの前に表示するメッセージです。未設定の場合ダイアログを直接表示します。">?</span></th>
+		<td>
+			<textarea name="regist_txt" class="w400" rows="2"><@ps.regist_txt></textarea>
+		</td>
+	</tr>
+	<tr>
 		<th>更新通知</th>
 		<td>
 			<input type="checkbox" class="js-enable" data-target="#ping-txt" name="ping" value="1"<@if(ps.ping, ' checked')>><label>新しい記事を公開時に通知を送信する。</label>
@@ -41,18 +53,12 @@
 			<span class="middle">変更は「ブログの基本設定」のサイトアイコンから。</span>
 		</td>
 	</tr>
-	<tr>
-		<th>登録ウエイト<span class="help" data-help="WebPush登録通知のためのダイアログを表示するまでの秒数です。\n0のときは自動登録しません。">?</span></th>
-		<td>
-			<input type="number" name="wait" min="0" max="600" class="w60" value="<@ps.wait || 5>">秒
-		</td>
-	</tr>
 	<@ifexec(v.check_installed_plugin(name) && ps.cnt, begin)>
 	<tr>
 		<th>手動で送信</th>
 		<td>
 			<input type="checkbox" class="js-enable" data-target="#ping-now-txt,#url" name="ping_now" value="1"><label>通知を送信する。</label>
-			<textarea name="ping_now_txt" id="ping-now-txt" class="w400" rows="3"></textarea>
+			<textarea name="ping_now_txt" id="ping-now-txt" class="w400" rows="2"></textarea>
 			URL<span class="help" data-help="通知をクリックした時に開くURLです。">?</span>
 			 <input name="url" id="url" type="url" class="w320" value="<@Server_url><@v.myself>">
 		</td>

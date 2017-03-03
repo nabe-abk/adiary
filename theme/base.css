@@ -93,7 +93,6 @@ table.plugins button {
 	margin:			0;
 }
 
-
 /*--------------------------------------------------------------------
 ●互換性維持 (for Special Edition theme)
 ---------------------------------------------------------------------*/
@@ -1092,7 +1091,7 @@ figcaption {
 }
 
 /*--------------------------------------------------------------------
-●jQuery UI, popup-info/dialog/accordion
+●jQuery UI, dialog/accordion
 ---------------------------------------------------------------------*/
 .ui-dialog {
 	background-color:	#f8f8ff;
@@ -1520,10 +1519,6 @@ ul.menu {
 	margin-bottom:		6px;
 }
 
-.sp .ajs-popup {
-	margin:			0 1em;
-}
-
 /* accordion/インポート、エクスポート */
 .sp .ui-accordion-content {
 	padding:		0 4px;
@@ -1692,6 +1687,46 @@ ul.menu {
 /* 影を多重に重ねないように */
 .dropdown-menu.sp>ul>li>ul>li ul {
 	box-shadow:	none;
+}
+
+/*--------------------------------------------------------------------
+●フットメッセージ
+---------------------------------------------------------------------*/
+.foot-message-transion, .fm-buttons span {
+	transition-duration:		2s;
+	transition-timing-function:	ease;
+	transition-property:		color, background-color, border-color;
+	border-color:	transparent;
+	color:		transparent;
+}
+.foot-message {
+	position:	fixed;
+	bottom:		4px;
+	left:		4px;
+	z-index:	10;
+	width:		auto;
+	height:		auto;
+
+	color:		#000;
+	font-size:	11pt;
+	line-height:	1.5;
+	max-width:	200px;
+
+	padding:		10px;
+	background-color:	#fff;
+	border-radius:		8px;
+	border:			2px solid #80f;
+}
+.fm-buttons span {
+	color:			#000;
+	border:			1px solid #80f;
+	border-radius:		4px;
+	background-color:	#ffd;
+	margin:			8px 10px 0 10px;
+	padding:		2px 6px;
+
+	display:		inline-block;
+	cursor:			pointer;
 }
 
 /*--------------------------------------------------------------------

@@ -2,15 +2,19 @@
 <@local(h,h2,form)>
 <$form = argv#0>
 <$h2 = begin_hash>
-	ping = flag
-	ping_txt = 通知メッセージ
-	ping_txt:filter0 = trim
-
 	max = 最大登録数
 	max:type = int
 	max:default = 1000
 	max:min = 100
 	max:max = 10000
+
+	regist_txt = 通知メッセージ
+	regist_txt:filter0 = trim
+	regist_txt:filter1 = tag_amp
+
+	ping = flag
+	ping_txt = 通知メッセージ
+	ping_txt:filter0 = trim
 
 	wait = 登録ウエイト
 	wait:type = int
