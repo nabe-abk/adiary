@@ -3,7 +3,7 @@ title=WebPush
 version=1.00
 #					(C)2017 nabe@abk
 ######################################################################
-description=登録した人にWebPushで更新を通知します。
+description=登録した人にWebPushで更新を通知します
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=AGPLv3

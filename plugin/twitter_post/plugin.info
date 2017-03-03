@@ -3,7 +3,7 @@ title=Twitter通知
 version=1.10
 #					(C)2015 nabe@abk
 ######################################################################
-description=新規に記事を投稿したときTwitterにPOSTして知らせるプラグイン
+description=記事投稿時にTwitterにお知らせツイートをします
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL

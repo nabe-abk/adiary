@@ -3,7 +3,7 @@ title=サイトマップ
 version=1.00
 #					(C)2017 nabe@abk
 ######################################################################
-description=サイトマップを生成し、検索エンジンに更新を通知します。
+description=サイトマップを生成し、検索エンジンに更新を通知します
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL

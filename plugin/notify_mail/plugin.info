@@ -3,7 +3,7 @@ title=メール通知
 version=1.10
 #					(C)2014 nabe@abk
 ######################################################################
-description=新着コメントがあったときにメールで通知するプラグイン
+description=新着コメントをメールでお知らせします
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
