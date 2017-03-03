@@ -2152,7 +2152,7 @@ sub make_attr {
 	if ($class ne '' || $tag->{class} ne '') { $class =" class=\"$tag->{class}$class\""; }
 	if ($title  ne '') { $class .=" title=\"$title\""; }
 	if ($target ne '') { $class .=" target=\"$target\""; }
-	if ($data ne '') {	# data: a1=bbb a2=ccc
+	if ($data ne '') {	# ex)a1=bbb a2=ccc  ※この仕様を変更したら edit.js も変更する
 		my @ary = split(/\s+/, $data);
 		foreach(@ary) {
 			if ($_ !~ /^([A-Za-z][\w\-]*)=(.*)$/) { next; }
