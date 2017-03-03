@@ -620,10 +620,10 @@ ul.hatena-section ul {
 ●メッセージ関連
 ---------------------------------------------------------------------*/
 strong.warning, strong.error,
+p.warning, p.error,
 div.messages div.warn,
 div.messages div.message {
 	color:		#c30;			/* $c=fixstrongfont */
-	font-weight:	bold;
 }
 
 /*--------------------------------------------------------------------

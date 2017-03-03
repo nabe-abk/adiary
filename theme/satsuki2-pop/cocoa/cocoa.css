@@ -996,6 +996,15 @@ article.edit .w120 {
     width:                  160px;
 }
 
+/* ◆ 強調
+------------------------------------------------------------ */
+strong.warning, strong.error,
+p.warning, p.error,
+div.messages div.warn,
+div.messages div.message {
+	color:		#c30;
+}
+
 /* ◆　ヘルプ
 ----------------------------------------------------------------------*/
 /* [?]文字 */

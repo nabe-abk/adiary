@@ -1086,6 +1086,7 @@ table.login input[type="text"], table.login input[type="password"] {
 }
 
 strong.warning, strong.error,
+p.warning, p.error,
 div.messages div.warn,
 div.messages div.message {
     color:                  #b5001f;

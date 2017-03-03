@@ -520,7 +520,8 @@ span.resize-parts {
 /*--------------------------------------------------------------------
 ●メッセージシステム
 ---------------------------------------------------------------------*/
-div.messages div.message:last-child, div.warn {
+div.warn, p.warning, p.error,
+div.messages div.message:last-child {
 	font-weight:	bold;
 }
 div.messages div.notice {

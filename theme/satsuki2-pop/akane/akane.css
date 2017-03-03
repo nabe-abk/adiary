@@ -1282,7 +1282,14 @@ article.edit span.tag {
 	max-width:				-webkit-calc(100% - 480px);
 }
 
-
+/* ◆ 強調
+------------------------------------------------------------ */
+strong.warning, strong.error,
+p.warning, p.error,
+div.messages div.warn,
+div.messages div.message {
+	color:		#c30;
+}
 
 /* ◆　ヘルプ
 ------------------------------------------------------------ */
