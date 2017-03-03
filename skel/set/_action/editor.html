@@ -45,7 +45,7 @@
 	http_target:filter0 = reg_del:[^\w\-]
 	http_class:filter0  = reg_del:[^\w\-]
 	http_data:filter0   = reg_del:[^\w\-\[\]%=,/\s]
-	http_data:filter1   = trim
+	http_data:filter1   = normalize
 
 	image_target = 画像へのリンク:target
 	image_class  = 画像へのリンク:class
@@ -53,7 +53,7 @@
 	image_target:filter0 = reg_del:[^\w\-]
 	image_class:filter0  = reg_del:[^\w\-]
 	image_data:filter0   = reg_del:[^\w\-\[\]%=,/\s]
-	image_data:filter1   = trim
+	image_data:filter1   = normalize
 
 	section_anchor = セクションアンカー
 	section_anchor:filter0 = tag
