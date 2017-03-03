@@ -34,6 +34,7 @@ $(function(){
 	if (window.ga) {
 		var ga = document.createElement('script');
 		ga.src = 'https://www.google-analytics.com/analytics.js';
+		ga.async = 1;
 		(document.getElementsByTagName('head')[0]).appendChild(ga);
 	}
 });

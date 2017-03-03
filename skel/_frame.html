@@ -132,7 +132,7 @@ var PubdistDir ='<@Basepath><@v.pubdist_dir>';
 var SpecialQuery = '<@v.sp_query>';
 <@ifexec(!v.system_mode && s.gaid, begin)>
 // Google Analytics
-window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga=function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 ga('create', '<@s.gaid>', 'auto');
 ga('send', 'pageview');
 <$end>
