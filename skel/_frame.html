@@ -70,8 +70,6 @@
 <@if(!v.system_mode, s.html_header_txt)>
 </head>
 <body id="body" class="<@if(v.blog_admin, 'blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system')><@if(v.sphone,' sp')>">
-<@>bodyにブラウザ別クラスを設定するためのスクリプト呼び出し
-<script>set_browser_class_into_body();</script>
 <@>
 <@ifexec(v.special_system_mode, begin.sp_sysmode, begin.sp_sysmode)>
 <@inframe>

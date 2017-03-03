@@ -14,28 +14,26 @@ var PopupOffsetY  = 10;
 var IE9=false;	// IE9以下
 var SP;		// adiary内部がスマホモード
 var Storage;
-var SettedBrowserClass;
 
-// in Frame.html
+// in _frame.html
 var Vmyself;
 var Vmyself2;
 var ScriptDir;
 var PubdistDir;
 var SpecialQuery;
-var _gaq;
 //////////////////////////////////////////////////////////////////////////////
 //●初期化処理
 //////////////////////////////////////////////////////////////////////////////
 $(function(){
 	if (Vmyself) Storage=load_PrefixStorage( Vmyself );
-	if (!SettedBrowserClass) set_browser_class_into_body();
+	set_browser_class_into_body();
 
 	// Google Analytics
 	if (window.ga) {
-		var ga = document.createElement('script');
-		ga.src = 'https://www.google-analytics.com/analytics.js';
-		ga.async = 1;
-		(document.getElementsByTagName('head')[0]).appendChild(ga);
+		var a = document.createElement('script');
+		a.src = 'https://www.google-analytics.com/analytics.js';
+		a.async = 1;
+		(document.getElementsByTagName('head')[0]).appendChild(a);
 	}
 });
 
@@ -71,10 +69,7 @@ if (!String.repeat) String.prototype.repeat = function(num){
 //////////////////////////////////////////////////////////////////////////////
 //●<body>にCSSのためのブラウザクラスを設定
 //////////////////////////////////////////////////////////////////////////////
-// この関数は、いち早く設定するためにHTMLから直接呼び出す
 function set_browser_class_into_body() {
-	SettedBrowserClass=true;
-
 	var x = [];
 	var ua = navigator.userAgent;
 
