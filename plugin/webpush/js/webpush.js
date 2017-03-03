@@ -69,7 +69,7 @@ function regist_confirm() {
 
 	// 通知を2重に出さない。
 	var storage = load_PrefixStorage( Vmyself );
-	if (storage.get('webpush-stop')) return;
+//	if (storage.get('webpush-stop')) return;
 
 	// 登録前メッセージの表示
 	var $div = $('<div>').addClass('foot-message-transion');
