@@ -2152,8 +2152,8 @@ sub make_attr {
 	if ($class ne '' || $tag->{class} ne '') { $class =" class=\"$tag->{class}$class\""; }
 	if ($title  ne '') { $class .=" title=\"$title\""; }
 	if ($target ne '') { $class .=" target=\"$target\""; }
-	if ($data ne '') {	# data: aaa=bbb, ccc=ddd
-		my @ary = split(/\s*,\s*/, $data);
+	if ($data ne '') {	# data: a1=bbb a2=ccc
+		my @ary = split(/\s+/, $data);
 		foreach(@ary) {
 			if ($_ !~ /^([A-Za-z][\w\-]*)=(.*)$/) { next; }
 			my $n = $1;
