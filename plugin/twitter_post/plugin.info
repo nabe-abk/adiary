@@ -12,9 +12,8 @@ license=WTFPL
 adiary_version=2.90
 
 *files=<<FILES
-skel/twitter/_setting.html
-skel/twitter/_action/oauth1.html
-skel/twitter/_action/oauth2.html
+skel/twitter/_action/oauth.html
+skel/twitter/oauth_verify.html
 skel/_func/twitter_ping.html
 FILES
 

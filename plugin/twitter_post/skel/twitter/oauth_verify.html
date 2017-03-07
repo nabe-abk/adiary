@@ -1,0 +1,42 @@
+<@20>
+<@local(tw,r,ps,name,url)>
+<$name = 'twitter_post'>
+<$url = myself . '?plugin/'>
+
+<$ifexec(! v.blog_admin, begin)>
+	<$message('権限がありません')>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+<$ps  = v.load_plgset(name)>
+<$url = ps.back_url || url>
+<$ifexec(ps.oauth_token ne Query.oauth_token, begin)>
+	<$message('トークンが正しくありません')>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+
+<$oauth = loadpm("Base::OAuth")>
+<$tw = call('_sub/load_twitter_info', ps)>
+<$tw.verifier = Query.oauth_verifier>
+
+<$r = oauth.request_access_token(tw)>
+<$ifexec(!r || r.oauth_token eq '', begin)>
+	<$message('OAuth認証に失敗しました')>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+<@>---------------------------------------------------------------------------
+<@>成功
+<@>---------------------------------------------------------------------------
+<$ps.back_url = undef>
+<$ps.oauth_token = undef>
+<$ps.oauth_token_secret = undef>
+<$ps.access_token = r.oauth_token>
+<$ps.access_token_secret = r.oauth_token_secret>
+<$ps.screen_name = r.screen_name>
+<$ifset(ps.ping_txt eq '', ps.ping_txt, 'ブログ更新「%t」 %u')>
+<$v.update_plgset(name, ps)>
+
+<$message('OAuth認証に成功しました')>
+<$jump('_sub/reload_message', url)>

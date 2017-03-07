@@ -10,11 +10,5 @@
 	ping_txt:filter0 = trim
 <$end>
 
-<$ifexec(h.re_auth, begin)>	<@> 再認証
-	<$h.screen_name  = undef>
-	<$h.access_token = undef>
-	<$h.access_token_secret = undef>
-<$end>
-
 <$ifbreak(form_error())>
 <$return(h)>

@@ -7,7 +7,7 @@ use strict;
 #
 package Satsuki::Base::OAuth;
 use Satsuki::Boolean;
-our $VERSION = '0.90';
+our $VERSION = '0.95';
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -31,32 +31,32 @@ sub new {
 #------------------------------------------------------------------------------
 sub request_token {
 	my $self = shift;
-	my $h = shift;
+	my $h    = shift;
+	my $url  = shift;	# callback url
 	my $ROBJ = $self->{ROBJ};
 
-	my $nonce = $self->generate_nonce();
-	my $msg = $self->generate_msg({
+	my $oauth = {
 		oauth_consumer_key => $h->{consumer_key},
-		oauth_nonce        => $nonce,
+		oauth_nonce        => $self->generate_nonce(),
 		oauth_timestamp    => $ROBJ->{TM},
 		oauth_version      => $self->{oauth_ver},
 		oauth_signature_method => $self->{signature_method}
-	});
-	my $sig = $self->generate_signature('GET', $h->{request_token_path}, $msg, $h->{consumer_secret});
-
-	my %header = ('Authorization' => <<TEXT);
-OAuth realm="$h->{realm}",
- oauth_consumer_key="$h->{consumer_key}",
- oauth_nonce="$nonce",
- oauth_signature="$sig",
- oauth_signature_method="$self->{signature_method}",
- oauth_timestamp="$ROBJ->{TM}",
- oauth_version="$self->{oauth_ver}"
-TEXT
+	};
+	if ($url) {
+		$oauth->{oauth_callback} = $url;
+	};
+	$oauth->{oauth_signature} = $self->generate_signature(
+		'GET',
+		$h->{request_token_path},
+	 	$self->generate_msg($oauth),
+		$h->{consumer_secret}
+	);
 
 	my $http = $ROBJ->loadpm('Base::HTTP');
 	$http->{error_to_root} = 1;
-	my $res = $http->get($h->{request_token_path}, \%header);
+	my $res = $http->get($h->{request_token_path}, {
+		Authorization => $self->generate_auth($oauth)
+	});
 
 	if (!ref($res)) { return undef; }	# error
 	my $res = $self->parse_response( join('', @$res) );
@@ -75,33 +75,28 @@ sub request_access_token {
 	my $h = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $nonce = $self->generate_nonce();
-	my $msg = $self->generate_msg({
+	my $oauth = {
 		oauth_consumer_key => $h->{consumer_key},
-		oauth_nonce        => $nonce,
+		oauth_nonce        => $self->generate_nonce(),
 		oauth_timestamp    => $ROBJ->{TM},
 		oauth_token        => $h->{token},
 		oauth_verifier     => $h->{verifier},
 		oauth_version      => $self->{oauth_ver},
 		oauth_signature_method => $self->{signature_method}
-	});
-	my $sig = $self->generate_signature('GET', $h->{access_token_path}, $msg,
-		$h->{consumer_secret}, $h->{token_secret});
+	};
+	$oauth->{oauth_signature} = $self->generate_signature(
+		'GET',
+	 	$h->{access_token_path},
+	 	$self->generate_msg($oauth),
+		$h->{consumer_secret},
+		$h->{token_secret}
+	);
 
-	my %header = ('Authorization' => <<TEXT);
-OAuth realm="$h->{realm}",
- oauth_consumer_key="$h->{consumer_key}",
- oauth_nonce="$nonce",
- oauth_signature="$sig",
- oauth_signature_method="$self->{signature_method}",
- oauth_timestamp="$ROBJ->{TM}",
- oauth_token="$h->{token}",
- oauth_verifier="$h->{verifier}",
- oauth_version="$self->{oauth_ver}"
-TEXT
 	my $http = $ROBJ->loadpm('Base::HTTP');
 	$http->{error_to_root} = 1;
-	my $res = $http->get($h->{access_token_path}, \%header);
+	my $res = $http->get($h->{access_token_path}, {
+		Authorization => $self->generate_auth($oauth)
+	});
 
 	if (!ref($res)) { return undef; }	# error
 	return $self->parse_response( join('', @$res) );
@@ -133,14 +128,15 @@ sub request {
 #     oauth_nonce="chapoH",
 #     oauth_signature="MdpQcU8iPSUjWoN%2FUDMsK2sui9I%3D"
 
-	my $nonce = $self->generate_nonce();
-	my %h=( oauth_consumer_key => $h->{consumer_key},
-		oauth_nonce        => $nonce,
+	my $oauth = {
+		oauth_consumer_key => $h->{consumer_key},
+		oauth_nonce        => $self->generate_nonce(),
 		oauth_timestamp    => $ROBJ->{TM},
 		oauth_token        => $h->{access_token},
 		oauth_version      => $self->{oauth_ver},
 		oauth_signature_method => $self->{signature_method}
-	);
+	};
+	my %msg = %$oauth;
 
 	# フォーム値の追加
 	my $jcode;
@@ -152,30 +148,26 @@ sub request {
 		if ($jcode) {
 			$jcode->from_to(\$v, $ROBJ->{System_coding}, 'UTF-8');
 		}
-		$self->oauth_urlencode_com($v);
-		$h{$_} = $v;
+		$self->oauth_encode_uricom($v);
+		$msg{$_} = $v;
 	}
 
-	my $HTTP = $ROBJ->loadpm('Base::HTTP');
-	my $msg  = $self->generate_msg(\%h);
-	my $sig  = $self->generate_signature($method, $url, $msg,
-			$h->{consumer_secret}, $h->{access_token_secret});
+	# 署名生成
+	$oauth->{oauth_signature} = $self->generate_signature(
+		$method,
+		$url,
+		$self->generate_msg(\%msg),
+		$h->{consumer_secret},
+		$h->{access_token_secret}
+	);
+	my $header = {
+		Authorization => $self->generate_auth($oauth)
+	};
 
-	my %header = ('Authorization' => <<TEXT);
-OAuth realm="$h->{realm}",
- oauth_consumer_key="$h->{consumer_key}",
- oauth_nonce="$nonce",
- oauth_signature="$sig",
- oauth_signature_method="$self->{signature_method}",
- oauth_timestamp="$ROBJ->{TM}",
- oauth_token="$h->{access_token}",
- oauth_version="$self->{oauth_ver}"
-TEXT
-
-	# $HTTP->{error_to_root} = 1;
+	my $http = $ROBJ->loadpm('Base::HTTP');
 	my $res;
 	if ($method eq 'POST') {
-		$res = $HTTP->post($url, \%header, $req);
+		$res = $http->post($url, $header, $req);
 	} elsif ($method eq 'GET') {
 		if ($req) {
 			my $par='';
@@ -185,7 +177,7 @@ TEXT
 			chop($par);
 			$url .= '?' . $par;
 		}
-		$res = $HTTP->get($url, \%header);
+		$res = $http->get($url, $header);
 	} else {
 		return;			# error
 	}
@@ -222,6 +214,16 @@ sub generate_nonce {
 }
 
 #------------------------------------------------------------------------------
+# ●nonceの生成
+#------------------------------------------------------------------------------
+sub generate_nonce {
+	my $self = shift;
+	my $nonce = $self->{ROBJ}->get_rand_string_salt(20);
+	$nonce =~ s/[^\w\-]//g;
+	return $nonce;
+}
+
+#------------------------------------------------------------------------------
 # ●OAuthメッセージの生成
 #------------------------------------------------------------------------------
 sub generate_msg {
@@ -234,6 +236,24 @@ sub generate_msg {
 	}
 	chop($msg);
 	return $msg;
+}
+
+#------------------------------------------------------------------------------
+# ●Authorizationヘッダの生成
+#------------------------------------------------------------------------------
+sub generate_auth {
+	my $self  = shift;
+	my $h     = shift;
+	my $realm = shift || '';
+
+	my @ary = sort {$a cmp $b} keys(%$h);
+	my $auth = "OAuth realm=\"$h->{realm}\",\n";
+	foreach(@ary) {
+		$auth .= " $_=\"$h->{$_}\",\n";
+	}
+	chop($auth);
+	chop($auth);
+	return $auth;
 }
 
 #------------------------------------------------------------------------------
@@ -282,7 +302,7 @@ sub generate_signature {
 	my ($method, $url, $msg, $secret1, $secret2) = @_;
 
 	# signatureの生成
-	$self->oauth_urlencode($url, $msg);
+	$self->oauth_encode_uri($url, $msg);
 	my $sig = $self->hmac_sha1("$secret1&$secret2", "$method&$url&$msg");
 	$sig =~ s/=/%3D/g;
 	$sig =~ s/\+/%2B/g;
@@ -292,7 +312,7 @@ sub generate_signature {
 #------------------------------------------------------------------------------
 # ●URIエンコード
 #------------------------------------------------------------------------------
-sub oauth_urlencode {
+sub oauth_encode_uri {
 	my $self = shift;
 	foreach(@_) {
 		$_ =~ s|([^\w\-\.\~])|
@@ -302,7 +322,7 @@ sub oauth_urlencode {
 		|eg;
 	}
 }
-sub oauth_urlencode_com {
+sub oauth_encode_uricom {
 	my $self = shift;
 	foreach(@_) {
 		$_ =~ s|([^\w!\(\)\*\-\.\~\/:])|

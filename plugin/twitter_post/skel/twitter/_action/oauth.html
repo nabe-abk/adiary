@@ -1,9 +1,10 @@
 <@20>
 <@local(tw,ps,name)>
+<$name = 'twitter_post'>
+
 <$ifbreak(csrf_check())>
 <$ifbreak(!v.blog_admin)>
 
-<$name = Form.name>
 <$v.action_is_main=1>
 <$v.frame_skeleton=''>
 <$set_content_type('text/plain')>
@@ -11,17 +12,18 @@
 <$tw = call('_sub/load_twitter_info')>
 <$oauth = loadpm("Base::OAuth")>
 
-<$r = oauth.request_token(tw)>
+<$r = oauth.request_token(tw, "<@Server_url><@v.myself>?twitter/oauth_verify")>
 <$ifexec(!r, begin)>
 	<@"1">
 	<$break()>
 <$end>
 
-<$ps = new>
 <$ps.oauth_token = r.oauth_token>
 <$ps.oauth_token_secret = r.oauth_token_secret>
+<$ps.screen_name  = undef>
 <$ps.access_token = "">
 <$ps.access_token_secret = "">
+<$ps.back_url = back_url>
 <$v.update_plgset(name, ps)>
 
 <@"0\n">

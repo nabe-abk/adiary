@@ -13,33 +13,41 @@
 <$end>
 
 <@>認証済
-<$ifsuperjump(ps.access_token ne '', 'twitter/_setting', ps, name)>
-
-<@>----------------------------------------------------------------------------
-<@> 設定画面
-<@>----------------------------------------------------------------------------
-	<button type="button" id="oauth1">Twitterアカウントの認証</button><br>
-
-<@>----------------------------------------------------------------------------
-<@> 認証2段階目
-<@>----------------------------------------------------------------------------
-<div id="oauth2-form" style="display: none">
-	<p><a id="oauth-url" href="" target=_blank>Twitterにアクセスして</a>得られた認証コードを入力してください。</p>
-
-	<p>PINコード <input type="text" class="w100" id="pin-code" value="" required></p>
-
-	<button type="button" id="oauth2" >Twitterアカウントの認証</button>
-</div>
+<@ifexec(ps.access_token, begin, begin)>
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>認証状態</th>
+		<td>
+			<strong><@ps.screen_name></strong> で認証されています。
+			<button type="button" id="do-oauth"><label>再認証する</label>
+		</td>
+	</tr>
+	<tr>
+		<th>記事の通知</th>
+		<td>
+			<input type="checkbox" name="ping" value="1"<@if(ps.ping, ' checked')>>
+			<label>新着記事をTwitterに通知する</label>
+		</td>
+	</tr>
+	<tr>
+		<th>ツイート内容</th>
+		<td>
+			<textarea name="ping_txt" id="ping-txt" class="w400" rows="3"><@esc(ps.ping_txt)></textarea>
+			<button type="button" id="txt-reset">初期値に戻す</button>
+			%t：記事タイトル、%n：ブログ名、%u：記事URL
+		</td>
+	</tr>
+	</table>
+<$else>
+	<button type="button" id="do-oauth">Twitterアカウントの認証</button><br>
+<$end>
 
 <@>----------------------------------------------------------------------------
 <@> ajaxメッセージ
 <@>----------------------------------------------------------------------------
 <div id="twp-messages" style="display: none">
 <span id="twp-msg-error">エラーが発生しました。</span>
-<span id="twp-msg-title">アカウント認証</span>
-<span id="twp-msg-pin-code">PINコードを正しく入力してください。</span>
-<span id="twp-msg-pin-error">PINコードが間違っていませんか？</span>
-<span id="twp-msg-ok">正しく認証されました。</span>
 </div>
 
 <!-- JavaScript ==========================================================-->
@@ -47,51 +55,26 @@
 $(function(){
 var ajax_url = '<@v.myself>?etc/ajax_dummy';
 var csrf_check_key = '<@CSRF_check_key>';
-var o2form  = $('#oauth2-form');
-var content = $('#pl-setting-content');
-var dialog  = o2form.closest('.ui-dialog-content');
+var action  = 'twitter/oauth';
+
 //---------------------------------------------------------------------------
-// 認証、第1段階
+// リセット
 //---------------------------------------------------------------------------
-$('#oauth1').click( function(){
-	ajax_post('twitter/oauth1', {}, function(data){
-		dialog.dialog( "destroy" );
-		var ma = data.match(/0\r?\n(.*)/);
-		if (!ma) return show_error('#twp-msg-error');
-		var url = ma[1];
-		
-		// 2段階目へ進む
-		$('#oauth-url').attr('href', url);
-		o2form.dialog({
-			autoOpen: true,
-			modal: true,
-			width:  DialogWidth,
-			minHeight: 100,
-			maxHeight: $(window).height(),
-			title: $('#twp-msg-title').text()
-		});
-	});
+$('#txt-reset').click( function(){
+	$('#ping-txt').val('ブログ更新「%t」 %u');
 });
 
 //---------------------------------------------------------------------------
-// 認証、第2段階
+// 認証、第1段階
 //---------------------------------------------------------------------------
-$('#oauth2').click( function(){
-	var pin = $('#pin-code').val();
-	if (pin.match(/^\s*$/) || pin.match(/\W/))
-		return show_error('#twp-msg-pin-code');
+$('#do-oauth').click( function(){
+	ajax_post(action, {}, function(data){
+		var ma = data.match(/0\r?\n(.*)/);
+		if (!ma) return show_error('#twp-msg-error');
+		var url = ma[1];
 
-	var form = { pin_code: pin };
-	ajax_post('twitter/oauth2', form, function(data){
-		o2form.dialog( "destroy" );
-		var ret = parseInt(data);
-	//	if (ret != 0) return show_error('#twp-msg-pin-error');
-
-		// 認証終了
-		show_dialog({
-			title: $('#twp-msg-title').text(),
-			html: $('#twp-msg-ok').text()
-		});
+		// Twitter側へ飛ばす
+		location.href = url;
 	});
 });
 
@@ -102,7 +85,7 @@ function ajax_post(action, data, callback) {
 	data = data || {};
 	data.action = action;
 	data.csrf_check_key = csrf_check_key;
-	data.name = '<@name>';		// plugin name
+	data.back_url = location.href;
 	$.post(ajax_url, data, callback, 'text');
 }
 
