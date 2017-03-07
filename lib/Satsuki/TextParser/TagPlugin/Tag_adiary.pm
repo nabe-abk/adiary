@@ -53,6 +53,8 @@ sub adiary_key {
 	} else {
 		$url = $replace->{myself2};
 	}
+
+	my $title;
 	if ($tag->{_key} || $tag->{_id}) {
 		# 記事 pkey/link_key 指定
 		my $link_key = shift(@$ary);
@@ -76,13 +78,12 @@ sub adiary_key {
 				my $DB = $aobj->{DB};
 				my $h = $DB->select_match_limit1("${blogid}_art", 'link_key', $link_key, '*cols', ['title']);
 				if ($h) {
-					$name = $h->{title};
-					unshift(@$ary, "title=$name");
+					$title = $name;
 				}
 			}
 		}
 	}
-	return &adiary_link_base($pobj, $tag, $url, $name, $ary);
+	return &adiary_link_base($pobj, $tag, $url, $name, $ary, $title);
 }
 
 #------------------------------------------------------------------------------
@@ -153,12 +154,16 @@ sub adiary_tag {
 # ○adiary  記法のベース
 #------------------------------------------------------------------------------
 sub adiary_link_base {
-	my ($pobj, $tag, $url, $name, $ary) = @_;
+	my ($pobj, $tag, $url, $name, $ary, $title) = @_;
 
-	# アンカー名（a name）指定
+	# アンカー指定
 	if ($ary->[0] =~ /^\#[\w\.\-]*$/) {
 		$name .= $ary->[0];
 		$url  .= shift(@$ary);
+	}
+	# title
+	if ($title ne '') {
+		unshift(@$ary, "title=$title");
 	}
 	# 属性
 	my $attr = $pobj->make_attr($ary, $tag, 'http');
