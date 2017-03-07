@@ -1,7 +1,6 @@
 <@6>
 <@local(t,pd,err)>
 <$err=FormError>
-<$ifbreak(!v.blog_admin)>
 
 <@> システムモード
 <$v.system_mode("プラグインの設定")>
@@ -31,11 +30,11 @@
 	<$pd = v.load_plugins_dat()>
 	<@forexec(t, v.load_plugins_info(), begin)>
 	<tr>
-		<td class="nowrap"><span class="plg-title"><@t.title></span></td>
+		<td<@if(!v.sphone,' class="nowrap"')>><span class="plg-title"><@t.title></span></td>
 		
 		<@ifexec(t.adiary_version <= v.VERSION, begin, begin)>
 		<td class="nowrap small">
-			<input type="radio" name="<@t.name>" value="1"<@if( pd.(t.name),' checked')><@if(t.missing, ' disabled')>><label>ON</label>
+			<input type="radio" name="<@t.name>" value="1"<@if( pd.(t.name),' checked')><@if(t.missing, ' disabled')>><label>ON</label><@if(v.sphone,'<br><br>')>
 			<input type="radio" name="<@t.name>" value="0"<@if(!pd.(t.name),' checked')>><label>OFF</label>
 		</td>
 		<$else>

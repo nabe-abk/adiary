@@ -182,8 +182,9 @@ article div.body .hidden em {
 
 /* nowrap */
 .nowrap {
-	white-space:		nowrap;
+	white-space:	nowrap;
 }
+
 dl {
 	margin-left:	2em;
 }
@@ -202,6 +203,7 @@ article figure,
 .main iframe,
 .main select {
 	max-width:	100%;
+	box-sizing:	border-box;
 }
 
 /* ブロック中のpタグ */
@@ -312,6 +314,7 @@ button {
 	-o-tab-size:	4;
 	tab-size:	4;
 	max-width:	100%;
+	box-sizing:	border-box;
 }
 
 input[type="radio"]    + label,
@@ -1529,6 +1532,7 @@ ul.menu {
 .sp .main input,
 .sp .main textarea {
 	max-width:		100%;
+	box-sizing:		border-box;
 }
 .sp .main table.blog-setting input,
 .sp .main table.blog-setting textarea {
