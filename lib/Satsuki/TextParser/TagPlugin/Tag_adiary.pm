@@ -78,7 +78,7 @@ sub adiary_key {
 				my $DB = $aobj->{DB};
 				my $h = $DB->select_match_limit1("${blogid}_art", 'link_key', $link_key, '*cols', ['title']);
 				if ($h) {
-					$title = $name;
+					$title = $h->{title};
 				}
 			}
 		}
