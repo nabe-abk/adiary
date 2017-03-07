@@ -251,13 +251,13 @@ div.body-footer {
 /*--------------------------------------------------------------------
 ●フォントサイズ／種類設定
 ---------------------------------------------------------------------*/
-.xx-large		{ font-size: 200%; line-height: 130%; }
+.xx-large, .Huge	{ font-size: 200%; line-height: 130%; }
 .x-large,  .huge	{ font-size: 150%; line-height: 130%; }
 .large			{ font-size: 130%; line-height: 130%; }
 .midium, .normalsize	{ font-size: 100%; line-height: 135%; }
 .small			{ font-size: 90%;  line-height: 140%; }
 .x-small,  .tiny	{ font-size: 80%;  line-height: 140%; }
-.xx-small, .scriptsize	{ font-size: 50%;  line-height: 140%; }
+.xx-small, .scriptsize	{ font-size: 60%;  line-height: 140%; }
 
 .it, .italic		{ font-style:  italic; }
 .bf, .bold		{ font-weight: bold;   }
