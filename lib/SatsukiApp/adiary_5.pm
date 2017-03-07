@@ -720,6 +720,13 @@ sub art_import {
 	}
 	$session->msg("Import file size: %f KB", int($form->{file}->{file_size}/1024 + 0.5));
 
+	# ファイルがメモリになかったら読み込む
+	if (!$form->{file}->{data}) {
+		sysopen(my $fh, $form->{file}->{tmp_file}, Fcntl::O_RDONLY);
+		sysread($fh, $form->{file}->{data}, $form->{file}->{file_size});
+		close($fh);
+	}
+
 	# クラスオプション（$type:xxx=val を xxx=val として取り出す）
 	my %opt;
 	{
