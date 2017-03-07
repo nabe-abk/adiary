@@ -78,7 +78,7 @@ sub adiary_key {
 				my $DB = $aobj->{DB};
 				my $h = $DB->select_match_limit1("${blogid}_art", 'link_key', $link_key, '*cols', ['title']);
 				if ($h) {
-					$name = $title = $h->{title};
+					$title = $h->{title};
 				}
 			}
 		}
@@ -163,6 +163,7 @@ sub adiary_link_base {
 	}
 	# title
 	if ($title ne '') {
+		$name = $title;
 		unshift(@$ary, "title=$title");
 	}
 	# 属性
