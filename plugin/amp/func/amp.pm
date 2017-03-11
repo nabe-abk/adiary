@@ -483,14 +483,9 @@ $mop->{load_image_size} = sub {
 	my $ROBJ = $self->{ROBJ};
 	my $aobj = $self->{aobj};
 
-	# load image magick
-	my $img = $aobj->load_image_magick();
-	if (!$img) {
-		$at->{'data-error'} = 'Image::Magick Load Error';
-		return;
-	}
-
 	my ($x, $y) = $self->get_image_size($at->{src});
+	if (!$x) { return; }
+
 	if (!$at->{width})  { $at->{width} =$x; }
 	if (!$at->{height}) { $at->{height}=$y; }
 	return;
