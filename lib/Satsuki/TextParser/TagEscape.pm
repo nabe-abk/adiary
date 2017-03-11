@@ -115,7 +115,7 @@ sub init {
 sub allow_anytag {
 	my $self = shift;
 	my $s = shift;
-	$self->{allow}->{_anytag} = (defined $s) ? $s : 0;
+	$self->{allow}->{_anytag} = ($s ne '') ? $s : 1;
 }
 
 #------------------------------------------------------------------------------
@@ -272,7 +272,7 @@ sub parse {
 			$html->last->replace('html', $mod);
 		}
 	}
-#	$html->pop();	# <end>を除去
+	$html->pop();	# <end>を除去
 	return $html;
 }
 
@@ -555,6 +555,7 @@ sub new {
 	}
 	return $self;
 }
+#-------------------------------------------------------------------------------
 sub type { return $_[0]->{type} || 'tag'; }
 sub tag  { return $_[0]->{tag};  }
 sub attr { return $_[0]->{attr}; }
@@ -694,7 +695,20 @@ sub new {
 	$last ->{prev} = $first;
 	return $self;
 }
-
+#-------------------------------------------------------------------------------
+# メモリリーク対策（循環参照を解消）
+#-------------------------------------------------------------------------------
+sub DESTROY {
+	my $self = shift;
+	my $p = $self->{first};
+	while($p) {
+		my $n = $p->{next};
+		delete $p->{prev};
+		delete $p->{next};
+		$p = $n;
+	}
+}
+#-------------------------------------------------------------------------------
 sub add {
 	my $self = shift;
 	my $type = shift;
