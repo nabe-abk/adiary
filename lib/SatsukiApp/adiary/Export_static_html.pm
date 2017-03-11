@@ -119,7 +119,7 @@ sub export {
 				"./$key.html"
 			]eg;
 		}
-		if ($url =~ /^([^#]*)\?\d+$/) {	# 更新検出 ?time は除去
+		if ($url =~ /^([^#]*)\?\d*$/) {	# 更新検出 ?time は除去
 			return $1;
 		}
 		if ($url =~ /^[^#]*\?/) {	# Queryは無視させる
@@ -177,6 +177,7 @@ sub export {
 		#-------------------------------------------------------------
 		# 記事本文の生成
 		my $out = $ROBJ->call( $aobj->{article_skeleton}, $_ );
+		$aobj->{extra_header} = [];	# clear OGP
 
 		# フレームの前処理
 		$ROBJ->{canonical_url} = '';

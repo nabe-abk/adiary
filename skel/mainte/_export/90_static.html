@@ -101,6 +101,7 @@ adiary_session($('#static-export'), {
 	<@> テーマディレクトリのコピー
 	<$session.msg("\tcopy to '<@dir><@v.template>/<@v.theme>/*'")>
 	<$dir_copy("<@v.theme_dir><@v.theme>", "<@dir><@v.theme>")>
+	<$dir_copy("<@v.theme_dir>_img", "<@dir>_img")>
 
 	<@> テーマカスタムCSS
 	<@ifexec(option.custom_css && s.theme_custom, begin)>
