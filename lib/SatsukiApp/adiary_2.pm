@@ -1208,9 +1208,9 @@ sub load_arts_for_rss {
 		if ($_->{update_tm} > $update_max) { $update_max = $_->{update_tm}; }
 
 		# 日付加工  (dc sample)2006-05-02T13:54:30+09:00
-		$_->{dc_date}    = $self->dc_date ( $_->{tm} );
+		$_->{dc_date}    = $ROBJ->w3c_date( $_->{tm} );
 		$_->{rfc_date}   = $ROBJ->rfc_date( $_->{tm} );
-		$_->{dc_update}  = $self->dc_date ( $_->{update_tm} );
+		$_->{dc_update}  = $ROBJ->w3c_date( $_->{update_tm} );
 		$_->{rfc_update} = $ROBJ->rfc_date( $_->{update_tm} );
 
 		# テキストロード
@@ -1228,20 +1228,11 @@ sub load_arts_for_rss {
 	my %h;
 	$h{art_tm}     = $tm_max;
 	$h{update_tm}  = $update_max;
-	$h{dc_date}    = $self->dc_date ( $tm_max );
+	$h{dc_date}    = $ROBJ->w3c_date( $tm_max );
 	$h{rfc_date}   = $ROBJ->rfc_date( $tm_max );
-	$h{dc_update}  = $self->dc_date ( $update_max );
+	$h{dc_update}  = $ROBJ->w3c_date( $update_max );
 	$h{rfc_update} = $ROBJ->rfc_date( $update_max );
 	return ($logs, \%h);
-}
-
-#------------------------------------------------------------------------------
-# ○xmlns:dc="http://purl.org/dc/elements/1.1/" 形式の日付に変換
-#------------------------------------------------------------------------------
-sub dc_date {
-	my $self = shift;
-	my($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime( shift );
-	return sprintf("%04d-%02d-%02dT%02d:%02d:%02d+00:00", $year+1900, $mon+1, $mday, $hour, $min, $sec);
 }
 
 ###############################################################################
@@ -1915,7 +1906,7 @@ sub load_parser {
 sub load_tag_escaper {
 	my $self = shift;
 	my $obj  = $self->load_tag_escaper_force(@_);
-	$obj->{allow_anytag} = $self->{trust_mode};
+	$obj->allow_anytag( $self->{trust_mode} );
 	return $obj;
 }
 sub load_tag_escaper_force {
