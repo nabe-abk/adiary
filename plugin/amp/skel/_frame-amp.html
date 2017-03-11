@@ -53,11 +53,11 @@
 <@>
 	<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
 <@ifexec(s.gaid, begin)>
-	<script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
+<script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
 <$end>
-	<script async src="https://cdn.ampproject.org/v0.js"></script>
+<script async src="https://cdn.ampproject.org/v0.js"></script>
 <@art.amp_head>
-<#@v.load_plgset('amp', 'amp_head')>
+<@v.load_plgset('amp', 'amp_head')> 
 <style amp-custom>
 <@amp.amp_css(begin_array)>
 	<@v.theme_dir>base.css
@@ -66,13 +66,6 @@
 	<@s.theme_custom> 
 	<@v.blogpub_dir>dynamic.css
 <$end>
-
-blockquote.twitter-tweet {	/* <amp-twitter> bug */
-	border:			none;
-	background-color:	transparent;
-	background-image:	none;
-	text-indent:		-1000000px;
-}
 </style>
 </head>
 <body id="body" class="sp amp <@if(v.blog_admin, ' blog-owner')><@if(v.allow_edit, ' blog-editor')><@if(v.system_mode, ' system')>">

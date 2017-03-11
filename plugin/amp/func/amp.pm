@@ -78,18 +78,6 @@ article.setting	.help .highlight .search .ui-icon- .social-button
 );
 
 #------------------------------------------------------------------------------
-# ●AMPの拡張SCRIPT
-#------------------------------------------------------------------------------
-	my %amp_scripts = (
-'amp-ad'	=> '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>',
-'amp-audio'	=> '<script async custom-element="amp-audio" src="https://cdn.ampproject.org/v0/amp-audio-0.1.js"></script>',
-'amp-video'	=> '<script async custom-element="amp-video" src="https://cdn.ampproject.org/v0/amp-video-0.1.js"></script>',
-'amp-iframe'	=> '<script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>',
-'amp-youtube'	=> '<script async custom-element="amp-youtube" src="https://cdn.ampproject.org/v0/amp-youtube-0.1.js"></script>',
-'amp-twitter'	=> '<script async custom-element="amp-twitter" src="https://cdn.ampproject.org/v0/amp-twitter-0.1.js"></script>'
-);
-
-#------------------------------------------------------------------------------
 # ●AMP用のCSS生成
 #------------------------------------------------------------------------------
 $mop->{amp_css} = sub {
@@ -239,15 +227,13 @@ $mop->{amp_txt} = sub {
 	}
 
 	# AMP用HTMLの生成
-	my %head;
-	$self->tag_wrapper_init();
+	my %header;
 	my $escaper = $aobj->_load_tag_escaper( $aobj->plugin_name_dir($name) . 'allow_tags.txt' );
 	my $text = $escaper->escape( $art->{text}, {
-		tag => sub {
-			my $r = $self->tag_wrapper(@_);
-			if ($r) { $head{$r}=1; }
-		},
-		close_tag => $self->{close_tag_wrapper}
+		filter => sub {
+			my $html = shift;
+			return $self->html_filter($html, \%header);
+		}
 	} );
 	$ROBJ->trim( $text );
 
@@ -255,7 +241,7 @@ $mop->{amp_txt} = sub {
 	my $blogid = $aobj->{blogid};
 	$DB->update_match("${blogid}_art", {
 		amp_txt  => $text,
-		amp_head => join("\n", keys(%head)),
+		amp_head => join("\n", keys(%header)),
 		amp_tm   => $ROBJ->{TM}
 	}, 'pkey', $art->{pkey});
 	
@@ -264,132 +250,184 @@ $mop->{amp_txt} = sub {
 };
 
 #------------------------------------------------------------------------------
-# ●AMP用のHTML tag置換ルーチン
+# ●AMP用のHTML書き換えルーチン
 #------------------------------------------------------------------------------
 # https://www.ampproject.org/docs/reference/components
 #
-my %replace;
-$mop->{tag_wrapper_init} = sub {
-	%replace = ();
-};
-$mop->{tag_wrapper} = sub {
+my %amp_scripts = (
+'amp-ad'	=> '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>',
+'amp-audio'	=> '<script async custom-element="amp-audio" src="https://cdn.ampproject.org/v0/amp-audio-0.1.js"></script>',
+'amp-video'	=> '<script async custom-element="amp-video" src="https://cdn.ampproject.org/v0/amp-video-0.1.js"></script>',
+'amp-iframe'	=> '<script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>',
+'amp-youtube'	=> '<script async custom-element="amp-youtube" src="https://cdn.ampproject.org/v0/amp-youtube-0.1.js"></script>',
+'amp-twitter'	=> '<script async custom-element="amp-twitter" src="https://cdn.ampproject.org/v0/amp-twitter-0.1.js"></script>'
+);
+$mop->{html_filter} = sub {
 	my $self = shift;
-	my $ary  = shift;
-	my $deny = shift;	# 不許可属性
-	my $html = shift;	# このタグ以降のHTML
+	my $html = shift;
+	my $header = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $head;
-	my $tag  = $ary->[0];
-	$tag =~ tr/A-Z/a-z/;
+	foreach($html->getAll) {
+		if ($_->type ne 'tag') { next; }
+		my $name = "filter_" . $_->tag;
+		if (! $self->{$name}) { next; }
 
-	my $h = $self->perse_attr($ary);
+		$self->$name($_);
 
-	#------------------------------------------------------------
-	# img
-	#------------------------------------------------------------
-	if ($tag eq 'img') {
-		if ($h->{width}  =~ /[^\d]/) { $h->{width} =0; }
-		if ($h->{height} =~ /[^\d]/) { $h->{height}=0; }
-
-		if (!$h->{width} || !$h->{height}) {
-			$self->load_image_size($h);
-		}
-		$self->set_lastmodified($h);
-		$tag = 'amp-img';
-		$self->chain_attr($ary, $h);
-		push(@$ary, '></amp-img');
+		# ヘッダの追加が必要なタグ？ ex)amp-img, amp-video
+		my $sc = $amp_scripts{ $_->tag };
+		if ($sc) { $header->{$sc} = 1; }
 	}
-	#------------------------------------------------------------
-	# Google AdSense
-	#------------------------------------------------------------
-	if ($tag eq 'ins' && $h->{class} eq 'adsbygoogle') {
-		foreach(keys(%$h)) {
-			if (substr($_,0,5) eq 'data-') { next; }
-			delete $h->{$_};
-		}
-		$h->{type}   = "adsense";
-		$h->{layout} = "responsive";
-		$h->{width}  = 300;
-		$h->{height} = 250;
-		$self->chain_attr($ary, $h);
+};
 
-		$tag = $replace{$tag} = 'amp-ad';
-	}
-	#------------------------------------------------------------
-	# audio
-	#------------------------------------------------------------
-	if ($tag eq 'audio') {
-		$tag = $replace{$tag} = 'amp-audio';
-	}
-	#------------------------------------------------------------
-	# video
-	#------------------------------------------------------------
-	if ($tag eq 'video') {
-		$tag = $replace{$tag} = 'amp-video';
+#------------------------------------------------------------
+# img
+#------------------------------------------------------------
+$mop->{filter_img} = sub {
+	my $self = shift;
+	my $p  = shift;
+	my $at = $p->attr;
 
-		$h->{poster} ||= $self->{trans_png};
-		$self->layout($h, $deny, 180);
+	if ($at->{width}  =~ /[^\d]/) { $at->{width} =0; }
+	if ($at->{height} =~ /[^\d]/) { $at->{height}=0; }
 
-		$self->chain_attr($ary, $h);
+
+	if (!$at->{width} || !$at->{height}) {
+		$self->load_image_size($at);
 	}
+	$self->set_lastmodified($at);
+	$p->setTag('amp-img');
+	$p->after('html', '</amp-img>');
+};
+
+#------------------------------------------------------------
+# Google AdSense
+#------------------------------------------------------------
+$mop->{filter_ins} = sub {
+	my $self = shift;
+	my $p  = shift;
+	my $at = $p->attr;
+
+	if ($at->{class} ne 'adsbygoogle') { return; }
+
+	foreach(keys(%$at)) {
+		if (substr($_,0,5) eq 'data-') { next; }
+		delete $at->{$_};
+	}
+	$at->{type}   = "adsense";
+	$at->{layout} = "responsive";
+	$at->{width}  = 300;
+	$at->{height} = 250;
+
+	$p->setTag('amp-ad');
+};
+
+#------------------------------------------------------------
+# audio
+#------------------------------------------------------------
+$mop->{filter_audio} = sub {
+	my $self = shift;
+	my $p  = shift;
+	$p->setTag('amp-audio');
+};
+
+#------------------------------------------------------------
+# video
+#------------------------------------------------------------
+$mop->{filter_video} = sub {
+	my $self = shift;
+	my $p  = shift;
+	my $at = $p->attr;
+
+	$p->setTag('amp-video');
+	if ($p->isClose) { return; }
+
+	$at->{poster} ||= $self->{trans_png};
+	$self->layout($at, 180);
+};
+
+#------------------------------------------------------------
+# iframe
+#------------------------------------------------------------
+$mop->{filter_iframe} = sub {
+	my $self = shift;
+	my $p  = shift;
+	my $at = $p->attr;
+
+	my $url = $at->{src};
+	#------------------------------------------------------------
+	# YouTube
+	#------------------------------------------------------------
+	if ($url =~ m!^https?://(?:www\.youtube\.com|youtu\.be)/!) {
+		delete $at->{src};
+		$url =~ m/([\w]*)$/;
+		$at->{"data-videoid"} = $1;
+
+		$self->layout($at);
+		$p->setTag('amp-youtube');
+		my $c = $p->afterSearch('/iframe');
+		$c && $c->setTag('amp-youtube');
+		return;
+	}
+
 	#------------------------------------------------------------
 	# iframe
 	#------------------------------------------------------------
-	if ($tag eq 'iframe') {
-		my $url = $h->{src};
-		#------------------------------------------------------------
-		# YouTube
-		#------------------------------------------------------------
-		if ($url =~ m!^https?://(?:www\.youtube\.com|youtu\.be)/!) {
-			$tag = $replace{$tag} = 'amp-youtube';
+	$p->setTag('amp-iframe');
+	if ($p->isClose) { return; }
 
-			delete $h->{src};
-			$url =~ m/([\w]*)$/;
-			$h->{"data-videoid"} = $1;
+	$self->layout($at);
+	$p->after('html', "<amp-img layout=\"fill\" src=\"$self->{trans_png}\" placeholder></amp-img>");
+};
 
-			$self->layout($h, $deny);
-			$self->chain_attr($ary, $h);
-		#------------------------------------------------------------
-		# iframe
-		#------------------------------------------------------------
-		} else {
-			$tag = $replace{$tag} = 'amp-iframe';
+#------------------------------------------------------------
+# source
+#------------------------------------------------------------
+$mop->{filter_source} = sub {
+	my $self = shift;
+	my $p  = shift;
+	my $at = $p->attr;
+	my $ROBJ = $self->{ROBJ};
 
-			$self->layout($h, $deny);
-			$self->chain_attr($ary, $h);
-
-			push(@$ary, "><amp-img layout=\"fill\" src=\"$self->{trans_png}\" placeholder></amp-img");
-		}
-	}
-	#------------------------------------------------------------
-	# source
-	#------------------------------------------------------------
-	if ($tag eq 'source') {
-		my $url = $h->{src};
-		if ($url !~ m|^//|i) {
+	my $url = $at->{src};
+	if ($url !~ m|^//|i) {
+		$url =~ s|^https?:||i;
+		if (substr($url,0,2) ne '//') {
+			$url = $ROBJ->{Server_url} . $url;
 			$url =~ s|^https?:||i;
-			if (substr($url,0,2) ne '//') {
-				$url = $ROBJ->{Server_url} . $url;
-				$url =~ s|^https?:||i;
-			}
-			$h->{src} = $url;
-			$self->chain_attr($ary, $h);
 		}
+		$at->{src} = $url;
 	}
-	#------------------------------------------------------------
-	# Twitter
-	#------------------------------------------------------------
-	if ($tag eq 'blockquote' && $h->{class} eq 'twitter-tweet'
-	 && $html =~ m|https://twitter\.com/[^/]*/status(?:es)?/(\d+)|) {
-		$tag  = "amp-twitter layout=\"flex-item\" data-tweetid=\"$1\"><blockquote";
+};
 
-		$replace{blockquote} = 'blockquote></amp-twitter';
+#------------------------------------------------------------
+# Twitter
+#------------------------------------------------------------
+$mop->{filter_blockquote} = sub {
+	my $self = shift;
+	my $p  = shift;
+	my $at = $p->attr;
+
+	if ($at->{class} ne 'twitter-tweet') { return; }
+	my $a = $p->afterSearch('a');
+	if (!$a) { return; }
+
+	my $url = $a->attr->{href};
+	if ($url =~ m|https://twitter\.com/[^/]*/status(?:es)?/(\d+)|) {
+		$p->setTag('amp-twitter');
+
+		my $at2 = { 'data-tweetid' => $1 };
+		$self->layout($at2);
+		$p->setAttr($at2);
+
+		my $ac = $a->next;
+		if ($ac->tag eq 'a' && $ac->isClose) { $ac->remove(); }
+		$a->remove();
+
+		my $bq = $p->afterSearch('/blockquote');
+		$bq && $bq->setTag('amp-twitter');
 	}
-	$ary->[0] = $tag;
-
-	$tag =~ s/[^\w\-].*$//;
-	return $amp_scripts{$tag};
 };
 
 #------------------------------------------------------------
@@ -397,73 +435,19 @@ $mop->{tag_wrapper} = sub {
 #------------------------------------------------------------
 $mop->{layout} = sub {
 	my $self = shift;
-	my $h    = shift;
-	my $deny = shift;
+	my $at   = shift;
 	my $default = shift;
 
-	my $h2 = $self->perse_attr($deny, 0);
-	if ($h2->{style} =~  /(?:^|\s)width\s*:\s*(\d+)(?:px)?/i) { $h->{width} = $1; }
-	if ($h2->{style} =~ /(?:^|\s)height\s*:\s*(\d+)(?:px)?/i) { $h->{height}= $1; }
+	if ($at->{style} =~  /(?:^|\s)width\s*:\s*(\d+)(?:px)?/i) { $at->{width} = $1; }
+	if ($at->{style} =~ /(?:^|\s)height\s*:\s*(\d+)(?:px)?/i) { $at->{height}= $1; }
 
-	if ($h->{width} && $h->{height}) {
-		$h->{layout} = 'responsive';
+	if ($at->{width} && $at->{height}) {
+		$at->{layout} = 'responsive';
 	} else {
-		$h->{layout} = 'fixed-height';
-		$h->{height} ||= $default || 240;
-		delete $h->{width};
+		$at->{layout} = 'fixed-height';
+		$at->{height} ||= $default || 240;
+		delete $at->{width};
 	}
-};
-
-#------------------------------------------------------------------------------
-# ●閉じタグ
-#------------------------------------------------------------------------------
-$mop->{close_tag_wrapper} = sub {
-	my $tag = shift;
-	if ($replace{$tag}) {
-		$tag = $replace{$tag};
-		delete $replace{$tag};
-		return $tag;
-	}
-	return $tag;
-};
-
-#------------------------------------------------------------------------------
-# ●tagの属性解析
-#------------------------------------------------------------------------------
-$mop->{perse_attr} = sub {
-	my $self = shift;
-	my $ary  = shift;
-	my $i    = $_[0] eq '' ? 1 : shift;
-	my %h;
-	foreach(; $i<=$#$ary; $i++) {
-		if ($ary->[$i] =~ m/^([\w-]+)(?:="([^\"]*)")?$/) {
-			my $k = $1;
-			my $v = $2;
-			$k =~ tr/A-Z/a-z/;
-			$h{$k} = $v;
-		} else {
-			$h{error} = "tag format error!!!";
-		}
-	}
-	return \%h;
-};
-#------------------------------------------------------------------------------
-# ●tagの属性再結合
-#------------------------------------------------------------------------------
-$mop->{chain_attr} = sub {
-	my $self = shift;
-	my $ary  = shift;
-	my $h    = shift;
-	@$ary = ( $ary->[0] );	# $ary=[] is don't work!
-	foreach(keys(%$h)) {
-		my $v = $h->{$_};
-		if ($v ne '') {
-			push(@$ary, "$_=\"$v\"");
-			next;
-		}
-		push(@$ary, $_);
-	}
-	return $ary;
 };
 
 #------------------------------------------------------------------------------
@@ -471,9 +455,9 @@ $mop->{chain_attr} = sub {
 #------------------------------------------------------------------------------
 $mop->{set_lastmodified} = sub {
 	my $self = shift;
-	my $h    = shift;
+	my $at   = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $url  = $h->{src};
+	my $url  = $at->{src};
 
 	if (index($url, '?') >= 0) { return; }
 
@@ -486,7 +470,7 @@ $mop->{set_lastmodified} = sub {
 
 		my $tm = $ROBJ->get_lastmodified($file);
 		$url .= "?$tm";
-		$h->{src} = $url;
+		$at->{src} = $url;
 	}
 };
 
@@ -495,20 +479,20 @@ $mop->{set_lastmodified} = sub {
 #------------------------------------------------------------------------------
 $mop->{load_image_size} = sub {
 	my $self = shift;
-	my $h    = shift;	# tag attributes hash
+	my $at   = shift;	# tag attributes hash
 	my $ROBJ = $self->{ROBJ};
 	my $aobj = $self->{aobj};
 
 	# load image magick
 	my $img = $aobj->load_image_magick();
 	if (!$img) {
-		$h->{error} = 'Image::Magick Load Error';
+		$at->{'data-error'} = 'Image::Magick Load Error';
 		return;
 	}
 
-	my ($x, $y) = $self->get_image_size($h->{src});
-	if (!$h->{width})  { $h->{width} =$x; }
-	if (!$h->{height}) { $h->{height}=$y; }
+	my ($x, $y) = $self->get_image_size($at->{src});
+	if (!$at->{width})  { $at->{width} =$x; }
+	if (!$at->{height}) { $at->{height}=$y; }
 	return;
 };
 

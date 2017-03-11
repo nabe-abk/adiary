@@ -127,15 +127,6 @@ sub escape {
 	my $inp  = shift;
 	my $wrapper = shift || {};
 
-	my $test = '';
-	for(my $i=0x20; $i<0x7f; $i++) {
-		$test .= "&#$i;";
-		if (($i & 15) == 15) { $test .= "\n"; }
-	}
-	$inp =~ s/<test>/$test/g;
-
-
-
 	# HTML解析
 	my $html = $self->parse($inp);
 
@@ -161,8 +152,8 @@ sub parse {
 	my $inp  = shift;
 	my $html = Satsuki::TextParser::TagEscape::HTML->new();
 
-	### escape用文字除去, \x05-\x08はユーザーに解放
-	$inp =~ s/[\x01-\x08]//g;
+	### escape用文字除去, \x02,\x03はユーザーに解放
+	$inp =~ s/[\x00-\x03]//g;
 
 	### コメント退避(保存) or 除去
 	my @com;
@@ -177,9 +168,9 @@ sub parse {
 	while($inp =~ m{^(.*?)<([/\!A-Za-z][\w\-]*)((?:\s*(?:[A-Za-z][\w\-]*|".*?")(?:\s*=\s*(?:".*?"|'.*?'|[^\s>]*))?)*)\s*/?>(.*)}si) {
 		my $text = $1;	# 前部分
 		$inp  = $4;	# 残り
-		my $name = $2;	# タグ名
+		my $tag  = $2;	# タグ名
 		my $attr = $3;	# 属性
-		$name =~ tr/A-Z/a-z/;
+		$tag =~ tr/A-Z/a-z/;
 
 		#--------------------------------------------
 		# 手前部分
@@ -194,7 +185,7 @@ sub parse {
 		#--------------------------------------------
 		# !DOCTYPE
 		#--------------------------------------------
-		if ($name eq '!doctype') {
+		if ($tag eq '!doctype') {
 			$attr =~ s/\s+/ /g;
 			$html->add('doctype', "<!DOCTYPE$attr>");
 			next;
@@ -203,7 +194,7 @@ sub parse {
 		#--------------------------------------------
 		# コメント
 		#--------------------------------------------
-		if ($name =~ /^!--(\d+)--$/) {
+		if ($tag =~ /^!--(\d+)--$/) {
 			$html->add('comment', "<!--$com[$1]-->");
 			next;
 		}
@@ -214,7 +205,7 @@ sub parse {
 		$attr =~ s/</&lt;/g;
 		$attr =~ s/>/&gt;/g;
 
-		my @order; my %at;
+		my @order; my $at={};
 		while($attr =~ /\G[\n\s]*([A-Za-z][\w\-]*|(".*?"))(?:\s*=\s*(?:"(.*?)"|'(.*?)'|([^\s>]+))?|)/sg) {
 			if ($2) { next; }
 			my $k=$1;
@@ -229,69 +220,28 @@ sub parse {
 			if ($PROTOCOL_CHECK{$k}) {	# URIエンコード
 				$v =~ s/([^\.\/\~\*\-\w\#:;=\+\?&%\@,])/'%' . unpack('H2', $1)/eg;
 			}
-			$at{$k} = $v;
+			$at->{$k} = $v;
 		}
 
 		#--------------------------------------------
 		# 出力
 		#--------------------------------------------
 		$html->add('tag', {
-			tag   => $name,
-			attr  => \%at,
+			tag   => $tag,
+			attr  => $at,
 			order => \@order
 		});
 
 		#--------------------------------------------
 		# scriptタグの処理
 		#--------------------------------------------
-		if ($name eq 'script') {
+		if ($tag eq 'script') {
 			$inp =~ s|^(.*?)</script\s*>||si;
 			my $scr = $1;
 			$scr =~ s|<!--(\d+)-->|<!--$com[$1]-->|g;
 			$html->add('script', $scr);
 			$html->add('tag', '/script');
 		}
-	}
-	$html->pop();	# <end>を除去
-	return $html;
-}
-
-#------------------------------------------------------------------------------
-# ●許可タグ処理
-#------------------------------------------------------------------------------
-sub filter {
-	my $self = shift;
-	my $html = shift;
-	if ($self->{allow}->{_anytag}) { return; }
-
-	# タグ処理
-	my $allow   = $self->{allow};
-	my $modules = $self->{modules};
-	my $base      = $self->load_allow_at('_base');
-	my $base_deny = $self->load_allow_at('_base_deny');
-	my $protocol  = $self->load_allow_at('_protocol');
-
-	for(my $p=$html->first; $p; $p=$p->next) {
-		my $type = $p->type();
-		if ($type) {
-			if ($type eq 'text' || $type eq 'doctype') {
-				next;
-			}
-			if ($type eq 'comment') {
-				if (!$allow->{_comment}) { $p->remove(); }
-				next;
-			}
-			if ($type eq 'script') {
-				if (!$allow->{script}) { $p->remove(); }
-				next;
-			}
-		}
-
-		#--------------------------------------------------------
-		# タグ処理
-		#--------------------------------------------------------
-		if ($type ne 'tag') { next; }
-		my $tag = $p->tag();
 
 		#--------------------------------------------------------
 		# モジュールタグ？
@@ -300,7 +250,6 @@ sub filter {
 			my $data     = {};
 			my $data_uri = {};
 			my $data_int = {};
-			my $at = $p->attr();
 			foreach(keys(%$at)) {
 				my $v = $at->{$_};
 				$v =~ s/</&lt;/g;
@@ -316,17 +265,50 @@ sub filter {
 			my $name = $data->{name};
 
 			# 置換処理
-			my $html = $modules->{ $name };
-			$html =~ s/\#\{([\w\-]+)(?:\|([^\}]*))?\}/$data->{$1}     ne '' ? $data->{$1}     : $2/eg;
-			$html =~ s/\$\{([\w\-]+)(?:\|([^\}]*))?\}/$data_uri->{$1} ne '' ? $data_uri->{$1} : $2/eg;
-			$html =~ s/\$(euc|sjis|utf8)\{([\w\-]+)\}/ $self->code_conv($data->{$2},$1) /eg;
-			$p->replace('html', $html);
+			my $mod = $self->{modules}->{ $name };
+			$mod =~ s/\#\{([\w\-]+)(?:\|([^\}]*))?\}/$data->{$1}     ne '' ? $data->{$1}     : $2/eg;
+			$mod =~ s/\$\{([\w\-]+)(?:\|([^\}]*))?\}/$data_uri->{$1} ne '' ? $data_uri->{$1} : $2/eg;
+			$mod =~ s/\$(euc|sjis|utf8)\{([\w\-]+)\}/ $self->code_conv($data->{$2},$1) /eg;
+			$html->last->replace('html', $mod);
+		}
+	}
+#	$html->pop();	# <end>を除去
+	return $html;
+}
+
+#------------------------------------------------------------------------------
+# ●許可タグ処理
+#------------------------------------------------------------------------------
+sub filter {
+	my $self = shift;
+	my $html = shift;
+	if ($self->{allow}->{_anytag}) { return; }
+
+	# タグ処理
+	my $allow     = $self->{allow};
+	my $base      = $self->load_allow_at('_base');
+	my $base_deny = $self->load_allow_at('_base_deny');
+	my $protocol  = $self->load_allow_at('_protocol');
+
+	foreach my $p ($html->getAll) {
+		my $type = $p->type();
+		if ($type ne 'tag') {
+			if ($type eq 'comment') {
+				if (!$allow->{_comment}) { $p->remove(); }
+				next;
+			}
+			if ($type eq 'script') {
+				if (!$allow->{script}) { $p->remove(); }
+				next;
+			}
 			next;
 		}
 
 		#--------------------------------------------------------
-		# 許可されたタグ？
+		# タグ処理
 		#--------------------------------------------------------
+		my $tag = $p->tag();
+
 		if (! $allow->{$tag}) {
 			$p->remove();
 			next;
@@ -434,7 +416,7 @@ sub url_filter {
 	if (!$wrapper && !$abs_uri && !$abs_path) { return; }
 
 	# 書き換え処理
-	for(my $p=$html->first; $p; $p=$p->next) {
+	foreach my $p ($html->getAll) {
 		if ($p->type ne 'tag') { next; }
 		my $at = $p->attr;
 		foreach(keys(%$at)) {
@@ -564,7 +546,8 @@ sub new {
 		$self->{tag}   = $c ? $1 : $val;
 		$self->{attr}  ||= {};
 		$self->{order} ||= [];
-	} elsif ($type eq 'comment' || $type eq 'text' || $type eq 'html' || $type eq 'script' || $type eq 'doctype') {
+	} elsif ($type eq 'comment' || $type eq 'text' || $type eq 'html'
+	      || $type eq 'script'  || $type eq 'doctype' || $type eq 'end') {
 		$self->{type}  = $type;
 		$self->{$type} = $val;
 	} else {
@@ -575,6 +558,14 @@ sub new {
 sub type { return $_[0]->{type} || 'tag'; }
 sub tag  { return $_[0]->{tag};  }
 sub attr { return $_[0]->{attr}; }
+sub setTag {
+	my $self = shift;
+	$self->{tag} = shift;
+}sub setAttr {
+	my $self = shift;
+	$self->{attr} = shift;
+}
+sub isClose { return $_[0]->{close}; }
 
 sub toString {
 	my $self = shift;
@@ -616,7 +607,7 @@ sub remove {
 	delete $self->{next};
 	$prev->{next} = $next;
 	$next->{prev} = $prev;
-	return;
+	return $self;
 }
 sub replace {
 	my $self = shift;
@@ -632,7 +623,61 @@ sub replace {
 	$obj ->{prev} = $prev;
 	$obj ->{next} = $next;
 	$next->{prev} = $obj;
+	return $self;
+}
+sub before {
+	my $self = shift;
+	my $obj  = shift;
+	if (!ref($obj)) {
+		$obj = __PACKAGE__->new($obj, @_);
+	}
+	my $prev = $self->{prev};
+	$prev->{next} = $obj;
+	$obj ->{prev} = $prev;
+	$obj ->{next} = $self;
+	$self->{prev} = $obj;
+	return $self;
+}
+sub after {
+	my $self = shift;
+	my $obj  = shift;
+	if (!ref($obj)) {
+		$obj = __PACKAGE__->new($obj, @_);
+	}
+	my $next = $self->{next};
+	$self->{next} = $obj;
+	$obj ->{prev} = $self;
+	$obj ->{next} = $next;
+	$next && ($next->{prev} = $obj);
+	return $self;
+}
+sub search {
+	my $self = shift;
+	my $df   = shift;
+	my $func = shift;
+	if (!ref($func)) {
+		my $tag = $func;
+		if ($tag =~ m|^/([\w\-]+)|) {
+			$tag = $1;
+			$func = sub { my $t=shift; $t->{tag} eq $tag && $t->{close} };
+		} else {
+			$func = sub { (shift)->{tag} eq $tag };
+		}
+	}
+	my $p = $self->{$df};
+	while($p && $p->{type} ne 'end') {
+		if (&$func($p)) { return $p; }
+		$p = $p->{$df};
+	}
 	return;
+}
+sub afterSearch {
+	my $self = shift;
+	return $self->search('next', @_);
+}
+sub beforeSearch {
+	my $self = shift;
+	return $self->search('prev', @_);
 }
 
 
@@ -643,6 +688,10 @@ package Satsuki::TextParser::TagEscape::HTML;
 
 sub new {
 	my $self = bless({}, shift);
+	my $first = $self->{first} = Satsuki::TextParser::TagEscape::DOM->new('end');
+	my $last  = $self->{last}  = Satsuki::TextParser::TagEscape::DOM->new('end');
+	$first->{next} = $last;
+	$last ->{prev} = $first;
 	return $self;
 }
 
@@ -660,18 +709,19 @@ sub add {
 sub getAll {
 	my $self = shift;
 	my @ary;
-	my $p = $self->{first};
+	my $p = $self->first;
 	while($p) {
 		push(@ary, $p);
 		$p = $p->{next};
 	}
+	pop(@ary);	# remove {last}
 	return @ary;
 }
 
 sub toString {
 	my $self = shift;
 	my $str = '';
-	my $p = $self->{first};
+	my $p = $self->first;
 	while($p) {
 		$str .= $p->toString();
 		$p = $p->{next};
@@ -679,29 +729,27 @@ sub toString {
 	return $str;
 }
 
-sub first { return $_[0]->{first}; }
-sub last  { return $_[0]->{last};  }
+sub first { return $_[0]->{first}->{next}; }
+sub last  { return $_[0]->{last} ->{prev}; }
 
 sub do_add {
 	my $self = shift;
+	my $last = $self->{last};
 
-	$self->{first} ||= $_[0];
-	my $p = $self->{last};
+	my $p = $last->{prev};
 	foreach(@_) {
 		$p->{next} = $_;
 		$_->{prev} = $p;
 		$p = $_;
 	}
-	$self->{last} = $p;
+	$p->{next} = $last;
+	$last->{prev} = $p;
 	return $self;
 }
 
 sub pop {
 	my $self = shift;
-	my $dom  = $self->{last};
-	$self->{last} = $dom->{prev};
-	$self->{last}->{next} = undef;
-	return $dom;
+	return $self->last->remove();
 }
 
 
