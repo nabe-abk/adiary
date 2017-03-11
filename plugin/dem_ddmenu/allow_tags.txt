@@ -29,5 +29,5 @@ ul
 li
 
 # 相対パスを絶対パスに書き換え
-_force_absolute_path
+_absolute_path
 

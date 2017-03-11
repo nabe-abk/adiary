@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------------
 # タグ制限を完全になくしたい場合は trust_mode を検討ください。
 _base		id, title, class, style, lang, data-
-_base_deny	data-url, data-module-name
+_base_deny	data-url, data-src, data-module-name
 _protocol	http, https, ftp, mailto, mms
 _comment
 ### 基本 ########################
@@ -129,10 +129,10 @@ amp-sticky-ad
 # style 指定子によるXSS対策
 #_style_secure
 # 相対パスを絶対パスに書き換え
-_force_absolute_path
+_absolute_path
 
 # すべてのタグを許可
-# _allow_anytag
+# _anytag
 
 ################################################################################
 # ■ module 記述子

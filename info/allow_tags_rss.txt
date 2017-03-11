@@ -5,7 +5,7 @@ _base		id, title, style, lang
 _protocol	http, https, ftp, mailto, mms
 
 # 相対URIを絶対URI（ドメイン付き）に書き換え
-_force_absolute_uri
+_absolute_uri
 
 ### 基本 #########################
 a		href, name
