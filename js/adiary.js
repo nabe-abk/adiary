@@ -122,12 +122,12 @@ $.fn.extend({
 //////////////////////////////////////////////////////////////////////////////
 //●[jQuery] ディレイ付showとhide
 //////////////////////////////////////////////////////////////////////////////
-delay_show: function(){
+showDelay: function(){
 	var args = Array.prototype.slice.call(arguments);
 	args[0] = (args[0] == undefined) ? DefaultShowSpeed : args[0];
 	return $.fn.show.apply(this, args);
 },
-delay_hide: function(){
+hideDelay: function(){
 	var args = Array.prototype.slice.call(arguments);
 	args[0] = (args[0] == undefined) ? DefaultShowSpeed : args[0];
 	return $.fn.hide.apply(this, args);
@@ -563,7 +563,7 @@ function easy_popup(evt) {
 		func(obj, div);
 	  	div.css("left", (SP ? 0 : (evt.pageX +PopupOffsetX)));
 	  	div.css("top" ,            evt.pageY +PopupOffsetY);
-		div.delay_show();
+		div.showDelay();
 	};
 
 	var delay = obj.data('delay') != null ? obj.data('delay') : DefaultShowSpeed;
@@ -1991,7 +1991,7 @@ function adiary_session(_btn, opt){
 	var load_session = myself + '?etc/load_session';
 	var interval = opt.interval || log.data('interval') || 300;
 	var snum;
-	log.delay_show();
+	log.showDelay();
 
 	if (opt.init) opt.init(evt);
 

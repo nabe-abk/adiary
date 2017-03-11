@@ -270,9 +270,9 @@ function do_edit_lock() {
 function display_lock_state(data) {
 	lockers_ul.empty();
 	if (data && data.length)
-		lock_notice.delay_show();
+		lock_notice.showDelay();
 	else
-		return lock_notice.delay_hide();
+		return lock_notice.hideDelay();
 
 	// 編集中の人々を表示
 	for(var i in data) {

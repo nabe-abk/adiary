@@ -1364,7 +1364,7 @@ function upload_post_process(text) {
 	} else {
 		message.html( '<div class="message error">upload error : ' + tag_esc(ret) + '</div>' );
 	}
-	message.delay_show();
+	message.showDelay();
 
 	// ファイル選択を初期化する
 	filesdiv.empty();
