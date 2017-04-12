@@ -1048,7 +1048,7 @@ sub validator {
 			} elsif ($f =~ /^file:(.*)$/) {
 				my $x = $1;
 				my $tag_esc = $self->loadpm('TextParser::TagEscape', $1);
-				$tag_esc->{allow_anytag} = $f_opt;
+				$tag_esc->anytag($f_opt);
 				$x =~ s/([\x00-\x1f])/'#' . ord($_) . '#'/eg;
 				$v = $tag_esc->escape( $v );
 			} elsif ($f =~ /^reg_(del|rep):(.*)$/) {
@@ -1410,7 +1410,7 @@ sub generate_json {
 sub json_encode {
 	my $self = shift;
 	my $v = shift;
-	if ($v =~ /^\d+$/) { return $v; }
+	if ($v =~ /^[1-9]\d*$/) { return $v; }
 	if (ref($v) eq 'SCALAR') { return $$v; }	# true/false/null
 	# 文字列
 	$v =~ s/\\/&#92;/g;

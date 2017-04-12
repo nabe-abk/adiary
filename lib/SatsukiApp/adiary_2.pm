@@ -1906,7 +1906,7 @@ sub load_parser {
 sub load_tag_escaper {
 	my $self = shift;
 	my $obj  = $self->load_tag_escaper_force(@_);
-	$obj->allow_anytag( $self->{trust_mode} );
+	$obj->anytag( $self->{trust_mode} );
 	return $obj;
 }
 sub load_tag_escaper_force {

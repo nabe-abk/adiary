@@ -82,7 +82,7 @@ sub export {
 	# URL書き換えルーチン
 	#---------------------------------------------------------------------
 	my $escape = $ROBJ->loadpm('TextParser::TagEscape');
-	$escape->allow_anytag();
+	$escape->anytag(1);
 
 	my $theme_dir = $aobj->{static_theme_dir};
 
