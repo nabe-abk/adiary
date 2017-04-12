@@ -37,8 +37,8 @@
 		<th>ブログ名</th><td<@err.c_blog_name>><input type="text" name="blog_name" class="w280" value="<@s.blog_name>" required></td>
 	</tr>
 	<tr>
-		<th>ブログの説明（紹介）<br>（RSSにも出力）<br><a href="<@v.myself>?etc/allow_tags&amp;n=description" target="_blank">使用可能なHTMLタグ</a></th><td><textarea name="description_txt" class="description w400" cols="50" rows="3" wrap="soft"><@replace(x = s.description_txt, "<br>", "\n")></textarea>
-		改行有効。紹介文以外は<a href="<@v.myself>?design/edit">デザイン編集</a>をご利用ください。</td>
+		<th>ブログの紹介<br>（RSSにも出力）<br><a href="<@v.myself>?etc/allow_tags&amp;n=description" target="_blank">使用可能なHTMLタグ</a></th><td><textarea name="description_txt" class="description w400" cols="50" rows="3" wrap="soft"><@replace(x = s.description_txt, "<br>", "\n")></textarea>
+		改行有効。タグ非推奨。紹介文以外は<a href="<@v.myself>?design/edit">デザイン編集</a>を。</td>
 	</tr>
 	<tr>
 		<th>日付変更時間<span class="help" data-help="例えば「20日1時」を「19日深夜1時」として表示する機能です。元日と4/1は常に無効。">?</span><td>午前 
