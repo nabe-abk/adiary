@@ -56,6 +56,7 @@
 -【fix】続きを読む記法使用時、最後のセクションにある注釈が短い表示の時に出力されていてた。
 -【fix】HTTPリクエストヘッダの改行が LF になっていた。
 -【fix】コメント投稿時、スマホメニューが更新されない。
+-【fix】麻雀記法の画像の、横「白」と横「發」が入れ替わっていた。（[https://adiary.org/v3man/Satsuki-detail/mahjong#c1:Thanks to Sabazo]）
 -【fix/https】はてなブックマーク等の外部リソース読み込みが http: 決め打ちだった。
 -【fix/plugin】ソーシャルボタンのはてなブックマーク数がSSL環境で表示されない。
 -【fix/plugin】ソーシャルボタンのpocketシェア数が表示されなくなっていた。
