@@ -210,8 +210,9 @@ sub do_request {
 		while(my ($k,$v) = each(%$cookie)) {
 			$k =~ /(.*);/;
 			my $chost = $1;
-			if ($chost eq $host
-			 || (substr($chost, 0, 1) eq '.' && index($host, substr($chost, 1)) >=0) ) {
+			my $dom   = $1;
+			$dom =~ s/^\.*/./;
+			if ($chost eq $host || index($host, $dom)>0 ) {
 			 	if ($v->{path} && index($path, $v->{path}) < 0) { next; }
 			 	if ($v->{value} eq '') { next; }	# 空のcookieは無視
 				$http_cookie .= "$v->{name}=$v->{value};";
