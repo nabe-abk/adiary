@@ -138,6 +138,7 @@ sub blog_clear {
 #------------------------------------------------------------------------------
 sub rebuild_blog {
 	my $self = shift;
+	my $logs = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
 	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
@@ -155,7 +156,7 @@ sub rebuild_blog {
 		}
 	}
 
-	my $arts = $DB->select_match("${blogid}_art", '*cols', ['pkey', '_text', 'parser', 'yyyymmdd', 'tm', 'link_key']);
+	my $arts = $logs || $DB->select_match("${blogid}_art", '*cols', ['pkey', '_text', 'parser', 'yyyymmdd', 'tm', 'link_key']);
 	my %update;
 	my $r=0;
 	foreach(@$arts) {
@@ -187,11 +188,15 @@ sub rebuild_blog {
 		my %h;
 		$h{text}   = $text;
 		$h{text_s} = $text_s;	# 短いtext
+		if ($logs) {
+			$h{_text} = $_->{_text};
+		}
 		# 記事概要の生成
 		$self->set_description(\%h);
 
 		$update{ $_->{pkey} } = \%h;
 	}
+
 	#-----------------------------------------------
 	# DBに対するupdateを一気に発行する
 	#-----------------------------------------------
@@ -1121,6 +1126,240 @@ sub import_error {
 	$msg = $ROBJ->message_translate($msg, @_);
 	$ROBJ->tag_escape($msg);
 	$ROBJ->error("$head $msg");
+}
+
+
+###############################################################################
+# ■外部画像の取り込み
+###############################################################################
+#------------------------------------------------------------------------------
+# ●記事データロード
+#------------------------------------------------------------------------------
+sub import_img_init {
+	my ($self, $form) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $DB   = $self->{DB};
+	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
+	my $blogid = $self->{blogid};
+
+	#-------------------------------------------------------------
+	# 取得する記事の条件生成
+	#-------------------------------------------------------------
+	my %q;
+	my $filename = $self->{blogid};
+	if ($form->{enable_only}) {
+		$q{flag} = {enable => 1};
+	}
+	if ($form->{tag} ne '') {
+		#------------------------------------
+		# タグ指定
+		#------------------------------------
+		my $taglist = $self->load_tag_cache($blogid);
+		my $name2pkey = $taglist->[0];
+		my $tag = $taglist->[ $name2pkey->{ $form->{tag} } ];
+
+		# そのタグを持つ記事一覧
+		my $arts = $tag->{arts};
+		$q{match}->{pkey} = $arts ? $arts : -1;
+	}
+
+	#-------------------------------------------------------------
+	# 記事の取得
+	#-------------------------------------------------------------
+	$q{sort} = ['yyyymmdd', 'tm'];	# ソート
+	$q{cols} = ['yyyymmdd', 'tm', 'title', 'parser'];
+
+	my $logs = $DB->select("${blogid}_art", \%q);
+
+	if ($form->{html_only}) {
+		$logs = [ grep { $_->{parser} =~ /^simple/  } @$logs ];
+	}
+	return $logs;
+}
+
+#------------------------------------------------------------------------------
+# ●記事の画像データを外部ロード
+#------------------------------------------------------------------------------
+sub import_img {
+	my ($self, $form) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $DB   = $self->{DB};
+	if (! $self->{blog_admin}) { $ROBJ->message('Operation not permitted'); return 5; }
+
+	my $blogid = $self->{blogid};
+	my $pkey = int($form->{pkey});
+
+	my $log = $DB->select_match_limit1("${blogid}_art", 'pkey', $pkey);
+	if (!$log) { return $ROBJ->message('Article not found.(pkey=%d)', $pkey); return 21; }
+
+	my $tag   = $self->load_tag_escaper();
+	my $html  = $tag->parse( $log->{_text} );
+	my $media = $form->{media} ? 1 : 0;
+	my $base  = $form->{base};
+	if ($base !~ m|^https?://\w+(?:\.\w+)+/|i) {
+		$base = undef;
+	}
+	my $folder= $form->{folder};
+	$folder =~ s/%y/substr($log->{yyyymmdd},0,4)/eg;
+	$folder =~ s/%m/substr($log->{yyyymmdd},4,2)/eg;
+	my $dir  = $self->image_folder_to_dir( $folder );
+
+	my $msg = '';
+	my $http = $ROBJ->loadpm("Base::HTTP");
+	my %rep;
+	foreach my $e ($html->getAll) {
+		my $type = $e->type();
+		if ($type ne 'tag') { next; }
+
+		my $tag = $e->tag();
+		if (!($tag eq 'img' || $media && ($tag eq 'source' || $tag eq 'audio'))) {
+			next;
+		}
+		my $url_s = $e->attr->{src};
+		my $prev  = $e->prev;
+		my $url_l = ($prev->tag eq 'a') ? $prev->attr->{href} : '';
+		if ($url_l eq $url_s) {
+			$url_s = undef;
+		}
+		$url_s = $url_s =~ m!^(?:|http:|https:)//! ? $url_s : ($base ? "$base$url_s" : '');
+		$url_l = $url_l =~ m!^(?:|http:|https:)//! ? $url_l : ($base ? "$base$url_l" : '');
+
+		my $img_s;
+		my $img_l;
+		if ($url_s) {
+			$img_s = $self->get_imgdata($http, $url_s);
+			$msg  .= '  Download ' . ($img_s ? 'success' : 'fail!  ') . ' : ' . $url_s . "\n";
+		}
+		if ($url_l) {
+			$img_l = $self->get_imgdata($http, $url_l);
+			$msg  .= '  Download ' . ($img_l ? 'success' : 'fail!  ') . ' : ' . $url_l . "\n";
+		}
+		if ($img_s && !$img_l) {
+			$url_l = $url_s;
+			$img_l = $img_s;
+			$url_s = undef;
+			$img_s = undef;
+		}
+
+		# 保存ファイル名
+		my $fname = $url_l =~ m|([^/]*)$| ? $1 : '';
+		$ROBJ->tag_unescape($fname);
+		$fname =~ s/%([0-9A-Fa-f][0-9A-Fa-f])/$1/g;
+		my $file = $fname;
+		$ROBJ->tag_escape($file);
+		$file = "$dir$file";
+
+		if (!$img_l) { next; }
+		if ($self->save_image_to_album($dir, $fname, $img_l)) {
+			$msg  .= "  Save '$fname' fail!\n";
+			next;	# save fail
+		}
+
+		# サムネイル保存
+		my $thumb;
+		my $thumb_file = $self->get_thumbnail_file($dir, $fname);
+		while ($img_s) {
+			if ($url_s !~ /\.jpe?g/i) {
+				my ($fh, $file) = $ROBJ->open_tmpfile();
+				if (!$fh) { last; }
+				syswrite($fh, $img_s, length($img_s));
+				close($fh);
+
+				my $img = $self->load_image_magick();
+				eval {
+					$img->Read( $file );
+					$img->Set( quality => ($self->{album_jpeg_quality} || 80) );
+					$img->Write( $thumb_file );
+				};
+				if ($@) { last; }
+				$thumb = 1;
+			} else {
+				$thumb = $ROBJ->fwrite_lines( $thumb_file, $img_s ) ? 1 : 0;
+			}
+			last;
+		}
+
+		$rep{$url_l} = $file;
+		if ($img_s) {
+			$rep{$url_s} = $thumb_file;
+		}
+	}
+
+	#----------------------------------------------------
+	# HTMLの書き換え
+	#----------------------------------------------------
+	my $data  = $self->{blog}->{image_data};
+	$data =~ s/%k/$log->{pkey}/g;
+	my @ary = split(/\s+/, $data);
+	my $data = '';
+	foreach(@ary) {
+		if ($_ !~ /^([A-Za-z][\w\-]*)=(.*)$/) { next; }
+		my $n = $1;
+		my $v = $2;
+		$ROBJ->tag_escape($v);
+		$data .=" data-$n=\"$v\"";
+	}
+
+	my $rewrite = 0;
+	if (%rep) {
+		$log->{_text} =~ s{(<a\b[^>]*?\shref\s*=\s*)(["'])(.*?)\2}{
+			my $url = $3;
+			if ($rep{$3}) {
+				$url = $rep{$url};
+				$rewrite++;
+			}
+			"$1$2$url$2" . ($rep{$3} ? $data : '');
+		}iseg;
+		$log->{_text} =~ s{(<[^>]*?\ssrc\s*=\s*)(["'])(.*?)\2}{
+			my $url = $3;
+			if ($rep{$3}) {
+				$url = $rep{$url};
+				$rewrite++;
+			}
+			"$1$2$url$2";
+		}iseg;
+
+		if ($rewrite) {
+			$msg .= "  Rewrite : $rewrite urls\n";
+			$self->rebuild_blog([ $log ]);
+		}
+	}
+	
+	
+	
+	
+	
+
+	chomp($msg);
+	return (0,$msg);
+}
+
+#------------------------------------------------------------------------------
+# ●指定したURLの画像データを取得
+#------------------------------------------------------------------------------
+sub get_imgdata {
+	my $self = shift;
+	my $http = shift;
+	my ($st, $h, $res) = $http->get(@_);
+	if ($st>299) { return ; }
+
+	return join('', @$res);
+}
+
+#------------------------------------------------------------------------------
+# ●画像データをアルバムに保存
+#------------------------------------------------------------------------------
+sub save_image_to_album {
+	my $self = shift;
+	my $dir  = shift;
+	my $name = shift;
+	my $data = shift;
+
+	return $self->do_upload( $dir, {
+		file_name => $name,
+		file_size => length($data),
+		data => $data
+	});
 }
 
 ###############################################################################

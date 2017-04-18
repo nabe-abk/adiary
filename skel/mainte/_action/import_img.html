@@ -1,0 +1,11 @@
+<@20>
+<@local(r)>
+<$ifbreak(csrf_check())>
+<$ifbreak(! v.blog_admin)>
+
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+<$set_content_type('text/text')>
+
+<$(r, text) = v.import_img(Form)>
+<@if(r, tag_delete(join('',Message)), text)>

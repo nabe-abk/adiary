@@ -1,0 +1,12 @@
+<@20>
+<@local(r)>
+<$ifbreak(csrf_check())>
+<$ifbreak(! v.blog_admin)>
+
+<$v.action_is_main=1>
+<$v.frame_skeleton=''>
+<$set_content_type('text/json')>
+
+<$r = v.import_img_init(Form)>
+<$ifset(!ref(r), r, array(r))>
+<@generate_json(r)>

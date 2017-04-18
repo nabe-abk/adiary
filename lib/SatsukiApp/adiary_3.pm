@@ -187,6 +187,17 @@ sub make_thumbnail {
 }
 
 #------------------------------------------------
+# ○サムネイルパスを取得（for import_img() ）
+#------------------------------------------------
+sub get_thumbnail_file {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $dir  = $ROBJ->get_filepath( shift );
+	$ROBJ->mkdir("${dir}.thumbnail/");
+	return "${dir}.thumbnail/" . shift . ".jpg";
+}
+
+#------------------------------------------------
 # ○画像ファイル
 #------------------------------------------------
 sub make_thumbnail_for_image {

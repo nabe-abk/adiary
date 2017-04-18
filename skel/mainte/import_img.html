@@ -1,0 +1,180 @@
+<@6>
+<@local(s,err)>
+<$err=FormError>
+
+<@> システムモード
+<$v.system_mode("外部画像の取り込み")>
+
+<!--========================================================================-->
+<@> 階層ツリー、権限確認、エラー表示
+<@call("_sub/menu_tree")>
+
+<!--========================================================================-->
+<article class="system setting">
+<h2><@v.title></h2>
+<div class="body">
+	<p>記事に使用されている外部の画像をアルバムにコピーします。<em>ブログの引っ越し</em>に便利な機能です。</p>
+	<ul>
+		<li>HTML解析をしていますので、異常なHTMLでは期待した動作をしないかも知れません。</li>
+		<li><a href="https://adiary.org/tools.html#mixi_export">mixi export 2017/04/17版</a>以降で出力した記事の画像も取り込めます。</li>
+		<li>ファイル当たりの最大容量: <@(v.uplaod_files_max>>20)>MB</li>
+	</ul>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST" enctype="multipart/form-data" id="import-form">
+	<div id="form-common">
+	<input type="hidden" name="action" value="<@v.skeleton>_init" id="action">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>" id="csrf-key">
+	<input type="hidden" name="pkey" value="" id="pkey">
+
+	<ul class="none">
+		<li>処理する記事のタグ
+			<select name="tag" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json" data-default="import">
+				<option value="">（すべて）</option>
+			</select>
+		</li>
+		<li>保存フォルダ<span class="help" data-help="アルバムのどのフォルダに保存するか指定します。">?</span><input type="text" class="w160" name="folder" value="<@v.blog.edit_upload || 'adiary/%y/'>"> %y=年, %m=月</li>
+		<li>補完するURL<span class="help" data-help="画像URLが http:// 等で始まらない場合、取り込みに失敗しますが、元サイトのURLを入力することでURL情報を補完することができます。\n画像が問題なく表示されている時、よく分からない時は入力しないでください。">?</span><input type="text" class="w300" name="base" value=""></li>
+		<li><input type="checkbox" name="html_only" value="1" checked><label>HTML以外の入力方法を無視する</label><span class="help" data-help="チェックを外すと標準のさつき記法やMarkdown中のHTMLの記述も解析しますが、記法を解釈するわけではないので書式が壊れることがあります。">?</span></li>
+		<li><input type="checkbox" name="enable_only" value="1"><label>非公開記事を処理しない</label></li>
+		<li><input type="checkbox" name="media" value="1"><label>動画等もコピーする（&lt;video&gt;/&lt;audio&gt;タグ）</label></li>
+	</ul>
+	</div>
+	<button type="button" id="start">処理開始</button>
+	<button type="button" id="stop" style="display: none">処理中止</button>
+	</form>
+
+	<div style="display: none" id="log">
+	<p class="warning">※処理中はブラウザを閉じたりリロードしないで下さい。その時点で処理が終了します。</p>
+
+	<div id="progress"><span class="label"></span></div>
+
+	<textarea id="session-log" rows="14" class="w98p" readonly style="overflow-x: scroll; text-wrap: none;"></textarea>
+	<p class="ni">処理中：<span id="session-msg"></span></p>
+	</div>
+
+</div>
+</article>
+
+
+<script>$(function(){
+//-----------------------------------------------------------------------------
+load_tags_list( '#tag-select');
+$('#start').prop('disabled', false);
+$('#stop') .prop('disabled', false);
+
+var posturl = Vmyself + '?etc/ajax_dummy';
+var $msg  = $secure('#session-msg');
+var $log  = $secure('#session-log');
+var $form = $secure('#import-form');
+var $pkey = $secure('#pkey');
+var $prog = $('#progress');
+
+var act = '<@v.skeleton>';
+var stop;
+
+function log() {
+	var text = '';
+	for(var i=0; i<arguments.length; i++)
+		text += arguments[i];
+	text = tag_decode(text);
+	$log.val( $log.val() + text + "\n" );
+	$log.scrollTop( $log.prop('scrollHeight') );
+}
+
+function import_img_rec(arts, i) {
+	var num   = i+1;
+	var ymd   = arts[i].yyyymmdd.toString();
+	var title = arts[i].title;
+	ymd = ymd.substr(0,4) + '-' + ymd.substr(4,2) + '-' + ymd.substr(6,2);
+	$msg.html(ymd + ' ' + title);
+	$pkey.val( arts[i].pkey );
+	post(posturl,
+		$form.serialize(),
+		function(text) {
+			log(title);
+			if (text != '') log(text + "\n");
+			var par = Math.floor(num*100/arts.length + 0.5);
+			$prog.progressbar({ value: par });
+
+			if (num == arts.length) {
+				log('*** Finish ***');
+				return import_img_stop();
+			}
+			if (stop) {
+				log('*** Stop! ***');
+				return import_img_stop();
+			}
+			import_img_rec(arts, num);
+		},
+		'text'
+	);
+}
+
+function import_img_start(arts) {
+	if (!arts[0]) {
+		log('Article not found');
+		return;
+	}
+	if (!(arts[0] instanceof Object)) {
+		log('Load Error : ', arts[0]);
+		return;
+	}
+	$('#action').val(act);
+	stop = false;
+	init_progressbar();
+	$prog.progressbar({ value: 0 });
+	import_img_rec(arts, 0);
+}
+
+function import_img_stop() {
+	stop=true;
+	$('#start').prop('disabled', false);
+	$('#stop') .prop('disabled', true);
+}
+$('#stop').click( import_img_stop );
+
+$('#start').click(function(){
+	$('#start').prop('disabled', true);
+	$('#stop') .prop('disabled', false);
+	$('#stop').show();
+	$('#log').showDelay();
+	$log.val('');
+	$('#action').val(act + '_init');
+	post(posturl,
+		$form.serialize(),
+		import_img_start,
+		'json'
+	);
+});
+
+function post(url, data, success, dataType) {
+  $.ajax({
+	type: 'POST',
+	url: url,
+	data: data,
+	success: success,
+	dataType: dataType,
+	error: http_error
+  });
+}
+
+function http_error(jqXHR, err, errTh){
+	log('HTTP ERROR : ', errTh);
+	import_img_stop();
+}
+//-----------------------------------------------------------------------------
+function init_progressbar() {
+	var label = $prog.find('.label');
+	$prog.progressbar({
+		value: 0,
+		change: function() {
+			label.text( $prog.progressbar( "value" ) + "%" );
+		},
+		complete: function() {
+			label.text( "complite!" );
+		}
+	})
+}
+//-----------------------------------------------------------------------------
+});</script>
+

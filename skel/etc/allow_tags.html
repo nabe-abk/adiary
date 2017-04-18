@@ -1,5 +1,5 @@
 <@6>
-<@local(t,tags,name)>
+<@local(h,t,tags,name)>
 
 <@>権限チェック
 <$ifredirect( !v.allow_edit, v.myself )>
@@ -18,12 +18,12 @@
 <h2><@v.title>（モード：<@name>）</h2>
 <div class="body">
 
-	<@ifexec(tag.allow_anytag, begin, begin)>
+	<$(tags,h) = tag.load_allowtags()>
+	<@ifexec(h._anytag, begin, begin)>
 	<ul>
 		<li><strong>すべてのタグが利用可能です。</strong></li>
 	<$else>
 		<p>タグ制限をなくしたい場合は、adiary.conf.cgi で &lt;$v.<@if(Auth.isadmin, 'admin_')>trust_mode=1&gt; を設定してください。</p>
-		<$tags = tag.load_allowtags()>
 		<table>
 		<thead>
 		<tr>
@@ -33,7 +33,7 @@
 		<tbody>
 		<tr>
 			<td>全て</td>
-			<td class="mono"><@tag.allow_base></td>
+			<td class="mono"><@h.base></td>
 		</tr>
 		<@forexec(t, tags, begin)>
 		<tr class="mono">
@@ -44,11 +44,11 @@
 		</tbody>
 		</table>
 	<ul>
-		<li>コメントの記述 : <@if(tag.allow_comment, '許可', '不可')>
-		<li>リンク可能なプロトコル : <@tag.allow_protocol>
+		<li>コメントの記述 : <@if(h._comment, '許可', '不可')>
+		<li>リンク可能なプロトコル : <@h.protocol>
 	<$end>
-		<li>相対パス→絶対パス: <@if(tag.force_absolute_path, '書き換える', '(none)')>
-		<li>相対URI→絶対URI : <@if(tag.force_absolute_uri, '書き換える', '(none)')>
+		<li>相対パス→絶対パス: <@if(h._absolute_path, '書き換える', '(none)')>
+		<li>相対URI→絶対URI : <@if(h._absolute_uri, '書き換える', '(none)')>
 	</ul>
 </div>
 </article>
