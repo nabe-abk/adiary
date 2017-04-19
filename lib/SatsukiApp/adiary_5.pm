@@ -1196,13 +1196,17 @@ sub import_img {
 	my $html  = $tag->parse( $log->{_text} );
 	my $media = $form->{media} ? 1 : 0;
 	my $base  = $form->{base};
-	if ($base !~ m|^https?://\w+(?:\.\w+)+/|i) {
+	if ($base !~ m|^(https?://\w+(?:\.\w+)*)/|i) {
 		$base = undef;
 	}
+	my $base0 = $1;		# http://example.com まで
+
 	my $folder= $form->{folder};
 	$folder =~ s/%y/substr($log->{yyyymmdd},0,4)/eg;
 	$folder =~ s/%m/substr($log->{yyyymmdd},4,2)/eg;
 	my $dir  = $self->image_folder_to_dir( $folder );
+
+	my $blogimg_url = $ROBJ->{Server_url} . $ROBJ->{Basepath} . $self->blogimg_dir();
 
 	my $msg = '';
 	my $http = $ROBJ->loadpm("Base::HTTP");
@@ -1221,16 +1225,16 @@ sub import_img {
 		if ($url_l eq $url_s) {
 			$url_s = undef;
 		}
-		$url_s = $url_s =~ m!^(?:|http:|https:)//! ? $url_s : ($base ? "$base$url_s" : '');
-		$url_l = $url_l =~ m!^(?:|http:|https:)//! ? $url_l : ($base ? "$base$url_l" : '');
+		$url_s = $url_s =~ m!^(?:|http:|https:)//! ? $url_s : ($base && $url_s ? (substr($url_s,0,1) eq '/' ? $base0 : $base) . $url_s : '');
+		$url_l = $url_l =~ m!^(?:|http:|https:)//! ? $url_l : ($base && $url_l ? (substr($url_l,0,1) eq '/' ? $base0 : $base) . $url_l : '');
 
 		my $img_s;
 		my $img_l;
-		if ($url_s) {
+		if ($url_s && index($url_s, $blogimg_url) != 0) {
 			$img_s = $self->get_imgdata($http, $url_s);
 			$msg  .= '  Download ' . ($img_s ? 'success' : 'fail!  ') . ' : ' . $url_s . "\n";
 		}
-		if ($url_l) {
+		if ($url_l && index($url_l, $blogimg_url) != 0) {
 			$img_l = $self->get_imgdata($http, $url_l);
 			$msg  .= '  Download ' . ($img_l ? 'success' : 'fail!  ') . ' : ' . $url_l . "\n";
 		}
