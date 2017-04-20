@@ -8,8 +8,8 @@ use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION = '3.10';
-our $OUTVERSION = '3.10';
-our $SUBVERSION = '';
+our $OUTVERSION = '3.11';
+our $SUBVERSION = '-a1';
 our $DATA_VERSION = 3.10;
 ###############################################################################
 # ■システム内部イベント
