@@ -108,6 +108,7 @@ function regist_confirm() {
 ///////////////////////////////////////////////////////////////////////////////
 function regist_sworker(evt) {
 	clear_timer();
+	$btn.prop('disabled', true);
 
 	var force = btnForce && evt && evt.target && true;
 
