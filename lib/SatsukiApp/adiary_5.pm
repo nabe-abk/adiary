@@ -1204,7 +1204,9 @@ sub import_img {
 	my $folder= $form->{folder};
 	$folder =~ s/%y/substr($log->{yyyymmdd},0,4)/eg;
 	$folder =~ s/%m/substr($log->{yyyymmdd},4,2)/eg;
-	my $dir  = $self->image_folder_to_dir( $folder );
+
+	$self->init_image_dir();
+	my $dir  = $self->image_folder_to_dir_and_create( $folder );
 
 	my $blogimg_url = $ROBJ->{Server_url} . $ROBJ->{Basepath} . $self->blogimg_dir();
 
@@ -1328,11 +1330,6 @@ sub import_img {
 			$self->rebuild_blog([ $log ]);
 		}
 	}
-	
-	
-	
-	
-	
 
 	chomp($msg);
 	return (0,$msg);
