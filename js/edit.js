@@ -505,6 +505,13 @@ fileup.click( function(){
 // ●アップロード後の処理
 //----------------------------------------------------------------------------
 function upload_files_insert(data, folder, exif, caption, fclass) {
+	try {
+		data['fail']    = parseInt(data['fail']);
+		data['success'] = parseInt(data['success']);
+		data['ret']     = parseInt(data['ret']);
+	} catch(e) {
+	}
+
 	if (data['fail']) {
 		show_error('#msg-upload-fail', {
 			n: data['fail'] + data['success'],

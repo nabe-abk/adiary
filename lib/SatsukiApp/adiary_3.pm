@@ -401,17 +401,8 @@ sub do_ajax_image_upload {
 	# 画像フォルダ初期化
 	$self->init_image_dir();
 
-	# ディレクトリ生成
-	my $dir = $self->image_folder_to_dir();
-	my @ary  = split('/', $form->{folder});
-	foreach(@ary) {
-		if ($_ eq '') { next; }
-		if (!$self->check_file_name($_)) {
-			return {ret => -1};
-		}
-		$dir .= $_ . '/';
-		if (!-e $dir) { $ROBJ->mkdir($dir); }
-	}
+	# ディレクトリ作成
+	my $dir = $self->image_folder_to_dir_and_create( $form->{folder} );
 
 	my ($cs, $cf, $files) = $self->image_upload_form( $form );
 	my %h;
@@ -696,12 +687,30 @@ sub load_image_magick {
 #------------------------------------------------------------------------------
 sub image_folder_to_dir {
 	my ($self, $folder) = @_;
+	$folder =~ s!(^|/)\.+/!$1!g;
 	$folder =~ s|/+|/|g;
-	$folder =~ s#(^|/)\.+/#$1#g;
 	$folder =~ s|/*$|/|;
 	$folder =~ s|^/||;
+	$folder =~ s|[\x00-\x1f]| |g;
 	return $self->{ROBJ}->get_filepath( $self->blogimg_dir() . $folder );
 }
+
+sub image_folder_to_dir_and_create {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir = $self->image_folder_to_dir(@_);
+	my @dirs;
+	while ($dir && !-d $dir) {
+		unshift(@dirs, $dir);
+		$dir =~ s|[^/]*/?$||;
+	}
+	foreach(@dirs) {
+		$ROBJ->mkdir($_);
+	}
+	return $dir;
+}
+
 
 #------------------------------------------------------------------------------
 # ○画像フォルダ名/ファイル名チェック
