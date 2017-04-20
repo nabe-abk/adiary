@@ -132,7 +132,7 @@ div.ascii-art {
 }
 /* 麻雀記法 */
 img.mahjong {
-	vertical-align:	middle;
+	vertical-align:	bottom;
 }
 
 /* mathjax.js */
