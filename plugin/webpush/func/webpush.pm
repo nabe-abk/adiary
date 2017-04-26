@@ -189,7 +189,6 @@ $mop->{send} = sub {
 	my @ary = ($send, splice(@$list, 0, $send));
 
 	my $c=0;
-	$UNIT = 3;
 	while(@$list) {
 		my $x = shift(@$list);
 		my ($endp, $cpub, $auth) = split(' ', $x, 3);
@@ -218,6 +217,9 @@ $mop->{send} = sub {
 		$aobj->update_plgset($name, 'url',   undef );
 		$aobj->update_plgset($name, 'title', undef );
 		$aobj->update_plgset($name, 'msg',   undef );
+	push(@log, "name=$name\n");
+
+
 		$ary[0] = "0\n";
 	}
 	$self->save_list($fh, \@ary);
