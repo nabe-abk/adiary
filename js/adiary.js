@@ -458,7 +458,7 @@ css_initial_functions.push(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●MathJaxの自動ロード
 //////////////////////////////////////////////////////////////////////////////
-var MathJaxURL = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML';
+var MathJaxURL = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML';
 $(function(){
 	var mj_span = $('span.math');
 	var mj_div  = $('div.math');
