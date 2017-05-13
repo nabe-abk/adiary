@@ -92,7 +92,7 @@ sub text_parser {
 	#-------------------------------------------
 	my $sec;
 	if ($lines->[$#$lines] eq "</section>\x02") { $sec=pop(@$lines); }
-	while($lines->[$#$lines] eq '') { pop(@$lines); }
+	while(@$lines && $lines->[$#$lines] eq '') { pop(@$lines); }
 	if ($sec) { push(@$lines, $sec); }
 
 	# [S] <toc>の後処理
@@ -333,7 +333,7 @@ sub parse_special_block {
 		push(@ary, $x);
 	}
 	# 文末空行の除去
-	while($ary[$#ary] eq '') { pop(@ary); }
+	while(@ary && $ary[$#ary] eq '') { pop(@ary); }
 
 	# セクショニングを行う
 	if ($sectioning && grep { $_ =~ /[^\s]/ } @ary) {
@@ -621,7 +621,7 @@ TEXT
 		push(@p_block, $x);
 	}
 	# 文末空行の除去
-	while($ary[$#ary] eq '') { pop(@ary); }
+	while(@ary && $ary[$#ary] eq '') { pop(@ary); }
 	return \@ary;
 }
 
