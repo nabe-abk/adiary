@@ -8,7 +8,7 @@ use strict;
 # [S] とあるものは、adiary拡張（Satsuki記法互換機能）
 #
 package Satsuki::TextParser::Markdown;
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 #------------------------------------------------------------------------------
 ###############################################################################
 # ■基本処理
@@ -448,6 +448,7 @@ sub parse_block {
 				push(@ary, @$blk);
 			}
 			push(@ary, "</$ulol>\x01");
+			$next_blank = 1;
 			next;
 		}
 
@@ -471,6 +472,7 @@ sub parse_block {
 			push(@ary, @$blk);
 			push(@ary, '</blockquote>');
 			push(@ary, '');
+			$next_blank = 1;
 			next;
 		}
 
@@ -496,6 +498,7 @@ sub parse_block {
 			push(@ary, "<pre><code>$first\x02");
 			push(@ary, @code);
 			push(@ary, "</code></pre>\x02");
+			$next_blank = 1;
 			next;
 		}
 
@@ -561,6 +564,7 @@ sub parse_block {
 				}
 				if (@tbl) { push(@ary, "</tbody>\x02"); }
 				push(@ary, "</table>\x02");
+				$next_blank = 1;
 				next;
 			}
 		}
