@@ -5,7 +5,7 @@
 -【fix】【Markdown】何も入力しないで保存するとサーバが応答しなくなる。（Thanks to Kaede）
 -【fix】http://adiary.org へのリンクを https://adiary.org に修正。
 -【Ver3.12a】【fix】Markdown入力で、引用やリストブロック直後のテーブル記法が認識されない。（Thanks to Kaede）
--【Ver3.12b】DBD::Pgの非互換な修正（Ver3.6.0～）により発生した不具合に対応（[http://adiary.blog.abk.nu/0367:詳細]）
+-【Ver3.12b】【PostgreSQL】DBD::Pgの非互換な修正（Ver3.6.0～）により発生した不具合に対応（[http://adiary.blog.abk.nu/0367:詳細]）
 
 *Ver3.11 : 2017/04/27
 
