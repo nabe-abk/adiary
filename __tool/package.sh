@@ -29,11 +29,12 @@ fi
 echo tar jcvf $RELEASE.tar.bz2 $RELEASE/
      tar jcvf $RELEASE.tar.bz2 $RELEASE/
 
-
 # フォントなしパッケージ
+<< COMMENT
 rm -rf $RELEASE/pub-dist/VL-PGothic-Regular.ttf $RELEASE/VLGothic/
 
 echo tar jcvf $RELEASE-nofont.tar.bz2 $RELEASE/
      tar jcvf $RELEASE-nofont.tar.bz2 $RELEASE/
+COMMENT
 
 rm -rf $RELEASE
