@@ -32,10 +32,6 @@ sub new {
 	$self->{_RDBMS} = 'PostgreSQL';
 	$self->{db_id}  = "pg.$database.";
 	$self->{exist_tables_cache} = {};
-	my %option = %DB_attr;
-	if ($self->{enable_utf8}) {
-		$self->{pg_enable_utf8} = $self->{enable_utf8};
-	}
 
 	# コネクション pool 処理
 	my $dbh;
@@ -53,7 +49,7 @@ sub new {
 	}
 	# 接続
 	if (! $dbh) {
-		$dbh = DBI->connect("DBI:Pg:$database", $username, $password, \%option);
+		$dbh = DBI->connect("DBI:Pg:$database", $username, $password, \%DB_attr);
 		if (!$dbh) { $self->error('Connection faild'); return ; }
 	}
 	# プールする
@@ -65,6 +61,18 @@ sub new {
 
 	# 値保存
 	$self->{dbh} = $dbh;
+
+	# UTF8判定 // DBD::Pg bug対策
+	my $ver = $DBD::Pg::VERSION;
+	if ($ver =~ /^3\.(.*)/) {
+		$ver = $1;
+		if (3.0 <= $ver && $ver < 6.0) {
+			# DBD Ver 3.3.0 to 3.5.3
+			$self->{PATCH_for_UTF8_flag} = 1;
+		}
+	}
+
+
 	return $self;
 }
 #------------------------------------------------------------------------------
@@ -336,6 +344,8 @@ sub error_hook {
 #------------------------------------------------------------------------------
 sub utf8_on {
 	my $self = shift;
+	if (!$self->{PATCH_for_UTF8_flag}) { return; }
+
 	my $ary = shift;
 	foreach(@$ary) {
 		Encode::_utf8_on($_);
