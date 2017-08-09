@@ -378,13 +378,16 @@ function init_custom_form(data, data2) {
 		name:	'custom_flag',
 		value:	1
 	}));
+
+	// 色式デバッグ用（テーマ開発者向け）
+	relation_colors('', 1);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // ●値連動処理
 //////////////////////////////////////////////////////////////////////////////
-function relation_colors(name) {
-	if (detail_mode.prop('checked')) return;
+function relation_colors(name, test) {
+	if (!test && detail_mode.prop('checked')) return;
 	for(var k in rel_col) {
 		var col = rel_col[k];
 		var v;
