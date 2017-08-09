@@ -551,7 +551,7 @@ dt { font-weight:	bold; }
 div.comment-one {
 	margin:			4px 0;
 	padding:		0.5em 2px;
-	background-color:	#fff;			/* $c=combg2 = artbg */
+	background-color:	#fff;			/* $c=combg2 = mainbg */
 	border-radius:		4px;
 }
 div.com-buttons {

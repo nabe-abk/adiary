@@ -201,7 +201,7 @@ header .dropdown-menu>ul>li li {
 }
 .main .dropdown-menu>ul li:hover,
 .main .dropdown-menu>ul li.hover {
-	background-color:	#e9eff8;	/* $c=mainddhoverbg = prebg */
+	background-color:	#e9eff8;	/* $c=ddhoverbginmain */
 }
 
 /*--------------------------------------------------------------------
