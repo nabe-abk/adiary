@@ -1165,22 +1165,36 @@ sub tag_edit {
 			$name = $tags[ $upnode ]->{name} . '::' . $name;
 		}
 		my $org = $tags[ $pkey ];
+		my $ef_art;
 		if ($upnode != $org->{upnode} || $name ne $org->{name}) {
-			my $ta = $DB->select_match("${blogid}_tagart", 't_pkey', $pkey);
-			foreach(@$ta) {
-				$e_art{ $_->{a_pkey} } = 1;
-			}
+			$ef_art = 1;	# 記事に影響あり
 		} elsif ($priority == $org->{priority}) {
-			next;	# 変更なし
+			next;		# 変更なし
 		}
 		my %h = (
 			upnode   => ($upnode==0 ? undef : $upnode),
 			priority => $priority,
 			name     => $name
 		);
-		$DB->update_match("${blogid}_tag", \%h, 'pkey', $pkey);
+		my $r = $DB->update_match("${blogid}_tag", \%h, 'pkey', $pkey);
+		if (!$r) {	# 失敗
+			if ($name ne $org->{name}) {
+				$ROBJ->message("Tag edit error '%s' to '%s' (same tag name exist?)", $org->{name}, $name);
+			} else {
+				$ROBJ->message("Tag edit error '%s'", $org->{name});
+			}
+			next;
+		}
+
 		$h{pkey} = $pkey;
 		$tags[ $pkey ] = \%h;
+
+		# 記事の変更予約処理
+		if (!$ef_art) { next; }
+		my $ta = $DB->select_match("${blogid}_tagart", 't_pkey', $pkey);
+		foreach(@$ta) {
+			$e_art{ $_->{a_pkey} } = 1;
+		}
 	}
 
 	# 変更があったarticleのタグ情報を書き換える

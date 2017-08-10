@@ -210,7 +210,7 @@ name is empty=名前を入力してください
 ###############################################################################
 Rename failed blog public directory (%s)=ブログ公開ディレクトリのリネームに失敗しました（%s）
 Design save failed : %s=デザインの保存に失敗しました : %s
-
+Tag edit error '%s' to '%s' (same tag name exist?)=タグ編集エラー「%s」→「%s」（同じタグ名が存在しませんか？）
 # album
 File name error : %s=ファイル名が不正です : %s
 File extension error : %s=許可されない拡張子です : %s
