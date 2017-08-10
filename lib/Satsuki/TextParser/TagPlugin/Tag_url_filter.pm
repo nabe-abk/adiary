@@ -144,6 +144,31 @@ sub _filter {
 	}
 
 	#------------------------------------------------------------
+	# Speaker Deck
+	#------------------------------------------------------------
+	if ($url =~ m|^https?://speakerdeck\.com/|) {
+		my $sid = $1;
+		$url =~ s/\?.*//;
+
+		# getして確認する
+		my $http = $ROBJ->loadpm('Base::HTTP');
+		my $res = $http->get($url);
+		my $id;
+		my $raito;
+		foreach(@$res) {
+			# <div class="speakerdeck-embed" data-id="cc--90f" data-ratio="1.77777777777778"></div>
+			if ($_ =~ m|class\s*=\s*"speakerdeck-embed"|) {
+				if ($_ =~ m|data-id\s*=\s*"(\w+)"|)    { $id = $1; }
+				if ($_ =~ m|data-ratio\s*=\s*"([\d\.]+)"|) { $raito = $1; }
+				last;
+			}
+		}
+		if (!$id) { return "[(not found)$url]"; }
+
+		return "<module name=\"speakerdeck\" sid=\"$id\" raito=\"$raito\">";
+	}
+
+	#------------------------------------------------------------
 	# http://slide.rabbit-shocker.org/
 	#------------------------------------------------------------
 	if ($url =~ m|http://slide\.rabbit-shocker\.org(/authors/\w+/[\w\-]+/)|) {

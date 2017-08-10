@@ -190,6 +190,12 @@ _module_start
 <iframe src="https://www.slideshare.net/slideshow/embed_code/key/${sid}" style="width:#{width|425}px; height:#{height|355}px;" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen></iframe>
 
 #------------------------------------------------------------------------------
+# Speaker Deck モジュール
+#------------------------------------------------------------------------------
+*speakerdeck
+<script async class="speakerdeck-embed" data-id="${sid}" data-ratio="${raito}" src="//speakerdeck.com/assets/embed.js"></script>
+
+#------------------------------------------------------------------------------
 # rabbit-shockerモジュール
 #------------------------------------------------------------------------------
 *rabbit-shocker:slide
