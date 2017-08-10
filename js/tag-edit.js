@@ -63,7 +63,7 @@ tree.dynatree({
 			var path  = (par && par != rootNode) ? par.data.full + '::' : '';
 			var data  = node.data;
 
-			data.name = data.title;
+			data.name = "" + data.title;
 			data.full = path + data.title;
 			data.href = base_url + encodeURIComponent( data.full );
 			set_node_title(node);
