@@ -113,9 +113,13 @@ function regist_confirm() {
 ///////////////////////////////////////////////////////////////////////////////
 // Regist ServiceWorker
 ///////////////////////////////////////////////////////////////////////////////
+var regist_sworker_flag;
 function regist_sworker(evt) {
 	clear_timer();
 	$btn.prop('disabled', true);
+
+	if (regist_sworker_flag) return;
+	regist_sworker_flag = 1;
 
 	var force = btnForce && evt && evt.target && true;
 
