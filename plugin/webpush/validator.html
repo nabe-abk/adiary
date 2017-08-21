@@ -27,6 +27,8 @@
 	wait:default = 3
 	wait:min = 0
 	wait:max = 600
+
+	unknown_server = flag
 <$end>
 <$ifset(Auth.isadmin, h2.('max:max'), 1000000)>
 <$h = validator(h2, form) )>

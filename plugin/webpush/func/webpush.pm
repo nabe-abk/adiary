@@ -75,11 +75,13 @@ $mop->{regist} = sub {
 
 	# URL white list check
 	my $ok;
-	foreach(@SITES) {
-		if (substr($endp, 0, length($_)) ne $_) { next; }
-		$ok=1; last;
+	if (! $aobj->load_plgset($name, 'unknown_server')) {
+		foreach(@SITES) {
+			if (substr($endp, 0, length($_)) ne $_) { next; }
+			$ok=1; last;
+		}
+		if (!$ok) { return -1; }
 	}
-	if (!$ok) { return -1; }
 
 	# 重複チェック
 	my ($fh, $list) = $ROBJ->fedit_readlines($self->{data_file});

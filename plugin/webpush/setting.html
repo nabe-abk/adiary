@@ -11,7 +11,7 @@
 		<th>登録人数</th>
 		<td>
 			<@ps.cnt || 0>人<@ifexec(v.check_installed_plugin(name) && ps.cnt, begin)>
-			<input type="checkbox" name="reset" value="1"><label>登録情報をすべて削除する</label><span class="help" data-help="今まで登録した人に通知が届かなくなります。注意してください。">?</span>
+			<input type="checkbox" name="reset" value="1"><label>登録情報をすべて削除する</label><span class="help" data-help="今まで登録した人に通知が届かなくなります。削除前に登録済の人が、再アクセス時に再登録されることもありません。ご注意ください。">?</span>
 			<$end>
 		</td>
 	</tr>
@@ -65,5 +65,11 @@
 		</td>
 	</tr>
 	<$end>
+	<tr>
+		<th>未知のサーバ<span class="help" data-help="セキュリティ上、adiaryリリース時点で対応済のブラウザ（のサーバ）以外では使えません。チェックするとこの制限を解除します。">?</span></th>
+		<td>
+			<input type="checkbox" name="unknown_server" value="1"<@if(ps.unknown_server, ' checked')>><label>プッシュサーバの登録制限を解除する</label>
+		</td>
+	</tr>
 	</table>
 

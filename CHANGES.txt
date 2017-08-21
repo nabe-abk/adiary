@@ -4,6 +4,7 @@
 
 -テーマ選択時、色可変テーマの持つ色式をロード時に判定するように変更（デバッグ目的）
 -[https://adiary.org/v3man/Satsuki-tag/url-filter:filter記法]でSpeaker Deckに対応しました((しかしDebianサーバ等では、[https://www.bggofurther.com/2016/06/opensslpyopenssl-ssl23_get_server_hellotlsv1-alert-internal-error/:OpenSSLのバグ]によりエラーになります……。))
+-【plugin】WebPushで、未知のサーバ（ブラウザ）でも登録可能な設定を追加。
 -【fix】ローカルサーバと高速なブラウザにおいてデザイン編集がうまく機能しない。
 -【fix】数字のみのタグ名をタグ一覧から編集できない。
 -【fix】タグ名編集時、同名のタグがあってもエラーにならない。（Thanks to Kaede）
