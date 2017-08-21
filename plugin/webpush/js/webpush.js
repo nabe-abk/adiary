@@ -5,17 +5,23 @@
 //[TAB=8]  require jQuery
 //
 'use strict';
+$(function() {
+///////////////////////////////////////////////////////////////////////////////
+// Global setting
+///////////////////////////////////////////////////////////////////////////////
 var Vmyself;
 var debug = false;
 var btnForce = true;
+var rePostDays = 30;
 
-$(function() {
 ///////////////////////////////////////////////////////////////////////////////
 var $span = $('#webpush-data');
 var $btn  = $('button.regist-webpush');
-var script = Vmyself + '?sworker';
+var script  = Vmyself + '?sworker';
+var storage = load_PrefixStorage( Vmyself );
 var timer;
 var log = debug ? console.log : function(){ return; };
+var tm  = Math.floor((new Date()).getTime() / 1000);	// msec to sec
 
 ///////////////////////////////////////////////////////////////////////////////
 // Send process
@@ -68,8 +74,6 @@ function regist_confirm() {
 	if (!msg) return regist_sworker();
 
 	// 通知を2重に出さない。
-	var tm = Math.floor((new Date()).getTime() / 1000);	// msec to sec
-	var storage = load_PrefixStorage( Vmyself );
 	var cancel_tm = (storage.get('webpush-stop') || 0)*1;
 	var days = ($span.data('days') || 0)*1;
 	if (!days && cancel_tm || days && (cancel_tm + days*86400)>tm) return;
@@ -86,7 +90,10 @@ function regist_confirm() {
 		var $obj = $(evt.target);
 		var flag =  $obj.data('flag');
 		$div.remove();
-		if (flag != 0) return regist_sworker();
+		if (flag != 0) {
+			storage.remove('webpush-stop');
+			return regist_sworker();
+		}
 		storage.set('webpush-stop', tm);
 	};
 	$yes.click( click );
@@ -167,8 +174,11 @@ function push_subscribe(registration, force) {
 				log('ServerKey changed!');
 				subscription.unsubscribe();
 				log('unsubscribe()');
+				postSubscription(subscription);
 			} else {
-				if (force) postSubscription(subscription);
+				var elapsed = tm - (storage.get('webpush-regist') || 0);	// 登録時からの経過時間
+				log("elapsed time (regist)", elapsed);
+				if (force || elapsed>rePostDays*86400) postSubscription(subscription);
 			}
 			return;
 		}
@@ -217,6 +227,9 @@ function postSubscription(subscription) {
 
 	}).then(function(text) {
 		if (!text.match(/^0(?:\n|$)/)) throw('Subscribe error : ' + text);
+
+		log('fetch() success');
+		storage.set('webpush-regist', tm);
 
 	}).catch(function(err) {
 		console.error('fetch()', err);
