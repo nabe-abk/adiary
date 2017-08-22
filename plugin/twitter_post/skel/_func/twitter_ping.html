@@ -9,10 +9,13 @@
 <$ifbreak(ps.access_token eq '')>
 
 <@>twitterへの通知ツイート
-<@local(line,tw,res,t)>
+<@local(line,tw,res,t,n)>
 <$line = ps.ping_txt || "%t - %n %u">
-<$replace(line, '%t', art.title)>
-<$replace(line, '%n', v.blog.blog_name)>
+<$t = art.title>
+<$n = v.blog.blog_name>
+<$tag_unescape(t,n)>
+<$replace(line, '%t', t)>
+<$replace(line, '%n', n)>
 <$replace(line, '%u', art.absolute_url)>
 
 <@> ツイート処理
