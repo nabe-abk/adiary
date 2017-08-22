@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.13 : 2017/05/13
+*Ver3.13 : 2017/08/22
 
 -テーマ選択時、色可変テーマの持つ色式をロード時に判定するように変更（デバッグ目的）
 -[https://adiary.org/v3man/Satsuki-tag/url-filter:filter記法]でSpeaker Deckに対応しました((しかしDebianサーバ等では、[https://www.bggofurther.com/2016/06/opensslpyopenssl-ssl23_get_server_hellotlsv1-alert-internal-error/:OpenSSLのバグ]によりエラーになります……。))
