@@ -22,7 +22,6 @@
 	<table class="plugins">
 	<thead><tr>
 		<th>タイトル</th>
-		<th>使用</th>
 		<th>タイプ</th>
 <@>		<th class="small">ライセンス</th>
 		<th>説明・概要</th>
@@ -30,14 +29,11 @@
 	<tbody>
 	<@forexec(t, v.load_plugins_info(1), begin)>
 	<tr>
-		<td ><span class="plg-title"><@t.title></span></td>
-		<td class="c">
-		<@ifexec(t.adiary_version <= v.VERSION, begin, begin)>
-			OK
+		<td><@ifexec(t.adiary_version <= v.VERSION, begin, begin)>
+			<span class="plg-title"><@t.title></span>
 		<$else>
-			<strong class="warning">NG</strong><span class="help" data-help="このプラグインは「adiary Version <@t.adiary_version>」以降で使用できます。">?</span
-		<$end>
-		</td>
+			<span class="plg-title"><del><@t.title></del></span><span class="help" data-help="このプラグインは「adiary Version <@t.adiary_version>」以降で使用できます。">?</span>
+		<$end></td>
 		<td><@replace(t.module_type, ',', ', ')></td>
 <@>		<td class="c"><@t.license></td>
 		<td><div>
