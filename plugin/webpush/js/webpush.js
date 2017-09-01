@@ -5,11 +5,12 @@
 //[TAB=8]  require jQuery
 //
 'use strict';
+var Vmyself;
+
 $(function() {
 ///////////////////////////////////////////////////////////////////////////////
 // Global setting
 ///////////////////////////////////////////////////////////////////////////////
-var Vmyself;
 var debug = false;
 var btnForce = true;
 var rePostDays = 30;
@@ -90,10 +91,7 @@ function regist_confirm() {
 		var $obj = $(evt.target);
 		var flag =  $obj.data('flag');
 		$div.remove();
-		if (flag != 0) {
-			storage.remove('webpush-stop');
-			return regist_sworker();
-		}
+		if (flag != 0) return regist_sworker();
 		storage.set('webpush-stop', tm);
 	};
 	$yes.click( click );
@@ -120,6 +118,7 @@ function regist_sworker(evt) {
 
 	if (regist_sworker_flag) return;
 	regist_sworker_flag = 1;
+	storage.remove('webpush-stop');
 
 	var force = btnForce && evt && evt.target && true;
 
