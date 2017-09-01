@@ -180,8 +180,9 @@ $operators{'%m'}  = 0x202; $op_formalname{'%m'} = '-';	# 負の数値
 
 my %core_functions = (undef => 0, length => 0, sprintf => 0, join => 4, split => 1,
 index => 0, rindex => 0, shift => 2, unshift => 2, pop => 2, push => 2,
-int => 0, undef => 0, substr => 0, chop => 0, chomp => 0, chr => 0, ord => 0,
-uc => 0, lc => 0, keys => 0x101, ref => 0, delete => 0, splice => 1, rand => 0,
+int => 0, abs => 0, sin => 0, cos => 0, log => 0, exp => 0, sqrt => 0, rand => 0,
+undef => 0, substr => 0, chop => 0, chomp => 0, chr => 0, ord => 0,
+uc => 0, lc => 0, keys => 0x101, ref => 0, delete => 0, splice => 1,
 next=>-1, last=>-1, exists=>0, reverse => 15, return => 0, umask => 0, sleep => 0);
 
 #------------------------------------------------------------------------------
