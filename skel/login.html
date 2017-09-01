@@ -23,7 +23,7 @@ $(document).ready( function() { $("<@if(Query.id ne '', "#pass", "#id")>").focus
 	<table class="login">
 	<tbody>
 	<tr>
-	<th>ID</th><td><input type="text" class="w80" name="id" id="id" value="<@esc(Query.id || Form.id)>" required></td>
+	<th>ID</th><td><input type="text" class="w80" name="adiary_id" id="id" value="<@esc(Query.id || Form.adiary_id)>" required></td>
 	</tr><tr>
 	<th>pass</th><td><input type="password" class="w80" id="pass" name="pass" value="<@if(Query.id eq 'test' || Query.id eq 'dummy', esc(Query.pass))>" required></td>
 	</tr><tr>

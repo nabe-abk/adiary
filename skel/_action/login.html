@@ -1,5 +1,5 @@
 <@20>
-<$action_return = Auth.login(Form.id, Form.pass)>
+<$action_return = Auth.login(Form.adiary_id || Form.id, Form.pass)>
 
 <$ifexec(! Auth.ok, begin)>
 	<$message('ログインに失敗しました')>
