@@ -6,6 +6,7 @@
 //
 'use strict';
 var Vmyself;
+var Storage;
 
 $(function() {
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,7 +20,6 @@ var rePostDays = 30;
 var $span = $('#webpush-data');
 var $btn  = $('button.regist-webpush');
 var script  = Vmyself + '?sworker';
-var storage = load_PrefixStorage( Vmyself );
 var timer;
 var log = debug ? console.log : function(){ return; };
 var tm  = Math.floor((new Date()).getTime() / 1000);	// msec to sec
@@ -75,7 +75,7 @@ function regist_confirm() {
 	if (!msg) return regist_sworker();
 
 	// 通知を2重に出さない。
-	var cancel_tm = (storage.get('webpush-stop') || 0)*1;
+	var cancel_tm = (Storage.get('webpush-stop') || 0)*1;
 	var days = ($span.data('days') || 0)*1;
 	if (!days && cancel_tm || days && (cancel_tm + days*86400)>tm) return;
 
@@ -92,7 +92,7 @@ function regist_confirm() {
 		var flag =  $obj.data('flag');
 		$div.remove();
 		if (flag != 0) return regist_sworker();
-		storage.set('webpush-stop', tm);
+		Storage.set('webpush-stop', tm);
 	};
 	$yes.click( click );
 	$no .click( click );
@@ -118,7 +118,7 @@ function regist_sworker(evt) {
 
 	if (regist_sworker_flag) return;
 	regist_sworker_flag = 1;
-	storage.remove('webpush-stop');
+	Storage.remove('webpush-stop');
 
 	var force = btnForce && evt && evt.target && true;
 
@@ -179,7 +179,7 @@ function push_subscribe(registration, force) {
 				log('unsubscribe()');
 				postSubscription(subscription);
 			} else {
-				var elapsed = tm - (storage.get('webpush-regist') || 0);	// 登録時からの経過時間
+				var elapsed = tm - (Storage.get('webpush-regist') || 0);	// 登録時からの経過時間
 				log("elapsed time (regist)", elapsed);
 				if (force || elapsed>rePostDays*86400) postSubscription(subscription);
 			}
@@ -232,7 +232,7 @@ function postSubscription(subscription) {
 		if (!text.match(/^0(?:\n|$)/)) throw('Subscribe error : ' + text);
 
 		log('fetch() success');
-		storage.set('webpush-regist', tm);
+		Storage.set('webpush-regist', tm);
 
 	}).catch(function(err) {
 		console.error('fetch()', err);
