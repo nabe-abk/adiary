@@ -1000,7 +1000,7 @@ sub fread_lines {
 		map { $_ =~ s/\r\n?$/\n/ } @lines;
 	}
 
-	# 前処理関数
+	# 後処理関数
 	my $lines = \@lines;
 	if ($flags->{PostProcessor}) {
 		$lines = &{$flags->{PostProcessor}}($flags->{self} || $self, $lines, $flags );
