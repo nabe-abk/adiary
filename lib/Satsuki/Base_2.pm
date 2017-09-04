@@ -214,9 +214,8 @@ sub fwrite_lines {
 	foreach(@$lines) {
 		print $fh $_;
 	}
-	close($fh);
-
 	$self->delete_file_cache($file);
+	close($fh);
 
 	# モード変更
 	if (defined $flags->{FileMode}) { chmod($flags->{FileMode}, $file); }
