@@ -51,6 +51,8 @@ plugin/@3rd-party/
 lib/SatsukiApp/form.pm
 lib/SatsukiApp/form_2.pm
 
+plugin/sp_view360/
+
 #--------------------------------------
 # Special Edition files
 #--------------------------------------
