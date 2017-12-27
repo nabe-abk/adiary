@@ -668,6 +668,13 @@ sub parse_oneline {
 sub parse_inline {
 	my ($self, $lines) = @_;
 
+	# 強調タグ処理避け
+	sub escape_special_char {
+		my $s = shift;
+		$s =~ s/([\*\~\`_])/"\x03E". ord($1) ."\x03"/eg;
+		return $s;
+	}
+
 	# さつき記法のタグを処理する？
 	my $satsuki = $self->{satsuki_tags} ? $self->{satsuki_obj} : undef;
 
@@ -676,7 +683,7 @@ sub parse_inline {
 		if (substr($_,-1) eq "\x02") { next; }
 
 		# エスケープ処理
-		$_ =~ s/\\([\\'\*_\{\}\[\]\(\)>#\+\-\.!])/"\x03E" . ord($1) . "\x03"/eg;
+		$_ =~ s/\\([\\'\*_\{\}\[\]\(\)>#\+\-\.\~!])/"\x03E" . ord($1) . "\x03"/eg;
 
 		# 自動リンク記法
 		$_ =~ s!<((?:https?|ftp):[^'"> ]+)>!<a href="$1">$1</a>!ig;
@@ -726,18 +733,16 @@ sub parse_inline {
 
 		# [S] さつき記法のタグ処理
 		if ($satsuki) {
-			my $post_process = sub {
-				# 強調タグ処理避け
-				my $s = shift;
-				$s =~ s/([\*\~\`_])/"\x03E". ord($1) ."\x03"/eg;
-				return $s;
-			};
 			if ($satsuki->{autolink} && $_ =~ /https?:|ftp:/) {
 				$_ = $satsuki->do_autolink( $_ );
 			}
-			$_ = $satsuki->parse_tag( $_, $post_process );
+			$_ = $satsuki->parse_tag( $_, \&escape_special_char );
 			$satsuki->un_escape( $_ );
 		}
+
+		# タグ中の文字を処理しないようにエスケープ
+		# <a href="http://example.com/_hoge_">_hoge_</a>
+		$_ =~ s!(<\w(?:"[^\"]*"|'[^\"]*'|[^>])*>)!&escape_special_char($1)!eg;
 
 		# 強調
 		$_ =~ s|\*\*(.*?)\*\*|<strong>$1</strong>|xg;
