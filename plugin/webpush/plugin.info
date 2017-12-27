@@ -9,7 +9,7 @@ url=https://twitter.com/nabe_abk
 license=AGPLv3
 
 # 対応するadiary Version
-adiary_version=3.09
+adiary_version=3.14
 
 *require=<<LIBS
 CryptX
@@ -29,7 +29,7 @@ skel/webpush/_action/send.html
 FILES
 
 *events=<<EVENTS
-ARTICLE_FIRST_VISIBLE=func/<@this>.pm
+ARTICLE_FIRST_VISIBLE_PING=func/<@this>.pm
 INSTALL=func/<@this>-install.pm
 UNINSTALL=func/<@this>-uninstall.pm
 JS=js/<@this>.js

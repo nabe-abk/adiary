@@ -3,9 +3,9 @@
 *Ver3.14 : 2017/-/-
 
 -テザインモジュール一覧のページをアップデート。
+-【plugin】ARTICLE_FIRST_VISIBLE_PINGイベントの追加。
 -【plugin】WebPushの既知サーバに Edge のPushサーバを追加。
 -【fix/plugin】WebPushの「新着記事で送信しない」設定が動作していない。
-
 
 *Ver3.13 : 2017/08/22
 

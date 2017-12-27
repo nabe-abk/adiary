@@ -9,7 +9,7 @@ url=https://twitter.com/nabe_abk
 license=WTFPL
 
 # 対応するadiary Version
-adiary_version=2.90
+adiary_version=3.14
 
 *files=<<FILES
 skel/twitter/_action/oauth.html
@@ -18,6 +18,6 @@ skel/_func/twitter_ping.html
 FILES
 
 *events=<<EVENTS
-ARTICLE_FIRST_VISIBLE=skel/_func/twitter_ping
+ARTICLE_FIRST_VISIBLE_PING=skel/_func/twitter_ping
 EVENTS
 

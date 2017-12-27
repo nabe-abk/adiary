@@ -7,15 +7,15 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = 3.13;
-our $OUTVERSION = '3.13';
-our $SUBVERSION = 'a';
-our $DATA_VERSION = 3.11;
+our $VERSION = 3.14;
+our $OUTVERSION = '3.14';
+our $SUBVERSION = '';
+our $DATA_VERSION = 3.14;
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
 my %SysEvt;
-$SysEvt{ARTICLE_FIRST_VISIBLE} = [qw(
+$SysEvt{ARTICLE_FIRST_VISIBLE_PING} = [qw(
 	send_update_ping
 )];
 $SysEvt{ARTICLE_STATE_CHANGE} = [qw(

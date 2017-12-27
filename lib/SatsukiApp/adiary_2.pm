@@ -251,6 +251,7 @@ sub edit_article {
 	if ($opt{first_visible}) {
 		if ($form->{ping}) {
 			$ROBJ->message("Ping sending");
+			$self->call_event('ARTICLE_FIRST_VISIBLE_PING', $art, $form);
 		}
 		$self->call_event('ARTICLE_FIRST_VISIBLE', $art, $form);
 	}
