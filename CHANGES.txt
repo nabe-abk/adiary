@@ -3,6 +3,7 @@
 *Ver3.14 : 2017/-/-
 
 -テザインモジュール一覧のページをアップデート。
+-【テーマ】C91のirisテーマを収録。
 -【Markdown】GFMのチェックボックス拡張に対応しました。（Request from Kaede）
 -【plugin】ARTICLE_FIRST_VISIBLE_PINGイベントの追加。
 -【plugin】WebPushの既知サーバに Edge のPushサーバを追加。
