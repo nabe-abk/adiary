@@ -14,14 +14,16 @@
 /* アイコン読み込み */
 #ui-icon-autoload {
     display:                none;
-    background-color:       #0033cc;
+    background-color:       #0033cc;	/* $c=ui-icon */
 }
 /* ブラウザデフォルト値上書き */
+/*
 * {
     margin:                 0;
     padding:                0;
     font-family:            sans-serif;
 }
+*/
 
 /* 入力要素 */
 input, select {
@@ -108,15 +110,24 @@ html {
 }
 
 body {
+    /* ヘッダー・フッターを常に表示 */
+    margin:                 0;
+    padding:                0;
+    height:                 100%;
+    background-color:       #9ec5ff;	/* $c=bg */
+}
+
+/* 背景オプション ------------------------------------------ */
+/* $option=bg:default-image
+body {
     position:               relative;
-    background-image:       url("bg.jpg");
     background-position:    center top;
     background-attachment:  fixed;
     background-size:        cover;
-
-    /* ヘッダー・フッターを常に表示 */
-    height:                 100%;
+    background-image:       url("bg.jpg");
 }
+-------------------- */
+
 
 /* 本文部 ----------------------------------------------------*/
 /* 管理メニュー + ブログタイトル + サイドバー + 記事部 */
@@ -191,7 +202,7 @@ div.main {
     line-height:            17px;
     color:                  white;
 }
-/* option=no-fotter
+/* $option2=no-fotter
 #footer:after {
     display:                none;
 }
@@ -219,12 +230,12 @@ div.main {
 -------------------------------------------------------------*/
 /* ◆ リンク配色 */
 a:link {
-    color:                  #0343c1;
+    color:                  #0343c1;	/* $c=link */
     text-decoration:        none;
 }
 
 a:visited {
-    color:                  #b5001f;
+    color:                  #b5001f;	/* $c=linkvisited */
     text-decoration:        none;
 }
 
@@ -296,6 +307,11 @@ dd                          { padding-left: 1.5em;
 /* --------------------------------------------------------- */
 /* ■ 見出し (日記帳タイトル) */
 /* --------------------------------------------------------- */
+h1 {
+    margin:                 0;
+    padding:                0;
+}
+
 h1 a:link, h1 a:hover, h1 a:visited {
     color:                  black;
     text-decoration:        none;
@@ -313,7 +329,6 @@ nav.page-nav {
 }
 
 nav.page-nav a {
-    color:                  #0343c1;
     display:                inline-block;
 }
 nav.page-nav a:first-child {
@@ -711,6 +726,16 @@ tr:nth-child(odd) td {
     background-color:       rgba(255,255,255,0.35);
 }
 
+article.system thead tr th,
+article.system       tr th {
+    background-color:       rgba(0,0,0,0.6);
+}
+article.system tr td {
+    background-color:       rgba(255,255,255,0.5);
+}
+
+
+
 /* クラス指定記法による配置 */
 th.left, td.left, th.l, td.l {
     text-align:             left;
@@ -806,6 +831,7 @@ hr#com-form-separator {
 .hatena-module ul {
     list-style-type:        none;
     margin-left:            0;
+    padding:                0;
 }
 
 /* コンテンツの子要素 */
@@ -939,11 +965,11 @@ div[data-module-name="dem_searchbox,1"] .search-box {
 	height:			100%;
 }
 .dropdown-menu > ul ul {
-    background-color:       rgba(255,255,255,0.65);
+    background-color:       rgba(255,255,255,0.75);
 }
 
 .dropdown-menu > ul li:hover {
-    background-color:       rgba(195,218,248,0.7);
+    background-color:       rgba(195,218,248,0.8);	/* $c=ddhover */
 }
 
 div.main .dropdown-menu {
@@ -956,12 +982,6 @@ div.main .dropdown-menu {
 article.system h2 {
     margin-bottom:          18px;
 }
-
-/* リンク色 */
-article.system a {
-    color:                  #0343c1;
-}
-
 
 /* ブログの情報(サイドバー) */
 #side-login-information tr:nth-child(odd) td,
@@ -1033,10 +1053,6 @@ nav.tree {
     background-color:       rgba(255,255,255,0.65);
 }
 
-nav.tree a {
-    color:                  #0343c1;
-}
-
 nav.tree select {
     font-size:              12px;
     line-height:            12px;
@@ -1067,7 +1083,7 @@ h3.ui-accordion-header {
 /* --------------------------------------------------------- */
 .ui-dialog, .ui-dialog.error-dialog {
     border-radius:          0px;
-    background-color:       rgba(255,255,255,0.8);
+    background-color:       rgba(240,240,240,0.9);
 }
 
 /* タイトルバー */
