@@ -12,6 +12,7 @@ my $UNIT  = 50;		# 1度に送信する単位
 my @SITES = qw(
 	https://fcm.googleapis.com/
 	https://updates.push.services.mozilla.com/
+	https://hk2.notify.windows.com/
 );
 ###############################################################################
 # ■基本処理
