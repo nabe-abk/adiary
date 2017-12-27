@@ -26,21 +26,60 @@
 *** Change Log ***
 	first release:				2015/12/31
 	CSS update:				2016/12/28 (by nabe@abk)
+	CSS update:				2017/12/28 (by nabe@abk)
 ************************************************************* */
+html,button,input {
+	font-size:			12pt;
+	line-height:			1.5;
+}
+body, h1, h2, form,
+.hatena-module ul {
+	margin:				0;
+	padding:			0;
+}
+
+/* タグ一覧 */
+div.art-info span.tags:before {
+	content:		'[';
+}
+div.art-info span.tags:after {
+	content:		']';
+}
+span.tag:not(:last-child) {
+	margin-right:		0.4em;
+}
+span.tag:not(:last-child):after {
+	content:		',';
+}
+article.edit span.tag:not(:last-child):after {
+	display:	none;
+}
+
+/* 非公開コメント */
+.comment-hidden {
+	color:			#808;
+}
+/* 非表示コメント */
+.comment-disable {
+	color:			#800;
+}
+
+/* モジュールタイトルのリンク */
+div.hatena-moduletitle a, 
+div.hatena-moduletitle a:link, 
+div.hatena-moduletitle a:visited {
+	color:			inherit;
+}
+button {
+	border-radius:		6px;
+	line-height:		100%;
+}
+
 /*--------------------------------------------------------------------
 ■初期設定
 ---------------------------------------------------------------------*/
-/* ブラウザデフォルト値上書き */
-* {
-	margin:					0;
-	padding:				0;
-	font-family:			sans-serif;
-	color:					black;
-}
-
 /* 入力要素 */
 input, select {
-	font-size:			  15px;
 	vertical-align:			middle;
 }
 
@@ -68,9 +107,9 @@ input[type="file"]:focus {
 textarea {
 	width:					calc(100% - 15px);
 	width:					-webkit-calc(100% - 15px);
-	font-size:			  13px;
 	font-family:			monospace;
-	line-height:			15px;
+	font-size:			90%;
+	line-height:			1.1;
 	padding:				0.5em;
 	background-color:	   white;
 	margin:				 10px 0;
@@ -86,20 +125,15 @@ button,
 	background-color:		rgba(252,109,207,0.6);
 	border:					none;
 	color:					white;
-	font-size:				12pt;
+	font-size:				85%;
 	text-shadow:			1px -1px 2px #FF84CE,
 			1px -1px 2px #FF84CE,
 			-1px  1px 2px #FF84CE,
 			1px  1px 2px #FF84CE;
 }
-.Fx button {
-	padding-top:		4px;
-	padding-bottom:		2px;
-}
-
 button span {
 	color:					white;
-	font-size:				12pt;
+	font-size:				85%;
 	text-shadow:			1px -1px 2px #FF84CE,
 			1px -1px 2px #FF84CE,
 			-1px  1px 2px #FF84CE,
@@ -156,11 +190,14 @@ body:before {
 
 /* ブラウザ描画領域下部 */
 /* バージョン */
-/*body:after {
-}*/
 footer div.adiary:after {
 	content:				" / Akane: adiary C89 Special Edition Theme";
 }
+/* $option3=footer-none
+footer div.adiary:after {
+	display:	none;
+} */
+
 
 
 /* 本文部 ------------------------------------------------------ */
@@ -183,8 +220,8 @@ header {
 	padding:				3pt 0 3pt 0;
 	padding-right:			calc(5% + 5pt);
 	padding-right:			-webkit-calc(5% + 5pt);
-	font-size:				12pt;
-	line-height:			13pt;
+	font-size:			80%;
+	line-height:			1.1;
 	color:					white;
 	text-align:				right;
 }
@@ -192,9 +229,9 @@ header {
 /* ブログタイトル部 */
 h1 {
 	background-color:		rgba(255,162,216,0.7);
-	padding:				2pt;
-	font-size:				16pt;
-	line-height:			20pt;
+	padding:			2pt;
+	font-size:			140%;
+	line-height:			1.3;
 	padding-right:			calc(5% + 5pt);
 	padding-right:			-webkit-calc(5% + 5pt);
 	padding-left:			calc(5% + 5pt);
@@ -210,8 +247,8 @@ header div.dem-module {
 	padding-right:			-webkit-calc(5% + 5pt);
 	padding-left:			calc(5% + 5pt);
 	padding-left:			-webkit-calc(5% + 5pt);
-	font-size:				12pt;
-	line-height:			13pt;
+	font-size:			80%;
+	line-height:			1.1;
 	color:					white;
 	text-shadow:			1px -1px 2px #FF84CE,
 			1px -1px 2px #FF84CE,
@@ -264,7 +301,6 @@ article {
 	float:					left;
 	padding:				20pt 10px 0 10px;
 	top:					10pt;
-	font-size:				100%;
 	margin:					0;
 	margin-left:			5%;
 	padding-bottom:			25px;
@@ -376,7 +412,7 @@ h1 a:link, h1 a:hover, h1 a:visited {
  * ■ ナビゲーション (前のページ/次のページ)
  * --------------------------------------------------------- */
 nav.page-nav {
-	font-size:			  90%;
+	font-size:			80%;
 	line-height:			100%;
 	text-align:				center;
 	padding:				5pt 10px 5pt 10px;
@@ -441,8 +477,8 @@ a.next-page:after {
 h2, div.caption {
 	background-color:		rgba(255,132,206,0.7);
 	padding:				0 10pt 3pt 10pt;
-	font-size:				13pt;
-	line-height:			18pt;
+	font-size:			120%;
+	line-height:			1.5;
 	color:					white;
 	text-shadow:			1pt -1pt 2pt #FF84CE,
 			1pt -1pt 2pt #FF84CE,
@@ -500,19 +536,15 @@ div.body-header {
 
 div.body-header a:link, div.body-header a:visited, 
 div.body-header a:hover {
-	font-size:			  10pt;
-	line-height:			11pt;
+	font-size:			90%;
+	line-height:			1.3;
 	text-decoration:		none;
 }
 
-div.body-header span.tag {
-	margin-left:			0.4em;
-}
-
 div.body div.body-main {
-	font-size:				13pt;
-	line-height:			17pt;
-	padding:				0.5em 0 1em 0;
+	font-size:			100%;
+	line-height:			1.5;
+	padding:			0.5em 0 1em 0;
 }
 
 div.body-main section {
@@ -538,8 +570,8 @@ div.body-footer a:hover {
  * --------------------------------------------------------- */
 /* 見出し */
 article h3 {
-	font-size:				16pt;
-	line-height:			20pt;
+	font-size:			120%;
+	line-height:			1.5;
 	margin:					0.8em 0 0.2em 0;
 	padding:				0.1em 0;
 	font-weight:			bold;
@@ -585,14 +617,14 @@ h3 span.timestamp {
 			1pt -1pt 2pt #fff, -1pt  1pt 2pt #fff,
 			1pt  1pt 2pt #fff,
 			-4pt -4pt 10pt rgb(255,132,206), 10pt 4pt 10pt rgb(255,132,206);
-	font-size:			  13pt;
-	line-height:			17pt;
+	font-size:			95%;
+	line-height:			1.0;
 }
 
 /* 小見出し */
 article h4 {
-	font-size:				14pt;
-	line-height:			18pt;
+	font-size:			110%;
+	line-height:			1.5;
 	margin:					0.5em 0 0.2em 0;
 	padding:				0.1em 0;
 	font-weight:			bold
@@ -627,8 +659,8 @@ h4 span.sanchor {
 }
 
 h4 span.timestamp {
-	font-size:				12pt;
-	line-height:			16pt;
+	font-size:			100%;
+	line-height:			1.5;
 	color:				  #BC7EEC;
 	text-shadow:			-1pt -1pt 2pt #fff,
 			1pt -1pt 2pt #fff, -1pt  1pt 2pt #fff,
@@ -639,8 +671,8 @@ h4 span.timestamp {
 
 /* 小々見出し */
 div.body h5 {
-	font-size:				13pt;
-	line-height:			17pt;
+	font-size:			100%;
+	line-height:			1.6;
 	font-weight:			bold;
 	margin:				 8pt 0 2pt 0;
 }
@@ -714,8 +746,8 @@ div.body-main pre:before {
 701\A 702\A 703\A 704\A 705\A 706\A 707\A 708\A 709\A 710\A 711\A 712\A 713\A 714\A 715\A 716\A 717\A 718\A 719\A 720\A 721\A 722\A 723\A 724\A 725\A 726\A 727\A 728\A 729\A 730\A 731\A 732\A 733\A 734\A 735\A 736\A 737\A 738\A 739\A 740\A 741\A 742\A 743\A 744\A 745\A 746\A 747\A 748\A 749\A 750\A 751\A 752\A 753\A 754\A 755\A 756\A 757\A 758\A 759\A 760\A 761\A 762\A 763\A 764\A 765\A 766\A 767\A 768\A 769\A 770\A 771\A 772\A 773\A 774\A 775\A 776\A 777\A 778\A 779\A 780\A 781\A 782\A 783\A 784\A 785\A 786\A 787\A 788\A 789\A 790\A 791\A 792\A 793\A 794\A 795\A 796\A 797\A 798\A 799\A 800\A \
 801\A 802\A 803\A 804\A 805\A 806\A 807\A 808\A 809\A 810\A 811\A 812\A 813\A 814\A 815\A 816\A 817\A 818\A 819\A 820\A 821\A 822\A 823\A 824\A 825\A 826\A 827\A 828\A 829\A 830\A 831\A 832\A 833\A 834\A 835\A 836\A 837\A 838\A 839\A 840\A 841\A 842\A 843\A 844\A 845\A 846\A 847\A 848\A 849\A 850\A 851\A 852\A 853\A 854\A 855\A 856\A 857\A 858\A 859\A 860\A 861\A 862\A 863\A 864\A 865\A 866\A 867\A 868\A 869\A 870\A 871\A 872\A 873\A 874\A 875\A 876\A 877\A 878\A 879\A 880\A 881\A 882\A 883\A 884\A 885\A 886\A 887\A 888\A 889\A 890\A 891\A 892\A 893\A 894\A 895\A 896\A 897\A 898\A 899\A 900\A \
 901\A 902\A 903\A 904\A 905\A 906\A 907\A 908\A 909\A 910\A 911\A 912\A 913\A 914\A 915\A 916\A 917\A 918\A 919\A 920\A 921\A 922\A 923\A 924\A 925\A 926\A 927\A 928\A 929\A 930\A 931\A 932\A 933\A 934\A 935\A 936\A 937\A 938\A 939\A 940\A 941\A 942\A 943\A 944\A 945\A 946\A 947\A 948\A 949\A 950\A 951\A 952\A 953\A 954\A 955\A 956\A 957\A 958\A 959\A 960\A 961\A 962\A 963\A 964\A 965\A 966\A 967\A 968\A 969\A 970\A 971\A 972\A 973\A 974\A 975\A 976\A 977\A 978\A 979\A 980\A 981\A 982\A 983\A 984\A 985\A 986\A 987\A 988\A 989\A 990\A 991\A 992\A 993\A 994\A 995\A 996\A 997\A 998\A 999";
-	font-size:				13pt;
-	line-height:			17pt;
+	font-size:			110%;
+	line-height:			1.5;
 	display: 				block;
 	width:					2em;
 	position:				absolute;
@@ -759,16 +791,16 @@ pre strong.comment {
  * --------------------------------------------------------- */
 /* 注釈へのリンク */
 span.footnote a {
-	color:					#b5001f;
-	font-size:			  10pt;
-	line-height:			10pt;
-	vertical-align:		 top;
+	color:			#b5001f;
+	font-size:		80%;
+	line-height:		1.2;
+	vertical-align:		top;
 }
 
 /* 注釈処理 */
 section footer {
-	font-size:			  10pt;
-	line-height:			12pt;
+	font-size:		80%;
+	line-height:		1.2;
 	margin:				 1em 8pt 0 4em;
 	padding:				0.6em 0 0.6em 0;
 	background-color:		rgba(255,132,206,0.3);
@@ -816,8 +848,6 @@ div.body-main ul ol, div.body-main ol ul {
  * ● 記事: テーブル
  * --------------------------------------------------------- */
 div.body-main table, article.system table {
-	font-size:			  12pt;
-	line-height:			16pt;
 	margin:				 8pt;
 	border-collapse:		collapse;
 	border-spacing:		 0;
@@ -877,8 +907,8 @@ th.right, td.right, th.r, td.r {
 }
 
 div.body table.small {
-	font-size:			  10pt;
-	line-height:			13pt;
+	font-size:			80%;
+	line-height:			1.3;
 }
 
 
@@ -906,8 +936,7 @@ div.caption span.com-num {
 div.commentbody {
 	border:					3pt solid rgba(255,132,206,0.7);
 	background-color:		rgba(255,255,255,0.7);
-	font-size:			  12pt;
-	line-height:			15pt;
+	line-height:			1.5;
 	padding:				10pt 18pt;
 }
 /* $option2=alpha-original
@@ -918,13 +947,14 @@ div.commentbody {
 
 
 div.comment-one {
-	margin:				 0.8em 0;
+	margin:				0.8em 0;
+	border-bottom:			1px solid rgba(255,132,206,0.7);
 }
 
 /* 投稿者 */
 div.ip-host-agent {
-	font-size:				10pt;
-	line-height:			12pt;
+	font-size:			80%;
+	line-height:			1.2;
 }
 
 div.ip-host-agent br {
@@ -951,13 +981,13 @@ hr#com-form-separator {
 }
 
 .comment label {
-	font-size:			  12pt;
-	line-height:			15pt;
-	padding-left:		   0.3em;
+	font-size:		100%;
+	line-height:		1.2;
+	padding-left:		0.3em;
 }
 
 form.comment {
-	margin-top:			 2em;
+	margin-top:			 1em;
 }
 
 form.comment textarea {
@@ -977,7 +1007,6 @@ form.comment #post-comment {
 	background-color:		rgba(252,109,207,0.6);
 	border:					0pt solid rgba(252,109,207,0);
 	color:					white;
-	font-size:				12pt;
 	text-shadow:			1px -1px 2px #FF84CE,
 			1px -1px 2px #FF84CE,
 			-1px  1px 2px #FF84CE,
@@ -1003,8 +1032,6 @@ div.hatena-module {
 div.hatena-moduletitle {
 	background-color:		rgba(249,106,146,0.8);
 	padding:				0 8pt 3px 8pt;
-	font-size:				12pt;
-	line-height:			16pt;
 	color:					white;
 	font-weight:			bold;
 	text-shadow:			1px -1px 2px rgb(249,106,146),
@@ -1167,8 +1194,14 @@ footer div.adiary, div.adiary a {
  * --------------------------------------------------------- */
 /* ナビゲーション */
 nav.tree {
-	margin-top:				8pt;
+	margin:					8pt 0;
 }
+nav.tree, nav.tree select {
+	font-size:				9pt;
+	line-height:				1.2;
+}
+ 
+
 
 /* 記事部調整 */
 article.system {
@@ -1231,8 +1264,7 @@ article.edit span.tag {
 	padding-right:			-webkit-calc(5% + 5pt);
 	padding-left:			calc(5% + 5pt);
 	padding-left:			-webkit-calc(5% + 5pt);
-	font-size:				12pt;
-	line-height:			13pt;
+	line-height:			1.0;
 	color:					white;
 	text-shadow:			1px -1px 2px #FF84CE,
 			1px -1px 2px #FF84CE,
@@ -1277,7 +1309,7 @@ article.edit span.tag {
 #popup-help, #popup-com {
 	background-color:		rgba(245,218,231, 0.95);
 	padding:				6px;
-	font-size:				11pt;
+	font-size:				90%;
 	max-width:				calc(100% - 480px);
 	max-width:				-webkit-calc(100% - 480px);
 }
@@ -1350,11 +1382,11 @@ ul.dynatree-container a {
 	margin:				 0 8px 8px 0;
 	padding:				0;
 	max-width:			  400px;
+
 }
 .ui-progressbar .label {
 	position:			   absolute;
 	width:				  100%;
-	font-size:			  14px;
 	text-align:			 center;
 	font-weight:			bold;
 	text-shadow:			1px -1px 2px #fff,
@@ -1365,7 +1397,6 @@ ul.dynatree-container a {
 .ui-progressbar,
 .ui-progressbar .label,
 .ui-corner-left {
-	height:				 20px;
 }
 .ui-corner-left {
 	padding:				1px 0 0 1px;
@@ -1390,15 +1421,14 @@ h3.ui-accordion-header
 	box-shadow:		8px 8px 4px 4px rgba(60,60,100,0.75);
 	padding:		0;
 
-	font-size:		10.5pt;
-	line-height:		130%;
+	font-size:		95%;
+	line-height:		1.5;
 }
 .ui-dialog .ui-widget-header {
 	color:			#fff;
 	background-color:	#ff84ce;
 	font-weight:		bold;
-	font-size:		13pt;
-	line-height:		18pt;
+	font-size:		110%;
 	color:			white;
 	text-shadow:			1pt -1pt 2pt #FF84CE,
 			1pt -1pt 2pt #FF84CE,
@@ -1437,7 +1467,7 @@ h3.ui-accordion-header
 ---------------------------------------------------------------------*/
 article.jqueryui-tabs {
 	box-shadow:		none;
-	font-size:		11pt;
+	font-size:		110%;
 }
 article.jqueryui-tabs div.body {
 	padding:		8px;

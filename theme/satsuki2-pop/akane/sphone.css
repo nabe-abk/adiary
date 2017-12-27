@@ -11,6 +11,8 @@ body, #adiary-body {
         box-shadow:             none;
 }
 html {
+	font-size:		11pt;
+	line-height:		1.5;
 	min-width:		0;
 }
 div.main {
@@ -51,7 +53,7 @@ div.main {
 	vertical-align:		top;
 }
 #sp-page-title {
-	margin:			0px 0 1em 0;
+	margin:			0;
 	padding:		20px 12px;
 	font-weight:		bold;
 	text-shadow:
