@@ -4,7 +4,7 @@ use strict;
 #                                              (C)2014-2015 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
 # コメント中に [M] とあるものは、Markdown.pl 準拠。
-# [GMF] とあるものは、GitHub Flavored Markdown 準拠。
+# [GFM] とあるものは、GitHub Flavored Markdown 準拠。
 # [S] とあるものは、adiary拡張（Satsuki記法互換機能）
 #
 package Satsuki::TextParser::Markdown;
@@ -166,13 +166,15 @@ sub parse_special_block {
 	my $in_section;
 	my $newblock=1;
 	my $tw = $self->{tab_width};
-	my $block_tags = qr/
+	my $block_tags = qr!
 		p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|
 		script|noscript|form|fieldset|iframe|math|ins|del|
 		# 以下、追加した要素
 		style|article|section|nav|aside|header|footer|details|
-		audio|video|figure|canvas|map
-	/x;
+		audio|video|figure|canvas|map|
+		# GFM拡張の一部 https://github.github.com/gfm/#html-block
+		address|aside|base|hr|option|source
+	!x;
 	push(@$lines, '');
 	while(@$lines) {
 		my $x = shift(@$lines);
@@ -200,7 +202,7 @@ sub parse_special_block {
 		}
 
 		#----------------------------------------------
-		# [GMF] シンタックスハイライト
+		# [GFM] シンタックスハイライト
 		#----------------------------------------------
 		if ($self->{gmf_ext} && $x =~ /^```([^`]*?)\s*$/) {
 			my ($lang,$file) = split(':', $1, 2);
@@ -406,7 +408,7 @@ sub parse_block {
 			my %p;
 			while(@list) {
 				$x = shift(@list);
-				if ($x =~ /^( ? ? ?)(?:\*|\+|\-|\d+\.) (.*)$/
+				if ($x =~ /^( ? ? ?)(?:\*|\+|\-|\d+\.) +(.*)$/
 				 && ($ul_indent == -1 || length($1) == $ul_indent)) {
 					if (@$li) {
 						push(@ul, $li);
@@ -430,6 +432,17 @@ sub parse_block {
 				push(@$li, $x);
 			}
 			if (@$li) { push(@ul, $li); }
+
+			# [GFM] checkbox list
+			if ($self->{gmf_ext}) {
+				foreach my $li (@ul) {
+					if ($li->[0] =~ /^\[( |x)\](.*)/) {
+						$li->[0] = '<label><input type="checkbox"'
+							 . ($1 eq 'x' ? ' checked>' : '>')
+							 . $li->[0] . '</label>';
+					}
+				}
+			}
 
 			# ネスト処理
 			foreach my $li (@ul) {
@@ -503,7 +516,7 @@ sub parse_block {
 		}
 
 		#----------------------------------------------
-		# [GMF] テーブル
+		# [GFM] テーブル
 		#----------------------------------------------
 		if ($self->{gmf_ext} && $blank
 		 && $x =~ /|/
@@ -525,10 +538,10 @@ sub parse_block {
 			}
 			my @th = split(/\s*\|\s*/, shift(@tbl));	# 1行目
 			my @hr = split(/\s*\|\s*/, shift(@tbl));	# 2行目
-			my $err = ($#th > $#hr);			# [GMF] カラム数不一致
+			my $err = ($#th > $#hr);			# [GFM] カラム数不一致
 			my @class;
 			foreach(@hr) {
-				if ($#class >= $#th) { next; }		# [GMF] thの分しか読み込まない
+				if ($#class >= $#th) { next; }		# [GFM] thの分しか読み込まない
 				if ($_ !~ /^(:)?-*(:)?/) { $err=1; last; }
 
 				my $c;
@@ -750,12 +763,12 @@ sub parse_inline {
 		$_ =~ s| \*([^\*]*)\*|<em>$1</em>|xg;
 
 		if ($self->{gmf_ext}) {
-			$_ =~ s#(^|\W)_([^_]*)_(\W|$)#$1<em>$2</em>$3#g;		# [GMF]
+			$_ =~ s#(^|\W)_([^_]*)_(\W|$)#$1<em>$2</em>$3#g;		# [GFM]
 		} else {	
 			$_ =~ s|_( [^_]*)_ |<em>$1</em>|xg;				# [M]
 		}
 
-		# [GMF] Strikethrough
+		# [GFM] Strikethrough
 		if ($self->{gmf_ext}) {
 			$_ =~ s|~~(.*?)~~|<del>$1</del>|xg;
 		}
