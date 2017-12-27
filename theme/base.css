@@ -301,14 +301,6 @@ button {
 	padding:		3px 4px;
 	margin:			2px 0px;
 }
-.Fx :not(.ui-dialog-buttonset):not(.ui-dialog-titlebar) > button {
-	padding:		2px 3px 3px 3px;
-}
-
-.Fx #edit-helper button {
-	padding:		2px 1px 3px 1px;
-}
-
 #com textarea {
 	-moz-tab-size:	4;
 	-o-tab-size:	4;
