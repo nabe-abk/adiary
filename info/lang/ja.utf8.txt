@@ -195,7 +195,7 @@ Content key is empty=コンテンツkeyが空です
 Content key can not be only in the numbers=コンテンツkeyは数字のみにはできません
 Load parser '%s' failed=パーサーのロードに失敗しました : %s
 
-Ping sending=通知を送信します
+Ping sending=更新通知を送信します
 Sitemap update notification sent=サイトマップの更新を通知しました
 Error : Illegal response "%s". (Is it ping server?)=「%s」の応答が正しくありません（正しい更新通知サーバですか？）
 Error : %s (from %s)=エラー : %s（from %s）

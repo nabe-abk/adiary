@@ -38,9 +38,14 @@ my $name;
 	if ($aobj->{event_name} eq 'ARTICLE_FIRST_VISIBLE') {
 		my $art  = shift;
 
+		# 新着記事で送信しない
+		if (!$aobj->load_plgset($name, 'ping')) { return; }
+
 		# 購読者がいなければ何もしない
 		my $cnt = $aobj->load_plgset($name, 'cnt');
 		if (!$cnt) { return; }
+
+		$ROBJ->notice('sending webpush');
 
 		# 公開情報登録（通知処理は遅延実行）
 		my $url = $art->{absolute_url};
@@ -220,8 +225,7 @@ $mop->{send} = sub {
 		$aobj->update_plgset($name, 'url',   undef );
 		$aobj->update_plgset($name, 'title', undef );
 		$aobj->update_plgset($name, 'msg',   undef );
-	push(@log, "name=$name\n");
-
+		push(@log, "name=$name\n");
 
 		$ary[0] = "0\n";
 	}
