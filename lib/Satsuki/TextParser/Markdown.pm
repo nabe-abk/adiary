@@ -26,7 +26,7 @@ sub new {
 	$self->{lf_patch} = 1;		# 日本語のpタグ中の改行を消す
 	$self->{md_in_htmlblk} = 1;	# Markdown Inside HTML Blocksを許可する
 	$self->{sectioning}   = 1;	# sectionタグを適時挿入する
-	$self->{gmf_ext}      = 1;	# GitHub Flavored Markdown拡張を使用する
+	$self->{gfm_ext}      = 1;	# GitHub Flavored Markdown拡張を使用する
 
 	$self->{span_sanchor} = 0;	# 見出し先頭に span.sanchor を挿入する
 	$self->{section_link} = 0;	# 見出しタグにリンクを挿入する
@@ -204,7 +204,7 @@ sub parse_special_block {
 		#----------------------------------------------
 		# [GFM] シンタックスハイライト
 		#----------------------------------------------
-		if ($self->{gmf_ext} && $x =~ /^```([^`]*?)\s*$/) {
+		if ($self->{gfm_ext} && $x =~ /^```([^`]*?)\s*$/) {
 			my ($lang,$file) = split(':', $1, 2);
 			my @code;
 			$x = shift(@$lines);
@@ -434,7 +434,7 @@ sub parse_block {
 			if (@$li) { push(@ul, $li); }
 
 			# [GFM] checkbox list
-			if ($self->{gmf_ext}) {
+			if ($self->{gfm_ext}) {
 				foreach my $li (@ul) {
 					if ($li->[0] =~ /^\[( |x)\](.*)/) {
 						$li->[0] = '<label><input type="checkbox"'
@@ -518,7 +518,7 @@ sub parse_block {
 		#----------------------------------------------
 		# [GFM] テーブル
 		#----------------------------------------------
-		if ($self->{gmf_ext} && $blank
+		if ($self->{gfm_ext} && $blank
 		 && $x =~ /|/
 		 && $lines->[0] =~ /^[\s\|\-:]+$/
 		 && $lines->[0] =~ /\s*(?:\-+)?\s*\|\s*\-+\s*/
@@ -762,14 +762,14 @@ sub parse_inline {
 		$_ =~ s|  __(.*?)__  |<strong>$1</strong>|xg;
 		$_ =~ s| \*([^\*]*)\*|<em>$1</em>|xg;
 
-		if ($self->{gmf_ext}) {
+		if ($self->{gfm_ext}) {
 			$_ =~ s#(^|\W)_([^_]*)_(\W|$)#$1<em>$2</em>$3#g;		# [GFM]
 		} else {	
 			$_ =~ s|_( [^_]*)_ |<em>$1</em>|xg;				# [M]
 		}
 
 		# [GFM] Strikethrough
-		if ($self->{gmf_ext}) {
+		if ($self->{gfm_ext}) {
 			$_ =~ s|~~(.*?)~~|<del>$1</del>|xg;
 		}
 
