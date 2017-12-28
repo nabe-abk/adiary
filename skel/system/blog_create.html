@@ -32,12 +32,13 @@
 	<tr>
 	<th>コピー元ブログ<span class="help" data-help="存在するブログのコピーブログを作成します。画像やあらゆる設定が引き継がれます。">?</span></th>
 	<td>
-		<select name="copy_id">
+		<select name="copy_id" class="js-enable" data-target="#clear-album">
 			<option value="">（コピーしない）</option>
 			<@forexec(t, v.load_blog_list('id'), begin)>
 			<option value="<@t.id>"<@if(s.default_blogid eq t.id,' selected')>><@if(t.private, "【非公開】")><@t.id>: <@t.blog_name></option>
 			<$end>
-		</select>
+		</select><br>
+		<label><input type="checkbox" id="clear-album" name="clear_image" value="1"<@if(Form.clear_image,' checked')>>作成したブログの画像アルバムを初期化する</label>
 	</td>
 	</tr>
 	</tbody>

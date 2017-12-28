@@ -296,6 +296,8 @@ button {
 	line-height:		100%;
 	vertical-align:		middle;
 	font-family:		"メイリオ","IPAGothic","VL Gothic",sans-serif;
+
+	cursor:			pointer;
 }
 #edit-helper button {
 	padding:		3px 4px;
