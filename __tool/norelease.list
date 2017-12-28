@@ -4,4 +4,5 @@ lib/SatsukiApp/form.pm
 lib/SatsukiApp/form_2.pm
 lib/SatsukiApp/parser.pm
 js/lightbox.js
-theme/satsuki2/mio/
+
+# theme/satsuki2/_sagiri/

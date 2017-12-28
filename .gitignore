@@ -51,9 +51,11 @@ plugin/@3rd-party/
 lib/SatsukiApp/form.pm
 lib/SatsukiApp/form_2.pm
 
-plugin/sp_view360/
-
 #--------------------------------------
 # Special Edition files
 #--------------------------------------
 theme/satsuki2/mio/
+theme/satsuki2-pop/iris/
+theme/satsuki2/_sagiri/
+
+plugin/sp_view360/
