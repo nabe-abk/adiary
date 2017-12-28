@@ -22,7 +22,8 @@ sub blog_create {
 	my $DB   = $self->{DB};
 	my $auth = $ROBJ->{Auth};
 	my $id   = shift;
-	my $copy_id = shift;
+	my $opt  = shift;
+	my $copy_id = $opt->{copy_id};
 
 	if (! $auth->{ok}) { $ROBJ->message('Not login'); return 1; }
 	if ($self->{sys}->{blog_create_root_only} && ! $auth->{isadmin}) {
@@ -57,8 +58,10 @@ sub blog_create {
 	} else {
 		# ディレクトリの作成
 		$ROBJ->mkdir( "$self->{data_dir}blog/" );
-		$ROBJ->mkdir( $self->blog_dir   ( $id ) );
-		$ROBJ->mkdir( $self->blogpub_dir( $id ) );
+		if (!$copy_id) {
+			$ROBJ->mkdir( $self->blog_dir   ( $id ) );
+			$ROBJ->mkdir( $self->blogpub_dir( $id ) );
+		}
 		# キャッシュ除去
 		delete $self->{_cache_find_blog}->{$id};
 	}
@@ -71,11 +74,24 @@ sub blog_create {
 
 	# データコピーはプラグインインストール後に
 	my $current = $self->{blogid};
-	$self->set_and_select_blog( $id );
-	$self->reinstall_plugins();
+	my $blog    = $self->set_and_select_blog( $id );
+	if ($blog->{private}) {
+		my $postfix = $self->change_blogpub_dir_postfix( $id );
+		if ($postfix) {
+			$self->update_blogset($blog, 'blogpub_dir_postfix', $postfix);
+			$self->{blogpub_dir} = $self->blogpub_dir();
+		}
+	}
+	
+	# アルバム初期化
+	if ($opt->{clear_image}) {
+		my $imgdir = $self->blogimg_dir();
+		$ROBJ->dir_delete($imgdir);
+	}
 
 	# 再構築
 	$self->copy_tables($copy_id, $id);
+	$self->reinstall_plugins();
 	$self->rebuild_blog();
 
 	$self->set_and_select_blog_force( $current );

@@ -2,7 +2,7 @@
 <$ifbreak(csrf_check())>
 <$ifbreak(! Auth.isadmin)>
 
-<$action_return = v.blog_create(Form.id, Form.copy_id)>
+<$action_return = v.blog_create(Form.id, Form)>
 
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>

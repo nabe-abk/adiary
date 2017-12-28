@@ -840,7 +840,7 @@ sub save_private_mode {
 	my $postfix = $blog->{blogpub_dir_postfix};
 	my $evt_name;
 	if ($blog->{private} && $postfix eq '') {
-		$postfix = $self->change_blogpub_dir_postfix( $blogid, $self->{sys}->{dir_postfix_len} || $self->{dir_postfix_len} );
+		$postfix = $self->change_blogpub_dir_postfix( $blogid );
 		$evt_name = "PRIVATE_MODE_ON";
 	} elsif (!$blog->{private} && $postfix ne '') {
 		$postfix = $self->change_blogpub_dir_postfix( $blogid, 0 );
@@ -853,7 +853,7 @@ sub save_private_mode {
 		return 1;
 	}
 	my $old_dir = $self->blogpub_dir();
-	$blog->{blogpub_dir_postfix} = $postfix;
+	$self->update_blogset($blog, 'blogpub_dir_postfix', $postfix);
 	my $new_dir = $self->blogpub_dir();
 	$self->{blogpub_dir} = $new_dir;
 
@@ -874,7 +874,8 @@ sub save_private_mode {
 sub change_blogpub_dir_postfix {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my ($blogid, $len) = @_;
+	my $blogid = shift;
+	my $len = (defined $_[0]) ? shift : ($self->{sys}->{dir_postfix_len} || $self->{dir_postfix_len});
 
 	my $postfix = '';
 	if ($len > 0) {

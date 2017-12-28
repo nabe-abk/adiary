@@ -4,6 +4,7 @@
 
 -テザインモジュール一覧のページをアップデート。
 -テーマカスタム画面のオプション名を分かりやすくしました。
+-ブログのコピー作成時、画像アルバムを初期化する機能を付けました。
 -【Markdown】GFMのチェックボックス拡張に対応しました。（Request from Kaede）
 -【plugin】ARTICLE_FIRST_VISIBLE_PINGイベントの追加。
 -【plugin】WebPushの既知サーバに Edge のPushサーバを追加。
