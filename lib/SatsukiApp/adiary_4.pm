@@ -1561,7 +1561,11 @@ sub load_theme_colors {
 	foreach(@$lines) {
 		$line_c++;
 		$_ =~ s/\r\n?/\n/;
-		if ($in_opt || $_ =~ /\$(option\d*)(:default)?=([^\s]+)/) {	# オプション中
+		if (!$in_opt && $_ =~ /\$(option\d*):title=([^\s]+)/) {
+			$opt{"$1-title"} = $2;
+			next;
+		}
+		if ( $in_opt || $_ =~ /\$(option\d*)(:default)?=([^\s]+)/) {	# オプション中
 			if (!$in_opt) {
 				$in_opt=1;
 				$opt{$1} ||= [];

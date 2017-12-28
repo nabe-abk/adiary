@@ -338,10 +338,11 @@ function init_custom_form(data, data2) {
 		var obj = $('<span>').attr('id', 'options');
 		for(var i=0; i<opts.length; i++) {
 			var name = opts[i].name;
-			
-			if (name.substr(-8) == '-default') continue;
+			if (name.match(/-\w+$/)) continue;
+
 			var sel = $('<select>').attr('name', name);
-			sel.append($('<option>').attr('value','').text( name2msg('option') ));
+			var title = data2[name + '-title'] || 'option';
+			sel.append($('<option>').attr('value','').text( name2msg(title) ));
 			sel.change( function(evt){
 				update_css();
 			});
