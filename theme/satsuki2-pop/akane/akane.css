@@ -168,7 +168,9 @@ body {
 	background-color:		#ffe8f4;
 }
 /* 全体背景オプション ---------------------------------------------- */
-/* $option:default=bg:check
+/*
+$option:title=bg
+$option:default=bg:check
 body {
 	background-image:		url("bg_check.png");
 }
@@ -193,7 +195,9 @@ body:before {
 footer div.adiary:after {
 	content:				" / Akane: adiary C89 Special Edition Theme";
 }
-/* $option3=footer-none
+/*
+$option3:title=footer
+$option3=theme-name-none
 footer div.adiary:after {
 	display:	none;
 } */
@@ -256,7 +260,9 @@ header div.dem-module {
 			1px  1px 2px #FF84CE;
 }
 
-/* $option2=alpha-original
+/*
+$option2:title=alpha
+$option2=alpha-original
 h1, header div.dem-module {
 	background-color:		rgba(255,132,206,0.5);
 }

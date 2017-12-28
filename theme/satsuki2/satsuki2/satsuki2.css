@@ -107,7 +107,9 @@ h1 img, h1 a img {
 /*--------------------------------------------------------------------
 ■表示オプション（レスポンシブ、両サイドバー）
 ---------------------------------------------------------------------*/
-/* $option=multi-sidebar
+/*
+$option:title=sidebar-position
+$option=multi-sidebar
 #sidebar-move-to-before-main {
 	min-width:		1px;
 }
@@ -949,7 +951,9 @@ div.body h3.ui-accordion-header {
 /*--------------------------------------------------------------------
 ■枠線カスタマイズ
 ---------------------------------------------------------------------*/
-/* $option2=1px-border
+/*
+$option2:title=border-size
+$option2=1px-border
 article h2, article div.body,#com {
 	border-width:		1px;
 }

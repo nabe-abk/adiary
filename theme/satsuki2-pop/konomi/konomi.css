@@ -78,7 +78,9 @@ body
 /*--------------------------------------------------------------------
 ■表示オプション（右サイドバー）
 ---------------------------------------------------------------------*/
-/* $option=right-sidebar
+/*
+$option:title=sidebar-position
+$option=right-sidebar
 .main {
 	float:			left;
 	width:			calc(100% - 172px);

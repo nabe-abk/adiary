@@ -77,7 +77,9 @@ body
 /*--------------------------------------------------------------------
 ■表示オプション（右サイドバー）
 ---------------------------------------------------------------------*/
-/* $option=left-sidebar
+/*
+$option:title=sidebar-position
+$option=left-sidebar
 .main {
 	float:			right;
 }
@@ -364,12 +366,20 @@ article.wiki {
 	border:			2px solid #bbb;		/* $c=border */
 }
 
-/* $option2=article-shadow
+/* --------------------
+$option2:title=shadow
+$option2=article-shadow
 article {
 	box-shadow:	 2px  0px 2px rgba(0,0,0,0.1),
 			 0px  2px 2px rgba(0,0,0,0.1),
 			-2px  0px 2px rgba(0,0,0,0.1),
 			 0px -2px 2px rgba(0,0,0,0.1);
+}
+-------------------- */
+/* --------------------
+$option2=article-shadow2
+article {
+	box-shadow:	 6px  6px 4px rgba(0,0,0,0.2);
 }
 -------------------- */
 
@@ -408,7 +418,9 @@ article div.body {
 	margin:			0px;
 	padding:		0.5em 0;
 }
-/* option=font-small
+/*
+$option4:title=font-size
+$option4=font-small
 article div.body {
 	font-size:		11pt;
 	line-height:		140%;
@@ -725,7 +737,9 @@ div.side-contents-list div.hatena-moduletitle a {
 }
 
 
-/* $option3=sidebar-box
+/*
+$option3:title=sidebar-type
+$option3=sidebar-box
 #sidebar div.hatena-module {
 	border-width:	1px;
 	border-radius:	6px;
@@ -741,6 +755,14 @@ div.side-contents-list div.hatena-moduletitle a {
 			 0px  2px 3px rgba(0,0,0,0.1),
 			-2px  0px 3px rgba(0,0,0,0.1),
 			 0px -2px 3px rgba(0,0,0,0.1);
+}
+-------------------- */
+/* $option3=sidebar-box-shadow2
+#sidebar div.hatena-module {
+	border-width:	1px;
+	border-radius:	6px;
+	padding:	10px;
+	box-shadow:	 6px  6px 4px rgba(0,0,0,0.2);
 }
 -------------------- */
 

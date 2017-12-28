@@ -87,7 +87,9 @@ body
 /*--------------------------------------------------------------------
 ■表示オプション（右サイドバー）
 ---------------------------------------------------------------------*/
-/* $option=right-sidebar
+/*
+$option:title=sidebar-position
+$option=right-sidebar
 .main {
 	float:			left;
 	margin-left:		2px;
@@ -198,7 +200,9 @@ h1
 	line-height:		100%;
 	text-align:		center;
 }
-/* $option2=title-shadow
+/*
+$option2:title=title
+$option2=title-shadow
 h1 {
 	text-shadow:
 		-1px -1px 0px #fee,

@@ -83,7 +83,9 @@ body
 /*--------------------------------------------------------------------
 ■表示オプション（右サイドバー）
 ---------------------------------------------------------------------*/
-/* $option=right-sidebar
+/*
+$option:title=sidebar-potision
+$option=right-sidebar
 .main {
 	float:			left;
 	width:			calc(100% - 172px);
@@ -197,7 +199,9 @@ h1 img, h1 a img {
 	border:			none;
 }
 
-/* $option2=header-image 
+/*
+$option2:title=header
+$option2=header-image
 h1 {
 	margin-top:		-10px;
 	background-image:	url('title.png');
