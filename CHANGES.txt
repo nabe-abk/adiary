@@ -7,6 +7,7 @@
 -【Markdown】GFMのチェックボックス拡張に対応しました。（Request from Kaede）
 -【plugin】ARTICLE_FIRST_VISIBLE_PINGイベントの追加。
 -【plugin】WebPushの既知サーバに Edge のPushサーバを追加。
+-【テーマ】過去のSpecial Editionテーマを見やすく修正。
 -【fix/plugin】WebPushの「新着記事で送信しない」設定が動作していない。
 -【fix/markdown】タグ中のシンタックスが処理されてしまう。（[https://github.com/nabe-abk/adiary/issues/5:Thanks to pawa]）
 

@@ -4,8 +4,6 @@
         adiary C86 Special Edition Theme    2014/08/17
         (C) adiary.org / かえで
 
-    CSS update 2015/05/18 by nabe@abk.
-
     Supported Browser/Rendering Engine are:
         Gecko Rendering Engine Based:
             Mozilla Firefox         31.0 or lator
@@ -25,22 +23,57 @@
         Presto Rendering Engine Based:
             Opera 12.x
 *****************************************************************************/
+html,button,input {
+	font-size:			12pt;
+	line-height:			1.5;
+}
+body, h1, h2, form,
+.hatena-module ul {
+	margin:				0;
+	padding:			0;
+}
+
+/* タグ一覧 */
+div.art-info span.tags:before {
+	content:		'[';
+}
+div.art-info span.tags:after {
+	content:		']';
+}
+span.tag:not(:last-child) {
+	margin-right:		0.4em;
+}
+span.tag:not(:last-child):after {
+	content:		',';
+}
+article.edit span.tag:not(:last-child):after {
+	display:	none;
+}
+
+/* 非公開コメント */
+.comment-hidden {
+	color:			#808;
+}
+/* 非表示コメント */
+.comment-disable {
+	color:			#800;
+}
+
+/* モジュールタイトルのリンク */
+div.hatena-moduletitle a, 
+div.hatena-moduletitle a:link, 
+div.hatena-moduletitle a:visited {
+	color:			inherit;
+}
+button {
+	border-radius:		6px;
+	line-height:		100%;
+}
+
+
 /*--------------------------------------------------------------------
 ■初期設定
 ---------------------------------------------------------------------*/
-/* ブラウザデフォルト値上書き */
-* {
-    margin:                 0;
-    padding:                0;
-    font-family:            sans-serif;
-}
-
-/* 入力要素 */
-input, select {
-    font-size:              10pt;
-    vertical-align:         middle;
-}
-
 /* テキストボックス類 */
 select, input[type="text"], input[type="search"],
 input[type="date"], input[type="password"], input[type="file"],
@@ -142,7 +175,8 @@ body:before {
 }
 
 /*--------------------------------
-$option=no-theme-name
+$option:title=footer-theme-name
+$option=theme-name-none
 #footer:before {
 	display:		none;
 }
@@ -291,7 +325,7 @@ dd                          { padding-left: 1.5em;
 h1 a:link, h1 a:hover, h1 a:visited {
     color:                  #43211a;
     text-decoration:        none;
-    font-family:            serif;
+/*  font-family:            serif; */
 }
 
 /*--------------------------------------------------------------------
@@ -363,7 +397,7 @@ h2, div.caption {
 }
 
 h2 a, div.caption span {
-    font-family:            serif;
+/*  font-family:            serif; */
     font-weight:            bold;
 }
 
@@ -376,7 +410,7 @@ h2 a.date {
     display:                block;
     font-size:              13px;
     line-height:            20px;
-    font-family:            serif;
+/*  font-family:            serif; */
     margin-bottom:          8px;
 }
 
@@ -401,7 +435,7 @@ div.art-info {
     margin:                 4px 0 1.5em 0;
 }
 
-div.art-info span {
+div.art-info span:not(.tag) {
     margin-left:            1em;
 }
 
@@ -448,12 +482,12 @@ article h3 {
 }
 
 h3 span {
-    font-family:            serif;
+/*  font-family:            serif; */
 }
 
 h3 a:link, h3 a:visited, h3 a:hover {
     color:                  #945f4b;
-    font-family:            serif;
+/*  font-family:            serif; */
 }
 
 h3 span.sanchor {
@@ -476,12 +510,12 @@ div.body-main h4 {
 
 h4 a:link, h4 a:visited, h4 a:hover {
     color:                  #c7a666;
-    font-family:            serif;
+/*  font-family:            serif; */
 }
 
 h4 span {
     color:                  #c7a666;
-    font-family:            serif;
+/*  font-family:            serif; */
 }
 
 h4 span.sanchor {
@@ -807,6 +841,8 @@ div.commentbody {
 
 div.comment-one {
     margin:                 0.8em 0;
+    padding-bottom:         6px;
+    border-bottom:          1px dotted #c7a666;
 }
 
 div.commentator {
