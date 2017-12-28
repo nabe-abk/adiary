@@ -24,24 +24,60 @@ Supported Browser/Rendering Engine are:
         Opera 12.x
 
 Change Log
-    first release:                      2014/12/30
-    CSS update:				2015/12/29 (by nabe@abk)
+	first release:			2014/12/30
+	CSS update:			2015/12/29 (by nabe@abk)
+	CSS update:			2017/12/28 (by nabe@abk)
 *****************************************************************************/
+html,button,input {
+	font-size:			12pt;
+	line-height:			1.5;
+}
+body, h1, h2, form,
+.hatena-module ul {
+	margin:				0;
+	padding:			0;
+}
+
+/* タグ一覧 */
+div.art-info span.tags:before {
+	content:		'[';
+}
+div.art-info span.tags:after {
+	content:		']';
+}
+span.tag:not(:last-child) {
+	margin-right:		0.4em;
+}
+span.tag:not(:last-child):after {
+	content:		',';
+}
+article.edit span.tag:not(:last-child):after {
+	display:	none;
+}
+
+/* 非公開コメント */
+.comment-hidden {
+	color:			#808;
+}
+/* 非表示コメント */
+.comment-disable {
+	color:			#800;
+}
+
+/* モジュールタイトルのリンク */
+div.hatena-moduletitle a, 
+div.hatena-moduletitle a:link, 
+div.hatena-moduletitle a:visited {
+	color:			inherit;
+}
+button {
+	border-radius:		6px;
+	line-height:		100%;
+}
+
 /*--------------------------------------------------------------------
 ■初期設定
 ---------------------------------------------------------------------*/
-/* ブラウザデフォルト値上書き */
-* {
-    margin:                 0;
-    padding:                0;
-/*      text-shadow:            -1px -1px 4px #f0d4cf, -1px 1px 3px #f0d4cf, */
-/*                                  1px 1px 3px #f0d4cf, 1px -1px 3px #f0d4cf; */
-}
-
-/* 入力要素 */
-input, select {
-    font-size:              15px;
-}
 
 /* テキストボックス類 */
 select, input[type="text"], input[type="search"],
@@ -140,7 +176,8 @@ html {
     background-position:    top center;
 }
 /*--------------------------------
-$option=background-image
+$option:title=background-image
+$option=dot-image
 html {
     background-image:       url("dotted.png");
 }
@@ -155,6 +192,7 @@ body {
                                 -3px 3px 10px rgba(240, 140, 171, 1);
 }
 /*--------------------------------
+$option2:title=main-bg
 $option2=original-background
 body {
     background-image:       url("body-bg2.png");
@@ -184,7 +222,8 @@ body {
 }
 
 /*--------------------------------
-$option4=no-theme-name
+$option4:title=theme-name-footer
+$option4=theme-name-none
 #footer:before {
 	display:		none;
 }
@@ -475,7 +514,6 @@ h2, div.caption {
     margin-bottom:          5px;
     font-size:              15px;
     line-height:            25px;
-    height:                 25px;
     background-color:       #f08daa;
 }
 
@@ -507,7 +545,7 @@ div.art-info {
     margin:                 4px 0;
 }
 
-div.art-info span {
+div.art-info span:not(.tag) {
     margin-left:            1em;
 }
 
@@ -912,8 +950,8 @@ div.hatena-module {
     min-height:             120px;
     position:               relative;
 }
-
 /*--------------------------------
+$option3:title=opacity-0.75
 $option3=opacity-0.45
 article.article, article.system,
 div.hatena-module,
