@@ -1,0 +1,21 @@
+######################################################################
+title=360度写真用ビューア
+version=1.00
+#                                       (C) 2017 serika
+######################################################################
+description=360度画像を表示するためのプラグイン
+author=serika
+license=WTFPL
+
+adiary_version=3
+
+*files=<<FILES
+js/three.min.js
+js/<@this>.js
+FILES
+
+*events=<<EVENTS
+JSLIB=js/three.min.js
+JS=js/<@this>.js
+EVENTS
+
