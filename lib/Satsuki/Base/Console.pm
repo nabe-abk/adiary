@@ -14,7 +14,7 @@ our $VERSION = '1.00';
 #------------------------------------------------------------------------------
 sub new {
 	my $self = bless({}, shift);
-	$self->{ROBJ} = shift;
+	my $ROBJ = $self->{ROBJ} = shift;
 
 	$ROBJ->{No_lastmodified} = 1;
 	$ROBJ->{No_httpheader}   = 1;
