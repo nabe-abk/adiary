@@ -2,7 +2,7 @@
 
 *Ver3.15 : 2018/-/-
 
--【fix/plugin】WebPushモジュールが動作しない。
+-【fix】Perl5.26において記事が書き込めない。（[https://twitter.com/kero7/status/957502104305770496:Thanks to けろ]）
 
 *Ver3.14 : 2017/12/28
 
