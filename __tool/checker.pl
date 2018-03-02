@@ -15,7 +15,7 @@ print "---adiary Compile checker-------------------------------------------\n";
 	open(my $fh, "$perl -v|");
 	my @lines = <$fh>;
 	close($fh);
-	
+
 	foreach(@lines) {
 		if ($_ !~ /version/) { next; }
 		print "$_";
@@ -28,8 +28,18 @@ print "---adiary Compile checker-------------------------------------------\n";
 	my @files = <$fh>;
 	close($fh);
 
+	my %skip;
 	foreach(@files) {
 		chomp($_);
+		if ($_ !~ /_(\d+)\.pm$/) { next; }
+
+		my $file = $_;
+		my $num  = (2<$1) ? '_' . ($1 -1) : '';
+		$file =~ s/_(\d+)\.pm$/$num.pm/;
+		$skip{$file} = 1;
+	}
+	foreach(@files) {
+		if ($skip{$_}) { next; }
 		system("$perl $opt $_");
 	}
 }

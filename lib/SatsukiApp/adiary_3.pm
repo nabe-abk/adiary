@@ -194,7 +194,7 @@ sub get_thumbnail_file {
 	my $ROBJ = $self->{ROBJ};
 	my $dir  = $ROBJ->get_filepath( shift );
 	$ROBJ->mkdir("${dir}.thumbnail/");
-	return "${dir}.thumbnail/" . shift . ".jpg";
+	return "${dir}.thumbnail/" . (shift) . ".jpg";
 }
 
 #------------------------------------------------
