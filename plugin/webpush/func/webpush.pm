@@ -26,7 +26,7 @@ my $name;
 	my $aobj = shift;
 	$name = shift;
 	my $ROBJ = $aobj->{ROBJ};
-	$self = $ROBJ->loadpm('MOP', $aobj->{call_file});	# 無名クラス生成用obj
+	my $self = $ROBJ->loadpm('MOP', $aobj->{call_file});	# 無名クラス生成用obj
 
 	# Global var
 	$self->{aobj} = $aobj;
