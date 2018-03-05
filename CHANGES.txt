@@ -1,8 +1,9 @@
 [UTF-8][Japanese]
 
-*Ver3.15 : 2018/-/-
+*Ver3.14a : 2018/03/05
 
 -【fix】Perl5.26において記事が書き込めない。（[https://twitter.com/kero7/status/957502104305770496:Thanks to けろ]）
+-【fix】Perl5.8.9において一部コンパイルエラーが起こる。
 
 *Ver3.14 : 2017/12/28
 
