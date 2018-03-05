@@ -4,6 +4,7 @@
 
 -【fix】Perl5.26において記事が書き込めない。（[https://twitter.com/kero7/status/957502104305770496:Thanks to けろ]）
 -【fix】Perl5.8.9において一部コンパイルエラーが起こる。
+-【plugin】sp_view360（360度画像プラグイン）を収録。
 
 *Ver3.14 : 2017/12/28
 
