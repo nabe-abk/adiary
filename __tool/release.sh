@@ -26,6 +26,7 @@ EXCLUSIVE_LIST=__tool/norelease.list
 BASE="
 	adiary.cgi
 	adiary.fcgi
+	adiary.mod.cgi
 	adiary.speedy.cgi
 	adiary.env.cgi.sample
 	adiary.conf.cgi.sample
