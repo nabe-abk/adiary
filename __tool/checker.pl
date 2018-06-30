@@ -15,9 +15,13 @@ print "---adiary Compile checker-------------------------------------------\n";
 	open(my $fh, "$perl -v|");
 	my @lines = <$fh>;
 	close($fh);
+	if (!@lines) {
+		print "$perl not found.\n";
+		exit 1;
+	}
 
 	foreach(@lines) {
-		if ($_ !~ /version/) { next; }
+		if ($_ !~ /version|v5/) { next; }
 		print "$_";
 		last;
 	}
