@@ -8,8 +8,8 @@ use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION = 3.14;
-our $OUTVERSION = '3.14';
-our $SUBVERSION = 'a';
+our $OUTVERSION = '3.15';
+our $SUBVERSION = 'dev';
 our $DATA_VERSION = 3.14;
 ###############################################################################
 # ■システム内部イベント
@@ -255,10 +255,10 @@ sub blogid_and_pinfo {
 			$blogid = shift(@pinfo);
 			$blogid =~ s/\W//g;
 			if ($blogid ne '') {
-				$ROBJ->redirect("http://$blogid.$domain/" . join('/', @pinfo));
+				$ROBJ->redirect("//$blogid.$domain/" . join('/', @pinfo));
 			}
 		}
-		$self->{myself3} = "http://$authid.$domain/";	# 自分のブログ
+		$self->{myself3} = "//$authid.$domain/";	# 自分のブログ
 	} else {
 		#-----------------------------------------------
 		# マルチユーザーモード
