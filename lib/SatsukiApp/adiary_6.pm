@@ -28,7 +28,8 @@ my @update_versions = (
 	{ ver => 3.09, plugin=>1 },
 	{ ver => 3.10, func => 'sys_update_310', plugin=>1, theme=>1 },
 	{ ver => 3.11, plugin=>1 },
-	{ ver => 3.14, plugin=>1 }
+	{ ver => 3.14, plugin=>1 },
+	{ ver => 3.15, func => 'sys_update_315', plugin=>1 }
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
@@ -170,6 +171,17 @@ sub sys_update_310 {
 		my $soft = ($ENV{SERVER_SOFTWARE} =~ /Apache/i) ? 'Apache' : 'FastCGI';
 		$ROBJ->warn("Restart of %s is required!", $soft);
 	}
+}
+
+#------------------------------------------------------------------------------
+# ●システムアップデート for Ver3.15
+#------------------------------------------------------------------------------
+sub sys_update_315 {
+	my $self  = shift;
+	my $pings = $self->{sys}->{ping_servers_txt};
+	$pings =~ s!(^|\n)(http://blogsearch\.google\.(?:co\.jp|com)/ping/RPC2)!$1# $2!;
+	$self->update_sysdat('ping_servers_txt', $pings);
+	$self->debug($pings);
 }
 
 ###############################################################################

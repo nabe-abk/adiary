@@ -159,7 +159,7 @@ sub main {
 	if ($self->{view_pass}) { $self->check_view_pass(); }
 
 	# メンテナンスモード
-	if ($self->{sys}->{mainte_mode} || $self->{require_update}) { $self->mainte_mode(); }
+	if ($sys->{mainte_mode} || $self->{require_update}) { $self->mainte_mode(); }
 
 	#-------------------------------------------------------------
 	# POST actionの呼び出し
