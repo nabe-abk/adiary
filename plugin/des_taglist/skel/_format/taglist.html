@@ -3,7 +3,8 @@
 <@>
 <$name = argv#0>
 <$root = argv#1>
-<$id   = v.plugin_name_id(name)>
+<$num  = v.plugin_num(name)>
+<$id   = 'sidetag' . if(num != 1, num)>
 <$ps   = v.load_plgset(name)>
 <$switch = ps.switch)>
 <$nclose = ps.nclose>
