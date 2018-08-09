@@ -249,7 +249,7 @@ sub edit_article {
 
 	# 初公開
 	if ($opt{first_visible}) {
-		if ($form->{ping}) {
+		if (!$blog->{private} && $form->{ping}) {
 			$ROBJ->message("Ping sending");
 			$self->call_event('ARTICLE_FIRST_VISIBLE_PING', $art, $form);
 		}
