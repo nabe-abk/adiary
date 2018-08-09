@@ -1,0 +1,1123 @@
+@charset "UTF-8";
+/**************************************************************
+ * irisテーマ
+ *  adiary C91 Special Edition Theme    2016/12/28
+ *  (C) adiary.org / かえで
+ * 
+ * Chedked Browser
+ *  Mozilla Firefox 50.0.2
+ *      (distributed by openSUSE 13.2)
+**************************************************************/
+/*--------------------------------------------------------------------
+■初期設定
+---------------------------------------------------------------------*/
+/* アイコン読み込み */
+#ui-icon-autoload {
+    display:                none;
+    background-color:       #0033cc;	/* $c=ui-icon */
+}
+/* ブラウザデフォルト値上書き */
+/*
+* {
+    margin:                 0;
+    padding:                0;
+    font-family:            sans-serif;
+}
+*/
+
+/* 入力要素 */
+input, select {
+    font-size:              16px;
+    vertical-align:         middle;
+}
+
+/* テキストボックス類 */
+select, input[type="text"], input[type="search"],
+input[type="date"], input[type="password"], input[type="file"],
+input[type="number"] {
+    background-color:       rgba(255,255,255,0.5);
+    border-width:           0px;
+    font-size:              14px;
+    line-height:            18px;
+    margin:                 0;
+    padding:                1px 3px;
+    vertical-align:         middle;
+    border:                 2px solid rgba(195,218,248,0);
+}
+
+input[type="text"]:focus, input[type="search"]:focus,
+input[type="date"]:focus, input[type="password"]:focus,
+input[type="file"]:focus, input[type="number"]:focus {
+    padding:                1px 3px;
+    background-color:       rgba(255,255,255,0.8);
+    border:                 2px solid rgba(195,218,248,0.8);
+}
+
+/* チェックボックス */
+input[type="radio"], input[type="checkbox"] {
+    vertical-align:         middle;
+}
+
+input[type="radio"] + label, input[type="checkbox"] + label {
+    font-size:              16px;
+    line-height:            16px;
+}
+
+/* ボタン類 */
+button {
+    padding:                0px 3px;
+    font-size:              13px;
+    min-height:             16px;
+    line-height:            18px;
+    margin:                 0 8px 0px 0;
+
+    border:		            none;
+    background-color:       rgba(195,218,248,0.6);
+    vertical-align:         top;
+}
+button:hover {
+    background-color:       rgba(251,206,216,0.6);
+}
+button:disabled {
+    background-color:       rgba(0,0,0,0.6);
+}
+
+textarea {
+    width:                  calc(100% -16px);
+    font-size:              16px;
+    font-family:            monospace;
+    line-height:            20px;
+    padding:                5px;
+    border:                 5px solid rgba(255,255,255,0);
+    background-color:       rgba(255,255,255,0.5);
+    margin:                 10px 0;
+}
+textarea:focus {
+    border:                 5px solid rgba(195,218,248,0.4);
+    background-color:       rgba(255,255,255,0.8);
+}
+
+
+/* --------------------------------------------------------- */
+/* ■ 要素配置 */
+/* --------------------------------------------------------- */
+
+/* ブラウザ描画領域全体 */
+/* --------------------------------------------------------- */
+html {
+    /* ヘッダー・フッターを常に表示 */
+    height:                 100%;
+}
+
+body {
+    /* ヘッダー・フッターを常に表示 */
+    margin:                 0;
+    padding:                0;
+    height:                 100%;
+    background-color:       #b4cff7;	/* $c=bg */
+}
+
+/* 背景オプション ------------------------------------------ */
+/*
+$option:title=bg
+$option=bg:default-image
+body {
+    position:               relative;
+    background-position:    center top;
+    background-attachment:  fixed;
+    background-size:        cover;
+    background-image:       url("bg.jpg");
+}
+-------------------- */
+
+
+/* 本文部 ----------------------------------------------------*/
+/* 管理メニュー + ブログタイトル + サイドバー + 記事部 */
+#adiary-body {
+    min-width:              800px;
+    margin:                 0 auto;
+    /* ヘッダー・フッターを常に表示 */
+    height:                 100%;
+}
+
+/* 管理メニュー + ブログタイトル */
+#header {
+}
+
+/* 管理メニュー部 */
+#nav-header {
+    margin:                 0 auto;
+    text-align:             right;
+    font-size:              14px;
+    color:                  white;
+    padding:                0 30px;
+    background-color:       rgba(0,0,0,0.7);
+    line-height:            30px;
+}
+
+/* ブログタイトル部 */
+#page-title {
+    padding:                5px 32px;
+    line-height:            80px;
+    height:                 80px;
+    color:                  white;
+    background-color:       rgba(255,255,255,0.65);
+}
+
+/* 記事部 + サイドバー */
+#hatena-body {
+    margin:                 30px auto;
+    padding:                0 30px;
+    max-width:              1380px;
+            /* 100% - ヘッダー - div.main パディング - フッター */
+    min-height:             calc(100% - 120px - 60px - 44px);
+}
+
+/* #hatena-body直下のdiv */
+#hatena-body>div {
+    height:                 100%;
+}
+
+/* 記事部 */
+div.main {
+    width:                  calc(100% - 260px);
+    float:                  right;
+    height:                 100%;
+    margin-bottom:          30px;
+}
+
+
+/* サイドバー部 */
+#sidebar {
+    width:                  230px;
+    float:                  left;
+    margin-bottom:          30px;
+}
+
+
+/* ブラウザ描画領域下部 */
+/* バージョン */
+#footer:after {
+    display:                block;
+    content:                "iris: C91 Special Edition Theme";
+    font-size:              13px;
+    line-height:            17px;
+    color:                  white;
+}
+/*
+$option2:title=footer
+$option2=no-footer
+#footer:after {
+    display:                none;
+}
+********************/
+
+
+/* フッター (adiary Version ?) */
+#footer {
+    background-color:       rgba(0,0,0,0.7);
+
+    width:                  100%;
+    padding:                6px 0 4px 0;
+    font-size:              13px;
+    line-height:            17px;
+    text-align:             center;
+}
+
+#footer, #footer a:link, #footer a:visited {
+    color:                  white;
+}
+
+
+/*-------------------------------------------------------------
+■ 基本設定
+-------------------------------------------------------------*/
+/* ◆ リンク配色 */
+a:link {
+    color:                  #0343c1;	/* $c=link */
+    text-decoration:        none;
+}
+
+a:visited {
+    color:                  #b5001f;	/* $c=linkvisited */
+    text-decoration:        none;
+}
+
+    
+a:hover {
+    text-decoration:        underline;
+}
+
+
+/* ◆ フォントサイズ基本設定
+---------------------------------------------------------------------------------------------*/
+.xx-large                   { font-size: 200%; }
+.x-large,   .huge           { font-size: 150%; }
+.large                      { font-size: 130%; }
+.medium,    .nomalsize      { font-size: 100%; }
+.small                      { font-size: 90%; }
+.x-small,   .tiny           { font-size: 80%; }
+.xx-small,  .scriptsize     { font-size: 50%; }
+
+/*  ◆ フォントファミリー基本設定
+----------------------------------------------------------------------------------------------*/
+.mono,  .pre                { font-family: monospace; }
+
+/* ◆ フォント装飾基本設定
+----------------------------------------------------------------------------------------------*/
+.it,    .italic             { font-style: italic; }
+.bf,    .bold               { font-weight: bold; }
+.u,     .underline          { text-decoration: underline; }
+
+/* ◆ divボックス基本設定
+---------------------------------------------------------------------------------------------*/
+div.left                    { text-align: left; }
+div.center                  { text-align: center; }
+div.right                   { text-align: right; }
+
+/* ◆ リスト基本設定
+---------------------------------------------------------------------*/
+ul                          { list-style-position: inside;
+                              list-style-type: square;
+                              margin: 0 0 0.2em 0.5em; }
+ol                          { list-style-position: inside;
+                              list-style-type: decimal;
+                              margin: 0 0 0.2em 0.5em; }
+article ul, article ol      { padding-left: 0.5em; }
+ul.none, ol.none            { list-style: none; }
+
+/* 定義済みリスト */
+dl                          { margin: 0.3em 0; }
+dt                          { font-weight: bold; }
+dd                          { padding-left: 1.5em;
+                              padding-bottom: 0.5em; }
+
+/* --------------------------------------------------------- */
+/* ヘッダ
+/* --------------------------------------------------------- */
+#nav-header a {
+    margin:                 0 0.1em 0 0.1em;
+    color:                  white;
+}
+
+#nav-header span {
+    margin:                 0 0.1em 0 0.1em;
+}
+
+#nav-header a:hover {
+    text-decoration:        underline;
+}
+
+/* --------------------------------------------------------- */
+/* ■ 見出し (日記帳タイトル) */
+/* --------------------------------------------------------- */
+h1 {
+    margin:                 0;
+    padding:                0;
+}
+
+h1 a:link, h1 a:hover, h1 a:visited {
+    color:                  black;
+    text-decoration:        none;
+}
+
+/* --------------------------------------------------------- */
+/* ■ ナビゲーション (前のページ/次のページ) */
+/* --------------------------------------------------------- */
+nav.page-nav {
+    font-size:              14px;
+    line-height:            30px;
+    background-color:       rgba(255,255,255,0.65);
+    padding:                0 30px;
+    text-align:             right;
+}
+
+nav.page-nav a {
+    display:                inline-block;
+}
+nav.page-nav a:first-child {
+    margin-right:           1em;
+}
+nav.page-nav a:last-child {
+    margin-left:            1em;
+}
+
+nav.page-head {
+}
+
+nav.page-foot {
+    text-align:             right;
+}
+
+/* アイコン */
+a.prev-page:before,
+a.upnode-page:before,
+a.next-page:after {
+    display:                inline-block;
+    width:                  16px;
+    height:                 16px;
+    content:                "";
+    vertical-align:         middle;
+    margin-top:             -4px;
+}
+
+a.prev-page:before {
+    background-position:    -208px -16px;
+    margin-right:           0.4em;
+}
+a.upnode-page:before {
+    background-position:    -224px -16px;
+    margin-right:           0.4em;
+}
+a.next-page:after {
+    background-position:    -240px -16px;
+    margin-left:            0.4em;
+}
+
+
+/* --------------------------------------------------------- */
+/* ■ 記事部 (本文) */
+/* --------------------------------------------------------- */
+/* 記事部 + コメント部 */
+#article-box {
+    margin:                 30px 0 0 0;
+    background-color:       rgba(255,255,255,0.65);
+    padding:                15px 30px
+}    
+
+article {
+    margin:                 30px 0;
+    background-color:       rgba(255,255,255,0.65);
+    padding:                15px 30px;
+/*     counter-reset:          sec; */
+}
+
+#article-box article {
+    margin:                 0;
+    background-color:       transparent;
+    padding:                0
+}
+
+article:first-child, #article-box:first-child
+article.system:first-child {
+    /* 記事が少なくpage-navが出力されない場合 */
+    margin-top:             0px;
+}
+
+nav.page-nav+#articles {
+    /* page-navが出力される場合 */
+    margin-top:             30px;
+}
+
+
+/* 記事タイトル部 */
+/* コメント入力部タイトル */
+/* --------------------------------------------------------- */
+h2, div.caption {
+    font-size:              24px;
+    line-height:            32px;
+    color:                  black;
+    border-bottom:          3px solid black;
+    padding-bottom:         0px;
+    margin-bottom:          4px;
+}
+
+h2 a:link, h2 a:visited, h2 a:hover,
+div.caption span {
+    font-weight:            bold;
+    color:                  black;
+}
+
+h2 a.date {
+    font-size:              16px;
+    line-height:            20px;
+    margin-right:           4px;
+}
+
+h2 a.date:hover {
+    text-decoration:        none;
+}
+
+/* 本文部 */
+/* --------------------------------------------------------- */
+div.body-main {
+    margin:                 15px 0;
+    font-size:              16px;
+    line-height:            24px;
+}
+
+/* 本文ヘッダ部 */
+div.art-info {
+    font-size:              14px;
+    line-height:            20px;
+    text-align:             right;
+    margin:                 4px 0 15px 0;
+}
+
+div.art-info span {
+    margin-left:            1em;
+}
+
+div.art-info a:link, div.art-info a:visited, 
+div.art-info a:hover {
+    color:                  #0343c1;
+}
+
+/* 本文フッタ部 */
+div.body-footer {
+    text-align:             right;
+    font-size:              14px;
+    line-height:            20px;
+    margin:                 4px 0 15px 0;
+}
+div.social-buttons {
+    text-align:             right;
+}
+.social-button {
+    color:                  #0343c1;
+}
+
+
+div.body-footer span, div.body-footer a:visited,
+div.body-footer a:hover {
+    color:                  #0343c1;
+}
+
+
+div.body-main section {
+}
+
+div.body-main section p {
+    margin-bottom:          24px;
+    padding:                0;
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事：基本設定 */
+/* --------------------------------------------------------- */
+/* 見出し */
+article h3 {
+    font-size:              20px;
+    line-height:            28px;
+    font-weight:            bold;
+    margin:                 24px 0 8px 0;
+    border-bottom:          2px solid black;
+/*     counter-reset:          sec2; */
+}
+
+h3 a:link, h3 a:visited, h3 a:hover {
+    color:                  black;
+    text-decoration:        none;
+}
+
+h3:before {
+/*     counter-increment:      sec; */
+/*     content:                counters(sec, ".") "."; */
+}
+
+h3 span.sanchor {
+    display:                none;
+}
+
+h3 span.timestamp {
+    font-size:              16px;
+    color:                  black;
+}
+
+/* 小見出し */
+article h4 {
+    font-size:              18px;
+    line-height:            26px;
+    font-weight:            bold;
+    margin:                 24px 0 8px 0;
+    text-decoration:        underline;
+/*     counter-reset:          sec3; */
+}
+
+h4:before {
+/*     counter-increment:      sec2; */
+/*     content:                counters(sec, ".") "." */
+/*                             counters(sec2, ".") ". "; */
+/*     margin-right:           -5px; */
+}
+
+h4 a:link, h4 a:visited, h4 a:hover {
+    color:                  black;
+    text-decoration:        none;
+}
+
+h4 span {
+}
+
+h4 span.sanchor {
+    margin-right:           0.25em;
+}
+
+h4 span.timestamp {
+    font-size:              16px;
+}
+
+/* 小々見出し */
+article h5 {
+    font-size:              16px;
+    line-height:            24px;
+    font-weight:            bold;
+    margin:                 24px 0 8px 0;
+}
+
+h5:before {
+/*     counter-increment:      sec3; */
+/*     content:                counters(sec, ".") "." */
+/*                             counters(sec2, ".") "." */
+/*                             counters(sec3, ".") ". "; */
+}
+
+h5 a:link, h5 a:visited, h5 a:hover {
+    color:                  black;
+    text-decoration:        none;
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事: ブロック記法 */
+/* --------------------------------------------------------- */
+blockquote, pre, div.box {
+    font-size:              16px;
+    line-height:            24px;
+    margin:                 12px 0;
+    padding:                12px;
+    display:                block;
+}
+
+/* 引用記法 */
+blockquote {
+    background-color:       rgba(255,255,255,0.5);
+}
+
+blockquote p {
+    margin:                 0;
+}
+
+/* pとpの間 */
+blockquote p + p {
+    margin:                 1em 0;
+}
+
+/* pre記法、シンタックスハイライト */
+pre, .hljs {
+    background-color:       rgba(0,0,0,0.7);
+    font-family:            monospace;
+    color:                  white;
+}
+
+pre span.comment {
+    color:                  #a6db2b;
+    font-family:            monospace;
+}
+
+pre strong.comment {
+    color:                  #ff7303;
+    font-family:            monospace;
+    font-weight:            bold;
+}
+
+/* toc記法 */
+ul.toc a {
+    color:                  #0343c1;
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事: 脚注処理 */
+/* --------------------------------------------------------- */
+/* 注釈へのリンク */
+span.footnote a {
+    color:                  #0343c1;
+    font-size:              12px;
+    line-height:            12px;
+    vertical-align:         top;
+}
+
+/* 注釈 */
+section footer {
+    font-size:              14px;
+    line-height:            20px;
+    padding-left:           160px;
+    border-top:             1px dotted black;
+    margin:                 16px 0 10px 64px;
+    padding:                10px 0 0 0;
+}
+
+section footer p.footnote {
+    line-height:            20px;
+    margin:                 0;
+}
+
+section footer a:link, section footer a:visited,
+section footer a:hover {
+    color:                  #0343c1;
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事: 本文内リスト */
+/* --------------------------------------------------------- */
+article ul, article ol {
+    list-style-position:    outside;
+    margin:                 12px 0 12px 16px;
+}
+
+article li {
+    margin:                 0;
+}
+
+article ul ul, article ol ol, 
+article ul ol, article ol ul {
+    margin:                 0 0 0 0.5em;
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事: 保護色 (hidden) */
+/* --------------------------------------------------------- */
+/* 記事テキストの保護色。背景色と同一にすること */
+.hidden {
+    color:                  white;
+    background-color:       white;
+}
+
+/* --------------------------------------------------------- */
+/* ◆ 画像処理 */
+/* --------------------------------------------------------- */
+figure.image a:link {
+    border:                 3px solid rgba(195,218,248,0.5);
+}
+
+figure.image a:visited, figure.image a:hover {
+    border:                 3px solid rgba(251,206,216,0.5);
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事：テーブル */
+/* --------------------------------------------------------- */
+article table {
+    font-size:              14px;
+    line-height:            20px;
+    margin:                 12px 0px 12px 0px;
+    border-collapse:        collapse;
+    border-spacing:         0;
+    empty-cells:            show;
+    width:                  100%;
+}    
+
+article table td, article table th {
+    padding:                0 6px;
+}
+
+/* 見出し */
+thead tr:nth-child(odd) th, tr:nth-child(even) th  {
+    background-color:       rgba(0,0,0,0.6);
+    color:                  white;
+}
+tr:nth-child(odd) th {
+    background-color:       rgba(0,0,0,0.4);
+    color:                  white;
+}
+
+/* 奇数行 */
+tr:nth-child(even) td {
+    background-color:       rgba(255,255,255,0.7);
+}
+
+/* 偶数行 */
+tr:nth-child(odd) td {
+    background-color:       rgba(255,255,255,0.35);
+}
+
+article.system thead tr th,
+article.system       tr th {
+    background-color:       rgba(0,0,0,0.6);
+}
+article.system tr td {
+    background-color:       rgba(255,255,255,0.5);
+}
+
+
+
+/* クラス指定記法による配置 */
+th.left, td.left, th.l, td.l {
+    text-align:             left;
+}
+
+th.center, td.center, th.c, td.c {
+    text-align:             center;
+}
+
+th.right, td.right, th.r, td.r {
+    text-align:             right;
+}
+
+div.body table.small {
+    font-size:              12px;
+    line-height:            16px;
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事 toc */
+/* --------------------------------------------------------- */
+div.caption {
+    font-size:              18px;
+    line-height:            24px;
+}
+
+div.caption span.com-num {
+    font-size:              16px;
+}
+
+div.commentbody {
+    font-size:              16px;
+    line-height:            24px;
+}
+
+div.comment-one {
+    margin:                 16px 0;
+}
+
+div.commentator span.canchor {
+    font-size:              16px;
+    line-height:            24px;
+}
+
+div.ip-host-agent {
+    font-size:              14px;
+    line-height:            20px;
+}
+
+hr#com-form-separator {
+    border:                 none;
+    border-top:             2px solid black;
+    margin:                 12px 0;
+}
+
+.comment textarea {
+    width:                  calc(100% - 16px);
+    height:                 120px;
+}
+.comment .help {
+    font-size:              16px;
+    line-height:            16px;
+}
+
+/* --------------------------------------------------------- */
+/* ■ サイドバー */
+/* --------------------------------------------------------- */
+/* サイドバーの１項目 */
+.hatena-module {
+    background-color:       rgba(255,255,255,0.65);
+    margin:                 20px 0;
+    padding:                8px 12px;
+}
+
+.hatena-module:first-child {
+    margin-top:             0;
+}
+
+/* タイトル部 */
+.hatena-moduletitle {
+    font-size:              16px;
+    font-weight:            bold;
+    line-height:            24px;
+    border-bottom:          2px solid black;
+}
+
+.hatena-modulebody {
+    margin-top:             6px;
+    font-size:              14px;
+    line-height:            20px;
+}
+
+.hatena-module ul {
+    list-style-type:        none;
+    margin-left:            0;
+    padding:                0;
+}
+
+/* コンテンツの子要素 */
+.hatena-module ul ul {
+    margin-bottom:          0px;
+    margin-left:            8px;
+}
+
+div.hatena-module:not(.system-module) li {
+}
+
+.hatena-module .search-box {
+    width:                  140px;
+}
+
+/* ● sidebar：カレンダー */
+/* --------------------------------------------------------- */
+#side-calendar table {
+    width:                  100%;
+    font-size:              14px;
+    line-height:            20px;
+    border-collapse:        collapse;
+    border-spacing:         0;
+    border:                 none;
+    text-align:             center;
+}
+
+/* 先月 */
+#side-calendar td.calendar-prev-month {
+    text-align:             left;
+    padding-left:           0.5em;
+    border:                 none;
+}
+
+/* 今月 */
+#side-calendar td.calendar-current-month {
+    border:                 none;
+}
+/* 来月 */
+#side-calendar td.calendar-next-month {
+    text-align:             right;
+    padding-right:          0.5em;
+    border:                 none;
+}
+
+#side-calendar td {
+    border:                 none;
+}
+
+/* 土曜日 */
+#side-calendar tr:nth-child(even) td.w6,
+#side-calendar tr:nth-child(even) th.w6 {
+    background-color:       rgba(195,218,248,0.7);
+}
+
+#side-calendar tr:nth-child(odd) td.w6,
+#side-calendar tr:nth-child(odd) th.w6 {
+    background-color:       rgba(195,218,248,0.5);
+}
+
+/* 日曜日 */
+#side-calendar tr:nth-child(even) td.w0,
+#side-calendar tr:nth-child(even) th.w0 {
+    background-color:       rgba(251,206,216,0.7);
+}
+
+#side-calendar tr:nth-child(odd) td.w0,
+#side-calendar tr:nth-child(odd) th.w0 {
+    background-color:       rgba(251,206,216,0.35);
+}
+
+/* 今日 */
+tr td.day-today, tr td.day-selected {
+    background-color:       rgba(0,0,0,0.15);
+}
+
+/* --------------------------------------------------------- */
+/* ■ モジュール */
+/* --------------------------------------------------------- */
+/* ブログの説明、自由入力, 検索 */
+#header .dem-module, 
+div[data-module-name="dem_searchbox,1"], #head-search {
+    font-size:              16px;
+    line-height:            24px;
+    min-height:             30px;
+    margin:                 0;
+    background-color:       rgba(255,255,255,0.65);
+    padding:                0 30px;
+}
+
+/* 検索 */
+#head-search, div[data-module-name="dem_searchbox,1"] {
+    text-align:             right;
+}
+
+div[data-module-name="dem_searchbox,1"] {
+    font-size:              16px;
+    line-height:            24px;
+    min-height:             30px;
+    margin:                 0 0 30px 0;
+    padding:                6px 30px 0 30px;
+}
+
+#head-search span.title , 
+div[data-module-name="dem_searchbox,1"] span.title {
+    display:                none;
+}
+
+#head-search .search-box , 
+div[data-module-name="dem_searchbox,1"] .search-box {
+    width:                  160px;
+}
+
+/* ドロップダウンメニュー */
+.dropdown-menu {
+    background-color:       rgba(255,255,255,0.65);
+}
+
+.dropdown-menu a {
+    color:                  #0343c1;
+}
+
+.dropdown-menu > ul li {
+    border:                 none;
+    background-color:       rgba(255,255,255,0);
+}
+.dropdown-menu:not(.sp)>ul ul ul {
+	margin-top:	-1px;
+}
+.dropdown-menu:not(.sp)>ul>li a {
+	height:			100%;
+}
+.dropdown-menu > ul ul {
+    background-color:       rgba(255,255,255,0.75);
+}
+
+.dropdown-menu > ul li:hover {
+    background-color:       rgba(195,218,248,0.8);	/* $c=ddhover */
+}
+
+div.main .dropdown-menu {
+    margin-bottom:          30px;
+}
+
+/* --------------------------------------------------------- */
+/* ● システム関連 */
+/* --------------------------------------------------------- */
+article.system h2 {
+    margin-bottom:          18px;
+}
+
+/* ブログの情報(サイドバー) */
+#side-login-information tr:nth-child(odd) td,
+#side-login-information tr:nth-child(even) td{
+    background-color:       transparent;
+}
+
+/* ◆ ログイン画面 */
+/* --------------------------------------------------------- */
+table.login input[type="text"],
+table.login input[type="password"]{
+    width:                  calc(100% - 10px);
+    padding:                0 5px;
+}
+
+table.login tr td {
+    padding:                3px 5px;
+}
+
+/* ◆ 編集画面 */
+article.edit input.w360 {
+    width:                  calc(100% - 80px);
+}
+article.edit textarea {
+    width:                  calc(100% - 20px);
+}
+
+article.edit ul {
+    list-style-type:        none;
+}
+
+/* ◆ 強調
+------------------------------------------------------------ */
+strong.warning, strong.error,
+p.warning, p.error,
+div.messages div.warn,
+div.messages div.message {
+	color:		#c30;
+}
+
+/* ◆ ヘルプ */
+/* --------------------------------------------------------- */
+/* [?]文字 */
+.help, .btn-help:after {
+    font-weight:            bold;
+    cursor:                 pointer;
+    color:                  #0343c1;
+}
+
+#popup-help {
+    min-width:              100px;
+    max-width:              720px;
+    padding:                0.5em 1em;
+    padding:                0.5em;
+    background-color:       rgba(255,255,255,0.8);
+    border-width:           0px;
+    margin:                 0 8px 8px 0;
+    border:                 none;
+    font-size:              14px;
+    line-height:            20px;
+}
+
+/* ◆ ナビゲーション */
+/* --------------------------------------------------------- */
+nav.tree {
+    font-size:              14px;
+    line-height:            14px;
+    padding:                6px 30px;
+    background-color:       rgba(255,255,255,0.65);
+}
+
+nav.tree select {
+    font-size:              12px;
+    line-height:            12px;
+    padding:                0 3px;
+    vertical-align:         middle;
+}
+
+/* ◆ ツリー(タグ, wiki) */
+/* --------------------------------------------------------- */
+ul.dynatree-container {
+    background-color:       rgba(255,255,255,0.6);
+    border:                 none;
+    padding:                10px;
+}
+
+/* インポート */
+textarea[readonly], textarea[readonly]:focus {
+    background-color:       rgba(0,0,0,0.2);
+    padding:                5px;
+    border:                 none;
+}
+
+h3.ui-accordion-header {
+    background-color:       transparent;
+}
+
+/* ◆ ダイアログ */
+/* --------------------------------------------------------- */
+.ui-dialog, .ui-dialog.error-dialog {
+    border-radius:          0px;
+    background-color:       rgba(240,240,240,0.9);
+}
+
+/* タイトルバー */
+.ui-dialog .ui-widget-header {
+    background-color:       transparent;
+    border-bottom:          2px solid black;
+    border-radius:          0px;
+}
+
+
+/* ボタン */
+.ui-dialog .ui-button {
+    background-color:       rgba(195,218,248,0.6);
+    border-radius:          0px;
+}
+
+.ui-dialog .ui-button:focus {
+    background-color:       rgba(251,206,216,0.6);
+}
+
+/* エラーダイアログ タイトルバー */
+.ui-dialog.error-dialog .ui-widget-header {
+    background-color:       rgba(251,206,216,0.6);
+}
+/* エラーダイアログ ボタン */
+.ui-dialog.error-dialog button.ui-button {
+    background-image:       none;
+    background-color:       rgba(251,206,216,0.6);
+}
+
+.ui-dialog textarea {
+    width:                  calc(100% - 20px);
+}
