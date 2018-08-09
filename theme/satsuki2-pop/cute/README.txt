@@ -3,7 +3,6 @@ Template: satsuki2
 Author: かえで
 Access: https://twitter.com/__Kaede
 License: GPL
-Charset: UTF-8
 Smartphone: yes
 System-mode: yes
 
