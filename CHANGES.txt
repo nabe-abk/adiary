@@ -6,6 +6,7 @@
 -更新通知Ping送信先から http://blogsearch.google.co.jp/ping/RPC2 を削除。
 -プライベートブログでは更新通知を送らないように変更。
 -irisテーマを再録。
+-【plugin】サイドタグモジュールで、表示階層などを選択できるように変更。複数配置に対応。（[https://adiary.adiary.jp/0399#c3:Thanks to nomura]）
 -【plugin】カレンダーモジュールで、山の日、2020年の祝日移動に対応しました。
 -【fix】https:// 接続時に生成されるリンクが一部 http:// になっていた。
 -【fix】Edgeのバグ対応のため、dateのmaxを "2914-12-31" に変更。（[https://adiary.adiary.jp/0399#c1:Thanks to epg]）

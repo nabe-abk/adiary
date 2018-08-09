@@ -4,25 +4,41 @@
 	<table class="blog-ps.tting">
 	<tbody>
 	<tr>
+		<th>モジュールタイトル<span class="help" data-help="表示ノードに「root」を指定した時に表示されるタイトルです。">?</span></th>
+		<td><input type="text" class="w160" name="title" value="<@ps.title || 'タグ'>" maxlength="64"></td>
+	</tr>
+	<tr>
+		<th>表示開始ノード<span class="help" data-help="指定したノードから下をリスト表示します。">?</span></th>
+		<td>
+			<select name="node" id="tag-select" data-default="<@ps.node>" data-url="<@Basepath><@v.blogpub_dir>taglist.json">
+				<option value="">*すべて(root)</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
 		<th>タグのない記事</th>
 		<td>
-			<input type="checkbox" name="nodisp_notag" value="1" class="js-disable" data-target="#notag-title"<@if(ps.disp_notag,' checked')>><label>表示しない</label><br>
-			&emsp;分類名 <input type="text" id="notag-title" class="w160" name="notag_title" value="<@ps.notag_title || '(none)'>" maxlength="32">
+			<input type="text" id="notag-title" class="w160" name="notag_title" value="<@ps.notag_title || '(none)'>" maxlength="32">
+			&emsp; <label><input type="checkbox" name="nodisp_notag" value="1" class="js-disable" data-target="#notag-title"<@if(ps.nodisp_notag,' checked')>>非表示</label>
 		</td>
 	</tr>
 	<tr>
 		<th>記事のないタグ</th>
 		<td>
-			<input type="checkbox" name="disp_noart_tag" value="1"<@if(ps.disp_noart_tag,' checked')>><label>表示する</label>
+			<label><input type="checkbox" name="disp_noart_tag" value="1"<@if(ps.disp_noart_tag,' checked')>>表示する</label>
 		</td>
 	</tr>
 	<tr>
-		<th>折り畳みスイッチ<span class="help" data-help="ノードを開いたり閉じたりするスイッチを表示するか指定します。">?</span></th>
+		<th>折り畳みスイッチ<span class="help" data-help="ノード開閉スイッチを表示するか指定します。">?</span></th>
 		<td>
-			<input type="checkbox" name="switch" value="1"<@if(ps.switch, ' checked')>
-			 class="js-enable" data-target="#des-taglist-nclose"><label>表示する</label>
-			&emsp;<input type="checkbox" name="nclose" id="des-taglist-nclose" value="1"<@if(ps.nclose, ' checked')>><label>標準で閉じる</label>
+			<label><input type="checkbox" name="switch" value="1"<@if(ps.switch, ' checked')>
+			 class="js-enable" data-target="#des-taglist-nclose">表示する</label>
+			&emsp;<label><input type="checkbox" name="nclose" id="des-taglist-nclose" value="1"<@if(ps.nclose, ' checked')>>標準で閉じる</label>
 		</td>
 	</tr>
 	</tbody>
 	</table>
+
+<script>
+load_tags_list('#tag-select');
+</script>

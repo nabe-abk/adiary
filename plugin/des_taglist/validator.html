@@ -1,6 +1,15 @@
 <@40.is_function>
 <@local(h)>
 <$h = validator(begin_hash, argv#0) )>
+	title = モジュールタイトル
+	title:min_chars =  1
+	title:max_chars = 48
+	title:filter0   = trim
+	title:filter1   = tag
+
+	node = 表示開始ノード
+	node:filter0 = normalize
+
 	notag_title = タグなし記事のリンク名
 	notag_title:min_chars =  1
 	notag_title:max_chars = 32

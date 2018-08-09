@@ -1,8 +1,10 @@
 <@6>
-<@local(ps,name,switch,nclose)>
+<@local(ps,name,id,switch,nclose)>
 <@>
 <$name = argv#0>
-<$ps = v.load_plgset(name)>
+<$root = argv#1>
+<$id   = v.plugin_name_id(name)>
+<$ps   = v.load_plgset(name)>
 <$switch = ps.switch)>
 <$nclose = ps.nclose>
 <$notag_arts = argv#2>
@@ -16,14 +18,13 @@
 <$tree  = node.children>
 <$depth = argv#1><@>prefix
 <$p = "\t" %x depth>
-<@p><ul id="sidetag-<@if(node.root,'root',node.pkey)>"<@if(node.root, ' class="hatena-section"')>>
+<@p><ul id="<@id>-<@if(node.root,'root',node.pkey)>"<@if(depth == 0, ' class="hatena-section"')>>
 <@forexec(t, tree, begin.forexec)>
 <$ifnext(!ps.disp_noart_tag && !t.qtall)>
 <@ifexec(t.children && t.qt<t.qtall, begin, begin)>
-<$tid="sidetag-<@t.pkey>">
 <@p>	<li> <@\>
 	<@ifexec(switch, begin)>	<@\>
-	<span class="js-switch" data-save="1" data-target="#<@tid>"<@if(nclose, ' data-default="hide"')>> <@\>
+	<span class="js-switch" data-save="1" data-target="#<@id>-<@t.pkey>"<@if(nclose, ' data-default="hide"')>> <@\>
 	<$end> <@\>
 	<a href="<@v.myself>?&amp;t=<@encode_uricom(x =t.name)>"><@t.sname></a></span> <span class="qt">(<span><@t.qtall></span>)</span>
 <@exec(sub, t, depth+1)>
@@ -41,4 +42,13 @@
 <@>---------------------------------------------------------------------
 <@>タグリスト
 <@>---------------------------------------------------------------------
-<@exec(sub, argv#1, 0)>
+<@ifexec(root && root.pkey, begin, begin)>
+<div class="hatena-moduletitle"><a href="<@v.myself2><@root.elink_key>"><@root.name></a></div>
+<$else>
+<div class="hatena-moduletitle"><@ps.title || 'タグ'></div>
+<$end>
+<div class="hatena-modulebody">
+<@ifexec(root, begin)>
+<@exec(sub, root, 0)>
+<$end>
+</div> <!-- hatena-modulebody -->
