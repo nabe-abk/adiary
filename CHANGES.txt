@@ -16,6 +16,7 @@
 -【fix】Edgeのバグ対応のため、dateのmaxを "2914-12-31" に変更。（[https://adiary.adiary.jp/0399#c1:Thanks to epg]）
 -【fix】同時編集検出に、アンロックがうまくいかない不具合があった。
 -【fix/Markdown】引用などブロックの入れ子が起こると、目次記法（{*toc}）が出力されない。（Thanks to Kaede）
+-他
 
 
 *Ver3.14a : 2018/03/05

@@ -905,7 +905,8 @@ function update_view(flag, selected) {
 		}
 		var span = $('<span>').addClass('fileline').data({
 			title: file.name,
-			isimg: file.isImg ? 1 : 0
+			isimg: file.isImg ? 1 : 0,
+			href:  link.attr('href')	// for CTRL + click
 		});
 		// ファイル名
 		var fname = $('<span>').text( file.name );
@@ -920,14 +921,12 @@ function update_view(flag, selected) {
 
 		// 追加
 		if (allow_edit) {
-			img.click( img_click );
-			img.dblclick( img_dblclick );
-			img.on('mydbltap', img_dblclick );	// ダブルタップ
+			span.click( img_click );
+			span.dblclick( img_dblclick );
+			span.on('mydbltap', img_dblclick );	// ダブルタップ
 		} else {
-			img.click( img_dblclick );
+			span.click( img_dblclick );
 		}
-		span.data('href', link.attr('href') );	// for CTRL + click
-		span.data('isimg', file.isImg);
 
 		if (selected[file.name]) span.addClass('selected');
 		link.append(span);
@@ -1023,8 +1022,8 @@ function update_view(flag, selected) {
 	//-----------------------------------------------
 	function img_dblclick(evt) {
 		var obj = $(evt.target);
-		if (!obj.data('isimg')) return;
 		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
+		if (!obj.data('isimg')) return;
 		if (evt.type == 'click') return;
 		dbl_click = true;
 		obj.click();
