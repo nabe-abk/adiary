@@ -413,7 +413,7 @@ article.edit span.tag {
 	content:	'[?]';
 }
 
-#popup-div, #popup-help, #popup-com {
+#popup-image, #popup-help, #popup-com {
 	display:	none;
 	position:	absolute;
 	z-index:	2000;
