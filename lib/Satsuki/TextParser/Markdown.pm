@@ -75,6 +75,9 @@ sub text_parser {
 		$sobj->init_unique_link_name();
 	}
 
+	# セクション情報の初期化
+	$self->{sections} = [];
+
 	#-------------------------------------------
 	# ○処理スタート
 	#-------------------------------------------
@@ -157,9 +160,9 @@ sub parse_special_block {
 	#
 	# セクション情報
 	#
-	my @sections;
+	my $sections    = $self->{sections};
 	my $subsections = [];
-	$self->{sections} = \@sections;
+
 	#
 	# 連続する空行を1つの空行にする。特殊ブロックをブロックとして切り出す。
 	#
@@ -242,11 +245,11 @@ sub parse_special_block {
 			my $text = $2;
 			if ($level==1) {	# [S] h3
 				my $anchor = $self->{section_anchor};
-				my $scount = $#sections+2;
+				my $scount = $#$sections+2;
 				my $name   = "$self->{unique_linkname}p" . $scount;
 				$anchor =~ s/%n/$scount/g;
 				$subsections = [];
-				push(@sections, {
+				push(@$sections, {
 					name => $name,
 					title => $self->parse_oneline($text),
 					anchor => $anchor,
@@ -261,7 +264,7 @@ sub parse_special_block {
 				}
 			} elsif ($level==2) {	# [S] h4
 				my $anchor = $self->{subsection_anchor};
-				my $scount = $#sections     +1;
+				my $scount = $#$sections    +1;
 				my $sscount= $#$subsections +2;
 				my $name   = "$self->{unique_linkname}p" . "$scount.$sscount";
 				$anchor =~ s/%n/$scount/g;
@@ -325,10 +328,10 @@ sub parse_special_block {
 
 		# [S] Satsukiタグのマクロ展開
 		if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
-			if ($x =~ m!(.*?)\[\*toc(?:|:(.*?))\](.*)!) {
+			if ($x =~ m!(.*?)\[\*toc(\d*)(?:|:(.*?))\](.*)!) {
 				if ($1 ne '') { push(@ary,$1); }
-				push(@ary,'',"<toc>$2</toc>\x01");
-				if ($3 ne '') { push(@ary,$3); }
+				push(@ary,'',"<toc>level=$2:$3</toc>\x01");
+				if ($3 ne '') { push(@ary,$4); }
 				next;
 			}
 		}
