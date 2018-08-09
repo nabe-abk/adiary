@@ -11,7 +11,7 @@
 		<th>表示開始ノード<span class="help" data-help="指定したノードから下をリスト表示します。">?</span></th>
 		<td>
 			<select name="node" id="node-select" data-default="<@ps.node>" data-url="<@Basepath><@v.blogpub_dir>contents.json">
-				<option value="0">*トップ(root)</option>
+				<option value="0">*すべて(root)</option>
 			</select>
 		</td>
 	</tr>
@@ -34,7 +34,7 @@
 		</td>
 	</tr>
 	<tr>
-		<th>折り畳みスイッチ<span class="help" data-help="ノードを開いたり閉じたりするスイッチを表示するか指定します。">?</span></th>
+		<th>折り畳みスイッチ<span class="help" data-help="ノードを開閉スイッチを表示するか指定します。">?</span></th>
 		<td>
 			<input type="checkbox" name="switch" value="1"<@if(ps.switch, ' checked')>
 			 class="js-enable" data-target="#des-conlist-nclose"><label>表示する</label>
