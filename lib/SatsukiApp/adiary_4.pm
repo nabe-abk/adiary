@@ -1689,6 +1689,28 @@ sub get_theme_custom_css {
 	return $dir . $theme . '.css';
 }
 
+#------------------------------------------------------------------------------
+# ●印刷用テーマリスト
+#------------------------------------------------------------------------------
+sub load_print_themes {
+	my ($self, $template) = @_;
+	my $ROBJ = $self->{ROBJ};
+
+	# テンプレートdir選択
+	$template =~ s/[^\w\-]//g;
+	if ($template eq '') { return []; }
+	my $dir = $ROBJ->get_filepath( "$self->{theme_dir}$template/" );
+
+	# テーマリストの取得
+	my @files = sort map { chop($_);$_ } @{ $ROBJ->search_files($dir, { dir_only => 1 }) };
+	my @ary;
+	foreach(@files) {
+		if (substr($_,0,1) ne '_') { next; }	# 先頭 _ を無視
+		push(@ary, $_);
+	}
+	return \@ary;
+}
+
 ###############################################################################
 # ■デザイン情報の管理
 ###############################################################################

@@ -13,6 +13,7 @@ sub {
 	my %modules;
 	my $title  = $set->{title} || 'Information';
 	my $hidden = $set->{title_hidden} ? ' display-none' : '';
+	my $ptheme = $set->{print_theme} || '_print';
 
 	$modules{_header} = <<HTML;
 <!--Information=========================================-->
@@ -40,11 +41,11 @@ HTML
 	$modules{'artcomlist-link'} = <<'HTML';
 	<li class="to-artlist to-comlist"><a href="<@v.myself>?artlist" target="_blank">記事一覧</a> / <a href="<@v.myself>?comlist" target="_blank">コメント一覧</a></li>
 HTML
-	$modules{'print-link'} = <<'HTML';
-	<li class="to-print"><a href="<@v.myself2><@esc(v.pinfo)>?<@if(v.query0,  #'<@v.query0>&amp;')><@make_query_amp()>&amp;_theme=satsuki2/_print" rel="nofollow">印刷用の表示</a></li>
+	$modules{'print-link'} = <<HTML;
+	<li class="to-print"><a href="<\@v.myself2><\@esc(v.pinfo)>?<\@if(v.query0,  #'<\@v.query0>&amp;')><\@make_query_amp()>&amp;_theme=satsuki2/$ptheme" rel="nofollow">印刷用の表示</a></li>
 HTML
-	$modules{'print-link_blank'} = <<'HTML';
-	<li class="to-print"><a href="<@v.myself2><@esc(v.pinfo)>?<@if(v.query0,  #'<@v.query0>&amp;')><@esc(make_query())>&amp;_theme=satsuki2/_print" rel="nofollow" target="_blank">印刷用の表示</a></li>
+	$modules{'print-link_blank'} = <<HTML;
+	<li class="to-print"><a href="<\@v.myself2><\@esc(v.pinfo)>?<\@if(v.query0,  #'<\@v.query0>&amp;')><\@esc(make_query())>&amp;_theme=satsuki2/$ptheme" rel="nofollow" target="_blank">印刷用の表示</a></li>
 HTML
 	$modules{bcounter} = <<'HTML';
 	<li class="bcounter icons"><a class="bcounter" href="http://b.hatena.ne.jp/entrylist?url=<@v.server_url><@v.myself>"><img alt="はてブカウンタ" src="//b.hatena.ne.jp/bc/<#val>/<@v.server_url><@v.myself>" class="bcounter"></a></li>

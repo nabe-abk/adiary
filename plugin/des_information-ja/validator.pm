@@ -74,6 +74,8 @@ sub {
 	$h{title} = $ROBJ->tag_escape($form->{title});
 	$h{title_hidden} = $form->{title_hidden} ? 1 : 0;
 	$h{elements} = join("\n", @ary);
+	$h{print_theme}  = $form->{print_theme};
+	$h{print_theme} =~ s/[^\w]//g;
 
 	return \%h;
 }

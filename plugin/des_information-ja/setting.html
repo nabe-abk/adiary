@@ -17,8 +17,6 @@
 	</tbody>
 	</table>
 
-
-
 	<p>各要素は個別の「&lt;li&gt;～&lt;/li&gt;」の中に出力されます。
 	<table class="blog-setting">
 	<thead>
@@ -32,10 +30,25 @@
 	</tbody>
 	</table>
 
+	<div>
 	<strong>要素の追加</strong>
 	<select name="append_element" id="append-element">
 		<option value="">（追加する要素を選択）</option>
 	</select>
+	</div>
+
+<$ary = v.load_print_themes('satsuki2')>
+<@ifexec(##ary >0, begin)>
+<$ptheme = ps.print_theme || '_print'>
+	<div>
+	<strong>印刷用テーマ</strong>
+	<select name="print_theme" id="print-theme">
+		<@forexec(t, ary, begin)>
+		<option value="<@t>"<@if(t eq ptheme,' selected')>><@t></option>
+		<$end>
+	</select>
+	</div>
+<$end>
 
 <!-- information内のモジュールデータ -->
 <div id="information-modules" style="display: none">
@@ -65,14 +78,14 @@ print-link
 </div>
 
 <div data-module-name="print-link" title="印刷用表示へのリンク">
-<a href="<@v.myself2>?&amp;_theme=satsuki2/_print" target="_blank">印刷用の表示</a>
+<span class="to-print"><a href="<@v.myself2>?&amp;_theme=satsuki2/_print" target="_blank">印刷用の表示</a></span>
 </div>
 
 <div data-module-name="print-link_blank" title="印刷用表示へのリンク（新ページ）">
-<a href="<@v.myself2>?&amp;_theme=satsuki2/_print" target="_blank">印刷用の表示</a>
+<span class="to-print"><a href="<@v.myself2>?&amp;_theme=satsuki2/_print" target="_blank">印刷用の表示</a></span>
 </div>
 
-<div data-module-name="bcounter" title="はてなブックマークカウンタ(https非対応)" data-alt="はてな<br>ブックマーク<br>カウンタ">
+<div data-module-name="bcounter" title="はてなブックマークカウンタ" data-alt="はてな<br>ブックマーク<br>カウンタ">
 	<input type="hidden" name="bcounter.default" value="de">
 	<input type="radio" name="bcounter" value="de"><label style="color: #1841CD">■</label>
 	<input type="radio" name="bcounter" value="dg"><label style="color: #6B6D7B">■</label>
@@ -113,7 +126,7 @@ print-link
 
 </div>
 <!-- JavaScript ==========================================================-->
-<script>{
+<script>$(function(){
 var sel  = $("#append-element");	// select box
 var form = $("#information-elements");
 var modules = [];
@@ -122,7 +135,6 @@ form.sortable();
 
 $("#information-modules > div[data-module-name]").each(function(i,ele){
 	var obj = $(ele);
-	obj.remove();
 	var name = obj.data('module-name');
 	modules[ name ] = obj;
 	var opt = $('<option>');
@@ -134,6 +146,18 @@ sel.change( function(){
 	var obj = $(this);
 	append_element( obj.val() );
 	obj.val('');
+});
+$('#print-theme').change( function(){
+	var val = $(this).val().replace(/[^\w]/g, '');
+	if (!val) return;
+
+	$('.to-print a').each(function(idx, ele){
+		var obj=$(ele);
+		var href = obj.attr('href');
+		href = href.replace(/_theme=satsuki2\/_\w+/, "_theme=satsuki2/" + val);
+		obj.attr('href', href);
+	});
+
 });
 function append_element(name, val) {
 	if (name == '') return;
@@ -182,8 +206,10 @@ function init() {
 		if (!name) continue;
 		append_element(name, x[1]);
 	}
+	$('#print-theme').change();
 }
 init();
 ///
-}</script>
+})
+</script>
 
