@@ -11,7 +11,7 @@
 <article class="system setting">
 <h2><@v.title></h2>
 <div class="body">
-	<form action="<@Myself2>?<@v.skeleton>" method="POST">
+	<form action="<@myself>?<@v.skeleton>" method="POST">
 	<input type="hidden" name="action" value="<@v.skeleton>">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<table>
@@ -26,19 +26,19 @@
 	<th>デザイン</th>
 	<td>
 		<input type="hidden" name="checkbox.info" value="load_design">
-		<input type="checkbox" name="load_design" value="1"<@if(Form.load_design || Form.load_design eq '',' checked')>><label>標準デザインをロードする</label>
+		<input type="checkbox" id="load-design" name="load_design" value="1"<@if(Form.load_design || Form.load_design eq '',' checked')>><label>標準デザインをロードする</label>
 	</td>
 	</tr>
 	<tr>
 	<th>コピー元ブログ<span class="help" data-help="存在するブログのコピーブログを作成します。画像やあらゆる設定が引き継がれます。">?</span></th>
 	<td>
-		<select name="copy_id" class="js-enable" data-target="#clear-album">
+		<select name="copy_id" class="js-disable" data-target="#load-design">
 			<option value="">（コピーしない）</option>
 			<@forexec(t, v.load_blog_list('id'), begin)>
-			<option value="<@t.id>"<@if(s.default_blogid eq t.id,' selected')>><@if(t.private, "【非公開】")><@t.id>: <@t.blog_name></option>
+			<option value="<@t.id>"<@if(Form.copy_id eq t.id,' selected')>><@if(t.private, "【非公開】")><@t.id>: <@t.blog_name></option>
 			<$end>
 		</select><br>
-		<label><input type="checkbox" id="clear-album" name="clear_image" value="1"<@if(Form.clear_image,' checked')>>作成したブログの画像アルバムを初期化する</label>
+		<label><input type="checkbox" id="clear-album" name="clear_image" value="1"<@if(Form.clear_image,' checked')>>コピーしたブログの画像アルバムを初期化する</label>
 	</td>
 	</tr>
 	</tbody>
