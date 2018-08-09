@@ -181,7 +181,6 @@ sub sys_update_315 {
 	my $pings = $self->{sys}->{ping_servers_txt};
 	$pings =~ s!(^|\n)(http://blogsearch\.google\.(?:co\.jp|com)/ping/RPC2)!$1# $2!;
 	$self->update_sysdat('ping_servers_txt', $pings);
-	$self->debug($pings);
 }
 
 ###############################################################################
