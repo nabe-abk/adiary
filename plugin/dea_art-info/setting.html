@@ -20,12 +20,12 @@
 	</tr>
 	<tr><th>投稿者の表示<span class="help" data-help="記事を最初に投稿した人を表示します">?</span></th>
 		<td>
-			<input type="checkbox" name="author" value="1"<@if(ps.author, ' checked')>><label>表示する</label>
+			<label><input type="checkbox" name="author" value="1"<@if(ps.author, ' checked')>>表示する</label>
 		</td>
 	</tr>
 	<tr><th>はてなブックマーク数<span class="help" data-help="はてなブックマーク数（赤字数字アイコン）を表示します。ひとつもブックマークされてないときは何も表示されません。">?</span></th>
 		<td colspan="2">
-			<input type="checkbox" name="hatena_bicon" value="1"<@if(ps.hatena_bicon, ' checked')>><label>表示する</label>
+			<label><input type="checkbox" name="hatena_bicon" value="1"<@if(ps.hatena_bicon, ' checked')>>表示する</label>
 		</td>
 	</tr>
 	</tbody>

@@ -56,22 +56,22 @@
 	</tr>
 	<tr><th>更新通知<span class="help" data-help="あなたが新しい記事を書いたことを、pingサーバに通知します。">?</span></th>
 		<td>
-		<input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label>
+		<label><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>>更新通知Pingを送信する</label>
 		</td>
 	</tr>
 	<tr><th>標準の入力方法<span class="help" data-help="詳しくは「編集画面の設定」で行えます。">?</span></th>
 		<td>
-		<input type="checkbox" name="markdown" value="1"<@if(s.parser eq 'markdown' || s.markdown, ' checked')>><label>Markdownで入力する</label>
+		<label><input type="checkbox" name="markdown" value="1"<@if(s.parser eq 'markdown' || s.markdown, ' checked')>>Markdownで入力する</label>
 		</td>
 	</tr>
 	<tr><th>URLを自動リンク<span class="help" data-help="通常は [http://adiary.org/] と書いてリンクします">?</span></th>
 		<td>
-		<input type="checkbox" name="autolink" value="1"<@if(s.autolink, ' checked')>><label>自動でリンクする</label>
+		<label><input type="checkbox" name="autolink" value="1"<@if(s.autolink, ' checked')>>自動でリンクする</label>
 		</td>
 	</tr>
 	<tr><th>プライベートモード<span class="help" data-help="ログインしているブログ所有者（＋書き込み権限保持者）以外にはブログ全体が非表示になるモードです。画像等はURLを直指定すれば表示されます。">?</span></th>
 		<td>
-		<input type="checkbox" name="private" value="1"<@if(s.private eq '1', ' checked')>><label>プライベートモードに設定する</label>
+		<label><input type="checkbox" name="private" value="1"<@if(s.private eq '1', ' checked')>>プライベートモードに設定する</label>
 		</td>
 	</tr>
 <@ifexec(!default, begin)>
@@ -80,7 +80,7 @@
 			<input type="file" name="iconfile"><br>
 			<@ifexec(s.iconfile, begin)>
 			<a href="<@Basepath><@s.iconfile>" data-lightbox="box"><img class="middle" src="<@Basepath><@s.iconfile>" style="max-width:24px; max-height:24px;"></a>
-			<input type="checkbox" name="iconfile_void" value="1"><label>このアイコンを無効にする</label>
+			<label><input type="checkbox" name="iconfile_void" value="1">このアイコンを無効にする</label>
 			<$end>
 		</td>
 	</tr>

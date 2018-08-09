@@ -43,8 +43,8 @@ Import file size: 2.000000 KB
 <h3 id="adiary">adiary形式 (XML)</h3>
 <div>
 	<ul class="none">
-		<li><input type="checkbox" name="Hatena:save_pkey" value="1" class="js-enable" data-target="#adiary-avoid-duplicate"><label>記事番号（pkey）を保存する</label><span class="help" data-help="データのない空のブログにインポートするとき以外は指定しないでください。">?</span></li>
-		<li><input type="checkbox" name="Hatena:avoid_pkey_collision" value="1" id="adiary-avoid-duplicate"><label>pkey重複時にpkeyを変更してインポートする</label></li>
+		<li><label><input type="checkbox" name="Hatena:save_pkey" value="1" class="js-enable" data-target="#adiary-avoid-duplicate">記事番号（pkey）を保存する</label><span class="help" data-help="データのない空のブログにインポートするとき以外は指定しないでください。">?</span></li>
+		<li><label><input type="checkbox" name="Hatena:avoid_pkey_collision" value="1" id="adiary-avoid-duplicate">pkey重複時にpkeyを変更してインポートする</label></li>
 	</ul>
 
 	<p>※<a href="https://adiary.org/tools.html">コンバータ</a>を利用することで、mixiやtDiary2のデータをインポートすることもできます。</p>
@@ -57,21 +57,21 @@ Import file size: 2.000000 KB
 	<p>記法コンバータを内蔵していますが、細かな非互換が発生することもあります（およそ大丈夫です）。</p>
 
 	<ul class="none">
-		<li><input type="checkbox" name="Hatena:style_conv" value="1" checked><label>はてな記法をadiary互換記法に変換する</label><span class="help" data-help="id:～, f:id:～, [r:id:～]等を[hatena:id:～], [hatena:f:～], [hatena:r:～]等に変換">?</span></li>
+		<li><label><input type="checkbox" name="Hatena:style_conv" value="1" checked>はてな記法をadiary互換記法に変換する</label><span class="help" data-help="id:～, f:id:～, [r:id:～]等を[hatena:id:～], [hatena:f:～], [hatena:r:～]等に変換">?</span></li>
 
-		<li><input type="checkbox" name="Hatena:link_stop" value="1" checked><label>URL自動リンク停止記法<span class="mono">「[]～[]」</span>を除去する</label><span class="help" data-help="adiaryは自動リンクしないためにこの記法は不要です">?</span></li>
+		<li><label><input type="checkbox" name="Hatena:link_stop" value="1" checked>URL自動リンク停止記法<span class="mono">「[]～[]」</span>を除去する</label><span class="help" data-help="adiaryは自動リンクしないためにこの記法は不要です">?</span></li>
 
-		<li><input type="checkbox" name="Hatena:autolink" value="1"><label>URL自動リンクを行う</label></li>
+		<li><label><input type="checkbox" name="Hatena:autolink" value="1">URL自動リンクを行う</label></li>
 
-		<li><input type="checkbox" name="Hatena:p_stop" value="1" checked><label>pタグ停止記法<span class="mono">「&gt;&lt;tag&gt;～&lt;tag&gt;&lt;」</span>を変換する</label></li>
+		<li><label><input type="checkbox" name="Hatena:p_stop" value="1" checked>pタグ停止記法<span class="mono">「&gt;&lt;tag&gt;～&lt;tag&gt;&lt;」</span>を変換する</label></li>
 
-		<li><input type="checkbox" name="Hatena:pre_end" value="1" checked><label>行末<span class="mono">「|&lt;」</span>によるpreブロックの終わりを変換する</label></li>
+		<li><label><input type="checkbox" name="Hatena:pre_end" value="1" checked>行末<span class="mono">「|&lt;」</span>によるpreブロックの終わりを変換する</label></li>
 
-		<li><input type="checkbox" name="Hatena:f_delete" value="1"><label>はてなの写真表示記法<span class="mono">「f:id:～」</span>をコメントアウトする</label></li>
+		<li><label><input type="checkbox" name="Hatena:f_delete" value="1">はてなの写真表示記法<span class="mono">「f:id:～」</span>をコメントアウトする</label></li>
 
-		<li><input type="checkbox" name="Hatena:section2title" value="1" checked class="js-enable" data-target="#hatena-up-section"><label>最初の見出しから記事タイトルを生成する</label><span class="help" data-help="生成しない場合及び見出しが見つからない場合は、タイトルは日付になります">?</span></li>
+		<li><label><input type="checkbox" name="Hatena:section2title" value="1" checked class="js-enable" data-target="#hatena-up-section">最初の見出しから記事タイトルを生成する</label><span class="help" data-help="生成しない場合及び見出しが見つからない場合は、タイトルは日付になります">?</span></li>
 
-		<li><input type="checkbox" name="Hatena:up_section" value="1" checked><label>タイトルにした見出しは記事中から削除する</label><span class="help" data-help="はてなダイアリーでは管理が1日単位であるため、1日の間に複数のトップレベルの見出し（*見出し）がある場合、意図したとおりに表示されないことがあります。">?</span></li>
+		<li><label><input type="checkbox" name="Hatena:up_section" value="1" checked>タイトルにした見出しは記事中から削除する</label><span class="help" data-help="はてなダイアリーでは管理が1日単位であるため、1日の間に複数のトップレベルの見出し（*見出し）がある場合、意図したとおりに表示されないことがあります。">?</span></li>
 
 		<li>パーサー選択 <select name="Hatena:parser">
 		
@@ -102,9 +102,9 @@ Import file size: 2.000000 KB
 	<table>
 	<tr><th>改行設定のデフォルト</th>
 		<td>
-		<input type="radio" name="MT:lf2br" value="1" checked><label>改行を変換する</label>
-		<input type="radio" name="MT:lf2br" value="0"><label>変換なし</label>
-		<input type="checkbox" name="MT:lf2br_force" value="1"><label>強制指定</label><span class="help" data-help="CONVERT BREAKSの設定が狂ってるデータをインポートする際にのみご利用ください。">?</span>
+		<label><input type="radio" name="MT:lf2br" value="1" checked>改行を変換する</label>
+		<label><input type="radio" name="MT:lf2br" value="0">変換なし</label>
+		<label><input type="checkbox" name="MT:lf2br_force" value="1">強制指定</label><span class="help" data-help="CONVERT BREAKSの設定が狂ってるデータをインポートする際にのみご利用ください。">?</span>
 		</td>
 	</tr>
 	<tr><th>日付変更時間の処理</th>
@@ -164,9 +164,9 @@ Import file size: 2.000000 KB
 	<table>
 	<tr><th>改行設定のデフォルト</th>
 		<td>
-		<input type="radio" name="JUGEM:lf2br" value="1"><label>改行を変換する</label>
-		<input type="radio" name="JUGEM:lf2br" value="0" checked><label>変換なし</label>
-		<input type="checkbox" name="JUGEM:lf2br_force" value="1"><label>強制指定</label><span class="help" data-help="CONVERT BREAKSの設定が狂ってるデータをインポートする際にのみご利用ください。">?</span>
+		<label><input type="radio" name="JUGEM:lf2br" value="1">改行を変換する</label>
+		<label><input type="radio" name="JUGEM:lf2br" value="0" checked>変換なし</label>
+		<label><input type="checkbox" name="JUGEM:lf2br_force" value="1">強制指定</label><span class="help" data-help="CONVERT BREAKSの設定が狂ってるデータをインポートする際にのみご利用ください。">?</span>
 		</td>
 	</tr>
 	<tr><th>日付変更時間の処理</th>
@@ -224,7 +224,7 @@ Import file size: 2.000000 KB
 <div>
 	<table>
 	<tr><th>固定ページのインポート</th>
-		<td><input type="checkbox" name="WPS:import_static"  value="1" checked class="js-enable" data-target="#WPS-tags-for-static"><label>固定ページをインポートする</label></td>
+		<td><label><input type="checkbox" name="WPS:import_static"  value="1" checked class="js-enable" data-target="#WPS-tags-for-static">固定ページをインポートする</label></td>
 	</tr>
 	<tr><th>固定ページに付加するタグ</th>
 		<td>
@@ -232,7 +232,7 @@ Import file size: 2.000000 KB
 		</td>
 	</tr>
 	<tr><th>非承認コメント</th>
-		<td><input type="checkbox" name="WPS:no_auth"  value="1"><label>非承認コメントをインポートしない</label></td>
+		<td><label><input type="checkbox" name="WPS:no_auth"  value="1">非承認コメントをインポートしない</label></td>
 	</tr>
 	<tr><th>日付変更時間の処理</th>
 		<td>午前 

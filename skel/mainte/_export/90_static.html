@@ -11,13 +11,13 @@
 	<p>記事を <a href="<@Basepath><@v.static_output_dir>"><@v.static_output_dir></a> に<strong>HTML化して</strong>出力します。非公開記事は出力しません。</p>
 
 	<ul class="none">
-		<li><input type="checkbox" name="static:clear" value="1"><label>出力ディレクトリ内を初期化する</label></li>
-		<li><input type="checkbox" name="static:nocom" value="1" checked><label>コメント欄を表示しない</label></li>
+		<li><label><input type="checkbox" name="static:clear" value="1">出力ディレクトリ内を初期化する</label></li>
+		<li><label><input type="checkbox" name="static:nocom" value="1" checked>コメント欄を表示しない</label></li>
 		<@ifexec(!s.theme_custom, begin)>
-		<li><input type="checkbox" name="static:custom_css" value="1" checked><label>テーマカスタムCSSを使用する</label></li>
+		<li><label><input type="checkbox" name="static:custom_css" value="1" checked>テーマカスタムCSSを使用する</label></li>
 		<$end>
 		<@ifexec(v.blog.gaid, begin)>
-		<li><input type="checkbox" name="static:gaid" value="1"><label>Google Analyticsを埋め込む</label></li>
+		<li><label><input type="checkbox" name="static:gaid" value="1">Google Analyticsを埋め込む</label></li>
 		<$end>
 	</ul>
 

@@ -8,16 +8,16 @@
 	<tbody>
 	<tr><th>表示するもの</th>
 		<td>
-			<input type="radio" name="show" value="yt" <@if(ps.show eq 'yt',' checked')>><label>日付と時間</label>
-			<input type="radio" name="show" value="y"  <@if(ps.show eq 'y',' checked')>><label>日付のみ</label>
-			<input type="radio" name="show" value="t"  <@if(ps.show eq 't',' checked')>><label>時間のみ</label><br>
+			<label><input type="radio" name="show" value="yt" <@if(ps.show eq 'yt',' checked')>>日付と時間</label>
+			<label><input type="radio" name="show" value="y"  <@if(ps.show eq 'y',' checked')>>日付のみ</label>
+			<label><input type="radio" name="show" value="t"  <@if(ps.show eq 't',' checked')>>時間のみ</label><br>
 		</td>
 	</tr>
 	<tr><th>日付表示順序</th>
 		<td>
-			<input type="radio" name="caltype" value="ymd" <@if(ps.caltype eq 'ymd',' checked')>><label>年/月/日(yy/mm/dd)</label>
-			<input type="radio" name="caltype" value="dmy" <@if(ps.caltype eq 'dmy',' checked')>><label>日/月/年(dd/mm/yy)</label>
-			<input type="radio" name="caltype" value="mdy" <@if(ps.caltype eq 'mdy',' checked')>><label>月/日/年(mm/dd/yy)</label><br>
+			<label><input type="radio" name="caltype" value="ymd" <@if(ps.caltype eq 'ymd',' checked')>>年/月/日(yy/mm/dd)</label>
+			<label><input type="radio" name="caltype" value="dmy" <@if(ps.caltype eq 'dmy',' checked')>>日/月/年(dd/mm/yy)</label>
+			<label><input type="radio" name="caltype" value="mdy" <@if(ps.caltype eq 'mdy',' checked')>>月/日/年(mm/dd/yy)</label><br>
 		</td>
 	</tr>
 	</tbody>

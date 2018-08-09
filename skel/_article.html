@@ -141,8 +141,8 @@
 	<input type="hidden" name="action" value="comments_edit">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<div class="swiches">
-	<input type="checkbox" name="view_ip_host_agent" class="js-switch" data-target="#com div.ip-host-agent"><label>投稿者情報の表示</label>
-	<input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary"><label>すべて選択</label>
+	<label><input type="checkbox" name="view_ip_host_agent" class="js-switch" data-target="#com div.ip-host-agent">投稿者情報の表示</label>
+	<label><input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary">すべて選択</label>
 	</div>
 	<$end>
 	<$cary = v.load_comments_current_blog(t, view)>
@@ -195,7 +195,7 @@
 		<input type="hidden" name="secure_id" value="" id="comment-form-sid">
 		<span class="caption-name">名前</span><span class="separater">:</span>
 		<@ifexec(Auth.ok, begin, begin)><span class="comment-author"><@Auth.name></span><$else><input type="text" name="name" class="w160 comment-author" value="<@esc(Form.name)>" required><$end>
-		<@if(t.hcom_ok, '&emsp;<input type="checkbox" name="hidden" value="1"><label>非公開<span class="sp-hidden">コメント</span></label>')>
+		<@if(t.hcom_ok, '&emsp;<label><input type="checkbox" name="hidden" value="1">非公開<span class="sp-hidden">コメント</span></label>')>
 		<button type="submit" id="post-comment">投稿</button><span class="help" data-help="返信は「>>n」\n空白、タブ有効。タグ無効。\n押せない時はちょっと待ってね。">?</span><br>
 		<textarea class="comment-txt w600" name="comment_txt" rows="3" required><@esc(Form.comment_txt)></textarea>
 		<@ifexec(ps.email, begin)>

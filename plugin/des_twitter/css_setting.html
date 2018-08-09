@@ -10,9 +10,9 @@
 		<th>表示サイズ</th>
 		<td>
 			横幅 <input type="number" name="width" class="w80" value="<@ps.width || 0>" min="0" max="9999" id="width">px 
-			<input type="checkbox" class="js-disable" data-target="#width"<@if(ps.width eq '',' checked')>><label>変更しない</label><br>
+			<label><input type="checkbox" class="js-disable" data-target="#width"<@if(ps.width eq '',' checked')>>変更しない</label><br>
 			高さ <input type="number" name="height" class="w80" value="<@ps.height || 0>" min="0" max="9999" id="height">px 
-			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.width eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#height"<@if(ps.width eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr><th>非表示設定</th>
@@ -65,7 +65,7 @@
 			右<input type="number" class="int w50" name="margin1" value="<@ps.margin1 || 0>" min="-999" max="999" id="margin1"> 
 			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
 			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &ensp;
-			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -75,7 +75,7 @@
 			右<input type="number" class="int w50" name="padding1" value="<@ps.padding1 || 0>" min="0" max="999" id="padding1"> 
 			下<input type="number" class="int w50" name="padding2" value="<@ps.padding2 || 0>" min="0" max="999" id="padding2"> 
 			左<input type="number" class="int w50" name="padding3" value="<@ps.padding3 || 0>" min="0" max="999" id="padding3"> &ensp;
-			<input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(ps.padding0 eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(ps.padding0 eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	</tbody>

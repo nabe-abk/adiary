@@ -71,7 +71,7 @@
 	</tr>
 	<tr><th>コンテンツページの扱い</th>
 		<td>
-			<input type="checkbox" name="separate_blog" value="1"<@if(s.separate_blog, ' checked')>><label>通常記事とコンテンツページを分離して扱う</label><span class="help" data-help="この設定を行うとコンテンツページは「ページ送り」「RSS」等で表示されなくなります。検索では表示されますが、コンテンツは日付を持たないものとして扱われます。">?</span>
+			<label><input type="checkbox" name="separate_blog" value="1"<@if(s.separate_blog, ' checked')>>通常記事とコンテンツページを分離して扱う</label><span class="help" data-help="この設定を行うとコンテンツページは「ページ送り」「RSS」等で表示されなくなります。検索では表示されますが、コンテンツは日付を持たないものとして扱われます。">?</span>
 
 		</td>
 	</tr>
@@ -82,17 +82,17 @@
 	</tr>
 	<tr><th>コメント許可対象</th>
 		<td>
-		<input type="radio" class="js-enable" data-state="0" data-target="#allow-com-users" name="allow_com_sel" value="*"<@if(s.allow_com_users eq '*', ' checked')>><label>誰でも</label>
-		<input type="radio" class="js-enable" data-state="1" data-target="#allow-com-users" name="allow_com_sel" value="user*"<@if(s.allow_com_users eq 'user*', ' checked')>><label>ユーザーのみ</label><span class="help" data-help="ログインできる人のみに限定します">?</span>
-		<input type="radio" class="js-enable" data-state="1" data-target="#allow-com-users" name="allow_com_sel" value=""<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', ' checked')>><label>ID指定（「,」区切り）</label><br>
+		<label><input type="radio" class="js-enable" data-state="0" data-target="#allow-com-users" name="allow_com_sel" value="*"<@if(s.allow_com_users eq '*', ' checked')>>誰でも</label>
+		<label><input type="radio" class="js-enable" data-state="1" data-target="#allow-com-users" name="allow_com_sel" value="user*"<@if(s.allow_com_users eq 'user*', ' checked')>>ユーザーのみ</label><span class="help" data-help="ログインできる人のみに限定します">?</span>
+		<label><input type="radio" class="js-enable" data-state="1" data-target="#allow-com-users" name="allow_com_sel" value=""<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', ' checked')>>ID指定（「,」区切り）</label><br>
 		<input type="text" name="allow_com_users" id="allow-com-users" class="w320"  value="<@if(s.allow_com_users ne '*' && s.allow_com_users ne 'user*', s.allow_com_users)>">
 		</td>
 	</tr>
 	<tr><th>コメント保留<span class="help" data-help="コメントを確認するまで非表示にしておく機能です。">?</span></th>
 		<td>
-		<input type="radio" name="defer_com" value="1"<@if( s.defer_com == 1, ' checked')>><label>すべて保留する</label><span class="help" data-help="ブログ管理者（と編集権限のある人）のコメントは保留されません">?</span>
-		<input type="radio" name="defer_com" value="2"<@if( s.defer_com == 2, ' checked')>><label>ユーザー以外を保留</label><span class="help" data-help="ログインしてない人を保留します">?</span>
-		<input type="radio" name="defer_com" value="0"<@if(!s.defer_com     , ' checked')>><label>OFF</label>
+		<label><input type="radio" name="defer_com" value="1"<@if( s.defer_com == 1, ' checked')>>すべて保留する</label><span class="help" data-help="ブログ管理者（と編集権限のある人）のコメントは保留されません">?</span>
+		<label><input type="radio" name="defer_com" value="2"<@if( s.defer_com == 2, ' checked')>>ユーザー以外を保留</label><span class="help" data-help="ログインしてない人を保留します">?</span>
+		<label><input type="radio" name="defer_com" value="0"<@if(!s.defer_com     , ' checked')>>OFF</label>
 		</td>
 	</tr>
 	</tbody>
@@ -109,7 +109,7 @@
 	</tr>
 	<tr><th>RSSオプション</th>
 		<td>
-		<input type="checkbox" id="rss_no_comment" name="rss_no_comment" value="1"<@if(s.rss_no_comment, ' checked')>><label>コメントを含めない</label>
+		<label><input type="checkbox" id="rss_no_comment" name="rss_no_comment" value="1"<@if(s.rss_no_comment, ' checked')>>コメントを含めない</label>
 		</td>
 	</tr>
 	<tr><th rowspan="3">2つ目のRSS配信</th>
@@ -126,7 +126,7 @@
 	</tr>
 	<tr>
 		<td>
-		<input type="checkbox" id="rss2_no_comment" name="rss2_no_comment" value="1"<@if(s.rss2_no_comment, ' checked')>><label>コメントを含めない</label>
+		<label><input type="checkbox" id="rss2_no_comment" name="rss2_no_comment" value="1"<@if(s.rss2_no_comment, ' checked')>>コメントを含めない</label>
 		</td>
 	</tr>
 	</tbody>
@@ -146,7 +146,7 @@
 		<td>
 			<input type="file" name="blog_image"><br>
 			<@ifexec(s.blog_image, begin)>
-			<input type="checkbox" name="blog_image_void" value="1"><label><a data-lightbox="box" href="<@Basepath><@s.blog_image>">現在使用している画像</a>を無効にする</label>
+			<label><input type="checkbox" name="blog_image_void" value="1"><a data-lightbox="box" href="<@Basepath><@s.blog_image>">現在使用している画像</a>を無効にする</label>
 			<$end>
 		</td>
 	</tr>

@@ -10,49 +10,49 @@
 		<th>項目幅</th>
 		<td>
 			1段目<input type="number" class="int w60" name="width1" value="<@ps.width1 || 110>" min="40" max="9999" id="width1">px &ensp;
-			<input type="checkbox" name="width1_free" value="1"<@if(ps.width1_free, ' checked')> id="width1-free" class="js-disable" data-target="#width1"><label>フリーサイズ<span class="help" data-help="項目内容に応じてアイテム幅を可変させます。設定時は各項目のpaddingも設定してください。">?</span></label><br>
+			<label><input type="checkbox" name="width1_free" value="1"<@if(ps.width1_free, ' checked')> id="width1-free" class="js-disable" data-target="#width1">フリーサイズ<span class="help" data-help="項目内容に応じてアイテム幅を可変させます。設定時は各項目のpaddingも設定してください。">?</span></label><br>
 			2段目以降<input type="number" class="int w60" name="width2" value="<@ps.width2 || 200>" min="40" max="9999" id="width2">px &ensp;
-			<input type="checkbox" class="js-disable" data-target="#width1,#width1-free,#width2"<@if(ps.width2 eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#width1,#width1-free,#width2"<@if(ps.width2 eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>アイテムの高さ</th>
 		<td>
 			<input type="number" class="int w60" name="height" value="<@ps.height || 30>" min="20" max="99" id="height">px &ensp;
-			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>区切り線の非表示</th>
 		<td>
-			<input type="checkbox" name="nob_left"  value="1"<@if(ps.nob_left, ' checked')>><label>一番左</label> 
-			<input type="checkbox" name="nob_right" value="1"<@if(ps.nob_right,' checked')>><label>一番右</label> 
-			<input type="checkbox" name="nob_tb"    value="1"<@if(ps.nob_tb,   ' checked')>><label>上下</label> 
-			<input type="checkbox" name="nob_lr"    value="1"<@if(ps.nob_lr,   ' checked')>><label>左右</label> 
+			<label><input type="checkbox" name="nob_left"  value="1"<@if(ps.nob_left, ' checked')>>一番左</label> 
+			<label><input type="checkbox" name="nob_right" value="1"<@if(ps.nob_right,' checked')>>一番右</label> 
+			<label><input type="checkbox" name="nob_tb"    value="1"<@if(ps.nob_tb,   ' checked')>>上下</label> 
+			<label><input type="checkbox" name="nob_lr"    value="1"<@if(ps.nob_lr,   ' checked')>>左右</label> 
 		</td>
 	</tr>
 	<tr>
 		<th>トップの表示</th>
 		<td>
-			<input type="checkbox" name="no_underl" id="no-underl" value="1"<@if(ps.no_underl,' checked')>><label>下線を消す<span class="help" data-help="2段目がありかつ上下の区切り線を表示しているとき、トップ項目の下に線が見えます。この表示を消します。">?</span></label>
-			<input type="checkbox" name="vbottom" value="1"<@if(ps.vbottom,' checked')>><label>文字位置を下にする</label>
+			<label><input type="checkbox" name="no_underl" id="no-underl" value="1"<@if(ps.no_underl,' checked')>>下線を消す<span class="help" data-help="2段目がありかつ上下の区切り線を表示しているとき、トップ項目の下に線が見えます。この表示を消します。">?</span></label>
+			<label><input type="checkbox" name="vbottom" value="1"<@if(ps.vbottom,' checked')>>文字位置を下にする</label>
 		</td>
 	</tr>
 	<tr>
 		<th>表示位置<span class="help" data-help="メニューアイテム全体を左寄せで表示するか設定します。">?</span></th>
 		<td>
-			<input type="checkbox" name="no_centering" value="1"<@if(ps.no_centering,' checked')>><label>全体を左寄せで表示する</label> &ensp;
-			<input type="checkbox" name="item_left" value="1"<@if(ps.item_left,' checked')>><label>各項目を左寄せで表示する</label>
+			<label><input type="checkbox" name="no_centering" value="1"<@if(ps.no_centering,' checked')>>全体を左寄せで表示する</label> &ensp;
+			<label><input type="checkbox" name="item_left" value="1"<@if(ps.item_left,' checked')>>各項目を左寄せで表示する</label>
 		</td>
 	</tr>
 	<tr>
 		<th>左右padding</th>
 		<td>
 			全体<input type="number" class="int w60" name="padding" value="<@ps.padding || 0>" min="0" max="999" id="padding">px &ensp;
-			<input type="checkbox" class="js-disable" data-target="#padding"<@if(ps.padding eq '',' checked')>><label>変更しない</label><br>
+			<label><input type="checkbox" class="js-disable" data-target="#padding"<@if(ps.padding eq '',' checked')>>変更しない</label><br>
 			各項目：トップ<input type="number" class="int w60" name="item_padding" value="<@ps.item_padding || 0>" min="0" max="999" id="item-padding">px 
 			以降<input type="number" class="int w60" name="item_padding2" value="<@ps.item_padding2 || 0>" min="0" max="999" id="item-padding2">px &ensp;
-			<input type="checkbox" class="js-disable" data-target="#item-padding,#item-padding2"<@if(ps.item_padding eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#item-padding,#item-padding2"<@if(ps.item_padding eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -62,14 +62,14 @@
 			右<input type="number" class="int w50" name="margin1" value="<@ps.margin1 || 0>" min="-999" max="999" id="margin1"> 
 			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
 			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &ensp;
-			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>表示優先度<span class="help" data-help="表示優先度(z-index)を変更します。複数のドロップダウンメニューを配置するときのみ変更してください。">?</span></th>
 		<td>
 			<input type="number" class="int w80" name="zindex" value="<@ps.zindex || 950>" min="900" max="999" id="zindex"> &ensp;
-			<input type="checkbox" class="js-disable" data-target="#zindex"<@if(ps.zindex eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#zindex"<@if(ps.zindex eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	</tbody>
@@ -79,51 +79,51 @@
 	<tbody>
 	<tr>
 		<th>全体の背景<span class="help" data-help="メニューアイテムを除いた部分の背景の設定です。">?</span></th><td>
-			<input type="checkbox" name="bg_trans" value="1"<@if(ps.bg_trans,' checked')>><label>透過にする</label>
+			<label><input type="checkbox" name="bg_trans" value="1"<@if(ps.bg_trans,' checked')>>透過にする</label>
 		</td>
 	</tr>
 	<tr>
 		<th>トップの背景<span class="help" data-help="トップアイテムの背景色のみ透過にすることができます。使用する場合は「選択中の背景」を設定することを推奨します。">?</span></th><td>
-			<input type="checkbox" class="js-enable" name="tbg_trans" value="1"<@if(ps.tbg_trans,' checked')>><label>透過にする</label>
+			<label><input type="checkbox" class="js-enable" name="tbg_trans" value="1"<@if(ps.tbg_trans,' checked')>>透過にする</label>
 		</td>
 	</tr>
 	<tr>
 		<th>背景色</th><td>
 			<input type="text" id="item-bg" name="item_bg" value="<@ps.item_bg || '#ccccff'>" class="color-picker">
-			<input type="checkbox" class="js-disable" data-target="#item-bg"<@if(ps.item_bg eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#item-bg"<@if(ps.item_bg eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>選択中の背景</th><td>
 			<input type="text" id="select-bg" name="select_bg" value="<@ps.select_bg || '#f0f0ff'>" class="color-picker">
 
-			<input type="checkbox" class="js-disable" data-target="#select-bg"<@if(ps.select_bg eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#select-bg"<@if(ps.select_bg eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>区切り線の色</th><td>
 			<input type="text" id="border" name="border" value="<@ps.border || '#aaaadd'>" class="color-picker">
 
-			<input type="checkbox" class="js-disable" data-target="#border"<@if(ps.border eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#border"<@if(ps.border eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>矢印の色<span class="help" data-help="3階層目のメニューがあるときに表示される矢印の色を指定します。">?</span></th><td>
 			<input type="text" id="arrow" name="arrow" value="<@ps.arrow || '#333366'>" class="color-picker">
 
-			<input type="checkbox" class="js-disable" data-target="#arrow"<@if(ps.arrow eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#arrow"<@if(ps.arrow eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>文字色</th><td>
 			<input type="text" id="font" name="font" value="<@ps.font || '#3333cc'>" class="color-picker">
 
-			<input type="checkbox" class="js-disable" data-target="#font"<@if(ps.font eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#font"<@if(ps.font eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>影を消す<span class="help" data-help="影が表示されるテーマのみ有効です。">?</span></th><td>
-			<input type="checkbox" name="no_shadow" value="1"<@if(ps.no_shadow,' checked')>><label>影を消す</label>
+			<label><input type="checkbox" name="no_shadow" value="1"<@if(ps.no_shadow,' checked')>>影を消す</label>
 		</td>
 	</tr>
 	</tbody>

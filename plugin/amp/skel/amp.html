@@ -119,8 +119,8 @@
 	<input type="hidden" name="action" value="comments_edit">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<div class="swiches">
-	<input type="checkbox" name="view_ip_host_agent" class="js-switch" data-target="#com div.ip-host-agent"><label>投稿者情報の表示</label>
-	<input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary"><label>すべて選択</label>
+	<label><input type="checkbox" name="view_ip_host_agent" class="js-switch" data-target="#com div.ip-host-agent">投稿者情報の表示</label>
+	<label><input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary">すべて選択</label>
 	</div>
 	<$end>
 	<@forexec(c, v.load_comments_current_blog(t, view), begin)>

@@ -42,41 +42,41 @@
 	<tbody>
 	<tr>
 		<td>
-			<input type="checkbox" name="enable" value="1"<@if(s.enable, ' checked')>><label>記事を公開する</label>
+			<label><input type="checkbox" name="enable" value="1"<@if(s.enable, ' checked')>>記事を公開する</label>
 		</td>
 		<td>
-			<input type="checkbox" name="private" value="1"<@if(s.private, ' checked')>><label>強制OFF（プライベートモード）</label>
+			<label><input type="checkbox" name="private" value="1"<@if(s.private, ' checked')>>強制OFF（プライベートモード）</label>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<input type="checkbox" name="com_ok" value="1"<@if(s.com_ok, ' checked')>><label>コメントの投稿を受け付ける</label>
+			<label><input type="checkbox" name="com_ok" value="1"<@if(s.com_ok, ' checked')>>コメントの投稿を受け付ける</label>
 		</td>
 		<td>
-			<input type="checkbox" name="com_ok_force" value="0"<@if(s.com_ok_force eq '0', ' checked')>><label>強制OFF</label>
+			<label><input type="checkbox" name="com_ok_force" value="0"<@if(s.com_ok_force eq '0', ' checked')>>強制OFF</label>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<input type="checkbox" name="hcom_ok" value="1"<@if( s.hcom_ok, ' checked')>><label>非公開コメントを許可する</label>
+			<label><input type="checkbox" name="hcom_ok" value="1"<@if( s.hcom_ok, ' checked')>>非公開コメントを許可する</label>
 		</td>
 		<td>
-			<input type="checkbox" name="hcom_ok_force" value="0"<@if(s.hcom_ok_force eq '0', ' checked')>><label>強制OFF</label>
-		</td>
-	</tr>
-	<tr>
-		<td colspan="2">
-			<input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label>
+			<label><input type="checkbox" name="hcom_ok_force" value="0"<@if(s.hcom_ok_force eq '0', ' checked')>>強制OFF</label>
 		</td>
 	</tr>
 	<tr>
 		<td colspan="2">
-			<input type="checkbox" name="wiki" value="1"<@if(s.wiki, ' checked')>><label>コンテンツページにする</label>
+			<label><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>>更新通知Pingを送信する</label>
 		</td>
 	</tr>
 	<tr>
 		<td colspan="2">
-			<input type="checkbox" name="suggest_link_key" value="1"<@if(s.suggest_link_key, ' checked')>><label>コンテンツkeyを親ノードのkeyから自動設定する</label>
+			<label><input type="checkbox" name="wiki" value="1"<@if(s.wiki, ' checked')>>コンテンツページにする</label>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<label><input type="checkbox" name="suggest_link_key" value="1"<@if(s.suggest_link_key, ' checked')>>コンテンツkeyを親ノードのkeyから自動設定する</label>
 		</td>
 	</tr>
 	</tbody>
@@ -113,7 +113,7 @@
 	</tr>
 	<tr><th>URLを自動リンク<span class="help" data-help="通常は [http://adiary.org/] と書いてリンクします">?</span></th>
 		<td>
-			<input type="checkbox" name="autolink" value="1"<@if(s.autolink, ' checked')>><label>自動でリンクする</label>
+			<label><input type="checkbox" name="autolink" value="1"<@if(s.autolink, ' checked')>>自動でリンクする</label>
 		</td>
 	</tr>
 	<tr><th>[記法]リンク<span class="help" data-help="記法を使ってリンクするときにデフォルトで設定される属性値を指定します。なお、targetの設定は非推奨です。">?</span></th>

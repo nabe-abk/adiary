@@ -63,8 +63,8 @@
 <button type="submit" class="search-btn">検索</button><br>
 <span class="search-radio">
 <$ifset(exists(Query.all), all, Query.all, ps.all)>
-<input class="search-title" type="radio" name="all" value="0" <@if(all eq '0', "checked")>><label>タイトル</label>
-<input class="search-text"  type="radio" name="all" value="1" <@if(all ne '0', "checked")>><label>全文</label>
+<label><input class="search-title" type="radio" name="all" value="0" <@if(all eq '0', "checked")>>タイトル</label>
+<label><input class="search-text"  type="radio" name="all" value="1" <@if(all ne '0', "checked")>>全文</label>
 </span>
 </form>
 </div> <!-- hatena-modulebody -->

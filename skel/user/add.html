@@ -38,14 +38,14 @@
 		<$else>
 		<td>
 			<input type="hidden" name="checkbox.info" value="isadmin">
-			<input type="checkbox" name="isadmin" value="1"<@if(Form.isadmin, ' checked')>><label>このユーザーを管理者にする</label>
+			<label><input type="checkbox" name="isadmin" value="1"<@if(Form.isadmin, ' checked')>>このユーザーを管理者にする</label>
 		</td>
 		<$end>
 	</tr>
 	</table>
 
 	<@ifexec(!Auth.auto, begin)>
-	<p><input type="checkbox" name="add_continue" value="1"<@if(Form.add_continue, ' checked')>><label>連続で追加する（追加成功後この画面に戻る）</label></p>
+	<p><label><input type="checkbox" name="add_continue" value="1"<@if(Form.add_continue, ' checked')>>連続で追加する（追加成功後この画面に戻る）</label></p>
 	<$end>
 
 	<button type="submit">ユーザーを追加する</button>

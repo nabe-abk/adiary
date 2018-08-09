@@ -41,11 +41,11 @@
 	<$else>
 	<tr><th>管理者</th><td>
 		<input type="hidden" name="checkbox.info" value="isadmin">
-		<input type=checkbox name="isadmin" value="1"<@if(t.isadmin, " checked")>><label>このユーザーを管理者にする</label>
+		<label><input type=checkbox name="isadmin" value="1"<@if(t.isadmin, " checked")>>このユーザーを管理者にする</label>
 	</td></tr>
 	<tr><th>無効化</th><td>
 		<input type="hidden" name="checkbox.info" value="disable">
-		<input type=checkbox name="disable" value="1"<@if(t.disable, " checked")>><label>このユーザーを無効にする</label>
+		<label><input type=checkbox name="disable" value="1"<@if(t.disable, " checked")>>このユーザーを無効にする</label>
 	</td></tr>
 	<$end>
 	</table>

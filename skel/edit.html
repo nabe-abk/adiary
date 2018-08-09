@@ -212,21 +212,21 @@
 		<li><input type="checkbox" id="art-detail-sw" data-target="#art-detail" class="js-switch js-save"> <@\>
 		<label>詳細設定</label>
 		<ul id="art-detail" class="checkbox">
-			<li><input type="checkbox" name="com_ok" value="1"<@if(art.com_ok, ' checked')>><label>コメントを受け付ける</label></li>
-			<li><input type="checkbox" name="hcom_ok" value="1"<@if(art.hcom_ok, ' checked')>><label>非公開コメントを許可する</label></li>
+			<li><label><input type="checkbox" name="com_ok" value="1"<@if(art.com_ok, ' checked')>>コメントを受け付ける</label></li>
+			<li><label><input type="checkbox" name="hcom_ok" value="1"<@if(art.hcom_ok, ' checked')>>非公開コメントを許可する</label></li>
 		<@ifexec(!s.private && (art.draft || !edit_pkey), begin)>
 			<@ifexec(v.sys.ping_servers_txt, begin)>
-			<li><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>><label>更新通知Pingを送信する</label><span class="help" data-help="Google等に更新通知を送ります。通知系のプラグインもこの設定を参照します。\n【送信先】\n<@v.sys.ping_servers_txt>">?</span></li>
+			<li><label><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>>更新通知Pingを送信する</label><span class="help" data-help="Google等に更新通知を送ります。通知系のプラグインもこの設定を参照します。\n【送信先】\n<@v.sys.ping_servers_txt>">?</span></li>
 			<$end>
 		<$end>
 		<@ifexec(!art.draft && edit_pkey, begin)>
-			<li><input type="checkbox" name="draft" value="1"<@if(art.draft, ' checked')> id="draft-chk" data-on='下書き'><label>この記事を下書きとして保存する</label><span class="help" data-help="初公開日時の情報も消去されます。">?</span></li>
+			<li><label><input type="checkbox" name="draft" value="1"<@if(art.draft, ' checked')> id="draft-chk" data-on='下書き'>この記事を下書きとして保存する</label><span class="help" data-help="初公開日時の情報も消去されます。">?</span></li>
 		<$end>
 		<@ifexec(Develop && !v.sphone, begin)>
 			<li><input type="checkbox" class="js-save" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug"><em>[develop]</em> パーサーのデバッグ</label></li>
 		<$end>
 		</ul></li>
-		<li><input type="checkbox" name="wiki" value="1" data-target="#content-block" class="js-switch"<@if(art.ctype || art.wiki, ' checked')>><label>コンテンツページにする</label>
+		<li><label><input type="checkbox" name="wiki" value="1" data-target="#content-block" class="js-switch"<@if(art.ctype || art.wiki, ' checked')>>コンテンツページにする</label>
 		<input type="hidden" name="priority" value="<@art.priority>">
 		<ul id="content-block" style="display: none">
 			<li>親 <select name="upnode" id="upnode-select" data-default="<@art.upnode>" data-this-pkey="<@edit_pkey>" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'contents.json')>">
@@ -309,10 +309,10 @@
 	<option value="400">400px</option>
 	<option value="480">480px</option>
 </select>
-	<input type="checkbox" class="js-switch js-save" data-target="#paste-detail"><label>詳細</label><br>
+	<label><input type="checkbox" class="js-switch js-save" data-target="#paste-detail">詳細</label><br>
 
 <ul id="paste-detail">
-	<li><input type="checkbox" id="paste-to-exif" class="js-save"><label>Exifも貼り付ける</label>
+	<li><label><input type="checkbox" id="paste-to-exif" class="js-save">Exifも貼り付ける</label>
 	<li>キャプション <input type="text" name="paste_caption" id="paste-caption" class="w200">
 	<li>表示 <select id="paste-class" name="paste_class" class="js-save">
 		<option value="">そのまま</option>

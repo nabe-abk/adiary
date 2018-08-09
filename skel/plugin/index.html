@@ -34,8 +34,8 @@
 		
 		<@ifexec(t.adiary_version <= v.VERSION, begin, begin)>
 		<td class="nowrap small">
-			<input type="radio" name="<@t.name>" value="1"<@if( pd.(t.name),' checked')><@if(t.missing, ' disabled')>><label>ON</label><@if(v.sphone,'<br><br>')>
-			<input type="radio" name="<@t.name>" value="0"<@if(!pd.(t.name),' checked')>><label>OFF</label>
+			<label><input type="radio" name="<@t.name>" value="1"<@if( pd.(t.name),' checked')><@if(t.missing, ' disabled')>>ON</label><@if(v.sphone,'<br><br>')>
+			<label><input type="radio" name="<@t.name>" value="0"<@if(!pd.(t.name),' checked')>>OFF</label>
 		</td>
 		<$else>
 		<td class="c">

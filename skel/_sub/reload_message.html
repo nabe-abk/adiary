@@ -51,7 +51,7 @@ $(function(){
 
 	<@ifexec(@warn, begin)>
 	<div class="messages add-msg"><@join("\n", warn)></div>
-	<input type="checkbox" class="js-switch" data-target="#reload"><label>確認しました</label>
+	<label><input type="checkbox" class="js-switch" data-target="#reload">確認しました</label>
 	<$end>
 
 <@ifexec(rtime, begin, begin)>

@@ -44,16 +44,16 @@
 	<tr>
 		<th><a href="<@Myself>?blogs">ブログの一覧</a>の表示範囲</th>
 		<td>
-			<input type="radio" name="blogs_allow" value=""<@if(s.blogs_allow eq '', ' checked')>><label>誰でも</label>
-			<input type="radio" name="blogs_allow" value="users"<@if(s.blogs_allow eq 'users', ' checked')>><label>ユーザーのみ</label>
-			<input type="radio" name="blogs_allow" value="admin"<@if(s.blogs_allow eq 'admin', ' checked')>><label>管理者のみ</label>
+			<label><input type="radio" name="blogs_allow" value=""<@if(s.blogs_allow eq '', ' checked')>>誰でも</label>
+			<label><input type="radio" name="blogs_allow" value="users"<@if(s.blogs_allow eq 'users', ' checked')>>ユーザーのみ</label>
+			<label><input type="radio" name="blogs_allow" value="admin"<@if(s.blogs_allow eq 'admin', ' checked')>>管理者のみ</label>
 		</td>
 	</tr>
 	<tr>
 		<th>ブログの作成許可<span class="help" data-help="ユーザーに自分自身のブログを作成することを許可するか設定します。">?</span></th>
 		<td>
 			<input type="hidden" name="checkbox.info" value="create_blog_only_admin">
-			<input type="checkbox" name="create_blog_only_admin" value="1"<@if( s.create_blog_only_admin, ' checked')>><label>管理者のみ</label>
+			<label><input type="checkbox" name="create_blog_only_admin" value="1"<@if( s.create_blog_only_admin, ' checked')>>管理者のみ</label>
 		</td>
 	</tr>
 	<tr>
@@ -65,7 +65,7 @@
 	<tr>
 		<th>メンテナンスモード<span class="help" data-help="管理者アカウント以外では一切アクセスできなくなり、メンテナンスメッセージが表示されます。">?</span></th>
 		<td>
-			<input type="checkbox" name="mainte_mode" value="1"<@if(s.mainte_mode, ' checked')>><label>メンテナンスモード</label>
+			<label><input type="checkbox" name="mainte_mode" value="1"<@if(s.mainte_mode, ' checked')>>メンテナンスモード</label>
 		</td>
 	</tr>
 	<tr>
@@ -87,13 +87,13 @@
 	<tr>
 		<th>ページキャッシュ<span class="help" data-help="HTML出力をキャッシュし、さらに高速にレスポンスを返すことができます。通常でも十分な性能があるため無理に設定する必要はありません。\n\n※この設定を行うとアクセスごとに出力が変わる（動作する）プラグインやデザインモジュールは、正しく動作しなくなります。">?</span></th>
 		<td>
-			<input type="checkbox" class="js-enable" data-target="#search_cache, #html_cache_max, #html_cache_timeout" name="html_cache" value="1"<@if(s.html_cache, ' checked')>><label>出力をキャッシュする</label>
+			<label><input type="checkbox" class="js-enable" data-target="#search_cache, #html_cache_max, #html_cache_timeout" name="html_cache" value="1"<@if(s.html_cache, ' checked')>>出力をキャッシュする</label>
 		</td>
 	</tr>
 	<tr>
 		<th>検索結果キャッシュ</th>
 		<td>
-			<input type="checkbox" id="search_cache" name="search_cache" value="1"<@if(s.search_cache, ' checked')>><label>検索結果もキャッシュする</label>
+			<label><input type="checkbox" id="search_cache" name="search_cache" value="1"<@if(s.search_cache, ' checked')>>検索結果もキャッシュする</label>
 		</td>
 	</tr>
 	<tr>

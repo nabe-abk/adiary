@@ -6,21 +6,21 @@
 	<p>記法コンバータを内蔵していますが、細かな非互換が発生することもあります。問題がある場合は、はてなブログに移行してからMT形式でインポートしてください。</p>
 
 	<ul class="none">
-		<li><input type="checkbox" name="Hatena:style_conv" value="1" checked><label>はてな記法をadiary互換記法に変換する</label><span class="help" data-help="id:～, f:id:～, [r:id:～]等を[hatena:id:～], [hatena:f:～], [hatena:r:～]等に変換">?</span></li>
+		<li><label><input type="checkbox" name="Hatena:style_conv" value="1" checked>はてな記法をadiary互換記法に変換する</label><span class="help" data-help="id:～, f:id:～, [r:id:～]等を[hatena:id:～], [hatena:f:～], [hatena:r:～]等に変換">?</span></li>
 
-		<li><input type="checkbox" name="Hatena:link_stop" value="1" checked><label>URL自動リンク停止記法<span class="mono">「[]～[]」</span>を除去する</label><span class="help" data-help="adiaryは自動リンクしないためにこの記法は不要です">?</span></li>
+		<li><label><input type="checkbox" name="Hatena:link_stop" value="1" checked>URL自動リンク停止記法<span class="mono">「[]～[]」</span>を除去する</label><span class="help" data-help="adiaryは自動リンクしないためにこの記法は不要です">?</span></li>
 
-		<li><input type="checkbox" name="Hatena:autolink" value="1"><label>URL自動リンクを行う</label></li>
+		<li><label><input type="checkbox" name="Hatena:autolink" value="1">URL自動リンクを行う</label></li>
 
-		<li><input type="checkbox" name="Hatena:p_stop" value="1" checked><label>pタグ停止記法<span class="mono">「&gt;&lt;tag&gt;～&lt;tag&gt;&lt;」</span>を変換する</label></li>
+		<li><label><input type="checkbox" name="Hatena:p_stop" value="1" checked>pタグ停止記法<span class="mono">「&gt;&lt;tag&gt;～&lt;tag&gt;&lt;」</span>を変換する</label></li>
 
-		<li><input type="checkbox" name="Hatena:pre_end" value="1" checked><label>行末<span class="mono">「|&lt;」</span>によるpreブロックの終わりを変換する</label></li>
+		<li><label><input type="checkbox" name="Hatena:pre_end" value="1" checked>行末<span class="mono">「|&lt;」</span>によるpreブロックの終わりを変換する</label></li>
 
-		<li><input type="checkbox" name="Hatena:f_delete" value="1"><label>はてなの写真表示記法<span class="mono">「f:id:～」</span>をコメントアウトする</label></li>
+		<li><label><input type="checkbox" name="Hatena:f_delete" value="1">はてなの写真表示記法<span class="mono">「f:id:～」</span>をコメントアウトする</label></li>
 
-		<li><input type="checkbox" name="Hatena:section2title" value="1" checked class="js-enable" data-target="#hatena-up-section"><label>最初の見出しから記事タイトルを生成する</label><span class="help" data-help="生成しない場合及び見出しが見つからない場合は、タイトルは日付になります">?</span></li>
+		<li><label><input type="checkbox" name="Hatena:section2title" value="1" checked class="js-enable" data-target="#hatena-up-section">最初の見出しから記事タイトルを生成する</label><span class="help" data-help="生成しない場合及び見出しが見つからない場合は、タイトルは日付になります">?</span></li>
 
-		<li><input type="checkbox" name="Hatena:up_section" value="1" checked><label>タイトルにした見出しは記事中から削除する</label><span class="help" data-help="はてなダイアリーでは管理が1日単位であるため、1日の間に複数のトップレベルの見出し（*見出し）がある場合、意図したとおりに表示されないことがあります。">?</span></li>
+		<li><label><input type="checkbox" name="Hatena:up_section" value="1" checked>タイトルにした見出しは記事中から削除する</label><span class="help" data-help="はてなダイアリーでは管理が1日単位であるため、1日の間に複数のトップレベルの見出し（*見出し）がある場合、意図したとおりに表示されないことがあります。">?</span></li>
 
 		<li>パーサー選択 <select name="Hatena:parser">
 		<@forexec_hash(ROBJ, v.parsers, begin)>

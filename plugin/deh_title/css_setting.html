@@ -8,8 +8,8 @@
 		<th>文字</th><td>
 			<input type="text" id="font-c" name="font_c" value="<@ps.font_c || '#000000'>" class="color-picker"> &ensp;
 			<input type="number" class="int w40" name="font_s" value="<@ps.font_s || 16>" min="0" max="999" id="font-s">px 
-			<input type="checkbox" name="font_bf" id="font-bf" value="1"><label>太字</label>
-			<input type="checkbox" class="js-disable" data-target="#font-c,#font-s,#font-bf,#font-trans"<@if(ps.font_c eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" name="font_bf" id="font-bf" value="1">太字</label>
+			<label><input type="checkbox" class="js-disable" data-target="#font-c,#font-s,#font-bf,#font-trans"<@if(ps.font_c eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -42,7 +42,7 @@
 		<td>
 			<input type="file" class="js-fileup" id="head-file" name="titleimg"><br>
 			<@ifexec(ps.titleimg, begin)>
-			<input type="checkbox" name="titleimg_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<label><input type="checkbox" name="titleimg_void" value="1">現在使用しているファイルを無効にする</label>
 			<$end>
 		</td>
 	</tr>
@@ -50,16 +50,16 @@
 		<th>文字の背景色<td>
 			<input type="text" id="fbg" name="fbg" value="<@ps.fbg || '#ffffff'>" class="color-picker">
 			透過<input type="number" class="w50" name="fbg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.fbg_alpha || 1>" id="fbg-alpha">(0=透明) &ensp;
-			<input type="checkbox" class="js-disable" data-target="#fbg,#fbg-alpha"<@if(ps.fbg eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#fbg,#fbg-alpha"<@if(ps.fbg eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>文字の位置<td>
 			上<input type="number" class="int w50" name="top"  value="<@ps.top  || 0>" min="0" max="999" id="top">px 
 			左<input type="number" class="int w50" name="left" value="<@ps.left || 0>" min="0" max="999" id="left">px 
-			<input type="checkbox" name="centering" value="1" class="js-disable" data-target="#left" id="centering"<@if(ps.centering,' checked')>><label>センタリング</label>
+			<label><input type="checkbox" name="centering" value="1" class="js-disable" data-target="#left" id="centering"<@if(ps.centering,' checked')>>センタリング</label>
 
-			<input type="checkbox" class="js-disable" data-target="#left,#top,#centering"<@if(ps.top eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#left,#top,#centering"<@if(ps.top eq '',' checked')>>変更しない</label>
 		</td>
 	</tbody>
 	</table>
@@ -69,23 +69,23 @@
 	<tr><th>領域の高さ</th>
 		<td>
 			<input type="number" class="int w60" name="height" value="<@ps.height || 32>" min="0" max="999" id="height">px &ensp;
-			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr><th>背景色</th>
 		<td>
 			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
 			透過<input type="number" class="w50" name="bg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.bg_alpha || 1>" id="bg-alpha">(0=透明) &ensp;
-			<input type="checkbox" class="js-disable" data-target="#bg,#bg-alpha"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#bg,#bg-alpha"<@if(ps.bg eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr><th>背景画像</th>
 		<td>
 			<input type="file" class="js-fileup" id="head-file" name="bgfile"><span class="help" data-help="IE9ではアップロードできません。">?</span><br>
-			<input type="checkbox" name="bgfile_fit" value="1"<@if(ps.bgfile_fit,' checked')>><label>領域の高さを画像にフィットさせる</label>
+			<label><input type="checkbox" name="bgfile_fit" value="1"<@if(ps.bgfile_fit,' checked')>>領域の高さを画像にフィットさせる</label>
 			<span class="help" data-help="画像がタイトル領域がより大きい場合のみ有効になります。">?</span><br>
 			<@ifexec(ps.bgfile, begin)>
-			<input type="checkbox" name="bgfile_void" value="1"><label>現在使用しているファイルを無効にする</label>
+			<label><input type="checkbox" name="bgfile_void" value="1">現在使用しているファイルを無効にする</label>
 			<$end>
 		</td>
 	</tr>
@@ -99,7 +99,7 @@
 		<td>
 			色 <input type="text" id="border-c" name="border_c" value="<@ps.border_c || '#000080'>" class="color-picker">
 			角の丸め<input type="number" class="int w50" name="bdr" value="<@ps.border_r || 0>" min="0" max="99" id="border-r">px
-			<input type="checkbox" class="js-disable" data-target="#border-c,#border-r"<@if(ps.border_c eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#border-c,#border-r"<@if(ps.border_c eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 
@@ -110,7 +110,7 @@
 			右<input type="number" class="int w50" name="border1" value="<@ps.border1 || 0>" min="0" max="99" id="border1"> 
 			下<input type="number" class="int w50" name="border2" value="<@ps.border2 || 0>" min="0" max="99" id="border2"> 
 			左<input type="number" class="int w50" name="border3" value="<@ps.border3 || 0>" min="0" max="99" id="border3"> &ensp;
-			<input type="checkbox" class="js-disable" data-target="#border0,#border1,#border2,#border3"<@if(ps.border0 eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#border0,#border1,#border2,#border3"<@if(ps.border0 eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -120,7 +120,7 @@
 			右<input type="number" class="int w50" name="margin1" value="<@ps.margin1 || 0>" min="-999" max="999" id="margin1"> 
 			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
 			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &ensp;
-			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	</tbody>

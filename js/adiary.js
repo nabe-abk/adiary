@@ -1120,21 +1120,6 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●INPUT type="radio", type="checkbox" のラベル関連付け（直後のlabel要素）
-//////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R){
-	R.findx('input[type="checkbox"],input[type="radio"]').each( function(idx,dom) {
-		var obj = $(dom);
-		var label = obj.next();
-		if (!label.length || label[0].tagName != 'LABEL' || label.attr('for')) return;
-
-		var id = set_dom_id(obj);
-		label.attr('for', id);		// labelに設定
-	});
-///
-});
-
-//////////////////////////////////////////////////////////////////////////////
 //●textareaでのタブ入力
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){

@@ -10,7 +10,7 @@
 		<th>背景色<td>
 			<input type="text" id="bg" name="bg" value="<@ps.bg || '#ffffff'>" class="color-picker">
 			透過<input type="number" class="w50" name="bg_alpha" step="0.1" min="0.0" max="1.0" value="<@ps.bg_alpha || 1>" id="bg-alpha">(0=透明) &ensp;
-			<input type="checkbox" class="js-disable" data-target="#bg,#bg-alpha"<@if(ps.bg eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#bg,#bg-alpha"<@if(ps.bg eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -19,14 +19,14 @@
 			<input type="number" class="int w50" name="font_s" value="<@ps.font_s || 16>" min="0" max="999" id="font-s">px 
 			行間<input type="number" class="int w50" name="line_h" value="<@ps.line_h || 100>" min="0" max="999" id="line-h">% 
 			
-			<input type="checkbox" class="js-disable" data-target="#font-c,#font-s,#line-h"<@if(ps.font_c eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#font-c,#font-s,#line-h"<@if(ps.font_c eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>枠線の色</th><td>
 			<input type="text" id="border-c" name="border_c" value="<@ps.border_c || '#000080'>" class="color-picker">
 
-			<input type="checkbox" class="js-disable" data-target="#border-c"<@if(ps.border_c eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#border-c"<@if(ps.border_c eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -53,16 +53,16 @@
 		<th>領域の幅と高さ</th>
 		<td>
 			  幅<input type="number" class="int w50" name="width"  value="<@ps.width  || 0>" min="0" max="1999" id="width">px 
-			<input type="checkbox" class="js-disable" data-target="#width"<@if(ps.width eq '',' checked')>><label>変更しない</label> &ensp; 
+			<label><input type="checkbox" class="js-disable" data-target="#width"<@if(ps.width eq '',' checked')>>変更しない</label> &ensp; 
 			  高さ<input type="number" class="int w50" name="height" value="<@ps.height || 0>" min="0" max="999" id="height">px 
-			<input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#height"<@if(ps.height eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>検索ボックスの幅</th>
 		<td>
 			  <input type="number" class="int w50" name="box_w" value="<@ps.box_w || 0>" min="0" max="999" id="box-w">px  &ensp;
-			<input type="checkbox" class="js-disable" data-target="#box-w"<@if(ps.box_w eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#box-w"<@if(ps.box_w eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -72,7 +72,7 @@
 			右<input type="number" class="int w50" name="margin1" value="<@ps.margin1 || 0>" min="-999" max="999" id="margin1"> 
 			下<input type="number" class="int w50" name="margin2" value="<@ps.margin2 || 0>" min="-999" max="999" id="margin2"> 
 			左<input type="number" class="int w50" name="margin3" value="<@ps.margin3 || 0>" min="-999" max="999" id="margin3"> &ensp;
-			<input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#margin0,#margin1,#margin2,#margin3"<@if(ps.margin0 eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -82,7 +82,7 @@
 			右<input type="number" class="int w50" name="padding1" value="<@ps.padding1 || 0>" min="0" max="999" id="padding1"> 
 			下<input type="number" class="int w50" name="padding2" value="<@ps.padding2 || 0>" min="0" max="999" id="padding2"> 
 			左<input type="number" class="int w50" name="padding3" value="<@ps.padding3 || 0>" min="0" max="999" id="padding3"> &ensp;
-			<input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(ps.padding0 eq '',' checked')>><label>変更しない</label>
+			<label><input type="checkbox" class="js-disable" data-target="#padding0,#padding1,#padding2,#padding3"<@if(ps.padding0 eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	</tbody>

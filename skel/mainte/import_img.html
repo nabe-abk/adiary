@@ -34,9 +34,9 @@
 		</li>
 		<li>保存フォルダ<span class="help" data-help="アルバムのどのフォルダに保存するか指定します。">?</span><input type="text" class="w160" name="folder" value="<@v.blog.edit_upload || 'adiary/%y/'>"> %y=年, %m=月</li>
 		<li>補完するURL<span class="help" data-help="画像URLが http:// 等で始まらない場合、取り込みに失敗しますが、元サイトのURLを入力することでURL情報を補完することができます。\n画像が問題なく表示されている時、よく分からない時は入力しないでください。">?</span><input type="text" class="w300" name="base" value=""></li>
-		<li><input type="checkbox" name="html_only" value="1" checked><label>HTML以外の入力方法を無視する</label><span class="help" data-help="チェックを外すと標準のさつき記法やMarkdown中のHTMLの記述も解析しますが、記法を解釈するわけではないので書式が壊れることがあります。">?</span></li>
-		<li><input type="checkbox" name="enable_only" value="1"><label>非公開記事を処理しない</label></li>
-		<li><input type="checkbox" name="media" value="1"><label>動画等もコピーする（&lt;video&gt;/&lt;audio&gt;タグ）</label></li>
+		<li><label><input type="checkbox" name="html_only" value="1" checked>HTML以外の入力方法を無視する</label><span class="help" data-help="チェックを外すと標準のさつき記法やMarkdown中のHTMLの記述も解析しますが、記法を解釈するわけではないので書式が壊れることがあります。">?</span></li>
+		<li><label><input type="checkbox" name="enable_only" value="1">非公開記事を処理しない</label></li>
+		<li><label><input type="checkbox" name="media" value="1">動画等もコピーする（&lt;video&gt;/&lt;audio&gt;タグ）</label></li>
 	</ul>
 	</div>
 	<button type="button" id="start">処理開始</button>
