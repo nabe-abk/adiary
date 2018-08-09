@@ -1,10 +1,10 @@
 <@6>
-<@local(ps,name,root,switch,nclose,num,max_depth)>
+<@local(ps,name,id,root,switch,nclose,max_depth)>
 <@>
 <$name = argv#0>
 <$root = argv#1>
-<$ps = v.load_plgset(name)>
-<$num= v.plugin_num(name)>
+<$id   = 'sidetag' . v.plugin_num(name))>
+<$ps   = v.load_plgset(name)>
 <$switch = ps.switch)>
 <$nclose = ps.nclose>
 <$max_depth = (ps.depth || 3)-1>
@@ -18,14 +18,14 @@
 <$tree  = node.children || []>
 <$depth = argv#1><@>prefix
 <$p = "\t" %x depth>
-<@p><ul id="sidecon<@num>-<@if(node.root,'root',node.pkey)>"<@if(!depth, ' class="hatena-section"')>>
+<@p><ul id="<@id>-<@if(node.root,'root',node.pkey)>"<@if(!depth, ' class="hatena-section"')>>
 <@forexec(t, tree, begin.forexec)>
 <@> / で始まるlink_keyに link_key_encode() での細工した先頭 ./ を除去する
 <$ifset(substr(t.elink_key,0,2) eq './', t.elink_key, substr(t.elink_key,2))>
 <$ifnext(t.tstat & v.tstat_nomenu)>
 <@ifexec(t.children && depth<max_depth, begin, begin)>
 <@p>	<li> <@\>
-	<@ifexec(switch, begin)><span class="js-switch" data-save="1" data-target="#sidecon<@num>-<@t.pkey>"<@if(nclose, ' data-default="hide"')>> <@\>
+	<@ifexec(switch, begin)><span class="js-switch" data-save="1" data-target="#<@id>-<@t.pkey>"<@if(nclose, ' data-default="hide"')>> <@\>
 	<$end><a href="<@if(t.ctype eq 'link', t.elink_key, "<@v.myself2><@t.elink_key>")>"><@t.title></a><@if(switch, '</span>')>
 <@exec(sub, t, depth+1)>
 <@p>	</li>
