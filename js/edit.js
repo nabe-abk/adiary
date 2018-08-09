@@ -168,31 +168,44 @@ upsel.change(function(){
 //############################################################################
 // ■編集ロック機能
 //############################################################################
-var edit_pkey = $('#edit-pkey').val();
+var edit_pkey = parseInt($('#edit-pkey').val());
+var edit_sid;
 var el_time = $('#edit-lock-time').val();
-var el_sid;
 var do_edit;
+
+// ロック済の場合、解除する
+if (Storage.defined('edit_pkey')) {
+	ajax_edit_unlock({
+		name: Storage.get('edit_pkey'),
+		sid:  Storage.get('edit_sid')
+	});
+	Storage.remove('edit_pkey');
+	Storage.remove('edit_sid');
+}
 
 if (edit_pkey && el_time>9) {
 	// 編集モード
 	edit_pkey = '0' + edit_pkey;
 	// sid生成
 	var d = new Date();
-	var el_sid;
 	if (window.location.hash) {
-		el_sid = window.location.hash.substr(1).replace('%20', ' ');
+		edit_sid = window.location.hash.substr(1).replace('%20', ' ');
 	} else {
-		el_sid = d.getFullYear()
+		edit_sid = d.getFullYear()
 		+ '/' + ('00'+(d.getMonth()+1)).substr(-2)
 		+ '/' + ('00' + d.getDate()   ).substr(-2)
 		+ ' ' + ('00' + d.getHours()  ).substr(-2)
 		+ ':' + ('00' + d.getMinutes()).substr(-2)
 		+ ':' + ('00' + d.getSeconds()).substr(-2);
-		window.location.hash = el_sid;
+		window.location.hash = edit_sid;
 	}
 
 	// 編集中の確認
-	ajax_edit_lock('ajax_check_lock', edit_lock_checked);
+	ajax_check_lock({
+		name: edit_pkey,
+		sid:  edit_sid,
+		callback: edit_lock_checked
+	});
 } else {
 	do_edit = true;
 }
@@ -239,8 +252,8 @@ function start_edit(){
 
 	// ページを離れるときにunlock
 	$(window).on('unload', function(){
-		console.log('ajax_unlock');
-		ajax_edit_lock('ajax_lock', function(){}, 1);
+		Storage.set('edit_pkey', edit_pkey);
+		Storage.set('edit_sid',  edit_sid);
 	});
 }
 
@@ -264,16 +277,22 @@ $('#force-lock-check').click(function(){
 var lock_notice = $('#edit-lock-notice');
 var lockers_ul  = $('#edit-lockers');
 function do_edit_lock() {
-	ajax_edit_lock(do_edit ? 'ajax_lock' : 'ajax_check_lock', display_lock_state);
+	ajax_edit_lock({
+		action: do_edit ? 'ajax_lock' : 'ajax_check_lock',
+		name: edit_pkey,
+		sid:  edit_sid,
+		callback: display_lock_state
+	});
 }
 
 function display_lock_state(data) {
 	lockers_ul.empty();
 	if (data && data.length)
 		lock_notice.showDelay();
-	else
-		return lock_notice.hideDelay();
-
+	else {
+		lock_notice.hideDelay();
+		if (!do_edit) start_edit();
+	}
 	// 編集中の人々を表示
 	for(var i in data) {
 		var li = $('<li>').text(data[i].id + ' (' + data[i].sid + ')');
@@ -290,21 +309,33 @@ function display_lock_state(data) {
 //----------------------------------------------------------------------------
 // ●ロックAjax処理
 //----------------------------------------------------------------------------
-function ajax_edit_lock(action, func, unlock) {
-	$.ajax({
+function ajax_edit_unlock(opt) {
+	opt.unlock = 1;
+	return ajax_edit_lock(opt);
+}
+function ajax_check_lock(opt) {
+	opt.action = 'ajax_check_lock';
+	return ajax_edit_lock(opt);
+}
+
+function ajax_edit_lock(opt) {
+	opt.action = opt.action || 'ajax_lock';
+	console.log(opt.unlock ? 'ajax_unlock' : opt.action, opt.name, opt.sid);
+
+	var param = {
 		type: 'POST',
 		url: Vmyself + '?etc/ajax_dummy',
 		dataType: 'json',
 		data: {
-			action: action,
+			action: opt.action,
 			csrf_check_key: csrf_key,
-			name: edit_pkey,
-			sid: el_sid,
-			unlock: unlock || '0'
-		},
-		success: func
-	});
-	return ;
+			name: opt.name,
+			sid: opt.sid,
+			unlock: opt.unlock || '0'
+		}
+	};
+	if (opt.callback) param.success = opt.callback;
+	$.ajax( param );
 }
 
 //############################################################################

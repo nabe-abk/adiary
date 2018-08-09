@@ -1592,9 +1592,11 @@ sub update_plgset {
 sub edit_check_lock {
 	my $self = shift;
 	my $name = shift;
+	my $sid  = shift;
 
 	my ($fh, $ary) = $self->load_lock_file( $name );
 	close($fh);
+	$ary = [ grep { $_->{sid} ne $sid } @$ary ];
 
 	my $json= $self->generate_json($ary, ['id', 'sid', 'tm']);
 	return (0, $json);
@@ -1612,7 +1614,7 @@ sub edit_lock {
 	my ($name, $sid, $unlock) = @_;
 	my $ROBJ = $self->{ROBJ};
 	my $id   = $ROBJ->{Auth}->{id};
-	$sid =~ s/[\x00-\x1f]//g;
+	$sid  =~ s/[\x00-\x1f]//g;
 
 	if (!$self->{allow_edit}) { return -1; }
 	if ($name eq '') { return -2; }

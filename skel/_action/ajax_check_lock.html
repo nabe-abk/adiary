@@ -2,7 +2,7 @@
 <$ifbreak(csrf_check())>
 <$ifbreak(!v.allow_edit)>
 <@>
-<$(action_return, data) = v.edit_check_lock( Form.name )>
+<$(action_return, data) = v.edit_check_lock( Form.name, Form.sid )>
 
 <$ifset_status(action_return ne '0', 403)>
 <$v.action_is_main=1>
