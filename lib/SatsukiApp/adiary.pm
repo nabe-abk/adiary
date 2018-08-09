@@ -370,9 +370,12 @@ sub select_skeleton {
 sub select_default_skeleton {
 	my $self = shift;
 	my $mode = shift || $self->{pinfo};
-	if ($mode eq '' && !$self->{path_blogid}) {
+	my $blog = $self->{blog};
+	if ($blog->{album_mode}) {
+		$self->{ROBJ}->redirect( $self->{myself} . '?album/' );
+	} elsif ($mode eq '' && !$self->{path_blogid}) {
 		return $self->{top_skeleton};
-	} elsif ($mode ne '' && $mode !~ /^[1-9]\d+$/ || $mode eq '' && $self->{query} eq '' && $self->{blog}->{frontpage}) {
+	} elsif ($mode ne '' && $mode !~ /^[1-9]\d+$/ || $mode eq '' && $self->{query} eq '' && $blog->{frontpage}) {
 		return ($self->{view_event} = $self->{article_skeleton});
 	}
 	return ($self->{view_event} = $self->{main_skeleton});

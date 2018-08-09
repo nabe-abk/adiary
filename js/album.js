@@ -22,7 +22,8 @@ var DialogWidth;	// adiary.jsの参照
 $( function(){
 	var tree = $('#album-folder-tree');
 	var view = $('#album-folder-view');
-	var selfiles = $('#selected-files')
+	var selfiles   = $('#selected-files')
+	var allow_edit = view.data('edit');
 
 	// 表示設定
 	var all_select = $('#all-select');
@@ -60,7 +61,7 @@ $( function(){
 //////////////////////////////////////////////////////////////////////////////
 // ●初期化処理
 //////////////////////////////////////////////////////////////////////////////
-tree.dynatree({
+var set = {
 	autoFocus: false,
 	persist: true,
 	cookieId: 'album:' + Vmyself,
@@ -149,8 +150,6 @@ tree.dynatree({
 		autoExpandMS: 400,
 		preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
 		onDragEnter: function(node, srcNode) {
-			
-			
 			return true;
 		},
 		onDragOver: function(node, srcNode, hitMode) {
@@ -167,8 +166,14 @@ tree.dynatree({
 		},
 		onDrop: drop_to_tree
 	}
-
-});
+}
+if(! allow_edit) {	// 編集権限なし
+	delete set['onClick'];
+	delete set['onDblClick'];
+	delete set['onKeydown'];
+	delete set['dnd'];
+}
+tree.dynatree(set);
 
 function get_title(data) {
 	// tag_esc in adiary.js
@@ -552,7 +557,7 @@ function move_files(to_folder) {
 function update_selected_files() {
 	var imgs = view.find('.selected');
 	if (!imgs.length) all_select.prop('checked', false);
-	if (imgs.length == cur_files.length) all_select.prop('checked', true);
+	if (imgs.length && imgs.length == cur_files.length) all_select.prop('checked', true);
 
 	selfiles.empty();
 	for(var i=0; i<imgs.length; i++) {
@@ -772,6 +777,7 @@ function ajax_submit(opt) {
 		},
 		success: function(data) {
 			if (opt.success) opt.success(data);
+			console.log(data);
 			console.log('[ajax_submit()] http post success');
 		},
 		complete : function() {
@@ -866,9 +872,13 @@ function update_view(flag, selected) {
 			'data-title': file.name,
 			'data-isimg': file.isImg ? 1 : 0
 		});
-		img.click( img_click );
-		img.dblclick( img_dblclick );
-		img.on('mydbltap', img_dblclick );	// ダブルタップ
+		if (allow_edit) {
+			img.click( img_click );
+			img.dblclick( img_dblclick );
+			img.on('mydbltap', img_dblclick );	// ダブルタップ
+		} else {
+			img.click( img_dblclick );
+		}
 		img.data('isimg', file.isImg);
 
 		if (selected[file.name]) img.addClass('selected');
@@ -909,9 +919,14 @@ function update_view(flag, selected) {
 		span.append( $('<span>').addClass('filesize').text( size_format(file.size) ) );
 
 		// 追加
-		span.click( img_click );
+		if (allow_edit) {
+			img.click( img_click );
+			img.dblclick( img_dblclick );
+			img.on('mydbltap', img_dblclick );	// ダブルタップ
+		} else {
+			img.click( img_dblclick );
+		}
 		span.data('href', link.attr('href') );	// for CTRL + click
-		span.dblclick( img_dblclick );
 		span.data('isimg', file.isImg);
 
 		if (selected[file.name]) span.addClass('selected');
@@ -1010,6 +1025,7 @@ function update_view(flag, selected) {
 		var obj = $(evt.target);
 		if (!obj.data('isimg')) return;
 		if (!is_thumbview && !obj.hasClass('fileline')) obj = obj.parents('.fileline');
+		if (evt.type == 'click') return;
 		dbl_click = true;
 		obj.click();
 	}

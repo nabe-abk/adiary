@@ -58,6 +58,12 @@
 
 	tw_owner_id = Twitter ID
 	tw_owner_id:filter0 = reg_del:[^\w]
+
+
+	album_mode = flag
+	album_open_access = flag
+	album_blogs = flag
+
 <$end>
 <$ifset(h.tw_owner_id, h.tw_owner_id, '@' . h.tw_owner_id)>
 

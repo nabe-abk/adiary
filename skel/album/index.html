@@ -1,14 +1,31 @@
 <@6>
-<$ifsuperjump_clear(! Auth.ok, '_sub/error_message_403', 'ログインしていません')>
-<$ifsuperjump_clear(! v.allow_edit, '_sub/error_message_403', 'ブログが存在しないか権限がありません')>
+<$ifexec(! v.blog.album_open_access, begin)>
+	<$ifsuperjump_clear(! Auth.ok, '_sub/error_message_403', 'ログインしていません')>
+	<$ifsuperjump_clear(! v.allow_edit, '_sub/error_message_403', 'ブログが存在しないか権限がありません')>
+<$end>
 
 <@> システムモード
 <$v.system_mode("画像アルバム")>
 
 <@> 階層ツリー
-<$bak = v.skel_dir><$v.skel_dir = ''>
-<@call("_sub/menu_tree")>
-<$v.skel_dir = bak>
+<@ifexec(v.allow_edit, begin)>
+	<$bak = v.skel_dir><$v.skel_dir = ''>
+	<@call("_sub/menu_tree")>
+	<$v.skel_dir = bak>
+<$end>
+
+<@> ブログ一覧表示
+<@ifexec(v.blog.album_blogs, begin)>
+<nav class="tree">
+	<$list = v.load_blog_list()>
+	<select onchange="location.href=$(this).val()">
+		<option value="">（ブログ選択）</a>
+		<@forexec(t, list, begin)><$ifnext(t.id eq v.blogid)>
+		<option value="<@t.url>"><@t.blog_name></option>
+		<$end>
+	</select>
+</nav>
+<$end>
 
 <!--========================================================================-->
 <$v.init_image_dir()>

@@ -1,7 +1,8 @@
 [UTF-8][Japanese]
 
-*Ver3.15 : 2018/-/-
+*Ver3.15-C94SE : 2018/-/-
 
+-画像アルバムモードを追加（詳細設定）。
 -adiary.conf.cgi.sample のパーサー設定の説明と順番を変更。
 -更新通知Ping送信先から http://blogsearch.google.co.jp/ping/RPC2 を削除。
 -プライベートブログでは更新通知を送らないように変更。

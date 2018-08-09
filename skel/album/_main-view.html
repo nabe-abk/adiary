@@ -3,7 +3,8 @@
 <@>
 <@>	スマホ画面からも呼ばれる
 <@>
-	<div id="album-folder-view"></div>
+	<div id="album-folder-view" data-edit="<@v.allow_edit>"></div>
+	<$ifbreak(!v.allow_edit)>
 
 	<h4 id="selected-files-title"><label><input type="checkbox" class="js-switch" data-target="#selected-files">選択中のファイル名を表示</label><span class="help" data-help="ファイル名を変更するには「選択ファイル名の表示」から該当ファイルをダブルクリックしてください。">?</span></h4>
 	<ul id="selected-files"></ul>

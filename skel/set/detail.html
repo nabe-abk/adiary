@@ -165,7 +165,29 @@
 	</tbody>
 	</table>
 
+	<h3>画像アルバムの設定</h3>
 
+	<table class="blog-setting">
+	<tbody>
+	<tr><th>アルバムモード<span class="help" data-help="記事などを表示せず画像アルバムをメインとしたモードです">?</span></th>
+		<td>
+			<label><input type="checkbox" name="album_mode" value="1"<@if(s.album_mode, ' checked')>>アルバムモードに設定する</label>
+		</td>
+	</tr>
+
+	<tr><th>権限の設定</th>
+		<td>
+			<label><input type="checkbox" name="album_open_access" value="1"<@if(s.album_open_access, ' checked')>>アルバムを誰でも見られるようにする</label>
+		</td>
+	</tr>
+
+	<tr><th>権限の設定</th>
+		<td>
+			<label><input type="checkbox" name="album_blogs" value="1"<@if(s.album_blogs, ' checked')>>アルバム画面にブログ一覧を表示する</label>
+		</td>
+	</tr>
+	</tbody>
+	</table>
 
 	<button type="submit">この設定を保存する</button>
 

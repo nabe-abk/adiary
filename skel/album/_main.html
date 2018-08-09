@@ -6,8 +6,10 @@
 <div class="body">
 	<div id="album-header">
 		<div>
+			<@ifexec(v.allow_edit, begin)>
 			操作<span class="help" data-help="クリック：選択\nダブルクリック：表示\nSHIFT+クリック：範囲選択\nCTRL+クリック：ダウンロード">?</span>
 			<label><input type="checkbox" id="all-select">全選択</label>
+			<$end>
 		</div>
 		<div class="view-option">
 			<span class="option-item">最大

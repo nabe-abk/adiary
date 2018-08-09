@@ -8,9 +8,11 @@
 <h2 class="dynatree-ico-ef">フォルダ</span><span class="help" data-help="ダブルタップでフォルダ名を変更できます。キャンセル時はフォルダ一覧の外をタップしてください。">?</span></h2>
 <div class="body">
 	<div class="treebox" id="album-folder-tree" data-url="<@Basepath><@v.blogpub_dir>images.json" data-url-base="<@Basepath><@v.blogimg_dir()>"></div>
+	<@ifexec(v.allow_edit, begin)>
 	<button type="button" id="album-new-folder">フォルダ作成</button>
 	<button type="button" id="album-move-folder">フォルダ移動</button>
 	<button type="button" id="album-clear-trashbox">ゴミ箱を空に</button>
+	<$end>
 </div>
 </article>
 
@@ -22,7 +24,9 @@
 	<div id="album-header">
 		<div>
 			<span class="help" data-help="ダブルタップで大きな画像を表示します。大きな画像は左右スワイプでめくれます。">?</span>
-			<input type="checkbox" id="all-select"><label>全選択</label>
+			<@ifexec(v.allow_edit, begin)>
+			<label><input type="checkbox" id="all-select">全選択</label>
+			<$end>
 		</div>
 		<div class="view-option">
 			<span class="option-item">最大サイズ

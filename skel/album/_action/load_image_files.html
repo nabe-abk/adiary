@@ -1,6 +1,8 @@
 <@20>
-<$ifbreak(csrf_check())>
-<$ifbreak(!v.allow_edit)>
+<$ifexec(! v.blog.album_open_access, begin)>
+	<$ifbreak(csrf_check())>
+	<$ifbreak(!v.allow_edit)>
+<$end>
 <$(action_return, data) = v.load_image_files( Form.folder )>
 
 <$ifset_status(action_return ne '0', 404)>
