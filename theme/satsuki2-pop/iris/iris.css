@@ -118,17 +118,12 @@ body {
 }
 
 /* 背景オプション ------------------------------------------ */
-/*
-$option:title=bg
-$option=bg:default-image
 body {
     position:               relative;
     background-position:    center top;
     background-attachment:  fixed;
     background-size:        cover;
-    background-image:       url("bg.jpg");
 }
--------------------- */
 
 
 /* 本文部 ----------------------------------------------------*/
