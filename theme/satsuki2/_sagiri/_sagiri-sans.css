@@ -1,0 +1,575 @@
+@charset "UTF-8";
+/**************************************************************
+ * さぎりテーマ
+ *  adiary C93 Special Edition Print Theme    2017/12/29(C93)
+ *  (C) adiary.org / かえで
+ * 
+ * Checdked Browser(s)
+ *  Mozilla Firefox 57.0.1
+ *      (distributed by KDE neon 5.11/Ubuntu 16.04)
+ *  Chromium 63.0.3239.84
+ *      (distributed by KDE neon 5.10/Ubuntu 16.04)
+**************************************************************/
+/* --------------------------------------------------------- */
+/* ■ 初期設定 */
+/* --------------------------------------------------------- */
+/* アイコン読み込み */
+#ui-icon-autoload {
+    display:                none;
+    background-color:       #ffffff;
+}
+
+/* ブラウザデフォルト値上書き */
+* {
+    margin:                 0;
+    padding:                0;
+    color:                  black;
+}
+
+/* 入力要素 */
+input, select, textarea {
+    display:                none;
+}
+
+/* ボタン類 */
+button {
+    display:                none;
+}
+
+
+
+
+/* --------------------------------------------------------- */
+/* ■ 要素配置 */
+/* --------------------------------------------------------- */
+
+/* ブラウザ描画領域全体 */
+/* --------------------------------------------------------- */
+html {
+    margin: 20px;
+}
+
+body {
+}
+
+/* 本文部 ----------------------------------------------------*/
+/* 管理メニュー + ブログタイトル + サイドバー + 記事部 */
+#adiary-body {
+}
+
+/* 管理メニュー + ブログタイトル */
+#header {
+}
+
+/* 管理メニュー部 */
+#nav-header {
+    display: none;
+}
+
+/* ブログタイトル部 */
+#page-title {
+    margin-bottom:          6px;
+}
+
+/* 記事部 + サイドバー */
+#hatena-body {
+}
+
+/* 記事部 */
+div.main {
+}
+
+/* サイドバー部 */
+#sidebar {
+    display:                none;
+}
+
+/* ブラウザ描画領域下部 */
+/* フッター (adiary Version ?) */
+#footer {
+    display:                none;
+}
+
+/*-------------------------------------------------------------
+■ 基本設定
+-------------------------------------------------------------*/
+/* ◆背景色・文字色
+-------------------------------------------------------------*/
+body {
+    background-color:       white;
+    color:                  black;
+}
+
+/* ◆ リンク配色 */
+a {
+    color:                  black;
+    text-decoration:        underline;
+    font-weight:            normal;
+}
+
+/* ◆ フォントサイズ基本設定
+-------------------------------------------------------------*/
+.xx-large                   { font-size: 200%; }
+.x-large,   .huge           { font-size: 150%; }
+.large                      { font-size: 130%; }
+.medium,    .nomalsize      { font-size: 100%; }
+.small                      { font-size: 90%; }
+.x-small,   .tiny           { font-size: 80%; }
+.xx-small,  .scriptsize     { font-size: 50%; }
+
+/*  ◆ フォントファミリー基本設定
+-------------------------------------------------------------*/
+.mono,  .pre                { font-family: monospace; }
+
+/* ◆ フォント装飾基本設定
+-------------------------------------------------------------*/
+.it,    .italic             { font-style: italic; }
+.bf,    .bold               { font-weight: bold; }
+.u,     .underline          { text-decoration: underline; }
+
+/* ◆ divボックス基本設定
+-------------------------------------------------------------*/
+div.left                    { text-align: left; }
+div.center                  { text-align: center; }
+div.right                   { text-align: right; }
+
+
+/* ◆ リスト基本設定
+-------------------------------------------------------------*/
+ul                          { list-style-position: inside;
+                              list-style-type: disc;
+                              margin: 0.8em 0; }
+ol                          { list-style-position: inside;
+                              list-style-type: decimal;
+                              margin: 0.8em 0; }
+article ul, article ol      { padding-left: 1.2em; }
+ul.none, ol.none            { list-style: none; }
+ul ul, ul ol, ol ol, ol ul  { margin: 0 0 0 1em; }
+li                          { margin: 0.25em 0; }
+
+/* 定義済みリスト */
+dl                          { margin: 0.8em 0; }
+dt                          { font-weight: bold; }
+dd                          { padding-left: 1.2em;
+                              padding-bottom: 0.8em; }
+
+/* --------------------------------------------------------- */
+/* ヘッダ
+/* --------------------------------------------------------- */
+/* 未表示 */
+
+/* --------------------------------------------------------- */
+/* ■ 見出し (日記帳タイトル) */
+/* --------------------------------------------------------- */
+h1 a {
+    color:                  black;
+    font-size:              12pt;
+    line-height:            16pt;
+    font-weight:            normal;
+    text-decoration:        none;
+    font-family:            sans-serif;
+}
+
+/* --------------------------------------------------------- */
+/* ■ ナビゲーション (前のページ/次のページ) */
+/* --------------------------------------------------------- */
+nav.page-nav {
+    display:                none;
+}
+
+/* --------------------------------------------------------- */
+/* ■ 記事部 (本文) */
+/* --------------------------------------------------------- */
+/* 記事部 + コメント部 */
+article {
+    margin-bottom:          2.5em;
+    font-family:            sans-serif;
+}
+
+#article-box article {
+}
+
+article:last-child, #article-box:last-child
+article.system:last-child {
+    margin-bottom:          0;
+}
+
+/* システムメッセージ */
+article.system {
+    display:                none;
+}
+
+/* 記事タイトル部 */
+/* コメント入力部タイトル */
+/* --------------------------------------------------------- */
+h2, div.caption {
+    border-bottom:          2pt solid black;
+}
+
+h2 a {
+    text-decoration:        none;
+    font-size:              24pt;
+    line-height:            32pt;
+    font-family:            sans-serif;
+    font-weight:            bold;
+    margin-right:           0.5em;
+}
+
+h2 a span {
+    font-family:            sans-serif;
+    font-size:              16pt;
+    line-height:            32pt;
+    font-weight:            bold;
+}
+
+/* 本文部 */
+/* --------------------------------------------------------- */
+/* 本文ヘッダ部 */
+div.art-info {
+    font-size:              12pt;
+    line-height:            16pt;
+    text-align:             right;
+    margin:                 0.2em 0 1em 0;
+}
+
+div.art-info a {
+    text-decoration:        none;
+}
+
+/* タグ1個 */
+div.art-info span {
+    margin-right:           0.5em;
+}
+
+div.art-info span:last-child {
+    margin-right:           0;
+}
+
+/* (編集) */
+.edit-article {
+    display:                none;
+}
+
+/* 本体 */
+div.body-main {
+    margin:                 1em 0 0 0;
+    font-size:              12pt;
+    line-height:            16pt;
+}
+
+/* 本文フッタ部 */
+div.body-footer {
+    display:                none;
+}
+
+div.social-buttons {
+    display:                none;
+}
+
+div.body-main section {
+}
+
+div.body-main section p {
+    margin-bottom:          1em;
+    padding:                0;
+}
+
+article li p {
+    border:                 1px solid red;
+    margin:                 0;
+}
+
+/* ● 記事：基本設定 */
+/* --------------------------------------------------------- */
+/* 見出し */
+article h3 {
+    margin:                 2em 0 1em 0;
+}
+
+h3 a {
+    font-size:              20pt;
+    line-height:            28pt;
+    font-weight:            bold;
+    font-family:            sans-serif;
+    text-decoration:        none;
+}
+
+h3 span.sanchor {
+    display:                none;
+}
+
+h3 span.timestamp {
+    font-size:              16pt;
+}
+
+
+/* 小見出し */
+article h4 {
+    margin:                 2em 0 1em 0;
+}
+
+article h4 a {
+    color:                  black;
+    font-size:              16pt;
+    line-height:            24pt;
+    font-weight:            bold;
+    font-family:            sans-serif;
+    text-decoration:        none;
+}
+
+h4 span.sanchor {
+    display:                none;
+}
+
+h4 span.timestamp {
+    font-size:              14pt;
+}
+
+/* 小々見出し */
+article h5 {
+    color:                  #000000;
+    font-size:              16pt;
+    line-height:            24pt;
+    font-weight:            normal;
+    font-family:            sans-serif;
+    margin:                 24pt 0 16pt 0;
+}
+
+h5 a {
+    text-decoration:        none;
+}
+
+
+/* --------------------------------------------------------- */
+/* ● 記事: ブロック記法 */
+/* --------------------------------------------------------- */
+blockquote, pre, div.box {
+    font-size:              12pt;
+    line-height:            16pt;
+    margin:                 1em 0 1em 2em;
+    padding:                6pt;
+    display:                block;
+}
+
+/* 引用記法 */
+blockquote {
+    border-left:            4px solid rgb(192,192,192);
+}
+
+blockquote p {
+    margin:                 0;
+}
+
+/* pとpの間 */
+blockquote p + p {
+    margin:                 1em 0;
+}
+
+/* pre記法、シンタックスハイライト */
+pre, .syntax-highlight, .hljs {
+    margin:                 1em 2em;
+    background-color:       rgb(224,224,224);
+    font-family:            monospace;
+    border:                 0.15mm solid black;
+}
+
+pre span.comment {
+    font-family:            monospace;
+    font-style:             italic;
+}
+
+pre strong {
+    font-family:            monospace;
+    font-weight:            bold;
+}
+
+pre strong.comment {
+    font-family:            monospace;
+    font-style:             italic;
+    font-weight:            bold;
+}
+
+/* toc記法 */
+ul.toc a {
+    text-decoration:        none;
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事: 脚注処理 */
+/* --------------------------------------------------------- */
+/* 注釈へのリンク */
+span.footnote a {
+    font-size:              8pt;
+    line-height:            12pt;
+    vertical-align:         top;
+    text-decoration:        none;
+}
+
+/* 注釈 */
+section footer {
+    font-size:              10pt;
+    line-height:            14pt;
+    border-top:             0.15mm solid black;
+    margin:                 2em 0 1em 60pt;
+    padding:                0.5em 0 0 0;
+}
+
+section footer p.footnote {
+    margin:                 0;
+}
+
+section footer a {
+    text-decoration:        none;
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事: 本文内リスト */
+/* --------------------------------------------------------- */
+article ul, article ol {
+}
+
+article li {
+}
+
+article ul ul, article ol ol, 
+article ul ol, article ol ul {
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事: 保護色 (hidden) */
+/* --------------------------------------------------------- */
+/* 記事テキストの保護色。背景色と同一にすること */
+.hidden {
+    color:                  rgb(128,128,128);
+    background-color:       white;
+}
+
+
+/* --------------------------------------------------------- */
+/* ◆ 画像処理 */
+/* --------------------------------------------------------- */
+figure.image a {
+    border:                 none;
+}
+
+
+/* --------------------------------------------------------- */
+/* ● 記事：テーブル */
+/* --------------------------------------------------------- */
+article table {
+    font-size:              10pt;
+    line-height:            14pt;
+    margin:                 0.6em 0;
+    border-top:             0.15px solid black;
+    border-bottom:          0.15px solid black;
+    border-collapse:        collapse;
+    border-spacing:         0;
+    empty-cells:            show;
+/*     width:                  100%; */
+}    
+
+article table td, article table th {
+    padding:                4pt;
+    border-left:            0.15mm solid black;
+    border-right:           0.15mm solid black;
+}
+article table td:first-child, article table th:first-child {
+    border-left:            none;
+}
+
+article table td:last-child, article table th:last-child {
+    border-right:           none;
+}
+
+/* 見出し */
+thead tr:nth-child(odd) th, tr:nth-child(even) th  {
+    background-color:       rgb(96,96,96);
+    color:                  white;
+}
+tr:nth-child(odd) th {
+    background-color:       rgb(112,112,112);
+    color:                  white;
+}
+
+/* 奇数行 */
+tr:nth-child(even) td {
+    background-color:       rgb(224,224,224);
+}
+
+/* 偶数行 */
+tr:nth-child(odd) td {
+}
+
+/* クラス指定記法による配置 */
+th.left, td.left, th.l, td.l {
+    text-align:             left;
+}
+
+th.center, td.center, th.c, td.c {
+    text-align:             center;
+}
+
+th.right, td.right, th.r, td.r {
+    text-align:             right;
+}
+
+div.body table.small {
+    font-size:              8pt;
+    line-height:            12pt;
+}
+
+/* --------------------------------------------------------- */
+/* ● 記事 コメント部 */
+/* --------------------------------------------------------- */
+div.caption {
+    color:                  black;
+    font-size:              16pt;
+    line-height:            24pt;
+    font-weight:            bold;
+    font-family:            sans-serif;
+    text-decoration:        none;
+    margin-left:            60pt;
+    border:                 none;
+}
+
+div.commentbody {
+    margin-left:            60pt;
+    font-size:              10pt;
+    line-height:            14pt;
+    font-family:            sefif;
+}
+
+div.comment-one {
+    margin:                 1em 0;
+}
+
+.comment div.swiches {
+    display:                none;
+}
+
+.comment div.ip-host-agent {
+    display:                none;
+}
+
+hr#com-form-separator {
+    display:                none;
+}
+
+.comment form {
+    display:                none;
+}
+
+.comment span.canchor a {
+    text-decoration:        none;
+}
+
+/* --------------------------------------------------------- */
+/* ■ サイドバー */
+/* --------------------------------------------------------- */
+/* 非表示 */
+
+/* ◆ ドロップダウンメニュー */
+/* --------------------------------------------------------- */
+.dropdown-menu {
+    display:                none;
+} 
