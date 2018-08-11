@@ -785,9 +785,6 @@ textarea#editarea:focus {
 textarea#editarea {
 	font-size:		11.5pt;
 }
-li>input[type="checkbox"]:first-child {
-	margin-left:		0;
-}
 
 /* ツリーとCSS等の編集画面 */
 article .treebox,
