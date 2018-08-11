@@ -202,15 +202,15 @@
 	<input type="hidden" name="checkbox.info" value="tw_ping">
 	<input type="hidden" name="checkbox.info" value="wiki">
 	<ul class="checkbox">
-		<li>
+		<li><label>
 		<@ifexec(!art.enable || art.draft || !edit_pkey, begin, begin)>
 		<input type="checkbox" name="enable" value="1" id="enable-chk" data-on="公開して" data-off="非公開で"<@if(art.enable, ' checked')>> <@\>
 		<$else>
 		<input type="checkbox" name="enable" value="1" id="enable-chk" data-on="編集して" data-off="非公開で"<@if(art.enable, ' checked')>> <@\>
 		<$end> <@\>
-		<label>記事を公開</label><span class="help" data-help="公開設定に関わらず、下書きは公開されません">?</span></li>
-		<li><input type="checkbox" id="art-detail-sw" data-target="#art-detail" class="js-switch js-save"> <@\>
-		<label>詳細設定</label>
+		記事を公開</label><span class="help" data-help="公開設定に関わらず、下書きは公開されません">?</span></li>
+		<li><label><input type="checkbox" id="art-detail-sw" data-target="#art-detail" class="js-switch js-save"> <@\>
+		詳細設定</label>
 		<ul id="art-detail" class="checkbox">
 			<li><label><input type="checkbox" name="com_ok" value="1"<@if(art.com_ok, ' checked')>>コメントを受け付ける</label></li>
 			<li><label><input type="checkbox" name="hcom_ok" value="1"<@if(art.hcom_ok, ' checked')>>非公開コメントを許可する</label></li>
@@ -223,7 +223,7 @@
 			<li><label><input type="checkbox" name="draft" value="1"<@if(art.draft, ' checked')> id="draft-chk" data-on='下書き'>この記事を下書きとして保存する</label><span class="help" data-help="初公開日時の情報も消去されます。">?</span></li>
 		<$end>
 		<@ifexec(Develop && !v.sphone, begin)>
-			<li><input type="checkbox" class="js-save" data-save="1" id="parser-debug" name="parser_debug" value="1"><label for="parser-debug"><em>[develop]</em> パーサーのデバッグ</label></li>
+			<li><label><input type="checkbox" class="js-save" data-save="1" id="parser-debug" name="parser_debug" value="1"><em>[develop]</em> パーサーのデバッグ</label></li>
 		<$end>
 		</ul></li>
 		<li><label><input type="checkbox" name="wiki" value="1" data-target="#content-block" class="js-switch"<@if(art.ctype || art.wiki, ' checked')>>コンテンツページにする</label>
@@ -241,8 +241,8 @@
 </form>
 <@ifexec(edit_pkey, begin)>
 	<ul class="checkbox">
-	<li><input type="checkbox" data-target="#post-detail" class="js-switch"> <@\>
-	<label>投稿情報の表示</label>
+	<li><label><input type="checkbox" data-target="#post-detail" class="js-switch"> <@\>
+	投稿情報の表示</label>
 		<ul id="post-detail"<@if(!s.post_detail, ' style="display: none"')>>
 			<li>記事番号 <@edit_pkey></li>
 			<li>投稿者 <@art.name> (id=<@art.id>)</li>

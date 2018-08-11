@@ -152,8 +152,7 @@
 		<div class="commentator">
 			<span class="canchor"><a href="#c<@c.num>"><@c.num></a>:</span>	<@\>
 			<@ifexec(v.allow_edit, begin)>	<@\>
-			<input class="pkey-ary" type="checkbox" name="pkey_int_ary" value="<@c.pkey>">	<@\>
-			<label>	<@\>
+			<label><input class="pkey-ary" type="checkbox" name="pkey_int_ary" value="<@c.pkey>">	<@\>
 			<$end>
 			<span class="commentator author<@if(c.id, " login-user")>"<@if(c.id, " title=<@c.id>")>><@ifexec(c.email && v.allow_edit, begin, begin)><a href="mailto:<@c.email>"><@c.name></a><$else><@c.name><$end></span>
 			<@ifexec(c.url, begin)><span class="comment-url"><a href="<@c.url>" rel="nofollow">URL</a></span><$end>
