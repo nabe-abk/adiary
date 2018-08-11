@@ -176,8 +176,7 @@ article div.body .hidden,
 article div.body .hidden a,
 article div.body .hidden strong,
 article div.body .hidden em {
-	color:			#fff;
-	background-color:	#fff;
+	color:			rgba(255,255,255,0);
 }
 
 /* nowrap */
