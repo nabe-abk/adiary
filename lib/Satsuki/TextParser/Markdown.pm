@@ -27,6 +27,7 @@ sub new {
 	$self->{md_in_htmlblk} = 1;	# Markdown Inside HTML Blocksを許可する
 	$self->{sectioning}   = 1;	# sectionタグを適時挿入する
 	$self->{gfm_ext}      = 1;	# GitHub Flavored Markdown拡張を使用する
+	$self->{strict_list}  = 0;	# リストの開始記号を厳密に判定する（標準非準拠）
 
 	$self->{span_sanchor} = 0;	# 見出し先頭に span.sanchor を挿入する
 	$self->{section_link} = 0;	# 見出しタグにリンクを挿入する
@@ -390,12 +391,19 @@ sub parse_block {
 		if ($x =~ /^ ? ? ?(\*|\+|\-|\d+\.) /) {
 			$self->p_block_end(\@ary, \@p_block);
 			my $ulol = length($1)<2 ? 'ul' : 'ol';
+			my $mark = $self->{strict_list} ? $1 : undef;
+			$mark = ($mark =~ /^\d+\./) ? '0' : $mark;
 			my @list=($x);
 			my $blank=0;
 			while(@$lines) {
 				$x = shift(@$lines);
 				if ($x ne '' && ord(substr($x, -1)) < 4) { last; }
-				if ($blank && $x !~ /^ ? ? ?(?:\*|\+|\-|\d+\.) |^    /) { last; }
+				if ($blank && $x !~ /^ ? ? ?(\*|\+|\-|\d+\.) |^    /) { last; }
+				if ($blank && $mark) {	# リストの開始文字判定
+					my $m = $1;
+					$m = ($m =~ /^\d+\./) ? '0' : $m;
+					if ($mark ne $m) { last; }
+				}
 				push(@list, $x);
 				$blank = ($x eq '');
 			}
