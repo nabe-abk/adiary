@@ -173,17 +173,12 @@ var edit_sid;
 var el_time = $('#edit-lock-time').val();
 var do_edit;
 
-// ロック済の場合、解除する
-if (Storage.defined('edit_pkey')) {
-	ajax_edit_unlock({
-		name: Storage.get('edit_pkey'),
-		sid:  Storage.get('edit_sid')
-	});
-	Storage.remove('edit_pkey');
-	Storage.remove('edit_sid');
-}
+function edit_mode() {
+	if (!edit_pkey || el_time<10) {
+		do_edit = true;
+		return;
+	}
 
-if (edit_pkey && el_time>9) {
 	// 編集モード
 	edit_pkey = '0' + edit_pkey;
 	// sid生成
@@ -206,9 +201,21 @@ if (edit_pkey && el_time>9) {
 		sid:  edit_sid,
 		callback: edit_lock_checked
 	});
-} else {
-	do_edit = true;
 }
+
+// ロック済の場合、解除する
+if (Storage.defined('edit_pkey')) {
+	ajax_edit_unlock({
+		name: Storage.get('edit_pkey'),
+		sid:  Storage.get('edit_sid'),
+		callback: edit_mode
+	});
+	Storage.remove('edit_pkey');
+	Storage.remove('edit_sid');
+} else {
+	edit_mode();
+}
+
 
 //----------------------------------------------------------------------------
 // ●編集中の確認結果
