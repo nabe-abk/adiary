@@ -27,7 +27,7 @@ sub new {
 	$self->{md_in_htmlblk} = 1;	# Markdown Inside HTML Blocksを許可する
 	$self->{sectioning}   = 1;	# sectionタグを適時挿入する
 	$self->{gfm_ext}      = 1;	# GitHub Flavored Markdown拡張を使用する
-	$self->{strict_list}  = 0;	# リストの開始記号を厳密に判定する（標準非準拠）
+	$self->{strict_list}  = 0;	# リスト開始記号が異なる時、違うブロックと判定する（標準非準拠）
 
 	$self->{span_sanchor} = 0;	# 見出し先頭に span.sanchor を挿入する
 	$self->{section_link} = 0;	# 見出しタグにリンクを挿入する
