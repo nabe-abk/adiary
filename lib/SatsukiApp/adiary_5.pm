@@ -91,6 +91,7 @@ sub blog_create {
 
 	# 再構築
 	$self->copy_tables($copy_id, $id);
+	$self->save_blogset($blog, $id);
 	$self->reinstall_plugins();
 	$self->rebuild_blog();
 
