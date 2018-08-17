@@ -3,12 +3,12 @@
 <@>
 <@> 標準パーサーロード用スケルトン
 <@>
-<@> モード：空行まで１段落。改行無視
+<@> モード：空行で段落処理。改行無視
 <@>
 
 <$parser = call('_parser/default')>
-<$parser.br_mode = 0>
-<$parser.p_mode  = 2>
+<$parser.br_mode = 2>		行末スペース2つで改行挿入
+<$parser.p_mode  = 2>		空行で段落処理
 <$parser.list_br = 0>		リスト中の改行を無視
 
 <$return(parser)>

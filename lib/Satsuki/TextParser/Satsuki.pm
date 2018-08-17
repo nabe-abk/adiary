@@ -1869,7 +1869,7 @@ sub paragraph_processing {
 		}
 		# figureのみの行を段落処理しない
 		if ($p_mode && $_ =~ m|^\s*<figure>.*</figure>\s*$|) {
-		 	$_ .= ($p_mode==1 || $br_mode ? '<br>' : '') . "\n";
+		 	$_ .= ($p_mode==1 || $br_mode==1 ? '<br>' : '') . "\n";
 		}
 
 		# 行送り措置
@@ -1911,21 +1911,27 @@ sub paragraph_processing {
 		if ($this_f)    { push(@ary, "$indent$this"); next; } # 処理済み行はインデントのみ
 		if ($p_mode==1) { push(@ary, "$indent<p$p_class>$this</p>\n"); next; } # １行＝１段落
 		if (! $p_mode)  {	# 段落処理なし
-			if ($br_mode) { push(@ary, "$indent$this<br>\n"); }    # 改行処理
-				else  { push(@ary, "$indent$this\n");     }
+			if ($br_mode==1) { push(@ary, "$indent$this<br>\n"); }	# 改行処理
+			else  {
+				if ($br_mode==2) { $this =~ s/\s\s+$/<br>/;  }	# 行末スペースを改行に変換
+				push(@ary, "$indent$this\n");
+			}
 			next;
 		}
 		if ($p_mode==2) {	# 空行で段落処理
 			my $head = '';
 			if (! $in_paragraph) { $head="$indent<p$p_class>"; $in_paragraph=1; } # 段落の始まり 
-			elsif ($br_mode)     { $head="$indent";   }                           # 改行処理モード
+			elsif ($br_mode==1)  { $head="$indent";   }                           # 改行処理モード
+			if ($br_mode==2 && !$next_f) {		# 段落の終わりではない
+				$this =~ s/\s\s+$/<br>/;	# 行末スペースを改行に変換
+			}
 			push(@ary, "$head$this");
 			if ($next_f) {		# ここで段落の終わり
 				push(@ary, "</p>\n");
 				$in_paragraph=0;
 				next;
 			}
-			if ($br_mode) { push(@ary, "<br>\n"); }	# 改行処理
+			if ($br_mode==1) { push(@ary, "<br>\n"); }	# 改行処理
 			elsif ($self->acsii_line_chain($this,$next)) {
 				# 行連結するとき、ASCII文字中である場合は改行を残す
 				push(@ary, "\n");
