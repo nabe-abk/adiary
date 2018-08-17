@@ -463,7 +463,8 @@ sub parse_block {
 				}
 				# [M] リストネスト時は先頭スペースを最大4つ除去する
 				foreach(@$li) {
-					$_ =~ s/    //;
+					$_ =~ s/^  ? ? ?//;
+					$self->debug($_);
 				}
 				my $blk = $self->parse_block($li, 1);
 				if ($blk->[$#$blk] eq '') { pop(@$blk); }
@@ -676,7 +677,6 @@ sub p_block_end {
 
 	$self->escape_without_html_tag($line);
 	push(@$ary, $line . '</p>');
-	push(@$ary, '');
 	@$blk = ();
 }
 
