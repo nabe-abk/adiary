@@ -1,14 +1,14 @@
 use strict;
 #------------------------------------------------------------------------------
 # markdown記法
-#                                              (C)2014-2015 nabe / nabe@abk.nu
+#                                              (C)2014-2018 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
 # コメント中に [M] とあるものは、Markdown.pl 準拠。
 # [GFM] とあるものは、GitHub Flavored Markdown 準拠。
 # [S] とあるものは、adiary拡張（Satsuki記法互換機能）
 #
 package Satsuki::TextParser::Markdown;
-our $VERSION = '1.03';
+our $VERSION = '1.10';
 #------------------------------------------------------------------------------
 ###############################################################################
 # ■基本処理
@@ -27,7 +27,7 @@ sub new {
 	$self->{md_in_htmlblk} = 1;	# Markdown Inside HTML Blocksを許可する
 	$self->{sectioning}   = 1;	# sectionタグを適時挿入する
 	$self->{gfm_ext}      = 1;	# GitHub Flavored Markdown拡張を使用する
-	$self->{strict_list}  = 0;	# リスト開始記号が異なる時、違うブロックと判定する（標準非準拠）
+	$self->{strict_list}  = 1;	# リスト開始記号が異なる時、違うブロックと判定する（標準非準拠）
 
 	$self->{span_sanchor} = 0;	# 見出し先頭に span.sanchor を挿入する
 	$self->{section_link} = 0;	# 見出しタグにリンクを挿入する
@@ -398,8 +398,8 @@ sub parse_block {
 			while(@$lines) {
 				$x = shift(@$lines);
 				if ($x ne '' && ord(substr($x, -1)) < 4) { last; }
-				if ($blank && $x !~ /^ ? ? ?(\*|\+|\-|\d+\.) |^    /) { last; }
-				if ($blank && $mark) {	# リストの開始文字判定
+				if ($blank && $x !~ /^ ? ? ?(\*|\+|\-|\d+\.) |^ /) { last; }
+				if ($blank && $1 && $mark) {	# リストの開始文字判定
 					my $m = $1;
 					$m = ($m =~ /^\d+\./) ? '0' : $m;
 					if ($mark ne $m) { last; }
