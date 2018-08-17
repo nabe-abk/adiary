@@ -373,13 +373,13 @@ sub parse_block {
 		if ($x =~ /^\s*$/) { $x = ''; }
 
 		if (ord(substr($x, -1)) < 3) {
-			$self->p_block_end(\@ary, \@p_block);
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			push(@ary, $x);
 			$next_blank = 1;
 			next;
 		}
 		if ($x eq '') {
-			$self->p_block_end(\@ary, \@p_block);
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			push(@ary, $x);
 			$next_blank = 1;
 			next;
@@ -389,7 +389,7 @@ sub parse_block {
 		# リストブロック
 		#----------------------------------------------
 		if ($x =~ /^ ? ? ?(\*|\+|\-|\d+\.) /) {
-			$self->p_block_end(\@ary, \@p_block);
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			my $ulol = length($1)<2 ? 'ul' : 'ol';
 			my $mark = $self->{strict_list} ? $1 : undef;
 			$mark = ($mark =~ /^\d+\./) ? '0' : $mark;
@@ -480,7 +480,7 @@ sub parse_block {
 		# 引用ブロック [M] ブロックは入れ子処理する
 		#----------------------------------------------
 		if ($x =~ /^ ? ? ?>/) {
-			$self->p_block_end(\@ary, \@p_block);
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			push(@ary, '<blockquote>');
 			my $p = 0;
 			my @block;
@@ -504,7 +504,7 @@ sub parse_block {
 		# [M] コードブロック
 		#----------------------------------------------
 		if ($blank && $x =~ /^    (.*)/) {
-			$self->p_block_end(\@ary, \@p_block);
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			my @code = ($x);
 			while(@$lines && (substr($lines->[0],0,4) eq '    ' || $lines->[0] =~ /^\s*$/)) {
 				push(@code, shift(@$lines));
@@ -534,7 +534,7 @@ sub parse_block {
 		 && $lines->[0] =~ /^[\s\|\-:]+$/
 		 && $lines->[0] =~ /\s*(?:\-+)?\s*\|\s*\-+\s*/
 		) {
-			$self->p_block_end(\@ary, \@p_block);
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 
 			my @buf = ($x);
 			while(@$lines && $lines->[0] =~ /\|/) {
@@ -598,7 +598,7 @@ sub parse_block {
 		# 続きを読む記法
 		#----------------------------------------------
 		if ($blank && $seemore && $self->{satsuki_seemore} && ($x eq '====' || $x eq '=====')) {
-			$self->p_block_end(\@ary, \@p_block);
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			push(@ary, <<TEXT);
 <p class="seemore"><a class="seemore" href="$self->{thisurl}">$self->{seemore_msg}</a></p><!--%SeeMore%-->\x02
 TEXT
@@ -613,7 +613,7 @@ TEXT
 		my $y = $x;
 		$y =~ s/\s//g;
 		if ($y =~ /^\*\*\*\**$|^----*$|^____*$/) {
-			$self->p_block_end(\@ary, \@p_block);
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			push(@ary, "<hr />\x01");
 			next;
 		}
@@ -622,7 +622,7 @@ TEXT
 		# リンク定義。[M] 参照名が空文字の場合は無効
 		#----------------------------------------------
 		if ($x =~ /^ ? ? ?\[([^\]]+)\]:\s*(.*?)\s*(?:\s*("[^\"]*"|'[^\']*')\s*)?\s*$/) {
-			$self->p_block_end(\@ary, \@p_block);
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			my $name = $1;
 			my $url  = $2;
 			my $title = substr($3,1);
@@ -641,12 +641,7 @@ TEXT
 		# 通常文字
 		#----------------------------------------------
 		$x =~ s/^ ? ? ?//;	# [M] 手前スペース3つまで削除
-		if (!$pmode) {
-			push(@ary, $x);
-			next;
-		}
-		# 段落ブロック
-		push(@p_block, $x);
+		push(@p_block, $x);	# 段落ブロック
 	}
 	# 文末空行の除去
 	while(@ary && $ary[$#ary] eq '') { pop(@ary); }
@@ -655,12 +650,13 @@ TEXT
 
 sub p_block_end {
 	my $self = shift;
-	my $ary = shift;
-	my $blk = shift;
+	my $ary  = shift;
+	my $blk  = shift;
+	my $pmode = shift;
 	my $lf_patch = $self->{lf_patch};
 	if (!@$blk) { return; }
 
-	my $line = '<p>' . shift(@$blk);
+	my $line = ($pmode ? '<p>' : '') . shift(@$blk);
 	foreach my $x (@$blk) {
 		$line =~ s|   *$| <br />|;	# 行末スペース2つ以上は強制改行
 		if ($lf_patch && 0x7f < ord(substr($line,-1)) &&  0x7f < ord($x)) {
@@ -675,7 +671,7 @@ sub p_block_end {
 	$line =~ s/\\>/&gt;/g;
 
 	$self->escape_without_html_tag($line);
-	push(@$ary, $line . '</p>');
+	push(@$ary, $line . ($pmode ? '</p>' : ''));
 	@$blk = ();
 }
 
