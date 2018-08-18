@@ -52,8 +52,8 @@
 		</td>
 	</tr>
 	<tr>
-		<th>DB</th>
-		<td><input class="mono w400" type="text" name="db" value="<@esc(h.db)>"></td>
+		<th>DB<span class="help" data-help="PostgreSQLやMySQLの接続DBパスワードに「'」「&quot;」を含むと失敗することがあります。パスワードを変更してお試しください。">?</span></th>
+		<td><input class="mono w400" type="text" name="db" value="<@esc(Form.db || h.db)>"></td>
 	</tr>
 	<tr>
 		<th>ブロク設定dir</th>

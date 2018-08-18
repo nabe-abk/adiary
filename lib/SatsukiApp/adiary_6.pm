@@ -29,8 +29,7 @@ my @update_versions = (
 	{ ver => 3.10, func => 'sys_update_310', plugin=>1, theme=>1 },
 	{ ver => 3.11, plugin=>1 },
 	{ ver => 3.14, plugin=>1 },
-	{ ver => 3.15, func => 'sys_update_315', plugin=>1 },
-	{ ver => 3.16, plugin=>1 }
+	{ ver => 3.15, func => 'sys_update_315', plugin=>1 }
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
@@ -229,8 +228,9 @@ sub parse_adiary_conf_cgi {
 		if ($_ =~ /<\$DB\s*=\s*loadpm\((.*)\)\s*>\s*$/) {
 			my $db = $1;
 			$db =~ s/^\s*'DB_cache'\s*,\s*//;
-			$db =~ s/,\s*1(?:\.\w+)?\s*//;
+			$db =~ s/,\s*\d+(?:\.\w+)?\s*//;
 			$db =~ s/^\s*'DB_pseudo'\s*,\s*'([^']*)'/'DB_pseudo', '$dir$1'/;
+			$db =~ s/'\s*,\s*'/', '/g;
 			$h{db} = $db;
 			next;
 		}
@@ -324,16 +324,37 @@ sub v2convert {
 		}
 	}
 
+	#--------------------------------------------------------------
+	# 旧DBへの接続
+	#--------------------------------------------------------------
+	my $DBv2;
+	{
+		my $db_load = $h->{db};
+		my @opt;
+		$db_load =~ s/(?:'(.*?)'|([^\s,]+))\s*(?:,|$)/
+			push(@opt, "$1$2")
+		/eg;
+
+		# MySQLの文字コード指定
+		if ($opt[0] =~ /DB_mysql/ && $opt[4]) {
+			$opt[4] = { Charset => $opt[4] };
+		}
+
+		# $opt[4]以降を無視
+		while($opt[4] ne '') { pop(@opt); }
+
+		if ($opt[0] eq 'DB_pseudo') { $opt[0] = 'DB_text'; }
+		$DBv2 = $ROBJ->loadpm(@opt);
+
+		$ROBJ->notice("Connect $opt[0]: " . ($DBv2 ? 'Success' : 'Failed!'));
+		if (!$DBv2) {
+			return -1;
+		}
+	}
 
 	#--------------------------------------------------------------
 	# ブログの移行
 	#--------------------------------------------------------------
-	my $db_load = $h->{db};
-	$db_load =~ s/^\s*'(.*?)'\s*$/$1/;
-	my @opt = split(/'\s*,\s*'/, $db_load);
-	if ($opt[0] eq 'DB_pseudo') { $opt[0] = 'DB_text'; }
-	if ($opt[4] ne '') { $opt[4] = { Charset => $opt[4] }; }
-
 	my %themes;
 	{
 		my $ary = $self->load_themes('satsuki2');
@@ -346,7 +367,6 @@ sub v2convert {
 		}
 	}
 
-	my $DBv2 = $ROBJ->loadpm(@opt);
 	my $blogs = $DBv2->select('_daybooklist');
 	foreach(@$blogs) {
 		my $id = $_->{id};
@@ -355,7 +375,7 @@ sub v2convert {
 
 		# ブログ作成
 		my $r = $self->blog_create($id);
-		# if ($r) { next; }	# すでに存在する
+		if ($r) { next; }	# すでに存在する
 
 		# デフォルトデザインのロード
 		$ROBJ->{Message_stop} = 1;
