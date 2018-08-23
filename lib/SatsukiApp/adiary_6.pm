@@ -29,7 +29,8 @@ my @update_versions = (
 	{ ver => 3.10, func => 'sys_update_310', plugin=>1, theme=>1 },
 	{ ver => 3.11, plugin=>1 },
 	{ ver => 3.14, plugin=>1 },
-	{ ver => 3.15, func => 'sys_update_315', plugin=>1 }
+	{ ver => 3.15, func => 'sys_update_315', plugin=>1 },
+	{ ver => 3.20, plugin=>1 }
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
