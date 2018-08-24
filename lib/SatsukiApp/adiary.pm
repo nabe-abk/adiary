@@ -249,6 +249,8 @@ sub blogid_and_pinfo {
 		if (! $self->{subdomain_secure}) {	# Cookieを全ドメインで共通化
 			$ROBJ->{Cookie_domain} = $domain;
 		}
+		$self->{subdomain_proto} ||= 'http://';
+
 		if ((my $x = index($host_name, ".$domain")) > 0) {
 			$blogid = substr($host_name, 0, $x);
 		} else {
@@ -514,7 +516,7 @@ sub set_and_select_blog {
 
 	# myself(通常用,QUERY用)、myself2(PATH_INFO用) の設定
 	if ($self->{subdomain_mode}) {
-		$self->{server_url} = ($self->{subdomain_proto} ? $self->{subdomain_proto} : 'http://') . $blogid . '.' . $self->{subdomain_mode};
+		$self->{server_url} = $self->{subdomain_proto} . $blogid . '.' . $self->{subdomain_mode};
 		$self->{myself}  = '/';
 		$self->{myself2} = '/';	
 	} elsif ($blogid ne $self->{sys}->{default_blogid}) {
@@ -1580,7 +1582,7 @@ sub get_blog_path {
 	my $ROBJ = $self->{ROBJ};
 	$blogid =~ s/[^\w\-]//g;
 	if ($self->{subdomain_mode}) {
-		my $url = "http://$blogid\.$self->{subdomain_mode}";
+		my $url = $self->{subdomain_proto} . "$blogid\.$self->{subdomain_mode}";
 		return $ROBJ->{Server_url} eq $url ? '/' : "$url/";
 	}
 	my $myself2 = $ROBJ->{Myself2};
