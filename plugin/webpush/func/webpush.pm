@@ -9,11 +9,13 @@ use strict;
 my $ECC_NAME = 'prime256v1';
 my $VAPID = 1;
 my $UNIT  = 50;		# 1度に送信する単位
-my @SITES = qw(
-	https://fcm.googleapis.com/
-	https://updates.push.services.mozilla.com/
-	https://hk2.notify.windows.com/
-);
+my $TTL   = 86400;
+my @SITES = map { qr/$_/ }
+	qw(		# white list
+		https://fcm.googleapis.com/
+		https://updates.push.services.mozilla.com/
+		https://\w+\.notify\.windows\.com/
+	);
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -83,8 +85,7 @@ $mop->{regist} = sub {
 	my $ok;
 	if (! $aobj->load_plgset($name, 'unknown_server')) {
 		foreach(@SITES) {
-			if (substr($endp, 0, length($_)) ne $_) { next; }
-			$ok=1; last;
+			if ($endp =~ /$_/) { $ok=1; last; }
 		}
 		if (!$ok) { return -1; }
 	}
@@ -257,6 +258,7 @@ $mop->{webpush} = sub {
 	my $mprv = $h->{mprv};
 	my $cpub = $h->{cpub};	# Client pub key
 	my $auth = $h->{auth};
+	my $salt = $ROBJ->get_rand_string(16);
 
 	my $secret;
 	{
@@ -266,57 +268,69 @@ $mop->{webpush} = sub {
 		$pk2->import_key_raw($cpub, $ECC_NAME);
 		$secret = $pk1->shared_secret($pk2);
 	}
-	my $salt = $ROBJ->get_rand_string(16);
 
-	my $context = "P-256\x00"		# context is 140 byte
-		. pack('n', length($cpub)) . $cpub
-		. pack('n', length($mpub)) . $mpub;
+	#-------------------------------------------------------------------
+	# Encryption (aes128gcm)
+	#-------------------------------------------------------------------
+	my $header;
+	my $body;
+	{
+		my $prk   = $self->hkdf($auth, $secret, "WebPush: info\x00$cpub$mpub"    , 32);
+		my $cek   = $self->hkdf($salt, $prk,    "Content-Encoding: aes128gcm\x00", 16);
+		my $nonce = $self->hkdf($salt, $prk,    "Content-Encoding: nonce\x00",     12);
 
-	my $prk    = $self->hkdf($auth, $secret, "Content-Encoding: auth\x00", 32);
-	my $aeskey = $self->hkdf($salt, $prk,    "Content-Encoding: aesgcm\x00$context", 16);
-	my $nonce  = $self->hkdf($salt, $prk,    "Content-Encoding: nonce\x00$context",  12);
+		$data = substr($data, 0, 3992);		# limiter
 
-	# JWT
-	my $jwt;
-	my $jwt_sig;
+		# body header / N is 4byte network byte order (big eddian)
+		$body  = $salt . pack('N', 4096) . pack('C', length($mpub)) . $mpub;
+
+		# AES-GCM
+		my $ae = Crypt::AuthEnc::GCM->new('AES', $cek);
+		$ae->iv_add($nonce);
+		$body	.= $ae->encrypt_add($data . "\x02\x00")
+		  	.  $ae->encrypt_done();		# tag (16byte)
+
+		$header = {
+			'Content-Encoding' => 'aes128gcm'
+		}
+	}
+
+	#-------------------------------------------------------------------
+	# VAPID
+	#-------------------------------------------------------------------
+	my $vapid_jwt;
 	if ($VAPID) {
-		my $jwt_h = '{"typ":"JWT","alg":"ES256"}';
-		my $jwt_c = '{';
-		if ($url =~ m|^(\w+://[^/]*)|) { $jwt_c .= "\"aud\":\"$1\"," }
-		$jwt_c .= "\"sub\":\"mailto:a\@b.c\",";
-		$jwt_c .= "\"exp\":" . (time()+86400) . ',';
-		chop($jwt_c);
-		$jwt_c.='}';
+		my $info = '{"typ":"JWT", "alg":"ES256"}';
+		my $data = {
+			sub => $ROBJ->{Server_url} . $self->{aobj}->{myself},
+			exp => time() + $TTL
+		};
+		if ($url =~ m|^(\w+://[^/]*)|) {
+			$data->{aud} = $1;
+		}
+		$data = $ROBJ->generate_json($data);
 
-		$jwt = $self->base64urlsafe($jwt_h) . '.' . $self->base64urlsafe($jwt_c);
+		my $jwt = $self->base64urlsafe($info) . '.' . $self->base64urlsafe($data);
+
 		my $pk3 = Crypt::PK::ECC->new();
 		$pk3->import_key_raw($sprv, $ECC_NAME);
-		my $sig_der = $pk3->sign_message($jwt, 'SHA256');
+		my $sign_der = $pk3->sign_message($jwt, 'SHA256');
+		my $sign     = $self->parse_ANS1_der( $sign_der );	# ASN.1 DER format to Binary
 
-		$jwt_sig = $self->parse_ANS1_der( $sig_der );	# ASN.1 DER format to Binary
+		$vapid_jwt  = $jwt . '.' . $self->base64urlsafe($sign);
+
+		$header->{'Crypto-Key'} .= ($header->{'Crypto-Key'} ? ';' : '') . 'p256ecdsa=' . $self->base64urlsafe($spub);
+		$header->{Authorization} = 'Webpush ' . $vapid_jwt;
 	}
 
-	# AES-GCM
-	my $ae = Crypt::AuthEnc::GCM->new('AES', $aeskey);
-	$ae->iv_add($nonce);
-	$ae->adata_add('');
-	my $cipher = $ae->encrypt_add("\x00\x00" . $data);
-	$cipher   .= $ae->encrypt_done();
-
+	#-------------------------------------------------------------------
 	# POST
+	#-------------------------------------------------------------------
 	my $http = $ROBJ->loadpm('Base::HTTP');
-	my $header = {
-		'Content-Encoding' => 'aesgcm',
-		'Crypto-Key' => 'keyid=p256dh;dh=' . $self->base64urlsafe($mpub),
-		Encryption => 'keyid=p256dh;salt=' . $self->base64urlsafe($salt),
-		TTL => 86400
-	};
-	if ($jwt) {
-		$header->{'Crypto-Key'} .= ';p256ecdsa=' . $self->base64urlsafe($spub);
-		$header->{Authorization} = 'WebPush ' . $jwt . '.' . $self->base64urlsafe($jwt_sig);
-		# (new)'WebPush' change from 'Bearer'(old)
-	}
-	my $r  = $http->post($url, $header, $cipher);
+	
+	$header->{TTL} = $TTL;
+
+	my $r  = $http->post($url, $header, $body);
 	my $st = $http->{status};
 
 	return (200<=$st && $st<300) ? 0 : $http->{status};
@@ -354,10 +368,8 @@ $mop->{parse_ANS1_der} = sub {
 
 	my $x = ord(substr($der,   3,1));
 	my $y = ord(substr($der,$x+5,1));
-	my $r = substr($der,    4, $x);
-	my $s = substr($der, $x+6, $y);
-	$r =~ s/^\x00+//;
-	$s =~ s/^\x00+//;
+	my $r = substr(substr($der,    4, $x), -32);
+	my $s = substr(substr($der, $x+6, $y), -32);
 	return $r . $s;
 };
 
