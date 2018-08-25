@@ -81,6 +81,9 @@ $mop->{regist} = sub {
 	$cpub =~ s/[^\w\-]//g;
 	$auth =~ s/[^\w\-]//g;
 
+	# Firefoxで http でテストしていると、後ろに :443 が付く
+	$endp =~ s|(https://[^/:]+):443|$1|;
+
 	# URL white list check
 	my $ok;
 	if (! $aobj->load_plgset($name, 'unknown_server')) {
