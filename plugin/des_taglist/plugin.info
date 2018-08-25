@@ -1,6 +1,6 @@
 ######################################################################
 title=タグ
-version=1.10
+version=1.11
 #					(C)2018 nabe@abk
 ######################################################################
 author=nabe@abk
@@ -39,7 +39,7 @@ HTML
 
 *module_html=<<HTML
 <!--タグリスト=====================================-->
-<div class="hatena-module side-tag-list" id="<@id>" data-module-name="<@this>">
+<div class="hatena-module side-tag-list" data-module-name="<@this>">
 <@v.load_plgset('<@this>', 'html')>
 </div> <!-- hatena-module -->
 HTML
