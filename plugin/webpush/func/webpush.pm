@@ -10,12 +10,12 @@ my $ECC_NAME = 'prime256v1';
 my $VAPID = 1;
 my $UNIT  = 50;		# 1度に送信する単位
 my $TTL   = 86400;
-my @SITES = map { qr/$_/ }
-	qw(		# white list
-		https://fcm.googleapis.com/
-		https://updates.push.services.mozilla.com/
+my @SITES = map { qr/$_/ }	# white list
+	qw(	https://fcm\.googleapis\.com/
+		https://updates\.push\.services\.mozilla\.com/
 		https://\w+\.notify\.windows\.com/
 	);
+
 ###############################################################################
 # ■基本処理
 ###############################################################################

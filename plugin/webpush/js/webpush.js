@@ -221,7 +221,6 @@ function postSubscription(subscription) {
 	fetch(Vmyself, {
 		credentials: 'include',		// cookie
 		method: 'POST',
-		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 		body: $.param(form)
 
 	}).then(function(res) {

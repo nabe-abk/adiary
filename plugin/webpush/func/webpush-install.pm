@@ -28,7 +28,7 @@ my $ECC_NAME = 'prime256v1';
 		return $ret;
 	};
 
-	# プライベートキー(１度のみ生成〕
+	# プライベートキー(１度のみ生成）
 	if (!$ps->{sprv}) {
 		my $pk = Crypt::PK::ECC->new();
 		$pk->generate_key($ECC_NAME);
