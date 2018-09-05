@@ -11,9 +11,9 @@ my $VAPID = 1;
 my $UNIT  = 50;		# 1度に送信する単位
 my $TTL   = 86400;
 my @SITES = map { qr/$_/ }	# white list
-	qw(	https://fcm\.googleapis\.com/
-		https://updates\.push\.services\.mozilla\.com/
-		https://\w+\.notify\.windows\.com/
+	qw(	^https://fcm\.googleapis\.com/
+		^https://updates\.push\.services\.mozilla\.com/
+		^https://\w+\.notify\.windows\.com/
 	);
 
 ###############################################################################
@@ -82,7 +82,7 @@ $mop->{regist} = sub {
 	$auth =~ s/[^\w\-]//g;
 
 	# Firefoxで http でテストしていると、後ろに :443 が付く
-	$endp =~ s|(https://[^/:]+):443|$1|;
+	$endp =~ s|^(https://[^/:]+):443|$1|;
 
 	# URL white list check
 	my $ok;
