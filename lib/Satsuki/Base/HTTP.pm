@@ -67,7 +67,7 @@ sub connect_host {
 		return $self->error(undef, "Can't find host '%s'", $host);
 	}
 	my $sockaddr = pack_sockaddr_in($port, $ip_bin);
-	my $sh; # = Symbol::gensym();
+	my $sh;
 	if (! socket($sh, Socket::PF_INET(), Socket::SOCK_STREAM(), 0)) {
 		return $self->error(undef, "Can't open socket");
 	}
