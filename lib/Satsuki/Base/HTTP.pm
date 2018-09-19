@@ -80,6 +80,7 @@ sub connect_host {
 		alarm(0);
 	}
 
+	binmode($sh);
 	return $sh;
 }
 
@@ -293,7 +294,7 @@ sub do_request {
 		push(@$res, '');
 		push(@$res, $page);
 	} else {
-		my $request = "$method $path HTTP/1.1\r\n$header\r\n$content";
+		my $request = "$method $path HTTP/1.1\r\n$header\r\nConnection: close\r\n$content";
 		$res = $self->get_data($host, $port, $request);
 		if (ref($res) ne 'ARRAY') { return $res; }	# fail to return
 	}
