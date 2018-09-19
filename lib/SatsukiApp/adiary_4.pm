@@ -67,6 +67,13 @@ sub save_usercss {
 		return $self->delete_dynamic_css( '_usercss' );
 	}
 
+	if (!$self->{trust_mode}) {
+		# 危険文字の除去
+		while($css_txt =~ /behavior/i) {
+			$css_txt =~ s/behavior//ig;
+		}
+	}
+
 	return $self->save_dynamic_css( '_usercss', $css_txt );
 }
 
