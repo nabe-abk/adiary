@@ -26,8 +26,6 @@ rp
 mark
 cite
 
-# style 指定子によるXSS対策
-#_style_secure
 # 相対パスを絶対パスに書き換え
 _absolute_path
 

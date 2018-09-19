@@ -4,7 +4,7 @@ use strict;
 #						(C)2005-2017 nabe / nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::TextParser::TagEscape;
-our $VERSION = '1.30';
+our $VERSION = '1.31';
 #-------------------------------------------------------------------------------
 # ●オプション一覧
 #-------------------------------------------------------------------------------
@@ -345,7 +345,7 @@ sub filter {
 			#------------------------------------------------
 			# リンクプロトコルチェック
 			#------------------------------------------------
-			if ($PROTOCOL_CHECK{$_} || $v !~ /^javascript:/i) {
+			if ($PROTOCOL_CHECK{$_}) {
 				if ($v =~ /^([\w\+\-\.]+):/) {	# scheme by RFC2396 Sec3.1
 					my $x = $1;
 					$x =~ tr/A-Z/a-z/;
@@ -353,15 +353,14 @@ sub filter {
 				}
 			}
 
-
 			#------------------------------------------------
-			# スタイルシート指定のXSS対策
+			# スタイルシート指定のXSS対策 (IE8-IE10)
 			#------------------------------------------------
+			# style="behavior: url(xss.js)"
 			if ($allow->{_style_secure} && $_ eq 'style') {
-				$v =~ s|[\\\@\x00-\x1f\x80-\xff]||g;	# ASCII文字以外や危険文字を除去
 				# 危険文字の除去
-				while($v =~ m[/\*|\*/&#|script|behavior|behaviour|java|exp|eval|cookie|include]i) {
-					$v =~ s[/\*|\*/&#|script|behavior|behaviour|java|exp|eval|cookie|include][]ig;
+				while($v =~ m[behavior]i) {
+					$v =~ s[behavior][]ig;
 				}
 			}
 			#------------------------------------------------
