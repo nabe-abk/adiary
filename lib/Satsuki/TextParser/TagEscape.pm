@@ -359,8 +359,8 @@ sub filter {
 			# style="behavior: url(xss.js)"
 			if ($allow->{_style_secure} && $_ eq 'style') {
 				# 危険文字の除去
-				while($v =~ m[behavior]i) {
-					$v =~ s[behavior][]ig;
+				while($v =~ /behavior/i) {
+					$v =~ s/behavior//ig;
 				}
 			}
 			#------------------------------------------------
