@@ -9,6 +9,7 @@ our $VERSION = '1.10';
 my $Satsuki_pkg = 'Satsuki';
 my %Libtime;
 my @Libs;
+my $CheckTime;
 #------------------------------------------------------------------------------
 my $mypkg = __PACKAGE__ . '.pm';
 $mypkg =~ s|::|/|g;
@@ -30,6 +31,10 @@ sub save_lib {
 # ●更新されたモジュールをアンロードする
 ###############################################################################
 sub check_lib {
+	my $tm = time();
+	if ($CheckTime == $tm) { return ; }
+	$CheckTime = $tm;
+
 	my $flag = shift || $Satsuki::Base::RELOAD;
 	if (!$flag) {
 		if ($ENV{SatsukiReloadStop}) { return; }
