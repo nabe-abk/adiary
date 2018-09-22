@@ -1,7 +1,7 @@
 use strict;
 #------------------------------------------------------------------------------
 # HTTPモジュール
-#						(C)2006-2017 nabe / nabe@abk
+#						(C)2006-2018 nabe / nabe@abk
 #------------------------------------------------------------------------------
 # 簡易実装の HTTP モジュールです。
 #
@@ -294,7 +294,8 @@ sub do_request {
 		push(@$res, '');
 		push(@$res, $page);
 	} else {
-		my $request = "$method $path HTTP/1.1\r\n$header\r\nConnection: close\r\n$content";
+		# Only HTTP/1.0, because chunked not support.
+		my $request = "$method $path HTTP/1.0\r\n$header\r\nConnection: close\r\n$content";
 		$res = $self->get_data($host, $port, $request);
 		if (ref($res) ne 'ARRAY') { return $res; }	# fail to return
 	}
