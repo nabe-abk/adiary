@@ -1223,8 +1223,8 @@ sub put_cookie {
 # ●リダイレクト (RFC2616準拠)
 #------------------------------------------------------------------------------
 sub redirect {
-	my ($self, $uri, $status) = @_;
-	$status ||= "302 Moved Temporarily";	# GETへメソッド変更なし
+	my ($self, $uri, $status_msg) = @_;
+	$status_msg ||= "302 Moved Temporarily";	# GETへメソッド変更なし
 
 	$uri =~ s/[\x00-\x1f]//g;		# 不正文字除去
 
@@ -1233,10 +1233,11 @@ sub redirect {
 		if (substr($uri,0,1) ne '/') { $uri = $self->{Basepath} . $uri; }
 		$uri = $self->{Server_url} . $uri;
 	}
-	if ($self->{No_redirect}) { $status='200 OK'; }
+	if ($self->{No_redirect}) { $status_msg='200 OK'; }
+
+	my $status = ($status_msg =~ /^(\d+)/) ? $1 : 302 ;
 	if ($status !~ /^200/) { $self->set_header('Location', $uri); }
 	$self->set_status($status);
-	$self->print_http_headers('text/html');
 
 	my $refresh = 0;
 	my $append  = '';
@@ -1245,7 +1246,7 @@ sub redirect {
 		$append = '<p>' . join("<br>\n", @{$self->{Debug}}) . '</p>';
 	}
 	$self->tag_escape( $uri );
-	print <<HTML;
+	$self->output(<<HTML);
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <HTML><HEAD>
 <TITLE>$status</TITLE>

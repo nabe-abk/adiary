@@ -129,8 +129,7 @@ sub start_up {
 	if ($self->{Error_flag}) {
 		my $err = $self->error_load_and_clear("\n");
 		$self->set_status(500);
-		$self->print_http_headers('text/plain');
-		$self->output_array([$err]);
+		$self->output([$err], 'text/plain');
 		$self->exit(-1);
 	}
 
@@ -148,8 +147,7 @@ sub start_up {
 #------------------------------------------------------------------------------
 sub main {
 	my $self = shift;
-	$self->print_http_headers();
-	$self->output_array($self->{Conf_result});
+	$self->output($self->{Conf_result});
 }
 
 #------------------------------------------------------------------------------
@@ -730,8 +728,8 @@ sub check_skeleton {
 #------------------------------------------------------------------------------
 sub set_header {
 	my ($self, $name, $val) = @_;
-	push(@{ $self->{Headers} }, "$name: $val\n");
-	if ($name eq 'Status') { $self->{Status} = $val; }
+	if ($name eq 'Status') { $self->{Status} = $val; return; }
+	push(@{ $self->{Headers} }, "$name: $val\r\n");
 }
 sub set_status {
 	my $self = shift;
@@ -747,57 +745,82 @@ sub set_content_type {
 	my $self = shift;
 	$self->{Content_type} = shift;
 }
+sub set_charset {
+	my $self = shift;
+	$self->{Charset} = shift;
+}
+
 #------------------------------------------------------------------------------
-# ●ヘッダを出力
+# ●HTML出力
 #------------------------------------------------------------------------------
-sub print_http_headers {
-	my ($self, $ctype, $charset) = @_;
-	if ($self->{No_httpheader}) { return; }
+sub output {
+	my $self  = shift;
+	my $ary   = shift;
+	$ary = ref($ary) ? $ary : [ $ary ];
+	my $ctype   = shift || $self->{Content_type};
+	my $charset = shift || $self->{Charset};
 
 	# Last-modified
 	if ($self->{Status}==200 && $self->{LastModified} && $ENV{HTTP_IF_MODIFIED_SINCE} eq $self->{LastModified}) {
 		$self->{Status}=304;
 	}
+
+	my $body;
+	$self->output_array($ary, \$body);
+	my $html = $self->http_headers($ctype, $charset, length($body));
+	if ($self->{Status} != 304) {
+		$html .= $body;
+	}
+
+	my $c = ($self->{Status}==200) && $self->{HTML_cache};
+	if ($c) { $$c = $html; }
+
+	print $html;
+	$self->{Send} = length($html);
+}
+
+#------------------------------------------------------------------------------
+# ●ヘッダを出力
+#------------------------------------------------------------------------------
+sub http_headers {
+	my ($self, $ctype, $charset, $clen) = @_;
+	if ($self->{No_httpheader}) { return''; }
+
 	# Cache
-	my $x;
-	my $rs = ($self->{Status}==200) && $self->{HTML_cache} || \$x;
+	my $header;
 
 	# Status
-	$$rs .= "Status: $self->{Status}\n";
-	$$rs .= join('', @{ $self->{Headers} });	# その他のヘッダ
+	if ($self->{HTTPD}) {
+		$header = "HTTP/1.0 $self->{Status}\r\n";
+	} else {
+		$header = "Status: $self->{Status}\r\n";
+	}
+	$header .= join('', @{ $self->{Headers} });	# その他のヘッダ
 
 	# Content-Type;
 	$ctype   ||= $self->{Content_type};
 	$charset ||= $self->{System_coding};
-	$$rs .= <<HEADER;
-Cache-Control: no-cache
-Content-Type: $ctype; charset=$charset;
-X-Content-Type-Options: nosniff
-
+	$header .= <<HEADER;
+Cache-Control: no-cache\r
+Content-Length: $clen\r
+Content-Type: $ctype; charset=$charset;\r
+X-Content-Type-Options: nosniff\r
+\r
 HEADER
-	print $$rs;
 }
 
 #------------------------------------------------------------------------------
 # ●配列出力
 #------------------------------------------------------------------------------
 sub output_array {
-	my ($self, $ary) = @_;
-	if ($self->{Status}==304) { return; }
-	my $c = ($self->{Status}==200) && $self->{HTML_cache};
-	if (!ref($ary)) { print $ary; $c && ($$c .= $ary); return; }
-	return $self->_output_array( $ary, $c );
-}
-sub _output_array {
 	# 2009/07/09 速度検証テストによる最適化
 	my ($self, $ary, $c) = @_;
 	foreach(@$ary) {
 		if (ref($_) eq 'ARRAY') {
-			$self->_output_array($_, $c);
+			$self->output_array($_, $c);
 			next;
 		}
-		print $_;
-		$c && ($$c .= $_);
+		$$c .= $_;
 	}
 }
 

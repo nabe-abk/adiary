@@ -63,8 +63,7 @@ sub output_html {
 	my ($skelton) = @_;
 
 	my $out = $ROBJ->call($skelton);
-	$ROBJ->print_http_headers($self->{content_type} || "text/html");
-	$ROBJ->output_array($out);	# HTML出力
+	$ROBJ->output($out, $self->{content_type});	# HTML出力
 }
 
 #------------------------------------------------------------------------------

@@ -415,8 +415,7 @@ sub output_html {
 	}
 
 	if (!$self->{output_stop}) {
-		$ROBJ->print_http_headers();
-		$ROBJ->output_array($out);	# HTML出力
+		$ROBJ->output($out);		# HTML出力
 	}
 }
 
