@@ -26,7 +26,7 @@ sub init_for_mod_perl {
 ###############################################################################
 sub init_for_speedycgi {
 	my $self = shift;
-	$self->{CGI_cache}=  1;
+	$self->{CGI_cache} = 1;
 	$self->{SpeedyCGI} = 1;
 	$self->{CGI_mode}  = 'SpeedyCGI';
 }
@@ -48,9 +48,10 @@ sub init_for_fastcgi {
 ###############################################################################
 sub init_for_httpd {
 	my $self = shift;
+	my $sock = shift;
 	my $path = shift || '/';
 
-	$self->{CGI_cache}= 1;
+	$self->{CGI_cache}= 0;
 	$self->{HTTPD}    = 1;
 	$self->{CGI_mode} = 'httpd';
 
@@ -61,6 +62,9 @@ sub init_for_httpd {
 
 	$self->{Myself}  = $path;
 	$self->{Myself2} = $path;
+
+	$self->{STDIN}   = $sock;
+	$self->{STDOUT}  = $sock;
 
 	my $port = int($ENV{SERVER_PORT});
 	my $protocol = ($port == 443) ? 'https://' : 'http://';

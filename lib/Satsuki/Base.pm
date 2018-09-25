@@ -35,6 +35,8 @@ sub new {
 	$self->{GID}  = $(;
 	$self->{PID}  = $$;
 	$self->{Windows} = ($^O eq 'MSWin32' || $^O eq 'MSWin64');
+	$self->{STDIN}   = *STDIN;
+	$self->{STDOUT}  = *STDOUT;
 
 	# 初期設定
 	$self->{Status}  = 200;		# HTTP status (200 = OK)

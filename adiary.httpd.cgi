@@ -27,10 +27,10 @@ use Satsuki::Timer ();
 # default setting
 #------------------------------------------------------------------------------
 my $SILENT;
-my $WINDOWS = ($^O =~ /^MSWin/) ? 1 : 0;
+my $IsWindows = ($^O =~ /^MSWin/) ? 1 : 0;
 
 my $PORT    = 8888;
-my $ITHREAD = $WINDOWS;
+my $ITHREAD = $IsWindows;
 my $PATH    = $ARGV[0];
 my $TIMEOUT = 30;
 my $MIME_FILE = '/etc/mime.types';
@@ -100,7 +100,7 @@ HELP
 #------------------------------------------------------------------------------
 # ENV setting
 #------------------------------------------------------------------------------
-if (!$WINDOWS) {
+if (!$IsWindows) {
 	%ENV = ();
 }
 $ENV{SCRIPT_NAME}     = $0;
@@ -226,7 +226,7 @@ sub accept_client {
 sub parse_request {
 	my $sock  = shift;
 	my $state = { sock => $sock, type=>'    ' };
-	open(STDIN, '<&=', fileno($sock));
+	# open(STDIN, '<&=', fileno($sock));
 
 	#--------------------------------------------------
 	# recieve HTTP Request Header
@@ -239,7 +239,7 @@ sub parse_request {
 		alarm( $TIMEOUT );
 
 		while(1) {
-			my $line = <STDIN>;
+			my $line = <$sock>;
 			if ($line eq "\r\n") { last; }
 			push(@header, $line);
 		}
@@ -431,7 +431,7 @@ sub exec_cgi {
 		$ROBJ->{Timer} = $timer;
 		$ROBJ->{AutoReload} = $flag;
 
-		$ROBJ->init_for_httpd();
+		$ROBJ->init_for_httpd($state->{sock});
 
 		#--------------------------------------------------
 		# main
