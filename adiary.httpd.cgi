@@ -169,35 +169,35 @@ $SILENT || print "\n";
 my $reload;
 my $rbits;
 &set_bit($rbits, $srv);
-
-while(1) {
-	#--------------------------------------------------
-	# waitpid
-	#--------------------------------------------------
-	if (!$ITHREAD) {
-		while( waitpid(-1, WNOHANG) > 0) {};
+{
+	local $SIG{CHLD};
+	if (!$ITHREAD) {	# clear defunct process
+		$SIG{CHLD} = sub {
+			while(waitpid(-1, WNOHANG) > 0) {};
+		};
 	}
+	while(1) {
+		#--------------------------------------------------
+		# select
+		#--------------------------------------------------
+		my $r = select(my $x = $rbits, undef, undef, undef);
 
-	#--------------------------------------------------
-	# select
-	#--------------------------------------------------
-	my $r = select(my $x = $rbits, undef, undef, undef);
+		#--------------------------------------------------
+		# accept
+		#--------------------------------------------------
+		if ($ITHREAD) {
+			my $thr = threads->create(\&accept_client, $srv);
+			$thr->detach();
 
-	#--------------------------------------------------
-	# accept
-	#--------------------------------------------------
-	if ($ITHREAD) {
-		my $thr = threads->create(\&accept_client, $srv);
-		$thr->detach();
-
-	} else {
-		my $pid = fork();
-		if (!defined $pid) {
-			die "Fork fail!!\n";
-		}
-		if (!$pid) {
-			&accept_client($srv);
-			exit();
+		} else {
+			my $pid = fork();
+			if (!defined $pid) {
+				die "Fork fail!!\n";
+			}
+			if (!$pid) {
+				&accept_client($srv);
+				exit();
+			}
 		}
 	}
 }
