@@ -29,10 +29,10 @@ use Satsuki::Timer ();
 my $SILENT;
 my $IsWindows = ($^O =~ /^MSWin/) ? 1 : 0;
 
-my $PORT    = 8888;
+my $PORT    = $IsWindows ? 80 : 8888;
 my $ITHREAD = $IsWindows;
 my $PATH    = $ARGV[0];
-my $TIMEOUT = 30;
+my $TIMEOUT = 10;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  #= 'index.html';
 #------------------------------------------------------------------------------
@@ -83,8 +83,8 @@ my %JanFeb2Mon = (
 		print <<HELP;
 Usage: $0 [options] [output_xml_file]
 Available options are:
-  -p port	bind port (default:8888)
-  -t timeout	connection timeout second (default:30)
+  -p port	bind port (default:8888, windows:80)
+  -t timeout	connection timeout second (default:10)
   -m mime_file	load mime types file name (default: /etc/mime.types)
   -f		use fork()
   -i 		use threads (ithreads)
@@ -221,7 +221,10 @@ sub accept_client {
 	my $state = &parse_request($sock);
 	close($sock);
 
-	$SILENT || print "[$$] $state->{status} $state->{type} " . substr('         ' . $state->{send}, -8, ) . ' ' . $state->{request};
+	if ($SILENT) { return; }
+
+	 $state && print "[$$] $state->{status} $state->{type} " . substr("         $state->{send}", -8) . ' ' . $state->{request} . "\n";
+	!$state && print "[$$] connection close\n";
 }
 sub parse_request {
 	my $sock  = shift;
@@ -241,7 +244,8 @@ sub parse_request {
 		while(1) {
 			my $line = <$sock>;
 			if (!defined $line)  { return; }	# disconnect
-			if ($line eq "\r\n") { last; }
+			$line =~ s/[\r\n]//g;
+			if ($line eq '') { last; }
 			push(@header, $line);
 		}
 
@@ -254,11 +258,11 @@ sub parse_request {
 	#--------------------------------------------------
 	my $req = shift(@header);
 	$state->{request} = $req;
-	# print "[$$] $req";
+	# print "[$$] $req\n";
 
 	my $clen;
 	foreach(@header) {
-		if ($_ !~ /^([^:]+):\s*([^\r\n]*)/) { next; }
+		if ($_ !~ /^([^:]+):\s*(.*)/) { next; }
 		my $key = $1;
 		my $val = $2;
 
@@ -441,6 +445,7 @@ sub exec_cgi {
 		$ROBJ->finish();
 	};
 	$state->{status} = $ROBJ->{Status};
+	$state->{send}   = $ROBJ->{Send} || 0;
 }
 
 ###############################################################################
@@ -481,7 +486,7 @@ sub send_response {
 	my $state  = shift || {};
 	my $status = $state->{status};
 	my $header = shift || '';
-	my $data   = shift || $state->{status_msg};
+	my $data   = shift || $state->{status_msg} . "\n";
 	my $c_len  = length($data);
 	my $sock   = $state->{sock};
 	my $date   = &rfc_date( time() );
