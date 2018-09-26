@@ -240,6 +240,7 @@ sub parse_request {
 
 		while(1) {
 			my $line = <$sock>;
+			if (!defined $line)  { return; }	# disconnect
 			if ($line eq "\r\n") { last; }
 			push(@header, $line);
 		}
@@ -480,7 +481,7 @@ sub send_response {
 	my $state  = shift || {};
 	my $status = $state->{status};
 	my $header = shift || '';
-	my $data   = shift || $status;
+	my $data   = shift || $state->{status_msg};
 	my $c_len  = length($data);
 	my $sock   = $state->{sock};
 	my $date   = &rfc_date( time() );
