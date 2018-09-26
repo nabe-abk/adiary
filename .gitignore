@@ -11,9 +11,9 @@
 !/adiary.fcgi
 !/adiary.mod.cgi
 !/adiary.speedy.cgi
-!/adiary.httpd.cgi
 !/adiary.env.cgi.sample
 !/adiary.conf.cgi.sample
+!/adiary.httpd.pl
 !/CHANGES.txt
 !/dot.htaccess
 !/index.html
