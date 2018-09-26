@@ -491,24 +491,26 @@ sub send_response {
 	my $sock   = $state->{sock};
 	my $date   = &rfc_date( time() );
 
-	print $sock "HTTP/1.0 $state->{status_msg}\r\n";
-	print $sock <<HEADER;
+
+	if (index($header, 'Content-Length:')<0) {
+		$header .= "Content-Length: $c_len\r\n";
+	}
+	if (index($header, 'Content-Type:')<0) {
+		$header .= "Content-Type: text/plain\r\n";
+	}
+	my $header = <<HEADER;
+HTTP/1.0 $state->{status_msg}\r
 Date: $date\r
 Server: $ENV{SERVER_SOFTWARE}\r
 Connection: close\r
+$header\r
 HEADER
-	if (index($header, 'Content-Length:')<0) {
-		print $sock "Content-Length: $c_len\r\n";
-	}
-	if (index($header, 'Content-Type:')<0) {
-		print $sock "Content-Type: text/plain\r\n";
-	}
-	print $sock "$header\r\n";
+	print $sock $header;
 
 	$state->{send} = 0;
 	if ($state->{method} ne 'HEAD' && $status !~ /^304 /) {
 		print $sock $data;
-		$state->{send} = $c_len;
+		$state->{send} = length($header) + $c_len;
 	}
 }
 
