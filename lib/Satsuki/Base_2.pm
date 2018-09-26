@@ -124,30 +124,6 @@ sub de_duplication {
 	foreach(@$ary) { $h{$_}=1; }
 	return [ keys(%h) ];
 }
-#------------------------------------------------------------------------------
-# ●入れ子配列の結合
-#------------------------------------------------------------------------------
-sub call_and_chain {
-	my $self = shift;
-	my $str;
-	$self->_chain_array($self->call(@_), \$str);
-	return $str;
-}
-sub chain_array {
-	my ($self, $ary, $str) = @_;
-	$self->_chain_array($ary, \$str);
-	return $str;
-}
-sub _chain_array {
-	my ($self, $ary, $r_str) = @_;
-	foreach(@$ary) {
-		if (ref($_) eq 'ARRAY') {
-			$self->_chain_array($_, $r_str);
-			next;
-		}
-		$$r_str .= $_;
-	}
-}
 
 #------------------------------------------------------------------------------
 # ●form埋込用サニタイズ / EBXSSのチェック

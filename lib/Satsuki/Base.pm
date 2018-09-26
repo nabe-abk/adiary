@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.21';
+our $VERSION = '2.22';
 our $RELOAD;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
@@ -768,7 +768,7 @@ sub output {
 	}
 
 	my $body;
-	$self->output_array($ary, \$body);
+	$self->_chain_array($ary, \$body);
 	my $html = $self->http_headers($ctype, $charset, length($body));
 	if ($self->{Status} != 304) {
 		$html .= $body;
@@ -812,18 +812,28 @@ HEADER
 }
 
 #------------------------------------------------------------------------------
-# ●配列出力
+# ●入れ子配列の結合
 #------------------------------------------------------------------------------
-sub output_array {
+sub chain_array {
+	my ($self, $ary, $str) = @_;
+	my $out = ref($str) ? $str : \$str;
+	$self->_chain_array($ary, $out);
+	return $out;
+}
+sub _chain_array {
 	# 2009/07/09 速度検証テストによる最適化
 	my ($self, $ary, $c) = @_;
 	foreach(@$ary) {
 		if (ref($_) eq 'ARRAY') {
-			$self->output_array($_, $c);
+			$self->_chain_array($_, $c);
 			next;
 		}
 		$$c .= $_;
 	}
+}
+sub call_and_chain {
+	my $self = shift;
+	return $self->chain_array($self->call(@_));
 }
 
 #------------------------------------------------------------------------------
@@ -1041,7 +1051,6 @@ sub fread_lines {
 sub fread_hash_no_error {
 	my ($self, $file) = @_;
 	return $self->fread_hash($file, {NoError=>1});
-
 }
 
 sub fread_hash {
