@@ -817,7 +817,7 @@ sub chain_array {
 	my ($self, $ary, $str) = @_;
 	my $out = ref($str) ? $str : \$str;
 	$self->_chain_array($ary, $out);
-	return $out;
+	return $str;
 }
 sub _chain_array {
 	# 2009/07/09 速度検証テストによる最適化
