@@ -15,7 +15,6 @@ BEGIN {
 }
 use Socket;
 use Fcntl;
-use Time::Local;
 use threads;		# for ithreads
 use POSIX;		# for waitpid(<pid>, WNOHANG);
 use Cwd;		# for $ENV{DOCUMENT_ROOT}
@@ -78,7 +77,7 @@ my $CGID_SOCKADDR;
 #------------------------------------------------------------------------------
 my %JanFeb2Mon = (
 	Jan => 0, Feb => 1, Mar => 2, Apr => 3, May => 4, Jun => 5,
-	Jul => 7, Aug => 8, Sep => 9, Oct =>10, Nov =>11, Dec =>12
+	Jul => 6, Aug => 7, Sep => 8, Oct => 9, Nov =>10, Dec =>11
 );
 #------------------------------------------------------------------------------
 # analyze @ARGV
@@ -203,6 +202,7 @@ if ($MIME_FILE && -e $MIME_FILE) {
 		$DENY_DIRS{$_}=1;
 	}
 }
+
 #------------------------------------------------------------------------------
 if ($INDEX) {
 	print "\tDirectory index: $INDEX\n";
@@ -333,12 +333,11 @@ sub parse_request {
 		my $val = $2;
 
 		if ($key eq 'If-Modified-Since') {
-			$state->{if_modified} = &date2utc($val);
+			$state->{if_modified} = $val;
 			next;
 		}
 		if ($key eq 'Content-Length') {
-			$ENV{CONTENT_LENGTH}     = $val;
-			$state->{content_length} = $val;
+			$ENV{CONTENT_LENGTH} = $val;
 			next;
 		}
 		if ($key eq 'Content-Type') {
@@ -450,13 +449,13 @@ sub try_file_read {
 	# header
 	#--------------------------------------------------
 	my $size = -s $file;
-	my $lastmod = (stat $file)[9];
-	my $header  = "Last-Modified: " . &rfc_date($lastmod) . "\r\n";
+	my $lastmod = &rfc_date( (stat $file)[9] );
+	my $header  = "Last-Modified: $lastmod\r\n";
 	$header .= "Content-Length: $size\r\n";
 	if ($file =~ /\.([\w\-]+)$/ && $MIME_TYPE{$1}) {
 		$header .= "Content-Type: $MIME_TYPE{$1}\r\n";
 	}
-	if ($state->{if_modified} && $state->{if_modified} != $lastmod) {
+	if ($state->{if_modified} && $state->{if_modified} eq $lastmod) {
 		&_304_not_modified($state, $header);
 		return 304;
 	}
@@ -575,7 +574,6 @@ sub send_response {
 	my $c_len  = length($data);
 	my $sock   = $state->{sock};
 	my $date   = &rfc_date( time() );
-
 
 	if (index($header, 'Content-Length:')<0) {
 		$header .= "Content-Length: $c_len\r\n";
@@ -779,21 +777,6 @@ sub rfc_date {
 
 	return sprintf("$wd, %02d $mn %04d %02d:%02d:%02d GMT"
 		, $mday, $year+1900, $hour, $min, $sec);
-}
-#------------------------------------------------------------------------------
-# date to UTC
-#------------------------------------------------------------------------------
-# Sat, 11 Aug 2018 13:52:10 GMT
-sub date2utc {
-	my $date = shift;
-	if ($date !~ /^\w\w\w, (\d+) (\w\w\w) (\d+) (\d\d):(\d\d):(\d\d) GMT/) {
-		return;
-	}
-	my $tm;
-	eval {
-		$tm = timegm($6, $5, $4, $1, $JanFeb2Mon{$2}, $3 - 1900);
-	};
-	return $tm;
 }
 
 #------------------------------------------------------------------------------
