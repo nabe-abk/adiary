@@ -33,6 +33,7 @@ my $PORT    = $IsWindows ? 80 : 8888;
 my $ITHREAD = $IsWindows;
 my $PATH    = $ARGV[0];
 my $TIMEOUT = 10;
+my $DEAMONS = 5;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  #= 'index.html';
 #------------------------------------------------------------------------------
@@ -105,7 +106,10 @@ $ENV{SERVER_PROTOCOL} && die "Do not run on CGI/HTTP SERVER";
 # ENV setting
 #------------------------------------------------------------------------------
 if (!$IsWindows) {
-	%ENV = ();
+	foreach(keys(%ENV)) {
+		if ($_ =~ /^Satsuki/) { next; }
+		delete $ENV{$_};
+	}
 }
 $ENV{SCRIPT_NAME}     = $0;
 $ENV{SERVER_NAME}     = 'localhost';
@@ -400,6 +404,7 @@ sub try_file_read {
 ###############################################################################
 # Exec CGI
 ###############################################################################
+my @CGI;
 sub exec_cgi {
 	my $state = shift;
 	my $sock  = $state->{sock};
@@ -411,7 +416,7 @@ sub exec_cgi {
 		# connect stdout
 		#--------------------------------------------------
 		local *STDOUT;
-		open( STDOUT, '>&=', fileno($sock));
+		open(STDOUT, '>&=', fileno($sock));
 		binmode(STDOUT);
 
 		#--------------------------------------------------
