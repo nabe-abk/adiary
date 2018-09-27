@@ -111,6 +111,7 @@ if (!$IsWindows) {
 		delete $ENV{$_};
 	}
 }
+$ENV{GATEWAY_INTERFACE} = 'CGI/1.1';
 $ENV{SCRIPT_NAME}     = $0;
 $ENV{SERVER_NAME}     = 'localhost';
 $ENV{SERVER_PORT}     = $PORT;
@@ -234,13 +235,17 @@ sub accept_client {
 	 $state && print "[$$] $state->{status} $state->{type} " . substr("         $state->{send}", -8) . ' ' . $state->{request} . "\n";
 	!$state && print "[$$] connection close\n";
 }
+
+#------------------------------------------------------------------------------
+# parse request
+#------------------------------------------------------------------------------
 sub parse_request {
 	my $sock  = shift;
 	my $state = { sock => $sock, type=>'    ' };
 	# open(STDIN, '<&=', fileno($sock));
 
 	#--------------------------------------------------
-	# recieve HTTP Request Header
+	# recieve HTTP Header
 	#--------------------------------------------------
 	my @header;
 	my $body;
@@ -249,10 +254,20 @@ sub parse_request {
 		local $SIG{ALRM} = sub { close($sock); $timeout=1; };
 		alarm( $TIMEOUT );
 
+		my $first=1;
 		while(1) {
 			my $line = <$sock>;
 			if (!defined $line)  { return; }	# disconnect
 			$line =~ s/[\r\n]//g;
+
+			if ($first) {	# (example) HTTP/1.0 GET /
+				# print "[$$] $line\n";
+				$first = 0;
+				my $err = &analyze_request($state, $line);
+				if ($err) { return $state; }
+				next;
+			}
+
 			if ($line eq '') { last; }
 			push(@header, $line);
 		}
@@ -264,11 +279,6 @@ sub parse_request {
 	#--------------------------------------------------
 	# Analyze Header
 	#--------------------------------------------------
-	my $req = shift(@header);
-	$state->{request} = $req;
-	# print "[$$] $req\n";
-
-	my $clen;
 	foreach(@header) {
 		if ($_ !~ /^([^:]+):\s*(.*)/) { next; }
 		my $key = $1;
@@ -280,7 +290,6 @@ sub parse_request {
 		}
 		if ($key eq 'Content-Length') {
 			$ENV{CONTENT_LENGTH} = $val;
-			$clen = $val;
 			next;
 		}
 		if ($key eq 'Content-Type') {
@@ -296,20 +305,7 @@ sub parse_request {
 	#--------------------------------------------------
 	# Analyze Request
 	#--------------------------------------------------
-	if ($req !~ m!^(GET|POST|HEAD) ([^\s]+) (?:HTTP/\d\.\d)?!) {
-		&_400_bad_request($state);
-		return $state;
-	}
-
-	my $method = $1;
-	my $path   = $2;
-	$state->{method} = $method;
-	$state->{path}   = $path;
-	if (substr($path,0,1) ne '/') {
-		&_400_bad_request($state);
-		return $state;
-	}
-
+	my $path = $state->{path};
 	$state->{file} = $path;
 	$state->{file} =~ s/\?.*//;	# cut query
 	$state->{file} =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
@@ -321,10 +317,9 @@ sub parse_request {
 	#--------------------------------------------------
 	# Exec CGI
 	#--------------------------------------------------
-	$ENV{GATEWAY_INTERFACE} = 'CGI/1.1';
 	$ENV{SERVER_NAME}    = $ENV{HTTP_HOST};
 	$ENV{SERVER_NAME}    =~ s/:\d+$//;
-	$ENV{REQUEST_METHOD} = $method;
+	$ENV{REQUEST_METHOD} = $state->{method};
 	$ENV{REQUEST_URI}    = $path;
 	{
 		my $x = index($path, '?');
@@ -337,6 +332,30 @@ sub parse_request {
 
 	&exec_cgi($state);
 	return $state;
+}
+
+#--------------------------------------------------
+# Analyze Request
+#--------------------------------------------------
+sub analyze_request {
+	my $state = shift;
+	my $req   = shift;
+	$state->{request} = $req;
+
+	if ($req !~ m!^(GET|POST|HEAD) ([^\s]+) (?:HTTP/\d\.\d)?!) {
+		&_400_bad_request($state);
+		return 1;
+	}
+
+	my $method = $1;
+	my $path   = $2;
+	$state->{method} = $method;
+	$state->{path}   = $path;
+	if (substr($path,0,1) ne '/') {
+		&_400_bad_request($state);
+		return 2;
+	}
+	return 0;
 }
 
 #------------------------------------------------------------------------------
