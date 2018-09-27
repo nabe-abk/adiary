@@ -6,7 +6,7 @@ use strict;
 # 簡易実装の HTTP モジュールです。
 #
 package Satsuki::Base::HTTP;
-our $VERSION = '1.32';
+our $VERSION = '1.33';
 #------------------------------------------------------------------------------
 use Socket;
 ###############################################################################
@@ -74,10 +74,9 @@ sub connect_host {
 	{
 		local $SIG{ALRM} = sub { close($sh); };
 		alarm( $self->{timeout} );
-		if (! connect($sh, $sockaddr)) {
-			return $self->error($sh, "Can't connect %s", $host);
-		}
+		my $r = connect($sh, $sockaddr);
 		alarm(0);
+		$r || return $self->error($sh, "Can't connect %s", $host);
 	}
 
 	binmode($sh);
