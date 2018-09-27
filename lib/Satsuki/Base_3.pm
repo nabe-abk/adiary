@@ -50,8 +50,9 @@ sub init_for_httpd {
 	my $self = shift;
 	my $sock = shift;
 	my $path = shift || '/';
+	my $cache= shift;
 
-	$self->{CGI_cache}= 0;
+	$self->{CGI_cache}= $cache || 0;
 	$self->{HTTPD}    = 1;
 	$self->{CGI_mode} = 'httpd';
 
@@ -64,7 +65,6 @@ sub init_for_httpd {
 	$self->{Myself2} = $path;
 
 	$self->{STDIN}   = $sock;
-	$self->{STDOUT}  = $sock;
 
 	my $port = int($ENV{SERVER_PORT});
 	my $protocol = ($port == 443) ? 'https://' : 'http://';
