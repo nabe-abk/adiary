@@ -35,8 +35,7 @@ BASE="
 	index.html
 	dot.htaccess
 "
-
-
+EXE=adiary.exe
 
 #-----------------------------------------------------------
 # 必要なディレクトリを作成
@@ -52,12 +51,19 @@ fi
 # システムのコピー
 cp -Rp $CPFLAGS skel pub-dist info js lib theme $RELEASE/
 
+# adiary.exe
+if [ -e $EXE ]
+then
+	cp -p $EXE $RELEASE/
+fi
+
 # ベースファイル
 cp -Rp $CPFLAGS $BASE $RELEASE/
 
 # プラグイン
 cp -Rp $CPFLAGS plugin $RELEASE/
 rm -rf $RELEASE/plugin/\@*
+
 
 #-----------------------------------------------------------
 # 個別ディレクトリの生成
