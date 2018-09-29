@@ -44,7 +44,6 @@ my $FS_CODE  = $IsWindows ? $Encode::Locale::ENCODING_LOCALE : undef;
 
 # select() is thread block on Windows
 my $SELECT_TIMEOUT = $IsWindows ? 0.01 : undef;
-
 #------------------------------------------------------------------------------
 my %DENY_DIRS;
 my %MIME_TYPE = ( 
@@ -545,7 +544,7 @@ sub exec_cgi {
 
 		$ROBJ->init_for_httpd($sock, undef, $cache);
 
-		if (($FS_CODE) {
+		if ($FS_CODE) {
 			# file system's locale setting
 			$ROBJ->set_fslocale($FS_CODE);
 		}

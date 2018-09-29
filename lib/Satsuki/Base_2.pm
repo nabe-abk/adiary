@@ -557,18 +557,14 @@ sub init_fslocale {
 sub fs_decode {
 	my $self = shift;
 	my $file = shift;
-	if ($self->{FsCoder}) {
-		$self->{FsCoder}->from_to( \$file, $self->{FsLocale}, $self->{System_coding});
-	}
-	return $file;
+	if (!$self->{FsCoder}) { return $file; }
+	return $self->{FsCoder}->from_to( $file, $self->{FsLocale}, $self->{System_coding});
 }
 sub fs_encode {
 	my $self = shift;
 	my $file = shift;
-	if ($self->{FsCoder}) {
-		$self->{FsCoder}->from_to( \$file, $self->{System_coding}, $self->{FsLocale});
-	}
-	return $file;
+	if (!$self->{FsCoder}) { return $file; }
+	return $self->{FsCoder}->from_to( $file, $self->{System_coding}, $self->{FsLocale});
 }
 
 ###############################################################################
