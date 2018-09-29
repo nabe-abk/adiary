@@ -20,10 +20,12 @@ use POSIX;		# for waitpid(<pid>, WNOHANG);
 use Cwd;		# for $ENV{DOCUMENT_ROOT}
 use Time::HiRes;	# for generate random string
 use Image::Magick;	# load on main process for Windows EXE
+use Encode::Locale;	# for get system locale / for Windows
 #------------------------------------------------------------------------------
 use Satsuki::Base ();
 use Satsuki::AutoReload ();
 use Satsuki::Timer ();
+&Satsuki::AutoReload::save_lib();
 ###############################################################################
 # setting
 ###############################################################################
@@ -35,7 +37,10 @@ my $ITHREAD = $IsWindows;
 my $PATH    = $ARGV[0];
 my $TIMEOUT = 10;
 my $MIME_FILE = '/etc/mime.types';
-my $INDEX;  #= 'index.html';
+my $INDEX;  # = 'index.html';
+
+my $SYS_CODE = $Satsuki::SYSTEM_CODING;
+my $FS_CODE  = $IsWindows ? $Encode::Locale::ENCODING_LOCALE : undef;
 
 # select() is thread block on Windows
 my $SELECT_TIMEOUT = $IsWindows ? 0.01 : undef;
@@ -104,6 +109,7 @@ my %JanFeb2Mon = (
 			if ($_ eq 't') { $TIMEOUT      = int(shift(@ary)); next; }
 			if ($_ eq 'd') { $CGID_PROCESS = int(shift(@ary)); next; }
 			if ($_ eq 'm') { $MIME_FILE    = shift(@ary); next; }
+			if ($_ eq 'c') { $FS_CODE      = shift(@ary); next; }
 		}
 	}
 	if ($TIMEOUT < 1) { $TIMEOUT=1; }
@@ -116,6 +122,7 @@ Available options are:
   -t timeout	connection timeout second (default:10)
   -m mime_file	load mime types file name (default: /etc/mime.types)
   -d deamons	cgi deamons (default:5), set 0 for stable
+  -c fs_code	set file system's code
   -f		use fork()
   -i 		use threads (ithreads)
   -s            silent mode
@@ -158,7 +165,7 @@ my $srv;
 	bind($srv, sockaddr_in($PORT, INADDR_ANY))			|| die "bind port failed: $!";
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
 }
-print "Satsuki HTTP Server : Listen $PORT port, timeout $TIMEOUT sec, " . ($ITHREAD ? 'threads' : 'fork') . " mode\n";
+print "Satsuki HTTP Server: Listen $PORT port, timeout $TIMEOUT sec, " . ($ITHREAD ? 'threads' : 'fork') . " mode\n";
 
 #------------------------------------------------------------------------------
 # CGI Deamon
@@ -166,7 +173,7 @@ print "Satsuki HTTP Server : Listen $PORT port, timeout $TIMEOUT sec, " . ($ITHR
 if ($CGID_PROCESS > 0) {
 	$CGID_PORT     = $PORT+1;
 	$CGID_SOCKADDR = sockaddr_in($CGID_PORT, inet_aton($CGID_HOST));
-	print "\tStart CGI Deamon : $CGID_PROCESS " . ($ITHREAD ? 'threads' : 'process') . ", $CGID_HOST:$CGID_PORT\n";
+	print "\tStart CGI Deamon: $CGID_PROCESS " . ($ITHREAD ? 'threads' : 'process') . ", $CGID_HOST:$CGID_PORT\n";
 	&create_cgi_deamon($CGID_PROCESS);
 }
 
@@ -207,6 +214,11 @@ if ($MIME_FILE && -e $MIME_FILE) {
 }
 
 #------------------------------------------------------------------------------
+if ($FS_CODE) {
+	if ($FS_CODE =~ /utf-?8/i) { $FS_CODE='UTF-8'; }
+	require Encode;
+	print "\tSet file system coding: $FS_CODE\n";
+}
 if ($INDEX) {
 	print "\tDirectory index: $INDEX\n";
 }
@@ -428,13 +440,21 @@ sub try_file_read {
 		$file .= 'index.html';
 	}
 	$file = substr($file,1);	# /index.html to index.html
-	if (!-e $file) { return; }
+
+	#--------------------------------------------------
+	# file system encode
+	#--------------------------------------------------
+	my $_file = $file;
+	if ($FS_CODE ne $SYS_CODE) {
+		Encode::from_to($_file, $SYS_CODE, $FS_CODE);
+	}
+	if (!-e $_file) { return; }
 
 	#--------------------------------------------------
 	# file request
 	#--------------------------------------------------
 	$state->{type} = 'file';
-	if (!-r $file
+	if (!-r $_file
 	 || $file =~ m|^\.ht|
 	 || $file =~ m|/\.ht|
 	 || $file =~ m|^([^/]+)/| && $DENY_DIRS{$1}) {
@@ -451,8 +471,8 @@ sub try_file_read {
 	#--------------------------------------------------
 	# header
 	#--------------------------------------------------
-	my $size = -s $file;
-	my $lastmod = &rfc_date( (stat $file)[9] );
+	my $size = -s $_file;
+	my $lastmod = &rfc_date( (stat $_file)[9] );
 	my $header  = "Last-Modified: $lastmod\r\n";
 	$header .= "Content-Length: $size\r\n";
 	if ($file =~ /\.([\w\-]+)$/ && $MIME_TYPE{$1}) {
@@ -466,7 +486,7 @@ sub try_file_read {
 	#--------------------------------------------------
 	# read file
 	#--------------------------------------------------
-	sysopen(my $fh, $file, O_RDONLY);
+	sysopen(my $fh, $_file, O_RDONLY);
 	my $r = sysread($fh, my $data, $size);
 	if (!$fh || $r != $size) {
 		&_403_forbidden($state);
@@ -525,12 +545,20 @@ sub exec_cgi {
 
 		$ROBJ->init_for_httpd($sock, undef, $cache);
 
+		if (($FS_CODE) {
+			# file system's locale setting
+			$ROBJ->set_fslocale($FS_CODE);
+		}
+
 		#--------------------------------------------------
 		# main
 		#--------------------------------------------------
 		$ROBJ->start_up();
 		$ROBJ->finish();
 	};
+	# ライブラリのセーブ
+	&Satsuki::AutoReload::save_lib();
+
 	$state->{status} = $ROBJ->{Status};
 	$state->{send}   = $ROBJ->{Send} || 0;
 }

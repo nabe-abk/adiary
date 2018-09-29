@@ -537,6 +537,40 @@ sub file_lock {
 	return $fh;
 }
 
+#------------------------------------------------------------------------------
+# ●ファイルシステムlocale
+#------------------------------------------------------------------------------
+sub set_fslocale {
+	my $self = shift;
+	$self->{FsLocale} = shift;
+	$self->init_fslocale();
+}
+sub init_fslocale {
+	my $self = shift;
+	my $fs   = $self->{FsLocale};
+	if (!$fs || $fs =~ /utf-?8/i && $self->{System_coding} =~ /utf-?8/i) {
+		delete $self->{FsCoder};
+		return;
+	}
+	$self->{FsCoder} ||= $self->load_codepm();
+}
+sub fs_decode {
+	my $self = shift;
+	my $file = shift;
+	if ($self->{FsCoder}) {
+		$self->{FsCoder}->from_to( \$file, $self->{FsLocale}, $self->{System_coding});
+	}
+	return $file;
+}
+sub fs_encode {
+	my $self = shift;
+	my $file = shift;
+	if ($self->{FsCoder}) {
+		$self->{FsCoder}->from_to( \$file, $self->{System_coding}, $self->{FsLocale});
+	}
+	return $file;
+}
+
 ###############################################################################
 # ■システムチェック
 ###############################################################################

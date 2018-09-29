@@ -5,14 +5,14 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.22';
+our $VERSION = '2.30';
 our $RELOAD;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
 my $_SALT = '8RfoZYxLBkqeQFMd0l.pEmVCuAyUDO9b/3wSi5Trn47IzcHKPvGgsXhjNt126JWa';
 #------------------------------------------------------------------------------
 # 文字コード等のデフォルト設定。
-my $SYSTEM_CODING = 'UTF-8';
+$Satsuki::SYSTEM_CODING = 'UTF-8';
 my $CODE_LIB = 'Jcode';
 my $LOCALE = 'ja';
 #------------------------------------------------------------------------------
@@ -48,10 +48,10 @@ sub new {
 	$self->{Headers}      = [];		# ヘッダ出力バッファ
 
 	# 内部文字コード
-	$self->{System_coding} = $SYSTEM_CODING;
+	$self->{System_coding} = $Satsuki::SYSTEM_CODING;
 	$self->{Code_lib} = $CODE_LIB;
-	$self->{Locale}  = $LOCALE;
-	$self->{Locale2} = $LOCALE;
+	$self->{Locale}   = $LOCALE;
+	$self->{Locale2}  = $LOCALE;
 
 	# 時刻／日付関連の設定
 	$self->{TM} = time;
@@ -1000,7 +1000,7 @@ sub export_debug {
 # ■ファイル入力
 ###############################################################################
 #------------------------------------------------------------------------------
-# ●ファイル名の加工（mod_perl2との互換性用）
+# ●ファイルパスの取得 for mod_perl2
 #------------------------------------------------------------------------------
 sub get_filepath {
 	my ($self, $file) = @_;
@@ -1669,6 +1669,8 @@ sub load_language_file {
 	$self->{Code_lib} = $mt->{Code_lib};
 	$self->{Locale}   = $mt->{Locale};
 	$self->{Locale2}  = $mt->{Locale2} || $mt->{Locale};
+
+	$self->{FsLocale} && $self->init_fslocale();
 }
 
 #------------------------------------------------------------------------------
