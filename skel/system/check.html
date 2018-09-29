@@ -74,32 +74,8 @@ System-Coding : <@System_coding>
 <h3>環境変数（システム情報）</h3>
 
 <p>バグ報告などでご利用ください。サーバの状況がわかりませんと対応しきれないことがありますので、必要に応じてこの情報を示して頂けると助かります。</p>
-<$env = copy(ENV)>
-<$delete(env.DOCUMENT_ROOT)>
-<$delete(env.SERVER_SIGNATURE)>
-<$delete(env.HTTP_ACCEPT)>
-<$delete(env.HTTP_COOKIE)>
-<$delete(env.REMOTE_ADDR)>
-<$delete(env.REMOTE_PORT)>
-<$delete(env.REMOTE_HOST)>
-<$delete(env.REMOTE_USER)>
-<$delete(env.AUTH_TYPE)>
-<$delete(env.SERVER_ADDR)>
-<$delete(env.SERVER_ADMIN)>
-<$delete(env.HTTP_ACCEPT_CHARSET)>
-<$delete(env.HTTP_ACCEPT_ENCODING)>
-<$delete(env.HTTP_ACCEPT_LANGUAGE)>
-<$delete(env.HTTP_CONNECTION)>
-<$delete(env.HTTP_KEEP_ALIVE)>
-<$delete(env.HTTP_CACHE_CONTROL)>
-<$delete(env.PATH)>
-<$delete(env.UNIQUE_ID)>
-<$delete(env.REDIRECT_PATH)>
-<$delete(env.REDIRECT_UNIQUE_ID)>
-<$delete(env.REQUEST_METHOD)>
-<$delete(env.HTTP_REFERER)>
 
-<textarea cols="74" rows="16" wrap="soft" readonly class="w100p" style="font-size:100%;">
+<textarea cols="74" rows="22" wrap="soft" readonly class="w100p" style="font-size:100%;">
 CGI_mode <@CGI_mode>
 Basepath <@Basepath>
 Request_base <@Request_base>
@@ -111,9 +87,18 @@ v.myself2 <@v.myself2>
 Server_url <@Server_url>
 mod_rewrite = <@int(Mod_rewrite)>
 
-<@dump_hash("%k=%v\n", env)>
+$0                <@CMD_file>
+SCRIPT_NAME       <@ENV.SCRIPT_NAME>
+REQUEST_UR        <@ENV.REQUEST_URI>
+<@if(ENV.REDIRECT_URL,		"REDIRECT_URL      <@ENV.REDIRECT_URL>\n")>
+<@if(ENV.REDIRECT_STATUS,	"REDIRECT_STATUS   <@ENV.REDIRECT_STATUS>\n")>
+PATH_INFO         <@ENV.PATH_INFO>
+<@if(ENV.PATH_INFO_orig,	"PATH_INFO_orig    <@ENV.PATH_INFO_orig>\n")>
+QUERY_STRING      <@ENV.QUERY_STRING>
+<@if(ENV.QUERY_STRING_orig,	"QUERY_STRING_orig <@ENV.QUERY_STRING_orig>\n")>
+SERVER_NAME       <@ENV.SERVER_NAME>
+SERVER_PORT       <@ENV.SERVER_PORT>
 </textarea>
-<p>※COOKIEやアクセス元などの情報は消してあります。</p>
 
 </div>
 </article>
