@@ -1,27 +1,32 @@
 #!/bin/sh
 
-# Version判別
+
 if [ "$1" != '' ]
 then
-	VERSION=$1
+	EXCLUSIVE_LIST=$1
 else
-	VERSION=`   head -20 lib/SatsukiApp/adiary.pm | grep "\\$VERSION"    | sed "s/.*\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/"`
-	OUTVERSION=`head -20 lib/SatsukiApp/adiary.pm | grep "\\$OUTVERSION" | sed "s/.*\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/"`
-	SUBVERISON=`head -20 lib/SatsukiApp/adiary.pm | grep "\\$SUBVERSION" | sed "s/.*'\([A-Za-z0-9\.-]*\)'.*/\1/"`
-	if [ "$OUTVERSION" != '' ]
-	then
-		VERSION=$OUTVERSION
-	fi
-	if [ "$SUBVERISON" != '' ]
-	then
-		VERSION=$VERSION$SUBVERISON
-	fi
+	EXCLUSIVE_LIST=__tool/norelease.list
 fi
 
-#CPFLAGS=-v
+#-----------------------------------------------------------
+# get Version
+#-----------------------------------------------------------
+VERSION=`   head -20 lib/SatsukiApp/adiary.pm | grep "\\$VERSION"    | sed "s/.*\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/"`
+OUTVERSION=`head -20 lib/SatsukiApp/adiary.pm | grep "\\$OUTVERSION" | sed "s/.*\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/"`
+SUBVERISON=`head -20 lib/SatsukiApp/adiary.pm | grep "\\$SUBVERSION" | sed "s/.*'\([A-Za-z0-9\.-]*\)'.*/\1/"`
+if [ "$OUTVERSION" != '' ]
+then
+	VERSION=$OUTVERSION
+fi
+if [ "$SUBVERISON" != '' ]
+then
+	VERSION=$VERSION$SUBVERISON
+fi
 
+#-----------------------------------------------------------
+# set variables
+#-----------------------------------------------------------
 RELEASE=adiary-$VERSION
-EXCLUSIVE_LIST=__tool/norelease.list
 
 BASE="
 	adiary.cgi
@@ -38,7 +43,7 @@ BASE="
 EXE=adiary.exe
 
 #-----------------------------------------------------------
-# 必要なディレクトリを作成
+# make release directory
 #-----------------------------------------------------------
 if [ ! -e $RELEASE ]
 then
@@ -46,27 +51,19 @@ then
 fi
 
 #-----------------------------------------------------------
-# ファイルのコピー
+# copy files to release directory
 #-----------------------------------------------------------
-# システムのコピー
 cp -Rp $CPFLAGS skel pub-dist info js lib theme $RELEASE/
 
-# adiary.exe
-if [ -e $EXE ]
-then
-	cp -p $EXE $RELEASE/
-fi
-
-# ベースファイル
 cp -Rp $CPFLAGS $BASE $RELEASE/
 
-# プラグイン
 cp -Rp $CPFLAGS plugin $RELEASE/
 rm -rf $RELEASE/plugin/\@*
 
+cp -p $EXE $RELEASE/
 
 #-----------------------------------------------------------
-# 個別ディレクトリの生成
+# make other directory
 #-----------------------------------------------------------
 # __cache
 mkdir $RELEASE/__cache
@@ -88,7 +85,7 @@ cp -p $CPFLAGS skel.local/.htaccess  $RELEASE/skel.local/
 cp -p $CPFLAGS skel.local/README.txt $RELEASE/skel.local/
 
 #-----------------------------------------------------------
-# リリースしないファイルを削除
+# remove exclusive files
 #-----------------------------------------------------------
 if [ -r $EXCLUSIVE_LIST ] 
 then
@@ -110,3 +107,5 @@ cd $RELEASE
 ../__tool/checker.pl
 cd ..
 
+#-----------------------------------------------------------
+echo "Use exclusive list : $EXCLUSIVE_LIST"
