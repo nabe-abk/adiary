@@ -56,7 +56,7 @@ sub new {
 	$self->SetDefaultValue();
 	$self->{_loaded_bset} = {};
 	$self->{server_url} = $ROBJ->{Server_url};
-	$self->{http_agent} = "adiary $VERSION on Satsuki-system $ROBJ->{VERSION}";
+	$self->{http_agent} = "adiary $OUTVERSION on Satsuki-system $ROBJ->{VERSION}";
 
 	# 現在の日時設定（日付変更時間対策）
 	$self->{now} = $ROBJ->{Now};
