@@ -483,7 +483,7 @@ sub open_tmpfile {
 	my $tmp_file_base = $dir . $$ . '_' . ($ENV{REMOTE_PORT} +0) . '_';
 	my $i;
 	for($i=1; $i<100; $i++) {
-		$file = $tmp_file_base . $i . '.tmp';
+		$file = $tmp_file_base . int(rand(0x10000000)) . '.tmp';
 		if (sysopen($fh, $file, O_CREAT | O_EXCL | O_RDWR)) {
 			binmode($fh);
 			$i=0; last;		# 作成成功
@@ -854,6 +854,7 @@ sub form_data_check_and_save {
 			my $str_max_chars = $options->{str_max_chars};
 			$val =~ s/[\r\n]//g;	# 改行を除去
 			if ($str_max_chars && $bytes >$str_max_chars) {
+				$self->debug("$name $val");
 				$self->message("Too long form data '%s', limit %d chars", $name, $str_max_chars);
 				$val = &$substr($val, 0, $str_max_chars);
 			}
