@@ -19,6 +19,7 @@ use threads;		# for ithreads
 use POSIX;		# for waitpid(<pid>, WNOHANG);
 use Cwd;		# for $ENV{DOCUMENT_ROOT}
 use Time::HiRes;	# for generate random string
+use Image::Magick;	# load on main process for Windows EXE
 #------------------------------------------------------------------------------
 use Satsuki::Base ();
 use Satsuki::AutoReload ();
@@ -27,7 +28,7 @@ use Satsuki::Timer ();
 # setting
 ###############################################################################
 my $SILENT;
-my $IsWindows = ($^O =~ /^MSWin/) ? 1 : 0;
+my $IsWindows = ($^O eq 'MSWin32');
 
 my $PORT    = $IsWindows ? 80 : 8888;
 my $ITHREAD = $IsWindows;
