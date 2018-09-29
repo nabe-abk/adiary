@@ -59,11 +59,14 @@ System-Coding : <@System_coding>
 	<td>存在すれば画像縮小可能</td>
 </tr><tr>
 	<td>Net::SSLeay</td><td class="c"><@if(lib_check('Net::SSLeay'), ok, ng)></td>
-	<td>Twitterに投稿等する際に必要</td>
+	<td>Twitter通知, push通知などに使用</td>
+</tr><tr>
+	<td>CryptX</td><td class="c"><@if(lib_check('Net::SSLeay'), ok, ng)></td>
+	<td>push通知プラグインで使用</td>
 </tr><tr>
 <$mail = loadpm("Base::Mail")>
 	<td>sendmailコマンド</td><td class="c"><@if(mail.get_sendmail_cmd(), ok, ng)></td>
-	<td>「メール通知」プラグインなどで使用</td>
+	<td>「メール通知」プラグインで使用</td>
 </tr>
 </table>
 
@@ -97,6 +100,7 @@ System-Coding : <@System_coding>
 <$delete(env.HTTP_REFERER)>
 
 <textarea cols="74" rows="16" wrap="soft" readonly class="w100p" style="font-size:100%;">
+CGI_mode <@CGI_mode>
 Basepath <@Basepath>
 Request_base <@Request_base>
 cgifile <@CGI_file>
