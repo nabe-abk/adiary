@@ -783,6 +783,10 @@ sub output {
 #------------------------------------------------------------------------------
 # ●ヘッダを出力
 #------------------------------------------------------------------------------
+sub output_http_headers {
+	my $self = shift;
+	print $self->http_headers(@_);
+}
 sub http_headers {
 	my ($self, $ctype, $charset, $clen) = @_;
 	if ($self->{No_httpheader}) { return''; }
@@ -801,13 +805,16 @@ sub http_headers {
 	# Content-Type;
 	$ctype   ||= $self->{Content_type};
 	$charset ||= $self->{System_coding};
+	if ($clen) {
+		$header .= "Content-Length: $clen\r\n";
+	}
 	$header .= <<HEADER;
-Cache-Control: no-cache\r
-Content-Length: $clen\r
 Content-Type: $ctype; charset=$charset;\r
 X-Content-Type-Options: nosniff\r
+Cache-Control: no-cache\r
 \r
 HEADER
+	return $header;
 }
 
 #------------------------------------------------------------------------------

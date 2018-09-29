@@ -37,7 +37,9 @@ my $TIMEOUT = 10;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  #= 'index.html';
 
-my $SELECT_TIMEOUT = $IsWindows ? 0.01 : undef;	# select() is thread block on Windows
+# select() is thread block on Windows
+my $SELECT_TIMEOUT = $IsWindows ? 0.01 : undef;
+
 #------------------------------------------------------------------------------
 my %DENY_DIRS;
 my %MIME_TYPE = ( 

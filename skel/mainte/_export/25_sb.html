@@ -58,9 +58,12 @@
 <$tz = exporter.tz2string( opt.timezone )>
 <$opt.sb_mode = 1>
 
-<$ifprint(Export_debug, "Content-Type: text/plain; charset='UTF-8';\n\n")>
+<$ifexec(Export_debug, begin)>
+	<$output_http_headers('text/plain', 'UTF-8')>
+<$end>
+
 <$set_header('Content-Disposition', "attachment; filename=<@opt.base_filename>_export_sb_jugem.xml")>
-<$print_http_headers('text/xml', 'UTF-8')>
+<$output_http_headers('text/xml', 'UTF-8')>
 
 <$opt.header = exec(begin) >
 <?xml version="1.0" encoding="utf-8" ?>

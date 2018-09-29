@@ -25,9 +25,12 @@
 <$exporter = loadapp('adiary::Export_adiary')>
 <$ifbreak(!exporter)>
 
-<$ifprint(Export_debug, "Content-Type: text/plain; charset=UTF-8;\n\n")>
+<$ifexec(Export_debug, begin)>
+	<$output_http_headers('text/plain', 'UTF-8')>
+<$end>
+
 <$set_header('Content-Disposition', "attachment; filename=<@opt.base_filename>_export_adiary3.xml")>
-<$print_http_headers('text/xml', 'UTF-8')>
+<$output_http_headers('text/xml', 'UTF-8')>
 <$print(#'<?xml version="1.0" encoding="UTF-8"?>\n')>
 <$print("<diary>\n")>
 
