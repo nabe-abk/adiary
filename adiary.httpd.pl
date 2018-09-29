@@ -29,7 +29,9 @@ use Satsuki::Timer ();
 ###############################################################################
 # setting
 ###############################################################################
-my $SILENT;
+my $SILENT_CGI   = 0;
+my $SILENT_FILE  = 0;
+my $SILENT_OTHER = 0;
 my $IsWindows = ($^O eq 'MSWin32');
 
 my $PORT    = $IsWindows ? 80 : 8888;
@@ -96,19 +98,25 @@ my %JanFeb2Mon = (
 		my $key = shift(@ary);
 		if (substr($key, 0, 1) ne '-') { $help=1; last; }
 		$key = substr($key, 1);
-		foreach(split('', $key)) {
-			if ($_ eq 'h') { $help =1; next; }
-			if ($_ eq '?') { $help =1; next; }
-			if ($_ eq 's') { $SILENT =1; next; }
-			if ($_ eq 'i') { $ITHREAD=1; next; }
-			if ($_ eq 'f') { $ITHREAD=0; next; }
+		my @c = split('', $key);
+		while(@c) {
+			my $k = shift(@c);
+			if ($k eq 'h') { $help =1; next; }
+			if ($k eq '?') { $help =1; next; }
+			if ($k eq 'i') { $ITHREAD=1; next; }
+			if ($k eq 'f') { $ITHREAD=0; next; }
+
+			# silent
+			if ($k eq 's' && $c[0] eq 'c') { shift(@c); $SILENT_CGI  = $SILENT_OTHER = 1; next; }
+			if ($k eq 's' && $c[0] eq 'f') { shift(@c); $SILENT_FILE = $SILENT_OTHER = 1; next; }
+			if ($k eq 's') { $SILENT_CGI = $SILENT_FILE = $SILENT_OTHER = 1; next; }
 
 			# arg
-			if ($_ eq 'p') { $PORT         = int(shift(@ary)); next; }
-			if ($_ eq 't') { $TIMEOUT      = int(shift(@ary)); next; }
-			if ($_ eq 'd') { $CGID_PROCESS = int(shift(@ary)); next; }
-			if ($_ eq 'm') { $MIME_FILE    = shift(@ary); next; }
-			if ($_ eq 'c') { $FS_CODE      = shift(@ary); next; }
+			if ($k eq 'p') { $PORT         = int(shift(@ary)); next; }
+			if ($k eq 't') { $TIMEOUT      = int(shift(@ary)); next; }
+			if ($k eq 'd') { $CGID_PROCESS = int(shift(@ary)); next; }
+			if ($k eq 'm') { $MIME_FILE    = shift(@ary); next; }
+			if ($k eq 'c') { $FS_CODE      = shift(@ary); next; }
 		}
 	}
 	if ($TIMEOUT < 1) { $TIMEOUT=1; }
@@ -125,6 +133,8 @@ Available options are:
   -f		use fork()
   -i 		use threads (ithreads)
   -s            silent mode
+  -sc           silent mode for cgi  access
+  -sf           silent mode for file access
   -\?|-h		view this help
 HELP
 		exit(0);
@@ -221,7 +231,7 @@ if ($FS_CODE) {
 if ($INDEX) {
 	print "\tDirectory index: $INDEX\n";
 }
-$SILENT || print "\n";
+($SILENT_CGI && $SILENT_FILE && $SILENT_OTHER) || print "\n";
 ###############################################################################
 # main routine
 ###############################################################################
@@ -287,12 +297,15 @@ sub accept_client {
 }
 sub output_connection_log {
 	my $state = shift;
-	if ($SILENT) { return; }
 	if (!$state) {
-		print "[$$] connection close\n";
+		$SILENT_OTHER || print "[$$] connection close\n";
 	} elsif ($state->{cgid}) {
 		# print "[$$] connected to cgid\n";
 	} else {
+		if ($state->{type} eq 'file' && $SILENT_FILE
+		 || $state->{type} ne 'file' && $SILENT_CGI) {
+			return;
+ 		}
 		my $byte = $state->{send};
 		print "[$$] $state->{status} $state->{type} " . (' ' x (7-length($byte))) . "$byte " . $state->{request} . "\n";
 	}
