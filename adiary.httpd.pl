@@ -457,7 +457,7 @@ sub try_file_read {
 	# file system encode
 	#--------------------------------------------------
 	my $_file = $file;
-	if ($FS_CODE ne $SYS_CODE) {
+	if ($FS_CODE && $FS_CODE ne $SYS_CODE) {
 		Encode::from_to($_file, $SYS_CODE, $FS_CODE);
 	}
 	if (!-e $_file) { return; }
