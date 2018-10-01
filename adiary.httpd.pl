@@ -128,7 +128,7 @@ Available options are:
   -p port	bind port (default:8888, windows:80)
   -t timeout	connection timeout second (default:10)
   -m mime_file	load mime types file name (default: /etc/mime.types)
-  -d deamons	cgi deamons (default:5), set 0 for stable
+  -d deamons	cgi deamons (default:5), set 0 for stable(no use cgi deamon)
   -c fs_code	set file system's code
   -f		use fork()
   -i 		use threads (ithreads)
@@ -248,7 +248,11 @@ if ($INDEX) {
 	while(1) {
 		select(my $x = $rbits, undef, undef, $SELECT_TIMEOUT);
 		if (!&check_bit($x, $srv)) { next; }
-		&fork_or_crate_thread(\&accept_client, $srv);
+
+		# accept
+		my $addr = accept(my $sock, $srv);
+		if (!$addr) { next; }
+		&fork_or_crate_thread(\&accept_client, $sock, $addr);
 	}
 }
 close($srv);
@@ -280,9 +284,8 @@ sub fork_or_crate_thread {
 # accept
 ###############################################################################
 sub accept_client {
-	my $sock;
-	my $addr = accept($sock, $srv);
-	if (!$addr) { return; }
+	my $sock = shift;
+	my $addr = shift;
 	my($port, $ip_bin) = sockaddr_in($addr);
 	my $ip   = inet_ntoa($ip_bin);
 	binmode($sock);
@@ -317,7 +320,6 @@ sub output_connection_log {
 sub parse_request {
 	my $sock  = shift;
 	my $state = { sock => $sock, type=>'    ' };
-	# open(STDIN, '<&=', fileno($sock));
 
 	#--------------------------------------------------
 	# recieve HTTP Header
@@ -378,7 +380,7 @@ sub parse_request {
 	}
 
 	#--------------------------------------------------
-	# Analyze Request
+	# file read
 	#--------------------------------------------------
 	my $path = $state->{path};
 	$state->{file} = $path;
@@ -524,6 +526,10 @@ sub exec_cgi {
 		#--------------------------------------------------
 		# connect stdout
 		#--------------------------------------------------
+		local *STDIN;
+		open(STDIN,  '<&=', fileno($sock));
+		binmode(STDIN);
+
 		local *STDOUT;
 		open(STDOUT, '>&=', fileno($sock));
 		binmode(STDOUT);
@@ -555,7 +561,7 @@ sub exec_cgi {
 		$ROBJ->{Timer} = $timer;
 		$ROBJ->{AutoReload} = $flag;
 
-		$ROBJ->init_for_httpd($sock, undef, $cache);
+		$ROBJ->init_for_httpd(*STDIN, undef, $cache);
 
 		if ($FS_CODE) {
 			# file system's locale setting
@@ -665,7 +671,10 @@ sub cgid_server {
 	while(1) {
 		my $r = select(my $x = $rbits, undef, undef, $SELECT_TIMEOUT);
 		if (!&check_bit($x, $srv)) { next; }
-		&accept_cgid_client($srv);
+		my $addr = accept(my $sock, $srv);
+		if (!$addr) { return; }
+
+		&accept_cgid_client($sock, $addr);
 		%ENV = %bak;
 	}
 }
@@ -674,11 +683,9 @@ sub cgid_server {
 # accept cgid client
 #------------------------------------------------------------------------------
 sub accept_cgid_client {
-	my $srv = shift;
+	my $sock = shift;;
+	my $addr = shift;
 
-	my $sock;
-	my $addr = accept($sock, $srv);
-	if (!$addr) { return; }
 	my($port, $ip_bin) = sockaddr_in($addr);
 	my $ip   = inet_ntoa($ip_bin);
 	binmode($sock);
@@ -707,7 +714,7 @@ sub cgid_run_cgi {
 
 		my $first=1;
 		while(1) {
-			my $line = &read_sock_1line($sock);	# no buffered <$sock>
+			my $line = &read_sock_1line($sock);
 			if (!defined $line)  { return; }	# disconnect
 			chomp($line);
 			if ($line eq '') { last; }
@@ -776,6 +783,7 @@ sub connect_cgid {
 	syswrite($cgi, $header, length($header));
 
 	&data_relay($state->{sock}, $cgi, $CGID_BUFSIZE);
+	close($cgi);
 	return 0;
 }
 
@@ -788,7 +796,7 @@ sub data_relay {
 	&set_bit($rbits, $sock1);
 	&set_bit($rbits, $sock2);
 	while(1) {
-		select(my $x = $rbits, undef, undef, undef);
+		select(my $x = $rbits, undef, undef, $SELECT_TIMEOUT);
 
 		if (&check_bit($x, $sock1)) {
 			my $data;
