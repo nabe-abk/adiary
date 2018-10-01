@@ -48,7 +48,6 @@ sub init_for_fastcgi {
 ###############################################################################
 sub init_for_httpd {
 	my $self = shift;
-	my $sock = shift;
 	my $path = shift || '/';
 	my $cache= shift;
 
@@ -63,8 +62,6 @@ sub init_for_httpd {
 
 	$self->{Myself}  = $path;
 	$self->{Myself2} = $path;
-
-	$self->{STDIN}   = $sock;
 
 	my $port = int($ENV{SERVER_PORT});
 	my $protocol = ($port == 443) ? 'https://' : 'http://';

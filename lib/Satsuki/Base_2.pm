@@ -671,7 +671,7 @@ sub _read_form {
 	}
 	### 通常のフォーム処理
 	my $content;
-	read($self->{STDIN}, $content, $ENV{CONTENT_LENGTH});
+	read(STDIN, $content, $ENV{CONTENT_LENGTH});
 	my @form = split(/&/, $content);
 	undef $content;
 
@@ -715,11 +715,11 @@ sub read_multipart_form {
 	my $header_max_size = 1024;
 
 	# boundary の読み出し
-	binmode($self->{STDIN});	# for Windows
+	binmode(STDIN);	# for Windows
 	$content_type =~ /boundary=(.*)/;
 	my $boundary = $1;
 	my $form     = {};
-	my $buffer   = $self->loadpm('Base::BufferedRead', $self->{STDIN}, $length, $total_max, $options->{multipart_buffer_size});
+	my $buffer   = $self->loadpm('Base::BufferedRead', *STDIN, $length, $total_max, $options->{multipart_buffer_size});
 	$buffer->{read_max} = $length;
 
 	# 先頭の boundary 読み捨て

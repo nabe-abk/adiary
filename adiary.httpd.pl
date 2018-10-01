@@ -243,13 +243,7 @@ if ($INDEX) {
 		};
 	}
 
-	my $rbits;
-	&set_bit($rbits, $srv);
 	while(1) {
-		select(my $x = $rbits, undef, undef, $SELECT_TIMEOUT);
-		if (!&check_bit($x, $srv)) { next; }
-
-		# accept
 		my $addr = accept(my $sock, $srv);
 		if (!$addr) { next; }
 		&fork_or_crate_thread(\&accept_client, $sock, $addr);
@@ -561,7 +555,7 @@ sub exec_cgi {
 		$ROBJ->{Timer} = $timer;
 		$ROBJ->{AutoReload} = $flag;
 
-		$ROBJ->init_for_httpd(*STDIN, undef, $cache);
+		$ROBJ->init_for_httpd(undef, $cache);
 
 		if ($FS_CODE) {
 			# file system's locale setting
@@ -664,13 +658,9 @@ sub create_cgi_deamon {
 }
 sub cgid_server {
 	my $srv = shift;
-	my $rbits;
-	&set_bit($rbits, $srv);
 	my %bak = %ENV;
-	$IsWindows && sleep(3);		# select is block main thread on Windows
+	$IsWindows && sleep(3);		# accept/select is block main thread on Windows
 	while(1) {
-		my $r = select(my $x = $rbits, undef, undef, $SELECT_TIMEOUT);
-		if (!&check_bit($x, $srv)) { next; }
 		my $addr = accept(my $sock, $srv);
 		if (!$addr) { return; }
 

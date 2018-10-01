@@ -19,7 +19,7 @@ sub new {
 	my $self = bless({}, shift);
 	$self->{ROBJ} = shift;
 
-	$self->{fh}          = shift || 'STDIN';	# データを読み出す FileHandle
+	$self->{fh}          = shift || *STDIN;		# データを読み出す FileHandle
 	$self->{read_size}   = 0;			# 読み出した量
 	$self->{read_max}    = int(shift);		# 最大読み込み量
 	$self->{buffer_size} = int(shift) || $buffer_size_default;
