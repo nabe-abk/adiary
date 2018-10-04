@@ -223,14 +223,13 @@ sub blogid_and_pinfo {
 	my $pinfoid = exists($pinfo[1]) ? $pinfo[0] : ''; # 'bloid/'のように'/'付のみ有効
 	my $blogid;
 	my $default = $self->{sys}->{default_blogid};
-	my $selected;
+	if ($pinfoid !~ /^[a-z][a-z0-9_]*$/) { $pinfoid=''; }	# blogid format check
 
 	if ($default) {
 		#-----------------------------------------------
 		# デフォルトブログモード
 		#-----------------------------------------------
-		if ($pinfoid =~ /^[a-z][a-z0-9_]*$/ && $pinfoid ne $default && $self->find_blog($pinfoid)
-		 && ($selected = $self->set_and_select_blog($pinfoid)) ) {
+		if ($pinfoid ne $default && $self->find_blog($pinfoid) && $self->set_and_select_blog($pinfoid)) {
 			shift(@pinfo);
 			$blogid = $pinfoid;
 		} else {
@@ -267,13 +266,12 @@ sub blogid_and_pinfo {
 		#-----------------------------------------------
 		shift(@pinfo);
 		$blogid = $pinfoid;
-		$blogid =~ s/\W//g;
 		my $add_myself3;
 		if ($default ne $authid) { $add_myself3 = "$authid/"; }
 		$self->{myself3} = $myself2 . $add_myself3;	# 自分のブログ
 	}
 	# 未設定ならブログを選択 ※$blogidが未設定でも選択すること
-	if (!$selected) { $self->set_and_select_blog( $blogid ); }
+	if (!$self->{blog}) { $self->set_and_select_blog( $blogid ); }
 
 	# テーマの設定
 	my $theme = $self->{blog}->{theme};
