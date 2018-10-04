@@ -2,7 +2,7 @@
 use 5.8.1;
 use strict;
 BEGIN { unshift(@INC, './lib'); }
-# use Satsuki::Base ();
+use Satsuki::Base ();
 use Satsuki::AutoReload ();
 BEGIN {
 	if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }

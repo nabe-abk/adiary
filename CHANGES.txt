@@ -17,6 +17,7 @@
 -【fix】DirectoryIndexに設定されたときの検出に失敗する。
 -【fix】サブドメインモードかつ https の時、Canonical URL等がおかしい。
 -【fix】アルバムで、101個以上のファイルを一度にアップロードできない。
+-【fix】【mod_perl】adiary.mod.cgi が起動できない。
 -【fix】【TagEscpae.pm】すべての属性で「xxx:」といった文字列が書けなくなっていた。((これによりstyle属性にCSSを書くことが困難になっていた。))
 -【Security】【TagEscpae.pm】style属性のエスケープを再度有効化。((Ver3.02-3.16間で「behavior: url(xss.js)」によるXSSが有効なため。))
 -他
