@@ -199,7 +199,8 @@ my $srv;
 	bind($srv, sockaddr_in($PORT, INADDR_ANY))			|| die "bind port failed: $!";
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
 }
-print "Satsuki HTTP Server: Listen $PORT port, Timeout $TIMEOUT sec\n";
+print "Satsuki HTTP Server: Listen $PORT port, Timeout $TIMEOUT sec"
+	. ($IsWindows ? '(probably not working)' : '') .  "\n";
 print "\tStart up deamons: $DEAMONS (" . ($ITHREAD ? 'ithreads' : 'fork') . " mode)\n";
 
 #------------------------------------------------------------------------------
@@ -273,11 +274,13 @@ close($srv);
 exit(0);
 
 sub deamon_main {
-	my $srv  = shift;
+	my $srv = shift;
+	my %bak = %ENV;
 	while(1) {
 		my $addr = accept(my $sock, $srv);
 		if (!$addr) { next; }
 		&accept_client($sock, $addr);
+		%ENV = %bak;
 	}
 }
 
@@ -342,7 +345,6 @@ sub output_connection_log {
 sub parse_request {
 	my $sock  = shift;
 	my $state = { sock => $sock, type=>'    ' };
-	local(%ENV);
 
 	#--------------------------------------------------
 	# recieve HTTP Header
