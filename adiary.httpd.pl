@@ -37,7 +37,7 @@ my $PORT    = $IsWindows ? 80 : 8888;
 my $ITHREAD = $IsWindows;
 my $PATH    = $ARGV[0];
 my $TIMEOUT = 1;
-my $DEAMONS = 5;
+my $DEAMONS = 4;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  # = 'index.html';
 
@@ -98,6 +98,9 @@ my %JanFeb2Mon = (
 			if ($k eq 'd') { $DEAMONS   = int(shift(@ary)); next; }
 			if ($k eq 'm') { $MIME_FILE = shift(@ary); next; }
 			if ($k eq 'c') { $FS_CODE   = shift(@ary); next; }
+
+			print "Unknown option : -$k\n";
+			exit(1);
 		}
 	}
 	if ($TIMEOUT < 1) { $TIMEOUT=1; }
@@ -110,7 +113,7 @@ Available options are:
   -p port	bind port (default:8888, windows:80)
   -t timeout	connection timeout second (default:10)
   -m mime_file	load mime types file name (default: /etc/mime.types)
-  -d deamons	start deamons (default:5), minimum 1
+  -d deamons	start deamons (default:4), minimum 1
   -c fs_code	set file system's code
   -f		use fork()
   -i 		use threads (ithreads)
