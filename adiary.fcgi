@@ -50,7 +50,7 @@ while($request->Accept() >= 0) {
 		# 時間計測開始
 		#--------------------------------------------------
 		my $timer;
-		if ($Satsuki::Timer::VERSION) {
+		if ($ENV{SatsukiTimer} ne '0' && $Satsuki::Timer::VERSION) {
 			$timer = Satsuki::Timer->new();
 			$timer->start();
 		}
