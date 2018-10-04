@@ -48,7 +48,9 @@ my $FS_CODE  = $IsWindows ? $Encode::Locale::ENCODING_LOCALE : undef;
 # for Windows
 #------------------------------------------------------------------------------
 if ($IsWindows) {
-	*Time::HiRes::alarm = \&CORE::alarm;
+	*Time::HiRes::alarm = sub($;$) {
+		alarm(shift);
+	}
 }
 
 #------------------------------------------------------------------------------
