@@ -4,27 +4,30 @@ use strict;
 BEGIN { unshift(@INC, './lib'); }
 # use Satsuki::Base ();
 use Satsuki::AutoReload ();
+BEGIN {
+	if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }
+}
 #-------------------------------------------------------------------------------
 # Satsuki system - Startup routine (for mod_perl)
-#						Copyright 2005-2017 nabe@abk
+#						Copyright (C)2005-2018 nabe@abk
 #-------------------------------------------------------------------------------
-# Last Update : 2017/02/10
+# Last Update : 2018/10/04
 eval {
 	#--------------------------------------------------
 	# ライブラリの更新確認
 	#--------------------------------------------------
 	my $flag = &Satsuki::AutoReload::check_lib();
-
-	$Satsuki::Base::RELOAD = 1;	# Base.pmコンパイルエラー時
-	require Satsuki::Base;		# 次回、強制RELOADさせる。
-	$Satsuki::Base::RELOAD = 0;
+	if ($flag) {
+		$Satsuki::Base::RELOAD = 1;	# Base.pmコンパイルエラー時
+		require Satsuki::Base;		# 次回、強制RELOADさせる。
+		$Satsuki::Base::RELOAD = 0;
+	}
 
 	#--------------------------------------------------
 	# 時間計測開始
 	#--------------------------------------------------
-	if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }
 	my $timer;
-	if (defined $Satsuki::Timer::VERSION) {
+	if ($Satsuki::Timer::VERSION) {
 		$timer = Satsuki::Timer->new();
 		$timer->start();
 	}

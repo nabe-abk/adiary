@@ -1,6 +1,11 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
+#-------------------------------------------------------------------------------
+# Satsuki system - Startup routine (for FastCGI)
+#						Copyright (C)2005-2018 nabe@abk
+#-------------------------------------------------------------------------------
+# Last Update : 2018/10/04
 BEGIN {
 	unshift(@INC, './lib');
 	$0 =~ m|^(.*?)[^/]*$|;
@@ -9,11 +14,9 @@ BEGIN {
 use FCGI;
 use Satsuki::Base ();
 use Satsuki::AutoReload ();
-#-------------------------------------------------------------------------------
-# Satsuki system - Startup routine (for FastCGI)
-#						Copyright 2005-2017 nabe@abk
-#-------------------------------------------------------------------------------
-# Last Update : 2017/02/10
+BEGIN {
+	if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }
+}
 #--------------------------------------------------
 # socket open?
 #--------------------------------------------------
@@ -46,9 +49,8 @@ while($request->Accept() >= 0) {
 		#--------------------------------------------------
 		# 時間計測開始
 		#--------------------------------------------------
-		if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }
 		my $timer;
-		if (defined $Satsuki::Timer::VERSION) {
+		if ($Satsuki::Timer::VERSION) {
 			$timer = Satsuki::Timer->new();
 			$timer->start();
 		}

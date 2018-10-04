@@ -543,7 +543,9 @@ sub try_file_read {
 ###############################################################################
 # Exec CGI
 ###############################################################################
-my @CGI;
+BEGIN {
+	if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }
+}
 sub exec_cgi {
 	my $state = shift;
 	my $cache = shift || 0;
@@ -575,9 +577,8 @@ sub exec_cgi {
 		#--------------------------------------------------
 		# Timer start
 		#--------------------------------------------------
-		if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }
 		my $timer;
-		if (defined $Satsuki::Timer::VERSION) {
+		if ($Satsuki::Timer::VERSION) {
 			$timer = Satsuki::Timer->new();
 			$timer->start();
 		}
