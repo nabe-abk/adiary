@@ -768,11 +768,12 @@ sub output {
 	my $body;
 	$self->_chain_array($ary, \$body);
 	my $html = $self->http_headers($ctype, $charset, length($body));
-	if ($self->{Status} != 304) {
+	my $head = $ENV{REQUEST_METHOD} eq 'HEAD';
+	if (!$head && $self->{Status} != 304) {
 		$html .= $body;
 	}
 
-	my $c = ($self->{Status}==200) && $self->{HTML_cache};
+	my $c = !$head && ($self->{Status}==200) && $self->{HTML_cache};
 	if ($c) { $$c = $html; }
 
 	print $html;
