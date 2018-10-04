@@ -209,20 +209,21 @@ if ($INDEX) {
 # main routine
 ###############################################################################
 {
-	local $SIG{CHLD};
-	if (!$ITHREAD) {	# clear defunct process
-		$SIG{CHLD} = sub {
-			while(waitpid(-1, WNOHANG) > 0) {};
-		};
-	}
-
 	# prefork
 	for(my $i=0; $i<$DEAMONS; $i++) {
 		&fork_or_crate_thread(\&deamon_main, $srv);
 	}
 
+	# clear defunct process on fork()
+	local $SIG{CHLD};
+	if (!$ITHREAD) {
+		$SIG{CHLD} = sub {
+			while(waitpid(-1, WNOHANG) > 0) {};
+		};
+	}
+	# main threads
 	while(1) {
-		sleep(100);
+		sleep(1000);
 	}
 }
 close($srv);
@@ -312,8 +313,10 @@ sub parse_request {
 		alarm( $TIMEOUT );
 
 		my $first=1;
+		my $post =1;
 		while(1) {
-			my $line = &read_sock_1line($sock);		# no buffered <$sock>
+			# &read_sock_1line($sock) is no buffered <$sock>
+			my $line = $post ? &read_sock_1line($sock) : <$sock>;
 			if (!defined $line)  {	# disconnect
 				$break=1;
 				last;
@@ -324,6 +327,7 @@ sub parse_request {
 				$first = 0;
 				$bad_req = &analyze_request($state, $line);
 				if ($bad_req) { last; }
+				$post = $state->{method} eq 'POST';
 				next;
 			}
 
