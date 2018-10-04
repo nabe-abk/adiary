@@ -5,7 +5,7 @@ use strict;
 # Satsuki system - HTTP Server
 #						Copyright (C)2018 nabe@abk
 ###############################################################################
-# Last Update : 2018/09/xx
+# Last Update : 2018/10/04
 #
 BEGIN {
 	my $path = $0;
@@ -18,10 +18,9 @@ use Fcntl;
 use threads;		# for ithreads
 use POSIX;		# for waitpid(<pid>, WNOHANG);
 use Cwd;		# for $ENV{DOCUMENT_ROOT}
-use Time::HiRes;	# for generate random string
+use Time::HiRes;	# for ualarm() and generate random string
 use Image::Magick;	# load on main process for Windows EXE
 use Encode::Locale;	# for get system locale / for Windows
-use Time::HiRes;	# for ualarm()
 #------------------------------------------------------------------------------
 use Satsuki::Base ();
 use Satsuki::AutoReload ();
