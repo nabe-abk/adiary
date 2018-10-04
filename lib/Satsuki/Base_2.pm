@@ -854,7 +854,6 @@ sub form_data_check_and_save {
 			my $str_max_chars = $options->{str_max_chars};
 			$val =~ s/[\r\n]//g;	# 改行を除去
 			if ($str_max_chars && $bytes >$str_max_chars) {
-				$self->debug("$name $val");
 				$self->message("Too long form data '%s', limit %d chars", $name, $str_max_chars);
 				$val = &$substr($val, 0, $str_max_chars);
 			}
