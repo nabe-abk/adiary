@@ -20,7 +20,7 @@
 -【fix】blogid に"te-st"のように不正文字が含まれても正しく表示されてしまう。
 -【fix】【mod_perl】adiary.mod.cgi が起動できない。
 -【fix】【TagEscpae.pm】すべての属性で「xxx:」といった文字列が書けなくなっていた。((これによりstyle属性にCSSを書くことが困難になっていた。))
--【Security】【TagEscpae.pm】style属性のエスケープを再度有効化。((Ver3.02-3.16間で「behavior: url(xss.js)」によるXSSが有効なため。))
+-【Security】【IE9-10】【TagEscpae.pm】style属性のエスケープを再度有効化。((Ver3.02-3.16間でIE10以前での「behavior: url(xss.js)」によるXSSが有効なため、第三者レンタル時に脆弱性となりうる。))
 -他
 
 Markdown記法にてリストの入れ子処理を変更しました。この変更により本家の動作に近づいたと思いますが、もしかしたら不具合があるかも知れません。
