@@ -37,7 +37,8 @@ my $IsWindows = ($^O eq 'MSWin32');
 my $PORT    = $IsWindows ? 80 : 8888;
 my $ITHREAD = $IsWindows;
 my $PATH    = $ARGV[0];
-my $TIMEOUT = 10;
+my $TIMEOUT = 5;
+my $DEAMONS = 5;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  # = 'index.html';
 
@@ -60,27 +61,6 @@ my %MIME_TYPE = (
 	jpeg => 'image/jpeg'
 );
 my %DENY_EXTS = (cgi=>1, pl=>1, pm=>1);	# deny extensions
-#------------------------------------------------------------------------------
-# for CGI Deamon
-#------------------------------------------------------------------------------
-my $CGID_BUFSIZE = 0x1000000;		# 1MB
-my $CGID_PROCESS = 3;
-my $CGID_TIMEOUT = 3;
-my $CGID_PORT;
-my $CGID_KEY = &generate_random_string(64);	# shard key
-my %CGID_ENV = (
-	SERVER_NAME	=> 1,
-	REQUEST_METHOD	=> 1,
-	REQUEST_URI	=> 1,
-	REMOTE_ADDR	=> 1,
-	REMOTE_PORT	=> 1,
-	PATH_INFO	=> 1,
-	QUERY_STRING	=> 1,
-	CONTENT_LENGTH	=> 1,
-	CONTENT_TYPE	=> 1
-);
-my $CGID_HOST = '127.0.0.1';
-my $CGID_SOCKADDR;
 #------------------------------------------------------------------------------
 # for RFC date
 #------------------------------------------------------------------------------
@@ -112,11 +92,11 @@ my %JanFeb2Mon = (
 			if ($k eq 's') { $SILENT_CGI = $SILENT_FILE = $SILENT_OTHER = 1; next; }
 
 			# arg
-			if ($k eq 'p') { $PORT         = int(shift(@ary)); next; }
-			if ($k eq 't') { $TIMEOUT      = int(shift(@ary)); next; }
-			if ($k eq 'd') { $CGID_PROCESS = int(shift(@ary)); next; }
-			if ($k eq 'm') { $MIME_FILE    = shift(@ary); next; }
-			if ($k eq 'c') { $FS_CODE      = shift(@ary); next; }
+			if ($k eq 'p') { $PORT      = int(shift(@ary)); next; }
+			if ($k eq 't') { $TIMEOUT   = int(shift(@ary)); next; }
+			if ($k eq 'd') { $DEAMONS   = int(shift(@ary)); next; }
+			if ($k eq 'm') { $MIME_FILE = shift(@ary); next; }
+			if ($k eq 'c') { $FS_CODE   = shift(@ary); next; }
 		}
 	}
 	if ($TIMEOUT < 1) { $TIMEOUT=1; }
@@ -128,7 +108,7 @@ Available options are:
   -p port	bind port (default:8888, windows:80)
   -t timeout	connection timeout second (default:10)
   -m mime_file	load mime types file name (default: /etc/mime.types)
-  -d deamons	cgi deamons (default:5), set 0 for stable(no use cgi deamon)
+  -d deamons	start deamons (default:5), minimum 1
   -c fs_code	set file system's code
   -f		use fork()
   -i 		use threads (ithreads)
@@ -175,16 +155,6 @@ my $srv;
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
 }
 print "Satsuki HTTP Server: Listen $PORT port, timeout $TIMEOUT sec, " . ($ITHREAD ? 'threads' : 'fork') . " mode\n";
-
-#------------------------------------------------------------------------------
-# CGI Deamon
-#------------------------------------------------------------------------------
-if ($CGID_PROCESS > 0) {
-	$CGID_PORT     = $PORT+1;
-	$CGID_SOCKADDR = sockaddr_in($CGID_PORT, inet_aton($CGID_HOST));
-	print "\tStart CGI Deamon: $CGID_PROCESS " . ($ITHREAD ? 'threads' : 'process') . ", $CGID_HOST:$CGID_PORT\n";
-	&create_cgi_deamon($CGID_PROCESS);
-}
 
 #------------------------------------------------------------------------------
 # load mime types
@@ -242,15 +212,30 @@ if ($INDEX) {
 			while(waitpid(-1, WNOHANG) > 0) {};
 		};
 	}
+	
+	my $PREFORK = 10;
+	for(my $i=0; $i<$PREFORK; $i++) {
+		&fork_or_crate_thread(\&prefork_main, $srv);
+	}
 
+	my $rbits='';
+	&set_bit($rbits, $srv);
 	while(1) {
-		my $addr = accept(my $sock, $srv);
-		if (!$addr) { next; }
-		&fork_or_crate_thread(\&accept_client, $sock, $addr);
+		select(my $x = $rbits, undef, undef, undef);
+		next;
 	}
 }
 close($srv);
 exit(0);
+
+sub prefork_main {
+	my $srv  = shift;
+	while(1) {
+		my $addr = accept(my $sock, $srv);
+		if (!$addr) { next; }
+		&accept_client($sock, $addr);
+	}
+}
 
 #------------------------------------------------------------------------------
 # fork() or create->thread()
@@ -296,11 +281,9 @@ sub output_connection_log {
 	my $state = shift;
 	if (!$state) {
 		$SILENT_OTHER || print "[$$] connection close\n";
-	} elsif ($state->{cgid}) {
-		# print "[$$] connected to cgid\n";
 	} else {
 		if ($state->{type} eq 'file' && $SILENT_FILE
-		 || $state->{type} ne 'file' && $SILENT_CGI) {
+		 || $state->{type} eq 'cgi ' && $SILENT_CGI) {
 			return;
  		}
 		my $byte = $state->{send};
@@ -314,6 +297,7 @@ sub output_connection_log {
 sub parse_request {
 	my $sock  = shift;
 	my $state = { sock => $sock, type=>'    ' };
+	local(%ENV);
 
 	#--------------------------------------------------
 	# recieve HTTP Header
@@ -401,13 +385,9 @@ sub parse_request {
 	}
 	$ENV{PATH_INFO} = $path;
 
-	if ($CGID_PROCESS) {
-		$state->{cgid} = 1;
-		&connect_cgid($state);
-	} else {
-		$state->{type} = 'cgi ';
-		&exec_cgi($state);
-	}
+	$state->{type} = 'cgi ';
+	&exec_cgi($state);
+
 	return $state;
 }
 
@@ -555,7 +535,7 @@ sub exec_cgi {
 		$ROBJ->{Timer} = $timer;
 		$ROBJ->{AutoReload} = $flag;
 
-		$ROBJ->init_for_httpd(undef, $cache);
+		$ROBJ->init_for_httpd(undef);
 
 		if ($FS_CODE) {
 			# file system's locale setting
@@ -568,6 +548,8 @@ sub exec_cgi {
 		$ROBJ->start_up();
 		$ROBJ->finish();
 	};
+	$@ && print STDERR "$@\n";
+
 	# ライブラリのセーブ
 	&Satsuki::AutoReload::save_lib();
 
@@ -637,169 +619,6 @@ HEADER
 	if ($state->{method} ne 'HEAD' && $status !~ /^304 /) {
 		print $sock $data;
 		$state->{send} = length($header) + $c_len;
-	}
-}
-
-###############################################################################
-# CGI Deamons : like FastCGI
-###############################################################################
-sub create_cgi_deamon {
-	my $deamons = shift;
-	my $cgid;
-
-	socket($cgid, PF_INET, SOCK_STREAM, 0)				|| die "socket failed: $!";
-	setsockopt($cgid, SOL_SOCKET, SO_REUSEADDR, pack("l", 1))	|| die "setsockopt failed: $!";
-	bind($cgid, $CGID_SOCKADDR)					|| die "bind port failed: $!";
-	listen($cgid, SOMAXCONN)					|| die "listen failed: $!";
-
-	foreach(my $i=0; $i<$deamons; $i++) {
-		&fork_or_crate_thread(\&cgid_server, $cgid);
-	}
-}
-sub cgid_server {
-	my $srv = shift;
-	my %bak = %ENV;
-	$IsWindows && sleep(3);		# accept/select is block main thread on Windows
-	while(1) {
-		my $addr = accept(my $sock, $srv);
-		if (!$addr) { return; }
-
-		&accept_cgid_client($sock, $addr);
-		%ENV = %bak;
-	}
-}
-
-#------------------------------------------------------------------------------
-# accept cgid client
-#------------------------------------------------------------------------------
-sub accept_cgid_client {
-	my $sock = shift;;
-	my $addr = shift;
-
-	my($port, $ip_bin) = sockaddr_in($addr);
-	my $ip   = inet_ntoa($ip_bin);
-	binmode($sock);
-
-	my $state = &cgid_run_cgi($sock);
-	close($sock);
-
-	if ($state) {
-		&output_connection_log($state);
-	}
-}
-#------------------------------------------------------------------------------
-# run cgi
-#------------------------------------------------------------------------------
-sub cgid_run_cgi {
-	my $sock = shift;
-
-	#--------------------------------------------------
-	# recieve HTTP Header
-	#--------------------------------------------------
-	my @header;
-	my $timeout;
-	{
-		local $SIG{ALRM} = sub { close($sock); $timeout=1; };
-		alarm( $CGID_TIMEOUT );
-
-		my $first=1;
-		while(1) {
-			my $line = &read_sock_1line($sock);
-			if (!defined $line)  { return; }	# disconnect
-			chomp($line);
-			if ($line eq '') { last; }
-			push(@header, $line);
-		}
-		alarm(0);
-	}
-	if ($timeout) { return; }
-
-	#--------------------------------------------------
-	# check shard key
-	#--------------------------------------------------
-	my $key = shift(@header);
-	if ($key ne $CGID_KEY) { return; }
-
-	#--------------------------------------------------
-	# setting ENV
-	#--------------------------------------------------
-	my $state = { sock => $sock };
-	foreach(@header) {
-		my $x = index($_, ':');			# split "HTTP_SERVER:localhost"
-		my $k = substr($_, 0, $x);
-		my $v = substr($_, $x+1);
-		if ($k eq 'REQUEST') {
-			$state->{request} = $v;
-			next;
-		}
-		if ($CGID_ENV{$k} || $k =~ /^HTTP_/) {	# security check
-			$ENV{$k} = $v;
-		}
-	}
-	
-	#--------------------------------------------------
-	# exec CGI
-	#--------------------------------------------------
-	$state->{type} = 'cgid';
-	&exec_cgi($state, 1);
-
-	return $state;
-}
-
-#------------------------------------------------------------------------------
-# connect to cgid
-#------------------------------------------------------------------------------
-sub connect_cgid {
-	my $state = shift;
-
-	my $cgi;
-	socket($cgi, PF_INET, SOCK_STREAM, 0) || die "socket failed: $!";
-	{
-		local $SIG{ALRM} = sub { close($cgi); };
-		alarm( $CGID_TIMEOUT );
-		my $r = connect($cgi, $CGID_SOCKADDR);
-		alarm(0);
-		$r || die "Can't connect CGId server";
-	
-	}
-	binmode($cgi);
-
-	my $header = "$CGID_KEY\n";
-	foreach(keys(%ENV)) {
-		if (!$CGID_ENV{$_} && $_ !~ /^HTTP_/) { next; }
-		$header .= "$_:$ENV{$_}\n";
-	}
-	$header .= "REQUEST:$state->{request}\n\n";
-	syswrite($cgi, $header, length($header));
-
-	&data_relay($state->{sock}, $cgi, $CGID_BUFSIZE);
-	close($cgi);
-	return 0;
-}
-
-sub data_relay {
-	my $sock1 = shift;
-	my $sock2 = shift;
-	my $bufsize = shift || 0x100000;	# 256KB
-
-	my $rbits = '';
-	&set_bit($rbits, $sock1);
-	&set_bit($rbits, $sock2);
-	while(1) {
-		select(my $x = $rbits, undef, undef, $SELECT_TIMEOUT);
-
-		if (&check_bit($x, $sock1)) {
-			my $data;
-			recv($sock1, $data, $bufsize, 0);
-			if ($data eq '') { last; }
-			syswrite($sock2, $data, length($data));
-		}
-		if (&check_bit($x, $sock2)) {
-			my $data;
-			recv($sock2, $data, $bufsize, 0);
-			if ($data eq '') { last; }
-			syswrite($sock1, $data, length($data));
-		}
 	}
 }
 

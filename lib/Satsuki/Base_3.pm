@@ -49,9 +49,8 @@ sub init_for_fastcgi {
 sub init_for_httpd {
 	my $self = shift;
 	my $path = shift || '/';
-	my $cache= shift;
 
-	$self->{CGI_cache}= $cache || 0;
+	$self->{CGI_cache}= 1;
 	$self->{HTTPD}    = 1;
 	$self->{CGI_mode} = 'httpd';
 
