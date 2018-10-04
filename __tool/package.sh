@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version判別
+# Version check
 if [ "$1" != '' ]
 then
 	VERSION=$1
@@ -19,22 +19,30 @@ else
 fi
 RELEASE=adiary-$VERSION
 
-# ディリクトリが存在しなければ終了
+# if not exist RELEASE dir, exit
 if [ ! -e $RELEASE/ ]
 then
 	echo $RELEASE/ not exists.
 	exit
 fi
 
-echo tar jcvf $RELEASE.tar.bz2 $RELEASE/
-     tar jcvf $RELEASE.tar.bz2 $RELEASE/
+# Windows zip
+if [ `which zip` ]; then
+	echo zip -q adiary-windows_x64.zip -r $RELEASE/
+	     zip -q adiary-windows_x64.zip -r $RELEASE/
+fi
+rm -f $RELEASE/*.exe
 
-# フォントなしパッケージ
+# Release file
+echo tar jcf $RELEASE.tar.bz2 $RELEASE/
+     tar jcf $RELEASE.tar.bz2 $RELEASE/
+
+# no font package
 << COMMENT
 rm -rf $RELEASE/pub-dist/VL-PGothic-Regular.ttf $RELEASE/VLGothic/
 
-echo tar jcvf $RELEASE-nofont.tar.bz2 $RELEASE/
-     tar jcvf $RELEASE-nofont.tar.bz2 $RELEASE/
+echo tar jcf $RELEASE-nofont.tar.bz2 $RELEASE/
+     tar jcf $RELEASE-nofont.tar.bz2 $RELEASE/
 COMMENT
 
 rm -rf $RELEASE
