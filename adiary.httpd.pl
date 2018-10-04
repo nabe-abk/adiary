@@ -590,6 +590,7 @@ sub exec_cgi {
 		$ROBJ->{AutoReload} = $flag;
 
 		$ROBJ->init_for_httpd();
+		$ROBJ->set_header('Connection', 'close');
 
 		if ($FS_CODE) {
 			# file system's locale setting
