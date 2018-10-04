@@ -343,7 +343,7 @@ sub execute {
 		$self->{Return} = undef;
 		eval{ $self->{Return} = &$subroutine(\@output, $self, $line, $v_ref); };
 		$v_ref && ($self->{v} = $$v_ref);			# vを書き戻す
-		if ($ENV{SatsukiExit}) { die($self->{Exit}); }		# exit代わりのdie検出
+		if ($ENV{SatsukiExit}) { die("exit($self->{Exit})"); }	# exit代わりのdie
 		## ($self->{"times"} ||= {})->{"$self->{__src_file}"} = $self->{Timer}->stop($self->{__src_file});
 	}
 

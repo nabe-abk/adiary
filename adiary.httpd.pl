@@ -21,6 +21,7 @@ use Cwd;		# for $ENV{DOCUMENT_ROOT}
 use Time::HiRes;	# for generate random string
 use Image::Magick;	# load on main process for Windows EXE
 use Encode::Locale;	# for get system locale / for Windows
+use Time::HiRes;	# for ualarm()
 #------------------------------------------------------------------------------
 use Satsuki::Base ();
 use Satsuki::AutoReload ();
@@ -44,8 +45,15 @@ my $INDEX;  # = 'index.html';
 my $SYS_CODE = $Satsuki::SYSTEM_CODING;
 my $FS_CODE  = $IsWindows ? $Encode::Locale::ENCODING_LOCALE : undef;
 
-# select() is thread block on Windows
-my $SELECT_TIMEOUT = $IsWindows ? 0.01 : undef;
+#------------------------------------------------------------------------------
+# for Windows
+#------------------------------------------------------------------------------
+if ($IsWindows) {
+	*Timer::HiRes::alarm = \&CORE::alarm;
+}
+
+#------------------------------------------------------------------------------
+# Web Server data
 #------------------------------------------------------------------------------
 my %DENY_DIRS;
 my %MIME_TYPE = ( 
@@ -79,41 +87,73 @@ my %JanFeb2Mon = (
 		my $key = shift(@ary);
 		if (substr($key, 0, 1) ne '-') { $help=1; last; }
 		$key = substr($key, 1);
-		my @c = split('', $key);
-		while(@c) {
-			my $k = shift(@c);
+		while($key ne '') {
+			my $k = substr($key,0,1);
+			my $k2= substr($key,1,2);
+			$key = substr($key,1);
+
 			if ($k eq 'h') { $help =1; next; }
 			if ($k eq '?') { $help =1; next; }
 			if ($k eq 'i') { $ITHREAD=1; next; }
 			if ($k eq 'f') { $ITHREAD=0; next; }
 
 			# silent
-			if ($k eq 's' && $c[0] eq 'c') { shift(@c); $SILENT_CGI  = $SILENT_OTHER = 1; next; }
-			if ($k eq 's' && $c[0] eq 'f') { shift(@c); $SILENT_FILE = $SILENT_OTHER = 1; next; }
+			if ($k eq 's' && $k2 eq 'c') { $key=substr($k,1); $SILENT_CGI  = $SILENT_OTHER = 1; next; }
+			if ($k eq 's' && $k2 eq 'f') { $key=substr($k,1); $SILENT_FILE = $SILENT_OTHER = 1; next; }
 			if ($k eq 's') { $SILENT_CGI = $SILENT_FILE = $SILENT_OTHER = 1; next; }
 
 			# arg
-			if ($k eq 'p') { $PORT      = int(shift(@ary)); next; }
-			if ($k eq 't') { $TIMEOUT   = int(shift(@ary)); next; }
-			if ($k eq 'd') { $DEAMONS   = int(shift(@ary)); next; }
-			if ($k eq 'm') { $MIME_FILE = shift(@ary); next; }
-			if ($k eq 'c') { $FS_CODE   = shift(@ary); next; }
+			if (index('ptdmc',$k) < 0) {
+				print "Unknown option : -$k\n";
+				exit(-1);
+			}
+			my $val;
+			if ($key =~ /^\d/) {
+				$val=$key; $key='';
+			} else {
+				$val=shift(@ary);
+			}
+			if ($val eq '') {
+				print "needs argument: -$k option\n";
+				exit(-1);
+			}
+			# string argument
+			if ($k eq 'm') { $MIME_FILE = $val; next; }
+			if ($k eq 'c') { $FS_CODE   = $val; next; }
 
-			print "Unknown option : -$k\n";
-			exit(1);
+			# float argument
+			if (!$IsWindows && $k eq 't') {
+				if ($val !~ /^\d+(?:\.\d+)?$/) {
+					print "Invalid argument: -$k option\n";
+					exit(-1);
+				}
+			} elsif ($val !~ /^\d+$/) {
+				$TIMEOUT = $val + 0;
+				print "Invalid argument: -$k option\n";
+				exit(-1);
+			}
+			if ($k eq 'p') { $PORT    = $val; next; }
+			if ($k eq 't') { $TIMEOUT = $val; next; }
+			if ($k eq 'd') { $DEAMONS = $val; next; }
+			die("program error");
 		}
 	}
-	if ($TIMEOUT < 1) { $TIMEOUT=1; }
-	if ($DEAMONS < 1) { $DEAMONS=1; }
-	
+	if ($IsWindows) {
+		if ($TIMEOUT < 1) { $TIMEOUT=1; }
+		$TIMEOUT = int($TIMEOUT);
+	}
+	if ($TIMEOUT < 0.001) { $TIMEOUT=0.001; }
+	if ($DEAMONS < 1)     { $DEAMONS=1;     }
+
 	if ($help) {
+		my $timeout_min = $IsWindows ? 1 : 0.001;
 		print <<HELP;
 Usage: $0 [options] [output_xml_file]
 Available options are:
   -p port	bind port (default:8888, windows:80)
-  -t timeout	connection timeout second (default:10)
+  -t timeout	connection timeout second (default:1, min:$timeout_min)
   -m mime_file	load mime types file name (default: /etc/mime.types)
-  -d deamons	start deamons (default:4), minimum 1
+  -d deamons	start deamons (default:4, min:1)
   -c fs_code	set file system's code
   -f		use fork()
   -i 		use threads (ithreads)
@@ -159,8 +199,8 @@ my $srv;
 	bind($srv, sockaddr_in($PORT, INADDR_ANY))			|| die "bind port failed: $!";
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
 }
-print "Satsuki HTTP Server: Listen $PORT port, timeout $TIMEOUT sec\n";
-print "\tStart up deamons: $DEAMONS (" . ($ITHREAD ? 'threads' : 'fork') . " mode)\n";
+print "Satsuki HTTP Server: Listen $PORT port, Timeout $TIMEOUT sec\n";
+print "\tStart up deamons: $DEAMONS (" . ($ITHREAD ? 'ithreads' : 'fork') . " mode)\n";
 
 #------------------------------------------------------------------------------
 # load mime types
@@ -224,7 +264,7 @@ if ($INDEX) {
 			while(waitpid(-1, WNOHANG) > 0) {};
 		};
 	}
-	# main threads
+	# main thread
 	while(1) {
 		sleep(1000);
 	}
@@ -313,7 +353,7 @@ sub parse_request {
 		my $bad_req;
 
 		local $SIG{ALRM} = sub { close($sock); $break=1; };
-		alarm( $TIMEOUT );
+		Time::HiRes::alarm( $TIMEOUT );
 
 		my $first=1;
 		my $post =1;
@@ -338,7 +378,7 @@ sub parse_request {
 			push(@header, $line);
 		}
 
-		alarm(0);
+		Time::HiRes::alarm(0);
 		if ($break)   { return; }
 		if ($bad_req) { return $state; }
 	}
@@ -560,9 +600,9 @@ sub exec_cgi {
 		$ROBJ->start_up();
 		$ROBJ->finish();
 	};
-	$@ && print STDERR "$@\n";
+	$@ && !$ENV{SatsukiExit} && print STDERR "$@\n";
 
-	# ライブラリのセーブ
+	# Save LIB's modtime
 	&Satsuki::AutoReload::save_lib();
 
 	$state->{status} = $ROBJ->{Status};
