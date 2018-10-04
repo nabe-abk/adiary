@@ -24,7 +24,6 @@ use Encode::Locale;	# for get system locale / for Windows
 #------------------------------------------------------------------------------
 use Satsuki::Base ();
 use Satsuki::AutoReload ();
-use Satsuki::Timer ();
 &Satsuki::AutoReload::save_lib();
 ###############################################################################
 # setting
@@ -37,7 +36,7 @@ my $IsWindows = ($^O eq 'MSWin32');
 my $PORT    = $IsWindows ? 80 : 8888;
 my $ITHREAD = $IsWindows;
 my $PATH    = $ARGV[0];
-my $TIMEOUT = 5;
+my $TIMEOUT = 1;
 my $DEAMONS = 5;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  # = 'index.html';
@@ -56,6 +55,8 @@ my %MIME_TYPE = (
 	txt  => 'text/plain',
 	css  => 'text/css',
 	js   => 'application/javascript',
+	json => 'application/json',
+	xml  => 'application/xml',
 	png  => 'image/png',
 	jpg  => 'image/jpeg',
 	jpeg => 'image/jpeg'
@@ -100,6 +101,7 @@ my %JanFeb2Mon = (
 		}
 	}
 	if ($TIMEOUT < 1) { $TIMEOUT=1; }
+	if ($DEAMONS < 1) { $DEAMONS=1; }
 	
 	if ($help) {
 		print <<HELP;
@@ -154,7 +156,8 @@ my $srv;
 	bind($srv, sockaddr_in($PORT, INADDR_ANY))			|| die "bind port failed: $!";
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
 }
-print "Satsuki HTTP Server: Listen $PORT port, timeout $TIMEOUT sec, " . ($ITHREAD ? 'threads' : 'fork') . " mode\n";
+print "Satsuki HTTP Server: Listen $PORT port, timeout $TIMEOUT sec\n";
+print "\tStart up deamons: $DEAMONS (" . ($ITHREAD ? 'threads' : 'fork') . " mode)\n";
 
 #------------------------------------------------------------------------------
 # load mime types
@@ -212,23 +215,20 @@ if ($INDEX) {
 			while(waitpid(-1, WNOHANG) > 0) {};
 		};
 	}
-	
-	my $PREFORK = 10;
-	for(my $i=0; $i<$PREFORK; $i++) {
-		&fork_or_crate_thread(\&prefork_main, $srv);
+
+	# prefork
+	for(my $i=0; $i<$DEAMONS; $i++) {
+		&fork_or_crate_thread(\&deamon_main, $srv);
 	}
 
-	my $rbits='';
-	&set_bit($rbits, $srv);
 	while(1) {
-		select(my $x = $rbits, undef, undef, undef);
-		next;
+		sleep(100);
 	}
 }
 close($srv);
 exit(0);
 
-sub prefork_main {
+sub deamon_main {
 	my $srv  = shift;
 	while(1) {
 		my $addr = accept(my $sock, $srv);
@@ -276,6 +276,7 @@ sub accept_client {
 	close($sock);
 
 	&output_connection_log($state);
+	return $state;
 }
 sub output_connection_log {
 	my $state = shift;
@@ -303,23 +304,26 @@ sub parse_request {
 	# recieve HTTP Header
 	#--------------------------------------------------
 	my @header;
-	my $body;
-	my $timeout;
 	{
-		local $SIG{ALRM} = sub { close($sock); $timeout=1; };
+		my $break;
+		my $bad_req;
+
+		local $SIG{ALRM} = sub { close($sock); $break=1; };
 		alarm( $TIMEOUT );
 
 		my $first=1;
 		while(1) {
-			my $line = &read_sock_1line($sock);	# no buffered <$sock>
-			if (!defined $line)  { return; }	# disconnect
+			my $line = &read_sock_1line($sock);		# no buffered <$sock>
+			if (!defined $line)  {	# disconnect
+				$break=1;
+				last;
+			}
 			$line =~ s/[\r\n]//g;
 
-			if ($first) {	# (example) HTTP/1.0 GET /
-				# print "[$$] $line\n";
+			if ($first) {		# (example) HTTP/1.0 GET /
 				$first = 0;
-				my $err = &analyze_request($state, $line);
-				if ($err) { return $state; }
+				$bad_req = &analyze_request($state, $line);
+				if ($bad_req) { last; }
 				next;
 			}
 
@@ -328,8 +332,9 @@ sub parse_request {
 		}
 
 		alarm(0);
+		if ($break)   { return; }
+		if ($bad_req) { return $state; }
 	}
-	if ($timeout) { return; }
 
 	#--------------------------------------------------
 	# Analyze Header
@@ -535,7 +540,7 @@ sub exec_cgi {
 		$ROBJ->{Timer} = $timer;
 		$ROBJ->{AutoReload} = $flag;
 
-		$ROBJ->init_for_httpd(undef);
+		$ROBJ->init_for_httpd();
 
 		if ($FS_CODE) {
 			# file system's locale setting
