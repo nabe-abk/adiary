@@ -1,12 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # セッションファイル管理用モジュール
-#						(C)2013 nabe / nabe@abk.nu
+#						(C)2018 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::SessionFile;
-our $VERSION = '1.10';
+our $VERSION = '1.20';
 #------------------------------------------------------------------------------
-use Fcntl;	# for sysopen
+use Fcntl;
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -74,6 +74,7 @@ sub open {
 	my $file = $self->get_filename() || return;
 	my $fh;
 	sysopen($fh, $file, O_CREAT | O_WRONLY | O_TRUNC);
+	binmode($fh);
 	$self->{fh} = $fh;
 	return $fh;
 }
@@ -87,37 +88,15 @@ sub msg {
 	my $msg  = $ROBJ->message_translate(@_);
 	return $self->say($msg);
 }
+sub say {
+	my $self = shift;
+	$self->write(@_, "\n");
+}
 sub write {
 	my $self = shift;
 	my $fh   = $self->{fh} || return;
-	print $fh @_;
-}
-sub say {
-	my $self = shift;
-	my $fh   = $self->{fh} || return;
-	print $fh @_,"\n";
-}
-
-#------------------------------------------------------------------------------
-# ●書き込みフラッシュ
-#------------------------------------------------------------------------------
-sub flush {
-	my $self = shift;
-	my $fh = $self->{fh} || return;
-
-	my $old = select($fh);
-	$|=1; $|=0;
-	select($old);
-}
-
-sub autoflush {
-	my $self = shift;
-	my $flag = shift;
-	my $fh = $self->{fh} || return;
-
-	my $old = select($fh);
-	$| = ($flag eq '') ? 1 : $flag;
-	select($old);
+	my $line = join('', @_);
+	syswrite($fh, $line, length($line));
 }
 
 #------------------------------------------------------------------------------

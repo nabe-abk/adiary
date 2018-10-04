@@ -1982,7 +1982,6 @@ sub hex2rgb {
 sub open_session {
 	my $session = &open_session_for_load(@_);
 	$session->open();
-	$session->autoflush();
 	return $session;
 }
 
