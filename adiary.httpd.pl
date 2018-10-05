@@ -256,14 +256,6 @@ if ($INDEX) {
 ($SILENT_CGI && $SILENT_FILE && $SILENT_OTHER) || print "\n";
 
 ###############################################################################
-# open broser on windows routine
-###############################################################################
-if ($IsWindows && $OPEN_BROWSER) {
-	my $url = 'http://' . $ENV{SERVER_NAME} . ($PORT==80 ? '' : ":$PORT");
-	system("cmd.exe /c start $url?login_auto");
-}
-
-###############################################################################
 # main routine
 ###############################################################################
 {
@@ -279,6 +271,13 @@ if ($IsWindows && $OPEN_BROWSER) {
 			while(waitpid(-1, WNOHANG) > 0) {};
 		};
 	}
+
+	# open broser on windows
+	if ($IsWindows && $OPEN_BROWSER) {
+		my $url = 'http://' . $ENV{SERVER_NAME} . ($PORT==80 ? '' : ":$PORT");
+		system("cmd.exe /c start $url?login_auto");
+	}
+
 	# main thread
 	while(1) {
 		sleep(1000);
@@ -290,6 +289,7 @@ exit(0);
 sub deamon_main {
 	my $srv = shift;
 	my %bak = %ENV;
+	$IsWindows && sleep(1);		# accept() blocking other thread on Windows
 	while(1) {
 		my $addr = accept(my $sock, $srv);
 		if (!$addr) { next; }
