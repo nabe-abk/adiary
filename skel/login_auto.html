@@ -1,0 +1,14 @@
+<@6>
+<$v.title ="autoログイン">
+
+<@>すでにログインしている
+<$ifredirect(Auth.ok, v.myself)>
+
+<@ok = Auth.login('root*', '')>
+<$ifredirect(!ok, v.myself)>
+
+<$h = new>
+<$h.id  = 'root*'>
+<$h.sid = 'dummy'>
+<$set_cookie('session', h)>
+<$redirect( v.thisurl . '?user/add')>

@@ -28,10 +28,11 @@ use Satsuki::AutoReload ();
 ###############################################################################
 # setting
 ###############################################################################
+my $IsWindows    = ($^O eq 'MSWin32');
 my $SILENT_CGI   = 0;
 my $SILENT_FILE  = 0;
 my $SILENT_OTHER = 0;
-my $IsWindows = ($^O eq 'MSWin32');
+my $OPEN_BROWSER = $IsWindows;
 
 my $PORT    = $IsWindows ? 80 : 8888;
 my $ITHREAD = $IsWindows;
@@ -40,6 +41,7 @@ my $TIMEOUT = 1;
 my $DEAMONS = 4;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  # = 'index.html';
+
 
 my $SYS_CODE = $Satsuki::SYSTEM_CODING;
 my $FS_CODE  = $IsWindows ? $Encode::Locale::ENCODING_LOCALE : undef;
@@ -97,6 +99,7 @@ my %JanFeb2Mon = (
 			if ($k eq '?') { $help =1; next; }
 			if ($k eq 'i') { $ITHREAD=1; next; }
 			if ($k eq 'f') { $ITHREAD=0; next; }
+			if ($k eq 'n') { $OPEN_BROWSER=0; next; }
 
 			# silent
 			if ($k eq 's' && $k2 eq 'c') { $key=substr($k,1); $SILENT_CGI  = $SILENT_OTHER = 1; next; }
@@ -148,6 +151,7 @@ my %JanFeb2Mon = (
 
 	if ($help) {
 		my $timeout_min = $IsWindows ? 1 : 0.001;
+		my $n = $IsWindows ? "\n  -n\t\tdon't open web browser" : '';
 		print <<HELP;
 Usage: $0 [options] [output_xml_file]
 Available options are:
@@ -157,11 +161,11 @@ Available options are:
   -d deamons	start deamons (default:4, min:1)
   -c fs_code	set file system's code
   -f		use fork()
-  -i 		use threads (ithreads)
-  -s            silent mode
-  -sc           silent mode for cgi  access
-  -sf           silent mode for file access
-  -\?|-h		view this help
+  -i		use threads (ithreads)
+  -s		silent mode
+  -sc		silent mode for cgi  access
+  -sf		silent mode for file access$n
+  -?|-h		view this help
 HELP
 		exit(0);
 	}
@@ -250,6 +254,15 @@ if ($INDEX) {
 	print "\tDirectory index: $INDEX\n";
 }
 ($SILENT_CGI && $SILENT_FILE && $SILENT_OTHER) || print "\n";
+
+###############################################################################
+# open broser on windows routine
+###############################################################################
+if ($IsWindows && $OPEN_BROWSER) {
+	my $url = 'http://' . $ENV{SERVER_NAME} . ($PORT==80 ? '' : ":$PORT");
+	system("cmd.exe /c start $url?login_auto");
+}
+
 ###############################################################################
 # main routine
 ###############################################################################
