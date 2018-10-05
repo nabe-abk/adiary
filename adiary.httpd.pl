@@ -617,6 +617,8 @@ sub exec_cgi {
 		#--------------------------------------------------
 		$ROBJ->start_up();
 		$ROBJ->finish();
+		close(STDIN);
+		close(STDOUT);
 	};
 	$@ && !$ENV{SatsukiExit} && print STDERR "$@\n";
 
