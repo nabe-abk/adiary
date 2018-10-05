@@ -39,7 +39,7 @@
 		<li><span class="mono">adiary.cgi</span> に実行属性を付ける</li>
 		<li><span class="mono">__cache/, data/, pub/, </span> ディレクトリの属性を 0777 等に変更にする（レンタルサーバ等では概ね不要）</li>
 		<li><span class="mono">adiary.conf.cgi.sample</span> を <span class="mono">adiary.conf.cgi</span> という名前でコピーする</li>
-		<li><span class="mono"><a href="adiary.cgi?login&amp;id=dummy&amp;pass=dummy">adiary.cgi?login</a></span> にアクセスし「ID/パスワード」を適当に入力しログインする</li>
+		<li><span class="mono"><a href="adiary.cgi?login_auto&amp;q=login">初回ログインURL</a></span> にアクセスする</li>
 		<li>自分自身をユーザーとして追加する</li>
 	</ol>
 	<p><a href="adiary.cgi">adiary.cgiを開く</a></p>
@@ -55,7 +55,7 @@
 	<section>
 	<h3>補足</h3>
 	<ul>
-		<li><a href="http://adiary.org/v3man/setting/mod_rewrite">mod_rewrite</a> を .htaccess に設定することで<strong class="warning">URL中の adiary.cgi の文字列を消すことができます</strong>。この場合 index.html は削除してください。</li>
+		<li><a href="http://adiary.org/v3man/setting/mod_rewrite">mod_rewrite</a> を .htaccess に設定することで<strong class="warning">URL中の adiary.cgi の文字列を消すことができます。</strong></li>
 		<li>標準で特定のブログを表示させたい場合は<a href="adiary.cgi?system/">システム管理</a>から設定してください。</li>
 		<li>SpeedyCGI, FastCGI, mod_perl2などを利用すると、より高速に動作させることができます。</li>
 	</ul>
