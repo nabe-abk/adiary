@@ -1859,7 +1859,8 @@ function my_confirm(h, callback) {
 		dialogClass: h.class,
 		buttons: btn,
 		open: function(){
-			div.siblings('.ui-dialog-buttonpane').find('button:eq(1)').focus();
+			// set default false
+			//div.siblings('.ui-dialog-buttonpane').find('button:eq(0)').focus();
 		}
 	});
 }

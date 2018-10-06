@@ -2,12 +2,15 @@
 <$ifbreak(csrf_check())>
 <$ifbreak(!v.allow_edit)>
 <@>
-<$action_return = v.rename_file( Form )>
+<$(action_return, files) = v.delete_files( Form )>
 <@>
 <@>
 <$v.action_is_main=1>
 <$v.frame_skeleton=''>
 <$set_content_type('application/json')>
-{ "ret": <@action_return> }
+{ "ret": <@action_return>, "files": <@v.generate_json(files)> }
+<@>
+<@> ディレクトリ情報、再生成
+<$v.genarete_imgae_dirtree()>
 <@>
 <@ifcall(Develop, '_sub/ajax_debug')>

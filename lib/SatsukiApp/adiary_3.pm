@@ -594,20 +594,6 @@ sub rename_folder {
 }
 
 #------------------------------------------------------------------------------
-# ●ゴミ箱を空にする
-#------------------------------------------------------------------------------
-sub clear_trashbox {
-	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $dir  = $self->blogimg_dir() . '.trashbox/';
-
-	my $ret = $ROBJ->dir_delete($dir) ? 0 : 1;
-
-	$ROBJ->mkdir($dir);
-	return $ret;
-}
-
-#------------------------------------------------------------------------------
 # ●ファイルの移動
 #------------------------------------------------------------------------------
 sub move_files {
@@ -621,7 +607,7 @@ sub move_files {
 	my $src_trash = ($form->{from} =~ m|^\.trashbox/|);	# 移動元がゴミ箱？
 	my $des_trash = ($form->{to}   =~ m|^\.trashbox/|);	# 移動先がゴミ箱？
 	if ($src_trash && $des_trash) {
-		# ゴミ箱内移動なら特になにもしない
+		# ゴミ箱内移動ならファイル名に日付付加しない
 		$src_trash = $des_trash = 0;
 	}
 
@@ -709,6 +695,55 @@ sub rename_file {
 	}
 
 	return $r;
+}
+
+#------------------------------------------------------------------------------
+# ●ファイルを削除する
+#------------------------------------------------------------------------------
+sub delete_files {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $dir  = $self->image_folder_to_dir( $form->{folder} ); # 値check付
+	my $files = $form->{file_ary} || [];
+	my @fail;
+	foreach(@$files) {
+		if ( !$self->check_file_name($_) ) {
+			push(@fail, $_);
+			next;
+		}
+		my $file = $_;
+		$ROBJ->fs_encode(\$file);
+		my $r = unlink("$dir$file");
+		if (!$r) {
+			push(@fail, $_);
+			next;
+		}
+		unlink("${dir}.thumbnail/$file.jpg");
+	}
+	my $f = $#fail + 1;
+	return wantarray ? ($f, \@fail) : $f;
+}
+
+#------------------------------------------------------------------------------
+# ●フォルダを削除する
+#------------------------------------------------------------------------------
+sub delete_folder {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $folder = $form->{folder};
+	if ($folder eq '' || $folder eq '/') {
+		return -1;
+	}
+
+	my $dir = $self->image_folder_to_dir( $folder );
+	my $ret = $ROBJ->dir_delete($dir) ? 0 : 1;
+
+	$ROBJ->mkdir($self->blogimg_dir() . '.trashbox/');
+	return $ret;
 }
 
 #------------------------------------------------------------------------------

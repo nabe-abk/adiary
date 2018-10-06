@@ -37,7 +37,7 @@ $( function(){
 	// ツリー関連
 	var path = $('#image-path').text();
 	var cur_files;
-	var cur_folder;
+	var cur_folder;		// ex) '/' 'newfolder/' 'aaa/bbb/ccc/' 'path/to/'
 	var cur_node;
 	var cur_folder_rel;	// cur_folder == '/' のとき空文字
 
@@ -144,7 +144,7 @@ var set = {
 	dnd: {
 		onDragStart: function(node) {
 			if (node.data.fix) return false;
-			logMsg("tree.onDragStart(%o)", node);
+			// console.log("tree.onDragStart(%o)", node);
 			return true;	// Return false to cancel dragging of node.
 		},
 		autoExpandMS: 400,
@@ -426,7 +426,6 @@ $('#album-new-folder').click( function(){
 		success: function(data) {
 			if (data.ret !== 0) return error_msg('#msg-fail-create');
 			name += '/';
-			console.log(name);
 			var create = node.addChild({
 			        isFolder: true,
 				title: name,
@@ -447,27 +446,37 @@ $('#album-new-folder').click( function(){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-// ●ゴミ箱空ボタン
+// ●ゴミ箱を空にする
 //////////////////////////////////////////////////////////////////////////////
-$('#album-clear-trashbox').click( function(){
+function clear_trash() {
 	// 確認メッセージ
-	my_confirm('#msg-confirm-trash', clear_trashbox);
+	my_confirm('#msg-confirm-trash', function(flag) {
+		if (!flag) return;
+		delete_folder('.trashbox/');
+	});
+}
+$('#album-clear-trashbox').click( clear_trash );
 
-  function clear_trashbox(flag) {
-	if (!flag) return;
+//////////////////////////////////////////////////////////////////////////////
+// ●フォルダの削除
+//////////////////////////////////////////////////////////////////////////////
+function delete_folder(folder) {
+	var msg = (folder == '.trashbox/') ? '#msg-fail-clear-trash' : '#msg-fail-delete-folder';
 	ajax_submit({
-		action: 'clear_trashbox',
+		action: 'delete_folder',
+		data: {
+			folder: folder
+		},
 		success: function(data) {
-			if (data.ret !== 0) error_msg('#msg-fail-clear-trash');
+			if (data.ret !== 0) error_msg(msg);
 			tree_reload();
 		},
 		error: function() {
-			error_msg('#msg-fail-clear-trash');
+			error_msg(msg);
 			tree_reload();
 		}
 	});
-  }
-});
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // ●フォルダの移動
@@ -484,6 +493,8 @@ function drop_to_tree(node, srcNode, hitMode, ui, draggable) {
 }
 
 function move_folder(node, srcNode) {
+	node = (typeof(node) == 'string') ? tree.dynatree("getTree").getNodeByKey(node) : node;
+	
 	var from = srcNode.getParent().data.key;
 	var to   = node.data.key;
 	if (to.indexOf(cur_folder) == 0) return false;	// 自分自身やその子へは移動できない
@@ -550,6 +561,35 @@ function move_files(to_folder) {
 	return true;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// ●ファイルの削除
+//////////////////////////////////////////////////////////////////////////////
+function delete_files() {
+	var files = load_selected_files();
+	if (!files) return false;
+
+	ajax_submit({
+		action: 'delete_files',
+		data: {
+			folder: cur_folder,
+			file_ary: files
+		},
+		success: function(data) {
+			for(var i in data.files) {
+				data.files[i] = data.files[i].replace(/\.#[\d\-]+/g, '');
+			}
+			if (data.ret !== 0) error_msg('#msg-fail-delete-files', {files: data.files});
+			tree_reload();
+		},
+		error: function() {
+			error_msg('#msg-fail-delete-files');
+			// ファイルを再表示
+			var imgs = view.find('.selected').parent();
+			imgs.css('visibility', 'visible');
+		}
+	});
+	return true;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // ●選択ファイルの一覧の更新
@@ -1255,6 +1295,51 @@ function load_selected_files() {
 	}
 	return files;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// ●フォルダやファイルの削除
+//////////////////////////////////////////////////////////////////////////////
+$(document).on('keydown', function(evt) {
+	if (evt.keyCode != 46) return;
+
+	var trash = (cur_folder.substr(0,10) == '.trashbox/');
+	var mode  = trash ? 'delete' : 'trash';
+	var files = load_selected_files();
+
+	// ファイルの削除
+	if (files.length) my_confirm('#msg-confirm-'+mode+'-files', function(flag) {
+		if (!flag) return;
+		if (trash) {
+			delete_files();
+		} else {
+			// ゴミ箱へ移動
+			move_files('.trashbox/');
+		}
+	})
+	// ゴミ箱を空に？フォルダの削除
+	else if (cur_folder == '.trashbox/')
+		clear_trash();
+
+	// フォルダの削除
+	else if (cur_folder != '/') my_confirm('#msg-confirm-'+mode+'-folder', function(flag) {
+		if (!flag) return;
+		if (trash) {
+			delete_folder(cur_folder);
+		} else {
+			// ゴミ箱へ移動
+			move_folder('.trashbox/', cur_node);
+		}
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
+// ●ファイルの移動
+//////////////////////////////////////////////////////////////////////////////
+function album_move_files() {
+	folder_select_dialog( move_files );
+}
+
+
 
 //############################################################################
 // ■ファイルアップロード関連
