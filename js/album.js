@@ -436,7 +436,7 @@ $('#album-new-folder').click( function(){
 			create.data.title = get_title( create.data );
 
 			// 名前変更モード
-			node.expand();
+			if (!node.data.expand) node.expand();	// 重複expandを2回するとエラーになる
 			edit_node(create);
 		},
 		error: function() {
