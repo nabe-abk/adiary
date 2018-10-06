@@ -1315,6 +1315,8 @@ function album_delete_files() {
 	})
 }
 $(document).on('keydown', function(evt) {
+	if ($('#lightbox').is(':visible')) return;
+	if ($('div.ui-dialog').is(':visible')) return;
 	if (evt.keyCode != 46) return;
 
 	var trash = (cur_folder.substr(0,10) == '.trashbox/');
