@@ -1168,10 +1168,11 @@ $('#album-actions').change( function(evt){
 	if (!val) return;
 	obj.val('');
 
-	if (val == 'remake-thumbnail') remake_thumbnail(evt);
-	if (val == 'remove-exifjpeg')  remove_exifjpeg(evt);
-	if (val == 'select-exifjpeg')  select_exifjpeg(evt);
-	if (val == 'album-move-files') album_move_files(evt);
+	if (val == 'remake-thumbnail')   remake_thumbnail(evt);
+	if (val == 'remove-exifjpeg')    remove_exifjpeg(evt);
+	if (val == 'select-exifjpeg')    select_exifjpeg(evt);
+	if (val == 'album-move-files')   album_move_files(evt);
+	if (val == 'album-delete-files') album_delete_files(evt);
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1299,15 +1300,11 @@ function load_selected_files() {
 //////////////////////////////////////////////////////////////////////////////
 // ●フォルダやファイルの削除
 //////////////////////////////////////////////////////////////////////////////
-$(document).on('keydown', function(evt) {
-	if (evt.keyCode != 46) return;
-
+function album_delete_files() {
 	var trash = (cur_folder.substr(0,10) == '.trashbox/');
 	var mode  = trash ? 'delete' : 'trash';
-	var files = load_selected_files();
 
-	// ファイルの削除
-	if (files.length) my_confirm('#msg-confirm-'+mode+'-files', function(flag) {
+	my_confirm('#msg-confirm-'+mode+'-files', function(flag) {
 		if (!flag) return;
 		if (trash) {
 			delete_files();
@@ -1316,12 +1313,22 @@ $(document).on('keydown', function(evt) {
 			move_files('.trashbox/');
 		}
 	})
+}
+$(document).on('keydown', function(evt) {
+	if (evt.keyCode != 46) return;
+
+	var trash = (cur_folder.substr(0,10) == '.trashbox/');
+	var mode  = trash ? 'delete' : 'trash';
+	var files = load_selected_files();
+
+	// ファイルの削除
+	if (files.length) return album_delete_files()
+
 	// ゴミ箱を空に？フォルダの削除
-	else if (cur_folder == '.trashbox/')
-		clear_trash();
+	if (cur_folder == '.trashbox/') return clear_trash();
 
 	// フォルダの削除
-	else if (cur_folder != '/') my_confirm('#msg-confirm-'+mode+'-folder', function(flag) {
+	if (cur_folder != '/') my_confirm('#msg-confirm-'+mode+'-folder', function(flag) {
 		if (!flag) return;
 		if (trash) {
 			delete_folder(cur_folder);
