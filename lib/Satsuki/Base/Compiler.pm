@@ -1,11 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # skeleton parser / 構文解析コンパイラ
-#						(C)2006-2016 nabe@abk
+#						(C)2006-2018 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.73';
+our $VERSION = '1.74';
 #(簡易履歴)
+# 2018/10 Ver1.74  arrayq(), flagq(), hashq()のアップデート, ifset_header類追加
 # 2016/01 Ver1.73  load_from_aryのバグ修正
 # 2015/11 Ver1.72  関数展開時の出力書式を綺麗に（実行結果に変化なし）
 # 2015/05 Ver1.71  <@ifcall(cond,f)>バグ修正。begin_array等で最後の空白行を除去。
@@ -60,7 +61,7 @@ sub compile {
 	if ($debugfile ne '') { $self->debug_save("${debugfile}_01.log", $buf, $lnum, $strbuf); }
 
 	# 逆ポーランド記法に変換
-	$self->convert_reversed_poland($buf, $lnum);
+	$self->convert_reversed_poland($buf, $lnum, $strbuf);
 	if ($debugfile ne '') { $self->debug_save("${debugfile}_02.log", $buf, $lnum, $strbuf); }
 
 	# eval 実行式に変換（from 逆ポーランド記法）, 文字列の評価
@@ -220,8 +221,12 @@ my %inline_if = (if=>-1, ifdef=>-1,
 	ifjump=>1, ifjump_clear=>1, ifsuperjump=>1, ifsuperjump_clear=>1,
 	ifcall=>1, ifredirect=>1, ifform_error=>1, ifform_clear=>1,
 	ifmessage=>2, ifnotice=>2,
+
 	ifset_cookie=>1, ifclear_cookie=>1,
-	ifset=>-1, ifnext=>-1, iflast=>-1, ifset_status=>1,
+	ifset_header=>1, ifset_lastmodified=>2,
+	ifset_content_type=>2, ifset_status=>2,
+
+	ifset=>-1, ifnext=>-1, iflast=>-1, 
 	ifpush=>4, ifpop=>4, ifshift=>4, ifunshift=>4,
 	ifreturn=>3, ifumask=>3, ifprint=>3);
 #  1 : ifxxx(exp, a1, a2, ... ) → if(exp) { xxx(a1, a2, ...); }
@@ -683,7 +688,7 @@ sub preprocessor {
 # ●[02] 逆ポーランド記法に変換
 #------------------------------------------------------------------------------
 sub convert_reversed_poland {
-	my ($self, $buf, $lnum) = @_;
+	my ($self, $buf, $lnum, $strbuf) = @_;
 
 	my $line = 0;			# 行カウンタ
 	my $comment_flag = 0;
@@ -757,19 +762,29 @@ sub convert_reversed_poland {
 		!eg;
 		$cmd =~ s|\[([^\]\x00-\x04]*)\]|array($1)|g;	# [aaa, bbb] → array[aaa,bbb]
 
-		# ■空白削除■「if(exists xxx.yyy）」構文のみ空白を残し、後で' 'を%rと解釈
-		# $cmd =~ s/\s*([=,\(\)\+\-<>\^\*\/&|%!;\#\@]+)\s*/$1/g;
-		# $cmd =~ s/\s*(%[\w\.]+)\s*/$1/g;
-		# ※構文を複雑にするだけなので削除機能はコメントアウト
-		$cmd =~ s/\s*//g;
-
-		# flagq(a b c) → flagq(a,b,c)
-		$cmd =~ s!(array|arrayq|hash|hashq|hashqq|flag|flagq)\(([^\(\)]*?)\)!
+		# flag(a b c) → flag(a,b,c)
+		$cmd =~ s!(array|hash|flag)\(([^\(\)]*?)\)!
 			my $c=$1;
 			my $x=$2;
 			$x =~ s/\s*,\s*|\s+/,/g;
 			"$c($x)";
 		!eg;
+		# flagq(a b-c dd,) → flag('a','b-c','dd,')
+		$cmd =~ s!(arrayq|hashq|flagq)\(([^\(\)]*?)\)!
+			my $c=$1;
+			my @a=&array2quote_string(split(/\s+/,$2));
+			foreach(@a) {
+				push(@$strbuf, $_);
+				$_ = "\x01[\x01$#$strbuf]";
+			}
+			my $x=@a ? ("'" . join("','",@a) . "'") : '';
+			chop($c);
+			print STDERR "$c($x)\n";
+			"$c($x)";
+		!eg;
+
+		# 空白削除
+		$cmd =~ s/\s*//g;
 
 		$cmd =~ s/shift\(\)/shift(argv)/g;		# shift() → shift(argv)
 		$cmd =~ s/\(\)/(__undef__)/g;			# func() の中身に仮に undef を入れる
@@ -1194,31 +1209,17 @@ sub poland_to_eval {
 					# その他の関数呼び出し
 					#--------------------------------------
 					$need_line_num = 1;
-					if ($y eq 'array'|| $y eq 'arrayq') {
+					if ($y eq 'array') {
 						# array (a, b, c, ...) to [a, b, c]
 						# arrayq(a, b, c, ...) to ['a', 'b', 'c']
-						my @ary = ($y eq 'array')
-							? &get_objects_array ($x_orig, $xt, $local_vars)
-							: &array2quote_string($x_orig, $xt, $local_vars);
+						my @ary = &get_objects_array ($x_orig, $xt, $local_vars);
 						$x = join(',', @ary);
 						push(@stack, "[$x]");
 
-					} elsif ($y eq 'hash' || $y eq 'hashq' || $y eq 'hashqq') {
-						# hash  (a1, b1, a2, b2, ...) to {a1=>b1, a2=>b2}
-						# hashq (a1, b1, a2, b2, ...) to {'a1'=>b1, 'a2'=>b2}
-						# hashqq(a1, b1, a2, b2, ...) to {'a1'=>'b1', 'a2'=>'b2'}
-						my @ary;
-						if ($y eq 'hash' || $y eq 'hashqq') {
-						   @ary = ($y eq 'hash')
-							? &get_objects_array ($x_orig, $xt, $local_vars)
-							: &array2quote_string($x_orig, $xt, $local_vars);
-						} else {
-							my @a = &array2quote_string($x_orig, $xt, $local_vars);
-							my @b = &get_objects_array ($x_orig, $xt, $local_vars);
-							foreach(0..$#a) {
-								push(@ary, (($_ & 1) ? $b[$_] : $a[$_]));
-							}
-						}
+					} elsif ($y eq 'hash') {
+						# hash (a1, b1, a2, b2, ...) to {a1=>b1, a2=>b2}
+						# hashq(a1, b1, a2, b2, ...) to {'a1'=>'b1', 'a2'=>'b2'}
+						my @ary = &get_objects_array ($x_orig, $xt, $local_vars);
 						my $x='';
 						@ary = grep { $_ ne '' } @ary;
 						while(@ary) {
@@ -1229,12 +1230,10 @@ sub poland_to_eval {
 						chop($x);
 						push(@stack, "{$x}");
 
-					} elsif ($y eq 'flag' || $y eq 'flagq') {
+					} elsif ($y eq 'flag') {
 						# flag (a, b, c, ...) to {a=>1, b=>1, ...}
 						# flagq(a, b, c, ...) to {'a'=>1, 'b'=>1, ...}
-						my @ary = ($y eq 'flag')
-							? &get_objects_array ($x_orig, $xt, $local_vars)
-							: &array2quote_string($x_orig, $xt, $local_vars);
+						my @ary = &get_objects_array($x_orig, $xt, $local_vars);
 						@ary = grep { $_ ne '' } @ary;
 						if (@ary) {
 							$x = "{" . join('=>1,', @ary) . "=>1}";
@@ -2160,20 +2159,12 @@ sub get_objects_array {
 }
 
 sub array2quote_string {
-	my $names = shift;
-	my $types = shift;
-	if (!ref $names) { $names = [$names]; }
-	if (!ref $types) { $types = [$types]; }
-
 	my @ary;
-	foreach(0..$#$names) {
-		my $name = $names->[$_];
-		my $type = $types->[$_];
-		if ($type eq 'obj' || $type eq 'const_var') {
-			$name =~ s/'//g;
-			$name = "'$name'";
-		}
-		push(@ary, $name);
+	foreach(@_) {
+		my $x = $_;
+		$x =~ s/\\/\\\\/g;
+		$x =~ s/'/\\'/g;
+		push(@ary, $x);
 	}
 	return @ary;
 }
