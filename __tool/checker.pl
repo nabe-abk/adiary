@@ -58,7 +58,7 @@ print "---adiary Release checker-------------------------------------------\n";
 # Debug check
 #------------------------------------------------------------------------------
 {
-	open(my $fh, 'grep -ERni "debug\(|#\s*debug" skel/ lib/ plugin/ |');
+	open(my $fh, 'grep -ERni "debug\(|#\s*debug|print\s+STDERR" skel/ lib/ plugin/ |');
 	my @ary = <$fh>;
 	close($fh);
 
