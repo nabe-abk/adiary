@@ -19,12 +19,16 @@ use threads;		# for ithreads
 use POSIX;		# for waitpid(<pid>, WNOHANG);
 use Cwd;		# for $ENV{DOCUMENT_ROOT}
 use Time::HiRes;	# for ualarm() and generate random string
-use Image::Magick;	# load on main process for Windows EXE
 use Encode::Locale;	# for get system locale / for Windows
 #------------------------------------------------------------------------------
 use Satsuki::Base ();
 use Satsuki::AutoReload ();
 &Satsuki::AutoReload::save_lib();
+#------------------------------------------------------------------------------
+# pre load modules
+#------------------------------------------------------------------------------
+eval { require Image::Magick; };
+eval { require Net::SSLeay;   };
 ###############################################################################
 # setting
 ###############################################################################
@@ -41,7 +45,6 @@ my $TIMEOUT = 1;
 my $DEAMONS = 4;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  # = 'index.html';
-
 
 my $SYS_CODE = $Satsuki::SYSTEM_CODING;
 my $FS_CODE  = $IsWindows ? $Encode::Locale::ENCODING_LOCALE : undef;
