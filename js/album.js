@@ -67,6 +67,7 @@ var set = {
 	cookieId: 'album:' + Vmyself,
 	minExpandLevel: 2,
 	imagePath: $('#icon-path').text(),
+	debugLevel: 0,
 
 	initAjax: { url: tree.data('url') },
 	onPostInit: function(isReloading, isError) {
@@ -84,11 +85,7 @@ var set = {
 			data.title    = get_title(data);
 			data.expand   = true;
 			data.isFolder = true;
-			
-/*			$(node.span).on("mydbltap", function(evt) {
-				edit_node(node);
-			});
-*/		});
+		});
 		var rnodes = rootNode.getChildren();
 		if (!rnodes) return;	// エラー回避
 		var root = rnodes[1];
@@ -285,17 +282,18 @@ function edit_node( node ) {
 		type:  'text',
 		value: name
 	});
+	inp.addClass('folder-edit-inp no-resize');
 	// aタグ内にinputを入れると不可思議な動作をするので、
 	// 変わりの span box を作り置き換える。
 	var item = span.find( ".dynatree-title" );	// aタグ
 	var box = $('<span>');
 	box.addClass( item.attr('class') );
 	box.append( inp );
+	box.insertBefore( item );
 	item.replaceWith( box );
 
 	// Focus <input> and bind keyboard handler
 	inp.focus();
-	inp.select();
 	inp.keydown(function(evt){
 		var obj = $(evt.target);
 		switch( evt.which ) {
@@ -320,6 +318,7 @@ function edit_node( node ) {
 	// ○フォーカスが離れた（編集終了）
 	//-------------------------------------------
 	inp.blur(function(evt){
+		box.remove();
 		tree.unbind('click', tree_click);
 		node.setTitle( node.data.title );
 		ctree.$widget.bind();
@@ -426,17 +425,18 @@ $('#album-new-folder').click( function(){
 		success: function(data) {
 			if (data.ret !== 0) return error_msg('#msg-fail-create');
 			name += '/';
+			tree.find('.folder-edit-inp').blur();	// addChild前に
+
 			var create = node.addChild({
 			        isFolder: true,
 				title: name,
-				name:  name
+				name:  name,
+				key: cur_folder + name,
+				count: 0
 			});
-			create.data.key   = cur_folder + name;
-			create.data.count = 0;
-			create.data.title = get_title( create.data );
 
 			// 名前変更モード
-			if (!node.data.expand) node.expand();	// 重複expandを2回するとエラーになる
+			node.expand();	// 重複expandを2回するとエラーになる
 			edit_node(create);
 		},
 		error: function() {
@@ -817,7 +817,6 @@ function ajax_submit(opt) {
 		},
 		success: function(data) {
 			if (opt.success) opt.success(data);
-			console.log(data);
 			console.log('[ajax_submit()] http post success');
 		},
 		complete : function() {

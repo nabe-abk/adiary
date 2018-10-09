@@ -1010,6 +1010,7 @@ initfunc.push( function(R){
 
 function set_input_resize(obj, flag) {
 	if (obj.parents('.color-picker, .colorpicker').length) return;
+	if (obj.hasClass('no-resize')) return;
 
 	// 非表示要素は最初にhoverされた時に処理する
 	if (!flag && obj.is(":hidden")) {
