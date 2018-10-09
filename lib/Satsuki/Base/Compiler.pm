@@ -769,17 +769,16 @@ sub convert_reversed_poland {
 			$x =~ s/\s*,\s*|\s+/,/g;
 			"$c($x)";
 		!eg;
-		# flagq(a b-c dd,) → flag('a','b-c','dd,')
+		# flagq(a b-c dd,ee) → flag('a','b-c','dd','ee')
 		$cmd =~ s!(arrayq|hashq|flagq)\(([^\(\)]*?)\)!
 			my $c=$1;
-			my @a=&array2quote_string(split(/\s+/,$2));
+			my @a=&array2quote_string(split(/\s+|\s*,\s*/,$2));
 			foreach(@a) {
 				push(@$strbuf, $_);
 				$_ = "\x01[\x01$#$strbuf]";
 			}
 			my $x=@a ? ("'" . join("','",@a) . "'") : '';
 			chop($c);
-			print STDERR "$c($x)\n";
 			"$c($x)";
 		!eg;
 
