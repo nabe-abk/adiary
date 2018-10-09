@@ -303,6 +303,9 @@ function edit_node( node ) {
 			case 13: // [enter]
 				rename_folder(obj, node, inp.val());
 				break;
+			case 46: // delete
+				evt.stopPropagation();	// stop delete folder
+				break;
 		}
 	});
 	//-------------------------------------------
