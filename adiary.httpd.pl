@@ -39,12 +39,13 @@ my $SILENT_OTHER = 0;
 my $OPEN_BROWSER = $IsWindows;
 
 my $PORT    = $IsWindows ? 80 : 8888;
-my $ITHREAD = $IsWindows;
+my $ITHREADS= $IsWindows;
 my $PATH    = $ARGV[0];
 my $TIMEOUT = 1;
 my $DEAMONS = 4;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  # = 'index.html';
+my $PID;
 
 my $SYS_CODE = $Satsuki::SYSTEM_CODING;
 my $FS_CODE  = $IsWindows ? $Encode::Locale::ENCODING_LOCALE : undef;
@@ -100,8 +101,8 @@ my %JanFeb2Mon = (
 
 			if ($k eq 'h') { $help =1; next; }
 			if ($k eq '?') { $help =1; next; }
-			if ($k eq 'i') { $ITHREAD=1; next; }
-			if ($k eq 'f') { $ITHREAD=0; next; }
+			if ($k eq 'i') { $ITHREADS=1; next; }
+			if ($k eq 'f') { $ITHREADS=0; next; }
 			if ($k eq 'n') { $OPEN_BROWSER=0; next; }
 
 			# silent
@@ -209,7 +210,10 @@ my $srv;
 }
 print "Satsuki HTTP Server: Listen $PORT port, Timeout $TIMEOUT sec"
 	. ($IsWindows ? '(probably not working)' : '') .  "\n";
-print "\tStart up deamons: $DEAMONS (" . ($ITHREAD ? 'ithreads' : 'fork') . " mode)\n";
+print "\tStart up deamons: $DEAMONS (" . ($ITHREADS ? 'ithreads' : 'fork') . " mode)\n";
+
+sub get_tid { return sprintf("%02d", threads->tid); }
+$PID = $ITHREADS ? &get_tid() : $$;
 
 #------------------------------------------------------------------------------
 # load mime types
@@ -269,7 +273,7 @@ if ($INDEX) {
 
 	# clear defunct process on fork()
 	local $SIG{CHLD};
-	if (!$ITHREAD) {
+	if (!$ITHREADS) {
 		$SIG{CHLD} = sub {
 			while(waitpid(-1, WNOHANG) > 0) {};
 		};
@@ -292,6 +296,7 @@ exit(0);
 sub deamon_main {
 	my $srv = shift;
 	my %bak = %ENV;
+	$PID = $ITHREADS ? &get_tid() : $$;
 	$IsWindows && sleep(1);		# accept() blocking other thread on Windows
 	while(1) {
 		my $addr = accept(my $sock, $srv);
@@ -306,7 +311,7 @@ sub deamon_main {
 #------------------------------------------------------------------------------
 sub fork_or_crate_thread {
 	my $func = shift;
-	if ($ITHREAD) {
+	if ($ITHREADS) {
 		my $thr = threads->create($func, @_);
 		if (!defined $thr) { die "threads->create fail!"; }
 		$thr->detach();
@@ -335,6 +340,7 @@ sub accept_client {
 
 	$ENV{REMOTE_ADDR} = $ip;
 	$ENV{REMOTE_PORT} = $port;
+	# print "[$PID] connection from $ip:$port\n";
 
 	my $state = &parse_request($sock);
 	close($sock);
@@ -345,14 +351,14 @@ sub accept_client {
 sub output_connection_log {
 	my $state = shift;
 	if (!$state) {
-		$SILENT_OTHER || print "[$$] connection close\n";
+		$SILENT_OTHER || print "[$PID] connection close\n";
 	} else {
 		if ($state->{type} eq 'file' && $SILENT_FILE
 		 || $state->{type} eq 'cgi ' && $SILENT_CGI) {
 			return;
  		}
 		my $byte = $state->{send};
-		print "[$$] $state->{status} $state->{type} " . (' ' x (7-length($byte))) . "$byte " . $state->{request} . "\n";
+		print "[$PID] $state->{status} $state->{type} " . (' ' x (7-length($byte))) . "$byte " . $state->{request} . "\n";
 	}
 }
 
