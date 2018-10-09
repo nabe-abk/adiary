@@ -46,7 +46,7 @@ AGPL(AFFERO GENERAL PUBLIC LICENSE) Vesrion 3 または
 
 パッチやPull Requestを送信される場合は、
 必ずコードのライセンスを明記してください。
-MITライセンスやWTFPLだと大変助かります。
+MITライセンスやPerlライセンスだと大変助かります。
 
 ライセンスが不明記、
 またはライセンスの内容によっては、
@@ -69,8 +69,9 @@ MITライセンスやWTFPLだと大変助かります。
 
 ## Perl
 
-  * ImageMagick (Apache 2.0)
+  * Image::Magick (Apache 2.0)
   * Net::SSLeay (Perl)
+  * CryptX (Perl)
 
 ## プラグインとテーマ
 
