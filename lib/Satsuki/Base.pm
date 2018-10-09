@@ -795,10 +795,14 @@ sub http_headers {
 	my $header;
 
 	# Status
+	my $status = $self->{Status};
 	if ($self->{HTTPD}) {
-		$header = "HTTP/1.0 $self->{Status}\r\n";
+		$header  = "HTTP/1.0 $status\r\n";
+		my $st = $self->{HTTPD_state};
+		$st->{keep_alive} = $st->{req_keep_alive} && !$self->{HTML_cache} && ($status==200 || $status == 304);
+		$header .= "Connection: " . ($st->{keep_alive} ? 'keep-alive' : 'close') . "\r\n";
 	} else {
-		$header = "Status: $self->{Status}\r\n";
+		$header  = "Status: $status\r\n";
 	}
 	$header .= join('', @{ $self->{Headers} });	# その他のヘッダ
 

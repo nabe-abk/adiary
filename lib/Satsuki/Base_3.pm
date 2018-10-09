@@ -47,8 +47,9 @@ sub init_for_fastcgi {
 # ■httpd用のスタートアップ
 ###############################################################################
 sub init_for_httpd {
-	my $self = shift;
-	my $path = shift || '/';
+	my $self  = shift;
+	$self->{HTTPD_state} = shift;
+	my $path  = shift || '/';
 
 	$self->{CGI_cache}= 1;
 	$self->{HTTPD}    = 1;

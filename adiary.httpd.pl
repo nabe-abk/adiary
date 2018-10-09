@@ -43,6 +43,7 @@ my $ITHREADS= $IsWindows;
 my $PATH    = $ARGV[0];
 my $TIMEOUT = 1;
 my $DEAMONS = 4;
+my $KEEPALIVE = 1;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  # = 'index.html';
 my $PID;
@@ -301,8 +302,12 @@ sub deamon_main {
 	while(1) {
 		my $addr = accept(my $sock, $srv);
 		if (!$addr) { next; }
-		&accept_client($sock, $addr);
-		%ENV = %bak;
+
+		my $state = { keep_alive => 1};
+		while($state && $state->{keep_alive}) {
+			$state = &accept_client($sock, $addr);
+			%ENV = %bak;
+		}
 	}
 }
 
@@ -343,7 +348,7 @@ sub accept_client {
 	# print "[$PID] connection from $ip:$port\n";
 
 	my $state = &parse_request($sock);
-	close($sock);
+	if (!$state || !$state->{keep_alive}) { close($sock); }
 
 	&output_connection_log($state);
 	return $state;
@@ -427,6 +432,9 @@ sub parse_request {
 		if ($key eq 'Content-Type') {
 			$ENV{CONTENT_TYPE} = $val;
 			next;
+		}
+		if ($KEEPALIVE && $key eq 'Connection' && $val eq 'keep-alive') {
+			$state->{req_keep_alive} = 1;
 		}
 
 		$key =~ s/-/_/g;
@@ -613,8 +621,7 @@ sub exec_cgi {
 		$ROBJ->{Timer} = $timer;
 		$ROBJ->{AutoReload} = $flag;
 
-		$ROBJ->init_for_httpd();
-		$ROBJ->set_header('Connection', 'close');
+		$ROBJ->init_for_httpd($state);
 
 		if ($FS_CODE) {
 			# file system's locale setting
@@ -687,11 +694,13 @@ sub send_response {
 	if (index($header, 'Content-Type:')<0) {
 		$header .= "Content-Type: text/plain\r\n";
 	}
+	$state->{keep_alive} = $state->{req_keep_alive} && ($status == 200 || $status == 304);
+	$header .= "Connection: " . ($state->{keep_alive} ? 'keep-alive' : 'close') . "\r\n";
+
 	my $header = <<HEADER;
 HTTP/1.0 $state->{status_msg}\r
 Date: $date\r
 Server: $ENV{SERVER_SOFTWARE}\r
-Connection: close\r
 $header\r
 HEADER
 	print $sock $header;
