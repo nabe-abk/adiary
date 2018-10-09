@@ -43,7 +43,7 @@ my $ITHREADS= $IsWindows;
 my $PATH    = $ARGV[0];
 my $TIMEOUT = 1;
 my $DEAMONS = 4;
-my $KEEPALIVE = 1;
+my $KEEPALIVE = 0;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;  # = 'index.html';
 my $PID;
@@ -55,9 +55,7 @@ my $FS_CODE  = $IsWindows ? $Encode::Locale::ENCODING_LOCALE : undef;
 # for Windows
 #------------------------------------------------------------------------------
 if ($IsWindows) {
-	*Time::HiRes::alarm = sub($;$) {
-		alarm(shift);
-	}
+	*Time::HiRes::alarm = sub($;$) {};
 }
 
 #------------------------------------------------------------------------------
@@ -104,6 +102,7 @@ my %JanFeb2Mon = (
 			if ($k eq '?') { $help =1; next; }
 			if ($k eq 'i') { $ITHREADS=1; next; }
 			if ($k eq 'f') { $ITHREADS=0; next; }
+			if ($k eq 'k') { $KEEPALIVE   =1; next; }
 			if ($k eq 'n') { $OPEN_BROWSER=0; next; }
 
 			# silent
@@ -131,7 +130,7 @@ my %JanFeb2Mon = (
 			if ($k eq 'c') { $FS_CODE   = $val; next; }
 
 			# float argument
-			if (!$IsWindows && $k eq 't') {
+			if ($k eq 't') {
 				if ($val !~ /^\d+(?:\.\d+)?$/) {
 					print "Invalid argument: -$k option\n";
 					exit(-1);
@@ -147,26 +146,22 @@ my %JanFeb2Mon = (
 			die("program error");
 		}
 	}
-	if ($IsWindows) {
-		if ($TIMEOUT < 1) { $TIMEOUT=1; }
-		$TIMEOUT = int($TIMEOUT);
-	}
 	if ($TIMEOUT < 0.001) { $TIMEOUT=0.001; }
 	if ($DEAMONS < 1)     { $DEAMONS=1;     }
 
 	if ($help) {
-		my $timeout_min = $IsWindows ? 1 : 0.001;
 		my $n = $IsWindows ? "\n  -n\t\tdon't open web browser" : '';
 		print <<HELP;
 Usage: $0 [options] [output_xml_file]
 Available options are:
   -p port	bind port (default:8888, windows:80)
-  -t timeout	connection timeout second (default:1, min:$timeout_min)
+  -t timeout	connection timeout second (default:1, min:0.001)
   -m mime_file	load mime types file name (default: /etc/mime.types)
   -d deamons	start deamons (default:4, min:1)
   -c fs_code	set file system's code
   -f		use fork()
   -i		use threads (ithreads)
+  -k		connection keep-alive enable
   -s		silent mode
   -sc		silent mode for cgi  access
   -sf		silent mode for file access$n
@@ -211,7 +206,8 @@ my $srv;
 }
 print "Satsuki HTTP Server: Listen $PORT port, Timeout $TIMEOUT sec"
 	. ($IsWindows ? '(probably not working)' : '') .  "\n";
-print "\tStart up deamons: $DEAMONS (" . ($ITHREADS ? 'ithreads' : 'fork') . " mode)\n";
+print "\tStart up deamons: $DEAMONS (" . ($ITHREADS ? 'ithreads' : 'fork') . " mode / keep-alive="
+	. ($KEEPALIVE ? 'on' : 'off') . ")\n";
 
 sub get_tid { return sprintf("%02d", threads->tid); }
 $PID = $ITHREADS ? &get_tid() : $$;
@@ -303,11 +299,7 @@ sub deamon_main {
 		my $addr = accept(my $sock, $srv);
 		if (!$addr) { next; }
 
-		my $state = { keep_alive => 1};
-		while($state && $state->{keep_alive}) {
-			$state = &accept_client($sock, $addr);
-			%ENV = %bak;
-		}
+		&accept_client($sock, $addr, \%bak);
 	}
 }
 
@@ -339,6 +331,7 @@ sub fork_or_crate_thread {
 sub accept_client {
 	my $sock = shift;
 	my $addr = shift;
+	my $bak  = shift;
 	my($port, $ip_bin) = sockaddr_in($addr);
 	my $ip   = inet_ntoa($ip_bin);
 	binmode($sock);
@@ -347,10 +340,17 @@ sub accept_client {
 	$ENV{REMOTE_PORT} = $port;
 	# print "[$PID] connection from $ip:$port\n";
 
-	my $state = &parse_request($sock);
-	if (!$state || !$state->{keep_alive}) { close($sock); }
-
-	&output_connection_log($state);
+	my $state;
+	my $flag=1;
+	while($flag) {
+		$state = &parse_request($sock);
+		if (!$state || !$state->{keep_alive}) {
+			close($sock);
+			$flag = 0;
+		}
+		&output_connection_log($state);
+		%ENV = %$bak;
+	}
 	return $state;
 }
 sub output_connection_log {
@@ -384,6 +384,14 @@ sub parse_request {
 
 		local $SIG{ALRM} = sub { close($sock); $break=1; };
 		Time::HiRes::alarm( $TIMEOUT );
+		if ($IsWindows) {
+			my $bits = '';
+			&set_bit($bits, $sock);
+			select($bits, undef, undef, $TIMEOUT);
+			if (!&check_bit($bits, $sock)) {
+				&{ $SIG{ALRM} }();
+			}
+		}
 
 		my $first=1;
 		my $post =1;
@@ -396,7 +404,7 @@ sub parse_request {
 			}
 			$line =~ s/[\r\n]//g;
 
-			if ($first) {		# (example) HTTP/1.0 GET /
+			if ($first) {		# (example) HTTP/1.1 GET /
 				$first = 0;
 				$bad_req = &analyze_request($state, $line);
 				if ($bad_req) { last; }
@@ -698,17 +706,18 @@ sub send_response {
 	$header .= "Connection: " . ($state->{keep_alive} ? 'keep-alive' : 'close') . "\r\n";
 
 	my $header = <<HEADER;
-HTTP/1.0 $state->{status_msg}\r
+HTTP/1.1 $state->{status_msg}\r
 Date: $date\r
 Server: $ENV{SERVER_SOFTWARE}\r
 $header\r
 HEADER
 	print $sock $header;
 
-	$state->{send} = 0;
 	if ($state->{method} ne 'HEAD' && $status !~ /^304 /) {
 		print $sock $data;
 		$state->{send} = length($header) + $c_len;
+	} else {
+		$state->{send} = length($header);
 	}
 }
 
