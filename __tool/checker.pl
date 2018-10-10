@@ -58,36 +58,40 @@ print "---adiary Release checker-------------------------------------------\n";
 # Debug check
 #------------------------------------------------------------------------------
 {
-	open(my $fh, 'grep -ERni "debug\(|#\s*debug|print\s+STDERR" skel/ lib/ plugin/ |');
+	open(my $fh, 'grep -ERni "debug\(|#\s*debug|print\s+STDERR" skel/ lib/ plugin/ *.cgi *.pl|');
 	my @ary = <$fh>;
 	close($fh);
 
+	my $prev;
 	foreach(@ary) {
 		my ($file, $linenum, $line) = split(/:/, $_, 3);
-		if ($file !~ /\.(?:pm|html)$/) { next; }
+		if ($file !~ /\.(?:pm|cgi|pl|html)$/) { next; }
 		if ($line =~ /^\s*#/) { next; }
 		if ($line =~ /{DEBUG}/) { next; }
 		if ($line =~ /#\s*debug-safe/) { next; }
 		if ($line =~ /{Debug_mode}/) { next; }
 
-		print "## Debug error : $file\n";
+		($prev ne $file) && print "## Debug error : $file\n";
 		print "$linenum:$line";
+		$prev = $file;
 		$errors++;
 	}
 }
 {
-	open(my $fh, 'grep -ERni "alert\s*\(" js/|fgrep -v ".min.js"|');
+	open(my $fh, 'grep -ERni "alert\s*\(|//\s*debug" js/|fgrep -v ".min.js"|');
 	my @ary = <$fh>;
 	close($fh);
-	
+
+	my $prev;
 	foreach(@ary) {
 		my ($file, $linenum, $line) = split(/:/, $_, 3);
-		if ($file !~ /\.js$/) { next; }
-		if ($line =~ m!s*//!) { next; }
-		if ($line =~ m!//\s*(?:alert|debug)-safe!) { next; }
+		if ($file !~ /\.js$/)  { next; }
+		if ($line =~ m!^s*//!) { next; }
+		if ($line =~ m!//\s*debug-safe!) { next; }
 
-		print "## Debug error : $file\n";
+		($prev ne $file) && print "## Debug error : $file\n";
 		print "$linenum:$line";
+		$prev = $file;
 		$errors++;
 	}
 }
