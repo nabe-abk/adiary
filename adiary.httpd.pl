@@ -438,7 +438,7 @@ sub parse_request {
 			$ENV{CONTENT_TYPE} = $val;
 			next;
 		}
-		if ($KEEPALIVE && $key eq 'Connection' && $val eq 'keep-alive') {
+		if ($KEEPALIVE && $key eq 'Connection' && ($val eq 'keep-alive' || $val eq 'Keep-Alive')) {
 			$state->{req_keep_alive} = 1;
 		}
 
