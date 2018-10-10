@@ -43,7 +43,7 @@ my $ITHREADS= $IsWindows;
 my $PATH    = $ARGV[0];
 my $TIMEOUT = 1;
 my $DEAMONS = 4;
-my $KEEPALIVE = 0;
+my $KEEPALIVE = 1;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;	# = 'index.html';
 my $PID;
@@ -96,8 +96,12 @@ my %JanFeb2Mon = (
 			if ($k eq '?') { $help =1; next; }
 			if ($k eq 'i') { $ITHREADS=1; next; }
 			if ($k eq 'f') { $ITHREADS=0; next; }
-			if ($k eq 'k') { $KEEPALIVE   =1; next; }
 			if ($k eq 'n') { $OPEN_BROWSER=0; next; }
+
+			# keep-alive
+			if ($k eq 'k' && $k2 eq '0') { $key=substr($k,1); $KEEPALIVE=0; next; }
+			if ($k eq 'k' && $k2 eq '1') { $key=substr($k,1); $KEEPALIVE=1; next; }
+			if ($k eq 'k') { $KEEPALIVE   =1; next; }
 
 			# silent
 			if ($k eq 's' && $k2 eq 'c') { $key=substr($k,1); $SILENT_CGI  = $SILENT_OTHER = 1; next; }
@@ -150,13 +154,14 @@ my %JanFeb2Mon = (
 Usage: $0 [options] [output_xml_file]
 Available options are:
   -p port	bind port (default:8888, windows:80)
-  -t timeout	connection timeout second (default:2, min:0.001)
+  -t timeout	connection timeout second (default:1, min:0.001)
   -m mime_file	load mime types file name (default: /etc/mime.types)
   -d deamons	start deamons (default:4, min:1)
-  -c fs_code	set file system's code
+  -c fs_code	set file system's code (charset)
   -f		use fork()
   -i		use threads (ithreads)
-  -k		connection keep-alive enable
+  -k, -k1	connection keep-alive enable (default)
+  -k0		connection keep-alive disable
   -s		silent mode
   -sc		silent mode for cgi  access
   -sf		silent mode for file access$n
@@ -203,9 +208,6 @@ print "Satsuki HTTP Server: Listen $PORT port, Timeout $TIMEOUT sec"
 	. ($IsWindows ? '(probably not working)' : '') .  "\n";
 print "\tStart up deamons: $DEAMONS (" . ($ITHREADS ? 'ithreads' : 'fork') . " mode / keep-alive="
 	. ($KEEPALIVE ? 'on' : 'off') . ")\n";
-
-sub get_tid { return sprintf("%02d", threads->tid); }
-$PID = $ITHREADS ? &get_tid() : $$;
 
 #------------------------------------------------------------------------------
 # load mime types
@@ -254,6 +256,8 @@ if ($INDEX) {
 }
 ($SILENT_CGI && $SILENT_FILE && $SILENT_OTHER) || print "\n";
 
+$PID = $ITHREADS ? &thread_id() : $$;
+
 ###############################################################################
 # main routine
 ###############################################################################
@@ -289,7 +293,7 @@ sub deamon_main {
 	my $srv = shift;
 	my %bak = %ENV;
 
-	$PID = $ITHREADS ? &get_tid() : $$;
+	$PID = $ITHREADS ? &thread_id() : $$;
 	$IsWindows && sleep(1);		# accept() blocking main thread on Windows
 
 	while(1) {
@@ -338,6 +342,7 @@ sub accept_client {
 	# print "[$PID] connection from $ip:$port\n";
 
 	# set bit for select()
+	$R_BITS='';
 	&set_bit($R_BITS, $sock);
 
 	my $state;
@@ -721,6 +726,7 @@ HEADER
 ###############################################################################
 # sub routine
 ###############################################################################
+sub thread_id	{ return sprintf("%02d", threads->tid); }
 sub set_bit	{ vec($_[0], fileno($_[1]), 1) = 1; }
 sub reset_bit	{ vec($_[0], fileno($_[1]), 1) = 0; }
 sub check_bit   { vec($_[0], fileno($_[1]), 1); }
