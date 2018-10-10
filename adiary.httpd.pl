@@ -67,7 +67,8 @@ my %MIME_TYPE = (
 	xml  => 'application/xml',
 	png  => 'image/png',
 	jpg  => 'image/jpeg',
-	jpeg => 'image/jpeg'
+	jpeg => 'image/jpeg',
+	ico  => 'image/vnd.microsoft.icon'
 );
 my %DENY_EXTS = (cgi=>1, pl=>1, pm=>1);	# deny extensions
 #------------------------------------------------------------------------------
@@ -696,9 +697,6 @@ sub send_response {
 
 	if (index($header, 'Content-Length:')<0) {
 		$header .= "Content-Length: $c_len\r\n";
-	}
-	if (index($header, 'Content-Type:')<0) {
-		$header .= "Content-Type: text/plain\r\n";
 	}
 	$state->{keep_alive} = $state->{req_keep_alive} && $status<400;
 	$header .= "Connection: " . ($state->{keep_alive} ? 'keep-alive' : 'close') . "\r\n";
