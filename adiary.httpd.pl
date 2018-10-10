@@ -204,10 +204,9 @@ my $srv;
 	bind($srv, sockaddr_in($PORT, INADDR_ANY))			|| die "bind port failed: $!";
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
 }
-print "Satsuki HTTP Server: Listen $PORT port, Timeout $TIMEOUT sec"
-	. ($IsWindows ? '(probably not working)' : '') .  "\n";
-print "\tStart up deamons: $DEAMONS (" . ($ITHREADS ? 'ithreads' : 'fork') . " mode / keep-alive="
-	. ($KEEPALIVE ? 'on' : 'off') . ")\n";
+print "Satsuki HTTP Server: Listen $PORT port, Timeout $TIMEOUT sec, "
+	. "Keep-Alive " . ($KEEPALIVE ? 'on' : 'off') . "\n"
+	. "\tStart up deamon: $DEAMONS " . ($ITHREADS ? 'threads' : 'process') . "\n";
 
 #------------------------------------------------------------------------------
 # load mime types
@@ -249,7 +248,7 @@ if ($MIME_FILE && -e $MIME_FILE) {
 if ($FS_CODE) {
 	if ($FS_CODE =~ /utf-?8/i) { $FS_CODE='UTF-8'; }
 	require Encode;
-	print "\tSet file system coding: $FS_CODE\n";
+	print "\tFile system coding: $FS_CODE\n";
 }
 if ($INDEX) {
 	print "\tDirectory index: $INDEX\n";
