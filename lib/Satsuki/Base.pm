@@ -799,7 +799,7 @@ sub http_headers {
 	if ($self->{HTTPD}) {
 		$header  = "HTTP/1.0 $status\r\n";
 		my $st = $self->{HTTPD_state};
-		$st->{keep_alive} = $st->{req_keep_alive} && !$self->{HTML_cache} && ($status==200 || $status == 304);
+		$st->{keep_alive} = $st->{req_keep_alive} && !$self->{HTML_cache} && $status<400;
 		$header .= "Connection: " . ($st->{keep_alive} ? 'keep-alive' : 'close') . "\r\n";
 	} else {
 		$header  = "Status: $status\r\n";

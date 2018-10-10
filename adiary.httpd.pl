@@ -45,18 +45,12 @@ my $TIMEOUT = 1;
 my $DEAMONS = 4;
 my $KEEPALIVE = 0;
 my $MIME_FILE = '/etc/mime.types';
-my $INDEX;  # = 'index.html';
+my $INDEX;	# = 'index.html';
 my $PID;
+my $R_BITS;	# select socket bits
 
 my $SYS_CODE = $Satsuki::SYSTEM_CODING;
 my $FS_CODE  = $IsWindows ? $Encode::Locale::ENCODING_LOCALE : undef;
-
-#------------------------------------------------------------------------------
-# for Windows
-#------------------------------------------------------------------------------
-if ($IsWindows) {
-	*Time::HiRes::alarm = sub($;$) {};
-}
 
 #------------------------------------------------------------------------------
 # Web Server data
@@ -148,14 +142,15 @@ my %JanFeb2Mon = (
 	}
 	if ($TIMEOUT < 0.001) { $TIMEOUT=0.001; }
 	if ($DEAMONS < 1)     { $DEAMONS=1;     }
+	if ($KEEPALIVE)       { $KEEPALIVE = $DEAMONS>1 ? $DEAMONS-1 : 1; }
 
 	if ($help) {
-		my $n = $IsWindows ? "\n  -n\t\tdon't open web browser" : '';
+		my $n = $IsWindows ? "\n  -b\t\tdon't open web browser" : '';
 		print <<HELP;
 Usage: $0 [options] [output_xml_file]
 Available options are:
   -p port	bind port (default:8888, windows:80)
-  -t timeout	connection timeout second (default:1, min:0.001)
+  -t timeout	connection timeout second (default:2, min:0.001)
   -m mime_file	load mime types file name (default: /etc/mime.types)
   -d deamons	start deamons (default:4, min:1)
   -c fs_code	set file system's code
@@ -263,7 +258,7 @@ if ($INDEX) {
 # main routine
 ###############################################################################
 {
-	# prefork
+	# prefork / create_threads
 	for(my $i=0; $i<$DEAMONS; $i++) {
 		&fork_or_crate_thread(\&deamon_main, $srv);
 	}
@@ -276,7 +271,7 @@ if ($INDEX) {
 		};
 	}
 
-	# open broser on windows
+	# open Browser on windows
 	if ($IsWindows && $OPEN_BROWSER) {
 		my $url = 'http://' . $ENV{SERVER_NAME} . ($PORT==80 ? '' : ":$PORT");
 		system("cmd.exe /c start $url?login_auto");
@@ -293,8 +288,10 @@ exit(0);
 sub deamon_main {
 	my $srv = shift;
 	my %bak = %ENV;
+
 	$PID = $ITHREADS ? &get_tid() : $$;
-	$IsWindows && sleep(1);		# accept() blocking other thread on Windows
+	$IsWindows && sleep(1);		# accept() blocking main thread on Windows
+
 	while(1) {
 		my $addr = accept(my $sock, $srv);
 		if (!$addr) { next; }
@@ -312,7 +309,7 @@ sub fork_or_crate_thread {
 		my $thr = threads->create($func, @_);
 		if (!defined $thr) { die "threads->create fail!"; }
 		$thr->detach();
-		return;
+		return $thr;
 	}
 	# fork
 	my $pid = fork();
@@ -339,6 +336,9 @@ sub accept_client {
 	$ENV{REMOTE_ADDR} = $ip;
 	$ENV{REMOTE_PORT} = $port;
 	# print "[$PID] connection from $ip:$port\n";
+
+	# set bit for select()
+	&set_bit($R_BITS, $sock);
 
 	my $state;
 	my $flag=1;
@@ -383,21 +383,13 @@ sub parse_request {
 		my $bad_req;
 
 		local $SIG{ALRM} = sub { close($sock); $break=1; };
-		Time::HiRes::alarm( $TIMEOUT );
-		if ($IsWindows) {
-			my $bits = '';
-			&set_bit($bits, $sock);
-			select($bits, undef, undef, $TIMEOUT);
-			if (!&check_bit($bits, $sock)) {
-				&{ $SIG{ALRM} }();
-			}
-		}
+		&my_alarm( $TIMEOUT, $sock );
 
 		my $first=1;
 		my $post =1;
 		while(1) {
 			# &read_sock_1line($sock) is no buffered <$sock>
-			my $line = $post ? &read_sock_1line($sock) : <$sock>;
+			my $line = $post ? &read_sock_1line($sock, $first) : <$sock>;
 			if (!defined $line)  {	# disconnect
 				$break=1;
 				last;
@@ -416,7 +408,7 @@ sub parse_request {
 			push(@header, $line);
 		}
 
-		Time::HiRes::alarm(0);
+		&my_alarm(0);
 		if ($break)   { return; }
 		if ($bad_req) { return $state; }
 	}
@@ -552,8 +544,9 @@ sub try_file_read {
 	#--------------------------------------------------
 	# header
 	#--------------------------------------------------
-	my $size = -s $_file;
-	my $lastmod = &rfc_date( (stat $_file)[9] );
+	my @st   = stat($_file);
+	my $size = $st[7];
+	my $lastmod = &rfc_date( $st[9] );
 	my $header  = "Last-Modified: $lastmod\r\n";
 	$header .= "Content-Length: $size\r\n";
 	if ($file =~ /\.([\w\-]+)$/ && $MIME_TYPE{$1}) {
@@ -630,6 +623,7 @@ sub exec_cgi {
 		$ROBJ->{AutoReload} = $flag;
 
 		$ROBJ->init_for_httpd($state);
+		$ROBJ->set_header('Keep-Alive', "max=$KEEPALIVE");
 
 		if ($FS_CODE) {
 			# file system's locale setting
@@ -644,7 +638,8 @@ sub exec_cgi {
 		close(STDIN);
 		close(STDOUT);
 	};
-	$@ && !$ENV{SatsukiExit} && print STDERR "$@\n";
+	binmode($sock);		# buffer clear
+	$@ && !$ENV{SatsukiExit} && print STDERR "$@\n";	# debug-safe
 
 	# Save LIB's modtime
 	&Satsuki::AutoReload::save_lib();
@@ -702,13 +697,14 @@ sub send_response {
 	if (index($header, 'Content-Type:')<0) {
 		$header .= "Content-Type: text/plain\r\n";
 	}
-	$state->{keep_alive} = $state->{req_keep_alive} && ($status == 200 || $status == 304);
+	$state->{keep_alive} = $state->{req_keep_alive} && $status<400;
 	$header .= "Connection: " . ($state->{keep_alive} ? 'keep-alive' : 'close') . "\r\n";
 
 	my $header = <<HEADER;
 HTTP/1.1 $state->{status_msg}\r
 Date: $date\r
 Server: $ENV{SERVER_SOFTWARE}\r
+Keep-Alive: max=$KEEPALIVE\r
 $header\r
 HEADER
 	print $sock $header;
@@ -719,6 +715,7 @@ HEADER
 	} else {
 		$state->{send} = length($header);
 	}
+	binmode($sock);		# buffer clear
 }
 
 ###############################################################################
@@ -758,11 +755,52 @@ sub search_dir_file {
 }
 
 #------------------------------------------------------------------------------
+# deny directories
+#------------------------------------------------------------------------------
+sub generate_random_string {
+	my $_SALT = 'xL6R.JAX38tUanpyFfjZGQ49YceKqs2NOiwB/ubhHEMzo7kSC5VDPWrm1vgT0lId';
+	my $len = int(shift) || 32;
+	my $str = '';
+	my ($sec, $usec) = Time::HiRes::gettimeofday();
+	foreach(1..$len) {
+		$str .= substr($_SALT, (int(rand(0x1000000) * $usec)>>8) & 0x3f, 1);
+	}
+	return $str;
+}
+
+#------------------------------------------------------------------------------
+# alarm
+#------------------------------------------------------------------------------
+sub my_alarm {
+	my $timeout = shift;
+	if (!$IsWindows && !$ITHREADS) {
+		return Time::HiRes::alarm($timeout);
+	}
+	# $IsWindows or $ITHREADS
+	if ($timeout <= 0) { return; }
+
+	my $sock = shift;
+	select(my $x = $R_BITS, undef, undef, $timeout);
+
+	if (!&check_bit($x, $sock)) {
+		&{ $SIG{ALRM} }();
+		return;
+	}
+}
+
+#------------------------------------------------------------------------------
 # no buffered read <$sock>
 #------------------------------------------------------------------------------
 sub read_sock_1line {
-	my $sock = shift;
-	my $line = '';
+	my $sock  = shift;
+	my $first = shift;
+	my $line  = '';
+	if ($first) {	# first line: ex) GET / HTTP/1.0
+		if (sysread($sock, $line, 1) != 1) { return; }
+		if ($line ne 'P') {	# buffered read except POST
+			return $line . <$sock>;
+		}
+	}
 	my $c;
 	while($c ne "\n") {
 		if (sysread($sock, $c, 1) != 1) { return; }
@@ -772,15 +810,11 @@ sub read_sock_1line {
 }
 
 #------------------------------------------------------------------------------
-# deny directories
+# debug output
 #------------------------------------------------------------------------------
-sub generate_random_string {
-	my $_SALT = 'xL6R.JAX38tUanpyFfjZGQ49YceKqs2NOiwB/ubhHEMzo7kSC5VDPWrm1vgT0lId';
-	my $len = int(shift) || 32;
-	my $str = '';
-	my ($sec, $msec) = Time::HiRes::gettimeofday();
-	foreach(1..$len) {
-		$str .= substr($_SALT, (int(rand(0x1000000) * $msec)>>8) & 0x3f, 1);
-	}
-	return $str;
+sub debug {
+	my $str = shift;
+	my ($sec, $usec) = Time::HiRes::gettimeofday();
+	$usec = substr($sec,-2) . "." . substr("00000$usec",-6);
+	print STDERR "$usec [$PID] $str\n";		# debug-safe
 }
