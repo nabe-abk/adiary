@@ -870,13 +870,11 @@ function view_change() {
 // ●ビューのアップデート
 //////////////////////////////////////////////////////////////////////////////
 function update_view(flag, selected) {
-	var thumbq = cur_node.data.thumb_remake;
+	var thumbq;
 	if (flag) {
 		// サムネイルの強制更新
-		thumbq = thumbq ? thumbq+1 : 1;
-		cur_node.data.thumb_remake = thumbq;
+		thumbq = '?' + Date.now();
 	}
-	thumbq = thumbq ? ('?' + thumbq) : '' ;
 
 	// 選択済みファイルのハッシュ
 	selected = selected ? selected : {};
