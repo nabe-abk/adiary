@@ -511,6 +511,7 @@ sub regist_cache_checker {
 		$CACHE_TM{$key} = $tm;
 		if ($c) {
 			print $$c;
+			$ROBJ->{Send} = length($$c);
 		} else {
 			$ROBJ->regist_html_cache($CACHE{$key} = \$c);
 		}
