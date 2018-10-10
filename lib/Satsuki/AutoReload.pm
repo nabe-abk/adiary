@@ -1,18 +1,18 @@
 use strict;
 #------------------------------------------------------------------------------
 # 更新されたライブラリの自動リロード
-#						(C)2013-2017 nabe@abk
+#						(C)2013-2018 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::AutoReload;
-our $VERSION = '1.10';
+our $VERSION = '1.11';
 #------------------------------------------------------------------------------
 my $Satsuki_pkg = 'Satsuki';
-my %Libtime;
-my @Libs;
 my $CheckTime;
+my %Libs;
+my @Packages;
 #------------------------------------------------------------------------------
-my $mypkg = __PACKAGE__ . '.pm';
-$mypkg =~ s|::|/|g;
+my $MyPkg = __PACKAGE__ . '.pm';
+$MyPkg =~ s|::|/|g;
 ###############################################################################
 # ●ライブラリの情報保存
 ###############################################################################
@@ -20,10 +20,9 @@ sub save_lib {
 	if ($ENV{SatsukiReloadStop}) { return; }
 	while (my ($pkg, $file) = each(%INC)) {
 		if (index($pkg, $Satsuki_pkg) != 0) { next; }
-		if ($pkg eq $mypkg)        { next; }
-		if (exists $Libtime{$pkg}) { next; }
-		$Libtime{$pkg} = (stat($file)) [9];
-		push(@Libs, $pkg);
+		if (exists $Libs{$file}) { next; }
+		$Libs{$file} = (stat($file)) [9];
+		push(@Packages, $pkg);
 	}
 }
 
@@ -38,8 +37,8 @@ sub check_lib {
 	my $flag = shift || $Satsuki::Base::RELOAD;
 	if (!$flag) {
 		if ($ENV{SatsukiReloadStop}) { return; }
-		foreach(@Libs) {
-			if ($Libtime{$_} == (stat($INC{$_}))[9]) { next; }
+		while(my ($file,$tm) = each(%Libs)) {
+			if ($tm == (stat($file))[9]) { next; }
 			$flag=1;
 			last;
 		}
@@ -47,18 +46,19 @@ sub check_lib {
 	}
 
 	# 更新されたものがあれば、ロード済パッケージをすべてアンロード
-	foreach(@Libs) {
+	foreach(@Packages) {
+		if ($_ eq $MyPkg)       { next; }
 		delete $INC{$_};
 		if ($_ =~ /_\d+\.pm$/i) { next; }	# _2.pm _3.pm 等は無視
 		# 名前空間からすべて除去
 		&unload($_);
 	}
-	undef %Libtime;
-	undef @Libs;
+	undef %Libs;
+	undef @Packages;
 
 	# 自分自身をリロード（unloadは危険なのでしない）
-	delete $INC{$mypkg};
-	require $mypkg;
+	delete $INC{$MyPkg};
+	require $MyPkg;
 
 	return 1;
 }
