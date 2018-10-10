@@ -146,7 +146,6 @@ my %JanFeb2Mon = (
 	}
 	if ($TIMEOUT < 0.001) { $TIMEOUT=0.001; }
 	if ($DEAMONS < 1)     { $DEAMONS=1;     }
-	if ($KEEPALIVE)       { $KEEPALIVE = $DEAMONS>1 ? $DEAMONS-1 : 1; }
 
 	if ($help) {
 		my $n = $IsWindows ? "\n  -b\t\tdon't open web browser" : '';
@@ -628,7 +627,6 @@ sub exec_cgi {
 		$ROBJ->{AutoReload} = $flag;
 
 		$ROBJ->init_for_httpd($state);
-		$ROBJ->set_header('Keep-Alive', "max=$KEEPALIVE");
 
 		if ($FS_CODE) {
 			# file system's locale setting
@@ -709,7 +707,6 @@ sub send_response {
 HTTP/1.1 $state->{status_msg}\r
 Date: $date\r
 Server: $ENV{SERVER_SOFTWARE}\r
-Keep-Alive: max=$KEEPALIVE\r
 $header\r
 HEADER
 	print $sock $header;
