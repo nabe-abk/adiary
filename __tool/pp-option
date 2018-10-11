@@ -1,0 +1,14 @@
+adiary.httpd.pl
+-o adiary.exe
+-M Crypt::glibc_crypt
+-M Image::Magick
+-M Net::SSLeay
+-M CryptX
+-M Crypt::PK::ECC
+-M Crypt::AuthEnc::GCM
+-M Crypt::Mac::HMAC
+-M Crypt::Digest::SHA256
+-a C:/strawberry-perl-5.26.2.1/perl/site/lib/Image;site/lib/Image
+-l libcrypto-1_1-x64__.dll
+-l libssl-1_1-x64__.dll
+-l zlib1__.dll
