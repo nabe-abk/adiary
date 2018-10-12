@@ -870,7 +870,7 @@ function view_change() {
 // ●ビューのアップデート
 //////////////////////////////////////////////////////////////////////////////
 function update_view(flag, selected) {
-	var thumbq;
+	var thumbq = '';
 	if (flag) {
 		// サムネイルの強制更新
 		thumbq = '?' + Date.now();
