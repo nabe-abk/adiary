@@ -37,7 +37,7 @@ sub new {
 
 	# コネクション pool 処理
 	my $dbh;
-	my $connect_id = $self->{connect_id} = "$database\e$username\e".$ROBJ->crypt_by_string($password);
+	my $connect_id = $self->{connect_id} = "$database\e$username\e".$ROBJ->crypt_by_string_nosalt($password);
 	if ($self->{Pool}) {
 		if (exists $Connection_pool{$connect_id}) {	# プールが存在したら
 			$dbh = $Connection_pool{$connect_id};	# 取り出す

@@ -1134,34 +1134,34 @@ sub form_clear {
 #------------------------------------------------------------------------------
 sub crypt_by_rand {
 	my ($self, $secret) = @_;
-	return $self->crypt_by_string_with_salt($secret, $self->get_rand_string());
+	return $self->crypt_by_string($secret, $self->generate_rand_string());
 }
 sub crypt_by_rand_nosalt {
 	my ($self, $secret) = @_;
-	return $self->crypt_by_string($secret, $self->get_rand_string());
+	return $self->crypt_by_string_nosalt($secret, $self->generate_rand_string());
 }
 
-sub get_rand_string {
+sub generate_rand_string {
 	my $self = shift;
-	my $str = $ENV{REMOTE_ADDR} . ($ENV{REMOTE_PORT} + rand(0x3fffffff) + 0x4000000);
-	my $len = int(shift) || 20;
-	my $salt='';
+	my $len  = shift || 20;
+	my $func = shift || *CORE::chr;
+	my $gen  = $ENV{REMOTE_ADDR};
+	my $R    = $ENV{REMOTE_PORT} + rand(0xffffffff);
+	my $str  ='';
 	foreach(1..$len) {
-		$salt .= chr(((ord(substr($str, $_, 1)) * int(rand(0x10000)))>>8) & 0xff);
-	}
-	return $salt;
-}
-
-sub get_rand_string_salt {
-	my $self = shift;
-	my $len  = shift;
-	my $base = $ENV{UNIQUE_ID} . $ENV{REMOTE_ADDR} . $ENV{REMOTE_PORT};
-	my $salt = $self->{SALT64chars};
-	my $str  = '';
-	foreach(1..$len) {
-		$str .= substr($salt, int(rand(256+ord(substr($base,$_,1))*256) % 64), 1);
+		my $c = (ord(substr($gen, $_, 1)) + int(rand($R))) & 0xff;
+		$str .= &$func($c);
 	}
 	return $str;
+}
+sub generate_nonce {
+	my $self = shift;
+	my $base = $self->{SALT64chars};
+	$base =~ tr|+/.|-__|;
+	$self->generate_rand_string(shift, sub {
+		my $c = shift;
+		return substr($base, $c & 63, 1);
+	});
 }
 
 ###############################################################################

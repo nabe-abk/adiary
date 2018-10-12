@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.30';
+our $VERSION = '2.31';
 our $RELOAD;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
@@ -1391,8 +1391,8 @@ sub read_path_info {
 #------------------------------------------------------------------------------
 sub make_csrf_check_key {
 	my ($self, $base_string) = @_;
-	my $check_key = $self->crypt_by_string( $base_string );
-	return ($self->{CSRF_check_key} = $check_key);
+	my $csrf_key = substr($self->crypt_by_string_nosalt( $base_string ), 0, 32);
+	return ($self->{CSRF_check_key} = $csrf_key);
 }
 
 #------------------------------------------------------------------------------
@@ -1402,9 +1402,9 @@ sub make_secure_id {
 	my ($self, $base_string, $old, $len) = @_;
 	my $secure_time = $self->{Secure_time} || 3600;
 	my $code = ($old<0) ? 0 : int($self->{TM} / $secure_time);
-	my $id = $self->crypt_by_string($base_string . ($code - int($old)));
+	my $id = $self->crypt_by_string_nosalt($base_string . ($code - int($old)));
 	$id =~ tr|/|-|;
-	return substr($id, 0, $len || $self->{Secure_id_len} || 12);
+	return substr($id, 0, $len || 32);
 }
 
 #------------------------------------------------------------------------------
@@ -1413,72 +1413,88 @@ sub make_secure_id {
 # generator に同じものを与えれば、同じ SALT 文字列が生成される。
 # 但し、仕様変更の可能性があるため generator を SALT 代わりにしてはならない。
 #
-my $s_cache_base64;
-my %s_cache;
-my $s_cache_tm;
-# 乱数の配列
-my @s_ary0 = (0xb5d8f3c,0x96a4072,0x492c3e6,0x6053399,0xae5f1a8,0x5bf1227,0x02a7e6f,0x4b0bd91);
-my @s_ary1 = (0xd31289f,0x76a6d1e,0xd912fac,0xe119b5b,0xe2823fd,0x67f561d,0xa753dc1,0x5b8062b);
-sub crypt_by_string_with_salt {
+my %C_CACHE;
+my $C_CACHE_tm;
+my $C_CACHE_base64;
+sub crypt_by_string {
 	my ($self, $secret, $generator) = @_;
-	if (!defined $generator) { $generator = $self->{Secret_word}; }
 	my $base64 = $self->{SALT64chars};
 
-	# SALTキャッシュシステム（１日おきに初期化）
-	if ($s_cache_base64 ne $base64 || $s_cache_tm < $self->{TM}) {
-		%s_cache=(); $s_cache_tm = $self->{TM} + 86400;
-		$s_cache_base64=$base64;
+	# Cryptキャッシュシステム（１日おきに初期化）
+	if ($C_CACHE_tm < $self->{TM} || $C_CACHE_base64 ne $base64) {
+		%C_CACHE=();
+		$C_CACHE_tm = $self->{TM} + 86400;
+		$C_CACHE_base64=$base64;
 	}
-	my $cache_id = "$secret\x01$generator";
-	if (exists $s_cache{ $cache_id }) { return $s_cache{ $cache_id }; }
+	my $cache_id = "$secret\x00$generator";
+	if (exists $C_CACHE{ $cache_id }) { return $C_CACHE{ $cache_id }; }
+
+	# crypt
+	my $hash = $self->crypt($secret, $self->generate_salt_string($generator));
+
+	$C_CACHE{ $cache_id } = $hash;
+	return $hash;
+}
+
+#------------------------------------------------------------------------------
+sub crypt_by_string_nosalt {
+	my $self = shift;
+	my $key = $self->crypt_by_string(@_);
+	if ($key =~ /^\$\d\$.*?\$(.*)/) { return $1; }
+	return substr($key, 2);
+}
+
+#------------------------------------------------------------------------------
+# ● generator から salt を生成
+#------------------------------------------------------------------------------
+# 同じ generator ならば、同じ salt になる
+my @S_RAND =
+(0xb5d8f3c,0x96a4072,0x492c3e6,0x6053399,0xae5f1a8,0x5bf1227,0x02a7e6f,0x4b0bd91,
+ 0xd31289f,0x76a6d1e,0xd912fac,0xe119b5b,0xe2823fd,0x67f561d,0xa753dc1,0x5b8062b);
+sub generate_salt_string {
+	my $self = shift;
+	my $generator = shift || $self->{Secret_word};
+	my $base64    = $self->{SALT64chars};
 
 	# SALT文字列を生成
 	my $salt;
 	{
 		# 文字列用の数値生成
-		my ($x,$y);
+		my ($x,$y,$z) = (0,0,0);
 		my $len = length($generator);
 		for(my $i=0; $i<$len; $i++) {
 			my $c = ord(substr($generator, $i, 1));
-			$x += $c * $s_ary0[$i & 7];
-			$y += $c * $s_ary1[$i & 7];
+			$x += $c * $S_RAND[ $i &  7];
+			$y += $c * $S_RAND[($i &  7) + 8];
+			$z += $c * $S_RAND[ $i & 15];
 		}
-		# SALT文字列生成
+		# SALT文字列生成 (max 16 byte on SHA256/512)
 		$salt
 		= substr($base64, ($x    ) & 63,1) . substr($base64, ($y    ) & 63,1)
 		. substr($base64, ($x>> 6) & 63,1) . substr($base64, ($y>> 6) & 63,1)
 		. substr($base64, ($x>>12) & 63,1) . substr($base64, ($y>>12) & 63,1)
-		. substr($base64, ($x>>18) & 63,1) . substr($base64, ($y>>18) & 63,1);
+		. substr($base64, ($x>>18) & 63,1) . substr($base64, ($y>>18) & 63,1)
+		. substr($base64, ($z    ) & 63,1) . substr($base64, ($z>> 6) & 63,1)
+		. substr($base64, ($z>>12) & 63,1) . substr($base64, ($z>>18) & 63,1);
 	}
-	# crypt実行
-	my $key = $self->crypt($secret, $salt);
-	# キャッシュ
-	$s_cache{ $cache_id } = $key;
-	return $key;
-}
-
-# salt文字列を除去したハッシュを得る
-sub crypt_by_string {
-	my $self = shift;
-	my $key = $self->crypt_by_string_with_salt(@_);
-	if ($key =~ /^\$1\$.*?\$(.*)/) { return $1; }
-	return substr($key, 2);
+	return $salt;
 }
 
 #------------------------------------------------------------------------------
 # ●crypt
 #------------------------------------------------------------------------------
-# md5が利用可能ならばmd5を利用するcrypt
-my $MD5_flag;
+my $CRYPT_mode;
 sub crypt {
 	my $self = shift;
 	my ($x, $salt) = @_;
-	if (substr($salt, 0, 3) eq '$1$') { return crypt($x, $salt); }
+	if (substr($salt, 0, 1) eq '$') { return crypt($x, $salt); }
 
-	if (!defined $MD5_flag) {	# md5が利用可能かチェック
-		$MD5_flag = crypt('', '$1$') eq '$1$$qRPK7m23GJusamGpoGLby/' ? 1 : 0;
+	if (!defined $CRYPT_mode) {
+		$CRYPT_mode ||= crypt('', '$6$') ne '' ? '$6$' : '';	# SHA512
+		$CRYPT_mode ||= crypt('', '$5$') ne '' ? '$5$' : '';	# SHA256
+		$CRYPT_mode ||= crypt('', '$1$') ne '' ? '$1$' : '';	# MD5
 	}
-	return $MD5_flag ? crypt($x, '$1$'.$salt) : crypt($x, $salt);
+	return $CRYPT_mode ? crypt($x, "$CRYPT_mode$salt") : crypt($x, $salt);
 }
 
 ###############################################################################

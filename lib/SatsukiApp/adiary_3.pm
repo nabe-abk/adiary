@@ -954,7 +954,7 @@ sub change_blogpub_dir_postfix {
 	my $postfix = '';
 	if ($len > 0) {
 		if (32<$len) { $len=32; }
-		$postfix = $ROBJ->get_rand_string_salt($len);
+		$postfix = $ROBJ->generate_nonce($len);
 		$postfix =~ s/\W/-/g;
 		$postfix = '.' . $postfix;
 	}

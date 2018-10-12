@@ -208,7 +208,7 @@ sub parse_host_path {
 #------------------------------------------------------------------------------
 sub generate_nonce {
 	my $self = shift;
-	my $nonce = $self->{ROBJ}->get_rand_string_salt(20);
+	my $nonce = $self->{ROBJ}->generate_nonce(20);
 	$nonce =~ s/[^\w\-]//g;
 	return $nonce;
 }
@@ -218,7 +218,7 @@ sub generate_nonce {
 #------------------------------------------------------------------------------
 sub generate_nonce {
 	my $self = shift;
-	my $nonce = $self->{ROBJ}->get_rand_string_salt(20);
+	my $nonce = $self->{ROBJ}->generate_nonce(20);
 	$nonce =~ s/[^\w\-]//g;
 	return $nonce;
 }
