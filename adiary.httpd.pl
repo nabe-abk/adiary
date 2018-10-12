@@ -49,9 +49,8 @@ my $OPEN_BROWSER = $IsWindows;
 
 my $PORT    = $IsWindows ? 80 : 8888;
 my $ITHREADS= $IsWindows;
-my $PATH    = $ARGV[0];
-my $TIMEOUT = 1;
-my $DEAMONS = 4;
+my $TIMEOUT =  3;
+my $DEAMONS = 10;
 my $KEEPALIVE = 1;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;	# = 'index.html';
@@ -163,9 +162,9 @@ my %JanFeb2Mon = (
 Usage: $0 [options] [output_xml_file]
 Available options are:
   -p port	bind port (default:8888, windows:80)
-  -t timeout	connection timeout second (default:1, min:0.001)
+  -t timeout	connection timeout second (default:3, min:0.001)
   -m mime_file	load mime types file name (default: /etc/mime.types)
-  -d deamons	start deamons (default:4, min:1)
+  -d deamons	start deamons (default:10, min:1)
   -c fs_code	set file system's code (charset)
   -f		use fork()
   -i		use threads (ithreads)
