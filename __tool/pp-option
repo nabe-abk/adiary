@@ -1,6 +1,6 @@
 adiary.httpd.pl
 -o adiary.exe
--M Crypt::glibc_crypt
+-M Crypt::glibc
 -M Image::Magick
 -M Net::SSLeay
 -M CryptX

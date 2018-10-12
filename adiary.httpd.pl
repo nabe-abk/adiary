@@ -21,8 +21,17 @@ use Cwd;		# for $ENV{DOCUMENT_ROOT}
 use Time::HiRes;	# for ualarm() and generate random string
 use Encode::Locale;	# for get system locale / for Windows
 #------------------------------------------------------------------------------
-use Satsuki::Base ();
-use Satsuki::AutoReload ();
+# Crypt patch for Windows
+#------------------------------------------------------------------------------
+if (crypt('','$1$') eq '' || crypt('','$5$') eq '' || crypt('','$6$') eq ''){
+	eval {
+		require Crypt::glibc;
+		*CORE::GLOBAL::crypt = *Crypt::glibc::crypt;
+	};
+};
+#------------------------------------------------------------------------------
+require Satsuki::Base;
+require Satsuki::AutoReload;
 &Satsuki::AutoReload::save_lib();
 #------------------------------------------------------------------------------
 # pre load modules
@@ -245,6 +254,8 @@ if ($MIME_FILE && -e $MIME_FILE) {
 }
 
 #------------------------------------------------------------------------------
+# File system encode and directory index
+#------------------------------------------------------------------------------
 if ($FS_CODE) {
 	if ($FS_CODE =~ /utf-?8/i) { $FS_CODE='UTF-8'; }
 	require Encode;
@@ -253,6 +264,8 @@ if ($FS_CODE) {
 if ($INDEX) {
 	print "\tDirectory index: $INDEX\n";
 }
+
+#------------------------------------------------------------------------------
 ($SILENT_CGI && $SILENT_FILE && $SILENT_OTHER) || print "\n";
 
 $PID = $ITHREADS ? &thread_id() : $$;
