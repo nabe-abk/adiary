@@ -334,7 +334,7 @@ sub evaluate_poland {
 	my @types = map { &get_element_type($_) } @$pol;
 
 	# 単一置換式 <@t.var> 等
-	if ($#$pol == 0 && $types[0] eq 'obj') { return &get_object($pol->[0]); }
+	if ($#$pol == 0 && $types[0] eq 'obj') { return &get_object($vars, $pol->[0]); }
 	# 単一置換式（定数）
 	if ($#$pol == 0 && $types[0] eq 'const') { return $pol->[0]; }
 
@@ -355,7 +355,7 @@ sub evaluate_poland {
 			my $x  = pop(@stack);
 			my $xt = pop(@stack_type);
 			if (!defined $x) { last; }	# エラー
-			if ($xt eq 'obj' && ($opl & 6)!=6) { $x = &get_object($x); }
+			if ($xt eq 'obj' && ($opl & 6)!=6) { $x = &get_object($vars, $x); }
 			if (ref($x) eq 'ARRAY') { $x = pop(@$x); }
 			if ($opf) {
 				if ((~$opl) & 2) {	# ２項演算子
@@ -366,17 +366,17 @@ sub evaluate_poland {
 					if (ref($y) eq 'ARRAY') { $y = pop(@$y); }
 					if ($opl & 4) {		# 左辺オブジェクト渡し
 						if ($yt ne 'obj') { push(@stack, $yt); last; }	#エラー
-						my ($obj, $name) = &get_object_sep($y);
+						my ($obj, $name) = &get_object_sep($vars, $y);
 						eval { $x = &$opf($obj, $name, $x); };
 						if ($@) { return $@; }
 					} else {
-						if ($yt eq 'obj') { $y = &get_object($y); }
+						if ($yt eq 'obj') { $y = &get_object($vars, $y); }
 						eval { $x = &$opf($y, $x); };
 						if ($@) { return $@; }
 					}
 				} elsif ($opl & 4) {	# 単項演算子, 左辺オブジェクト渡し
 					if ($xt ne 'obj') { push(@stack,$xt); last; }	#エラー
-					my ($obj, $name) = &get_object_sep($x);
+					my ($obj, $name) = &get_object_sep($vars, $x);
 					eval { $x = &$opf($obj, $name); };
 					if ($@) { return $@; }
 				} else {	# 単項演算子
@@ -412,7 +412,7 @@ sub evaluate_poland {
 			my $y  = pop(@stack);
 			my $yt = pop(@stack_type);
 			if ($op eq ',')  {
-				if ($yt eq 'obj') { $y = &get_object($y); }
+				if ($yt eq 'obj') { $y = &get_object($vars, $y); }
 				push(@stack,      "$y\x03,$x");
 				push(@stack_type, 'array');
 				next;
@@ -459,7 +459,7 @@ sub evaluate_poland {
 
 		} elsif ($type eq 'string') {	# 文字列
 			$p =~ s/\x01(\d+)\x01/$str->[$1]/;
-			$p =~ s/\x02([\w\.]+)\x02/ &get_object($1) /eg;
+			$p =~ s/\x02([\w\.]+)\x02/ &get_object($vars, $1) /eg;
 			push(@stack,      $p);
 			push(@stack_type, 'const');
 		} else {	# オブジェクト指定や定数など
@@ -473,35 +473,14 @@ sub evaluate_poland {
 	}
 	my $exp  = pop(@stack);
 	my $type = pop(@stack_type);
-	if ($type eq 'obj') { return &get_object($exp); }	# オブジェクの場合は評価
-	$exp =~ s/^.*\x03,([^\x03]*?)$/$1/;	# , の場合最後を戻り値とする
+	if ($type eq 'obj') { return &get_object($vars, $exp); }	# オブジェクの場合は評価
+	$exp =~ s/^.*\x03,([^\x03]*?)$/$1/;				# , の場合最後を戻り値とする
 	return $exp;
-
-	#------------------------------------------------------------------------------
-	# ●名前からオブジェクトの取得
-	#------------------------------------------------------------------------------
-	sub get_object {
-		my ($obj, $name) = &get_object_sep(@_);
-		return $obj->{$name};
-	}
-	sub get_object_sep {
-		my ($name) = @_;
-		$name =~ s/[^\w\.]//g;		# 半角英数と _ . 以外の文字を除去
-		if ($name eq '') { return 'undef'; }	# エラー時未定義を示すオブジェクトを返す
-
-		my @ary = split(/\./, $name);
-		my $obj  = $vars;
-		my $last = pop(@ary);
-		foreach $name (@ary) {
-			$obj = $obj->{$name};
-		}
-		return ($obj, $last);
-	}
 }
 
-#-----------------------------------------------------------
-# ○要素の種類を取得
-#-----------------------------------------------------------
+#------------------------------------------------------------------------------
+# ●要素の種類を取得
+#------------------------------------------------------------------------------
 sub get_element_type {
 	my $p = $_[0];
 	if (exists $operators{$p}) { return 'op'; }		# 演算子
@@ -525,6 +504,26 @@ sub get_element_type {
 	if ($p eq 'undef') { $_[0]=undef; return 'const'; }
 
 	return 'obj';
+}
+
+#------------------------------------------------------------------------------
+# ●名前からオブジェクトの取得
+#------------------------------------------------------------------------------
+sub get_object {
+	my ($obj, $name) = &get_object_sep(@_);
+	return ($name ne '') ? $obj->{$name} : $name;
+}
+sub get_object_sep {
+	my ($obj, $name) = @_;
+	$name =~ s/[^\w\.]//g;		# 半角英数と _ . 以外の文字を除去
+	if ($name eq '') { return 'undef'; }	# エラー時未定義を示すオブジェクトを返す
+
+	my @ary = split(/\./, $name);
+	my $last = pop(@ary);
+	foreach $name (@ary) {
+		$obj = $obj->{$name};
+	}
+	return ($obj, $last);
 }
 
 1;
