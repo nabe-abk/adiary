@@ -203,6 +203,7 @@ article figure,
 .main select {
 	max-width:	100%;
 	box-sizing:	border-box;
+	text-indent:	0;
 }
 
 /* ブロック中のpタグ */
