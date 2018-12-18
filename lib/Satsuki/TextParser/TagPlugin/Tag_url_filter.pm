@@ -91,7 +91,7 @@ sub _filter {
 	#------------------------------------------------------------
 	# Amazon
 	#------------------------------------------------------------
-	if ($url =~ m!^https?://www\.amazon\.co\.jp/(?:([^/]+)/)?(?:dp|gp/product)/(\w+)!) {
+	if ($url =~ m!^https?://www\.amazon\.co\.jp/(?:([^/]+)/)*(?:dp|gp/product)/(\w+)!) {
 		my $title = $1;
 		my $asin  = $2;
 		my $tag   = $pobj->load_tag('asin');
@@ -102,6 +102,11 @@ sub _filter {
 			return "<a href=\"http://www.amazon.co.jp/dp/$asin\">$name</a>";
 		}
 		if ($title ne '') { unshift(@$ary, $title); }
+		if ($ary->[$#$ary] eq 'text') {
+			pop(@$ary);		# text link
+		} else {
+			unshift(@$ary, 'img');	# image link
+		}
 		unshift(@$ary, $asin);
 		return &{$tag->{data}}($pobj, $tag, 'asin', $ary);
 	}

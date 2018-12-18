@@ -54,7 +54,7 @@ sub amazon_search {
 	my $attr = $pobj->make_attr($ary, $tag);
 	   $name = $pobj->make_name($ary, $name);
 
-	return "<a href=\"http://www.amazon.co.jp/exec/obidos/external-search?mode=blended$asid&encoding-string-jp=$nihongo&keyword=$keyword\"$attr>$name</a>";
+	return "<a href=\"https://www.amazon.co.jp/exec/obidos/external-search?mode=blended$asid&encoding-string-jp=$nihongo&keyword=$keyword\"$attr>$name</a>";
 }
 
 #------------------------------------------------------------------------------
@@ -66,43 +66,40 @@ sub amazon_asin {
 	# アソシエイトID &tag=user-id
 	my $asid = $pobj->{asid};
 	$asid =~ s/[^\w\-\.]//g;	# 不要文字除去
-	# if ($asid ne '') { $asid .= '/ref=nosim'; }
 
 	# ASIN/ISBNロード
-	my $isbn = shift(@$ary);
-	my $asin = $isbn;
+	my $asin = shift(@$ary);
 	$asin =~ s/[^\w\.]//g;	# 不要文字除去
 
 	# 画像モード？
 	if ($ary->[0] eq 'img' || $ary->[0] eq 'image' || $ary->[0] eq 'detail') {
 		shift(@$ary);
-		return &amazon_asin_image($pobj, $tag, $cmd, $ary, $isbn, $asin, $asid);
+		return &amazon_asin_image($pobj, $tag, $cmd, $ary, $asin, $asid);
 	}
 
 	# 属性/リンク名
 	# $cmd =~ tr/a-z/A-Z/;
 	unshift(@$ary, 'class=js-popup-img');
 	my $attr = $pobj->make_attr($ary, $tag);
-	my $name = $pobj->make_name($ary, "$cmd:$isbn");
+	my $name = $pobj->make_name($ary, "$cmd:$asin");
 
-	return "<a href=\"http://www.amazon.co.jp/exec/obidos/ASIN/$asin/$asid\" data-img-url=\"http://images-jp.amazon.com/images/P/$asin.09.MZZZZZZZ.jpg\"$attr>$name</a>";
+	my $link   = &link_url ($asin, $asid);
+	my $imgurl = &image_url($asin);
+	return "<a href=\"$link\" data-img-url=\"$imgurl\"$attr>$name</a>";
 }
 
 #------------------------------------------------------------------------------
 # ●asin/isbn - image記法(amazon)
 #------------------------------------------------------------------------------
 sub amazon_asin_image {
-	my ($pobj, $tag, $cmd, $ary, $isbn, $asin, $asid) = @_;
+	my ($pobj, $tag, $cmd, $ary, $asin, $asid) = @_;
 
 	# サイズ認識
-	my $size = '.09.MZZZZZZZ.jpg';	# midium
-	if ($ary->[0] eq 'large') {
-		shift(@$ary);
-		$size = '.09.LZZZZZZZ.jpg';
-	} elsif ($ary->[0] eq 'small') {
-		shift(@$ary);
-		$size = '.09.THUMBZZZ.jpg';
+	my $size = $ary->[$#$ary];
+	if ($size eq 'large' || $size eq 'small') {
+		pop(@$ary);
 	}
+
 	my $size_tag;
 	if    ($ary->[0] =~ /^w(\d+%?)$/) { $size_tag=" width=\"$1\"";  shift(@$ary); }
 	elsif ($ary->[0] =~ /^h(\d+%?)$/) { $size_tag=" height=\"$1\""; shift(@$ary); }
@@ -110,11 +107,35 @@ sub amazon_asin_image {
 	# タイトル
 	# $cmd =~ tr/a-z/A-Z/;
 	my $attr = $pobj->make_attr($ary, $tag, 'image', {data => 1});
-	my $name = $pobj->make_name($ary, "$cmd:$isbn");
+	my $name = $pobj->make_name($ary, "$cmd:$asin");
 	$name =~ s/"/&quot;/g;
 
-	return "<a href=\"http://www.amazon.co.jp/exec/obidos/ASIN/$asin/$asid\"$attr><img src=\"http://images-jp.amazon.com/images/P/$asin$size\" alt=\"$name\" class=\"asin\"$size_tag></a>";
+	my $link   = &link_url ($asin, $asid);
+	my $imgurl = &image_url($asin, $size);
+	return "<a href=\"$link\"$attr><img src=\"$imgurl\" alt=\"$name\" class=\"asin\"$size_tag></a>";
 }
 
+#------------------------------------------------------------------------------
+# link/image_url
+#------------------------------------------------------------------------------
+# https://www.amazon.co.jp/exec/obidos/ASIN/$asin/$asid
+# https://www.amazon.co.jp/gp/product/$asin/?tag=$asid
+#
+sub link_url {
+	my $asin = shift;
+	my $asid = shift;
+	return "https://www.amazon.co.jp/gp/product/$asin/?tag=$asid";
+}
+
+sub image_url {
+	my $asin = shift;
+	my $size = shift;
+
+	my $format = '_SL160_';
+	if ($size eq 'large') { $format = '_SL250_'; }
+	if ($size eq 'small') { $format = '_SL110_'; }
+	
+	return "//ws-fe.amazon-adsystem.com/widgets/q?_encoding=UTF8&amp;MarketPlace=JP&amp;ASIN=$asin&amp;ServiceVersion=20070822&amp;ID=AsinImage&amp;WS=1&amp;Format=$format";
+}
 
 1;
