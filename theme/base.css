@@ -1029,8 +1029,11 @@ figcaption {
 	line-height:		100%;
 	text-align:		center;
 }
-
-
+figure.left,   figure.l,
+figure.right,  figure.r,
+figure.center, figure.c {
+	display:	block;
+}
 
 /*--------------------------------------------------------------------
 ●デザイン編集

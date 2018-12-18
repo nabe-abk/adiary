@@ -19,6 +19,7 @@
 -【fix】サブドメインモードかつ https の時、Canonical URL等がおかしい。
 -【fix】アルバムで、101個以上のファイルを一度にアップロードできない。
 -【fix】blogid に"te-st"のように不正文字が含まれても正しく表示されてしまう。
+-【fix】画像がセンタリングや右揃えされない。（[https://adiary.adiary.jp/0401#c20:Thanks to あさリがいっぱい]）
 -【fix】【入力記法】calc記法の変数領域が、CGIキャッシュ環境において分離されてしまう。（[https://adiary.adiary.jp/0401#c12:Thanks to nomura]）
 -【fix】【mod_perl】adiary.mod.cgi が起動できない。
 -【fix】【アルバム】フォルダを３個連続で作ると動作がおかしくなる。
