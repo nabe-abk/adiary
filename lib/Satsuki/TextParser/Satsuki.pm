@@ -1,13 +1,13 @@
 use strict;
 #------------------------------------------------------------------------------
 # システム標準パーサー／Satsukiパーサー
-#                                             (C)2006-2017 nabe / nabe@abk
+#                                             (C)2006-2018 nabe / nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::TextParser::Satsuki;
 # ※注意。パッケージ名変更時は78行目付近も修正のこと！
 
 use Satsuki::AutoLoader;
-our $VERSION = '2.20';
+our $VERSION = '2.21';
 #------------------------------------------------------------------------------
 # \x00-\x03は内部で使用するため、処理の過程で除去されます。
 #	\x00 文字列の一時退避用
@@ -1606,44 +1606,20 @@ sub parse_tag {
 	my $post_process = shift;	# markdown記法で使用
 
 	# [[ ]] タグを先行処理
-	my $count=100;
-	while ($count>0 && $this =~ /(.*?)\[\[(.*?\]*)\s?\]\](.*)/s) {
-		# [[aa:[[bb:テキスト]]]] のとき bb タグを先に処理する
-		my $x = rindex($2, '[[');
-		my $p0  = $1 . ($x<0 ? '' : '[[' . substr($2,0,$x));	# tagより前
-		my $cmd =       $x<0 ? $2 :        substr($2,$x+2);
-		my $p1  = $3;	# tagより後ろ
-		$this = $self->special_command( $cmd, {verb => 1} );
-		$this =~ s/\(/&#40;/g;
-		$this =~ s/\[/&#91;/g;
-		$this =~ s/\]/&#93;/g;
-		$this =~ s/:/&#58;/g;
-		$this = $p0 . $this . $p1;
-		if ($post_process) { $this = &$post_process($this); }
-		$count--;
-	}
-	
-	# [ ] タグを処理
-	while ($count>0 && $this =~ /(^|.*?[^\\])\[((?:\\\[|\\\]|[^\[\]])+)\](.*)/s) {
-		my $p0 = $1;	# tagより前
-		my $cmd= $2;	# コマンド
-		my $p1 = $3;	# tagより後ろ
-
-		# [$name] → 自由変数nameの中身を出力
-		if ($cmd =~ /^\$(.*)$/) {
-			$this = $self->{vars}->{$1};
-			$this =~ s/\$/&#36;/g;
-			$this = $p0 . $this . $p1;
-			next;
-		}
-		$this = $self->special_command( $cmd );
-		$this =~ s/\(/&#40;/g;
-		$this =~ s/\[/&#91;/g;
-		$this =~ s/\]/&#93;/g;
-		$this =~ s/:/&#58;/g;
-		$this = $p0 . $this . $p1;
-		if ($post_process) { $this = &$post_process($this); }
-		$count--;
+	my $count=0;
+	while ($this =~ /(.*)(\[\[)(.*?)\]\](.*)/s || $this =~ /(.*)(\[)((?:\\\[|\\\]|[^\[\]])+)\](.*)/s) {
+		my $p0  = $1;
+		my $cmd = $3;
+		my $p1  = $4;
+		$cmd = $self->special_command( $cmd, {verb => ($2 eq '[[')} );
+		$cmd =~ s/\(/&#40;/g;
+		$cmd =~ s/\[/&#91;/g;
+		$cmd =~ s/\]/&#93;/g;
+		$cmd =~ s/:/&#58;/g;
+		if ($post_process) { $cmd = &$post_process($cmd); }
+		$this = $p0 . $cmd . $p1;
+		$count++;
+		if ($count>99) { last; }
 	}
 	return $this;
 }
@@ -1663,6 +1639,13 @@ sub special_command {
 	$cmd_line =~ s/^&(\w+)$/icon:$1/g;
 	# [&http://youtube.com/] → [filter:http://youtube.com]
 	$cmd_line =~ s/^&([^#].*)$/filter:$1/g;
+
+	# 自由変数置換
+	if ($cmd_line =~ /^\$(.*)$/) {
+		$cmd_line = $self->{vars}->{$1};
+		$cmd_line =~ s/\$/&#36;/g;
+		return $cmd_line;
+	}
 
 	# cmd:arg1:arg2 ... のパース
 	if (!$opt->{verb}) {
