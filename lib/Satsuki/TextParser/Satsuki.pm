@@ -32,7 +32,7 @@ my %allow_override = (asid => 1, chain_line => 2,
  section_anchor => 1, subsection_anchor => 1, subsubsection_anchor => 1,
  http_target  => 1, http_class  => 1, http_rel  => 1,
  image_target => 1, image_class => 1, image_rel => 1,
- autolink => 2, br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
+ br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
  list_br => 2, seemore_msg => 1, tex_mode => 2);
 ###############################################################################
 # ■基本処理
@@ -1567,11 +1567,6 @@ sub replace_original_tag {
 			next;
 		}
 
-		if ($self->{autolink} && $_ =~ /https?:|ftp:/) {
-			$_ = $self->do_autolink( $_ );
-		}
-
-		# タグ処理
 		$_ = $self->parse_tag( $_ );
 
 		# 記法置き換えで行が空になった
@@ -1581,20 +1576,6 @@ sub replace_original_tag {
 	}
 
 	return \@ary;
-}
-
-# markdowm.pm からも呼ばれる
-sub do_autolink {
-	my ($self, $line) = @_;
-	my @ary;
-	$line =~ s/(<\w(?:[^>"']|[=\s]".*?\"|[=\s]'.*?')*?>)/push(@ary, $1), "\x00$#ary\x00"/esg;
-	$line =~ s!(\G|\n|[^\"\[:])(https?|ftp):(//[\w\./\#\@\?\&\~\=\+\-%\[\]:;,\!*]+)!
-			my $x="$1\[$2:"; my $y=$3;
-			$y =~ s/([\[\]:])/"&#" . ord($1) . ';'/eg;
-			"$x$y]";
-	       !eg;
-	$line =~ s/\x00(\d+)\x00/$ary[$1]/sg;
-	return $line;
 }
 
 #--------------------------------------------------------------------

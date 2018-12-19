@@ -398,7 +398,6 @@ sub v2convert {
 			hcom_ok_force   => $s->{allow_hcom_force},
 			ping            => $s->{update_ping},
 			wiki            => $s->{wiki},
-			autolink        => $s->{autolink},
 			parser          =>($self->{parsers}->{$s->{parser}} ? $s->{parser} : undef),
 			allow_com_users =>($s->{allow_com_user} eq 'users' ? $s->{allow_com_users} : $s->{allow_com_user}),
 			defer_com       => $s->{defer_com},

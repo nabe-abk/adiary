@@ -750,9 +750,6 @@ sub parse_inline {
 
 		# [S] さつき記法のタグ処理
 		if ($satsuki) {
-			if ($satsuki->{autolink} && $_ =~ /https?:|ftp:/) {
-				$_ = $satsuki->do_autolink( $_ );
-			}
 			$_ = $satsuki->parse_tag( $_, \&escape_special_char );
 			$satsuki->un_escape( $_ );
 		}
