@@ -6,6 +6,13 @@ _base		id, title, class, style, lang, data-
 _base_deny	data-url, data-src, data-module-name
 _protocol	http, https, ftp, mailto, mms
 _comment
+
+# 相対パスを絶対パスに書き換え
+_absolute_path
+
+# すべてのタグを許可
+# _anytag
+
 ### 基本 ########################
 a		href, name, target, rel
 p
@@ -125,14 +132,6 @@ amp-analytics
 amp-experiment
 amp-pixel
 amp-sticky-ad
-
-# style 指定子によるXSS対策 (IE10以前で必須 / behavior:url(xss.htc) )
-_style_secure
-# 相対パスを絶対パスに書き換え
-_absolute_path
-
-# すべてのタグを許可
-# _anytag
 
 ################################################################################
 # ■ module 記述子

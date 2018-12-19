@@ -18,6 +18,7 @@
 //
 'use strict';
 var DialogWidth;	// adiary.jsの参照
+var IE11;
 
 $( function(){
 	var tree = $('#album-folder-tree');
@@ -1493,7 +1494,7 @@ function ajax_upload() {
 		fd.append('file_ary', upfiles[i]);
 	}
 	// for IE bug。これをしないとフォームからのみファイルupしたとき失敗する
-	fd.append('dummy', 'dummy for IE');
+	if (IE11) fd.append('IE11_dummy', 'dummy for IE');
 
 	// submit処理
 	$.ajax(upform.attr('action'), {

@@ -11,7 +11,7 @@ var TouchDnDTime  = 600;
 var DoubleTapTime = 400;
 var PopupOffsetX  = 15;
 var PopupOffsetY  = 10;
-var IE9=false;	// IE9以下
+var IE11=false;	// IE11
 var SP;		// adiary内部がスマホモード
 var Storage;
 
@@ -50,14 +50,6 @@ $(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●for IE
 //////////////////////////////////////////////////////////////////////////////
-// for IE9
-if (!('console' in window)) {
-	window.console = {};
-	var func = function(x){return x};
-	window.console.log   = func;
-	window.console.warn  = func;
-	window.console.error = func;
-}
 // for IE11
 if (!String.repeat) String.prototype.repeat = function(num){
 	var str='';
@@ -80,8 +72,10 @@ function set_browser_class_into_body() {
 	var m = ua.match(/MSIE (\d+)/);
 	var n = ua.match(/Trident\/\d+.*rv:(\d+)/);
 	if (n) { x = []; m = n; }		// IE11
-	if (m) x.push('IE', 'IE' + m[1]);
-	if (m && m[1]<10) IE9=true;
+	if (m) {
+		x.push('IE', 'IE' + m[1]);
+		IE11 = true;
+	}
 
 	// adiaryのスマホモード検出
 	var body = $('#body');
@@ -667,14 +661,6 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●IE9でのみ有効/無効にする
-//////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R){
-	if (!IE9) R.findx('.js-ie9').hide(0);
-	if ( IE9) R.findx('.js-not-ie9').hide(0);
-});
-
-//////////////////////////////////////////////////////////////////////////////
 //●フォーム操作による、enable/disableの自動変更
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
@@ -995,7 +981,6 @@ initfunc.push( function(R){
 //////////////////////////////////////////////////////////////////////////////
 //●input[type="text"], input[type="password"]の自由リサイズ
 //////////////////////////////////////////////////////////////////////////////
-// IE9でもまともに動かないけど無視^^;;;
 initfunc.push( function(R){
 	R.findx('input').each( function(idx,dom){
 		if (dom.type != 'text'

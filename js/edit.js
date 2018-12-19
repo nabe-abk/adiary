@@ -6,7 +6,6 @@
 'use strict';
 var insert_text;	// global function
 var insert_image;	// global function for album.js
-var IE9;
 var DialogWidth;
 var html_mode;		// html input mode
 $(function(){
@@ -427,12 +426,10 @@ insert_text = function(text) {
 //----------------------------------------------------------------------------
 // ●選択範囲のテキスト取得
 //----------------------------------------------------------------------------
-var range_st;
-var range_end;
 function get_selection() {
 	var ta = edit[0];
-	var start = range_st  = ta.selectionStart;
-	var end   = range_end = ta.selectionEnd;
+	var start = ta.selectionStart;
+	var end   = ta.selectionEnd;
 	return ta.value.substring(start, end);
 }
 
@@ -441,8 +438,8 @@ function get_selection() {
 //----------------------------------------------------------------------------
 function replace_selection( text ) {
 	var ta = edit[0];
-	var start = IE9 ? range_st  : ta.selectionStart;	// for IE9
-	var end   = IE9 ? range_end : ta.selectionEnd;
+	var start = ta.selectionStart;
+	var end   = ta.selectionEnd;
 	// 置き換え
 	ta.value = ta.value.substring(0, start) + text + ta.value.substr(end);
 	// カーソル移動
@@ -920,7 +917,6 @@ function html_http_tag(evt) {
 function satsuki_quote_tag(evt) {
 	var obj = $(evt.target);
 	obj.data('start', obj.data('start-base'));
-	if (IE9) return block_tag(evt);			// ダイアログを出すと選択範囲が消えてしまう
 
 	form_dialog({
 		title: obj.data('msg'),
