@@ -670,7 +670,7 @@ sub p_block_end {
 	# \> によるエスケープ
 	$line =~ s/\\>/&gt;/g;
 
-	$self->escape_without_html_tag($line);
+	$self->escape_without_tag($line);
 	push(@$ary, $line . ($pmode ? '</p>' : ''));
 	@$blk = ();
 }
@@ -699,8 +699,6 @@ sub parse_inline {
 
 	my $links = $self->{links};
 	foreach(@$lines) {
-		if (substr($_,-1) eq "\x02") { next; }
-
 		# エスケープ処理
 		$_ =~ s/\\([\\'\*_\{\}\[\]\(\)>#\+\-\.\~!])/"\x03E" . ord($1) . "\x03"/eg;
 
@@ -822,11 +820,23 @@ sub escape_in_code {
 }
 
 #------------------------------------------------------------------------------
-# ●HTMLタグをそのままにしたまま、タグエスケープ
+# ●HTMLタグ/さつきtagをそのままにしたまま、タグエスケープ
 #------------------------------------------------------------------------------
-sub escape_without_html_tag {
+sub escape_without_tag {
 	my $self = shift;
+	my $satsuki = $self->{satsuki_tags};
 	foreach(@_) {
+		my @ary;
+		if ($satsuki) {
+			while ($_ =~ /(.*)(\[\[.*?\]\])(.*)/s || $_ =~ /(.*)(\[(?:\\\[|\\\]|[^\[\]])+\])(.*)/s) {
+				my $p0  = $1;
+				my $cmd = $2;
+				my $p1  = $3;
+				$cmd =~ s/\x03A(\d+)\x03/$ary[$1]/g;
+				push(@ary, $cmd);
+				$_ = $p0 . "\x03A$#ary\x03" . $p1;
+			}
+		}
 		$_ =~ s{<([A-Za-z][\w]*(?:\s*[A-Za-z_][\w\-]*(?:=".*?"|='.*?'|[^\s>]*))*\s*/?)>}{\x03E60\x03$1\x03E62\x03}g;
 		$_ =~ s{<(/[A-Za-z][\w]*\s*)>}{\x03E60\x03$1\x03E62\x03}g;
 		$_ =~ s/&(\w+|\#\d+|\#[Xx][\dA-Fa-f]+);/\x00$1;/g;
@@ -835,6 +845,7 @@ sub escape_without_html_tag {
 		$_ =~ s/>/&gt;/g;
 		$_ =~ tr/\x00/&/;
 		$_ =~ s/\x03E(\d+)\x03/chr($1)/eg;
+		$_ =~ s/\x03A(\d+)\x03/$ary[$1]/g;
 	}
 	return $_[0];
 }
