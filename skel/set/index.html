@@ -124,8 +124,8 @@ $('#gaid-setting').click(function(evt){
 $('#asid-setting').click(function(evt){
 	textarea_dialog(evt.target, function(data){
 		var x;
-		if ((x = data.match(/&t=([\w-]+)/)) 
-		 || (x = data.match(/tag\s*=\s*['"]([\w-]+)/) )
+		if ((x = data.match(/&t=([\w\.-]+)/)) 
+		 || (x = data.match(/tag\s*=\s*['"]([\w\.-]+)/) )
 		) {
 			$('#asid').val( x[1] );
 		}
