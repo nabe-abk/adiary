@@ -585,6 +585,7 @@ initfunc.push( function(R){
 	var helps = R.findx(".help[data-help]");
 	var bhelps= R.findx(".btn-help[data-help]");
 
+	imgs.removeAttr('title');
 	imgs.mouseenter( {func: function(obj,div){
 		var img = $('<img>');
 		img.attr('src', obj.data('img-url'));
