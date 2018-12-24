@@ -1,11 +1,12 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
+our $VERSION = '1.00';
 ###############################################################################
 # Satsuki system - HTTP Server
 #						Copyright (C)2018 nabe@abk
 ###############################################################################
-# Last Update : 2018/10/04
+# Last Update : 2018/12/24
 #
 BEGIN {
 	my $path = $0;
@@ -181,6 +182,30 @@ HELP
 ###############################################################################
 # start up
 ###############################################################################
+print "Satsuki HTTP Server - Version $VERSION\n";
+if ($0 =~ /\.exe$/i) {
+	my $pl = $0;
+	$pl =~ s/\.exe/.httpd.pl/;
+	if (sysopen(my $fh, $pl, O_RDONLY)) {
+		my $ver=0;
+		while(<$fh>) {
+			if ($_ !~ /\$VERSION\s*=\s*[\"\']?(\d+\.\d+)/) { next; }
+			$ver = $1;
+			last;
+		}
+		close($fh);
+		my $this_ver = $VERSION;
+		$this_ver =~ s/[A-Za-z]+$//;
+		if ($this_ver ne $ver) {
+			print STDERR "*** adiary.httpd.pl's version $ver mismatch!!\n";
+			print STDERR "*** Please update this '$0' file\n";
+			print STDERR "\n<<push any key for exit>>";
+			my $key = <STDIN>;
+			exit(-1);
+		}
+	}
+}
+
 #------------------------------------------------------------------------------
 # safety (Do not run on CGI/HTTP SERVER)
 #------------------------------------------------------------------------------
@@ -212,8 +237,7 @@ my $srv;
 	bind($srv, sockaddr_in($PORT, INADDR_ANY))			|| die "bind port failed: $!";
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
 }
-print "Satsuki HTTP Server: Listen $PORT port, Timeout $TIMEOUT sec, "
-	. "Keep-Alive " . ($KEEPALIVE ? 'on' : 'off') . "\n"
+print	  "\tListen $PORT port, Timeout $TIMEOUT sec, Keep-Alive " . ($KEEPALIVE ? 'on' : 'off') . "\n"
 	. "\tStart up deamon: $DEAMONS " . ($ITHREADS ? 'threads' : 'process') . "\n";
 
 #------------------------------------------------------------------------------
