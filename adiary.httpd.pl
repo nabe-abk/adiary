@@ -159,7 +159,7 @@ my %JanFeb2Mon = (
 	if ($help) {
 		my $n = $IsWindows ? "\n  -b\t\tdon't open web browser" : '';
 		print <<HELP;
-Usage: $0 [options] [output_xml_file]
+Usage: $0 [options]
 Available options are:
   -p port	bind port (default:8888, windows:80)
   -t timeout	connection timeout second (default:3, min:0.001)
