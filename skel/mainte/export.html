@@ -47,20 +47,18 @@
 	<@call_dir("<@v.skel_dir>_export/")>
 	</div>
 	</form>
-
-
 </div>
 </article>
 
 
 
 
-<script>$(function(){
+<script-defer><!--
 	load_tags_list( '#tag-select' );
 	$("button.export").click(function(evt){
 		var cls = $(evt.target).data('class');
 		if (!cls) return;
 		$('#form-class').val(cls);
 	});
-});</script>
+--></script-defer>
 

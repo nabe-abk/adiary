@@ -62,7 +62,7 @@
 <div  id="plgset-err-msg"><div class="message">「文字サイズ」が小さすぎます（最小値:1）</div></div>
 </div>
 
-<script>$(function(){
+<script-defer><!--
 $('#btn1').click(function(evt){
 	textarea_dialog(evt.target, function(){});
 });
@@ -176,7 +176,5 @@ function plugin_setting(evt) {
 $('#setting1').click( plugin_setting );
 $('#setting2').click( plugin_setting );
 $f = $;
-///
-});
-</script>
+--></script-defer>
 

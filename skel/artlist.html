@@ -180,24 +180,23 @@
 
 
 
-<script>
-$(function(){
+<script-defer><!--
 	var form = $secure('#search');
 	var sel = form.find('select');
 	sel.change(function(){
 		form.submit();
 	});
-});
-var taginp = $('#tag-input');
-var tagsel = $('#tag-select');
-load_tags_list(tagsel);
-tagsel.change(function(evt){
-	var newtag = tagsel.val();
-	tagsel.val('');
-	var cur = taginp.val();
-	taginp.val(
-		cur + (cur == '' ? '' : ', ') + newtag
-	);
-});
-$('#tag-form').hide();
-</script>
+
+	var taginp = $('#tag-input');
+	var tagsel = $('#tag-select');
+	load_tags_list(tagsel);
+	tagsel.change(function(evt){
+		var newtag = tagsel.val();
+		tagsel.val('');
+		var cur = taginp.val();
+		taginp.val(
+			cur + (cur == '' ? '' : ', ') + newtag
+		);
+	});
+	$('#tag-form').hide();
+--></script-defer>

@@ -74,11 +74,10 @@ ul {
 </form>
 <iframe id="iframe" src="<@v.myself>"></iframe>
 
-<script>
+<script-defer><!--
 //////////////////////////////////////////////////////////////////////////////
 // ●iframeの自動リサイズ
 //////////////////////////////////////////////////////////////////////////////
-$(function(){
 	var body = $('#body');
 	var iframe = $('#iframe');
 	function iframe_resize() {
@@ -87,5 +86,4 @@ $(function(){
 	}
 	iframe_resize();
 	$(window).resize( iframe_resize );
-});
-</script>
+--></script-defer>

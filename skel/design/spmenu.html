@@ -57,8 +57,7 @@
 }
 <$end>
 </style>
-<script>
-$(function(){
+<script-defer><!--
 	var tbody = $('#sortable-body');
 	tbody.sortable({ items: '>tr', cancel: '.no-drag' });
 	tbody.dndEmulation();	// for スマホ
@@ -68,8 +67,7 @@ $(function(){
 		var win = window.open('<@v.myself>?&_sphone=1', 'spmode', 'width=360, height=600, location=yes, menubar=no, resizable=yes, scrollbars=yes');
 		win.focus();
 	});
-});
-</script>
+--></script-defer>
 <$end>
 
 <!--========================================================================-->

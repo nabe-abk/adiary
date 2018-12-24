@@ -29,7 +29,8 @@
 </div>
 
 
-<div style="display:none"><script>
+<div style="display:none">
+<script-defer><!--
 adiary_session($('#static-export'), {
 	myself: $('#session-log').data('myself'),
 	load_formdata: function(btn) {
@@ -42,7 +43,8 @@ adiary_session($('#static-export'), {
 		return fd;
 	}
 });
-</script></div>
+--></script-defer>
+</div>
 <$break()>
 <$end>
 <@>#############################################################################

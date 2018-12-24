@@ -53,18 +53,18 @@
 <$end>
 <@>
 <!-- JavaScript ============================================-->
-<script src="<@Basepath><@v.script_dir>jquery-3.min.js"></script>
-<script src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
-<script src="<@Basepath><@v.script_dir>adiary.js?<@tm>"></script>
+<script defer src="<@Basepath><@v.script_dir>jquery-3.min.js"></script>
+<script defer src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>
+<script defer src="<@Basepath><@v.script_dir>adiary.js?<@tm>"></script>
 <@forexec(t, v.load_jscss(Basepath, 'jslib'), begin)>
-<script src="<@t>?<@tm>"></script>
+<script defer src="<@t>?<@tm>"></script>
 <$end>
 <@forexec(t, v.load_jscss(Basepath, 'js'), begin)>
-<script async src="<@t>?<@tm>"></script>
+<script defer src="<@t>?<@tm>"></script>
 <$end>
-<script async src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
+<script defer src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">
-<@if(!js_stop && file_size(file), #'<script async src="<@Basepath><@file>" id="theme-js"></script>\n')>
+<@if(!js_stop && file_size(file), #'<script defer src="<@Basepath><@file>" id="theme-js"></script>\n')>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
 <@v.extra_header>
 <@if(!v.system_mode, s.html_header_txt)>
@@ -121,6 +121,7 @@
 <span id="ajs-confirm">確認</span>
 <span id="ajs-other">その他</span>
 </div>
+<@v.post_html>
 
 <script>
 var Vmyself='<@v.myself>';
@@ -129,20 +130,13 @@ var ScriptDir ='<@Basepath><@v.script_dir>';
 var PubdistDir ='<@Basepath><@v.pubdist_dir>';
 var SpecialQuery = '<@v.sp_query>';
 <@ifexec(!v.system_mode && s.gaid, begin)>
-// Google Analytics
-ga=function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-ga('create', '<@s.gaid>', 'auto');
-ga('send', 'pageview');
+var gaid = '<@s.gaid>';
 <$end>
 <@ifexec(Timer, begin)>
-// Timer
-var DBtime = 
-$(function(){
-$('#system-info-db-time').text('<@int(Timer.check('db')*10000 + 0.5)/10>');
-$('#system-info-total-time').text('<@int(Timer.check()*10000 + 0.5)/10>');
-});
+var DBTime    = <@int(Timer.check('db')*10000 + 0.5)/10>;
+var TotalTime = <@int(Timer.check()*10000 + 0.5)/10>;
 <$end>
 </script>
-<@v.post_html>
+
 </body>
 </html>

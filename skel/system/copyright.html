@@ -39,8 +39,7 @@ along with this program.  If not, see <a href="http://www.gnu.org/licenses/">htt
 </article>
 
 
-<script>
-$(function(){
+<script-defer><!--
 	var mail = $('#mailto');
 	var text1 = "nabe";
 	var x     = Math.floor(5*7/15);
@@ -48,5 +47,4 @@ $(function(){
 	var text = text1 + x + decodeURIComponent('%40') + text2;
 	mail.text( text );
 	mail.attr('href', 'mailto:' + text);
-});
-</script>
+--></script-defer>

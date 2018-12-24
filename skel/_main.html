@@ -149,7 +149,9 @@
 	</div>
 </div>
 </article>
-<script>$(function(){ init_top_search('#top-search-form'); });</script>
+<script-defer><!--
+	init_top_search('#top-search-form');
+--></script-defer>
 
 <$page_offfset = if(6<page, page-6, 0)>
 <$page_max     = page_offfset+10>
@@ -272,5 +274,7 @@
 <div id="search-words-list" style="display: none">
 <@forexec(t, ret.words, begin)><span><@t></span><$end>
 </div>
-<script>$(function(){ word_highlight('#search-words-list'); });</script>
+<script-defer><!--
+	word_highlight('#search-words-list');
+--></script-defer>
 <$end>

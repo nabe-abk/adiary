@@ -28,8 +28,8 @@ HTML
 	<$v.regist_jslib(@js_urls)>
 <$end>
 <div class="dem-module" data-module-name="<@this>">
-<script><!--
+<script-defer><!--
 <@ps.script>
---></script>
+--></script-defer>
 </div>
 HTML

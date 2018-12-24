@@ -21,20 +21,36 @@ var Vmyself2;
 var ScriptDir;
 var PubdistDir;
 var SpecialQuery;
+var gaid;
+var DBTime;
+var TotalTime;
 //////////////////////////////////////////////////////////////////////////////
 //●初期化処理
 //////////////////////////////////////////////////////////////////////////////
 $(function(){
+	// init
 	if (Vmyself) Storage=load_PrefixStorage( Vmyself );
 	set_browser_class_into_body();
 
+	// DB time, Total time
+	$('#system-info-db-time')   .text( DBTime );
+	$('#system-info-total-time').text( TotalTime );
+
 	// Google Analytics
-	if (window.ga) {
+	if (gaid) {
+		ga=function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+		ga('create', '<@s.gaid>', 'auto');
+		ga('send', 'pageview');
 		var a = document.createElement('script');
 		a.src = 'https://www.google-analytics.com/analytics.js';
 		a.async = 1;
 		(document.getElementsByTagName('head')[0]).appendChild(a);
 	}
+
+	// script-defer
+	$('script-defer').each(function(idx, dom) {
+		eval(dom.innerHTML);
+	});
 });
 
 //////////////////////////////////////////////////////////////////////////////

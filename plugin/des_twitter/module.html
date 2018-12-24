@@ -19,8 +19,8 @@
 	<@if(ps.border,  #'\tdata-border-color="<@ps.border>"\n')>
 	<@if(ps.twlinks, #'\tdata-link-color="<@ps.twlinks>"\n')>
 >@<@ps.id> からのツイート</a>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-<script>$(function(){
+<script defer src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+<script-defer><!--
 <@> CSSの書き換え
 twitter_css_fix('\
 <@ifexec(ps.bg || ps.fc, begin)>
@@ -40,7 +40,7 @@ div.customisable-border { border-bottom: none; } \
 <@> ol.h-feed li.tweet { padding-left: 8px }
 <@> .timeline { background-color: transparent }
 '<@if(ps.width, ", <@ps.width>")>);
-});</script>
+--></script-defer>
 <@>
 <$else>
 	<p class="ni">「data-widget-id」が設定されていません。</p>

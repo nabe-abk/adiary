@@ -40,8 +40,7 @@
 </article>
 
 
-<script>
-$(function(){
+<script-defer><!--
 	var info = $('#info-only');
 	var submit = $('#submit-btn');
 	info.change(function(evt){
@@ -50,6 +49,5 @@ $(function(){
 		else	submit.text( info.data('off') );
 	});
 	info.change();
-});
-</script>
+--></script-defer>
 

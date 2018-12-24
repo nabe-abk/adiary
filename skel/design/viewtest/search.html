@@ -108,7 +108,9 @@
 	<label><input type="checkbox" class="js-switch" data-target="article.article div.body div.body-main" data-save="1" checked>記事本文を表示</label></div>
 </div>
 </article>
-<script>$(function(){ init_top_search('#top-search-form', 1); });</script>
+<script-defer><!--
+	init_top_search('#top-search-form', 1);
+--></script-defer>
 
 
 
@@ -322,5 +324,7 @@ y=ax<sup>2</sup>+bx+c<br>
 <span>い</span>
 <span>です</span>
 </div>
-<script>$(function(){ word_highlight('#search-words-list'); });</script>
+<script-defer><!--
+	word_highlight('#search-words-list');
+--></script-defer>
 

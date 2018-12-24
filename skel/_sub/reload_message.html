@@ -17,8 +17,7 @@
 <$v.action_is_main = 1>
 <$rtime = if(reload_stop, 0, v.sys.reload_time)>
 
-<script><!--
-$(function(){
+<script-defer><!--
 	var stop=$('#reload-stop');
 	var msgs=$('#reload-msg');
 	function reload() {
@@ -30,15 +29,15 @@ $(function(){
 	});
 
 	// Auto reload
-	if (!stop.length) return;
-	var reload_timer = setTimeout(reload, <@rtime>000);
-	stop.click( function() {
-		clearTimeout(reload_timer);
-		stop.css('display','none');
-		msgs.html('クリックするとリロードします');
-	});
-});
---></script>
+	if (stop.length) {
+		var reload_timer = setTimeout(reload, <@rtime>000);
+		stop.click( function() {
+			clearTimeout(reload_timer);
+			stop.css('display','none');
+			msgs.html('クリックするとリロードします');
+		});
+	}
+--></script-defer>
 
 <!--reload msg============================================================-->
 <article class="system message">

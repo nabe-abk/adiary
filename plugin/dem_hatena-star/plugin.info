@@ -27,7 +27,7 @@ HTML
 記事タイトル部にはてなスターを表示
 <@ifexec(!art_sample_mode, begin)>
 <$v.regist_post_html(exec(begin))>
-<script><!--
+<script-defer><!--
 var Hatena;
 if (!Hatena) Hatena = {};
 if (!Hatena.Star) Hatena.Star = {};
@@ -41,7 +41,7 @@ Hatena.Star.SiteConfig = {
 		}
 	}
 };
-</script>
+--></script-defer>
 <$end>
 <$end>
 </div>

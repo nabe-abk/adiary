@@ -7,11 +7,6 @@
 <@>すでにログインしている
 <$ifjump_clear(Auth.ok, '_sub/error_message', 'すでにログインしています')>
 
-<@> ロード時のカーソルを ID に合わせる
-<script><!--
-$(document).ready( function() { $("<@if(Query.id ne '', "#pass", "#id")>").focus(); } );
-//--></script>
-
 <@call('_sub/error_message')>
 
 <!--========================================================================-->
@@ -36,6 +31,13 @@ $(document).ready( function() { $("<@if(Query.id ne '', "#pass", "#id")>").focus
 	</form>
 </div>
 </article>
+
+
+
+<@> cursol to id-form
+<script-defer><!--
+$(document).ready( function() { $("<@if(Query.id ne '', "#pass", "#id")>").focus(); } );
+--></scrip-defer>
 
 
 
