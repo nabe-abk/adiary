@@ -21,9 +21,10 @@ var Vmyself2;
 var ScriptDir;
 var PubdistDir;
 var SpecialQuery;
-var gaid;
 var DBTime;
 var TotalTime;
+var ga;
+var GA_ID;
 //////////////////////////////////////////////////////////////////////////////
 //●初期化処理
 //////////////////////////////////////////////////////////////////////////////
@@ -37,9 +38,9 @@ $(function(){
 	$('#system-info-total-time').text( TotalTime );
 
 	// Google Analytics
-	if (gaid) {
+	if (GA_ID) {
 		ga=function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-		ga('create', '<@s.gaid>', 'auto');
+		ga('create', GA_ID, 'auto');
 		ga('send', 'pageview');
 		var a = document.createElement('script');
 		a.src = 'https://www.google-analytics.com/analytics.js';

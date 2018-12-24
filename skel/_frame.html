@@ -130,7 +130,7 @@ var ScriptDir ='<@Basepath><@v.script_dir>';
 var PubdistDir ='<@Basepath><@v.pubdist_dir>';
 var SpecialQuery = '<@v.sp_query>';
 <@ifexec(!v.system_mode && s.gaid, begin)>
-var gaid = '<@s.gaid>';
+var GA_ID = '<@s.gaid>';
 <$end>
 <@ifexec(Timer, begin)>
 var DBTime    = <@int(Timer.check('db')*10000 + 0.5)/10>;
