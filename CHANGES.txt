@@ -22,6 +22,7 @@
 -【fix】アルバムで、101個以上のファイルを一度にアップロードできない。
 -【fix】blogid に"te-st"のように不正文字が含まれても正しく表示されてしまう。
 -【fix】画像がセンタリングや右揃えされない。（[https://adiary.adiary.jp/0401#c20:Thanks to あさリがいっぱい]）
+-【fix】システムinfoモジュールの時間表示が不正確。
 -【fix/入力記法】calc記法の変数領域が、CGIキャッシュ環境において分離されてしまう。（[https://adiary.adiary.jp/0401#c12:Thanks to nomura]）
 -【fix/Markdown】リストブロックの処理に問題があった。（[https://adiary.adiary.jp/0399#c12:Thanks to epg]）
 -【fix/Markdown】{<p>}で段落ブロックを切り出す際、余計なブランク行を挿入していた。

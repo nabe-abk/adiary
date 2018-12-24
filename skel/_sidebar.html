@@ -76,8 +76,8 @@
 <div class="hatena-moduletitle">System info</div>
 <div class="hatena-modulebody">
 <@ifexec(Timer, begin)>
-Total time : <span id="system-info-total-time"><@int(Timer.check()*10000 + 0.5)/10></span> ms<br>
-DB time : <span id="system-info-db-time"><@int(Timer.check('db')*10000 + 0.5)/10></span> ms<br>
+Total time : <span id="system-info-total-time">---</span> ms<br>
+DB time : <span id="system-info-db-time">---</span> ms<br>
 <$end>
 Runtime : <@CGI_mode><br>
 RDBMS : <@DB._RDBMS><br>
