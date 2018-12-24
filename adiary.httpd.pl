@@ -158,7 +158,7 @@ my %JanFeb2Mon = (
 	if ($DEAMONS < 1)     { $DEAMONS=1;     }
 
 	if ($help) {
-		my $n = $IsWindows ? "\n  -b\t\tdon't open web browser" : '';
+		my $n = $IsWindows ? "  -n\t\tdo not open web browser\n" : '';
 		print <<HELP;
 Usage: $0 [options]
 Available options are:
@@ -173,8 +173,8 @@ Available options are:
   -k0		connection keep-alive disable
   -s		silent mode
   -sc		silent mode for cgi  access
-  -sf		silent mode for file access$n
-  -?|-h		view this help
+  -sf		silent mode for file access
+$n  -?|-h		view this help
 HELP
 		exit(0);
 	}
