@@ -51,18 +51,18 @@
 
 <@><!--========================================================================-->
 <$page = ret.page)>
-<$url = v.myself>
 <@>
 <@ifexec(ret.mode eq 'search', begin.search)>
 <$v.no_robots=1>
 <article class="system message search">
-<$url = if(ret.yyyymm, v.myself2 . ret.yyyymm, v.myself)>
+<$q=''>
 <$q .= if(ret.q, '&amp;q=' . ret.q, '')>
 <$q .= if(Query.all, '&amp;all=1')>
+<$q .= if(ret.yyyymm, '&amp;d=' . ret.yyyymm, '')>
 <$q2 = encode_uricom(x = ret.q)>
 <h2>検索条件</h2>
 <div class="body">
-	<form method="GET" action="<@url>" data-noymd-url="<@v.myself>" id="top-search-form">
+	<form method="GET" action="<@v.myself>" id="top-search-form">
 	<@>### フリーワード ###
 	<div class="freeword">
 	<select name="all">
@@ -97,16 +97,18 @@
 
 	<@>### 年・年月指定 ###
 	<@ifexec(ret.yyyymm || ret.day, begin)>
-	<div class="yyyymm cond" id="yyyymm-cond" data-yyyymm="<@ret.yyyymm>">
-	<span class="search-caption">指定期間</span> <span class="yyyymm"><@ret.year>年<@if(ret.mon, "<@ret.mon>月")><@if(ret.day, "<@ret.day>日")>の記事</span><br>
-	</div>
+	<div class="yyyymm cond">
+	<span class="search-caption">指定期間</span> <span class="yyyymm"> <@\>
+		<@ret.year>年<@if(ret.mon, "<@ret.mon>月")><@if(ret.day, "<@ret.day>日")>の記事 <@\>
+		<input type="hidden" name="d" value="<@ret.yyyymm>">
+	</span></div>
 	<$end>
 	</form>
 
 	<@>-----------------------------------------
 	<@> 絞り込み
 	<@>-----------------------------------------
-	<$url .= "?<@q>">
+	<$url = "<@v.myself>?<@q>">
 
 	<@>### タグ絞り込み ###
 	<@ifexec(ret.narrow_tags, begin)>
@@ -132,9 +134,10 @@
 	<@ifexec(ret.narrow_ymd, begin)>
 	<div class="narrow narrow-ymd">
 	<span class="search-caption">日付で絞り込み</span>
+	<$qx = q><$replace(qx, '&amp;d=\d+', '')>
 	<@forexec_hash(t,ret.narrow_ymd,begin)>
-		<@ifexec(t.key == 0, begin)><a href="<@v.myself2>?<@q>&w=1">コンテンツ(<@t.val>)</a><$next()><$end>
-		<a href="<@v.myself2><@t.key>?<@q>"><@if(t.key < 10000, "<@t.key>年", int(substr(t.key,4,2)) . '月')>(<@t.val>)</a>
+		<@ifexec(t.key == 0, begin)><a href="<@url>&amp;w=1">コンテンツ(<@t.val>)</a><$next()><$end>
+		<a href="<@v.myself>?<@qx>&amp;d=<@t.key>"><@if(t.key < 10000, "<@t.key>年", int(substr(t.key,4,2)) . '月')>(<@t.val>)</a>
 	<$end>
 	</div>
 	<$end>

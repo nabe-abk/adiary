@@ -1475,15 +1475,7 @@ function init_top_search(id, flag) {
 		obj.parent().remove();
 		form.submit();
 	});
-	form.find("div.taglist span.tag, div.ctype span.ctype").append(tagdel);
-
-	var ymddel = $('<span>').addClass('ui-icon ui-icon-close');
-	if (!flag) ymddel.click(function(evt){
-		form.attr('action', form.data('noymd-url'));
-		if (!flag) form.submit();
-	});
-
-	form.find("div.yyyymm span.yyyymm").append(ymddel);
+	form.find("div.taglist span.tag, div.ctype span.ctype, div.yyyymm span.yyyymm").append(tagdel);
 }
 
 //////////////////////////////////////////////////////////////////////////////

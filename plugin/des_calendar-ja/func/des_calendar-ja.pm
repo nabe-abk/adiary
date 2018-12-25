@@ -116,7 +116,7 @@ $mop->{generate_calendar} = sub {
 	for(my $i=0; $i<$wday; $i++) {
 		push(@lines, $noday_html);
 	}
-	my $path = $aobj->{myself2} . ($year*100 + $mon);
+	my $path = $aobj->{myself} . '?d=' . ($year*100 + $mon);
 	for(my $i=1; $i<=$days; $i++, $wday++) {
 		if ($wday == 7) {
 			push(@lines, "</tr>\n<tr>\n");

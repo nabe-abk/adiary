@@ -96,11 +96,11 @@ sub adiary_day {
 	my $replace = $pobj->{vars};
 
 	# 記事の日付指定
-	my $url = $replace->{myself2};
+	my $url = $replace->{myself} . '?d=';
 	my $opt = shift(@$ary);
 	my $name;
-	if ($opt =~ m|^(\d\d\d\d)(\d\d)(\d\d)?$|
-	 || $opt =~ m|^(\d\d\d\d)[-/](\d\d?)[-/](\d\d?)?$|) {	# YYYYMM YYYYMMDD
+	if ($opt =~ m|^(\d\d\d\d)(\d\d)(\d\d?)$|
+	 || $opt =~ m|^(\d\d\d\d)[-/](\d\d?)[-/](\d\d?)$|) {	# YYYYMM YYYYMMDD
 		$name = $opt;
 		$url .= sprintf("$1%02d%02d", $2, $3);
 	} elsif ($opt =~ m|^(\d\d\d\d)[-/]?(\d\d)$|) {

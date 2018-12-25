@@ -705,7 +705,7 @@ sub load_articles {
 	#---------------------------------------------------------------
 	# 年月日指定 / YYYYMMDD
 	#---------------------------------------------------------------
-	} elsif ($mode =~ /^(\d\d\d\d)(\d\d)(\d\d)$/) {
+	} elsif ($query->{d} =~ /^(\d\d\d\d)(\d\d)(\d\d)$/) {
 		$ret{mode} = 'day';
 
 		my $err = $self->check_date($1, $2, $3);
@@ -717,7 +717,7 @@ sub load_articles {
 		$ret{mon}  = $2;
 		$ret{day}  = $3;
 
-		$q{match}    = {yyyymmdd => $mode};
+		$q{match}    = {yyyymmdd => $query->{d}};
 		$q{sort}     = 'tm';
 		$q{sort_rev} = 0;
 
@@ -728,7 +728,7 @@ sub load_articles {
 	#---------------------------------------------------------------
 	# tm指定
 	#---------------------------------------------------------------
-	} elsif ($mode =~ /^(\d{9,})$/) {
+	} elsif ($query->{tm} =~ /^(\d{9,})$/) {
 		$ret{mode} = 'day';
 
 		$q{match}    = {tm => $1};
@@ -738,14 +738,14 @@ sub load_articles {
 	#---------------------------------------------------------------
 	# Query
 	#---------------------------------------------------------------
-	} elsif ($mode =~ /^(\d\d\d\d)(\d\d)?$/ || $query->{t} || $query->{c} || $query->{q} !~ /^\s*$/) {
+	} elsif ($query->{d} || $query->{t} || $query->{c} || $query->{q} !~ /^\s*$/) {
 		$ret{mode} = 'search';
 		my $title_tag;
 
 		#--------------------------------------
 		# 年月指定 / YYYYMM
 		#--------------------------------------
-		if ($mode =~ /^(\d\d\d\d)(\d\d)?$/) {
+		if ($query->{d} =~ /^(\d\d\d\d)(\d\d)?$/) {
 			$title_tag = 0;
 			if ($2) {
 				my $err = $self->check_date($1, $2);
@@ -754,7 +754,7 @@ sub load_articles {
 					return [];
 				}
 			}
-			$ret{yyyymm} = $mode;
+			$ret{yyyymm} = $query->{d};
 			$ret{year} = $1;
 			$ret{mon}  = $2;
 
