@@ -42,15 +42,17 @@ $(function(){
 		ga=function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 		ga('create', GA_ID, 'auto');
 		ga('send', 'pageview');
-		var a = document.createElement('script');
-		a.src = 'https://www.google-analytics.com/analytics.js';
-		a.async = 1;
-		(document.getElementsByTagName('head')[0]).appendChild(a);
+		load_script('https://www.google-analytics.com/analytics.js');
 	}
 
 	// script-defer
 	$('script-defer').each(function(idx, dom) {
-		eval(dom.innerHTML);
+		var $scr = $('<script>').html(dom.innerHTML);
+		$(dom).replaceWith( $scr );
+		return;
+	});
+	$('script-load').each(function(idx, dom) {
+		load_script(dom.innerText);
 	});
 });
 
@@ -1604,59 +1606,46 @@ function reload_user_css() {
 //////////////////////////////////////////////////////////////////////////////
 //●twitterウィジェットのデザイン変更スクリプト
 //////////////////////////////////////////////////////////////////////////////
-function twitter_css_fix(css_text, width){
+function twitter_css_fix(css_text){
 	var try_max = 20;
 	var try_msec = 250;
 	function callfunc() {
 		var r=1;
 		if (try_max--<1) return;
 		try{
-			r = css_fix(css_text, width);
+			r = css_fix(css_text);
 		} catch(e) { ; }
 		if (r) setTimeout(callfunc, try_msec);
 	}
 	setTimeout(callfunc, try_msec);
 
-function css_fix(css_text, width) {
+function css_fix(css_text) {
 	var iframes = $('iframe');
 	var iframe;
-	var ch;
+	var $doc;
 	for (var i=0; i<iframes.length; i++) {
 		iframe = iframes[i];
 		if (iframe.id.substring(0, 15) != 'twitter-widget-') continue;
-		if (iframe.className.indexOf('twitter-timeline')<0) continue;
-		if (iframes[i].id.substring(0, 15) != 'twitter-widget-') continue;
-		var doc = iframe.contentDocument || iframe.document;
-		if (!doc || !doc.documentElement) continue;
-		var ch = doc.documentElement.children;
+		if (iframe.className.indexOf('twitter-timeline')<0)  continue;
+
+		var $doc = $(iframe.contentDocument || iframe.document);
 		break;
 	}
-	if (!ch) return -1;
-	var head;
-	var body;
-	for (var i=0; i<ch.length; i++) {
-		if (ch[i].nodeName == 'HEAD') head = ch[i];
-		if (ch[i].nodeName == 'BODY') body = ch[i];
-	}
-	if (!head || !body) return -2;
-	if (body.innerHTML.length == 0) return -3;
+	if (!$doc) return -1;
 
-	// delay
-	setTimeout(function(){
+	$doc.ready( function(){
 		var css = $('<style>').attr({
 			id: 'add-tw-css',
 			type: 'text/css'
 		});
 		css.html(css_text);
-		$(head).append(css);
-	
-		// 幅調整
-		var obj = $(iframe);
-		obj.css('min-width', 0);
-		if (width > 49) {
-			obj.css('width', width + 'px');
-		}
-	}, try_msec);
+		$doc.find('head').append(css);
+
+		// delay
+		setTimeout(function(){
+			$(iframe).css('min-width', 0);
+		},10);
+	});
 };
 ///
 }
@@ -1731,7 +1720,7 @@ function prepend_css_file(file) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//cacheするgetScript
+// getScript
 //////////////////////////////////////////////////////////////////////////////
 function cached_getScript(url, func) {
 	var opt = {
@@ -1741,6 +1730,20 @@ function cached_getScript(url, func) {
 	};
 	if (func) opt.success=func;
 	return $.ajax( opt );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// load script
+//////////////////////////////////////////////////////////////////////////////
+var load_script_chache = [];
+function load_script(url) {
+	if (load_script_chache[url]) return;
+	load_script_chache[url] = 1;
+
+	var s = document.createElement('script');
+	s.src = url;
+	s.async = 1;
+	(document.getElementsByTagName('head')[0]).appendChild(s);
 }
 
 //////////////////////////////////////////////////////////////////////////////
