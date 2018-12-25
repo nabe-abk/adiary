@@ -774,7 +774,6 @@ sub convert_reversed_poland {
 			my $c=$1;
 			my @a=&array2quote_string(split(/\s*,\s*|\s+/,$2));
 			foreach(@a) {
-				$self->debug($_);
 				push(@$strbuf, $_);
 				$_ = "\x01[\x01$#$strbuf]";
 			}
