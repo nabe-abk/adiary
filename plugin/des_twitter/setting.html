@@ -13,37 +13,10 @@
 			<label><input type="checkbox" name="title_none" value="1"<@if(ps.title_none,' checked')>>非表示にする</label>
 		</td>
 	</tr>
-	</tbody>
-	</table>
-
-	<p>先に<a href="https://twitter.com/settings/widgets" target="_blank">Twitterの設定画面</a>からウィジェットを作成しておく必要があります。</p>
-
-	<table>
-	<tbody>
-	<tr>
-		<th>自動挿入</th><td><button type="button" data-title="Twitter id/widget-idの自動設定" id="auto-setting" data-msg="TwitterウィジョットのHTMLコードを貼り付けてください" data-ok="設定" data-cancel="キャンセル">ウィジェットコードから自動設定する</button></td>
-	</tr>
 	<tr>
 		<th>Twitterのid</th><td><input type="text" class="w200" name="id" value="<@ps.id>" id="tw-id"></td>
 	</tr>
-	<tr>
-		<th>data-widget-id</th><td><input type="text" class="w200" name="widget_id" value="<@ps.widget_id>" id="widget-id"></td>
-	</tr>
 	</tbody>
 	</table>
 
 
-<script>
-$('#auto-setting').click(function(evt){
-	textarea_dialog(evt.target, function(data){
-		var x;
-		if (x = data.match(/>\s*\@(\w+)/)) {
-			$('#tw-id').val( x[1] );
-		}
-		if (x = data.match(/ data-widget-id\s*=\s*"(\d+)/)) {
-			$('#widget-id').val( x[1] );
-		}
-	});
-
-});
-</script>

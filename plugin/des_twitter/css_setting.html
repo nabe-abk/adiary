@@ -17,44 +17,42 @@
 	</tr>
 	<tr><th>非表示設定</th>
 		<td>
-			<input type="checkbox" name="noheader" class="js-disable" data-target="#bg,#fc" value="1"<@if(ps.noheader || ps.noheader eq '', ' checked')>>
-			<label>ヘッダーを非表示</label><br>
-			<input type="checkbox" name="nofooter" value="1"<@if(ps.nofooter, ' checked')>>
-			<label>フッター（ツイートボックス）を非表示</label><br>
-			<input type="checkbox" name="noborders" class="js-disable" data-target="#border,#noborders2" value="1"<@if(ps.noborders, ' checked')>>
-			<label>ツイートの枠線と境界線を非表示</label><br>
-			<input type="checkbox" name="noborders2" id="noborders2" value="1"<@if(ps.noborders2, ' checked')>>
-			<label>ツイートの外枠のみを非表示</label><br>
-			<input type="checkbox" name="noscrollbar" value="1"<@if(ps.noscrollbar, ' checked')>>
-			<label>スクロールバーを非表示</label><br>
-			<input type="checkbox" name="noactions" value="1"<@if(ps.noactions || ps.noactions eq '', ' checked')>>
-			<label>ツイートアクションを非表示</label><br>
-			<input type="checkbox" name="transparent" value="1"<@if(ps.transparent, ' checked')>>
-			<label>背景を透明にする</label><br>
+			<label><input type="checkbox" name="noborders" class="js-disable" data-target="#border,#noborders2" value="1"<@if(ps.noborders, ' checked')>>
+			ツイートの境界線を非表示</label><br>
+			<label><input type="checkbox" name="noscrollbar" value="1"<@if(ps.noscrollbar, ' checked')>>
+			スクロールバーを非表示</label><br>
+			<label><input type="checkbox" name="noactions" value="1"<@if(ps.noactions || ps.noactions eq '', ' checked')>>
+			ツイートアクションを非表示</label><br>
+			<label><input type="checkbox" name="nodate" value="1"<@if(ps.nodate, ' checked')>>
+			ツイートの日付を非表示</label><br>
+			<label><input type="checkbox" name="transparent" value="1"<@if(ps.transparent, ' checked')>>
+			背景を透明にする</label><br>
 		</td>
 	</tr>
 	<tr>
-		<th>ヘッダの色</th><td>
-		背景 <input type="text" id="bg" name="bg" value="<@ps.bg>" class="color-picker" id="bg"> 
-		文字 <input type="text" id="fc" name="fc" value="<@ps.fc>" class="color-picker" id="fc">
-		<button type="button" id="header-auto-set">自動設定</button>
-		</td>
-	</tr>
-	<tr>
-		<th>ツイートの色</th><td>
+		<th>背景色</th><td>
 		背景 <input type="text" id="twbg" name="twbg" value="<@ps.twbg>" class="color-picker" id="twbg"> 
+		<label><input type="checkbox" class="js-disable" data-target="#twbg"<@if(ps.twbg eq '',' checked')>>変更しない</label>
+		<button type="button" id="tweet-auto-set">自動設定</button>
+		</td>
+	</tr>
+	<tr>
+		<th>文字色色</th><td>
 		文字 <input type="text" id="twfc" name="twfc" value="<@ps.twfc>" class="color-picker" id="twfc">
+		<label><input type="checkbox" class="js-disable" data-target="#twfc"<@if(ps.twfc eq '',' checked')>>変更しない</label>
 		<button type="button" id="tweet-auto-set">自動設定</button>
 		</td>
 	</tr>
 	<tr>
 		<th>ボーダーの色</th><td>
 		<input type="text" id="border" name="border" value="<@ps.border>" class="color-picker" id="border">
+		<label><input type="checkbox" class="js-disable" data-target="#border"<@if(ps.border eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
 		<th>リンクの色</th><td>
 		<input type="text" id="twlinks" name="twlinks" value="<@ps.twlinks>" class="color-picker" id="twlinks">
+		<label><input type="checkbox" class="js-disable" data-target="#twlinks"<@if(ps.twlinks eq '',' checked')>>変更しない</label>
 		<button type="button" id="link-auto-set">自動設定</button>
 		</td>
 	</tr>
@@ -124,7 +122,7 @@ function fcbg_autoset(fc_id, bg_id) {
 	var col = parse_color( obj.css('background-color') );
 	if (col) $(bg_id).val(col);
 	else {
-		var col = parse_color( obj.parent.css('background-color') );
+		var col = parse_color( obj.parent().css('background-color') );
 		if (col) $(bg_id).val(col);
 	}
 	span.remove();

@@ -5,45 +5,55 @@
 <div class="hatena-moduletitle"><@if(ps.title ne '',ps.title ,'Twitter')></div>
 <$end>
 <div class="hatena-modulebody">
-<@ifexec(ps.widget_id ne '', begin, begin)>
+<@ifexec(ps.id ne '', begin, begin)>
 <@>
-<a class="twitter-timeline" href="https://twitter.com/<@ps.id>" data-widget-id="<@ps.widget_id>"
-	data-chrome=" <@\>
-	<@if(ps.noheader,   'noheader ')> <@\>
-	<@if(ps.nofooter,   'nofooter ')> <@\>
-	<@if(ps.noborders,  'noborders ')> <@\>
-	<@if(ps.noscrollbar,'noscrollbar ')> <@\>
-	<@if(ps.transparent,'transparent ')> <@\>
+<a class="twitter-timeline"
+	<@if(ps.width,  #'data-width="<@ps.width>"')>
+	data-height="<@ps.height || 600>"
+	<@if(ps.twlinks,  #'data-link-color="<@ps.twlinks>"')>
+	data-dnt="true" href="https://twitter.com/<@ps.id>"
+	data-chrome="noheader nofooter <@\>
+	<@if(ps.noborders,  ' noborders')> <@\>
+	<@if(ps.noscrollbar,' noscrollbar')> <@\>
+	<@if(ps.transparent,' transparent')> <@\>
 	"
-	<@if(ps.height,  #'\theight="<@ps.height>"\n')>
-	<@if(ps.border,  #'\tdata-border-color="<@ps.border>"\n')>
-	<@if(ps.twlinks, #'\tdata-link-color="<@ps.twlinks>"\n')>
 >@<@ps.id> からのツイート</a>
-<script defer src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+<script-load src="//platform.twitter.com/widgets.js"></script-load>
 <script-defer><!--
-<@> CSSの書き換え
-twitter_css_fix('\
-<@ifexec(ps.bg || ps.fc, begin)>
-div.timeline { <@if(ps.bg, "background-color: <@ps.bg>; ")><@if(ps.fc, "color: <@ps.fc>;")> } \
-<$end>
+twitter_css_fix( $('#<@id>-css').val() );
+--></script-defer>
+<textarea id="<@id>-css" style="display: none">
+div.timeline-Body {
 <@ifexec(ps.twbg || ps.twfc, begin)>
-li.tweet { <@if(ps.twbg, "background-color: <@ps.twbg>; ")><@if(ps.twfc, "color: <@ps.twfc>;")> } \
+	<@if(ps.twbg, "background-color: <@ps.twbg>;")>
+	<@if(ps.twfc, "color: <@ps.twfc>;")> 
+<$end>
+	border-top:	none;
+}
+<@ifexec(ps.border, begin)>
+.customisable-border { border-color: <@ps.border> }
 <$end>
 <@ifexec(ps.noactions, begin)>
-li.tweet div.footer { display: none; } \
+.timeline-Tweet-actions  { display: none; }
 <$end>
-<@ifexec(ps.noborders2, begin)>
-.customisable-border { border-left: none; border-right: none; } \
-.customisable-border:first-child { border-top: none; } \
-div.customisable-border { border-bottom: none; } \
+<@ifexec(ps.nodate, begin)>
+.timeline-Tweet-metadata { display: none; }
 <$end>
-<@> ol.h-feed li.tweet { padding-left: 8px }
-<@> .timeline { background-color: transparent }
-'<@if(ps.width, ", <@ps.width>")>);
---></script-defer>
+<@>リツイートメッセージを非表示
+.timeline-Tweet-retweetCredit {
+	display:none;
+}
+button.timeline-LoadMore-prompt:before {
+	content:	"more";
+}
+button.timeline-LoadMore-prompt {
+	text-indent:	-9999pt;
+}
+
+</textarea>
 <@>
 <$else>
-	<p class="ni">「data-widget-id」が設定されていません。</p>
+	<p class="ni">「twitter-id」が指定されていません。</p>
 <$end>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
