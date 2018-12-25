@@ -16,8 +16,8 @@
 <meta name="author" content="<@v.blogid>">
 <@>
 <@if(v.no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
-<link rel="stylesheet" href="<@Basepath><@v.pubdist_dir>jquery-ui/jquery-ui.structure.min.css" id="jquery-ui-css">
-<link rel="stylesheet" href="<@Basepath><@v.pubdist_dir>lightbox/lightbox.css" id="lightbox-css">
+<link class="css-defer" href="<@Basepath><@v.pubdist_dir>jquery-ui/jquery-ui.structure.min.css">
+<link class="css-defer" href="<@Basepath><@v.pubdist_dir>lightbox/lightbox.css">
 <@>
 <@forexec(t, v.load_jscss(Basepath, 'csslib'), begin)>
 <link rel="stylesheet" href="<@t>">

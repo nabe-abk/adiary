@@ -46,6 +46,9 @@ $(function(){
 		load_script('https://www.google-analytics.com/analytics.js');
 	}
 
+	// css-defer
+	$('link.css-defer').attr('rel', 'stylesheet');
+
 	// load script
 	$('script-load').each(function(idx, dom) {
 		load_script(dom.getAttribute('src'));
