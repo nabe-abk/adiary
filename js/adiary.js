@@ -21,6 +21,7 @@ var Vmyself2;
 var ScriptDir;
 var PubdistDir;
 var SpecialQuery;
+var defer;
 var DBTime;
 var TotalTime;
 var ga;
@@ -45,14 +46,48 @@ $(function(){
 		load_script('https://www.google-analytics.com/analytics.js');
 	}
 
+	// load script
+	$('script-load').each(function(idx, dom) {
+		load_script(dom.src);
+	});
+
 	// script-defer
 	$('script-defer').each(function(idx, dom) {
-		var $scr = $('<script>').html(dom.innerHTML);
-		$(dom).replaceWith( $scr );
-		return;
-	});
-	$('script-load').each(function(idx, dom) {
-		load_script(dom.innerText);
+		function get_script_line_number(d) {
+			var line = 2;	// before <head> lines
+			domloop: while(1) {
+				while(!d.previousSibling) {
+					if (!d.parentElement) break domloop;
+					d = d.parentElement;
+				}
+				d = d.previousSibling;
+				line += (d.outerHTML || d.nodeValue || "").split("\n").length -1;
+			}
+			return line;
+		}
+
+		try {
+			if (IE11) return eval( dom.innerHTML.replace(/^\s*<!--([\s\S]*)-->\s*$/, "$1") );
+			eval( dom.innerHTML );
+		} catch(e) {
+			// analyze error info
+			var line = 0;
+			var col  = 0;
+			var text = e.stack.replace(/^[\s\S]*?([^\n]*:\d+:\d+)/, "$1");
+			var ma   = text.match(/^[^\n]*eval[^\n]*:(\d+):(\d+)\s*/);
+			if (ma) {
+				line = parseInt(ma[1]);
+				col  = parseInt(ma[2]);
+			} else {
+				throw(e);
+			}
+			line += get_script_line_number(dom);
+
+			var path = location.href.replace(/#.*/,"");
+			if (e.lineNumber)
+				 throw new Error(e.message, path, line);
+			console.error("<script-defer> error!!\n", e.message + ' at ' + path + ':' + line + ':' + col);
+		}
 	});
 });
 
