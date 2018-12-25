@@ -770,10 +770,11 @@ sub convert_reversed_poland {
 			"$c($x)";
 		!eg;
 		# flagq(a b-c dd,ee) → flag('a','b-c','dd','ee')
-		$cmd =~ s!(arrayq|hashq|flagq)\(([^\(\)]*?)\)!
+		$cmd =~ s!(arrayq|hashq|flagq)\(\s*([^\(\)]*?)\s*\)!
 			my $c=$1;
-			my @a=&array2quote_string(split(/\s+|\s*,\s*/,$2));
+			my @a=&array2quote_string(split(/\s*,\s*|\s+/,$2));
 			foreach(@a) {
+				$self->debug($_);
 				push(@$strbuf, $_);
 				$_ = "\x01[\x01$#$strbuf]";
 			}
