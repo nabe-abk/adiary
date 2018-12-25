@@ -1642,8 +1642,8 @@ function reload_user_css() {
 //●twitterウィジェットのデザイン変更スクリプト
 //////////////////////////////////////////////////////////////////////////////
 function twitter_css_fix(css_text){
-	var try_max = 20;
-	var try_msec = 250;
+	var try_max = 25;
+	var try_msec = 200;
 	function callfunc() {
 		var r=1;
 		if (try_max--<1) return;
@@ -1668,19 +1668,17 @@ function css_fix(css_text) {
 	}
 	if (!$doc) return -1;
 
-	$doc.ready( function(){
-		setTimeout(function(){
-			var css = $('<style>').attr({
-				id: 'add-tw-css',
-				type: 'text/css'
-			});
-			css.html(css_text);
-			$doc.find('head').append(css);
+	// wait load tweets
+	var tweet = $doc.find('.timeline-Tweet');
+	if (tweet.length < 1) return -2;
 
-			// delay
-			$(iframe).css('min-width', 0);
-		},200);
+	$(iframe).css('min-width', 0);
+	var css = $('<style>').attr({
+		id: 'add-tw-css',
+		type: 'text/css'
 	});
+	css.html(css_text);
+	$doc.find('head').append(css);
 };
 ///
 }
