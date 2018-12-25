@@ -483,17 +483,16 @@ var syntax_highlight_css = 'adiary';
 function load_SyntaxHighlight() {}	// 互換性のためのダミー
 
 $(function(){
-	var codes = $('pre.syntax-highlight');
-	if (!codes.length) return;
+	var $codes = $('pre.syntax-highlight');
+	if (!$codes.length) return;
 	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
 
-	cached_getScript(ScriptDir + 'highlight.pack.js', function(){
-		$('pre.syntax-highlight').each(function(i, block) {
+	load_script(ScriptDir + 'highlight.pack.js', function(){
+		$codes.each(function(i, block) {
 			hljs.highlightBlock(block);
 		});
 	});
 	var style = $('<link>').attr({
-		type: "text/css",
 		rel: "stylesheet",
 		id: 'syntaxhighlight-theme'
 	});
@@ -525,7 +524,7 @@ $(function(){
 		},
 		extensions: ['jsMath2jax.js']
 	};
-	cached_getScript( MathJaxURL );
+	load_script( MathJaxURL );
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1032,8 +1031,8 @@ initfunc.push( function(R){
 
 	// color pickerのロード
 	var dir = ScriptDir + 'colorpicker/';
-	prepend_css_file(dir + 'css/colorpicker.css');
-	cached_getScript(dir + "colorpicker.js", initfunc);
+	prepend_css(dir + 'css/colorpicker.css');
+	load_script(dir + "colorpicker.js", initfunc);
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1744,10 +1743,9 @@ function set_dom_id(_obj) {
 //////////////////////////////////////////////////////////////////////////////
 // CSSファイルの追加
 //////////////////////////////////////////////////////////////////////////////
-function prepend_css_file(file) {
+function prepend_css(file) {
 	var css = $("<link>")
 	css.attr({
-		type: "text/css",
 		rel: "stylesheet",
 		href: file
 	});
@@ -1756,30 +1754,21 @@ function prepend_css_file(file) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// getScript
-//////////////////////////////////////////////////////////////////////////////
-function cached_getScript(url, func) {
-	var opt = {
-		dataType: 'script',
-		cache: true,
-		url: url
-	};
-	if (func) opt.success=func;
-	return $.ajax( opt );
-}
-
-//////////////////////////////////////////////////////////////////////////////
 // load script
 //////////////////////////////////////////////////////////////////////////////
 var load_script_chache = [];
-function load_script(url) {
-	if (load_script_chache[url]) return;
+function load_script(url, func) {
+	if (load_script_chache[url]) {
+		if (func) func();
+		return;
+	}
 	load_script_chache[url] = 1;
 
-	var s = document.createElement('script');
-	s.setAttribute('src',   url);
-	s.setAttribute('async', 'async');
-	(document.getElementsByTagName('head')[0]).appendChild(s);
+	var $s = $(document.createElement('script'));
+	$s.attr('src',   url);
+	$s.attr('async', 'async');
+	if (func) $s.on('load', func);
+	(document.getElementsByTagName('head')[0]).appendChild( $s[0] );
 }
 
 //////////////////////////////////////////////////////////////////////////////
