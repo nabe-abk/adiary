@@ -156,7 +156,7 @@ _module_start
 #------------------------------------------------------------------------------
 *tweet
 <blockquote class="twitter-tweet"><a href="https://twitter.com/${uid}/status/${status-id}"></a></blockquote>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+<script-load src="//platform.twitter.com/widgets.js" charset="utf-8"></script-load>
 
 #------------------------------------------------------------------------------
 # ニコニコ動画 モジュール
@@ -177,10 +177,10 @@ _module_start
 # github/gist表示モジュール
 #------------------------------------------------------------------------------
 *gist
-<script src="https://gist.github.com${path}.js"></script>
+<script async src="https://gist.github.com${path}.js"></script>
 
 *gist-it
-<script src="https://gist-it.appspot.com/github${path}"></script>
+<script async src="https://gist-it.appspot.com/github${path}"></script>
 
 #------------------------------------------------------------------------------
 # slideshare モジュール
