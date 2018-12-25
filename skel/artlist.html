@@ -161,8 +161,8 @@
 			<option value="" class="special">【タグを選択】</option>
 		</select>
 		<select name="tag_append">
-			<option value="1">入力したタグを追加する</option>
-			<option value="0">入力したタグに置き換える</option>
+			<option value="1">タグを追加する</option>
+			<option value="0">タグに置き換える</option>
 		</select>
 		<button type="submit" name="mode" value="tagset">タグの一括設定</button>
 	</div>
@@ -187,6 +187,7 @@
 		form.submit();
 	});
 
+<@ifexec(v.allow_edit, begin)>
 	var taginp = $('#tag-input');
 	var tagsel = $('#tag-select');
 	load_tags_list(tagsel);
@@ -198,5 +199,7 @@
 			cur + (cur == '' ? '' : ', ') + newtag
 		);
 	});
+<$end>
+
 	$('#tag-form').hide();
 --></script-defer>
