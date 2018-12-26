@@ -6,8 +6,9 @@
 -Windows用実行ファイル adiary.exe が開発されました。
 -[bf:IE9, IE10のサポートを終了しました]（対策コードを削除しました）。
 -数字のみのコンテンツkeyを許可しました。
+--数字のみのコンテンツkeyを指定できるよう{[link:XXX]}記法を作成しました。
 --日付指定を path_info からqueryに変更しました。
---時刻による記事指定の仕様を変更し、{[tm:XXX]}記法を作りました。
+--時刻による記事指定の仕様を変更し、{[tm:XXX]}記法を作成しました。
 -{<script defer>}を使用し、ページのロードを高速化しました。（[https://developers.google.com/speed/pagespeed/insights/:Google PageSpeed Insights]）
 -一部のCSSを遅延読み込みするよう変更しました。
 -【CGI動作以外】ライブラリの自動更新チェックを1秒1回だけ実施するよう変更し、応答性能をアップしました。
