@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2018 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.74';
+our $VERSION = '1.75';
 #(簡易履歴)
+# 2018/12 Ver1.75  hash(), {a=>b} の仕様変更（{}は元に戻す）
 # 2018/10 Ver1.74  arrayq(), flagq(), hashq()のアップデート, ifset_header類追加
 # 2016/01 Ver1.73  load_from_aryのバグ修正
 # 2015/11 Ver1.72  関数展開時の出力書式を綺麗に（実行結果に変化なし）
@@ -755,20 +756,38 @@ sub convert_reversed_poland {
 			$x =~ s/\.(\.*)/')->('$1/g;
 			"->('$x')";
 		!eg;
-		$cmd =~ s!\{([^\{\}]*)\}!		# {aaa=>x, bbb=>y} → hashq(aaa,x,bbb,y)
+
+		# [aaa, bbb] → array[aaa, bbb]
+		$cmd =~ s|\[([^\]\x00-\x04]*)\]|array($1)|g;
+
+		# {aaa => x, bbb=>y} → hash(aaa , x, bbb,y)
+		$cmd =~ s!\{([^\{\}]*)\}!
 			my $x=$1;
 			$x =~ s/=>/,/g;
-			"hashq($x)";
+			"hash($x)";
 		!eg;
-		$cmd =~ s|\[([^\]\x00-\x04]*)\]|array($1)|g;	# [aaa, bbb] → array[aaa,bbb]
 
 		# flag(a b c) → flag(a,b,c)
-		$cmd =~ s!(array|hash|flag)\(([^\(\)]*?)\)!
-			my $c=$1;
-			my $x=$2;
+		$cmd =~ s!(^|\W)(array|hash|flag)\(\s*([^\(\)]*?)\s*\)!
+			my $c="$1$2";
+			my $x=$3;
 			$x =~ s/\s*,\s*|\s+/,/g;
 			"$c($x)";
 		!eg;
+		# hash(aaa,x,'bbb',y,ccc,'z') → hash('aaa','x','bbb',y,'ccc','z')
+		$cmd =~ s#(^|\W)hash\(\s*([^\(\)]*?)\s*\)#
+			my $z=$1;
+			my @a=split(/,/, $2);
+			my $f=1;
+			foreach(@a) {
+				if ($f && $_ !~ /^\x01\[\x01/) {
+					$_ = &into_single_quot_string($_);
+				}
+				$f = !$f;
+			}
+			"${z}hash(" . join(',',@a) . ")";
+		#eg;
+
 		# flagq(a b-c dd,ee) → flag('a','b-c','dd','ee')
 		$cmd =~ s!(arrayq|hashq|flagq)\(\s*([^\(\)]*?)\s*\)!
 			my $c=$1;
@@ -2178,6 +2197,7 @@ sub into_single_quot_string {
 		$_ =~ s/([\\'])/\\$1/g;
 		$_ = "'$_'";
 	}
+	return $_[0];
 }
 
 #------------------------------------------------------------------------------
