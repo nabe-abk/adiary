@@ -9,8 +9,8 @@
 --数字のみのコンテンツkeyを指定できるよう{[link:XXX]}記法を作成しました（[https://adiary.org/v3man/Satsuki-tag/:詳細]）。
 --日付指定を path_info からqueryに変更しました。
 --時刻による記事指定の仕様を変更し、{[tm:XXX]}記法を作成しました。
--高速化対策を行いました。
---{<script defer>}を使用し、ページのロードを高速化しました。（[https://developers.google.com/speed/pagespeed/insights/:Google PageSpeed Insights]）
+-高速化対策を行いました。（[https://developers.google.com/speed/pagespeed/insights/:Google PageSpeed Insights]）
+--{<script defer>}を使用し、ページのロードを高速化しました。
 --一部のCSSを遅延読み込みするよう変更しました。
 --CGI動作以外でのライブラリの自動更新チェックを1秒1回だけ実施するよう変更しました。
 --ブログ表示時に不要なjQuery UIをロードしなくなりました。
