@@ -5,10 +5,11 @@
 -スタンドアローンHTTPサーバ機能を持った adiary.httpd.cgi が同梱されました。
 -Windows用実行ファイル adiary.exe が開発されました。
 -[bf:IE9, IE10のサポートを終了しました]（対策コードを削除しました）。
+-数字のみのコンテンツkeyを許可しました。
+--日付指定を path_info からqueryに変更しました。
+--時刻による記事指定の仕様を変更し、{[tm:XXX]}記法を作りました。
 -{<script defer>}を使用し、ページのロードを高速化しました。（[https://developers.google.com/speed/pagespeed/insights/:Google PageSpeed Insights]）
 -一部のCSSを遅延読み込みするよう変更しました。
--日付指定を path_info からqueryに変更しました。
--時刻による記事指定の仕様を変更し、{[tm:XXX]}記法を作りました。
 -【CGI動作以外】ライブラリの自動更新チェックを1秒1回だけ実施するよう変更し、応答性能をアップしました。
 -【記法】「空行で段落処理（改行処理なし）」の時、行末スペース2つ以上を改行に置換するよう変更。
 -【記法】Amazon紹介リンク作成機能（asinタグ、or URLフィルター機能）のリンク先を変更。

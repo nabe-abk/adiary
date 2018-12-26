@@ -192,7 +192,7 @@ Can't find the article (key: %d)=編集する記事が見つかりません。ke
 Can not use character "%s" in content key=コンテンツkeyに文字「%s」は使えません
 Can not use string "%s" in content key=コンテンツkeyに文字列「%s」は使えません
 Content key is empty=コンテンツkeyが空です
-Content key can not be only in the numbers=コンテンツkeyは数字のみにはできません
+Content key can not numbers starting with "0"=コンテンツkeyに「0」で始まる数字は使えません
 Load parser '%s' failed=パーサーのロードに失敗しました : %s
 
 Ping sending=更新通知を送信します

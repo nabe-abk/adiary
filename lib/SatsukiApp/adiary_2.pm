@@ -359,8 +359,8 @@ sub regist_article {
 			$ROBJ->form_error('link_key', 'Can not use string "%s" in content key', "$1");
 		} elsif ($link_key =~ /^\s*$/) {
 			$ROBJ->form_error('link_key', 'Content key is empty');
-		} elsif ($link_key =~ m|^\d+$|) {
-			$ROBJ->form_error('link_key', 'Content key can not be only in the numbers');
+		} elsif ($link_key =~ m|^0\d*$|) {
+			$ROBJ->form_error('link_key', 'Content key can not numbers starting with "0"');
 		}
 
 		# link_key の重複回避

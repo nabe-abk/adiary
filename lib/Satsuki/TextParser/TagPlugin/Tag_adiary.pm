@@ -1,7 +1,7 @@
 use strict;
 #------------------------------------------------------------------------------
 # adiary固有記法プラグイン
-#                                                   (C)2013 nabe / nabe@abk.nu
+#                                                   (C)2018 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
 package Satsuki::TextParser::TagPlugin::Tag_adiary;
 ###############################################################################
@@ -16,15 +16,15 @@ sub new {
 
 	my $tags = shift;
 	#---begin_plugin_info
-	$tags->{"adiary:this"}->{data} = \&adiary_key;
-	$tags->{"adiary:key"} ->{data} = \&adiary_key;
+	$tags->{"adiary:link"}->{data} = \&adiary_link;
+	$tags->{"adiary:this"}->{data} = \&adiary_this;
 	$tags->{"adiary:tm"}  ->{data} = \&adiary_tm;
+	$tags->{"adiary:key"} ->{data} = \&adiary_key;
 	$tags->{"adiary:id"}  ->{data} = \&adiary_key;
 	$tags->{"adiary:day"} ->{data} = \&adiary_day;
 	$tags->{"adiary:tag"} ->{data} = \&adiary_tag;
 	#---end
 
-	$tags->{"adiary:this"}->{_this} = 1;
 	$tags->{"adiary:key"} ->{_key}  = 1;
 	$tags->{"adiary:id"}  ->{_id}   = 1;
 
@@ -34,7 +34,45 @@ sub new {
 # ■タグ処理ルーチン
 ###############################################################################
 #------------------------------------------------------------------------------
-# ●adiary this/key/id 記法
+# ●adiary link 記法
+#------------------------------------------------------------------------------
+sub adiary_link {
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $aobj    = $pobj->{aobj};
+	my $replace = $pobj->{vars};
+
+	my $link_key = shift(@$ary);
+	my $ekey = $link_key;
+	$aobj->link_key_encode($ekey);
+	my $url  = $replace->{myself2} . $ekey;
+
+	my $name = $link_key;
+	#---------------------------
+	# 記事タイトルの自動抽出
+	#---------------------------
+	my $title;
+	{
+		my $blogid=$aobj->{blogid};
+		my $DB = $aobj->{DB};
+		my $h = $DB->select_match_limit1("${blogid}_art", 'link_key', $link_key, '*cols', ['title']);
+		if ($h) {
+			$title = $h->{title};
+		}
+	}
+	return &adiary_link_base($pobj, $tag, $url, $name, $ary, $title);
+}
+#------------------------------------------------------------------------------
+# ●adiary this 記法
+#------------------------------------------------------------------------------
+sub adiary_this {
+	my ($pobj, $tag, $cmd, $ary) = @_;
+
+	my $url  = $pobj->{thisurl};
+	return &adiary_link_base($pobj, $tag, $url, '', $ary);
+}
+
+#------------------------------------------------------------------------------
+# ●adiary key/id 記法
 #------------------------------------------------------------------------------
 sub adiary_key {
 	my ($pobj, $tag, $cmd, $ary) = @_;
@@ -68,10 +106,8 @@ sub adiary_key {
 		if ($link_key ne '') {
 			$name .= (($name ne '')?':':'') . $link_key;
 			if ($link_key =~ /^[\d]+$/) {
-				if ($link_key < 10000000) { $link_key = "0" . int($link_key); }
+				$link_key = '0' . int($link_key);
 				$url .= $link_key;
-			} elsif (substr($link_key,0,1) eq '/' || $link_key =~ /\"\'/) {
-				return "(key error)";	# error
 			} else {
 				my $ekey = $link_key;
 				$aobj->link_key_encode($ekey);
