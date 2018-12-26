@@ -169,7 +169,7 @@
 		<$end>
 	</div> <!-- comment-one -->
 	<$end>
-	<@ifexec(coms && v.allow_edit, begin)>
+	<@ifexec(coms && v.allow_edit, begin)><$load_jquery=1>
 	<div class="com-buttons">
 	<@ifexec(t.enable, begin)>
 	<button type="submit" name="enable"  class="js-form-check btn-help" data-confirm="" data-help="非公開コメントを表示することはできません">表示に設定</button>
