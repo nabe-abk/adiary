@@ -53,10 +53,12 @@ http:image#link  = サムネイル（HeartRails Capture）, image, 1, http://$1
 # plugin adiary
 this = >adiary:this
 key  = >adiary:key
+tm   = >adiary:tm
 id   = >adiary:id
 day  = >adiary:day
 tag  = >adiary:tag
 adiary:key = 記事指定
+adiary:tm  = 記事時刻指定
 adiary:id  = ID指定
 adiary:day = 日付指定
 adiary:tag = タグ検索

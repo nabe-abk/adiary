@@ -18,6 +18,7 @@ sub new {
 	#---begin_plugin_info
 	$tags->{"adiary:this"}->{data} = \&adiary_key;
 	$tags->{"adiary:key"} ->{data} = \&adiary_key;
+	$tags->{"adiary:tm"}  ->{data} = \&adiary_tm;
 	$tags->{"adiary:id"}  ->{data} = \&adiary_key;
 	$tags->{"adiary:day"} ->{data} = \&adiary_day;
 	$tags->{"adiary:tag"} ->{data} = \&adiary_tag;
@@ -39,6 +40,12 @@ sub adiary_key {
 	my ($pobj, $tag, $cmd, $ary) = @_;
 	my $aobj    = $pobj->{aobj};
 	my $replace = $pobj->{vars};
+
+	# tm記法?
+	my $tm = $ary->[0];
+	if ($tag->{_key} && $tm =~ /^\d+$/ && 10000000<=$tm) { 
+		return &adiary_tm($pobj, $tag, $cmd, $ary);
+	}
 
 	# ID記法
 	my $url;
@@ -81,6 +88,34 @@ sub adiary_key {
 					$title = $h->{title};
 				}
 			}
+		}
+	}
+	return &adiary_link_base($pobj, $tag, $url, $name, $ary, $title);
+}
+
+#------------------------------------------------------------------------------
+# ●adiary tm 記法
+#------------------------------------------------------------------------------
+sub adiary_tm {
+	my ($pobj, $tag, $cmd, $ary) = @_;
+	my $aobj    = $pobj->{aobj};
+	my $replace = $pobj->{vars};
+
+	# 記事 tm 指定
+	my $tm   = int(shift(@$ary));
+	my $url  = $replace->{myself} . "?tm=$tm";
+	my $name = $tm;
+
+	#---------------------------
+	# 記事タイトルの自動抽出
+	#---------------------------
+	my $title;
+	{
+		my $blogid = $aobj->{blogid};
+		my $DB = $aobj->{DB};
+		my $h = $DB->select_match_limit1("${blogid}_art", 'tm', $tm, '*cols', ['title']);
+		if ($h) {
+			$title = $h->{title};
 		}
 	}
 	return &adiary_link_base($pobj, $tag, $url, $name, $ary, $title);
