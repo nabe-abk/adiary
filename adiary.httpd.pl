@@ -220,13 +220,21 @@ if (!$IsWindows) {
 	}
 }
 $ENV{GATEWAY_INTERFACE} = 'CGI/1.1';
-$ENV{SCRIPT_NAME}     = $0;
 $ENV{SERVER_NAME}     = 'localhost';
 $ENV{SERVER_PORT}     = $PORT;
 $ENV{SERVER_PROTOCOL} = 'HTTP/1.1';
 $ENV{SERVER_SOFTWARE} = 'Satsuki';
 $ENV{REQUEST_SCHEME}  = 'http';
 $ENV{DOCUMENT_ROOT}   = Cwd::getcwd();
+{
+	my $scr = $0;
+	if ($IsWindows) {
+		$scr =~ s|^\w+:||;
+		$scr =~ s|\\|/|g;
+	}
+	$scr = ($scr =~ m|([^/]*)$|) ? "/$1" : $scr;
+	$ENV{SCRIPT_NAME} = $scr;
+}
 #------------------------------------------------------------------------------
 # windows port check
 #------------------------------------------------------------------------------
