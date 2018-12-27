@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.20 : 2018/12/xx
+*Ver3.20 : 2018/12/27
 
 -スタンドアローンHTTPサーバ機能を持った adiary.httpd.cgi が同梱されました。
 -Windows用実行ファイル adiary.exe が開発されました。
