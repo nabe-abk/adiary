@@ -229,12 +229,15 @@ $mop->{send} = sub {
 		$aobj->update_plgset($name, 'url',   undef );
 		$aobj->update_plgset($name, 'title', undef );
 		$aobj->update_plgset($name, 'msg',   undef );
-		push(@log, "name=$name\n");
-
 		$ary[0] = "0\n";
 	}
 	$self->save_list($fh, \@ary);
 
+	if ($ROBJ->{Develop} && $ROBJ->{HTTPD}) {
+		foreach(@log) {
+			print STDERR "$name: $_\n";	# debug-safe
+		}
+	}
 	return $ROBJ->{Develop} ? ("send=$send\n",@log) : 0;
 };
 
@@ -261,7 +264,7 @@ $mop->{webpush} = sub {
 	my $mprv = $h->{mprv};
 	my $cpub = $h->{cpub};	# Client pub key
 	my $auth = $h->{auth};
-	my $salt = $ROBJ->get_rand_string(16);
+	my $salt = $ROBJ->generate_rand_string(16);
 
 	my $secret;
 	{
@@ -306,7 +309,7 @@ $mop->{webpush} = sub {
 		my $info = '{"typ":"JWT", "alg":"ES256"}';
 		my $data = {
 			sub => $ROBJ->{Server_url} . $self->{aobj}->{myself},
-			exp => time() + $TTL
+			exp => time() + (85800 < $TTL ? 85800 : $TTL)
 		};
 		if ($url =~ m|^(\w+://[^/]*)|) {
 			$data->{aud} = $1;
@@ -329,12 +332,11 @@ $mop->{webpush} = sub {
 	#-------------------------------------------------------------------
 	# POST
 	#-------------------------------------------------------------------
-	my $http = $ROBJ->loadpm('Base::HTTP');
-	
 	$header->{TTL} = $TTL;
 
-	my $r  = $http->post($url, $header, $body);
-	my $st = $http->{status};
+	my $http = $ROBJ->loadpm('Base::HTTP');
+	my $r    = $http->post($url, $header, $body);
+	my $st   = $http->{status};
 
 	return (200<=$st && $st<300) ? 0 : $http->{status};
 };
