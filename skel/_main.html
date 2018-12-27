@@ -38,7 +38,6 @@
 <$end>
 
 <@ifexec(!v.blogid, begin, begin)>
-	<$ifredirect(v.path_blogid && Auth.isadmin, Myself . '?menu')>
 	<$set_status(404)>
 	<$ifmessage(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません")>
 	<$ifmessage(v.path_blogid && ! Auth.ok, "もしあなたが「ID:<@v.path_blogid>」ならばログインしてください。")>
