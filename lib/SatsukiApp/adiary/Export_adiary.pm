@@ -71,7 +71,9 @@ sub export {
 			# key指定をtm指定に変更
 			if ($key2tm) {
 				$_->{_text} =~ s/\[key:(\d+)([\]:])/
-					'[tm:' . ($pkey2tm[$1] || $1) . $2/eg;
+					$pkey2tm[$1] ? "[tm:$pkey2tm[$1]$2" : "[key:$1$2"/eg;
+				$_->{_text} =~ s/\[link:0(\d+)([\]:])/
+					$pkey2tm[$1] ? "[tm:$pkey2tm[$1]$2" : "[key:$1$2"/eg;
 			}
 
 			# id 指定を通常リンクに書き換え（パーサーに通す）
