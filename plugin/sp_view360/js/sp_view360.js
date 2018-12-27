@@ -28,7 +28,12 @@ function sp_view360(){
 	me.init = function(){
 		// 360度画像の要素を探す
 		var x = $("a.view360 img");
+		var y = $("a:not(.view360) img").filter(function(idx){
+			var file = this.getAttribute('src');
+			return file && file.match(/[-_]360\./);
+		});
 		x.each(me.make);
+		y.each(me.make);
 
 		// ドキュメントのマウスイベントに登録
 		$(document).on("mousemove", me.onMouseMove);
@@ -78,6 +83,7 @@ function sp_view360(){
 				mesh.scale.x = -1;
 				mesh.position.set(0, 0, 0);
 				mesh.material.needsUpdate = true;
+				mesh.material.side = THREE.BackSide;
 				me.scene[idx].add(mesh);
 
 				// 読みだしたら元画像とキャンバスを入れ替えて描画
