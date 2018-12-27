@@ -230,7 +230,7 @@ $ENV{DOCUMENT_ROOT}   = Cwd::getcwd();
 #------------------------------------------------------------------------------
 # windows port check
 #------------------------------------------------------------------------------
-if (1 || $IsWindows) {
+if ($IsWindows) {
 	my $sock;
 	socket($sock, PF_INET, SOCK_STREAM, getprotobyname('tcp'));
 	my $addr = sockaddr_in($PORT, inet_aton('localhost'));
