@@ -2,17 +2,20 @@
 <$v.title ="autoログイン">
 
 <@>すでにログインしている
-<$ifredirect(Auth.ok, v.myself)>
+<$ifexec(!Auth.ok, begin)>
+	<$Message_stop=1>
+	<$Auth.login('root*', '')>
+	<$Message_stop=0>
+<$end>
 
-<$Message_stop=1>
-<@ok = Auth.login('root*', '')>
-<$Message_stop=0>
-
-<$ifexec(!ok && Query.q eq 'login', begin)>
+<@>自動ログインに失敗
+<$ifexec(!Auth.auto, begin)>
+	<@> ログイン中
+	<$ifredirect(Auth.ok, v.myself3)>
+	<@> 非ログイン中
 	<$message('すでにユーザーが登録されています。')>
 	<$jump_clear('login')>
 <$end>
-<$ifredirect(!ok, v.myself)>
 
 <$h = new>
 <$h.id  = 'root*'>
