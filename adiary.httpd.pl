@@ -197,9 +197,9 @@ if ($0 =~ /\.exe$/i) {
 		my $this_ver = $VERSION;
 		$this_ver =~ s/[A-Za-z]+$//;
 		if ($this_ver ne $ver) {
-			print STDERR "*** adiary.httpd.pl's version $ver mismatch!!\n";
-			print STDERR "*** Please update this '$0' file\n";
-			print STDERR "\n<<push any key for exit>>";
+			print STDERR "*** adiary.httpd.pl's version $ver mismatch!!\n";		# debug-safe
+			print STDERR "*** Please update this '$0' file\n";			# debug-safe
+			print STDERR "\n<<push any key for exit>>";				# debug-safe
 			my $key = <STDIN>;
 			exit(-1);
 		}
