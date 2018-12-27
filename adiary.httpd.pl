@@ -228,11 +228,27 @@ $ENV{SERVER_SOFTWARE} = 'Satsuki';
 $ENV{REQUEST_SCHEME}  = 'http';
 $ENV{DOCUMENT_ROOT}   = Cwd::getcwd();
 #------------------------------------------------------------------------------
+# windows port check
+#------------------------------------------------------------------------------
+if (1 || $IsWindows) {
+	my $sock;
+	socket($sock, PF_INET, SOCK_STREAM, getprotobyname('tcp'));
+	my $addr = sockaddr_in($PORT, inet_aton('localhost'));
+	my $r = connect($sock, $addr);
+	close($sock);
+
+	if ($r) {
+		&open_browser_on_windows();
+		die "bind port $PORT failed: Address already in use";
+	}
+}
+
+#------------------------------------------------------------------------------
 # bind port
 #------------------------------------------------------------------------------
 my $srv;
 {
-	socket($srv, PF_INET, SOCK_STREAM, 0)				|| die "socket failed: $!";
+	socket($srv, PF_INET, SOCK_STREAM, getprotobyname('tcp'))	|| die "socket failed: $!";
 	setsockopt($srv, SOL_SOCKET, SO_REUSEADDR, pack("l", 1))	|| die "setsockopt failed: $!";
 	bind($srv, sockaddr_in($PORT, INADDR_ANY))			|| die "bind port failed: $!";
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
@@ -312,8 +328,7 @@ $PID = $ITHREADS ? &thread_id() : $$;
 
 	# open Browser on windows
 	if ($IsWindows && $OPEN_BROWSER) {
-		my $url = 'http://' . $ENV{SERVER_NAME} . ($PORT==80 ? '' : ":$PORT");
-		system("cmd.exe /c start $url?login_auto");
+		&open_browser_on_windows();
 	}
 
 	# main thread
@@ -843,6 +858,16 @@ sub read_sock_1line {
 		$line .= $c;
 	}
 	return $line;
+}
+
+#------------------------------------------------------------------------------
+# open Browser on windows
+#------------------------------------------------------------------------------
+sub open_browser_on_windows {
+	if ($IsWindows && $OPEN_BROWSER) {
+		my $url = 'http://' . $ENV{SERVER_NAME} . ($PORT==80 ? '' : ":$PORT");
+		system("cmd.exe /c start $url?login_auto");
+	}
 }
 
 #------------------------------------------------------------------------------
