@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.31';
+our $VERSION = '2.32';
 our $RELOAD;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
@@ -222,7 +222,7 @@ sub init_path {
 	if (!exists $self->{Myself}) {
 		if ($rewrite) {
 			$self->{Myself}  = $self->{Myself2} = $basepath;
-		} elsif (substr($req_uri, rindex($req_uri, '/')+1) eq $cgi) {		# 通常のcgi
+		} elsif (index($req_uri, $ENV{SCRIPT_NAME}) == 0) {	# 通常のcgi
 			$self->{Myself}  = $basepath . $cgi;
 			$self->{Myself2} = $basepath . $cgi . '/';	# PATH_INFO用
 		} else {	# cgi が DirectoryIndex
