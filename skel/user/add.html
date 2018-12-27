@@ -26,7 +26,7 @@
 	<$end>
 
 	<table>
-	<tr><th>ID</th>        <td<@err.c_id>>先頭は英小文字。「a-z, 0-9, _」のみ使用可能。<br><input type="text" name="id" class="w100" value="<@esc(Form.id)>" pattern="^[a-z][a-z0-9_]*$" required>
+	<tr><th>ID</th>        <td<@err.c_id>>先頭は英小文字。「a-z, 0-9, _」のみ使用可能。<br><input type="text" name="adiary_id" class="w100" value="<@esc(Form.adiary_id)>" pattern="^[a-z][a-z0-9_]*$" required>
 		</td></tr>
 	<tr><th>名前</th>      <td<@err.c_name>><input type="text" name="name" class="w100" value="<@esc(Form.name)>" required></td></tr>
 	<tr><th>パスワード</th><td<@err.c_pass>><input type="password" name="pass" class="w120" value="" required>

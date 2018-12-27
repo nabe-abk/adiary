@@ -4,7 +4,7 @@
 <$ifbreak(! Auth.isadmin)>
 <$ifbreak(csrf_check())>
 
-<$id = Form.id>
+<$id = Form.id = Form.adiary_id>
 <$ifexec(id eq 'm' || id eq 'theme' || id eq 'pub', begin)>
 	<$form_error('id',"ID「<@id>」は使用できません")>
 	<$break()>
