@@ -11,7 +11,6 @@ adiary.httpd.pl
 -M Crypt::AuthEnc::GCM
 -M Crypt::Mac::HMAC
 -M Crypt::Digest::SHA256
--a C:/strawberry-perl-5.26.2.1/perl/site/lib/Image;site/lib/Image
 -l libpq__.dll
 -l libmysql__.dll
 -l libcrypto-1_1-x64__.dll
