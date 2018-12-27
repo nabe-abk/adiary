@@ -9,6 +9,11 @@ else
 fi
 
 #-----------------------------------------------------------
+# Release checker
+#-----------------------------------------------------------
+__tool/checker.pl
+
+#-----------------------------------------------------------
 # get Version
 #-----------------------------------------------------------
 VERSION=`   head -20 lib/SatsukiApp/adiary.pm | grep "\\$VERSION"    | sed "s/.*\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/"`
@@ -66,21 +71,21 @@ cp -p $EXE $RELEASE/
 # make other directory
 #-----------------------------------------------------------
 # __cache
-mkdir $RELEASE/__cache
+mkdir -p $RELEASE/__cache
 cp -p $CPFLAGS __cache/.htaccess  $RELEASE/__cache/
 cp -p $CPFLAGS __cache/index.html $RELEASE/__cache/
 
 # data
-mkdir $RELEASE/data
+mkdir -p $RELEASE/data
 cp -p $CPFLAGS data/.htaccess  $RELEASE/data/
 cp -p $CPFLAGS data/index.html $RELEASE/data/
 
 # pub
-mkdir $RELEASE/pub
+mkdir -p $RELEASE/pub
 cp -p $CPFLAGS pub/.gitkeep $RELEASE/pub/
 
 # skel.local
-mkdir $RELEASE/skel.local
+mkdir -p $RELEASE/skel.local
 cp -p $CPFLAGS skel.local/.htaccess  $RELEASE/skel.local/
 cp -p $CPFLAGS skel.local/README.txt $RELEASE/skel.local/
 
@@ -89,8 +94,10 @@ cp -p $CPFLAGS skel.local/README.txt $RELEASE/skel.local/
 #-----------------------------------------------------------
 if [ -r $EXCLUSIVE_LIST ] 
 then
+	echo "\n---Exclusive file list----------------------------------------------"
+	cat $EXCLUSIVE_LIST
+
 	cd $RELEASE
-	echo rm -rf `cat ../$EXCLUSIVE_LIST`
 	rm -rf `cat ../$EXCLUSIVE_LIST`
 	cd ..
 fi
@@ -98,14 +105,7 @@ fi
 #-----------------------------------------------------------
 # end
 #-----------------------------------------------------------
+echo "\n--------------------------------------------------------------------"
 echo RELEASED : $RELEASE/
 
 #-----------------------------------------------------------
-# Release checker
-#-----------------------------------------------------------
-cd $RELEASE
-../__tool/checker.pl
-cd ..
-
-#-----------------------------------------------------------
-echo "Use exclusive list : $EXCLUSIVE_LIST"
