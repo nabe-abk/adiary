@@ -129,7 +129,7 @@ sub start_up {
 	if ($self->{Error_flag}) {
 		my $err = $self->error_load_and_clear("\n");
 		$self->set_status(500);
-		$self->output([$err], 'text/plain');
+		$self->output([$err], 'text/html');
 		$self->exit(-1);
 	}
 
