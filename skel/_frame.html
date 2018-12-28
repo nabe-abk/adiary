@@ -3,7 +3,6 @@
 <$inframe = argv#0>
 <@>
 <$ifset(v.title eq '', v.title, 'adiary')>
-<$tm=get_lastmodified(v.script_dir)>
 <$s = v.blog>
 <@>
 <!DOCTYPE html>
@@ -55,12 +54,12 @@
 <!-- JavaScript ============================================-->
 <script defer src="<@Basepath><@v.script_dir>jquery-3.3.1.min.js"></script>
 <@if(v.system_mode || load_jquery, #'<script defer src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>\n')>
-<script defer src="<@Basepath><@v.script_dir>adiary.js?<@tm>"></script>
+<script defer src="<@Basepath><@v.script_dir>adiary.js?<@get_lastmodified(v.script_dir)>"></script>
 <@forexec(t, v.load_jscss(Basepath, 'jslib'), begin)>
-<script defer src="<@t>?<@tm>"></script>
+<script defer src="<@t>"></script>
 <$end>
 <@forexec(t, v.load_jscss(Basepath, 'js'), begin)>
-<script defer src="<@t>?<@tm>"></script>
+<script defer src="<@t>"></script>
 <$end>
 <script defer src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">

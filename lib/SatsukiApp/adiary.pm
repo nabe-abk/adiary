@@ -1763,6 +1763,7 @@ sub load_jscss {
 	my $self = shift;
 	my $base = shift;
 	my $name = shift;
+	my $ROBJ = $self->{ROBJ};
 	my @ary = @{ $self->{$name . 'files'} || []};
 	push(@ary, @{ $self->load_jscss_events($name) });
 
@@ -1770,7 +1771,9 @@ sub load_jscss {
 	@ary = grep { $h{$_}++; $h{$_}<2 } @ary;
 	foreach(@ary) {
 		if ($_ =~ m!^/|^https?://!i) { next; }
-		$_ = $base . $_;
+		my $dir = $_;
+		$dir =~ s|/[^/]+$||;
+		$_ = $base . $_ . '?' . $ROBJ->get_lastmodified( $dir );
 	}
 	return \@ary;
 }
