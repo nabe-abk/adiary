@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION = '1.00';
+our $VERSION  = '1.01';
+our $SPEC_VER = '1.00';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
 #						Copyright (C)2018 nabe@abk
@@ -47,6 +48,7 @@ my $SILENT_CGI   = 0;
 my $SILENT_FILE  = 0;
 my $SILENT_OTHER = 0;
 my $OPEN_BROWSER = $IsWindows;
+my $GENERATE_CONF= 1;
 
 my $PORT    = $IsWindows ? 80 : 8888;
 my $ITHREADS= $IsWindows;
@@ -189,17 +191,17 @@ if ($0 =~ /\.exe$/i) {
 	if (sysopen(my $fh, $pl, O_RDONLY)) {
 		my $ver=0;
 		while(<$fh>) {
-			if ($_ !~ /\$VERSION\s*=\s*[\"\']?(\d+\.\d+)/) { next; }
+			if ($_ !~ /\$SPEC_VER\s*=\s*[\"\']?(\d+\.\d+)/) { next; }
 			$ver = $1;
 			last;
 		}
 		close($fh);
-		my $this_ver = $VERSION;
+		my $this_ver = $SPEC_VER;
 		$this_ver =~ s/[A-Za-z]+$//;
 		if ($this_ver ne $ver) {
-			print STDERR "*** adiary.httpd.pl's version $ver mismatch!!\n";		# debug-safe
-			print STDERR "*** Please update this '$0' file\n";			# debug-safe
-			print STDERR "\n<<push any key for exit>>";				# debug-safe
+			print STDERR "*** adiary.httpd.pl's specification version $ver mismatch!!\n";	# debug-safe
+			print STDERR "*** Please update '$0'\n";					# debug-safe
+			print STDERR "\n<<push any key for exit>>";					# debug-safe
 			my $key = <STDIN>;
 			exit(-1);
 		}
@@ -316,6 +318,23 @@ if ($INDEX) {
 ($SILENT_CGI && $SILENT_FILE && $SILENT_OTHER) || print "\n";
 
 $PID = $ITHREADS ? &thread_id() : $$;
+
+###############################################################################
+# auto generate default conf file
+###############################################################################
+if ($GENERATE_CONF) {
+	my $cmd = $0;
+	if ($IsWindows) { $cmd =~ tr|\\|/|; }
+	if ($cmd =~ m|/([^/\.]*)[^/]*$|) {
+		my $conf   = $1 . '.conf.cgi';
+		my $sample = $conf . '.sample';
+		if (!-e $conf && -r $sample) {
+			print "Auto generate: '$conf' from '$sample'\n\n";
+			require File::Copy;
+			File::Copy::copy($sample, $conf);
+		}
+	}
+}
 
 ###############################################################################
 # main routine
