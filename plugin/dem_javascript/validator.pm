@@ -8,7 +8,6 @@ sub {
 
 	my $script = $form->{script_txt};
 	my $urls   = $form->{urls_txt};
-	my $async  = $form->{async} ? 1 : 0;
 
 	my @url;
 	foreach(split(/\n/, $urls)) {
@@ -21,7 +20,6 @@ sub {
 	my %h;
 	$h{script} = $script;
 	$h{urls}   = join("\n", @url);
-	$h{async}  = $async;
 
 	return \%h;
 }

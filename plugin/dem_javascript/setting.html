@@ -7,7 +7,6 @@
 	<textarea class="w512" rows="8" name="script_txt"><@esc(txt)></textarea>
 
 	<$txt = ps.urls>
-	外部JavaScript<span class="help" data-help="ロードしたいJavaScripのURLを行ごとに記述します。http:// https:// もしくは / で始まるURLを入力してください。">?</span>
-	&emsp;<label><input type="checkbox" name="async" value="1"<@if(ps.async, ' checked')>>非同期ロード</label><br>
+	外部JavaScriptのURL<span class="help" data-help="ロードしたいJavaScripのURLを行ごとに記述します。http:// https:// もしくは / で始まるURLを入力してください。">?</span><br>
 	<textarea class="w512" rows="3" name="urls_txt"><@esc(txt)></textarea>
 

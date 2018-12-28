@@ -1,13 +1,13 @@
 ######################################################################
 title=JavaScript入力
-version=1.00
+version=1.10
 #					(C)2015 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=2.98
+adiary_version=3.20
 module_type=main
 
 # trust_mode専用プラグイン
@@ -22,11 +22,7 @@ HTML
 *module_html=<<HTML
 <$ps = v.load_plgset('<@this>')>
 <$js_urls = split("\n", ps.urls)>
-<$ifexec(ps.async, begin, begin)>
-	<$v.regist_js(@js_urls)>
-<$else>
-	<$v.regist_jslib(@js_urls)>
-<$end>
+<$v.regist_js(@js_urls)>
 <div class="dem-module" data-module-name="<@this>">
 <script-defer><!--
 <@ps.script>
