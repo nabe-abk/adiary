@@ -25,23 +25,20 @@ Debug :<br>
 <div class="small debug mono">
 <@ifexec(1, begin)>
 Status: <@Status><br>
-$0 <@CMD_file><br>
+$0 <@CMD><br>
 SCRIPT_NAME <@ENV.SCRIPT_NAME><br>
 REQUEST_URI <@ENV.REQUEST_URI><br>
-<@if(ENV.REDIRECT_URL, "REDIRECT_URL <@ENV.REDIRECT_URL><br>\n")>
-<@if(ENV.REDIRECT_STATUS, "REDIRECT_STATUS <@ENV.REDIRECT_STATUS><br>\n")>
-PATH_INFO <@ENV.PATH_INFO><br>
-<@if(ENV.PATH_INFO_orig, "PATH_INFO_orig <@ENV.PATH_INFO_orig><br>\n")>
+<@if(ENV.REDIRECT_URL, "REDIRECT_URL <@ENV.REDIRECT_URL> (<@ENV.REDIRECT_STATUS>)<br>\n")>
 QUERY_STRING <@ENV.QUERY_STRING><br>
-<@if(ENV.QUERY_STRING_orig, "QUERY_STRING_orig <@ENV.QUERY_STRING_orig><br>\n")>
+PATH_INFO <@ENV.PATH_INFO><br>
+<@if(ENV.PATH_INFO_orig && ENV.PATH_INFO ne ENV.PATH_INFO_orig, "PATH_INFO_orig <@ENV.PATH_INFO_orig><br>\n")>
 Server_url <@Server_url><br>
+Basepath <@Basepath><br>
+Mod_rewrite <@if(Mod_rewrite, 'on', 'off')><br>
 <br>
 <$end>
 blogid <@v.blogid><br>
-Basepath <@Basepath><br>
-Request_base <@Request_base><br>
 <@if(WD, "WD <@WD><br>\n")>
-cgifile <@CGI_file><br>
 myself  <@Myself><br>
 myself2 <@Myself2><br>
 v.myself  <@v.myself><br>

@@ -1,7 +1,7 @@
 use strict;
 #------------------------------------------------------------------------------
 # Base system functions for satsuki system
-#						Copyright(C)2005-2017 nabe@abk
+#						Copyright(C)2005-2018 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
@@ -34,7 +34,8 @@ sub new {
 	$self->{UID}  = $<;
 	$self->{GID}  = $(;
 	$self->{PID}  = $$;
-	$self->{Windows} = $^O eq 'MSWin32';
+	$self->{CMD}  = $0;
+	$self->{IsWindows} = $^O eq 'MSWin32';
 
 	# 初期設定
 	$self->{Status}  = 200;		# HTTP status (200 = OK)
@@ -72,7 +73,7 @@ sub new {
 	$self->{Message} = [];
 
 	# コンパイラの更新時間を保存
-	$self->{Compiler_tm} = $self->get_libfile_modtime( 'Satsuki/Base/Compiler.pm' );
+	$self->{Compiler_tm} = $self->get_file_modtime( 'lib/Satsuki/Base/Compiler.pm' );
 
 	# mod_perl初期化, get_filepath() 有効化
 	if ($ENV{MOD_PERL}) { $self->init_for_mod_perl(); }
@@ -97,24 +98,27 @@ my %CacheChecker;
 sub start_up {
 	my $self = shift;
 
-	my $cmd = $0;	# $ENV{SCRIPT_NAME} はレンタルサーバでは信用できない
-	if (substr($^O,0,5) eq 'MSWin') { $cmd =~ tr|\\|/|; }
-	my $cgi = substr($cmd, rindex($cmd, '/')+1) || $cmd;
-	$self->{CMD_file} = $cmd;
-	$self->{CGI_file} = $cgi;
-	if ((my $x = rindex($cgi, '.'))>0) { $cgi=substr($cgi, 0, $x); }
-	if ((my $x = rindex($cgi, '.'))>0) { $cgi=substr($cgi, 0, $x); }
-
-	# .env があれば先に処理
-	$self->{ENV_file} = $self->get_filepath( $cgi . '.env.cgi' );
-	if (-r $self->{ENV_file}) {
-		$self->_call($self->{ENV_file});
-	}
-
 	# cache checker
-	my $checker = $CacheChecker{$cmd};
+	my $checker = $CacheChecker{$0};
 	if ($checker && &$checker($self)) {
 		return;
+	}
+
+	my $cgi = $0;
+	if ($self->{IsWindows}) { $cgi =~ tr|\\|/|; }
+
+	my $env;
+	my $conf;
+	if ($cgi =~ m|/([^/\.]*)[^/]*$|) {
+		$env  = $1 .  '.env.cgi';
+		$conf = $1 . '.conf.cgi';
+	} else {
+		$env = $conf = '__(internal_error)__';
+	}
+
+	# .env があれば先に処理
+	if (-r $env) {
+		$self->_call($env);
 	}
 
 	# 初期化処理
@@ -122,8 +126,7 @@ sub start_up {
 	$self->init_path();
 
 	# conf解析
-	$self->{Conf_file}   = $cgi . '.conf.cgi';
-	$self->{Conf_result} = $self->_call($self->{Conf_file});
+	$self->{Conf_result} = $self->_call($conf);
 
 	# 致命的エラーがあった場合、表示して終了
 	if ($self->{Error_flag}) {
@@ -170,22 +173,6 @@ sub init_tm {
 sub init_path {
 	my $self = shift;
 	if ($self->{Initialized_path}) { return; }
-	my $cgi = $self->{CGI_file};
-
-	# cgiファイル名、ディレクトリ設定
-	my $req_uri = $ENV{REQUEST_URI};
-	my $query   = '';
-	if ((my $x = index($req_uri, '?')) >= 0) {
-		$query   = substr($req_uri, $x+1);
-		$req_uri = substr($req_uri, 0, $x);
-	}
-	if (index($req_uri, '%') >= 0) {
-		$req_uri =~ s/%([0-9A-Fa-f][0-9A-Fa-f])/chr(hex($1))/eg;
-	}
-
-	# mod_rewrite時に %3f が"?"に復元されてしまうバグ対処（Apache）
-	$ENV{QUERY_STRING_orig} = $ENV{QUERY_STRING};
-	$ENV{QUERY_STRING} = $query;
 
 	# ModRewrite flag
 	my $rewrite = $self->{Mod_rewrite} ||= $ENV{Mod_rewrite};
@@ -193,41 +180,42 @@ sub init_path {
 		$self->{Mod_rewrite} = $rewrite = 1;
 	}
 
-	# REQUEST URI からベースパスを割り出す
-	my $basepath = $self->{Basepath} ||= $ENV{Basepath};
-	if (!defined $basepath) {
-		my $script = $ENV{SCRIPT_NAME};
-		if (index($req_uri, $script)==0) {
-			$basepath = substr($script, 0, length($script) - length($cgi));
-		} else {
-			while( index($req_uri, $script)!=0 ) {
-				chop($script);
-				my $x = rindex($script, '/');
-				$script = substr($script, 0, $x+1);
-			}
-			$basepath = $script;
-		}
-		$self->{Basepath} = $basepath;
+	# cgiファイル名、ディレクトリ設定
+	my $request = $ENV{REQUEST_URI};
+	if ((my $x = index($request, '?')) >= 0) {
+		$request = substr($request, 0, $x);
+	}
+	if (index($request, '%') >= 0) {
+		$request =~ s/%([0-9A-Fa-f][0-9A-Fa-f])/chr(hex($1))/eg;
 	}
 
-	my $req_base = $basepath . ($rewrite ? '' : $cgi);
-	if ($rewrite) { chop($req_base); }
-	$self->{Request_base} = $req_base;
+	# SCRIPT_NAME からベースパスを割り出す
+	my $script   = $ENV{SCRIPT_NAME};
+	my $basepath = $self->{Basepath} ||= $ENV{Basepath};
+	if (!defined $basepath) {
+		my $path = $script;
+		while(1) {
+			chop($path);
+			$path = substr($path, 0, rindex($path,'/')+1);
+			if (index($request, $path) == 0) { last; }
+		}
+		$self->{Basepath} = $basepath = $path;
+	}
 
-	# 文字コード問題、// が / になる問題の対応のため REQUEST_URI から PATH_INFO を生成
+	# 文字コード問題と // が / になる問題の対応
 	$ENV{PATH_INFO_orig} = $ENV{PATH_INFO};
-	$ENV{PATH_INFO} = substr($req_uri, length($req_base));
+	$ENV{PATH_INFO} = substr($request, ($rewrite ? length($basepath)-1 : length($script)) );
 
 	# 自分自身（スクリプト）にアクセスする URL/path
 	if (!exists $self->{Myself}) {
 		if ($rewrite) {
 			$self->{Myself}  = $self->{Myself2} = $basepath;
-		} elsif (index($req_uri, $ENV{SCRIPT_NAME}) == 0) {	# 通常のcgi
-			$self->{Myself}  = $basepath . $cgi;
-			$self->{Myself2} = $basepath . $cgi . '/';	# PATH_INFO用
+		} elsif (index($request, $script) == 0) {	# 通常のcgi
+			$self->{Myself}  = $script;
+			$self->{Myself2} = $script . '/';	# PATH_INFO用
 		} else {	# cgi が DirectoryIndex
 			$self->{Myself}  = $basepath;
-			$self->{Myself2} = $basepath . $cgi . '/';	# PATH_INFO用
+			$self->{Myself2} = $script . '/';	# PATH_INFO用
 		}
 	}
 
@@ -859,7 +847,7 @@ sub regist_html_cache {
 #------------------------------------------------------------------------------
 sub regist_cache_cheker {
 	my $self  = shift;
-	$CacheChecker{ $self->{CMD_file} } = shift;
+	$CacheChecker{$0} = shift;
 }
 
 ###############################################################################
@@ -1109,7 +1097,7 @@ sub parse_hash {
 #------------------------------------------------------------------------------
 sub read_lock {
 	my ($self, $fh) = @_;
-	$self->flock($fh, $self->{Windows} ? Fcntl::LOCK_EX() : Fcntl::LOCK_SH() );
+	$self->flock($fh, $self->{IsWindows} ? Fcntl::LOCK_EX() : Fcntl::LOCK_SH() );
 }
 sub write_lock {
 	my ($self, $fh) = @_;
@@ -1121,7 +1109,7 @@ sub write_lock_nb {
 }
 sub flock {
 	my ($self, $fh, $mode) = @_;
-	if ($self->{Windows}) {
+	if ($self->{IsWindows}) {
 		# Windowsでは、同一 $fh に2回以上 lock できない
 		if ($self->{WinLock}->{$fh}) { return 100; }
 		$self->{WinLock}->{$fh} = 1;
@@ -1236,13 +1224,6 @@ sub get_file_modtime {
 	if ($cache->{$file}) { return $cache->{$file}; }
 	my $filefull = $self->get_filepath($file);
 	return ($cache->{$file} = (stat($filefull)) [9]);
-}
-
-sub get_libfile_modtime {
-	my ($self, $file) = @_;
-	foreach(@INC) {
-		if (-e "$_/$file") { return (stat("$_/$file")) [9]; }
-        }
 }
 
 #------------------------------------------------------------------------------

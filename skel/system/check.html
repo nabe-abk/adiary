@@ -76,28 +76,25 @@ System-Coding : <@System_coding>
 <p>バグ報告などでご利用ください。サーバの状況がわかりませんと対応しきれないことがありますので、必要に応じてこの情報を示して頂けると助かります。</p>
 
 <textarea cols="74" rows="22" wrap="soft" readonly class="w100p" style="font-size:100%;">
-CGI_mode <@CGI_mode>
-Basepath <@Basepath>
-Request_base <@Request_base>
-cgifile <@CGI_file>
-myself  <@Myself>
-myself2 <@Myself2>
-v.myself  <@v.myself>
-v.myself2 <@v.myself2>
-Server_url <@Server_url>
-mod_rewrite = <@int(Mod_rewrite)>
+CGI_mode	<@CGI_mode>
+myself		<@Myself>
+myself2		<@Myself2>
+v.myself	<@v.myself>
+v.myself2	<@v.myself2>
+Server_url	<@Server_url>
+Basepath	<@Basepath>
+Mod_rewrite	<@if(Mod_rewrite, 'on', 'off')>
 
-$0                <@CMD_file>
-SCRIPT_NAME       <@ENV.SCRIPT_NAME>
-REQUEST_UR        <@ENV.REQUEST_URI>
-<@if(ENV.REDIRECT_URL,		"REDIRECT_URL      <@ENV.REDIRECT_URL>\n")>
-<@if(ENV.REDIRECT_STATUS,	"REDIRECT_STATUS   <@ENV.REDIRECT_STATUS>\n")>
-PATH_INFO         <@ENV.PATH_INFO>
-<@if(ENV.PATH_INFO_orig,	"PATH_INFO_orig    <@ENV.PATH_INFO_orig>\n")>
-QUERY_STRING      <@ENV.QUERY_STRING>
-<@if(ENV.QUERY_STRING_orig,	"QUERY_STRING_orig <@ENV.QUERY_STRING_orig>\n")>
-SERVER_NAME       <@ENV.SERVER_NAME>
-SERVER_PORT       <@ENV.SERVER_PORT>
+$0		<@CMD>
+SCRIPT_NAME	<@ENV.SCRIPT_NAME>
+REQUEST_URL	<@ENV.REQUEST_URI>
+<@if(ENV.REDIRECT_URL,		"REDIRECT_URL	<@ENV.REDIRECT_URL>\n")>
+<@if(ENV.REDIRECT_STATUS,	"REDIRECT_STATUS	<@ENV.REDIRECT_STATUS>\n")>
+QUERY_STRING	<@ENV.QUERY_STRING>
+PATH_INFO	<@ENV.PATH_INFO>
+<@if(ENV.PATH_INFO_orig,	"PATH_INFO_orig	<@ENV.PATH_INFO_orig>\n")>
+SERVER_NAME	<@ENV.SERVER_NAME>
+SERVER_PORT	<@ENV.SERVER_PORT>
 </textarea>
 
 </div>
