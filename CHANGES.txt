@@ -5,7 +5,7 @@
 -起動時のパス解析を更新しました。
 -【plugin】JavaScriptプラグインを更新。
 -【plugin】フリー入力プラグイン（メイン部）に表示条件を選択する機能が付きました。
-－【Windows/httpd】adiary.conf.cgiが存在しない時、自動生成するようにしました。
+-【Windows/httpd】adiary.conf.cgiが存在しない時、自動生成するようにしました。
 -【Fix】JavaScript強制更新用queryが一部正しくない。
 -【Fix/デザイン編集】単一記事表示の編集リンクが移動できてしまう。
 
