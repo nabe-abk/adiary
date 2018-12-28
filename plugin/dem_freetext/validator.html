@@ -1,12 +1,22 @@
 <@40.is_function>
 <@local(h)>
 <$h = validator(begin_hash, argv#0) )>
-	lf2br = flag
+	title = タイトル
+	title:min_chars =  1
+	title:max_chars = 128
+	title:filter0   = trim
+	title:filter1   = tag
+
+	no_page    = flag
+	no_search  = flag
+	no_article = flag
+
 	free_txt = 入力テキスト
 	free_txt:filter0     = file:<@v.allow_tags_head>usertext.txt
 	free_txt:filter0_opt = <@v.trust_mode>
-<$end>
 
+	lf2br = flag
+<$end>
 <$ifbreak(form_error())>
 
 <$ifexec(h.lf2br, begin)>

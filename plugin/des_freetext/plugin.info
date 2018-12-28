@@ -25,10 +25,10 @@ HTML
 <$ps = v.load_plgset('<@this>')>
 <div class="<@if(ps.class eq '', 'hatena-module', ps.class)>" data-title="<@ps.title>" data-module-name="<@this>" id="<@id>">
 <@ifexec(!ps.title_none, begin)>
-<div class="hatena-moduletitle"><@if(ps.title ne '',ps.title ,'フリー入力')></div>
+<div class="hatena-moduletitle"><@if(ps.title ne '',ps.title ,'テキストを入力できます。')></div>
 <$end>
 <@if(!ps.body_none,  #'<div class="hatena-modulebody">\n')>
-<@if(ps.free_txt ne '', ps.free_txt, 'テキストやHTMLを自由に入力できます。')>
+<@if(ps.free_txt ne '', ps.free_txt, '（自由に入力できます）')>
 <@if(!ps.body_none,  #'</div> <!-- hatena-modulebody -->\n')>
 </div> <!-- End of module -->
 HTML

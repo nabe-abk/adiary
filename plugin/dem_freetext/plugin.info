@@ -1,7 +1,7 @@
 ######################################################################
 title=フリー入力
-version=1.00
-#					(C)2015 nabe@abk
+version=1.10
+#					(C)2018 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
@@ -17,10 +17,21 @@ load_module_html_in_edit=1
 </div>
 HTML
 
-
 *module_html=<<HTML
-<$ps = v.load_plgset('<@this>')>
+<$ps  = v.load_plgset('<@this>')>
+<@> <@(!ps.no_page || !ret.pagemode || ret.page==1)> / <@(!ps.no_search || ret.mode ne 'search')> / <@(!ps.no_article || ret.pagemode)>
+<@ifexec(art_sample_mode || ((!ps.no_page || !ret.pagemode || ret.page==1) && (!ps.no_search || ret.mode ne 'search') && (!ps.no_article || ret.pagemode)), begin.module)>
+<$txt = if(ps.free_txt ne '', ps.free_txt, 'テキストを入力できます。')>
+<@ifexec(ps.title, begin, begin)>
+<article class="system message" data-module-name="<@this>" id="<@id>">
+<h2><@ps.title></h2>
+<div class="body">
+<@txt>
+</div></article>
+<$else>
 <div class="dem-module" data-module-name="<@this>" id="<@id>">
-<@if(ps.free_txt ne '', ps.free_txt, 'テキストやHTMLを自由に入力できます。')>
+<@txt>
 </div> <!-- End of module -->
+<$end>
+<$end.module>
 HTML

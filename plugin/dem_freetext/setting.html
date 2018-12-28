@@ -2,10 +2,29 @@
 <@local(ps)>
 <$ps=argv#0>
 
-	<$txt = ps.free_txt><$ifexec(ps.lf2br, begin)><$replace(txt, '<br>', "\n")><$end>
-	<textarea class="w512" rows="8" name="free_txt"><@esc(txt)></textarea>
+	<table class="blog-setting">
+	<tbody>
+	<tr>
+		<th>タイトル<span class="help" data-help='タイトルを入れるとメッセージボックスとして展開されます。タイトルを入れないと<div>に展開されます。\nヘッダに配置するときは設定しないこと。'>?</span></th>
+		<td><input type="text" class="w320" name="title" value="<@ps.title>" maxlength="128"></td>
+	</tr>
+	<tr>
+		<th>非表示条件<span class="help" data-help='ヘッダに配置した場合は機能しません。'>?</span></th>
+		<td>
+			<label><input type="checkbox" name="no_page"    value="1"<@if(ps.no_page,   ' checked')>>2ページ目以降</label><br>
+			<label><input type="checkbox" name="no_search"  value="1"<@if(ps.no_search, ' checked')>>検索時</label><br>
+			<label><input type="checkbox" name="no_article" value="1"<@if(ps.no_article,' checked')>>単一記事表示モード</label><br>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<$txt = ps.free_txt><$ifexec(ps.lf2br, begin)><$replace(txt, '<br>', "\n")><$end>
+			<textarea class="w512" rows="5" name="free_txt"><@esc(txt)></textarea>
 
-	<p><label><input type="checkbox" name="lf2br" value="1"<@if(ps.lf2br, ' checked')>>改行を有効にする</label>
-	&ensp;&ensp;<a href="<@v.myself>?etc/allow_tags&amp;n=usertext" target="_blank">※使用可能なHTMLタグ</a></p>
-
+			<label><input type="checkbox" name="lf2br" value="1"<@if(ps.lf2br, ' checked')>>改行を有効にする</label>
+			&ensp;&ensp;<a href="<@v.myself>?etc/allow_tags&amp;n=usertext" target="_blank">※使用可能なHTMLタグ</a>
+		</td>
+	</tr>
+	</tbody>
+	</table>
 
