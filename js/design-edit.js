@@ -79,6 +79,7 @@ iframe.on('load', function(){
 	});
 
 	// 記事本体（単一表示）
+	var selector= '>' + module_selector + not_sortable;
 	var artbody = $f('#article-box div.body');
 	var arthead = artbody.children('div.body-header');
 	var artfoot = artbody.children('div.body-footer');
@@ -108,11 +109,13 @@ iframe.on('load', function(){
 	martfoot.css('min-height', '16px');
 
 	// sortable設定
-	var selector = '>' + module_selector + not_sortable;
 	side_a.sortable({ items: selector, connectWith: side_b });
 	side_b.sortable({ items: selector, connectWith: side_a });
 	f_hdiv.sortable({ items: selector });
-	f_main.sortable({ items: selector + ', #article-box' + ', #articles>article, #articles ' + selector, cancel: 'article' });
+	f_main.sortable({
+			items: selector + ', #article-box' + ', #articles>article, #articles ' + selector,
+			cancel: 'article:not(' + module_selector + ')'
+	});
 	marthead.sortable({ items: selector, connectWith: martfoot });
 	martfoot.sortable({ items: selector, connectWith: marthead });
 
