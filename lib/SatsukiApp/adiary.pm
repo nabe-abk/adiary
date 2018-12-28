@@ -329,7 +329,7 @@ sub read_query_form {
 	# スケルトン指定解釈
 	if (%$q) {
 		$self->{query} = $query;
-		$query =~ m|^([\w\.\-/=]+)|;
+		$query =~ m|^([\w\.\-/=]*)|;
 		my $q0 = $self->{query0} = index($1,'=')<0 ? $1 : '';	# 検索Queryをスケルトン指定と誤解しないため
 		if ($q0 ne '') { delete $q->{$q0}; }
 	}
