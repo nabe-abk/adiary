@@ -1679,7 +1679,7 @@ sub load_theme_colors {
 	my $css = join('',@ary);
 	# border:	1px solid #ffffff; → border-color: #ffffff
 	# border-left:	1px solid #ffffff; → border-left-color: #ffffff
-	$css =~ s/(border[\w\-]*?)(?:-color)?[\s\r\n]*?:[^;}]*?(#[0-9A-Fa-f]+)/$1-color:\t$2/ig;
+	$css =~ s/(border[\w\-]*?)(?:-color)?[\s\r\n]*?:[^;}]*?(#[0-9A-Fa-f]+[^\n]*\$c=)/$1-color:\t$2/ig;
 
 	return (\%col, \%opt, $css);
 }
