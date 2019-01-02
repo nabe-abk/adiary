@@ -109,7 +109,7 @@ sub start_up {
 
 	my $env;
 	my $conf;
-	if ($cgi =~ m|/([^/\.]*)[^/]*$|) {
+	if ($cgi =~ m!(?:^|/)([^/\.]*)[^/]*$!) {
 		$env  = $1 .  '.env.cgi';
 		$conf = $1 . '.conf.cgi';
 	} else {
