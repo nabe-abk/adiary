@@ -7,7 +7,7 @@
 <@ifexec(! logs, begin.logs)>
 <h3 id="static">静的出力</h3>
 <div>
-<@ifexec(v.static_output_dir, begin)><$mkdir(v.static_output_dir)><$end>
+<@ifexec(v.static_output_dir && HTTPD, begin)><$mkdir(v.static_output_dir)><$end>
 <@ifexec(v.static_output_dir && file_writable(v.static_output_dir), begin, begin)>
 	<p>記事を <a href="<@Basepath><@v.static_output_dir><@if(HTTPD, 'index.html')>"><@v.static_output_dir></a> に<strong>HTML化して</strong>出力します。非公開記事は出力しません。</p>
 
