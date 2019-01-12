@@ -233,9 +233,7 @@
 <$v.words_separator = '\s　'>
 
 # 静的HTMLエクスポートの設定
-#<$v.static_output_dir = 'static/'>
-#<$v.static_theme_dir  = 'theme/'>
-#<$v.static_files_dir  = 'files/'>
+<$v.static_output_dir = 'static/'>
 
 ################################################################################
 # ■画像アルバムの設定

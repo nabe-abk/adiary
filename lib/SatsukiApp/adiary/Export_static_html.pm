@@ -84,21 +84,23 @@ sub export {
 	my $escape = $ROBJ->loadpm('TextParser::TagEscape');
 	$escape->anytag(1);
 
-	my $theme_dir = $aobj->{static_theme_dir};
+	my $static_theme_dir = $aobj->{static_theme_dir} || 'theme/';
+	my $static_files_dir = $aobj->{static_files_dir} || 'files/';
 
 	my $qr_basepath = $ROBJ->{Basepath};
 	my $qr_myself2  = $aobj->{myself2};
-	my $qr_pluginjs = $theme_dir . 'js/';
-	
+	my $qr_blogpub  = $aobj->{blogpub_dir};
 	my $qr_imgdir   = $ROBJ->{Basepath} . $aobj->blogimg_dir();
+
 	$qr_basepath =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
 	$qr_myself2  =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
-	$qr_pluginjs =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
+	$qr_blogpub  =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
 	$qr_imgdir   =~ s/([^0-9A-Za-z\x80-\xff])/"\\$1"/eg;
-	$qr_basepath = qr/^$qr_basepath/;
-	$qr_myself2  = qr/^$qr_myself2/;
-	$qr_pluginjs = qr/^(\.\/)?$qr_pluginjs/;
-	$qr_imgdir   = qr/^$qr_imgdir/;
+	$qr_basepath = qr|^$qr_basepath|;
+	$qr_myself2  = qr|^$qr_myself2|;
+	$qr_blogpub  = qr|^(?:\./)?$qr_blogpub(?:[\w\.]+/)?|;
+	$qr_imgdir   = qr|^$qr_imgdir|;
+
 	my $url_wrapper = sub {
 		my $proto = shift;
 		my $url = shift;
@@ -107,8 +109,8 @@ sub export {
 		}
 
 		$url =~ s|\?\d+$||;	# ?123456789 : リロード用Query除去
-		$url =~ s|$qr_pluginjs|$1$aobj->{static_theme_dir}|g;
-		$url =~ s|$qr_imgdir|$aobj->{static_files_dir}|g;
+		$url =~ s|$qr_blogpub|$static_theme_dir|g;
+		$url =~ s|$qr_imgdir|$static_files_dir|g;
 		if ($proto eq 'href') {
 			if ($url eq $aobj->{myself2}) {
 				return './index.html';
@@ -141,8 +143,8 @@ sub export {
 	local($aobj->{allow_edit}) = undef;
 	local($aobj->{allow_com})  = undef;
 	local($aobj->{blog_admin}) = undef;
-	local($aobj->{script_dir})  = $theme_dir;
-	local($aobj->{blogpub_dir}) = $theme_dir;
+	local($aobj->{theme_dir})   = $static_theme_dir;
+	local($aobj->{script_dir})  = $static_theme_dir;
 
 	my $set_orig = $aobj->{blog};
 	my %s = %$set_orig;
@@ -152,7 +154,7 @@ sub export {
 	if (!$option->{gaid}) { $s{gaid} = ''; }
 
 	$s{'p:deh_login:erase_login'} = 1;	# ログインを消す
-	$s{theme_custom}  = $s{theme_custom} ? "${theme_dir}custom.css" : '';
+	$s{theme_custom}  = $s{theme_custom} ? "${static_theme_dir}custom.css" : '';
 	$s{rss_files}     = '';
 	$session->msg("blog_dir=$aobj->{blog_dir}");
 
@@ -163,6 +165,7 @@ sub export {
 		# URL系の書き換え
 		my $file = $_->{link_key};
 		if ($file =~ m|^[/\.]|) { next; }
+		if ($file =~ m|\w+:|) { next; }
 		$file =~ s|/|-|g;
 		$file .= '.html';
 

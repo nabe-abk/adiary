@@ -3,10 +3,12 @@
 *Ver3.21 : 2019/xx/xx
 
 -起動時のパス解析を更新しました。
+-静的出力（エクスポート）機能を更新しました。
 -【plugin】JavaScriptプラグインを更新。
 -【plugin】フリー入力プラグイン（メイン部）に表示条件を選択する機能が付きました。
 -【Windows/httpd】adiary.conf.cgiが存在しない時、自動生成するようにしました。
 -【Fix】JavaScript強制更新用queryが一部正しくない。
+-【Fix】Perl5.8で動かない。（[https://adiary.adiary.jp/0405#c3:Thanks to 漁]）
 -【Fix/デザイン編集】単一記事表示の編集リンクが移動できてしまう。
 
 *Ver3.20 : 2018/12/27
