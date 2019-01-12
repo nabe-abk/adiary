@@ -1144,7 +1144,7 @@ sub crypt_by_rand_nosalt {
 sub generate_rand_string {
 	my $self = shift;
 	my $len  = shift || 20;
-	my $func = shift || *CORE::chr;
+	my $func = shift || sub { return chr($_[0]) };
 	my $gen  = $ENV{REMOTE_ADDR};
 	my $R    = $ENV{REMOTE_PORT} + rand(0xffffffff);
 	my $str  ='';
