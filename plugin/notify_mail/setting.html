@@ -4,24 +4,55 @@
 
 	<table class="blog-setting">
 	<tbody>
+<@ifexec(v.system_smtp, begin, begin)>
+	<tr>
+		<th>SMTPサーバ</th>
+		<td><input type="hidden" name="host" value=""><@v.system_smtp>（変更不可）<span class="help" data-help="設定ファイルで固定されています。">?</span>
+		<input type="hidden" name="auth_name" value="">
+		<input type="hidden" name="auth_pass" value="">
+		</td>
+	</tr>
+<$else>
+	<tr>
+		<th>SMTPサーバ</th>
+		<$host = ps.host || 'localhost'>
+		<$port = 25>
+		<$m = match(host, '^(.*):(\d+)$')>
+		<$ifset(m, host, m#1)>
+		<$ifset(m, port, m#2)>
+		<td>
+			<input type="text" class="w160" name="host" value="<@esc(host)>">
+			Port <input type="number" min="1" max="65535" class="w60" name="port" value="<@port>">
+		</td>
+	</tr>
+	<tr>
+		<th>SMTP認証<span class="help" data-help="SMTP認証が必要な場合に設定してください。">?</span></th>
+		<td>
+			NAME <input type="text" class="w200" name="auth_name" value="<@esc(ps.auth_name)>"><br>
+			PASS <input type="text" class="w200" name="auth_pass" value="<@esc(ps.auth_pass)>"><br>
+		</td>
+	</tr>
+<$end>
+
 	<tr>
 		<th>メールタイトル<span class="help" data-help="%nはブログ名に置き換わります。">?</span></th>
 		<td><input type="text" class="w160" name="subject" value="<@esc(ps.subject) || '%n notify'>" maxlength="64"></td>
 	</tr>
 <@ifexec(v.system_email, begin, begin)>
 	<tr>
-		<th>送信元アドレス<span class="help" data-help="adiaryの設定ファイルで固定されています。">?</span></th>
-		<td><input type="hidden" name="from" value="<@v.system_email>"><@v.system_email>（変更不可）</td>
+		<th>送信元アドレス</th>
+		<td><input type="hidden" name="from" value=""><@v.system_email>（変更不可）<span class="help" data-help="設定ファイルで固定されています。">?</span></td>
 	</tr>
 <$else>
 	<tr>
-		<th>送信元アドレス<span class="help" data-help="メールのFromを指定します。空でも構いません。\n指定してもサーバによって強制的に異なるアドレスに書き換えられたり、正しくない指定をするとそもそも送信されないことがあります。">?</span></th>
-		<td><input type="text" class="w320" name="from" value="<@ps.from>" maxlength="128"></td>
+		<th>送信元アドレス<span class="help" data-help="メールのFromを指定します。空でも構いません。正しく設定しないとメールを送信できないこともあります。サーバによって強制的に異なるアドレスに書き換えられることもあります。">?</span></th>
+		<td><input type="text" class="w280" name="from" value="<@ps.from>" maxlength="128"></td>
 	</tr>
 <$end>
+	
 	<tr>
 		<th>送信先アドレス<span class="help" data-help="複数指定したい場合は「,」で区切ってください。">?</span></th>
-		<td><input type="text" class="w320" name="to" value="<@ps.to>" maxlength="128"></td>
+		<td><input type="text" class="w280" name="to" value="<@ps.to>" maxlength="128"></td>
 	</tr>
 	</tbody>
 	</table>

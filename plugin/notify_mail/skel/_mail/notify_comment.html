@@ -10,14 +10,23 @@
 <@>新着コメントメール
 <@>
 <$h = new>
-<$h.to        = ps.to>
-<$h.from      = from>
+<$ifexec(v.system_smtp, begin, begin)>
+	<$h.host      = v.system_smtp>
+	<$h.auth_name = v.system_smtp_auth_name>
+	<$h.auth_pass = v.system_smtp_auth_pass>
+<$else>
+	<$h.host      = ps.host>
+	<$h.auth_name = ps.auth_name>
+	<$h.auth_pass = ps.auth_pass>
+<$end>
+<$h.to    = ps.to>
+<$h.from  = from>
 <$ifset(from, h.reply_to, from)>
 <$h.from_name = Server_name>
 <$h.subject = if(ps.subject ne '', ps.subject, '%n notify')>
 <$h.subject = replace(h.subject, '%n', "『<@v.blog.blog_name>』")>
 <$h.text = begin_string>
-『<@v.blog.blog_name>』に新着のコメントがあります。
+『<@unesc(v.blog.blog_name)>』に新着のコメントがあります。
 from <@form.name>
 <@form.comment_txt>
 

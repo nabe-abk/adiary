@@ -1,6 +1,20 @@
 <@40.is_function>
 <@local(h)>
 <$h = validator(begin_hash, argv#0) )>
+	host = SMTPサーバ
+	host:filter0 = trim
+	host:filter1 = notnull
+
+	port = SMTPポート
+	port:type = int
+	port:min  = 1
+	port:max  = 65535
+
+	auth_name = SMTP Auth名
+	auth_name:filter0 = trim
+	auth_pass = SMTP Auth名
+	auth_pass:filter0 = trim
+
 	subject = メールタイトル
 	subject:min_chars =  1
 	subject:max_chars = 64
@@ -13,6 +27,9 @@
 	to:filter0 = emails
 	to:filter1 = notnull
 <$end>
+
+<$ifset(h.host && h.port, h.host, "<@h.host>:<@h.port>")>
+<$delete(h.port)>
 
 <$ifbreak(form_error())>
 <$return(h)>

@@ -75,8 +75,12 @@
 # アップロードファイルの最大サイズ（１回あたりの合計）
 <$v.uplaod_files_max = 64M>
 
-# ●メール通知などで From アドレスを固定する。
+# ●メール設定。From アドレスを固定する。
 #<$v.system_email = 'user@example.com'>
+# ●メール設定。SMTP先を固定する。
+#<$v.system_smtp = 'localhost:25'>
+#<$v.system_smtp_auth_name = ''>
+#<$v.system_smtp_auth_pass = ''>
 
 #-------------------------------------------------------------------------------
 # ●データベースの設定

@@ -6,6 +6,7 @@
 -静的出力（エクスポート）機能を更新しました。
 -【plugin】JavaScriptプラグインを更新。
 -【plugin】フリー入力プラグイン（メイン部）に表示条件を選択する機能が付きました。
+-【plugin】メール通知プラグイン。sendmailコマンドを止め、SMTPで送信するようになりました。
 -【Windows/httpd】adiary.conf.cgiが存在しない時、自動生成するようにしました。
 -【Fix】JavaScript強制更新用queryが一部正しくない。
 -【Fix】Perl5.8で動かない。（[https://adiary.adiary.jp/0405#c3:Thanks to 漁]）
