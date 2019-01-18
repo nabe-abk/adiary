@@ -1,14 +1,15 @@
 use strict;
 #------------------------------------------------------------------------------
 # メール送受信モジュール
-#						(C)2006-2009 nabe / nabe@abk.nu
+#						(C)2006-2019 nabe / nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Mail;
-our $VERSION = '1.03';
+our $VERSION = '1.10';
 #------------------------------------------------------------------------------
-# ●sendmailコマンドのDetect
-#------------------------------------------------------------------------------
-my $sendmail_cmd;
+use Net::SMTP;
+use Socket;
+my $TIMEOUT = 1;
+my $CODE    = 'UTF-8';
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -18,13 +19,9 @@ my $sendmail_cmd;
 sub new {
 	my $self = bless({}, shift);
 	$self->{ROBJ} = shift;
-	$self->{mailer} = "Satsuki::Base::Mail";
+	$self->{mailer} = "Satsuki-Base-Mail Version $VERSION";
 
-	# sendmail コマンドのチェック
-	my @search = qw(/usr/sbin /usr/bin /usr/lib);
-	foreach(@search) {
-		if (-x "$_/sendmail") { $sendmail_cmd = "$_/sendmail"; }
-	}
+	$CODE = $Satsuki::SYSTEM_CODING || 'UTF-8';
 
 	$self->{__CACHE_PM} = 1;
 	return $self;
@@ -36,6 +33,11 @@ sub new {
 #------------------------------------------------------------------------------
 # ●メール送信
 #------------------------------------------------------------------------------
+# smtp_auth parameter: auth_name / auth_pass
+# 
+sub send {
+	return &send_mail(@_);
+}
 sub send_mail {
 	my ($self, $h) = @_;
 	my $ROBJ = $self->{ROBJ};
@@ -48,65 +50,187 @@ sub send_mail {
 	my $repto= $self->check_mail_address($h->{reply_to}) ? $h->{reply_to} : '';
 	my $retph= $self->check_mail_address($h->{return_path}) ? $h->{return_path} : '';
 
-	if ($to   eq '') { $ROBJ->message('"To" is invalid');   return 1; }
-	# if ($from eq '') { $ROBJ->message('"From" is invalid'); return 2; }
-	if ($sendmail_cmd eq '') { $ROBJ->message('"sendmail" command not found'); return -1; }
-	my $from_orig = $from;
+	if ($to eq '') { $ROBJ->message('"To" is invalid'); return 1; }
 
-	# テキスト系
-	my $from_name = $h->{from_name};
-	my $to_name   = $h->{to_name};
-	my $cc_name   = $h->{cc_name};
-	my $subject   = $h->{subject};
-	my $text      = $h->{text};
-	foreach($from_name, $to_name, $cc_name) {
-		$_ =~ s/[\x00-\x1f<>\"]//g;
-	}
-	$subject =~ s/[\x00-\x08\x0a-\x1f]//g;		# TAB以外
-	$text    =~ s/[\x00-\x08\x0b\x0c\x0e-\x1f]//g;	# TAB, LF, CR以外
+	#----------------------------------------------------------------------
+	# message body
+	#----------------------------------------------------------------------
+	my $msg='';
+	{
+		my $from_name = $h->{from_name};
+		my $to_name   = $h->{to_name};
+		my $cc_name   = $h->{cc_name};
+		my $subject   = $h->{subject};
+		my $text      = $h->{text};
+		foreach($from_name, $to_name, $cc_name) {
+			$_ =~ s/[\x00-\x1f<>\"]//g;
+		}
+		$subject =~ s/[\x00-\x08\x0a-\x1f]//g;		# TAB以外
+		$text    =~ s/[\x00-\x08\x0b\x0c\x0e-\x1f]//g;	# TAB, LF, CR以外
 
-	# JISコード変換処理
-	my $jcode = $ROBJ->load_codepm();
-	foreach($from_name, $to_name, $cc_name, $subject, $text) {
-		$_ = $jcode->from_to($_, $ROBJ->{System_coding}, $jcode->{email_default});
-	}
-	# MIME
-	$self->mime_encode($from_name, $to_name, $cc_name, $subject);
+		# MIME
+		$self->mime_encode($from_name, $to_name, $cc_name, $subject);
 
-	# from, to の加工
-	if ($from_name) { $from = "$from_name <$from>"; }
-	if ($to_name)   { $to   = "$to_name <$to>"; }
-	if ($cc_name)   { $cc   = "$cc_name <$cc>"; }
+		# from, to の加工
+		$from_name = $from_name ? "$from_name <$from>"	: $from;
+		$to_name   = $to_name   ? "$to_name <$to>"	: $to;
+		$cc_name   = $cc_name   ? "$cc_name <$cc>"	: $cc;
 
-	#-------------------------------------------------------
-	# ○メール送信
-	#-------------------------------------------------------
-	if (!-x $sendmail_cmd) {
-		$ROBJ->message('sendmail command not found');
-		return 10;
+		if ($from)  { $msg .= "From: $from_name\n"; }
+		if ($to)    { $msg .= "To: $to_name\n"; }
+		if ($cc)    { $msg .= "Cc: $cc_name\n"; }
+		if ($repto) { $msg .= "Reply-To: $repto\n"; }
+		if ($retph) { $msg .= "Return-Path: $retph\n"; }
+		$msg .= "Subject: $subject\n";
+		$msg .= "MIME-Version: 1.0\n";
+		$msg .= "Content-Type: text/plain; charset=\"$CODE\"\n";
+		$msg .= "X-Mailer: $self->{mailer}\n";
+		if ($h->{x}) { chomp($h->{x}); $msg .= "$h->{x}\n"; }
+		$msg .= "\n$text";
 	}
-	my $fh;
-	if (! open($fh, "| $sendmail_cmd -t -i -f '$from_orig'")) {
-		$ROBJ->message('Internal Error'); return 11;
+
+	#----------------------------------------------------------------------
+	# mail server
+	#----------------------------------------------------------------------
+	my $host = $h->{host};
+	my $port = $h->{port};
+	if ($host =~ /^(.*):(\d+)$/) {
+		$host = $1;
+		$port = $port || $2;
 	}
-	if ($cc)    { print $fh "Cc: $cc\n"; }
-	if ($bcc)   { print $fh "Bcc: $bcc\n"; }
-	if ($repto) { print $fh "Reply-To: $repto\n"; }
-	if ($retph) { print $fh "Return-Path: $retph\n"; }
-	if ($from)  { print $fh "From: $from\n"; }
-print $fh <<END;
-To: $to
-Subject: $subject
-Return-Path: $from_orig
-MIME-Version: 1.0
-Content-Type: text/plain; charset="$jcode->{email_default}"
-Content-Transfer-Encoding: 7bit
-X-Mailer: $self->{mailer}
-END
-	if ($h->{x}){ chomp($h->{x}); print $fh "$h->{x}\n"; }
-	print $fh "\n$text";
-	close($fh);
+	$host ||= '127.0.0.1';
+	$port ||= 25;
+
+	#----------------------------------------------------------------------
+	# use Net::SMTP
+	#----------------------------------------------------------------------
+	if ($h->{auth_name}) {
+		require Net::SMTP;
+		my $smtp = Net::SMTP->new($host,
+			Timeout => $TIMEOUT,
+			Port => $port
+		);
+		if (!$smtp) {
+			$ROBJ->message('SMTP Connection Error "%s"', "$host:$port");
+			return 10;
+		}
+		if ($h->{auth_name} && !$smtp->auth($h->{auth_name}, $h->{auth_pass})) {
+			$ROBJ->message('SMTP Authorization Error! "%s", pass:"%s"', $h->{auth_name}, $h->{auth_pass});
+			return 11;
+		}
+		eval {
+			$smtp->mail($from)	|| die("mail('$from')");
+			$smtp->to($to)		|| die("to('$to')");
+			if ($cc)  { $smtp->cc($cc)	|| die("cc($cc)");	}
+			if ($bcc) { $smtp->bcc($bcc)	|| die("bcc($bcc)");	}
+			$smtp->data()		|| die('data()');
+			$smtp->datasend($msg)	|| die('datasend()');
+			$smtp->quit()		|| die('quit()');
+		};
+		if ($@) {
+			$ROBJ->message('SMTP Error: %s', $@);
+			return 100;
+		}
+		return 0;
+	}
+
+	#----------------------------------------------------------------------
+	# original SMTP
+	#----------------------------------------------------------------------
+	my $sock;
+	{
+		my $ip_bin = inet_aton($host);
+		if ($ip_bin eq '') {
+			$ROBJ->message("Can't find host '%s'", $host);
+			return 20;
+		}
+		my $addr = pack_sockaddr_in($port, $ip_bin);
+		socket($sock, Socket::PF_INET(), Socket::SOCK_STREAM(), 0);
+		{
+			local $SIG{ALRM} = sub { close($sock); };
+			alarm( $TIMEOUT );
+			my $r = connect($sock, $addr);
+			alarm(0);
+			if (!$r) {
+				close($sock);
+				$ROBJ->message("Can't connect '%s'", $host);
+				return 21;
+			}
+		}
+		binmode($sock);
+	}
+	eval {
+		$self->status_check($sock, 220);
+		$self->send_data_check($sock, "HELO localhost.localdomain", 250);
+		$self->send_data_check($sock, "MAIL FROM:$from", 250);
+		$self->send_data_check($sock, "RCPT TO:$to", 250);
+		if ($cc) {
+			$self->send_data_check($sock, "RCPT TO:$cc", 250);
+		}
+		if ($bcc) {
+			$self->send_data_check($sock, "RCPT TO:$bcc", 250);
+		}
+		$self->send_data_check($sock, "DATA", 354);
+		$msg =~ s/(^|\n)\./$1../g;
+		chomp($msg);
+		$self->send_data_check($sock, $msg . "\n.\n", 250);
+		$self->send_quit($sock);
+	};
+	close($sock);
+	if ($@) {
+		$ROBJ->message('SMTP Error: %s', $@);
+		return 200;
+	}
 	return 0;
+}
+###############################################################################
+# socket
+###############################################################################
+sub send_data_check {
+	my $self = shift;
+	my $sock = shift;
+	my $data = shift . "\r\n";
+	my $code = shift;
+	syswrite($sock, $data, length($data));
+	return $self->status_check($sock, $code, $data);
+}
+
+sub status_check {
+	my $self = shift;
+	my $sock = shift;
+	my $code = shift;
+	my $data = shift;
+	my ($c, $r) = $self->recive_line($sock);
+	if ($c == $code) { return; }
+
+	$self->send_quit($sock);
+	die ($data ? "$r / $data" : "$r");
+}
+
+sub send_quit {
+	my $self = shift;
+	my $sock = shift;
+	my $quit = "REST\r\nQUIT\r\n";
+	syswrite($sock, $quit, length($quit));
+}
+
+sub recive_line {
+	my $self = shift;
+	my $sock = shift;
+	my $f_no = fileno($sock);
+
+	my $in='';
+	my $r;
+	vec($in, $f_no, 1) = 1;
+	{
+		select($in, undef, undef, $TIMEOUT);
+		if (vec($in, $f_no, 1) ) {
+			$r = <$sock>;
+		}
+	}
+	my $code;
+	if ($r =~ /^(\d+)/) { $code=$1; }
+	return wantarray ? ($code, $r) : $code;
 }
 
 ###############################################################################
@@ -300,7 +424,7 @@ my @base64ary = (
 sub mime_encode {
 	my $self = shift;
 	foreach(@_) {
-		$_ =~ s/(\e\$[\@B].*?\e\([BJ])/ '=?ISO-2022-JP?B?' . $self->base64encode($1) . '?=' /eg;
+		$_ =~ s/([^\x00-\x7f]+)/ "=?$CODE?B?" . $self->base64encode($1) . '?=' /eg;
 	}
 	return $_[0];
 }
@@ -458,13 +582,6 @@ sub base64decode {	# 'normal' or 'URL safe'
 	if ($f >1) { chop($ret); }
 	if ($f==2) { chop($ret); }
 	return $ret;
-}
-
-###############################################################################
-# ●sendmailコマンドの存在確認
-###############################################################################
-sub get_sendmail_cmd {
-	return $sendmail_cmd;
 }
 
 1;
