@@ -82,6 +82,7 @@ sub send_mail {
 		if ($repto) { $msg .= "Reply-To: $repto\n"; }
 		if ($retph) { $msg .= "Return-Path: $retph\n"; }
 		$msg .= "Subject: $subject\n";
+		$msg .= "Date: " . $self->mail_date_local($ROBJ->{TM}) . "\n";
 		$msg .= "MIME-Version: 1.0\n";
 		$msg .= "Content-Type: text/plain; charset=\"$CODE\"\n";
 		$msg .= "X-Mailer: $self->{mailer}\n";
@@ -244,6 +245,32 @@ sub check_mail_address {
 		if ($_ !~ /^[-_\.a-zA-Z0-9]+\@(?:[-\w]+\.)+[-\w]+$/) { return 0; }
 	}
 	return 1;	# success
+}
+
+sub get_timezone {
+	require Time::Local;
+	my @tm = (0,0,0,1,0,100);	# 2000-01-01
+	my $d  = Time::Local::timegm(@tm) - Time::Local::timelocal(@tm);
+	my $pm = ($d<0) ? '-' : '+';
+	$d = ($d<0) ? -$d : $d;
+
+	my $m = int($d/60);
+	my $h = int($m/60);
+	$m = $m - $h*60;
+	return $pm . substr("0$h", -2) . substr("0$m", -2);
+}
+
+# Sun, 06 Nov 1994 08:49:37 +0900
+sub mail_date_local {
+	my $self = shift;
+	my($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(shift);
+
+	my($wd, $mn);
+	$wd = substr('SunMonTueWedThuFriSat',$wday*3,3);
+	$mn = substr('JanFebMarAprMayJunJulAugSepOctNovDec',$mon*3,3);
+
+	return sprintf("$wd, %02d $mn %04d %02d:%02d:%02d %s",
+		, $mday, $year+1900, $hour, $min, $sec, $self->get_timezone());
 }
 
 ###############################################################################
