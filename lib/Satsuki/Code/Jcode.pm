@@ -31,7 +31,6 @@ sub new {
 	$self->{ROBJ} = shift;
 	$self->{EXTRA_UTF8_PATCH} = $EXTRA_UTF8_PATCH;
 	$self->{__CACHE_PM} = 1;
-	$self->{email_default} = 'ISO-2022-JP';
 
 	$self->init();
 	return $self;
