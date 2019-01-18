@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2018 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.75';
+our $VERSION = '1.76';
 #(簡易履歴)
+# 2019/01 Ver1.76  match() の修正
 # 2018/12 Ver1.75  hash(), {a=>b} の仕様変更（{}は元に戻す）
 # 2018/10 Ver1.74  arrayq(), flagq(), hashq()のアップデート, ifset_header類追加
 # 2016/01 Ver1.73  load_from_aryのバグ修正
@@ -310,7 +311,7 @@ $Builtin_func{match} = <<'FUNC';
 sub {
 	my ($data, $reg) = @_;
 	if ($data =~ /$reg/) {
-		return [$1,$2,$3,$4,$5,$6,$7,$8,$9];
+		return [$0,$1,$2,$3,$4,$5,$6,$7,$8,$9];
 	}
 	return ;
 }
