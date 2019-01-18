@@ -1455,6 +1455,10 @@ sub into {
 	return $out;
 }
 
+sub unesc {	# 非破壊
+	my $self = shift;
+	return $self->tag_unescape(join('',@_));
+}
 sub tag_unescape {
 	my $self = shift;
 	foreach(@_) {
