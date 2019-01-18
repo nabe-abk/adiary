@@ -63,10 +63,6 @@ System-Coding : <@System_coding>
 </tr><tr>
 	<td>CryptX</td><td class="c"><@if(lib_check('Net::SSLeay'), ok, ng)></td>
 	<td>push通知プラグインで使用</td>
-</tr><tr>
-<$mail = loadpm("Base::Mail")>
-	<td>sendmailコマンド</td><td class="c"><@if(mail.get_sendmail_cmd(), ok, ng)></td>
-	<td>「メール通知」プラグインで使用</td>
 </tr>
 </table>
 
