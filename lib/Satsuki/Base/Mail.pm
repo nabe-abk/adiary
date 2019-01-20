@@ -4,12 +4,14 @@ use strict;
 #						(C)2006-2019 nabe / nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Mail;
-our $VERSION = '1.10';
+our $VERSION = '1.20';
 #------------------------------------------------------------------------------
-use Net::SMTP;
 use Socket;
+#------------------------------------------------------------------------------
 my $TIMEOUT = 1;
 my $CODE    = 'UTF-8';
+my $DEBUG   = 0;
+my %Auth;
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -24,6 +26,10 @@ sub new {
 	$CODE = $Satsuki::SYSTEM_CODING || 'UTF-8';
 
 	$self->{__CACHE_PM} = 1;
+
+	$Auth{PLAIN} = \&auth_plain;
+	$Auth{LOGIN} = \&auth_login;
+	$Auth{'CRAM-MD5'} = \&auth_cram_md5;
 	return $self;
 }
 
@@ -103,39 +109,6 @@ sub send_mail {
 	$port ||= 25;
 
 	#----------------------------------------------------------------------
-	# use Net::SMTP
-	#----------------------------------------------------------------------
-	if ($h->{auth_name}) {
-		require Net::SMTP;
-		my $smtp = Net::SMTP->new($host,
-			Timeout => $TIMEOUT,
-			Port => $port
-		);
-		if (!$smtp) {
-			$ROBJ->message('SMTP Connection Error "%s"', "$host:$port");
-			return 10;
-		}
-		if ($h->{auth_name} && !$smtp->auth($h->{auth_name}, $h->{auth_pass})) {
-			$ROBJ->message('SMTP Authorization Error! "%s", pass:"%s"', $h->{auth_name}, $h->{auth_pass});
-			return 11;
-		}
-		eval {
-			$smtp->mail($from)	|| die("mail('$from')");
-			$smtp->to($to)		|| die("to('$to')");
-			if ($cc)  { $smtp->cc($cc)	|| die("cc($cc)");	}
-			if ($bcc) { $smtp->bcc($bcc)	|| die("bcc($bcc)");	}
-			$smtp->data()		|| die('data()');
-			$smtp->datasend($msg)	|| die('datasend()');
-			$smtp->quit()		|| die('quit()');
-		};
-		if ($@) {
-			$ROBJ->message('SMTP Error: %s', $@);
-			return 100;
-		}
-		return 0;
-	}
-
-	#----------------------------------------------------------------------
 	# original SMTP
 	#----------------------------------------------------------------------
 	my $sock;
@@ -160,9 +133,31 @@ sub send_mail {
 		}
 		binmode($sock);
 	}
+	$self->{buf}='';
 	eval {
 		$self->status_check($sock, 220);
-		$self->send_data_check($sock, "HELO localhost.localdomain", 250);
+		my $status = $self->send_ehlo($sock, 'localhost.localdomain');
+		if ($h->{auth_name} ne '') {
+			my $type;
+			foreach(split(/ /, $status->{'AUTH'})) {
+				if ($Auth{$_}) {
+					$type = $_;
+					last;
+				}
+			}
+			if (!$type) {
+				my $mechanisms = join(', ', sort(keys(%Auth)));
+				die("AUTH mechanisms miss match! support: $mechanisms");
+			}
+			my $str = $self->send_data_check($sock, "AUTH $type", 334);
+			eval {
+				$str =~ s/^\d+ //;
+				&{ $Auth{$type} }($self, $sock, $h->{auth_name}, $h->{auth_pass}, $str);
+			};
+			if ($@) {
+				die("AUTH $type failed: \"$h->{auth_name}\" / \"$h->{auth_pass}\" : $@")
+			}
+		}
 		$self->send_data_check($sock, "MAIL FROM:$from", 250);
 		$self->send_data_check($sock, "RCPT TO:$to", 250);
 		if ($cc) {
@@ -184,16 +179,51 @@ sub send_mail {
 	}
 	return 0;
 }
-###############################################################################
+#------------------------------------------------------------------------------
 # socket
-###############################################################################
+#------------------------------------------------------------------------------
+sub send_ehlo {
+	my $self = shift;
+	my $sock = shift;
+	my $host = shift;
+	$self->send_data_check($sock, "EHLO $host", 250);
+
+	my $in='';
+	my $fno = fileno($sock);
+	vec($in, $fno, 1) = 1;
+	my %h;
+	while(1) {
+		if ($self->{buf} eq '') {
+			select(my $x = $in, undef, undef, 0);
+			if (!vec($x, $fno, 1)) { last; }
+		}
+
+		my ($code, $y) = $self->recive_line($sock);
+		if (!$code) { die("broken response! / EHLO"); }
+
+		$y =~ s/^\d+[ \-]//;
+		$y =~ s/[\r\n]//g;
+		my ($a,$b) = split(/ /, $y, 2);
+		$h{$a} = $b || 1;
+	}
+	return \%h;
+}
+
 sub send_data_check {
 	my $self = shift;
 	my $sock = shift;
-	my $data = shift . "\r\n";
+	my $data = shift;
 	my $code = shift;
-	syswrite($sock, $data, length($data));
+	$self->send_cmd($sock, $data);
 	return $self->status_check($sock, $code, $data);
+}
+
+sub send_cmd {
+	my $self = shift;
+	my $sock = shift;
+	my $data = shift . "\r\n";
+	syswrite($sock, $data, length($data));
+	$DEBUG && print STDERR "--> $data";	# debug-safe
 }
 
 sub status_check {
@@ -201,11 +231,11 @@ sub status_check {
 	my $sock = shift;
 	my $code = shift;
 	my $data = shift;
-	my ($c, $r) = $self->recive_line($sock);
-	if ($c == $code) { return; }
+	my ($c, $line) = $self->recive_line($sock);
+	if ($c == $code) { return $line; }
 
 	$self->send_quit($sock);
-	die ($data ? "$r / $data" : "$r");
+	die ($data ? "$line / $data" : $line);
 }
 
 sub send_quit {
@@ -218,20 +248,62 @@ sub send_quit {
 sub recive_line {
 	my $self = shift;
 	my $sock = shift;
-	my $f_no = fileno($sock);
 
-	my $in='';
-	my $r;
-	vec($in, $f_no, 1) = 1;
-	{
-		select($in, undef, undef, $TIMEOUT);
-		if (vec($in, $f_no, 1) ) {
-			$r = <$sock>;
-		}
+	my $buf = $self->{buf};
+	if ($buf eq '') {
+		vec(my $in, fileno($sock), 1) = 1;
+		my $r = select($in, undef, undef, $TIMEOUT);
+		if ($r <= 0) { return; }
+		if (!sysread($sock, $buf, 4096, length($buf))) { return; }
 	}
+	my $line;
+	{
+		my $x = index($buf, "\n");
+		if ($x < 0) { return; }
+		$line = substr($buf, 0, $x);
+		$line =~ s/\r//;
+		$self->{buf} = substr($buf, $x+1);
+	}
+	$DEBUG && print STDERR "<-- $line\n";	# debug-safe
 	my $code;
-	if ($r =~ /^(\d+)/) { $code=$1; }
-	return wantarray ? ($code, $r) : $code;
+	if ($line =~ /^(\d+)/) { $code=$1; }
+	return wantarray ? ($code, $line) : $code;
+}
+
+#------------------------------------------------------------------------------
+# Authentication
+#------------------------------------------------------------------------------
+sub auth_plain {
+	my $self = shift;
+	my $sock = shift;
+	my $user = shift;
+	my $pass = shift;
+
+	my $plain = $self->base64encode("\0$user\0$pass");
+	$self->send_data_check($sock, $plain, 235);
+}
+
+sub auth_login {
+	my $self = shift;
+	my $sock = shift;
+	my $user = shift;
+	my $pass = shift;
+
+	$self->send_data_check($sock, $self->base64encode($user), 334);
+	$self->send_data_check($sock, $self->base64encode($pass), 235);
+}
+
+sub auth_cram_md5 {
+	my $self = shift;
+	my $sock = shift;
+	my $user = shift;
+	my $pass = shift;
+	my $str  = $self->base64decode(shift);
+
+	require Digest::HMAC_MD5;
+	my $md5 = Digest::HMAC_MD5::hmac_md5_hex($str,$pass);
+
+	$self->send_data_check($sock, $self->base64encode("$user $md5"), 235);
 }
 
 ###############################################################################
