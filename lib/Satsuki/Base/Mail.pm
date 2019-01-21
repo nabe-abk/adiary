@@ -8,7 +8,7 @@ our $VERSION = '1.20';
 #------------------------------------------------------------------------------
 use Socket;
 #------------------------------------------------------------------------------
-my $TIMEOUT = 1;
+my $TIMEOUT = 5;
 my $CODE    = 'UTF-8';
 my $DEBUG   = 0;
 my %Auth;
@@ -168,8 +168,9 @@ sub send_mail {
 		}
 		$self->send_data_check($sock, "DATA", 354);
 		$msg =~ s/(^|\n)\./$1../g;
-		chomp($msg);
-		$self->send_data_check($sock, $msg . "\n.\n", 250);
+		$msg =~ s/[\r\n]*$/\r\n/g;
+		$msg .= ".";
+		$self->send_data_check($sock, $msg, 250);
 		$self->send_quit($sock);
 	};
 	close($sock);
@@ -222,8 +223,8 @@ sub send_cmd {
 	my $self = shift;
 	my $sock = shift;
 	my $data = shift . "\r\n";
-	syswrite($sock, $data, length($data));
 	$DEBUG && print STDERR "--> $data";	# debug-safe
+	syswrite($sock, $data, length($data));
 }
 
 sub status_check {
@@ -241,7 +242,8 @@ sub status_check {
 sub send_quit {
 	my $self = shift;
 	my $sock = shift;
-	my $quit = "REST\r\nQUIT\r\n";
+	my $quit = "QUIT\r\n";
+	$DEBUG && print STDERR "--> $quit";	# debug-safe
 	syswrite($sock, $quit, length($quit));
 }
 
