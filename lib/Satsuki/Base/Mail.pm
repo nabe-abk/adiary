@@ -222,7 +222,7 @@ sub send_data_check {
 sub send_cmd {
 	my $self = shift;
 	my $sock = shift;
-	my $data = shift . "\r\n";
+	my $data = (shift) . "\r\n";
 	$DEBUG && print STDERR "--> $data";	# debug-safe
 	syswrite($sock, $data, length($data));
 }
