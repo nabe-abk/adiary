@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.32';
+our $VERSION = '2.33';
 our $RELOAD;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
@@ -77,6 +77,9 @@ sub new {
 
 	# mod_perl初期化, get_filepath() 有効化
 	if ($ENV{MOD_PERL}) { $self->init_for_mod_perl(); }
+
+	# cache init
+	$self->init_stat_cache();
 
 	#-------------------------------------------------------------
 	# スケルトンキャッシュ関連
@@ -1120,14 +1123,26 @@ sub flock {
 # ■ファイルの最終更新日時取得
 ###############################################################################
 #------------------------------------------------------------------------------
+# ●ファイルのstatを返す
+#------------------------------------------------------------------------------
+my %StatCache;
+my $StatTM;
+
+sub init_stat_cache {
+	my $self = shift;
+	if ($StatTM == $self->{TM}) { return; }
+	undef %StatCache;
+	$StatTM = $self->{TM};
+}
+#------------------------------------------------------------------------------
 # ●ファイルが読み込み可能なとき、最終更新時刻を返す（cache付）
 #------------------------------------------------------------------------------
 sub get_lastmodified {
 	my $self = shift;
 	my $file = $self->get_filepath(shift);
-	if ($self->{"STcache-$file"}) { return $self->{"STcache-$file"}->[9]; }
+
 	if (!-r $file) { return ; }	# 読み込めない。存在しないファイル
-	my $st = $self->{"STcache-$file"} = [ stat($file) ];
+	my $st = $StatCache{$file} ||= [ stat($file) ];
 	return $st->[9];
 }
 
@@ -1164,7 +1179,7 @@ sub fread_lines_cached {
 	my $key   = join('//',$flags->{PostProcessor},$flags->{DelCR});
 	my $c     = $cache->{$key} || {};
 
-	my $st = $self->{"STcache-$file"} ||= [ stat($file) ];
+	my $st   = $StatCache{$file} ||= [ stat($file) ];
 	my $size = $st->[7];
 	my $mod  = $st->[9];
 
@@ -1196,8 +1211,10 @@ sub fread_hash_cached {
 # ●キャッシュの削除
 #------------------------------------------------------------------------------
 sub delete_file_cache {
-	my ($self, $file) = @_;
-	delete $self->{"STcache-$file"};
+	my $self = shift;
+	my $file = $self->get_filepath(shift);
+
+	delete $StatCache{$file};
 	$FileCache{$file} = {};
 }
 
