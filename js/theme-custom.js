@@ -178,7 +178,8 @@ iframe.on('load', function(){
 //////////////////////////////////////////////////////////////////////////////
 	var custom_form  = $('#custom-form');
 	var color_bar    = $('#custom-color-bar');
-	var custom_cols  = $('#custom-colors');
+	var custom_opts  = $('#custom-options');
+	var custom_cols  = $('#custom-colors-base');
 	var custom_detail= $('#custom-colors-detail');
 	var detail_mode  = $('#detail-mode');
 
@@ -221,6 +222,7 @@ function init_custmize(name) {
 }
 function custom_form_empty() {
 	custom_form.hide();
+	custom_opts.empty();
 	custom_cols.empty();
 	custom_detail.empty();
 	input_cols  = $;
@@ -272,6 +274,7 @@ function init_custom_form(data, data2) {
 	});
 
 	// フォームの生成
+	custom_opts.empty();
 	custom_cols.empty();
 	custom_detail.empty();
 	input_cols = [];
@@ -335,7 +338,6 @@ function init_custom_form(data, data2) {
 		        return (a.name < b.name) ? -1 : 1;
 		});
 
-		var obj = $('<span>').attr('id', 'options');
 		for(var i=0; i<opts.length; i++) {
 			var name = opts[i].name;
 			if (name.match(/-\w+$/)) continue;
@@ -362,10 +364,9 @@ function init_custom_form(data, data2) {
 				if (list[j] == val) o.prop('selected', true);
 				sel.append(o);
 			}
-			obj.append( sel );
+			custom_opts.append( sel );
 			select_opts.push( sel );
 		}
-		custom_cols.prepend( obj );
 		select_opts = $(select_opts);
 	}
 	if (cols.length < 1) color_bar.hide();

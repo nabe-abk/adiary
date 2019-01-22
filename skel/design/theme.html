@@ -59,6 +59,12 @@ select {
 	background-color:	#eef;
 	margin-bottom:		6px;
 }
+#custom-colors {
+	border-top:		1px solid #888;
+	margin:			4px 2px 0 2px;
+	padding-top:		4px;
+}
+
 .color-box {
 	margin:			1px 4px;
 	display:		inline-block;
@@ -115,22 +121,26 @@ div.iblk {
 
 &emsp;<button type="button" id="readme-button" class="js-info btn-help" data-title="README" data-url="" data-class="pre" data-help="スマホ非対応テーマを使用する場合、スマホアクセスには標準のスマホ対応テーマが使用されます。">README表示</button>
 <input type="hidden" name="checkbox.info" value="sysmode_notheme_flg">
-<input type="checkbox" name="sysmode_notheme_flg" id="sysmode-no" data-orig="<@s.sysmode_notheme>" value="1"<@if(s.sysmode_notheme, ' checked')>><label class="small">管理画面は標準テーマを使用</label>
+<label><input type="checkbox" name="sysmode_notheme_flg" id="sysmode-no" data-orig="<@s.sysmode_notheme>" value="1"<@if(s.sysmode_notheme, ' checked')>><span class="small">管理画面は標準テーマを使用</span></label>
 
 <div id="custom-form">
 <div id="custom-functions">
 <input type="hidden" name="custom" value="" id="custom-flag">
 <div id="custom-color-bar">
 <button type="button" id="btn-reset">リセット</button>
-<button type="button" id="btn-super-reset">テーマ初期値に</button>
-<label><input type="checkbox" data-target="#custom-colors-detail" id="detail-mode">詳細</label>
-<div class="iblk">H <div id="h-slider" class="silder"></div></div>
+<button type="button" id="btn-super-reset">テーマ初期値</button>
+<div class="iblk">【色調整】H <div id="h-slider" class="silder"></div></div>
 <div class="iblk">S <div id="s-slider" class="silder"></div></div>
 <div class="iblk">V <div id="v-slider" class="silder"></div></div>
+<label><input type="checkbox" class="js-switch" data-target="#custom-colors, #colors-detail-button">色個別</label>
+<label id="colors-detail-button"><input type="checkbox" class="js-switch" data-target="#custom-colors-detail">色詳細</label>
 </div><!-- custom-color-bar -->
 </div><!-- custom-functions -->
-<div id="custom-colors"></div>
-<div id="custom-colors-detail"></div>
+<div id="custom-options"></div>
+<div id="custom-colors">
+	<div id="custom-colors-base"></div>
+	<div id="custom-colors-detail"></div>
+</div><!-- custom-colors -->
 </div>
 </form>
 
