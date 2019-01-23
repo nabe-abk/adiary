@@ -9,7 +9,6 @@ use strict;
 package Satsuki::AutoLoader;
 our $VERSION = '1.00';
 
-# use Satsuki::Exporter 'import';
 use Exporter 'import';
 our @EXPORT = qw(AUTOLOAD);
 our $AUTOLOAD;

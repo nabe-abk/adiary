@@ -94,8 +94,8 @@ sub new {
 }
 #------------------------------------------------------------------------------
 sub DESTROY {
-	my $self = shift;
 	if (!$Satsuki::DESTROY_debug) { return; }
+	my $self = shift;
 	print "<div>*** DESTROY $self</div>\n";
 }
 
@@ -1001,10 +1001,9 @@ sub _loadpm {
 		no strict 'refs'; 	# デバッグルーチン埋め込み
 		my $dbg = $pm . '::debug';
 		if (! *$dbg{CODE}) { *$dbg = \&export_debug; }
-		if ($self->{DESTROY_debug}) {
-			my $des = $pm . '::DESTROY';
-			*$des = \&DESTROY;
-		}
+
+		# 何かしらDESTROYを export しないとパフォーマンスが落ちる
+		*{"$pm\::DESTROY"} = \&DESTROY;
 	}
 	my $obj = $pm->new($self, @_);
 	if (substr($pm,0,7) eq 'Satsuki') {
