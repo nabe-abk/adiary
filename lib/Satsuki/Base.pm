@@ -992,7 +992,7 @@ sub loadpm {
 #------------------------------------------------------------------------------
 sub _loadpm {
 	my $self = shift;
-	my ($pm,@a) = @_;
+	my $pm   = shift;
 	my $pm_file = $pm . '.pm';
 	$pm_file =~ s|::|/|g;
 	eval { require $pm_file; };
@@ -1006,7 +1006,7 @@ sub _loadpm {
 			*$des = \&DESTROY;
 		}
 	}
-	my $obj = $pm->new($self, @a);
+	my $obj = $pm->new($self, @_);
 	if (substr($pm,0,7) eq 'Satsuki') {
 		push(@{$self->{Loadpm_array}}, $obj);
 	}
