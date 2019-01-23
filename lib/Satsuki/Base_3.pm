@@ -19,6 +19,9 @@ sub init_for_mod_perl {
 	# ・mod_perl2 + thread 環境では、カレントディレクトリが変更できないため必須
 	# ・ファイルキャッシュを絶対パスで管理するため、mod_perl環境では必須
 	$self->{WD} = substr($0, 0, rindex($0, '/')+1); # カレントdir
+
+	no strict 'refs';
+	*{ __PACKAGE__ . '::get_filepath'} = \&get_filepath_modperl;
 }
 
 ###############################################################################

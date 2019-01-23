@@ -281,9 +281,8 @@ sub finish {
 sub object_free_finish {
 	my $self = shift;
 
-	my $ddbg = $self->{DESTROY_debug};
-	$Satsuki::DESTROY_debug = $ddbg;
-	if ($ddbg) {
+	my $d = $Satsuki::DESTROY_debug = $self->{DESTROY_debug};
+	if ($d) {
 		print "<h3>DESTROY debug</h3>\n";
 	}
 
@@ -1022,11 +1021,14 @@ sub export_debug {
 # ■ファイル入力
 ###############################################################################
 #------------------------------------------------------------------------------
-# ●ファイルパスの取得 for mod_perl2
+# ●ファイルパスの取得
 #------------------------------------------------------------------------------
 sub get_filepath {
+	return $_[1];
+}
+sub get_filepath_modperl {
 	my ($self, $file) = @_;
-	if (!$self->{WD} || $file eq '' || substr($file, 0, 1) eq '/') { return $file; }
+	if ($file eq '' || substr($file, 0, 1) eq '/') { return $file; }
 	return $self->{WD} . $file;
 }
 
