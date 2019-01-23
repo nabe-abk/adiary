@@ -7,6 +7,7 @@ package Satsuki::Base;
 #------------------------------------------------------------------------------
 our $VERSION = '2.33';
 our $RELOAD;
+my %StatCache;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
 my $_SALT = '8RfoZYxLBkqeQFMd0l.pEmVCuAyUDO9b/3wSi5Trn47IzcHKPvGgsXhjNt126JWa';
@@ -73,7 +74,7 @@ sub new {
 	$self->{Message} = [];
 
 	# コンパイラの更新時間を保存
-	$self->{Compiler_tm} = $self->get_file_modtime( 'lib/Satsuki/Base/Compiler.pm' );
+	$self->{Compiler_tm} = $self->get_lastmodified( 'lib/Satsuki/Base/Compiler.pm' );
 
 	# mod_perl初期化, get_filepath() 有効化
 	if ($ENV{MOD_PERL}) { $self->init_for_mod_perl(); }
@@ -236,6 +237,18 @@ sub init_path {
 	# パス初期化済フラグ
 	$self->{Initialized_path} = 1;
 }
+
+#------------------------------------------------------------------------------
+# ●statキャッシュの初期化
+#------------------------------------------------------------------------------
+my $StatTM;
+sub init_stat_cache {
+	my $self = shift;
+	if ($StatTM == $self->{TM}) { return; }
+	undef %StatCache;
+	$StatTM = $self->{TM};
+}
+
 ###############################################################################
 # ■終了処理
 ###############################################################################
@@ -414,7 +427,7 @@ sub __call {
 	# メモリキャッシュロード
 	#------------------------------------------------------------
 	my $skel   = $SkelCache{$src_file};
-	my $src_tm = (stat($src_file)) [9];
+	my $src_tm = ($StatCache{$src_file} ||= [ stat($src_file) ])->[9];
 
 	# $self->debug("*** Call $src_file ***");
 	#------------------------------------------------------------
@@ -1123,18 +1136,6 @@ sub flock {
 # ■ファイルの最終更新日時取得
 ###############################################################################
 #------------------------------------------------------------------------------
-# ●ファイルのstatを返す
-#------------------------------------------------------------------------------
-my %StatCache;
-my $StatTM;
-
-sub init_stat_cache {
-	my $self = shift;
-	if ($StatTM == $self->{TM}) { return; }
-	undef %StatCache;
-	$StatTM = $self->{TM};
-}
-#------------------------------------------------------------------------------
 # ●ファイルが読み込み可能なとき、最終更新時刻を返す（cache付）
 #------------------------------------------------------------------------------
 sub get_lastmodified {
@@ -1230,17 +1231,6 @@ sub touch {
 	if (!-e $file) { $self->fwrite_lines($file, []); return; }
 	my ($now) = $self->{TM};
 	utime($now, $now, $file);
-}
-
-#------------------------------------------------------------------------------
-# ●ファイルの更新日時を更新
-#------------------------------------------------------------------------------
-sub get_file_modtime {
-	my ($self, $file) = @_;
-	my $cache = $self->{__modtime_cache} ||= {};
-	if ($cache->{$file}) { return $cache->{$file}; }
-	my $filefull = $self->get_filepath($file);
-	return ($cache->{$file} = (stat($filefull)) [9]);
 }
 
 #------------------------------------------------------------------------------
