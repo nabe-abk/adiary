@@ -801,10 +801,8 @@ sub http_headers {
 	my ($self, $ctype, $charset, $clen) = @_;
 	if ($self->{No_httpheader}) { return''; }
 
-	# Cache
-	my $header;
-
 	# Status
+	my $header;
 	my $status = $self->{Status};
 	if ($self->{HTTPD}) {
 		$header  = "HTTP/1.0 $status\r\n";
@@ -841,7 +839,6 @@ sub chain_array {
 	return $str;
 }
 sub _chain_array {
-	# 2009/07/09 速度検証テストによる最適化
 	my ($self, $ary, $c) = @_;
 	foreach(@$ary) {
 		if (ref($_) eq 'ARRAY') {
