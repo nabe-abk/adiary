@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.33';
+our $VERSION = '2.34';
 our $RELOAD;
 my %StatCache;
 #------------------------------------------------------------------------------
@@ -42,7 +42,8 @@ sub new {
 	$self->{Status}  = 200;		# HTTP status (200 = OK)
 	$self->{SALT64chars}  = $_SALT;	# SALT生成用文字列
 	$self->{Form_options} = {};		# form用設定
-	$self->{Loadpm_cache} = {};		# load済ライブラリ用Hash
+	$self->{Loadpm_cache} = {};		# load済obj cache
+	$self->{Loadpm_array} = [];		# load済obj配列
 	$self->{CGI_mode}     = 'CGI-Perl';
 	$self->{Secret_word}  = '';
 	$self->{Content_type} = 'text/html';
@@ -73,14 +74,14 @@ sub new {
 	$self->{Warning} = [];
 	$self->{Message} = [];
 
+	# STAT cache init
+	$self->init_stat_cache();
+
 	# コンパイラの更新時間を保存
 	$self->{Compiler_tm} = $self->get_lastmodified( 'lib/Satsuki/Base/Compiler.pm' );
 
 	# mod_perl初期化, get_filepath() 有効化
 	if ($ENV{MOD_PERL}) { $self->init_for_mod_perl(); }
-
-	# cache init
-	$self->init_stat_cache();
 
 	#-------------------------------------------------------------
 	# スケルトンキャッシュ関連
@@ -90,6 +91,12 @@ sub new {
 		$self->{__cache_dir} = $cache_dir;
 	}
 	return $self;
+}
+#------------------------------------------------------------------------------
+sub DESTROY {
+	my $self = shift;
+	if (!$Satsuki::DESTROY_debug) { return; }
+	print "<div>*** DESTROY $self</div>\n";
 }
 
 ###############################################################################
@@ -256,11 +263,7 @@ sub finish {
 	my $self = shift;
 
 	# メモリリーク対策 & 各デストラクタ呼び出し
-	$Satsuki::DESTROY_debug = $self->{DESTROY_debug};
-	if ($self->{DESTROY_debug}) {
-		print '<pre id="destroy-debug"><strong>***DESTROY debug***</strong>'."\n";
-	}
-	$self->object_free_finish( $self );
+	$self->object_free_finish();
 
 	# エラー情報の表示
 	my $error = $self->{Error};
@@ -274,23 +277,29 @@ sub finish {
 #------------------------------------------------------------------------------
 # ●オブジェクト開放ルーチン
 #------------------------------------------------------------------------------
-# 循環参照を多用するため、それを含めて変数を開放する
-# ※オブジェクト および HASH 循環参照のみ対応
+# 循環参照を解消する。
 sub object_free_finish {
 	my $self = shift;
-	my $h = shift;
-	$h->{"_**objcheck"}=1;
-	if ($h->can('Finish')) {
-		$self->{DESTROY_debug} && print "CALL Finish() in $h\n";
-		$h->Finish();
+
+	my $ddbg = $self->{DESTROY_debug};
+	$Satsuki::DESTROY_debug = $ddbg;
+	if ($ddbg) {
+		print "<h3>DESTROY debug</h3>\n";
 	}
-	foreach(keys(%$h)) {
-		my $r = ref($h->{$_}) || next;
-		if (substr($r,0,7) ne 'Satsuki') { next; }
-		if (!$h->{$_}->{"_**objcheck"}) {
-			$self->object_free_finish($h->{$_});
+
+	my $mods = $self->{Loadpm_array};	# ロード済Satsuki obj
+	undef $self->{Loadpm_array};
+	undef $self->{ROBJ};
+
+	foreach my $obj (@$mods) {
+		if ($obj->can('Finish')) {
+			$obj->Finish();
 		}
-		$h->{$_} = undef;
+		undef $obj->{ROBJ};
+		foreach(values(%$obj)) {
+			if (substr(ref($_),0,7) ne 'Satsuki') { next; }
+			$_ = undef;
+		}
 	}
 }
 
@@ -992,8 +1001,16 @@ sub _loadpm {
 		no strict 'refs'; 	# デバッグルーチン埋め込み
 		my $dbg = $pm . '::debug';
 		if (! *$dbg{CODE}) { *$dbg = \&export_debug; }
+		if ($self->{DESTROY_debug}) {
+			my $des = $pm . '::DESTROY';
+			*$des = \&DESTROY;
+		}
 	}
-	return $pm->new($self, @a);
+	my $obj = $pm->new($self, @a);
+	if (substr($pm,0,7) eq 'Satsuki') {
+		push(@{$self->{Loadpm_array}}, $obj);
+	}
+	return $obj;
 }
 
 sub export_debug {

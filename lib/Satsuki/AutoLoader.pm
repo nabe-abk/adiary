@@ -11,7 +11,7 @@ our $VERSION = '1.00';
 
 # use Satsuki::Exporter 'import';
 use Exporter 'import';
-our @EXPORT = qw(AUTOLOAD DESTROY);
+our @EXPORT = qw(AUTOLOAD);
 our $AUTOLOAD;
 
 #------------------------------------------------------------------------------
@@ -59,11 +59,6 @@ sub AUTOLOAD {
 		die "[AutoLoader] Can't find method '$func' in '$class' at $file line $line\n";
 	}
 	return $obj->$func(@_);
-}
-#------------------------------------------------------------------------------
-sub DESTROY {
-	my $self = shift;
-	$Satsuki::DESTROY_debug && print "DESTROY $self\n";
 }
 
 1;
