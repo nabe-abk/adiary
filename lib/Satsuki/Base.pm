@@ -292,9 +292,10 @@ sub object_free_finish {
 	undef $self->{ROBJ};
 
 	foreach my $obj (@$mods) {
-		if ($obj->can('Finish')) {
-			$obj->Finish();
-		}
+		if (!$obj->can('Finish')) { next; }
+		$obj->Finish();
+	}
+	foreach my $obj (@$mods) {
 		undef $obj->{ROBJ};
 		foreach(values(%$obj)) {
 			if (substr(ref($_),0,7) ne 'Satsuki') { next; }
