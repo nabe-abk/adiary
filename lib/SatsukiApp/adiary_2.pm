@@ -1141,7 +1141,7 @@ sub generate_rss {
 	my @files;
 	my $file = $self->{blogpub_dir} . "rss.xml";
 	if ($blog->{rss_items_int}) {
-		my $rss = $ROBJ->call_and_chain( $self->{rss_skeleton}, {
+		my $rss = $ROBJ->call( $self->{rss_skeleton}, {
 			no_comment => $blog->{rss_no_comment},
 			items => $blog->{rss_items_int}
 		});
@@ -1159,7 +1159,7 @@ sub generate_rss {
 	#-----------------------------------------------
 	my $file2 = $self->{blogpub_dir} . "rss2.xml";
 	if ( $blog->{rss2_tag} ne '' ) {
-		my $rss = $ROBJ->call_and_chain( $self->{rss_skeleton}, {
+		my $rss = $ROBJ->call( $self->{rss_skeleton}, {
 			no_comment => $blog->{rss2_no_comment},
 			tag   => $blog->{rss2_tag},
 			title => $blog->{rss2_title},

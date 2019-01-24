@@ -27,7 +27,7 @@ sub {
 		$self->post_process_article($_);
 	}
 
-	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/recent_article', $name, $ary));
+	$self->update_plgset($name, 'html', $ROBJ->call('_format/recent_article', $name, $ary));
 	return 0;
 }
 

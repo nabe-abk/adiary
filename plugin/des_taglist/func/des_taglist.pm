@@ -32,7 +32,7 @@ sub {
 	my $notag_arts = @$ary;
 
 	# スケルトンの実行と保存
-	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/taglist', $name, $tree, $notag_arts));
+	$self->update_plgset($name, 'html', $ROBJ->call('_format/taglist', $name, $tree, $notag_arts));
 
 	return 0;
 }

@@ -81,7 +81,7 @@ sub update_html {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $out = $ROBJ->call_and_chain( $self->{output_skelton} );
+	my $out = $ROBJ->call( $self->{output_skelton} );
 	$ROBJ->fwrite_lines( $self->{output_file}, $out );
 	return 0;
 }
@@ -93,7 +93,7 @@ sub update_adiaryDB {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $out = $ROBJ->call_and_chain( $self->{output_skelton} );
+	my $out = $ROBJ->call( $self->{output_skelton} );
 	if ($self->{outputDB_charset}) {
 		my $jcode = $ROBJ->load_codepm();
 		$jcode->from_to(\$out, $ROBJ->{System_coding}, $self->{outputDB_charset});

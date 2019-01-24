@@ -1317,7 +1317,7 @@ sub generate_module_css {
 
 	# 動的生成CSSがある？
 	my $id = $self->plugin_name_id( $name );
-	return $ROBJ->chain_array( $ROBJ->_call($css, $name, $id) );
+	return $ROBJ->_call($css, $name, $id);
 }
 
 #------------------------------------------------------------------------------

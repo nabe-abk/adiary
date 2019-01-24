@@ -143,7 +143,7 @@ $mop->{generate_calendar} = sub {
 	}
 	push(@lines, "</tr>\n");
 
-	return \@lines;
+	return join('', @lines);
 };
 
 #------------------------------------------------------------------------------

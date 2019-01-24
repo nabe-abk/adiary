@@ -20,7 +20,7 @@ sub {
 	}
 
 	# generate XML
-	my $xml  = $ROBJ->call_and_chain('_format/sitemap', $ary);
+	my $xml  = $ROBJ->call('_format/sitemap', $ary);
 
 	# sitemap.xml
 	my $file = $self->{blogpub_dir} . 'sitemap.xml';

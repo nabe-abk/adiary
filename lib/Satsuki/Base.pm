@@ -1,11 +1,11 @@
 use strict;
 #------------------------------------------------------------------------------
 # Base system functions for satsuki system
-#						Copyright(C)2005-2018 nabe@abk
+#						Copyright(C)2005-2019 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.34';
+our $VERSION = '2.40';
 our $RELOAD;
 my %StatCache;
 #------------------------------------------------------------------------------
@@ -344,14 +344,14 @@ sub execute {
 	#------------------------------------------------------------
 	# ○executor（本体）
 	#------------------------------------------------------------
-	my @output;
+	my $output='';
 	my $line;
 	local($self->{Is_function});
 	{
 		## $self->{Timer}->start($self->{__src_file});
 		my $v_ref;
 		$self->{Return} = undef;
-		eval{ $self->{Return} = &$subroutine(\@output, $self, $line, $v_ref); };
+		eval{ $self->{Return} = &$subroutine(\$output, $self, $line, $v_ref); };
 		$v_ref && ($self->{v} = $$v_ref);			# vを書き戻す
 		if ($ENV{SatsukiExit}) { die("exit($self->{Exit})"); }	# exit代わりのdie
 		## ($self->{"times"} ||= {})->{"$self->{__src_file}"} = $self->{Timer}->stop($self->{__src_file});
@@ -380,7 +380,7 @@ sub execute {
 		# braek level 2 以上のとき、ネストレベル 0 まで break (super break)
 		if ($break_level >1 && $self->{Nest_count} > 0) { last; }
 		# 負数は現在までの処理結果を破棄
-		if ($break < 0) { @output = (); }
+		if ($break < 0) { $output = ''; }
 		$self->{Break} = 0;
 		# jump or call ?
 		if ($self->{Jump_file}) {		# jump 処理
@@ -389,17 +389,17 @@ sub execute {
 				my ($jump_file, $jump_skel) = ($self->{Jump_file}, $self->{Jump_skeleton});
 				undef $self->{Jump_file};
 				undef $self->{Jump_skeleton};
-				push(@output, $self->__call($jump_file, $jump_skel, @{ $self->{Jump_argv} }));
+				$output = $self->__call($jump_file, $jump_skel, @{ $self->{Jump_argv} });
 			} else {
 				my $err = $self->error_from('', "[executor] Too many jump (max %d)", $self->{Nest_max});
-				push(@output, "<h1>$err</h1>");
+				$output .= "<h1>$err</h1>";
 			}
 		}
 		last;
 	}
 
 	# functionとしてreturn値を取る？
-	return $self->{Is_function} ? $self->{Return} : ($#output==0 ? $output[0] : \@output);
+	return $self->{Is_function} ? $self->{Return} : $output;
 }
 
 ###############################################################################
@@ -765,8 +765,7 @@ sub set_charset {
 #------------------------------------------------------------------------------
 sub output {
 	my $self  = shift;
-	my $ary   = shift;
-	$ary = ref($ary) ? $ary : [ $ary ];
+	my $body  = shift;
 	my $ctype   = shift || $self->{Content_type};
 	my $charset = shift || $self->{Charset};
 
@@ -775,8 +774,6 @@ sub output {
 		$self->{Status}=304;
 	}
 
-	my $body;
-	$self->_chain_array($ary, \$body);
 	my $html = $self->http_headers($ctype, $charset, length($body));
 	my $head = $ENV{REQUEST_METHOD} eq 'HEAD';
 	if (!$head && $self->{Status} != 304) {
@@ -830,27 +827,15 @@ HEADER
 }
 
 #------------------------------------------------------------------------------
-# ●入れ子配列の結合
+# ●互換性のためのコード / call結果の連結
 #------------------------------------------------------------------------------
 sub chain_array {
-	my ($self, $ary, $str) = @_;
-	my $out = ref($str) ? $str : \$str;
-	$self->_chain_array($ary, $out);
-	return $str;
-}
-sub _chain_array {
-	my ($self, $ary, $c) = @_;
-	foreach(@$ary) {
-		if (ref($_) eq 'ARRAY') {
-			$self->_chain_array($_, $c);
-			next;
-		}
-		$$c .= $_;
-	}
+	my ($self, $ary) = @_;
+	return $ary;
 }
 sub call_and_chain {
 	my $self = shift;
-	return $self->chain_array($self->call(@_));
+	return $self->call(@_);
 }
 
 #------------------------------------------------------------------------------

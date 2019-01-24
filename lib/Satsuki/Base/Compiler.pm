@@ -1,11 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # skeleton parser / 構文解析コンパイラ
-#						(C)2006-2018 nabe@abk
+#						(C)2006-2019 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.76';
+our $VERSION = '1.80';
 #(簡易履歴)
+# 2019/01 Ver1.80  出力先を配列からスカラに変更
 # 2019/01 Ver1.76  match() の修正
 # 2018/12 Ver1.75  hash(), {a=>b} の仕様変更（{}は元に戻す）
 # 2018/10 Ver1.74  arrayq(), flagq(), hashq()のアップデート, ifset_header類追加
@@ -1106,7 +1107,7 @@ sub poland_to_eval {
 						if ($y eq 'if' && $last_op && $#ary == 1 && $cmd_flag eq '@') {
 							$x = undef;
 							$line_info |= $l_no_change;
-							$x = "($ary[0] && push(\@\$O, $ary[1]));";
+							$x = "($ary[0] && (\$\$O .= ($ary[1])));";
 							$arc_last = 1;
 
 						} elsif ($y eq 'if' && $ary[1] eq '') {
@@ -1145,7 +1146,7 @@ sub poland_to_eval {
 								$x = "\$R->$func($x ? $ary[0] : $ary[1])";
 							} elsif ($last_op && $cmd_flag eq '@') {
 								$line_info |= $l_no_change;
-								$x = "($x && push(\@\$O, \$R->$func(" . join(',', @ary) . ")));";
+								$x = "($x && (\$\$O .= \$R->$func(" . join(',', @ary) . ")));";
 								$arc_last = 1;
 							} else {
 								$x = "($x && \$R->$func(" . join(',', @ary) . "))";
@@ -1943,7 +1944,7 @@ SUB_START
 				# xxx.yy.zz 形式のデータに置換
 				# xxx.yy.zz 形式で xx がローカル変数
 				# コマンド外文字列
-				push(@sub_array, $indent . "push(\@\$O, $cmd);\n");
+				push(@sub_array, $indent . "\$\$O .= $cmd;\n");
 				next;
 			}
 			#--------------------------
@@ -1963,8 +1964,8 @@ SUB_START
 			}
 			# 置換処理
 			if (!$is_function && $info & $l_replace) {	# 置換
-				if ($cmd =~ /;,/) { $cmd = "push(\@\$O, do{ $cmd });"; }
-				             else { $cmd = "push(\@\$O, $cmd);"; }
+				if ($cmd =~ /;,/) { $cmd = "\$\$O .= do{ $cmd };"; }
+				             else { $cmd = "\$\$O .= $cmd;"; }
 			} else {
 				$cmd .= ';';
 			}

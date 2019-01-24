@@ -60,7 +60,7 @@ sub make_contents_tree {
 	}
 
 	# スケルトンの実行
-	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/ddmenu', $name, $tree));
+	$self->update_plgset($name, 'html', $ROBJ->call('_format/ddmenu', $name, $tree));
 	return 0;
 }
 
@@ -92,7 +92,7 @@ sub make_tags_tree {
 	}
 
 	# スケルトンの実行
-	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/ddmenu', $name, $tree, 'tag-mode-flag'));
+	$self->update_plgset($name, 'html', $ROBJ->call('_format/ddmenu', $name, $tree, 'tag-mode-flag'));
 	return 0;
 }
 

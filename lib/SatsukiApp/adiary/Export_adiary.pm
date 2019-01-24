@@ -97,11 +97,10 @@ sub export {
 		#-------------------------------------------------------------
 		# 出力
 		#-------------------------------------------------------------
-		my $str = $ROBJ->chain_array( $day );
 		if ($jcode) {
-			$jcode->from_to(\$str, $system_coding, $output_coding);
+			$jcode->from_to(\$day, $system_coding, $output_coding);
 		}
-		print $str;
+		print $day;
 	}
 	return 0;
 }

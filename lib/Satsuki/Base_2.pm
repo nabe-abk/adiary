@@ -103,12 +103,12 @@ sub call_dir {
 	# ソート
 	my @files = sort(keys(%filehash));
 	my $ext_len = length($ext);
-	my @ary;
+	my $out = '';
 	foreach(@files) {
 		my $file = $dir . substr($_, 0, length($_) - $ext_len);
-		push(@ary, $self->call( $file, @_ ));
+		$out .= $self->call( $file, @_ );
 	}
-	return \@ary;
+	return $out;
 }
 
 ###############################################################################

@@ -187,7 +187,6 @@ sub export {
 
 		# 外フレームの処理
 		$out = $ROBJ->call( $aobj->{frame_skeleton}, $out, $option );
-		$out = $ROBJ->chain_array($out);
 
 		#-------------------------------------------------------------
 		# URL書き換え

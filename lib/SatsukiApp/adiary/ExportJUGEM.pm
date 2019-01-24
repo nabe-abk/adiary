@@ -35,7 +35,7 @@ sub export {
 
 	# ヘッダ出力
 	{
-		my $header = $ROBJ->chain_array( $option->{header} );
+		my $header = $option->{header};
 		if ($jcode) {
 			$jcode->from_to(\$header, $system_coding, $output_coding);
 		}
@@ -91,11 +91,10 @@ sub export {
 		#-------------------------------------------------------------
 		# 出力
 		#-------------------------------------------------------------
-		my $str = $ROBJ->chain_array( $day );
 		if ($jcode) {
-			$jcode->from_to(\$str, $system_coding, $output_coding);
+			$jcode->from_to(\$day, $system_coding, $output_coding);
 		}
-		print $str;
+		print $day;
 	}
 	return 0;
 }

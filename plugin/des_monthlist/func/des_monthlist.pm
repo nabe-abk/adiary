@@ -30,7 +30,7 @@ sub {
 	} @yyyymm;
 
 	# スケルトンの実行
-	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/month_list', $name, \@yyyymm));
+	$self->update_plgset($name, 'html', $ROBJ->call('_format/month_list', $name, \@yyyymm));
 	return 0;
 }
 

@@ -35,7 +35,7 @@ sub {
 	}
 
 	# スケルトンの実行
-	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/contents_list', $name, $tree));
+	$self->update_plgset($name, 'html', $ROBJ->call('_format/contents_list', $name, $tree));
 	return 0;
 }
 

@@ -82,11 +82,8 @@ sub _main {
 		# フレームに埋め込む
 		my $out = $ROBJ->call( $frame, $text );
 
-		# 連結
-		my $str = $ROBJ->chain_array($out);
-
 		# 書き出し
-		$ROBJ->fwrite_lines( $file, $str );
+		$ROBJ->fwrite_lines( $file, $out );
 	}
 }
 

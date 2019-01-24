@@ -25,7 +25,7 @@ sub {
 	}
 
 	# スケルトンの実行と保存
-	$self->update_plgset($name, 'html', $ROBJ->call_and_chain('_format/recent_comment', $name, $ary));
+	$self->update_plgset($name, 'html', $ROBJ->call('_format/recent_comment', $name, $ary));
 
 	return 0;
 }

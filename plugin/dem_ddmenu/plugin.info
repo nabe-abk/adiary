@@ -7,7 +7,7 @@ author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=3.09
+adiary_version=3.21
 module_type=main,header
 load_module_html_in_edit=1
 
