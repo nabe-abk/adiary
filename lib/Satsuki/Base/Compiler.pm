@@ -93,6 +93,20 @@ sub compile {
 # ■演算子データ部
 ###############################################################################
 #------------------------------------------------------------------------------
+# ●変数定数
+#------------------------------------------------------------------------------
+my $VAR_OUT  = '$$O';
+my $VAR_LNUM = '$$L';
+my $SUB_HEAD = <<'SUB_HEAD';
+sub {
+	my $R = shift;
+	my $O = shift;
+	my $L = shift;
+	my $v = $R->{v};
+	$_[0] = \$v;
+SUB_HEAD
+
+#------------------------------------------------------------------------------
 # ●プラグマ定数
 #------------------------------------------------------------------------------
 my $p_ctab2blank     = 0x0001;	# コマンド手前がタブのみの場合、それを除去する
@@ -1107,7 +1121,7 @@ sub poland_to_eval {
 						if ($y eq 'if' && $last_op && $#ary == 1 && $cmd_flag eq '@') {
 							$x = undef;
 							$line_info |= $l_no_change;
-							$x = "($ary[0] && (\$\$O .= ($ary[1])));";
+							$x = "($ary[0] && ($VAR_OUT .= ($ary[1])));";
 							$arc_last = 1;
 
 						} elsif ($y eq 'if' && $ary[1] eq '') {
@@ -1146,7 +1160,7 @@ sub poland_to_eval {
 								$x = "\$R->$func($x ? $ary[0] : $ary[1])";
 							} elsif ($last_op && $cmd_flag eq '@') {
 								$line_info |= $l_no_change;
-								$x = "($x && (\$\$O .= \$R->$func(" . join(',', @ary) . ")));";
+								$x = "($x && ($VAR_OUT .= \$R->$func(" . join(',', @ary) . ")));";
 								$arc_last = 1;
 							} else {
 								$x = "($x && \$R->$func(" . join(',', @ary) . "))";
@@ -1918,19 +1932,12 @@ sub array2sub {
 	my %Builtin_funcs_cache;
 	my $is_main = 1;
 	my $is_function = $pragma & $p_is_function;
-	my $subhead = <<'SUB_START';
-sub {
-	my $O = shift;
-	my $R = shift;
-	my $v = $R->{v};
-	$_[1] = \$v;
-SUB_START
 	foreach my $ary (@$arybuf) {
 		my @sub_array;
 		my $base_indent = "\t";
 		if (! $is_main) {
 			$base_indent = "\t\t";
-			push(@sub_array, $subhead);
+			push(@sub_array, $SUB_HEAD);
 			$sub_array[$#sub_array] =~ s/\n\t/\n\t\t/g;
 		}
 		# indent 処理
@@ -1944,7 +1951,7 @@ SUB_START
 				# xxx.yy.zz 形式のデータに置換
 				# xxx.yy.zz 形式で xx がローカル変数
 				# コマンド外文字列
-				push(@sub_array, $indent . "\$\$O .= $cmd;\n");
+				push(@sub_array, $indent . "$VAR_OUT .= $cmd;\n");
 				next;
 			}
 			#--------------------------
@@ -1964,14 +1971,14 @@ SUB_START
 			}
 			# 置換処理
 			if (!$is_function && $info & $l_replace) {	# 置換
-				if ($cmd =~ /;,/) { $cmd = "\$\$O .= do{ $cmd };"; }
-				             else { $cmd = "\$\$O .= $cmd;"; }
+				if ($cmd =~ /;,/) { $cmd = "$VAR_OUT .= do{ $cmd };"; }
+				             else { $cmd = "$VAR_OUT .= $cmd;"; }
 			} else {
 				$cmd .= ';';
 			}
 
 			# 行番号が必要？（エラーが起こらない行では不要）
-			if ($info & $l_line_number) { $cmd  = "\$_[0]=$lnum; " . $cmd; }
+			if ($info & $l_line_number) { $cmd  = "$VAR_LNUM=$lnum; " . $cmd; }
 			# v の値をロード
 			if ($info & $l_v_load)      { $cmd .= " \$v=\$R->{v};"; }
 			# break flag を確認？
@@ -2010,7 +2017,7 @@ SUB_START
 		# 関数処理ならば、それを Base.pm に通知する
 		$append .= "\t\$R->{Is_function}=1;\n";
 	}
-	return [$subhead . $append . $subs . $main];
+	return [$SUB_HEAD . $append . $subs . $main];
 }
 
 #-----------------------------------------------------------

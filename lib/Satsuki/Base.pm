@@ -351,7 +351,7 @@ sub execute {
 		## $self->{Timer}->start($self->{__src_file});
 		my $v_ref;
 		$self->{Return} = undef;
-		eval{ $self->{Return} = &$subroutine(\$output, $self, $line, $v_ref); };
+		eval{ $self->{Return} = &$subroutine($self, \$output, \$line, $v_ref); };
 		$v_ref && ($self->{v} = $$v_ref);			# vを書き戻す
 		if ($ENV{SatsukiExit}) { die("exit($self->{Exit})"); }	# exit代わりのdie
 		## ($self->{"times"} ||= {})->{"$self->{__src_file}"} = $self->{Timer}->stop($self->{__src_file});
