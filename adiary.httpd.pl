@@ -119,6 +119,10 @@ my %JanFeb2Mon = (
 			if ($k2 eq 'k1') { $key=$kx; $KEEPALIVE=1; next; }
 			if ($k  eq 'k')  {           $KEEPALIVE=1; next; }
 
+			# keep-alive
+			if ($k2 eq 't0') { $key=$kx; $ENV{SatsukiTimer}=0; next; }
+			if ($k2 eq 't1') { $key=$kx; $ENV{SatsukiTimer}=1; next; }
+
 			# silent
 			if ($k2 eq 'sc') { $key=$kx; $SILENT_CGI  = $SILENT_OTHER = 1; next; }
 			if ($k2 eq 'sf') { $key=$kx; $SILENT_FILE = $SILENT_OTHER = 1; next; }
@@ -182,6 +186,8 @@ Available options are:
   -i		use threads (ithreads)
   -k, -k1	connection keep-alive enable (default)
   -k0		connection keep-alive disable
+  -t0		set ENV SatsukiTimer=0
+  -t1		set ENV SatsukiTimer=1
   -s		silent mode
   -sc		silent mode for cgi  access
   -sf		silent mode for file access
