@@ -361,8 +361,14 @@ ul.hatena-section {
 	padding-bottom:		3px;
 	line-height:		130%;
 }
-ul.hatena-section li:last-child {
+.hatena-module:not(.side-contents-list) ul.hatena-section ul li:first-child {
+	border-top:		1px solid #e5ebfa;	/* $c=moduleborder */
+	padding-top:		3px;
+}
+.hatena-module:not(.side-contents-list) ul.hatena-section li:last-child {
 	border-bottom:		none;
+	padding-bottom:		0;
+	margin-bottom:		0;
 }
 /* 2段目のリスト */
 ul.hatena-section ul {
