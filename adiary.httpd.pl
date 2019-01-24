@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.01';
+our $VERSION  = '1.02';
 our $SPEC_VER = '1.00';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
-#						Copyright (C)2018 nabe@abk
+#						Copyright (C)2019 nabe@abk
 ###############################################################################
-# Last Update : 2018/12/24
+# Last Update : 2019/01/24
 #
 BEGIN {
 	my $path = $0;
@@ -21,7 +21,6 @@ use threads;		# for ithreads
 use POSIX;		# for waitpid(<pid>, WNOHANG);
 use Cwd;		# for $ENV{DOCUMENT_ROOT}
 use Time::HiRes;	# for ualarm() and generate random string
-use Encode::Locale;	# for get system locale / for Windows
 #------------------------------------------------------------------------------
 # Crypt patch for Windows
 #------------------------------------------------------------------------------
@@ -31,10 +30,6 @@ if (crypt('','$1$') eq '' || crypt('','$5$') eq '' || crypt('','$6$') eq ''){
 		*CORE::GLOBAL::crypt = *Crypt::glibc::crypt;
 	};
 };
-#------------------------------------------------------------------------------
-require Satsuki::Base;
-require Satsuki::AutoReload;
-&Satsuki::AutoReload::save_lib();
 #------------------------------------------------------------------------------
 # pre load modules
 #------------------------------------------------------------------------------
@@ -50,18 +45,26 @@ my $SILENT_OTHER = 0;
 my $OPEN_BROWSER = $IsWindows;
 my $GENERATE_CONF= 1;
 
-my $PORT    = $IsWindows ? 80 : 8888;
-my $ITHREADS= $IsWindows;
-my $TIMEOUT =  3;
-my $DEAMONS = 10;
+my $PORT      = $IsWindows ? 80 : 8888;
+my $ITHREADS  = $IsWindows;
+my $TIMEOUT   =  3;
+my $DEAMONS   = 10;
 my $KEEPALIVE = 1;
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX;	# = 'index.html';
 my $PID;
 my $R_BITS;	# select socket bits
 
-my $SYS_CODE = $Satsuki::SYSTEM_CODING;
-my $FS_CODE  = $IsWindows ? $Encode::Locale::ENCODING_LOCALE : undef;
+my $MAX_CGI_REQUESTS = 10000;
+
+my $SYS_CODE;
+my $FS_CODE;
+#------------------------------------------------------------------------------
+if ($IsWindows) {
+	require Encode::Locale;
+	import  Encode::Locale;
+	$FS_CODE = $Encode::Locale::ENCODING_LOCALE;
+}
 
 #------------------------------------------------------------------------------
 # Web Server data
@@ -101,27 +104,29 @@ my %JanFeb2Mon = (
 		$key = substr($key, 1);
 		while($key ne '') {
 			my $k = substr($key,0,1);
-			my $k2= substr($key,1,2);
-			$key = substr($key,1);
+			my $k2= substr($key,0,2);
+			$key  = substr($key,1);
+			my $kx= substr($key,2);
 
 			if ($k eq 'h') { $help =1; next; }
 			if ($k eq '?') { $help =1; next; }
-			if ($k eq 'i') { $ITHREADS=1; next; }
-			if ($k eq 'f') { $ITHREADS=0; next; }
 			if ($k eq 'n') { $OPEN_BROWSER=0; next; }
+			if ($k eq 'i')                { $ITHREADS=1; next; }
+			if ($k eq 'f' && $k2 ne 'fs') { $ITHREADS=0; next; }
 
 			# keep-alive
-			if ($k eq 'k' && $k2 eq '0') { $key=substr($k,1); $KEEPALIVE=0; next; }
-			if ($k eq 'k' && $k2 eq '1') { $key=substr($k,1); $KEEPALIVE=1; next; }
-			if ($k eq 'k') { $KEEPALIVE   =1; next; }
+			if ($k2 eq 'k0') { $key=$kx; $KEEPALIVE=0; next; }
+			if ($k2 eq 'k1') { $key=$kx; $KEEPALIVE=1; next; }
+			if ($k  eq 'k')  {           $KEEPALIVE=1; next; }
 
 			# silent
-			if ($k eq 's' && $k2 eq 'c') { $key=substr($k,1); $SILENT_CGI  = $SILENT_OTHER = 1; next; }
-			if ($k eq 's' && $k2 eq 'f') { $key=substr($k,1); $SILENT_FILE = $SILENT_OTHER = 1; next; }
-			if ($k eq 's') { $SILENT_CGI = $SILENT_FILE = $SILENT_OTHER = 1; next; }
+			if ($k2 eq 'sc') { $key=$kx; $SILENT_CGI  = $SILENT_OTHER = 1; next; }
+			if ($k2 eq 'sf') { $key=$kx; $SILENT_FILE = $SILENT_OTHER = 1; next; }
+			if ($k  eq 's')  { $SILENT_CGI = $SILENT_FILE = $SILENT_OTHER = 1; next; }
 
 			# arg
-			if (index('ptdmc',$k) < 0) {
+			if ($k2 eq 'fs' || $k2 eq 'mi') { $k=$k2; }
+			if (index('ptdm',$k) < 0 && length($k)==1) {
 				print "Unknown option : -$k\n";
 				exit(-1);
 			}
@@ -136,8 +141,8 @@ my %JanFeb2Mon = (
 				exit(-1);
 			}
 			# string argument
-			if ($k eq 'm') { $MIME_FILE = $val; next; }
-			if ($k eq 'c') { $FS_CODE   = $val; next; }
+			if ($k eq 'mi') { $MIME_FILE = $val; next; }
+			if ($k eq 'fs') { $FS_CODE   = $val; next; }
 
 			# float argument
 			if ($k eq 't') {
@@ -146,18 +151,21 @@ my %JanFeb2Mon = (
 					exit(-1);
 				}
 			} elsif ($val !~ /^\d+$/) {
-				$TIMEOUT = $val + 0;
 				print "Invalid argument: -$k option\n";
 				exit(-1);
 			}
 			if ($k eq 'p') { $PORT    = $val; next; }
 			if ($k eq 't') { $TIMEOUT = $val; next; }
 			if ($k eq 'd') { $DEAMONS = $val; next; }
+			if ($k eq 'm') { $MAX_CGI_REQUESTS = $val; next; }
 			die("program error");
 		}
 	}
-	if ($TIMEOUT < 0.001) { $TIMEOUT=0.001; }
-	if ($DEAMONS < 1)     { $DEAMONS=1;     }
+	if ($TIMEOUT < 0.001)	{ $TIMEOUT=0.001; }
+	if ($DEAMONS < 1) 	{ $DEAMONS=1;     }
+	if ($MAX_CGI_REQUESTS == 0)		{ $MAX_CGI_REQUESTS=10000000; }
+	if ($MAX_CGI_REQUESTS > 10000000)	{ $MAX_CGI_REQUESTS=10000000; }
+	if ($MAX_CGI_REQUESTS <      100)	{ $MAX_CGI_REQUESTS=100; }
 
 	if ($help) {
 		my $n = $IsWindows ? "  -n\t\tdo not open web browser\n" : '';
@@ -166,9 +174,10 @@ Usage: $0 [options]
 Available options are:
   -p port	bind port (default:8888, windows:80)
   -t timeout	connection timeout second (default:3, min:0.001)
-  -m mime_file	load mime types file name (default: /etc/mime.types)
-  -d deamons	start deamons (default:10, min:1)
-  -c fs_code	set file system's code (charset)
+  -d daemons	start daemons (default:10, min:1)
+  -m max_req	maximum cgi requests per daemon (default:10000, min:100)
+  -mi mime_file	load mime types file name (default: /etc/mime.types)
+  -fs fs_code	set file system's code (charset)
   -f		use fork()
   -i		use threads (ithreads)
   -k, -k1	connection keep-alive enable (default)
@@ -264,7 +273,8 @@ my $srv;
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
 }
 print	  "\tListen $PORT port, Timeout $TIMEOUT sec, Keep-Alive " . ($KEEPALIVE ? 'on' : 'off') . "\n"
-	. "\tStart up deamon: $DEAMONS " . ($ITHREADS ? 'threads' : 'process') . "\n";
+	. "\tStart up daemon: $DEAMONS " . ($ITHREADS ? 'threads' : 'process')
+	. ", Max cgi requests: $MAX_CGI_REQUESTS\n";
 
 #------------------------------------------------------------------------------
 # load mime types
@@ -340,16 +350,20 @@ if ($GENERATE_CONF) {
 # main routine
 ###############################################################################
 {
+	$SIG{USR1} = sub {};	# wake up for main process
+
 	# prefork / create_threads
 	for(my $i=0; $i<$DEAMONS; $i++) {
-		&fork_or_crate_thread(\&deamon_main, $srv);
+		&fork_or_crate_thread(\&daemon_main, $srv);
 	}
 
 	# clear defunct process on fork()
-	local $SIG{CHLD};
+	my $exit_daemons = 0;
 	if (!$ITHREADS) {
 		$SIG{CHLD} = sub {
-			while(waitpid(-1, WNOHANG) > 0) {};
+			while(waitpid(-1, WNOHANG) > 0) {
+				$exit_daemons++;
+			};
 		};
 	}
 
@@ -360,24 +374,44 @@ if ($GENERATE_CONF) {
 
 	# main thread
 	while(1) {
-		sleep(1000);
+		sleep(2);
+		$exit_daemons = $ITHREADS ? ($DEAMONS - $#{[ threads->list() ]} - 1) : $exit_daemons;
+		if (!$exit_daemons) { next; }
+
+		# Restart dead daemons
+		## print STDERR "Restart daemons $exit_daemons\n";
+		my $x = $exit_daemons;
+		for(my $i=0; $i<$x; $i++) {
+			&fork_or_crate_thread(\&daemon_main, $srv);
+		}
+		$exit_daemons -= $x;
 	}
 }
 close($srv);
 exit(0);
-
-sub deamon_main {
+#------------------------------------------------------------------------------
+my $CGI_REQUESTS=0;
+sub daemon_main {
 	my $srv = shift;
 	my %bak = %ENV;
+	my $cgi = 0;
 
 	$PID = $ITHREADS ? &thread_id() : $$;
 	$IsWindows && sleep(1);		# accept() blocking main thread on Windows
+
+	&preload_satsuki_lib();
 
 	while(1) {
 		my $addr = accept(my $sock, $srv);
 		if (!$addr) { next; }
 
-		&accept_client($sock, $addr, \%bak);
+		&accept_client($sock, $addr, \%bak);	# $r==-1 if cgi_reload
+		if ($MAX_CGI_REQUESTS<$CGI_REQUESTS) { last; }
+	}
+
+	if ($ITHREADS) {
+		threads->detach();
+		if (!$IsWindows) { kill('SIGUSR1', $$); }
 	}
 }
 
@@ -389,7 +423,6 @@ sub fork_or_crate_thread {
 	if ($ITHREADS) {
 		my $thr = threads->create($func, @_);
 		if (!defined $thr) { die "threads->create fail!"; }
-		$thr->detach();
 		return $thr;
 	}
 	# fork
@@ -553,6 +586,7 @@ sub parse_request {
 	$ENV{PATH_INFO} = $path;
 
 	$state->{type} = 'cgi ';
+	$CGI_REQUESTS++;
 	&exec_cgi($state);
 
 	return $state;
@@ -601,6 +635,7 @@ sub try_file_read {
 	#--------------------------------------------------
 	my $_file = $file;
 	if ($FS_CODE && $FS_CODE ne $SYS_CODE) {
+		
 		Encode::from_to($_file, $SYS_CODE, $FS_CODE);
 	}
 	if (!-e $_file) { return; }
@@ -657,9 +692,15 @@ sub try_file_read {
 ###############################################################################
 # Exec CGI
 ###############################################################################
-BEGIN {
+sub preload_satsuki_lib {
+	require Satsuki::Base;
+	require Satsuki::AutoReload;
+	&Satsuki::AutoReload::save_lib();
 	if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }
+
+	$SYS_CODE = $Satsuki::SYSTEM_CODING;
 }
+
 sub exec_cgi {
 	my $state = shift;
 	my $cache = shift || 0;
@@ -686,6 +727,7 @@ sub exec_cgi {
 			$Satsuki::Base::RELOAD = 1;	# if Base.pm compile error, force reload
 			require Satsuki::Base;
 			$Satsuki::Base::RELOAD = 0;
+			$CGI_REQUESTS = 0x70000000;
 		}
 
 		#--------------------------------------------------

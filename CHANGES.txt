@@ -6,10 +6,12 @@
 -起動時のパス解析を更新しました。
 -静的出力（エクスポート）機能を更新しました。
 -テーマ選択画面を少し見やすくしました。
+-【httpd/EXE】max_request設定を追加し、デーモンの自動再起動を内蔵しました。((長期運用したときメモリリークしないための措置です))
+-【httpd/EXE】引数を若干変更しました。
+-【httpd/EXE】adiary.conf.cgiが存在しない時、自動生成するようにしました。
 -【plugin】JavaScriptプラグインを更新。
 -【plugin】フリー入力プラグイン（メイン部）に表示条件を選択する機能が付きました。
 -【plugin】メール通知プラグイン。sendmailコマンドを止め、SMTPで送信するようになりました。
--【Windows/httpd】adiary.conf.cgiが存在しない時、自動生成するようにしました。
 -【Fix】JavaScript強制更新用queryが一部正しくない。
 -【Fix】Perl5.8で動かない。（[https://adiary.adiary.jp/0405#c3:Thanks to 漁]）
 -【Fix/デザイン編集】単一記事表示の編集リンクが移動できてしまう。
