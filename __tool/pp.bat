@@ -1,4 +1,4 @@
-for /f "usebackq tokens=*" %%i in (`perl -e "require Image::Magick;my $p=$INC{'Image/Magick.pm'}; $p =~ s|/[^/]*$||; print $p"`) do @set MAGICK_PATH=%%i
+for /f "usebackq tokens=*" %%i in (`perl -e "use Image::Magick;my $p=$INC{'Image/Magick.pm'}; $p =~ s|/[^/]*$||; print $p"`) do @set MAGICK_PATH=%%i
 @rem
 pp @__tool/pp.opt -a %MAGICK_PATH%;site/lib/Image
 @rem
