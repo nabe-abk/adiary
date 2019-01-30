@@ -36,6 +36,7 @@ sub new {
 	$self->{satsuki_syntax_h} = 1;	# syntaxハイライトをsatsuki記法に準拠させる
 	$self->{satsuki_seemore}  = 1;	# 「続きを読む」記法
 	$self->{satsuki_footnote} = 0;	# (())による注釈
+	$self->{qiita_math}       = 1;	# Qiitaのmathブロック記法
 
 	return $self;
 }
@@ -209,6 +210,22 @@ sub parse_special_block {
 			}
 			push(@ary, $x . ($endmark ? $endmark : "\x01"));
 			$newblock=1;
+			next;
+		}
+
+		#----------------------------------------------
+		# [Qiita] MathJax
+		#----------------------------------------------
+		if ($self->{qiita_math} && $x =~ /^```math\s*$/) {
+			my @code;
+			$x = shift(@$lines);
+			while(@$lines && $x !~ /^```\s*$/) {
+				push(@code, "$x\x02");
+				$x = shift(@$lines);
+			}
+			push(@ary, "<div class=\"math\">\x02");
+			push(@ary, @code);
+			push(@ary, "</div>\x02");
 			next;
 		}
 
