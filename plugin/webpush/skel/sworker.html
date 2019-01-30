@@ -4,4 +4,4 @@
 <$v.frame_skeleton=''>
 <$set_content_type('application/javascript')>
 <$set_lastmodified( get_lastmodified(file) )>
-<@fread_lines_cached(file)>
+<@join('', fread_lines_cached(file))>
