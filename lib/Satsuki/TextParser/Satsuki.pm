@@ -1,13 +1,13 @@
 use strict;
 #------------------------------------------------------------------------------
 # システム標準パーサー／Satsukiパーサー
-#                                             (C)2006-2018 nabe / nabe@abk
+#                                             (C)2006-2019 nabe / nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::TextParser::Satsuki;
 # ※注意。パッケージ名変更時は78行目付近も修正のこと！
 
 use Satsuki::AutoLoader;
-our $VERSION = '2.21';
+our $VERSION = '2.22';
 #------------------------------------------------------------------------------
 # \x00-\x03は内部で使用するため、処理の過程で除去されます。
 #	\x00 文字列の一時退避用
@@ -1811,7 +1811,6 @@ sub paragraph_processing {
 	my $p_class  = $self->{p_class};
 	my $ls_mode  = $self->{ls_mode};		# 行間処理モード
 	my $indent   = $self->{indent};
-	$self->{footnote_no} = 0;
 
 	# p class処理
 	$p_class =~ s/[^\w\-]//g;
@@ -1821,10 +1820,12 @@ sub paragraph_processing {
 	my ($prev, $next, $this, $prev_f, $this_f, $next_f);
 	push(@$lines, "\x01");
 
-	my @ary;
+	# 注釈準備
 	my @footnote;
-	$self->{footnote} = \@footnote;
-	$self->{note_buf} = {};
+	my %note_hash;
+	$self->init_footnote();
+
+	my @ary;
 	my $in_paragraph  = 0;
 	foreach(@$lines) {
 		# モジュールのみの行を段落処理しないでdivブロック化する
@@ -1852,8 +1853,7 @@ sub paragraph_processing {
 
 		# Section(H3) の終わり
 		if (ref($this) && $this->{section_end}) {
-			$self->output_footnote(\@ary, \@footnote);
-			@footnote = ();
+			$self->output_footnote(\@ary, \@footnote, \%note_hash);
 			next;
 		}
 		# 空行？
@@ -1868,7 +1868,7 @@ sub paragraph_processing {
 			next;
 		}
 		# 注釈処理 ((xxxx))
-		$this =~ s/\(\((.*?)\)\)/ $self->footnote($1) /eg;
+		$this =~ s/\(\((.*?)\)\)/ $self->footnote($1, \@footnote, \%note_hash) /eg;
 
 		# 段落処理
 		if ($this_f==1) { push(@ary, $this);          next; } # インデントなし
@@ -1914,22 +1914,27 @@ sub acsii_line_chain {
 #--------------------------------------------------------------------
 # ○脚注表記
 #--------------------------------------------------------------------
+sub init_footnote {
+	my $self = shift;
+	$self->{footnote_no} = 0;
+}
 sub footnote {
-	my ($self, $note) = @_;
-	my $footnote = $self->{footnote};
+	my $self = shift;
+	my $note = shift;
+	my $buf  = shift;
+	my $hash = shift || {};
 
 	# 同じ内容は、同じfootnoteを参照する
 	my $number;
 	my $name;
 	my $name_base = $self->{footnote_basename} || "$self->{unique_linkname}n";
-	my $note_buf = $self->{note_buf};
-	if (exists $note_buf->{$note}) {	# 同じ内容注釈がある
-		$number = $note_buf->{$note};
-		$name     = "$name_base$number";
+	if (exists $hash->{$note}) {	# 同じ内容注釈がある
+		$number = $hash->{$note};
+		$name   = "$name_base$number";
 	} else {
-		$note_buf->{$note} = $number = (++ $self->{footnote_no});
-		$name     = "$name_base$number";
-		push(@$footnote, <<HTML);
+		$hash->{$note} = $number = (++ $self->{footnote_no});
+		$name   = "$name_base$number";
+		push(@$buf, <<HTML);
 	<p class="footnote"><a href="$self->{thisurl}#fnt-$name" id="fn-$name">*$number</a> : $note</p>
 HTML
 	}
@@ -1943,15 +1948,20 @@ HTML
 # ○脚注表記の出力
 #--------------------------------------------------------------------
 sub output_footnote {
-	my ($self, $out, $footnote) = @_;
+	my $self = shift;
+	my $out  = shift;
+	my $buf  = shift;
+	my $hash = shift || {};
 	my $indent = $self->{indent};
-	if (@$footnote) {
+	if (@$buf) {
 		push(@$out, "$indent<footer>\n");
-		foreach(@$footnote) {
+		foreach(@$buf) {
 			push(@$out, "$indent$_");
 		}
 		push(@$out, "$indent</footer>\n");
 	}
+	@$buf  = ();
+	%$hash = ();
 }
 
 ###############################################################################
