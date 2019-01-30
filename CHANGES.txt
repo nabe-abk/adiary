@@ -21,6 +21,7 @@
 -【Fix】JavaScript強制更新用queryが一部正しくない。
 -【Fix】Perl5.8で動かない。（[https://adiary.adiary.jp/0405#c3:Thanks to 漁]）
 -【Fix/デザイン編集】単一記事表示の編集リンクが移動できてしまう。
+-【Fix/記法】gist/githubのソース貼り付けが動作していない。
 -【Fix/Markdown】コメントのみの行を、行処理してしまう。
 -他
 

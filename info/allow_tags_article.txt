@@ -174,13 +174,13 @@ _module_start
 <iframe class="niconico nico-commu" style="width:312px; height:176px" frameborder="0" scrolling="no" src="http://ext.nicovideo.jp/thumb_community/${cid}"></iframe>
 
 #------------------------------------------------------------------------------
-# github/gist表示モジュール
+# github/gist表示モジュール  【注】async/deferでは動作しない!!
 #------------------------------------------------------------------------------
 *gist
-<script async src="https://gist.github.com${path}.js"></script>
+<script src="https://gist.github.com${path}.js"></script>
 
 *gist-it
-<script async src="https://gist-it.appspot.com/github${path}"></script>
+<script src="https://gist-it.appspot.com/github${path}"></script>
 
 #------------------------------------------------------------------------------
 # slideshare モジュール
