@@ -988,7 +988,7 @@ sub _loadpm {
 		*{"$pm\::DESTROY"} = \&DESTROY;
 	}
 	my $obj = $pm->new($self, @_);
-	if (substr($pm,0,7) eq 'Satsuki') {
+	if ($obj && substr($pm,0,7) eq 'Satsuki') {
 		push(@{$self->{Loadpm_array}}, $obj);
 	}
 	return $obj;
