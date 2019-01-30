@@ -224,6 +224,8 @@ sub parse_special_block {
 				push(@code, "$x\x02");
 				$x = shift(@$lines);
 			}
+
+			$self->tag_escape($lang, $file);
 			my $class='';
 			if ($self->{satsuki_syntax_h}) {	# [S] Satsuki記法準拠
 				if ($lang ne '') {
@@ -231,8 +233,11 @@ sub parse_special_block {
 				}
 				$class = " class=\"syntax-highlight$class\"";
 			}
+			if ($file ne '') {
+				$file = " title=\"$file\"";
+			}
 			my $first = shift(@code);
-			push(@ary, "<div class=\"highlight\"><pre$class>$first");
+			push(@ary, "<div class=\"highlight\"><pre$class$file>$first");
 			push(@ary, @code);
 			push(@ary, "</pre></div>\x02");
 			next;
