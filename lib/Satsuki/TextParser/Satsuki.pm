@@ -468,7 +468,7 @@ sub restore_unique_link_name {
 sub block_parser {
 	my ($self, $lines) = @_;
 	my $st = {		# ブロックステータス
-		start  =>undef, # ブロック開始判定（正規表現）
+		start  =>undef, # ブロック開始判定（文字列 or 関数）
 		end    => '',	# ブロック終了タグ
 		tag    => '',	# ブロックタグ名
 		class  => '',	# ブロックタグのclass
@@ -530,6 +530,19 @@ push(@Blocks, {
 push(@Blocks, {
 	start  => '>|?|',
 	end    => '||<',
+	tag    => 'pre',
+	class  => 'syntax-highlight',
+	pre    => 1
+});
+push(@Blocks, {
+	start  => '```math',
+	end    => '```',
+	tag    => 'div',
+	class  => 'math'
+});
+push(@Blocks, {
+	start  => '```',
+	end    => '```',
 	tag    => 'pre',
 	class  => 'syntax-highlight',
 	pre    => 1
@@ -599,7 +612,8 @@ push(@Blocks, {
 	end    => '|<<',
 	tag    => 'figure',
 	htag   => 1,
-	atag   => 1
+	atag   => 1,
+	opt2after => 'figcaption'
 });
 push(@Blocks, {
 	start  => '>>|',
@@ -630,7 +644,8 @@ push(@Blocks, {
 	tag    => 'figure',
 	htag   => 1,
 	atag   => 1,
-	p      => 1
+	p      => 1,
+	opt2after => 'figcaption'
 });
 push(@Blocks, {
 	start  => '>>',
@@ -729,6 +744,7 @@ sub block_parser_main {
 					# ブロック発見
 					my $len = $_->{len} + ($start =~ /\w$/ ? 1 : 0);
 					$opt = substr($line, $len);
+					$opt =~ s/^\s*(.*?)\s*$/$1/;
 					$blk = $_;
 					last;
 				}
@@ -745,9 +761,16 @@ sub block_parser_main {
 			}
 			# ブロック発見
 			if ($blk) {
-				my $tag = $blk->{tag};
-				my $attr='';
+				my $tag   = $blk->{tag};
+				my $after = $blk->{after};
+				if ($blk->{opt2after}) {
+					my $t = $blk->{opt2after};
+					$after = "<$t>$opt</$t>";
+				}
+
+				my $attr  = '';
 				if ($tag eq 'blockquote') {
+					$opt =~ s|^(https?://[^\s\[\]]*)$|[$1]|;
 					if ($opt =~ m|^(\[[^]]*\])(.*)|) {
 						my $tag = $1;
 						$opt = $2;
@@ -755,13 +778,15 @@ sub block_parser_main {
 							$attr = " cite=\"$1\"";
 						}
 						my %b = %$blk; $blk = \%b;
-						$blk->{after} = "<cite>$tag</cite>";
+						$after = "<cite>$tag</cite>";
 					}
 				}
-				if ($tag eq 'figure') {
-					if ($opt =~ /^(.*)caption=\s*(.*?)\s*$/) {
-						$opt = $1;
-						$blk->{after} = "<figcaption>$2</figcaption>";
+				if ($blk->{class} eq 'syntax-highlight') {
+					my ($lang,$file) = split(/[ :]/, $opt, 2);
+					$self->tag_escape($lang, $file);
+					$opt = $lang;	# set to class
+					if ($file) {
+						$attr = " title=\"$file\"";
 					}
 				}
 				# クラス, ID指定
@@ -772,7 +797,7 @@ sub block_parser_main {
 				# ブロックの入れ子
 				$self->block_parser_main($ary, $lines, $blk);
 
-				push(@$ary, "$blk->{after}" . ($tag ? "</$tag>" : '') . "\n$mark");
+				push(@$ary, $after . ($tag ? "</$tag>" : '') . "\n$mark");
 				next;
 			}
 		}
