@@ -155,7 +155,7 @@ sub blog_clear {
 #------------------------------------------------------------------------------
 sub rebuild_blog {
 	my $self = shift;
-	my $logs = shift;
+	my $opt  = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
 	if (! $self->{blog_admin} ) { $ROBJ->message('Operation not permitted'); return 5; }
@@ -173,10 +173,13 @@ sub rebuild_blog {
 		}
 	}
 
-	my $arts = $logs || $DB->select_match("${blogid}_art", '*cols', ['pkey', '_text', 'parser', 'yyyymmdd', 'tm', 'link_key']);
+	my $arts = $opt->{logs} || $DB->select_match("${blogid}_art", '*cols', ['pkey', '_text', 'parser', 'yyyymmdd', 'tm', 'link_key']);
+	my $filter = $opt->{filter};
 	my %update;
 	my $r=0;
 	foreach(@$arts) {
+		if ($filter && !&$filter($_)) { next; }		# rebuild filter
+
 		my $parser_name = $_->{parser};
 		if ($parser_name eq '') { next; }
 
@@ -205,7 +208,7 @@ sub rebuild_blog {
 		my %h;
 		$h{text}   = $text;
 		$h{text_s} = $text_s;	# 短いtext
-		if ($logs) {
+		if ($opt->{logs}) {
 			$h{_text} = $_->{_text};
 		}
 		# 記事概要の生成
@@ -394,7 +397,7 @@ sub remake_theme_custom_css {
 #------------------------------------------------------------------------------
 sub rebuild_all_blogs {
 	my $self = shift;
-	return $self->do_all_blogs('rebuild_blog');
+	return $self->do_all_blogs('rebuild_blog', @_);
 }
 
 #------------------------------------------------------------------------------
@@ -441,9 +444,9 @@ sub do_all_blogs {
 	foreach(@$blogs) {
 		$self->set_and_select_blog($_);
 		if (ref($func)) {
-			&$func($self);
+			&$func($self, @_);
 		} else {
-			$self->$func();
+			$self->$func(@_);
 		}
 	}
 	$self->set_and_select_blog($cur_blogid);
@@ -1345,7 +1348,7 @@ sub import_img {
 
 		if ($rewrite) {
 			$msg .= "  Rewrite : $rewrite urls\n";
-			$self->rebuild_blog([ $log ]);
+			$self->rebuild_blog({ logs => $log });
 		}
 	}
 

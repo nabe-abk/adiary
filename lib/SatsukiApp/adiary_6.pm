@@ -31,7 +31,10 @@ my @update_versions = (
 	{ ver => 3.14, plugin=>1 },
 	{ ver => 3.15, func => 'sys_update_315', plugin=>1 },
 	{ ver => 3.20, plugin=>1 },
-	{ ver => 3.21, plugin=>1, theme=>1 }
+	{ ver => 3.21, plugin=>1, theme=>1, rebuild_cond=>[
+		'\[&https?://github\.com',
+		'\[&https?://gist\.github\.com'
+	]}
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
@@ -55,6 +58,12 @@ sub system_update {
 		$opt{theme}   ||= $h->{theme};		# テーマカスタムCSS更新
 		$opt{info}    ||= $h->{info};		# ブログ付加情報更新
 
+		# 条件付きリビルド
+		if ($h->{rebuild_cond}) {
+			$opt{rebuild_cond} ||= [];
+			push(@{ $opt{rebuild_cond} }, @{ $h->{rebuild_cond} });
+		}
+
 		my $func = $h->{func};
 		if ($func) {
 			$self->$func($blogs);
@@ -63,11 +72,25 @@ sub system_update {
 	}
 	$self->set_and_select_blog($cur_blogid);
 
-	# 再構築？
+	# 再構築
 	if ($opt{rebuild}) {
 		$ROBJ->message("Rebuild all blogs");
 		$self->rebuild_all_blogs();
 		$opt{info} = 0;
+
+	# 条件付き再構築（記事内容による）
+	} elsif ($opt{rebuild_cond}) {
+		my @ary = map { qr/$_/i } @{ $opt{rebuild_cond} };
+		my $filter = sub {
+			my $h = shift;
+			foreach(@ary) {
+				if ($h->{_text} =~ /$_/) { return 1; }	# rebuild
+			}
+			return 0;
+		};
+		$self->rebuild_all_blogs({ filter => $filter });
+		$opt{info} = 0;
+	
 	}
 	# プラグイン再インストール
 	if ($opt{plugin}) {
