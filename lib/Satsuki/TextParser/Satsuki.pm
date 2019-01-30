@@ -1949,7 +1949,7 @@ HTML
 #--------------------------------------------------------------------
 sub output_footnote {
 	my $self = shift;
-	my $out  = shift;
+	my $out  = shift || [];
 	my $buf  = shift;
 	my $hash = shift || {};
 	my $indent = $self->{indent};
@@ -1962,6 +1962,7 @@ sub output_footnote {
 	}
 	@$buf  = ();
 	%$hash = ();
+	return $out;	# used by Markdown.pm
 }
 
 ###############################################################################

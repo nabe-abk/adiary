@@ -8,7 +8,7 @@ use strict;
 # [S] とあるものは、adiary拡張（Satsuki記法互換機能）
 #
 package Satsuki::TextParser::Markdown;
-our $VERSION = '1.10';
+our $VERSION = '1.20';
 #------------------------------------------------------------------------------
 ###############################################################################
 # ■基本処理
@@ -34,7 +34,8 @@ sub new {
 
 	$self->{satsuki_tags}     = 0;	# satsuki記法のタグを有効にする
 	$self->{satsuki_syntax_h} = 1;	# syntaxハイライトをsatsuki記法に準拠させる
-	$self->{satsuki_seemore}  = 1;	# 「続きを読む」記法を使用する
+	$self->{satsuki_seemore}  = 1;	# 「続きを読む」記法
+	$self->{satsuki_footnote} = 0;	# (())による注釈
 
 	return $self;
 }
@@ -46,9 +47,10 @@ sub new {
 #	\x01	これ以上、行処理しない
 #	\x02	これ以上、行処理も記法処理もしない
 # 特殊記号
-#	\x00	tag_escape_ampで使用
-#	\x03E	文字エスケープ
-#	\x03C	コメント退避
+#	\x00		tag_escape_ampで使用
+#	\x03E		文字エスケープ
+#	\x03C		コメント退避
+#	\x02\x01	セクションの終わり
 #
 #------------------------------------------------------------------------------
 # ●記事本文の整形
@@ -95,7 +97,7 @@ sub text_parser {
 	# ○後処理
 	#-------------------------------------------
 	my $sec;
-	if ($lines->[$#$lines] eq "</section>\x02") { $sec=pop(@$lines); }
+	if (substr($lines->[$#$lines],-2) eq "\x02\x01") { $sec=pop(@$lines); }
 	while(@$lines && $lines->[$#$lines] eq '') { pop(@$lines); }
 	if ($sec) { push(@$lines, $sec); }
 
@@ -238,7 +240,7 @@ sub parse_special_block {
 			my $n = $self->{section_hnum} + $level - 1;
 			if ($n>6) { $n=6; }
 			if ($level == 1 && $sectioning && @ary) {
-				push(@ary, "</section>\x02");
+				push(@ary, "</section>\x02\x01");
 				push(@ary, "<section>\x02");
 				$in_section=1;
 			}
@@ -295,7 +297,7 @@ sub parse_special_block {
 			my $n = $self->{section_hnum};
 			push(@ary, '');
 			if ($sectioning) {
-				push(@ary, "</section>\x02");
+				push(@ary, "</section>\x02\x01");
 				push(@ary, "<section>\x02");
 				$in_section=1;
 			}
@@ -344,7 +346,7 @@ sub parse_special_block {
 	# セクショニングを行う
 	if ($sectioning && grep { $_ =~ /[^\s]/ } @ary) {
 		unshift(@ary, "<section>\x02");
-		push(@ary,'',"</section>\x02");
+		push(@ary,'',"</section>\x02\x01");
 	}
 	return \@ary;
 }
@@ -694,13 +696,29 @@ sub parse_inline {
 		return $s;
 	}
 
-	# さつき記法のタグを処理する？
-	my $satsuki = $self->{satsuki_tags} ? $self->{satsuki_obj} : undef;
+	# Satsuki parser obj
+	my $satsuki = $self->{satsuki_obj};
+
+	# 注釈
+	my @footnote;
+	my %note_hash;
 
 	my $links = $self->{links};
 	foreach(@$lines) {
+		if (substr($_,-1) eq "\x02") { next; }
+		
 		# エスケープ処理
 		$_ =~ s/\\([\\'\*_\{\}\[\]\(\)>#\+\-\.\~!])/"\x03E" . ord($1) . "\x03"/eg;
+
+		# 注釈処理 ((xxxx))
+		if ($self->{satsuki_footnote}) {
+			$_ =~ s/\(\((.*?)\)\)/ $satsuki->footnote($1, \@footnote, \%note_hash) /eg;
+			if (substr($_,-2) eq "\x02\x01") {
+				# section end
+				my $ary = $satsuki->output_footnote(undef, \@footnote, \%note_hash);
+				$_ = join('', @$ary) . $_;
+			}
+		}
 
 		# 自動リンク記法
 		$_ =~ s!<((?:https?|ftp):[^'"> ]+)>!<a href="$1">$1</a>!ig;
@@ -749,7 +767,7 @@ sub parse_inline {
 		}eg;
 
 		# [S] さつき記法のタグ処理
-		if ($satsuki) {
+		if ($self->{satsuki_tags}) {
 			$_ = $satsuki->parse_tag( $_, \&escape_special_char );
 			$satsuki->un_escape( $_ );
 		}
