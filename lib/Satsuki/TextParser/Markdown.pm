@@ -185,6 +185,11 @@ sub parse_special_block {
 	while(@$lines) {
 		my $x = shift(@$lines);
 
+		# コメントのみの行
+		if ($x =~ /^(?:\x03C\d+\x03\s*)+$/) {
+			$x .= "\x02";
+		}
+
 		# [M] TAB to SPACE 4つ
 		$x =~ s/(.*?)\t/$1 . (' ' x ($tw - (length($1) % $tw)))/eg;
 
@@ -372,15 +377,19 @@ sub parse_block {
 		$next_blank = 0;
 
 		my $x = shift(@$lines);
-		if ($x =~ /^\s*$/) { $x = ''; }
+		if ($x =~ /^\s*$/) { $x=''; }
 
-		if (ord(substr($x, -1)) < 3) {
-			$self->p_block_end(\@ary, \@p_block, $pmode);
-			push(@ary, $x);
+		# 空行
+		if ($x eq '' ) {
+			if (@p_block) {
+				$self->p_block_end(\@ary, \@p_block, $pmode);
+				push(@ary, $x);
+			}
 			$next_blank = 1;
 			next;
 		}
-		if ($x eq '') {
+		# 特殊行
+		if (ord(substr($x, -1)) < 3) {
 			$self->p_block_end(\@ary, \@p_block, $pmode);
 			push(@ary, $x);
 			$next_blank = 1;

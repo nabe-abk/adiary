@@ -17,6 +17,7 @@
 -【Fix】JavaScript強制更新用queryが一部正しくない。
 -【Fix】Perl5.8で動かない。（[https://adiary.adiary.jp/0405#c3:Thanks to 漁]）
 -【Fix/デザイン編集】単一記事表示の編集リンクが移動できてしまう。
+-【Fix/Markdown】コメントのみの行を、行処理してしまう。
 
 *Ver3.20 : 2018/12/27
 
