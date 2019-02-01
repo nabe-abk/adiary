@@ -81,14 +81,18 @@ sub system_update {
 	# 条件付き再構築（記事内容による）
 	} elsif ($opt{rebuild_cond}) {
 		my @ary = map { qr/$_/i } @{ $opt{rebuild_cond} };
+		my $cnt = 0;
 		my $filter = sub {
 			my $h = shift;
 			foreach(@ary) {
-				if ($h->{_text} =~ /$_/) { return 1; }	# rebuild
+				if ($h->{_text} =~ /$_/) { $cnt++; return 1; }	# rebuild
 			}
 			return 0;
 		};
 		$self->rebuild_all_blogs({ filter => $filter });
+		if ($cnt) {
+			$ROBJ->message("Rebuild '%d articles' of all blogs", $cnt);
+		}
 		$opt{info} = 0;
 	
 	}
