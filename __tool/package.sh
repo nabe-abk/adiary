@@ -33,16 +33,22 @@ if [ `which zip` ]; then
 fi
 rm -f $RELEASE/*.exe
 
+#------------------------------------------------------------------
+TAR="tar jcf"
+EXT="bz2"
+# TAR="tar Jcf"
+# EXT="xz"
+
 # Release file
-echo tar jcf $RELEASE.tar.bz2 $RELEASE/
-     tar jcf $RELEASE.tar.bz2 $RELEASE/
+echo $TAR $RELEASE.tar.$EXT $RELEASE/
+     $TAR $RELEASE.tar.$EXT $RELEASE/
 
 # no font package
 << COMMENT
 rm -rf $RELEASE/pub-dist/VL-PGothic-Regular.ttf $RELEASE/VLGothic/
 
-echo tar jcf $RELEASE-nofont.tar.bz2 $RELEASE/
-     tar jcf $RELEASE-nofont.tar.bz2 $RELEASE/
+echo tar $TAR $RELEASE-nofont.tar.$EXT $RELEASE/
+     tar $TAR $RELEASE-nofont.tar.$EXT $RELEASE/
 COMMENT
 
 rm -rf $RELEASE
