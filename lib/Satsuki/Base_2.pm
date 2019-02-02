@@ -1052,7 +1052,7 @@ sub validator {
 				}
 			} elsif ($f =~ /^file:(.*)$/) {
 				my $x = $1;
-				my $tag_esc = $self->loadpm('TextParser::TagEscape', $1);
+				my $tag_esc = $self->loadpm('TextParser::TagEscape', $x);
 				$tag_esc->anytag($f_opt);
 				$x =~ s/([\x00-\x1f])/'#' . ord($_) . '#'/eg;
 				$v = $tag_esc->escape( $v );
