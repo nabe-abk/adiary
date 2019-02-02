@@ -9,11 +9,11 @@
 		<td><input type="text" class="w320" name="title" value="<@ps.title>" maxlength="128"></td>
 	</tr>
 	<tr>
-		<th>非表示条件<span class="help" data-help='ヘッダに配置した場合は機能しません。'>?</span></th>
+		<th>表示条件<span class="help" data-help='ヘッダに配置した場合は機能しません。'>?</span></th>
 		<td>
-			<label><input type="checkbox" name="no_page"    value="1"<@if(ps.no_page,   ' checked')>>2ページ目以降</label><br>
-			<label><input type="checkbox" name="no_search"  value="1"<@if(ps.no_search, ' checked')>>検索時</label><br>
-			<label><input type="checkbox" name="no_article" value="1"<@if(ps.no_article,' checked')>>単一記事表示モード</label><br>
+			<label><input type="checkbox" name="no_page"    value="1"<@if(ps.no_page,   ' checked')>>1ページ目のみ表示</label><br>
+			<label><input type="checkbox" name="no_article" value="1"<@if(ps.no_article,' checked')>>複数記事モードのみ表示</label><br>
+			<label><input type="checkbox" name="no_search"  value="1"<@if(ps.no_search, ' checked')>>検索時を除く</label><br>
 		</td>
 	</tr>
 	<tr>
