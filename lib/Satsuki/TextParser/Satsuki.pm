@@ -612,8 +612,7 @@ push(@Blocks, {
 	end    => '|<<',
 	tag    => 'figure',
 	htag   => 1,
-	atag   => 1,
-	opt2after => 'figcaption'
+	atag   => 1
 });
 push(@Blocks, {
 	start  => '>>|',
@@ -644,8 +643,7 @@ push(@Blocks, {
 	tag    => 'figure',
 	htag   => 1,
 	atag   => 1,
-	p      => 1,
-	opt2after => 'figcaption'
+	p      => 1
 });
 push(@Blocks, {
 	start  => '>>',
@@ -779,6 +777,12 @@ sub block_parser_main {
 						}
 						my %b = %$blk; $blk = \%b;
 						$after = "<cite>$tag</cite>";
+					}
+				}
+				if ($tag eq 'figure') {
+					if ($opt =~ /^(.*)caption=\s*(.*?)\s*$/) {
+						$opt = $1;
+						$after = "<figcaption>$2</figcaption>";
 					}
 				}
 				if ($blk->{class} eq 'syntax-highlight') {
