@@ -1166,10 +1166,10 @@ initfunc.push( function(R){
 //●textareaでのタブ入力
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	R.findx('textarea').keypress( function(evt){
+	R.findx('textarea').keydown( function(evt){
 		var obj = $(evt.target);
 		if (obj.prop('readonly') || obj.prop('disabled')) return;
-		if (evt.keyCode != 9) return;
+		if (evt.shiftKey || evt.keyCode != 9) return;
 
 		evt.preventDefault();
 		insert_to_textarea(evt.target, "\t");
