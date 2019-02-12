@@ -204,19 +204,17 @@ if ($0 =~ /\.exe$/i) {
 	my $pl = $0;
 	$pl =~ s/\.exe/.httpd.pl/;
 	if (sysopen(my $fh, $pl, O_RDONLY)) {
-		my $ver=0;
+		my $pl_ver=0;
 		while(<$fh>) {
 			if ($_ !~ /\$SPEC_VER\s*=\s*[\"\']?(\d+\.\d+)/) { next; }
-			$ver = $1;
+			$pl_ver = $1;
 			last;
 		}
 		close($fh);
-		my $this_ver = $SPEC_VER;
-		$this_ver =~ s/[A-Za-z]+$//;
-		if ($this_ver ne $ver) {
-			print STDERR "*** adiary.httpd.pl's specification version $ver mismatch!!\n";	# debug-safe
-			print STDERR "*** Please update '$0'\n";					# debug-safe
-			print STDERR "\n<<push any key for exit>>";					# debug-safe
+		if ($SPEC_VER ne $pl_ver) {
+			print STDERR "*** adiary.httpd.pl's specification version $pl_ver mismatch!!\n";	# debug-safe
+			print STDERR "*** Please update '$0'\n";						# debug-safe
+			print STDERR "\n<<push any key for exit>>";						# debug-safe
 			my $key = <STDIN>;
 			exit(-1);
 		}
@@ -641,7 +639,6 @@ sub try_file_read {
 	#--------------------------------------------------
 	my $_file = $file;
 	if ($FS_CODE && $FS_CODE ne $SYS_CODE) {
-		
 		Encode::from_to($_file, $SYS_CODE, $FS_CODE);
 	}
 	if (!-e $_file) { return; }
