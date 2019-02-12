@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.02';
+our $VERSION  = '1.02a';
 our $SPEC_VER = '1.00';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
 #						Copyright (C)2019 nabe@abk
 ###############################################################################
-# Last Update : 2019/01/24
+# Last Update : 2019/02/13
 #
 BEGIN {
 	my $path = $0;
@@ -457,7 +457,7 @@ sub accept_client {
 	$ENV{REMOTE_PORT} = $port;
 	# print "[$PID] connection from $ip:$port\n";
 
-	# set bit for select()
+	# set bit alarm emulation( use by select )
 	$R_BITS='';
 	&set_bit($R_BITS, $sock);
 
@@ -906,11 +906,10 @@ sub my_alarm {
 	if ($timeout <= 0) { return; }
 
 	my $sock = shift;
-	select(my $x = $R_BITS, undef, undef, $timeout);
+	my $r = select(my $x = $R_BITS, undef, undef, $timeout);
 
-	if (!&check_bit($x, $sock)) {
+	if (!$r) {	# timeout
 		&{ $SIG{ALRM} }();
-		return;
 	}
 }
 
