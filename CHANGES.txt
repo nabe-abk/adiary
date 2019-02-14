@@ -5,6 +5,7 @@
 -【Fix】sitemapプラグインが動かない。
 -【Fix】AMPプラグインにCSSが適用されない。
 -【Fix】mod_perl2環境で動作が不安定。
+-【httpd/EXE】コードを若干変更。
 
 *Ver3.21b : 2019/02/12
 
