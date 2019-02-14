@@ -34,7 +34,8 @@ my @update_versions = (
 	{ ver => 3.21, plugin=>1, theme=>1, rebuild_cond=>[
 		'\[&https?://github\.com',
 		'\[&https?://gist\.github\.com'
-	]}
+	]},
+	{ ver => 3.22, plugin=>1 }
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
