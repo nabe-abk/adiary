@@ -77,15 +77,14 @@ sub new {
 	# STAT cache init
 	$self->init_stat_cache();
 
-	# コンパイラの更新時間を保存
-	$self->{Compiler_tm} = $self->get_lastmodified( 'lib/Satsuki/Base/Compiler.pm' );
-
 	# mod_perl初期化, get_filepath() 有効化
 	if ($ENV{MOD_PERL}) { $self->init_for_mod_perl(); }
 
 	#-------------------------------------------------------------
 	# スケルトンキャッシュ関連
 	#-------------------------------------------------------------
+	$self->{Compiler_tm} = $self->get_lastmodified( 'lib/Satsuki/Base/Compiler.pm' );
+
 	my $cache_dir = $self->get_filepath( $ENV{SatsukiCacheDir} || $SYSTEM_CACHE_DIR );
 	if (-d $cache_dir && -w $cache_dir) {
 		$self->{__cache_dir} = $cache_dir;
