@@ -97,7 +97,7 @@ $mop->{amp_css} = sub {
 	}
 	chomp($amp_css);
 	if ($aobj->load_plgset('amp', 'css_info') eq $amp_css) {
-		return $ROBJ->fread_lines_cached($amp_css_file);
+		return join('', @{ $ROBJ->fread_lines_cached($amp_css_file) });
 	}
 
 	#------------------------------------------------------------
