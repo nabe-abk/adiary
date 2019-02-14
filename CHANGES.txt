@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.22 : 2019/02/xx
+*Ver3.22 : 2019/02/15
 
 -【Fix】sitemapプラグインが動かない。
 -【Fix】AMPプラグインにCSSが適用されない。
