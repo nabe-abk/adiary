@@ -388,7 +388,7 @@ sub execute {
 				my ($jump_file, $jump_skel) = ($self->{Jump_file}, $self->{Jump_skeleton});
 				undef $self->{Jump_file};
 				undef $self->{Jump_skeleton};
-				$output = $self->__call($jump_file, $jump_skel, @{ $self->{Jump_argv} });
+				$output .= $self->__call($jump_file, $jump_skel, @{ $self->{Jump_argv} });
 			} else {
 				my $err = $self->error_from('', "[executor] Too many jump (max %d)", $self->{Nest_max});
 				$output .= "<h1>$err</h1>";
