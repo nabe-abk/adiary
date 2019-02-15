@@ -1374,24 +1374,10 @@ $( function(){
 	if (obj.hasClass('hatena-bookmark'))
 		return load_and_set_counter(count, '//b.hatena.ne.jp/entry.count?url=' + url);	// for SSL
 		// return load_and_set_counter(count, '//api.b.st-hatena.com/entry.count?url=' + url);	// Do not work on SSL
-
 	if (obj.hasClass('pocket-bookmark')) {
-		$.ajax({
-			dataType: "html",
-			url: "//query.yahooapis.com/v1/public/yql",
-			data: {
-				q: "SELECT * FROM html WHERE url='http://widgets.getpocket.com/v1/button?v=1&count=horizontal"
-					+ "&url=" + url
-					+ "&src=" + url
-				+ "'"
-			},
-			success: function (xml) {
-				var content = $(xml).find('content').text();
-				var ma = content.match(/<\w+\s+id\s*=\s*"cnt">(\d+)/i);
- 				count.text(ma ? ma[1] : 0);
-			}
-		});
+		return; // Deleted. Because "query.yahooapis.com" is dead
 	}
+
   });
 });
 
