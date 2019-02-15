@@ -26,11 +26,6 @@ html, #body {
 	background-color:	#008;
 	font-size:		11pt;
 }
-#back-btn {
-	position:		absolute;
-	top:			2px;
-	right:			4px;
-}
 #form {
 	color:			#fff;
 	margin:			2px 4px;
@@ -117,7 +112,7 @@ div.iblk {
 <$end>
 </select>
 <button type="submit" id="submit-btn">保存</button>
-<button type="button" onclick="window.location='<@v.myself>?<@v.skel_dir>'">戻る</button>
+<button type="button" id="back-btn" onclick="window.location='<@v.myself>?<@v.skel_dir>'">戻る</button>
 
 &emsp;<button type="button" id="readme-button" class="js-info btn-help" data-title="README" data-url="" data-class="pre" data-help="スマホ非対応テーマを使用する場合、スマホアクセスには標準のスマホ対応テーマが使用されます。">README表示</button>
 <input type="hidden" name="checkbox.info" value="sysmode_notheme_flg">
