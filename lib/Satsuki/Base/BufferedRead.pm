@@ -1,10 +1,10 @@
 use strict;
 #------------------------------------------------------------------------------
 # buffer 付データ読み込みルーチン
-#						(C)2006-04 nabe / nabe@abk.nu
+#						(C)2006-2019 nabe@abk.nu
 #------------------------------------------------------------------------------
 package Satsuki::Base::BufferedRead;
-our $VERSION = '1.00';
+our $VERSION = '1.10';
 #------------------------------------------------------------------------------
 my $boundary_max        =     1024;	# 境界記号の最大長指定
 my $buffer_size_default = 256*1024;	# バッファサイズのデフォルト
@@ -37,15 +37,16 @@ sub new {
 #------------------------------------------------------------------------------
 # ※buffer_size = boundary_size の条件で動作チェック済 (2006/4/22)
 #
-sub read_line {
+sub read {
 	my $self = shift;
 	my ($output, $boundary, $output_max_size) = @_;
+
+	# outputは \$x かファイルハンドル
+	if (ref($output) ne 'SCALAR' && fileno($output) == -1) { return; }
+
 	# 入力データチェック
 	my $boundary_size = length($boundary);
-	if ($boundary_size == 0 || $boundary_size > $boundary_max) { return ; }
-	my $output_is_file;
-	if (ref($output) ne 'SCALAR' && ($output eq '' || !fileno($output))) { $output = \( $_[0] ); }
-	if (ref($output) eq 'SCALAR') { $$output = ''; }
+	if ($boundary_size == 0 || $boundary_size > $boundary_max) { return; }
 
 	# buffer の状態読み込み
 	my $read_size = $self->{read_size};

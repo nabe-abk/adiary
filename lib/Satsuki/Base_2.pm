@@ -715,7 +715,7 @@ sub read_multipart_form {
 	my $header_max_size = 1024;
 
 	# boundary の読み出し
-	binmode(STDIN);	# for Windows
+	binmode(STDIN);		# for Windows
 	$content_type =~ /boundary=(.*)/;
 	my $boundary = $1;
 	my $form     = {};
@@ -723,8 +723,10 @@ sub read_multipart_form {
 	$buffer->{read_max} = $length;
 
 	# 先頭の boundary 読み捨て
-	my $line;
-	$buffer->read_line(\$line, "--$boundary\r\n", $header_max_size);
+	{
+		my $line;
+		$buffer->read(\$line, "--$boundary\r\n", $header_max_size);
+	}
 	$boundary = "\r\n--$boundary";
 	# 読み出しループ
 	my $err = 1;
@@ -734,7 +736,8 @@ sub read_multipart_form {
 		my $filename;
 		my $count = 32;
 		while($count--) {
-			$buffer->read_line(\$line, "\r\n", $header_max_size);
+			my $line;
+			$buffer->read(\$line, "\r\n", $header_max_size);
 			if ($line eq '') { last; }
 			if ($line =~ /^Content-Disposition:(.*)$/i) {
 				$line = $1;
@@ -757,7 +760,7 @@ sub read_multipart_form {
 			if ($use_temp_dir) {
 				if ( my ($fh,$file) = $self->open_tmpfile() ) {
 					# ファイルがオープンできたら、ファイルに出力
-					my $size = $buffer->read_line($fh, $boundary, $file_max_size);
+					my $size = $buffer->read($fh, $boundary, $file_max_size);
 					close($fh);
 					my %h;
 					$h{tmp_file}   = $file;		# tmp file name
@@ -765,11 +768,11 @@ sub read_multipart_form {
 					$h{file_size}  = $size;
 					$value = \%h;
 				} else {
-					$buffer->read_line(\$value, $boundary, 0);	# データ読み捨て
+					$buffer->read(\$value, $boundary, 0);	# データ読み捨て
 				}
 			} else {
 				# 変数に読み込む
-				my $size = $buffer->read_line(\$value, $boundary, $file_max_size);
+				my $size = $buffer->read(\$value, $boundary, $file_max_size);
 				my %h;
 				$h{data}       = $value;	# tmp file name
 				$h{file_name}  = $filename;
@@ -777,14 +780,16 @@ sub read_multipart_form {
 				$value = \%h;
 			}
 		} else {
-			$buffer->read_line(\$value, $boundary, $data_max_size);
+			$buffer->read(\$value, $boundary, $data_max_size);
 		}
 		$self->form_data_check_and_save($form, $options, $name, $value);
 
-		## print "$name=$form->{$name}\n";	## debug
 		# データの終わりか確認
-		$buffer->read_line(\$line, "\r\n", $header_max_size);
-		if ($line eq '--') { $err=0; last; }
+		{
+			my $line;
+			$buffer->read(\$line, "\r\n", $header_max_size);
+			if ($line eq '--') { $err=0; last; }
+		}
 	}
 	# データ読み終わり
 	## print "error code : $err\n";	## debug
