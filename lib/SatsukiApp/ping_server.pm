@@ -158,7 +158,7 @@ sub _post_action {
 	my $length = $ENV{CONTENT_LENGTH};
 	if ($length > $self->{post_max_size}) { $length=$self->{post_max_size}; }
 	my $xml;
-	read(STDIN, $xml, $length);
+	read($ROBJ->{STDIN}, $xml, $length);
 
 	#---------------------------------------------------
 	# XML Parse（簡易実装）

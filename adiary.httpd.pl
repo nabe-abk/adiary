@@ -505,10 +505,8 @@ sub parse_request {
 		&my_alarm( $TIMEOUT, $sock );
 
 		my $first=1;
-		my $post =1;
 		while(1) {
-			# &read_sock_1line($sock) is no buffered <$sock>
-			my $line = $post ? &read_sock_1line($sock, $first) : <$sock>;
+			my $line = <$sock>;
 			if (!defined $line)  {	# disconnect
 				$break=1;
 				last;
@@ -519,7 +517,6 @@ sub parse_request {
 				$first = 0;
 				$bad_req = &analyze_request($state, $line);
 				if ($bad_req) { last; }
-				$post = $state->{method} eq 'POST';
 				next;
 			}
 
@@ -714,9 +711,9 @@ sub exec_cgi {
 		#--------------------------------------------------
 		# connect stdout
 		#--------------------------------------------------
-		local *STDIN;
-		open(STDIN,  '<&=', fileno($sock));
-		binmode(STDIN);
+		# local *STDIN;
+		# open(STDIN,  '<&=', fileno($sock));
+		# binmode(STDIN);
 
 		local *STDOUT;
 		open(STDOUT, '>&=', fileno($sock));
@@ -748,6 +745,7 @@ sub exec_cgi {
 		$ROBJ = Satsuki::Base->new();	# root object
 		$ROBJ->{Timer} = $timer;
 		$ROBJ->{AutoReload} = $flag;
+		$ROBJ->{STDIN} = $sock;
 
 		$ROBJ->init_for_httpd($state);
 
@@ -908,27 +906,6 @@ sub my_alarm {
 	if (!$r) {	# timeout
 		&{ $SIG{ALRM} }();
 	}
-}
-
-#------------------------------------------------------------------------------
-# no buffered read <$sock>
-#------------------------------------------------------------------------------
-sub read_sock_1line {
-	my $sock  = shift;
-	my $first = shift;
-	my $line  = '';
-	if ($first) {	# first line: ex) GET / HTTP/1.0
-		if (sysread($sock, $line, 1) != 1) { return; }
-		if ($line ne 'P') {	# buffered read except POST
-			return $line . <$sock>;
-		}
-	}
-	my $c;
-	while($c ne "\n") {
-		if (sysread($sock, $c, 1) != 1) { return; }
-		$line .= $c;
-	}
-	return $line;
 }
 
 #------------------------------------------------------------------------------

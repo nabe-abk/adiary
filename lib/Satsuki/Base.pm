@@ -36,6 +36,7 @@ sub new {
 	$self->{GID}  = $(;
 	$self->{PID}  = $$;
 	$self->{CMD}  = $0;
+	$self->{STDIN}= *STDIN;
 	$self->{IsWindows} = $^O eq 'MSWin32';
 
 	# 初期設定
