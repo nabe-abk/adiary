@@ -8,7 +8,6 @@
 # ※一部の細工されたレンタルサーバでは mod_rewrite が正しく動かないことがあります。
 
 # RewriteEngine	On
-# RewriteBase	/your-web-install-path/
 # RewriteCond	%{REQUEST_FILENAME}	!-f
 # RewriteRule	^(.*)$			adiary.cgi/$1	[L]
 
