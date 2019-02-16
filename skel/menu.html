@@ -86,11 +86,9 @@
 
 <pre class="mono">
 RewriteEngine	On
-RewriteBase	<@Basepath>
 RewriteCond	%{REQUEST_FILENAME}	!-f
 RewriteRule	^(.*)$			<@cgi>/$1	[L]
 </pre>
-<p>※設定変更後「システム管理」→「アップデート」から<strong class="warning">「付加情報の再生成」を必ず実行してください。</strong></p>
 
 </div>
 </article>
