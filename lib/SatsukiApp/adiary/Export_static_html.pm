@@ -41,7 +41,6 @@ sub export {
 		return ;
 	}
 	$dir = $ROBJ->get_filepath($dir);
-	$ROBJ->mkdir($dir);
 	if (!-w $dir) {
 		$session->msg("'$dir' is not exists or not writeble!");
 		return ;
