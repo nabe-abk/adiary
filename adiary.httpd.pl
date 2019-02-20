@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.03';
+our $VERSION  = '1.04';
 our $SPEC_VER = '1.00';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
 #						Copyright (C)2019 nabe@abk
 ###############################################################################
-# Last Update : 2019/02/16
+# Last Update : 2019/02/20
 #
 BEGIN {
 	my $path = $0;
@@ -51,7 +51,7 @@ my $TIMEOUT   =  3;
 my $DEAMONS   = 10;
 my $KEEPALIVE = 1;
 my $MIME_FILE = '/etc/mime.types';
-my $INDEX;	# = 'index.html';
+my $INDEX     = 'index.html';
 my $PID;
 my $R_BITS;	# select socket bits
 
@@ -84,7 +84,8 @@ my %MIME_TYPE = (
 	jpeg => 'image/jpeg',
 	ico  => 'image/vnd.microsoft.icon'
 );
-my %DENY_EXTS = (cgi=>1, pl=>1, pm=>1);	# deny extensions
+my $DENY_EXTS_Reg = qr/\.(?:cgi|pl|pm)(?:$|\.)/;	# deny extensions regexp
+
 #------------------------------------------------------------------------------
 # for RFC date
 #------------------------------------------------------------------------------
@@ -324,7 +325,7 @@ if ($FS_CODE) {
 	require Encode;
 	print "\tFile system coding: $FS_CODE\n";
 }
-if ($INDEX) {
+if (0 && $INDEX) {
 	print "\tDirectory index: $INDEX\n";
 }
 
@@ -626,8 +627,8 @@ sub try_file_read {
 
 	$file =~ s|/+|/|g;
 	if ($file =~ m|/\.\./|) { return; }
-	if ($INDEX ne '' && substr($file, -1) eq '/') {
-		$file .= 'index.html';
+	if ($INDEX && $file ne '/' && substr($file, -1) eq '/') {
+		$file .= $INDEX;
 	}
 	$file = substr($file,1);	# /index.html to index.html
 
@@ -647,13 +648,8 @@ sub try_file_read {
 	if (!-r $_file
 	 || $file =~ m|^\.ht|
 	 || $file =~ m|/\.ht|
-	 || $file =~ m|^([^/]+)/| && $DENY_DIRS{$1}) {
-		&_403_forbidden($state);
-		return 403;
-	}
-	# deny extensions
-	while($file =~ /\.([^\.]+)/g) {
-		if (! $DENY_EXTS{$1}) { next; }
+	 || $file =~ m|^([^/]+)/| && $DENY_DIRS{$1}
+	 || $file =~ /$DENY_EXTS_Reg/) {
 		&_403_forbidden($state);
 		return 403;
 	}
@@ -796,7 +792,7 @@ sub _400_bad_request {
 sub _403_forbidden {
 	my $state = shift;
 	$state->{status}     = 403;
-	$state->{status_msg} = '400 Forbidden';
+	$state->{status_msg} = '403 Forbidden';
 	&send_response($state, @_);
 }
 sub _500_internal_server_error {
