@@ -178,8 +178,8 @@ sub export {
 		# 出力データ生成
 		#-------------------------------------------------------------
 		# 記事本文の生成
+		$aobj->{stop_ogp} = 1;	# do not output OGP
 		my $out = $ROBJ->call( $aobj->{article_skeleton}, $_ );
-		$aobj->{extra_header} = [];	# clear OGP
 
 		# フレームの前処理
 		$ROBJ->{canonical_url} = '';

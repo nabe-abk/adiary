@@ -37,7 +37,7 @@
 <$ifset(frontpage, v.subtitle, s.fp_title, t.title)>
 
 <@> OGP/Twitter Cards
-<$ifexec(Develop || index(ENV.HTTP_USER_AGENT, 'Mozilla/')<0, begin)>
+<$ifexec(!v.stop_ogp && (Develop || index(ENV.HTTP_USER_AGENT, 'Mozilla/')<0), begin)>
 	<$img = if(t.main_image, v.blogimg_dir() . t.main_image, '')>
 	<$call('_sub/set_ogp', 'article', permalink, v.subtitle, t.description, img)>
 <$end>
