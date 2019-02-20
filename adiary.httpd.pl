@@ -639,7 +639,10 @@ sub try_file_read {
 	if ($FS_CODE && $FS_CODE ne $SYS_CODE) {
 		Encode::from_to($_file, $SYS_CODE, $FS_CODE);
 	}
-	if (!-e $_file) { return; }
+	if (!-e $_file) {
+		if ($file eq 'favicon.ico') { return &_404_not_found($state); }
+		return;
+	}
 
 	#--------------------------------------------------
 	# file request
@@ -650,8 +653,7 @@ sub try_file_read {
 	 || $file =~ m|/\.ht|
 	 || $file =~ m|^([^/]+)/| && $DENY_DIRS{$1}
 	 || $file =~ /$DENY_EXTS_Reg/) {
-		&_403_forbidden($state);
-		return 403;
+		return &_403_forbidden($state);
 	}
 
 	#--------------------------------------------------
@@ -666,8 +668,7 @@ sub try_file_read {
 		$header .= "Content-Type: $MIME_TYPE{$1}\r\n";
 	}
 	if ($state->{if_modified} && $state->{if_modified} eq $lastmod) {
-		&_304_not_modified($state, $header);
-		return 304;
+		return &_304_not_modified($state, $header);
 	}
 
 	#--------------------------------------------------
@@ -676,13 +677,11 @@ sub try_file_read {
 	sysopen(my $fh, $_file, O_RDONLY);
 	my $r = sysread($fh, my $data, $size);
 	if (!$fh || $r != $size) {
-		&_403_forbidden($state);
-		return 403;
+		return &_403_forbidden($state);
 	}
 	close($fh);
 
-	&_200_ok($state, $header, $data);
-	return 200;
+	return &_200_ok($state, $header, $data);
 }
 
 ###############################################################################
@@ -775,32 +774,38 @@ sub _200_ok {
 	my $state = shift;
 	$state->{status}     = 200;
 	$state->{status_msg} = '200 OK';
-	&send_response($state, @_);
+	return &send_response($state, @_);
 }
 sub _304_not_modified {
 	my $state = shift;
 	$state->{status}     = 304;
 	$state->{status_msg} = '304 Not Modified';
-	&send_response($state, @_);
+	return &send_response($state, @_);
 }
 sub _400_bad_request {
 	my $state = shift;
 	$state->{status}     = 400;
 	$state->{status_msg} = '400 Bad Request';
-	&send_response($state, @_);
+	return &send_response($state, @_);
 }
 sub _403_forbidden {
 	my $state = shift;
 	$state->{status}     = 403;
 	$state->{status_msg} = '403 Forbidden';
-	&send_response($state, @_);
+	return &send_response($state, @_);
+}
+sub _404_not_found {
+	my $state = shift;
+	$state->{status}     = 404;
+	$state->{status_msg} = '404 Not Found';
+	return &send_response($state, @_);
 }
 sub _500_internal_server_error {
 	my $state = shift;
 	my $data  = shift;
 	$state->{status}     = 500;
 	$state->{status_msg} = '500 Internal Server Error';
-	&send_response($state, '', $data);
+	return &send_response($state, '', $data);
 }
 sub send_response {
 	my $state  = shift || {};
@@ -811,6 +816,9 @@ sub send_response {
 	my $sock   = $state->{sock};
 	my $date   = &rfc_date( time() );
 
+	if (399 < $status) {
+		$header .= "Content-Type: text/plain\r\n";
+	}
 	if (index($header, 'Content-Length:')<0) {
 		$header .= "Content-Length: $c_len\r\n";
 	}
@@ -819,7 +827,6 @@ sub send_response {
 
 	my $header = <<HEADER;
 HTTP/1.1 $state->{status_msg}\r
-Content-Type: text/plain\r
 Date: $date\r
 Server: $ENV{SERVER_SOFTWARE}\r
 $header\r
@@ -833,6 +840,7 @@ HEADER
 		$state->{send} = length($header);
 	}
 	binmode($sock);		# buffer clear
+	return $status;
 }
 
 ###############################################################################
