@@ -70,6 +70,7 @@ print "---adiary Release checker-------------------------------------------\n";
 		if ($line =~ /{DEBUG}/) { next; }
 		if ($line =~ /#\s*debug-safe/) { next; }
 		if ($line =~ /{Debug_mode}/) { next; }
+		if ($line =~ m!^\s*<@>! && $line =~ m|<[\@\$]debug|) { next; }
 
 		($prev ne $file) && print "## Debug error : $file\n";
 		print "$linenum:$line";
