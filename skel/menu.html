@@ -29,7 +29,7 @@
 		<p><a href="<@Myself>?user/add">最初のユーザーを追加してください</a></p>
 	<$end>
 
-
+<@ifexec(!v.v2conf && !Auth.auto, begin)>
 	<@ifexec(Auth.isadmin && v.require_update, begin)>
 		<p><strong class="warning">すぐに<a href="<@v.myself>?system/update">アップデート処理</a>を実行してください。</strong></p>
 	<$end>
@@ -51,6 +51,7 @@
 		<li><a href="<@v.myself3>">自分のブログへ</a></li>
 	</ul>
 	<$end>
+<$end>
 
 	<ul class="menu">
 	<@ifexec(v.blog_admin, begin)>
@@ -64,7 +65,9 @@
 		<li><a href="<@v.myself>?design/">デザイン設定</a><span class="help" data-help="テーマ選択、デザイン編集、ユーザーCSS">?</span></li>
 		<li><a href="<@v.myself>?mainte/">ブログの管理</a><span class="help" data-help="ブログの再構築・削除、インポート、エクスポート">?</span></li>
 	<$end>
+	<@ifexec(!Auth.auto, begin)>
 		<li><a href="<@v.myself>?personal/">アカウント設定</a><span class="help" data-help="ユーザー名の変更、パスワードの変更">?</span></li>
+	<$end>
 	</ul>
 
 	<@ifexec(Auth.isadmin, begin)>

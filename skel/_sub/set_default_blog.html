@@ -1,0 +1,27 @@
+<@40.is_function>
+<@local(old, blogid, bak)>
+<@>
+<@> デフォルトブログの設定
+<@>
+<$blogid = argv#0>
+<$old    = v.sys.default_blogid>
+
+<$v.clear_cache()>
+<@> <$debug("old = <@old> / new = <@blogid>")>
+
+<@> デフォルトblogidの設定値が異なっていたら再構築
+<$ifexec(old ne blogid && !v.subdomain_mode, begin)>
+	<$bak = v.blogid>
+	<$ifexec(old ne '', begin)>
+		<$v.set_and_select_blog_force( old )>
+		<$v.rebuild_blog( )>
+	<$end>
+	<$ifexec(blogid ne '', begin)>
+		<$v.set_and_select_blog_force( blogid )>
+		<$v.rebuild_blog( )>
+	<$end>
+	<$v.set_and_select_blog_force( bak )>
+<$end>
+
+<$v.sys.default_blogid = blogid>
+<$v.update_sysdat(h)>

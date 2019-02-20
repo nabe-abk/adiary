@@ -74,30 +74,12 @@
 <$ifbreak(form_error())>
 
 <$ifset(h.edit_lock_time < 10, h.edit_lock_time, 0)>
-<$h.default_blogid = id>
 
-<$old_d_blogid = v.sys.default_blogid>
-<$new_d_blogid = id>
-
-<$ifset(!h.html_cache, h.search_cache,   undef)>
-<$ifset(!h.html_cache, h.html_cache_max, undef)>
+<@> デフォルトblog idを反映
+<$call('_sub/set_default_blog', id)>
 
 <@> 設定更新
 <$v.update_sysdat(h)>
-
-<@> デフォルトblogidの設定値が異なっていたら再構築
-<$ifexec(old_d_blogid ne new_d_blogid && !v.subdomain_mode, begin)>
-	<$blogid_bak = v.blogid>
-	<$ifexec(old_d_blogid ne '', begin)>
-		<$v.set_and_select_blog_force( old_d_blogid )>
-		<$v.rebuild_blog( )>
-	<$end>
-	<$ifexec(new_d_blogid ne '', begin)>
-		<$v.set_and_select_blog_force( new_d_blogid )>
-		<$v.rebuild_blog( )>
-	<$end>
-	<$v.set_and_select_blog_force( blogid_bak )>
-<$end>
 
 <$action_return = 0>
 

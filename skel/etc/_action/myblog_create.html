@@ -10,5 +10,10 @@ POST成功時の処理
 	<$ifexec(Form.load_design, begin)>
 		<$v.load_default_design(Auth.id)>
 	<$end>
-	<$jump('_sub/reload_message', v.myself3 . '?set/')>
+	<$url = v.myself3 . '?set/'>
+	<$ifexec(Auth.isadmin && Form.default_blog, begin)>
+		<$call('_sub/set_default_blog', Auth.id)>
+		<$url = Myself . '?set/')>
+	<$end>
+	<$jump('_sub/reload_message', url)>
 <$end>
