@@ -819,6 +819,7 @@ sub send_response {
 
 	my $header = <<HEADER;
 HTTP/1.1 $state->{status_msg}\r
+Content-Type: text/plain\r
 Date: $date\r
 Server: $ENV{SERVER_SOFTWARE}\r
 $header\r
