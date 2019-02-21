@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.04';
+our $VERSION  = '1.10';
 our $SPEC_VER = '1.00';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
 #						Copyright (C)2019 nabe@abk
 ###############################################################################
-# Last Update : 2019/02/20
+# Last Update : 2019/02/21
 #
 BEGIN {
 	my $path = $0;
@@ -50,6 +50,8 @@ my $ITHREADS  = $IsWindows;
 my $TIMEOUT   =  3;
 my $DEAMONS   = 10;
 my $KEEPALIVE = 1;
+my $BUFSIZE_u = '1M';	# 1MB
+my $BUFSIZE;		# byte / set from $BUFSIZE_u
 my $MIME_FILE = '/etc/mime.types';
 my $INDEX     = 'index.html';
 my $PID;
@@ -96,6 +98,7 @@ my %JanFeb2Mon = (
 #------------------------------------------------------------------------------
 # analyze @ARGV
 #------------------------------------------------------------------------------
+my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 {
 	my @ary = @ARGV;
 	my $help;
@@ -118,9 +121,8 @@ my %JanFeb2Mon = (
 			# keep-alive
 			if ($k2 eq 'k0') { $key=$kx; $KEEPALIVE=0; next; }
 			if ($k2 eq 'k1') { $key=$kx; $KEEPALIVE=1; next; }
-			if ($k  eq 'k')  {           $KEEPALIVE=1; next; }
 
-			# keep-alive
+			# SatsukiTimer
 			if ($k2 eq 't0') { $key=$kx; $ENV{SatsukiTimer}=0; next; }
 			if ($k2 eq 't1') { $key=$kx; $ENV{SatsukiTimer}=1; next; }
 
@@ -131,7 +133,7 @@ my %JanFeb2Mon = (
 
 			# arg
 			if ($k2 eq 'fs' || $k2 eq 'mi') { $k=$k2; }
-			if (index('ptdm',$k) < 0 && length($k)==1) {
+			if (index('ptdmb',$k) < 0 && length($k)==1) {
 				print "Unknown option : -$k\n";
 				exit(-1);
 			}
@@ -149,6 +151,15 @@ my %JanFeb2Mon = (
 			if ($k eq 'mi') { $MIME_FILE = $val; next; }
 			if ($k eq 'fs') { $FS_CODE   = $val; next; }
 
+			# size argument
+			if ($k eq 'b') {
+				if ($val =~ /^(\d+)(?:([GMK])B?)?$/) {
+					$BUFSIZE_u = $1 . ($2 ne '' ? $2 : 'K');
+					next;
+				}
+				print "Invalid argument: -$k option\n";
+				exit(-1);
+			}
 			# float argument
 			if ($k eq 't') {
 				if ($val !~ /^\d+(?:\.\d+)?$/) {
@@ -172,6 +183,9 @@ my %JanFeb2Mon = (
 	if ($MAX_CGI_REQUESTS > 10000000)	{ $MAX_CGI_REQUESTS=10000000; }
 	if ($MAX_CGI_REQUESTS <      100)	{ $MAX_CGI_REQUESTS=100; }
 
+	if ($BUFSIZE_u =~ /^(.*)(\w)$/) { $BUFSIZE = $1*$SIZE_UNIT{$2}; }
+	if ($BUFSIZE < 65536) { $BUFSIZE_u='64K'; $BUFSIZE = 65536; }
+
 	if ($help) {
 		my $n = $IsWindows ? "  -n\t\tdo not open web browser\n" : '';
 		print <<HELP;
@@ -183,9 +197,10 @@ Available options are:
   -m max_req	maximum cgi requests per daemon (default:10000, min:100)
   -mi mime_file	load mime types file name (default: /etc/mime.types)
   -fs fs_code	set file system's code (charset)
+  -b bufsize	buffer size [KB] (default:1024 = 1M, min:64)
   -f		use fork()
   -i		use threads (ithreads)
-  -k, -k1	connection keep-alive enable (default)
+  -k1		connection keep-alive enable (default)
   -k0		connection keep-alive disable
   -t0		set ENV SatsukiTimer=0
   -t1		set ENV SatsukiTimer=1
@@ -277,7 +292,10 @@ my $srv;
 	bind($srv, sockaddr_in($PORT, INADDR_ANY))			|| die "bind port failed: $!";
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
 }
-print	  "\tListen $PORT port, Timeout $TIMEOUT sec, Keep-Alive " . ($KEEPALIVE ? 'on' : 'off') . "\n"
+print	  "\tListen $PORT port,"
+		. " Timeout $TIMEOUT sec,"
+		. " Buffer ${BUFSIZE_u}B,"
+		. " Keep-Alive " . ($KEEPALIVE ? 'on' : 'off') . "\n"
 	. "\tStart up daemon: $DEAMONS " . ($ITHREADS ? 'threads' : 'process')
 	. ", Max cgi requests: $MAX_CGI_REQUESTS\n";
 
@@ -602,15 +620,15 @@ sub analyze_request {
 	my $req   = shift;
 	$state->{request} = $req;
 
-	if ($req !~ m!^(GET|POST|HEAD) ([^\s]+) (?:HTTP/\d\.\d)?!) {
+	if ($req !~ m!^(GET|POST|HEAD) ([^\s]+) (?:HTTP/(\d\.\d))?!) {
 		&_400_bad_request($state);
 		return 1;
 	}
+	my $path = $2;
+	$state->{method}  = $1;
+	$state->{path}    = $path;
+	$state->{version} = $3;
 
-	my $method = $1;
-	my $path   = $2;
-	$state->{method} = $method;
-	$state->{path}   = $path;
 	if (substr($path,0,1) ne '/') {
 		&_400_bad_request($state);
 		return 2;
@@ -640,7 +658,10 @@ sub try_file_read {
 		Encode::from_to($_file, $SYS_CODE, $FS_CODE);
 	}
 	if (!-e $_file) {
-		if ($file eq 'favicon.ico') { return &_404_not_found($state); }
+		if ($file eq 'favicon.ico') {
+			$state->{type} = 'file';
+			return &_404_not_found($state);
+		}
 		return;
 	}
 
@@ -674,14 +695,26 @@ sub try_file_read {
 	#--------------------------------------------------
 	# read file
 	#--------------------------------------------------
-	sysopen(my $fh, $_file, O_RDONLY);
-	my $r = sysread($fh, my $data, $size);
-	if (!$fh || $r != $size) {
-		return &_403_forbidden($state);
-	}
-	close($fh);
+	$state->{length} = $size;
 
-	return &_200_ok($state, $header, $data);
+	return &_200_ok($state, $header, sub {
+		my $sock = shift;
+		sysopen(my $fh, $_file, O_RDONLY);
+
+		my $remain = $size;
+		while(0 < $remain) {
+			my $byte = ($BUFSIZE < $remain ? $BUFSIZE : $remain);
+
+			my $r = sysread($fh, my $data, $byte);
+			if (!$fh || $r != $byte) {
+				# fatal error
+				$state->{keep_alive} = 0;
+			}
+			print $sock $data;
+			$remain -= $byte;
+		}
+		close($fh);
+	});
 }
 
 ###############################################################################
@@ -811,7 +844,7 @@ sub send_response {
 	my $status = $state->{status};
 	my $header = shift || '';
 	my $data   = shift || $state->{status_msg} . "\n";
-	my $c_len  = length($data);
+	my $c_len  = $state->{length} || length($data);
 	my $sock   = $state->{sock};
 	my $date   = &rfc_date( time() );
 
@@ -833,7 +866,11 @@ HEADER
 	print $sock $header;
 
 	if ($state->{method} ne 'HEAD' && $status !~ /^304 /) {
-		print $sock $data;
+		if (ref($data) eq 'CODE') {
+			&$data($sock);
+		} else {
+			print $sock $data;
+		}
 		$state->{send} = length($header) + $c_len;
 	} else {
 		$state->{send} = length($header);
