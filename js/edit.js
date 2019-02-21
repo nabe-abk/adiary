@@ -159,6 +159,7 @@ upsel.change(function(){
 	if (!opt.length) return;
 
 	var set = opt.data('link_key');
+	if (set == undefined) return;
 	if (set.substr(-1) != '/') set += '/';
 	lkey.val( set );
 	lkey.data('set', set);
