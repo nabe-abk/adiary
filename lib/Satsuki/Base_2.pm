@@ -712,9 +712,9 @@ sub read_multipart_form {
 		}
 	}
 
-	my $file_max_size   = $options->{multipart_file_max_size};
-	my $data_max_size   = $options->{multipart_data_max_size};
-	my $use_temp_dir    = $options->{multipart_use_temp_dir};
+	my $file_max_size = $options->{multipart_file_max_size};
+	my $data_max_size = $options->{multipart_data_max_size};
+	my $use_temp_flag = $options->{multipart_temp_flag};
 	my $header_max_size = 1024;
 
 	# boundary の読み出し
@@ -760,7 +760,7 @@ sub read_multipart_form {
 			if ($filename =~ /\/([^\/]*)$/) { $filename = $1; }
 			$filename =~ s/[\r\n\x00\"]//g;
 			# ファイルデータを読み込み
-			if ($use_temp_dir) {
+			if ($use_temp_flag) {
 				if ( my ($fh,$file) = $self->open_tmpfile() ) {
 					# ファイルがオープンできたら、ファイルに出力
 					my $size = $buffer->read($fh, $boundary, $file_max_size);

@@ -30,9 +30,9 @@
 <$regist_skeleton('skel.local/', 2)>
 
 # テンポラリディレクトリ
-#<$Temp = "/tmp/adiary/">
 <$Temp = "<@data_dir>tmp/">
-<$Temp_timeout = 5min>
+# <$Temp = "/tmp/adiary/">
+# <$Temp_timeout = 10min>
 
 # 曜日
 <$WDAY_name = array('日', '月', '火', '水', '木', '金', '土')>
@@ -162,7 +162,7 @@
 	<$Form_options.multipart_data_max_size  = 1024> その他のデータ
 
 	# 大きいデータの場合、送信ファイルを一度テンポラリに書き出す
-	<$ifset(ENV.CONTENT_LENGTH > 8M, Form_options.multipart_use_temp_dir, Temp)>
+	<$ifset(ENV.CONTENT_LENGTH > 1M, Form_options.multipart_temp_flag, 1)>
 
 	# ホスト名逆引き（2重引き）
 	<$resolve_host()>
