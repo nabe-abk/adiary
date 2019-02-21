@@ -161,8 +161,8 @@
 	<$Form_options.multipart_total_max_size = v.uplaod_files_max>
 	<$Form_options.multipart_data_max_size  = 1024> その他のデータ
 
-	# アップロードファイルを一度ファイルに書き出す（メモリ節約）
-	# <$Form_options.multipart_use_temp_dir = Temp>
+	# 大きいデータの場合、送信ファイルを一度テンポラリに書き出す
+	<$ifset(ENV.CONTENT_LENGTH > 8M, Form_options.multipart_use_temp_dir, Temp)>
 
 	# ホスト名逆引き（2重引き）
 	<$resolve_host()>
