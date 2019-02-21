@@ -2,7 +2,7 @@
 use 5.8.1;
 use strict;
 our $VERSION  = '1.10';
-our $SPEC_VER = '1.00';	# specification version for compatibility
+our $SPEC_VER = '1.10';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
 #						Copyright (C)2019 nabe@abk
@@ -552,29 +552,42 @@ sub parse_request {
 	# Analyze Header
 	#--------------------------------------------------
 	foreach(@header) {
-		if ($_ !~ /^([^:]+):\s*(.*)/) { next; }
+		if ($_ !~ /^([^\w\-]+):\s*(.*)/) {
+			&_400_bad_request($state);
+			return $state;
+		}
 		my $key = $1;
 		my $val = $2;
+		$key =~ tr/a-z/A-Z/;
 
-		if ($key eq 'If-Modified-Since') {
+		if ($key eq 'IF-MODIFIED-SINCE') {
 			$state->{if_modified} = $val;
 			next;
 		}
-		if ($key eq 'Content-Length') {
+		if ($key eq 'CONTENT-LENGTH') {
 			$ENV{CONTENT_LENGTH} = $val;
 			next;
 		}
-		if ($key eq 'Content-Type') {
+		if ($key eq 'CONTENT-TYPE') {
 			$ENV{CONTENT_TYPE} = $val;
 			next;
 		}
-		if ($KEEPALIVE && $key eq 'Connection' && ($val eq 'keep-alive' || $val eq 'Keep-Alive')) {
-			$state->{req_keep_alive} = 1;
+		if ($KEEPALIVE && $key eq 'CONNECTION') {
+			$val =~ tr/A-Z/a-z/;
+			if ($val eq 'keep-alive') {
+				$state->{keep_alive} = 1;
+			}
 		}
 
 		$key =~ s/-/_/g;
-		$key =~ tr/a-z/A-Z/;
 		$ENV{"HTTP_$key"} = $val;
+	}
+	#--------------------------------------------------
+	# Header check
+	#--------------------------------------------------
+	if ($ENV{HTTP_HOST} eq '' || $ENV{HTTP_HOST} !~ m/^[\w-]+(\.[\w\-]+)*$/) {
+		&_400_bad_request($state);
+		return $state;
 	}
 
 	#--------------------------------------------------
@@ -620,7 +633,7 @@ sub analyze_request {
 	my $req   = shift;
 	$state->{request} = $req;
 
-	if ($req !~ m!^(GET|POST|HEAD) ([^\s]+) (?:HTTP/(\d\.\d))?!) {
+	if ($req !~ m!^(GET|POST|HEAD) ([^\s]+) HTTP/(\d\.\d)!) {
 		&_400_bad_request($state);
 		return 1;
 	}
@@ -629,7 +642,7 @@ sub analyze_request {
 	$state->{path}    = $path;
 	$state->{version} = $3;
 
-	if (substr($path,0,1) ne '/') {
+	if (substr($path,0,1) ne '/' || $state->{version}<1.0) {
 		&_400_bad_request($state);
 		return 2;
 	}
@@ -854,7 +867,6 @@ sub send_response {
 	if (index($header, 'Content-Length:')<0) {
 		$header .= "Content-Length: $c_len\r\n";
 	}
-	$state->{keep_alive} = $state->{req_keep_alive} && $status<400;
 	$header .= "Connection: " . ($state->{keep_alive} ? 'keep-alive' : 'close') . "\r\n";
 
 	my $header = <<HEADER;
