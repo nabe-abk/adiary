@@ -552,7 +552,7 @@ sub parse_request {
 	# Analyze Header
 	#--------------------------------------------------
 	foreach(@header) {
-		if ($_ !~ /^([^\w\-]+):\s*(.*)/) {
+		if ($_ !~ /^([\w\-]+):\s*(.*)/) {
 			&_400_bad_request($state);
 			return $state;
 		}
@@ -585,7 +585,7 @@ sub parse_request {
 	#--------------------------------------------------
 	# Header check
 	#--------------------------------------------------
-	if ($ENV{HTTP_HOST} eq '' || $ENV{HTTP_HOST} !~ m/^[\w-]+(\.[\w\-]+)*$/) {
+	if ($ENV{HTTP_HOST} eq '' || $ENV{HTTP_HOST} !~ m/^[\w-]+(\.[\w\-]+)*(:\d+)?$/) {
 		&_400_bad_request($state);
 		return $state;
 	}
