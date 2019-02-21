@@ -703,10 +703,13 @@ sub read_multipart_form {
 	my $options = $self->{Form_options};
 
 	### データサイズの確認
-	my $length    = $ENV{CONTENT_LENGTH};
-	my $total_max = $options->{multipart_total_max_size};
-	if ($total_max && $length > $total_max) {
-		$self->message('Too large form data (max %dKB)', $total_max >> 10); return ;
+	my $length = $ENV{CONTENT_LENGTH};
+	{
+		my $max = $options->{multipart_total_max_size};
+		if ($max && $length > $max) {
+			$self->message('Too large form data (max %dKB)', $max >> 10);
+			return;
+		}
 	}
 
 	my $file_max_size   = $options->{multipart_file_max_size};
@@ -719,7 +722,7 @@ sub read_multipart_form {
 	$content_type =~ /boundary=(.*)/;
 	my $boundary = $1;
 	my $form     = {};
-	my $buffer   = $self->loadpm('Base::BufferedRead', $self->{STDIN}, $length, $total_max, $options->{multipart_buffer_size});
+	my $buffer   = $self->loadpm('Base::BufferedRead', $self->{STDIN}, $length, $options->{multipart_buffer_size});
 	$buffer->{read_max} = $length;
 
 	# 先頭の boundary 読み捨て
