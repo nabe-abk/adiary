@@ -754,7 +754,6 @@ sub exec_cgi {
 		#--------------------------------------------------
 		$ROBJ->start_up();
 		$ROBJ->finish();
-		close(STDIN);
 		close(STDOUT);
 	};
 	binmode($sock);		# buffer clear
