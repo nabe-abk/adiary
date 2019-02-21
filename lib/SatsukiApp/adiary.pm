@@ -55,7 +55,6 @@ sub new {
 	# ディフォルト値の設定
 	$self->SetDefaultValue();
 	$self->{_loaded_bset} = {};
-	$self->{server_url} = $ROBJ->{Server_url};
 	$self->{http_agent} = "adiary $OUTVERSION on Satsuki-system $ROBJ->{VERSION}";
 
 	# 現在の日時設定（日付変更時間対策）
@@ -138,6 +137,9 @@ sub main {
 	# Cookieログイン処理
 	$self->authorization();
 
+	# Server_urlのセキィリティを確保
+	$self->security_check();
+
 	# pinfoとブログの選択。テーマ選択
 	my $blogid = $self->blogid_and_pinfo();
 
@@ -204,6 +206,26 @@ sub authorization {
 	# 管理者 trust mode 設定
 	if ($self->{admin_trust_mode} && $auth->{isadmin}) {
 		$self->{trust_mode} = 1;
+	}
+}
+
+#------------------------------------------------------------------------------
+# ●HTTP_HOST インジェクション対策
+#------------------------------------------------------------------------------
+sub security_check {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	if ($self->{subdomain_mode}) { return; }
+
+	my $srv  = $ROBJ->{Server_url};
+	my $save = $self->{sys}->{ServerURL};
+
+	if (!$ROBJ->{Auth}->{isadmin}) {
+		$ROBJ->{Server_url} = $save || $srv;
+	} elsif ($srv ne $save) {
+		# 管理者ログイン時の Server_url を保存しておく
+		$self->update_sysdat('ServerURL', $srv);
 	}
 }
 
@@ -517,6 +539,7 @@ sub set_and_select_blog {
 		$self->{myself}  = '/';
 		$self->{myself2} = '/';	
 	} elsif ($blogid ne $self->{sys}->{default_blogid}) {
+		$self->{server_url} = $ROBJ->{Server_url};
 		$self->{myself}  = $ROBJ->{Myself2} . "$blogid/";
 		$self->{myself2} = $ROBJ->{Myself2} . "$blogid/";
 	}
