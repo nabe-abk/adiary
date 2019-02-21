@@ -48,8 +48,7 @@ $( function(){
 	var message  = $('#upload-messages');
 	var upfolder = $('#upload-folder');
 	var upreset  = $('#upload-reset');
-	var filesdiv = $('#file-elements');
-	var inputs   = filesdiv.find('input');
+	var file_btn = $('#file-button');
 
 	// Drag&Drop関連
 	var dnd_body = $('#body');
@@ -1349,8 +1348,6 @@ function album_move_files() {
 	folder_select_dialog( move_files );
 }
 
-
-
 //############################################################################
 // ■ファイルアップロード関連
 //############################################################################
@@ -1373,33 +1370,18 @@ dnd_body.on("drop", function(evt) {
 		upfiles.push( dnd_files[i] );
 	update_upfiles();
 
-	// 自動アップロード。スマホの時hidden要素のため。
-	var auto = $('#auto-upload');
-	if (auto.attr('type') == 'checkbox') {
-		if (auto.prop('checked')) upform.submit();
-	} else {
-		if (auto.val()) upform.submit();
-	}
+	// アップロード
+	ajax_upload();
 });
 
 function update_upfiles() {
 	dnd_div.empty();
 	for(var i=0; i<upfiles.length; i++) {
-		if (!upfiles[i]) next;
+		if (!upfiles[i]) continue;
 		var fs  = size_format(upfiles[i].size);
 		var div = $('<div>').text(
 			upfiles[i].name + ' (' + fs + ')'
 		);
-		// 削除アイコン
-		var del = $('<span>').addClass('ui-icon ui-icon-close');
-		del.data('num', i);
-		del.click(function(evt){
-			var obj = $(evt.target);
-			var num = obj.data('num');
-			upfiles[num] = null;
-			obj.parent().remove();
-		});
-		div.append(del);
 		dnd_div.append(div);
 	}
 }
@@ -1407,64 +1389,23 @@ function update_upfiles() {
 //////////////////////////////////////////////////////////////////////////////
 // ●<input type=file> が変更された
 //////////////////////////////////////////////////////////////////////////////
-function input_change() {
-	var flag = true;
-	inputs.each(function(num, obj){
-		if ($(obj).val() == '') flag=false;
-	});
-	if (!flag) return;
-
-	// 送信フォームの追加
-	// apeend_input_file()
+file_btn.on('change', function (evt) {
+	console.log(file_btn, file_btn.val())
+	if (!file_btn.val()) return;
 
 	// アップロードの実行
-	upform.submit();
-}
-//-----------------------------
-// 新しい要素の追加
-//-----------------------------
-function apeend_input_file() {
-	if (inputs.length > 99) return;
-	var inp = $('<input>', {
-		type: 'file',
-		name: 'file' + inputs.length + '_ary',
-		multiple: 'multiple'
-	}).change(input_change);
-	filesdiv.append( inp );
+	ajax_upload();
 
-	// 要素リスト更新
-	inputs = filesdiv.find('input');
-}
-
-inputs.change( input_change );
-input_change();
-
-//////////////////////////////////////////////////////////////////////////////
-// ●ファイルアップロード : submit
-//////////////////////////////////////////////////////////////////////////////
-upform.submit(function(){
-	// ファイルがセットされているか確認
-	var flag = upfiles.length;	// upfiles = DnDでのファイル
-	inputs.each(function(num, obj){
-		if ($(obj).val() != '') flag=true;
-	});
-	if (!flag) return false;
-
-	// ajaxで処理
-	if (window.FormData) return ajax_upload();
-
-	// submit処理
-	iframe.unbind();
-	iframe.on('load', function(){
-		upload_post_process( iframe.contents().text() );
-	});
-	message.html('<div class="message uploading">' + $('#uploading-msg').text() + '</div>');
-	message.show();
-	return true;
+	// 選択クリア
+	file_btn.val('');
 });
 
+//////////////////////////////////////////////////////////////////////////////
+// ●ファイルアップロード後の処理
+//////////////////////////////////////////////////////////////////////////////
 function upload_post_process(text) {
-	upform_reset();	// フォームリセット
+	upform_reset();		// フォームリセット
+	update_upfiles();	// アップファイル一覧消去
 	var ary = text.split(/[\r\n]/);
 	var ret = ary.shift();
 	var reg = ret.match(/^ret=(\d*)/);
@@ -1476,10 +1417,6 @@ function upload_post_process(text) {
 	}
 	message.showDelay();
 
-	// ファイル選択を初期化する
-	filesdiv.empty();
-	apeend_input_file();
-
 	// アルバムツリーのリロード
 	tree_reload();
 }
@@ -1489,6 +1426,8 @@ function upload_post_process(text) {
 //////////////////////////////////////////////////////////////////////////////
 function ajax_upload() {
 	var fd = new FormData( upform[0] );
+	if (!IE11 && !file_btn.val()) fd.delete('file_ary');
+
 	for(var i=0; i<upfiles.length; i++) {
 		if (!upfiles[i]) continue;
 		fd.append('file_ary', upfiles[i]);
@@ -1525,7 +1464,7 @@ function ajax_upload() {
 function upform_reset(){
 	message.hide();
 	upfiles = [];
-	update_upfiles();
+	// update_upfiles();
 }
 upreset.click( upform_reset );
 

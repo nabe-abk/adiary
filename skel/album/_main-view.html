@@ -46,7 +46,7 @@
 	<input type="hidden" name="action" value="<@v.skel_dir>upload_form">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="folder" value="" id="upload-folder">
-	<div id="dnd-files"></div><div id="file-elements"><input type="file" name="file0_ary" multiple id="file"></div>
+	<div id="dnd-files"></div><div id="file-elements"><input type="file" name="file_ary" multiple id="file-button"></div>
 	サムネイル<select name="size" id="thumbnail-size" class="r js-save js-combo" data-target="#size-other" data-format="%vpx">
 			<option value="120" selected>120px</option>
 			<option value="160">160px</option>
@@ -56,7 +56,6 @@
 			<option value="480">480px</option>
 	</select>
 
-	<input type="hidden" id="auto-upload" value="1">
 	<span id="delete-exif-box"><label><input type="checkbox" id="delete-exif" class="js-save" name="del_exif" value="1">Exifの削除</label><span class="help" data-help="アップロード時、JPEG画像に含まれるExif情報を削除します。">?</span></span>
 	</form>
 	</section>

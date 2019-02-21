@@ -384,15 +384,15 @@ sub image_upload_form {
 	# アップロード
 	my $count_s = 0;
 	my $count_f = 0;
-	my @ary;
-	push(@ary, @{ $form->{"file_ary"} || []});
-	foreach(0..99) {
-		push(@ary, @{ $form->{"file${_}_ary"} || [] });
-	}
+	my $ary = $form->{"file_ary"} || [];
+
 	my @files;
-	foreach(@ary) {
+	foreach(@$ary) {
+		if (!ref($_)) { next; }
+
 		my $fname = $_->{file_name};
 		if ($fname eq '') { next; }
+
 		if ($self->do_upload( $dir, $_ )){
 			# $ROBJ->message('Upload fail: %s', $fname);
 			$count_f++;
@@ -403,13 +403,20 @@ sub image_upload_form {
 		push(@files, $fname);
 	}
 
+	# ファイルが残ってたら削除
+	foreach(@$ary) {
+		if (!ref($_)) { next; }
+		my $tmp = $_->{tmp_file};
+		if ($tmp) { $ROBJ->file_delete($tmp); }
+	}
+
 	# サムネイル生成
 	$self->make_thumbnail( $dir, \@files, {
 		size     => $form->{size},
 		del_exif => $form->{del_exif}
 	});
 
-	# ブォルダリストの再生成
+	# フォルダリストの再生成
 	$self->genarete_imgae_dirtree();
 
 	# メッセージ
