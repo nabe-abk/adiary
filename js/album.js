@@ -47,13 +47,11 @@ $( function(){
 	var iframe   = $('#form-response');
 	var message  = $('#upload-messages');
 	var upfolder = $('#upload-folder');
-	var upreset  = $('#upload-reset');
 	var file_btn = $('#file-button');
 
 	// Drag&Drop関連
 	var dnd_body = $('#body');
 	var dnd_div  = $('#dnd-files');
-	var upfiles  = [];
 
 	var isMac = /Mac/.test(navigator.platform);
 	var isSphone = $('#sp-alubm').length;
@@ -1366,21 +1364,22 @@ dnd_body.on("drop", function(evt) {
 	if (!dnd_files) return;
 	if (!FormData)  return;
 
+	var files = [];
 	for(var i=0; i<dnd_files.length; i++)
-		upfiles.push( dnd_files[i] );
-	update_upfiles();
+		files.push( dnd_files[i] );
 
 	// アップロード
-	ajax_upload();
+	update_files_view(files)
+	ajax_upload(files);
 });
 
-function update_upfiles() {
+function update_files_view(files) {
 	dnd_div.empty();
-	for(var i=0; i<upfiles.length; i++) {
-		if (!upfiles[i]) continue;
-		var fs  = size_format(upfiles[i].size);
+	for(var i=0; i<files.length; i++) {
+		if (!files[i]) continue;
+		var fs  = size_format(files[i].size);
 		var div = $('<div>').text(
-			upfiles[i].name + ' (' + fs + ')'
+			files[i].name + ' (' + fs + ')'
 		);
 		dnd_div.append(div);
 	}
@@ -1393,8 +1392,9 @@ file_btn.on('change', function (evt) {
 	console.log(file_btn, file_btn.val())
 	if (!file_btn.val()) return;
 
-	// アップロードの実行
-	ajax_upload();
+	var files = file_btn[0].files;
+	update_files_view(files)
+	ajax_upload(files);
 
 	// 選択クリア
 	file_btn.val('');
@@ -1404,8 +1404,8 @@ file_btn.on('change', function (evt) {
 // ●ファイルアップロード後の処理
 //////////////////////////////////////////////////////////////////////////////
 function upload_post_process(text) {
-	upform_reset();		// フォームリセット
-	update_upfiles();	// アップファイル一覧消去
+	update_files_view([]);		// アップファイル一覧消去
+
 	var ary = text.split(/[\r\n]/);
 	var ret = ary.shift();
 	var reg = ret.match(/^ret=(\d*)/);
@@ -1424,16 +1424,22 @@ function upload_post_process(text) {
 //////////////////////////////////////////////////////////////////////////////
 // ●ajaxでファイルアップロード 
 //////////////////////////////////////////////////////////////////////////////
-function ajax_upload() {
+function ajax_upload(files) {
 	var fd = new FormData( upform[0] );
-	if (!IE11 && !file_btn.val()) fd.delete('file_ary');
+	if (!IE11 && !file_btn.val()) fd.delete('_file_btn');
 
-	for(var i=0; i<upfiles.length; i++) {
-		if (!upfiles[i]) continue;
-		fd.append('file_ary', upfiles[i]);
+	for(var i=0; i<files.length; i++) {
+		if (!files[i]) continue;
+		fd.append('file_ary', files[i]);
 	}
-	// for IE bug。これをしないとフォームからのみファイルupしたとき失敗する
-	if (IE11) fd.append('IE11_dummy', 'dummy for IE');
+
+	// progress message
+	var $span = $('<span>');
+	{
+		var div = $('<div>').addClass("message uploading");
+		div.append( $('#uploading-msg').text() + ' ' );
+		div.append( $span );
+	}
 
 	// submit処理
 	$.ajax(upform.attr('action'), {
@@ -1449,24 +1455,24 @@ function ajax_upload() {
 		success: function(data) {
 			console.log('[ajax_upload()] http post success');
 			upload_post_process(data);
+		},
+		xhr: function(){
+			var XHR = $.ajaxSettings.xhr();
+			XHR.upload.addEventListener('progress', function(e){
+		                var par = parseInt(e.loaded*100/e.total + 0.5);
+		                $span.text( '(' + par +'%)' );
+			});
+			return XHR;
 		}
 	});
 
-	upform_reset();
-	message.html('<div class="message uploading">' + $('#uploading-msg').text() + '</div>');
-	message.show();
+	message.hide();
+	message.empty();
+	message.append( div );
+	message.showDelay();
+
 	return false;
 }
-
-//////////////////////////////////////////////////////////////////////////////
-// ●アップロードフォームのリセット
-//////////////////////////////////////////////////////////////////////////////
-function upform_reset(){
-	message.hide();
-	upfiles = [];
-	// update_upfiles();
-}
-upreset.click( upform_reset );
 
 //////////////////////////////////////////////////////////////////////////////
 // ●リンクのエンコード
