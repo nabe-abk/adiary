@@ -491,7 +491,7 @@ sub do_upload {
 	} else {
 		my $fail;
 		if ($tmp_file) {
-			if (! rename($tmp_file, $save_file)) { $fail=21; }
+			if ($ROBJ->file_move($tmp_file, $save_file)) { $fail=21; }
 		} else {
 			if ($ROBJ->fwrite_lines($save_file, $file_h->{data})) { $fail=22; }
 		}
