@@ -57,6 +57,7 @@ $( function(){
 
 	// フラグ管理
 	var key_event_stop;
+	var uploading;
 
 //////////////////////////////////////////////////////////////////////////////
 // ●初期化処理
@@ -1369,6 +1370,7 @@ dnd_body.on("drop", function(evt) {
 	var dnd_files = evt.originalEvent.dataTransfer.files;
 	if (!dnd_files) return;
 	if (!FormData)  return;
+	if (uploading) return;
 
 	var files = [];
 	for(var i=0; i<dnd_files.length; i++)
@@ -1395,6 +1397,9 @@ function update_files_view(files) {
 //////////////////////////////////////////////////////////////////////////////
 // ●<input type=file> が変更された
 //////////////////////////////////////////////////////////////////////////////
+file_btn.on('click', function (evt) {
+	if (uploading) return false;
+});
 file_btn.on('change', function (evt) {
 	if (!file_btn.val()) return;
 
@@ -1431,6 +1436,8 @@ function upload_post_process(text) {
 // ●ajaxでファイルアップロード 
 //////////////////////////////////////////////////////////////////////////////
 function ajax_upload(files) {
+	uploading = true;
+
 	var fd = new FormData( upform[0] );
 	if (!IE11 && !file_btn.val()) fd.delete('_file_btn');
 
@@ -1461,11 +1468,14 @@ function ajax_upload(files) {
 		dataType: 'text',
 		error: function(xhr) {
 			console.log('[ajax_upload()] http post fail');
-			upload_post_process( xhr.responseText );
+			upload_post_process( xhr.responseText || '' );
 		},
 		success: function(data) {
 			console.log('[ajax_upload()] http post success');
 			upload_post_process(data);
+		},
+		complete: function(){
+			uploading = false;
 		},
 		xhr: function(){
 			var XHR = $.ajaxSettings.xhr();
