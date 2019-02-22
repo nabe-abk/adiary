@@ -47,11 +47,10 @@ $( function(){
 	var iframe   = $('#form-response');
 	var message  = $('#upload-messages');
 	var upfolder = $('#upload-folder');
-	var file_btn = $('#file-button');
+	var file_btn = $('#file-btn');
 
 	// Drag&Drop関連
 	var dnd_body = $('#body');
-	var dnd_div  = $('#dnd-files');
 
 	var isMac = /Mac/.test(navigator.platform);
 	var isSphone = $('#sp-alubm').length;
@@ -1374,14 +1373,15 @@ dnd_body.on("drop", function(evt) {
 });
 
 function update_files_view(files) {
-	dnd_div.empty();
+	var $div = $('#dnd-files');
+	$div.empty();
 	for(var i=0; i<files.length; i++) {
 		if (!files[i]) continue;
 		var fs  = size_format(files[i].size);
 		var div = $('<div>').text(
 			files[i].name + ' (' + fs + ')'
 		);
-		dnd_div.append(div);
+		$div.append(div);
 	}
 }
 
@@ -1389,7 +1389,6 @@ function update_files_view(files) {
 // ●<input type=file> が変更された
 //////////////////////////////////////////////////////////////////////////////
 file_btn.on('change', function (evt) {
-	console.log(file_btn, file_btn.val())
 	if (!file_btn.val()) return;
 
 	var files = file_btn[0].files;

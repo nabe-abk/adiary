@@ -587,6 +587,10 @@ span.tag span.ui-icon-close,
 .ui-dialog-buttonpane button {
 	font-weight:	normal;
 }
+.ui-dialog .ui-dialog-buttonpane {
+	margin-top:	0;
+	padding-top:	0;
+}
 
 /* positioning */
 .ui-icon-blank { background-position: 16px 16px; }
@@ -1003,11 +1007,8 @@ ul.dynatree-container > li > ul {
 	width:			100%;
 	border:			none;
 }
-#file-elements {
+#file-btn-div {
 	margin-bottom:		6px;
-}
-#file-elements input {
-	display:		block;
 }
 #upload-information-view {
 	font-size:		90%;
@@ -1172,9 +1173,13 @@ h3.ui-accordion-header {
 	height:			20px;
 	vertical-align:		middle;
 }
-.ui-progressbar-value {
+
+/* #body を付けないとダイアログ中のプログレスバーに対し
+  「.ui-dialog .ui-widget-header」が優先してしまう */
+#body .ui-progressbar-value {
 	padding:		1px 0 0 1px;	/* 外枠の幅と合わせること */
 	background-color:	#bbb;
+	border-radius:		0;
 }
 
 /*--------------------------------------------------------------------
