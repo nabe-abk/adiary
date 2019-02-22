@@ -163,7 +163,8 @@ sub make_thumbnail {
 		# すでに存在したら生成しない
 		if (!$opt->{force} && -r $thumb) { next; }
 
-		if ($self->is_image($_)) {
+		my $isImage = $self->is_image($_);
+		if ($isImage) {
 			if ($opt->{del_exif} && $_ =~ /\.jpe?g$/i) {
 				my $jpeg = $ROBJ->loadpm('Jpeg');
 				$jpeg->strip("$dir$_");
@@ -280,10 +281,9 @@ sub make_thumbnail_for_notimage {
 	# サイズ処理
 	my $size  = 120;
 	my $fsize = $self->{album_font_size};
-	if($size <120){ $size = 120; }
-	if($fsize<  6){ $fsize=   6; }
-	my $fpixel = int($fsize*0.9 + 0.9999);
-	my $f_height = $fpixel*3 +2;
+	if($fsize < 6) { $fsize = 6; }
+	my $fpixel = int($fsize*1.3333 + 0.999);
+	my $f_height = $fpixel*3 +2;	# bottom padding = 2
 
 	# キャンパス生成
 	my $img = $self->load_image_magick();
@@ -295,7 +295,9 @@ sub make_thumbnail_for_notimage {
 	my $exts = $self->load_album_allow_ext();
 	my $icon_dir  = $ROBJ->get_filepath( $self->{album_icons} );
 	my $icon_file = $exts->{'.'};
-	if ($file =~ m/\.(\w+)$/) {
+	if ($self->is_image($file)) {
+		$icon_file = $exts->{'.img'};	# 画像読み込みエラー時
+	} elsif ($file =~ m/\.(\w+)$/) {
 		my $ext = $1;
 		$ext =~ tr/A-Z/a-z/;
 		if ($exts->{$1}) {
@@ -308,16 +310,12 @@ sub make_thumbnail_for_notimage {
 	my $icon = $self->load_image_magick();
 	eval {
 		$icon->Read( $icon_dir . $icon_file );
-	};
 
-	if (!$@) {
 		my ($x, $y) = $icon->Get('width', 'height');
 		$x = ($size - $x) / 2;
-		$y = ($size - $f_height - $y -4) / 2;
-		if($x<0){ $x=0; }
-		if($y<0){ $y=0; }
+		$y =  $size - $f_height -$y -1;		# default 72 + 1 + 47 = 120
 		$img->Composite(image=>$icon, compose=>'Over', x=>$x, y=>$y);
-	}
+	};
 
 	# 画像情報の書き込み
 	my $album_file = $ROBJ->get_filepath( $self->{album_font} );
@@ -337,7 +335,7 @@ sub make_thumbnail_for_notimage {
 			text => $text,
 			font => $album_file,
 			x => 3,
-			y => ($size - $f_height),
+			y => ($size - $f_height + $fpixel),	# 最初の行の baseline 基準なので1行下げる
 			pointsize => $fsize
 		);
 	}
