@@ -173,7 +173,7 @@ $mop->{send} = sub {
 		$msg  =~ s/%u/$ps->{url}/g;	# URL
 
 		my $icon = $aobj->{blog}->{iconfile}
-			|| $aobj->{pubdist_dir} . 'icon.png';
+			|| $aobj->{pubdist_dir} . 'default-icon.png';
 		$icon .= '?' . $ROBJ->get_lastmodified($icon);
 		$data = $ROBJ->generate_json({
 			title => $bname,

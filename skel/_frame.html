@@ -47,9 +47,7 @@
 <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<@Basepath><@v.blogpub_dir><@t>" /> 
 <$end>
 <@> ショートカットアイコン
-<@ifexec(s.iconfile, begin)>
-<link rel="icon" href="<@Basepath><@s.iconfile>">
-<$end>
+<link rel="icon" href="<@Basepath><@if(s.iconfile, s.iconfile, #'<@v.pubdist_dir>default-icon.png')>">
 <@>
 <!-- JavaScript ============================================-->
 <script defer src="<@Basepath><@v.script_dir>jquery-3.3.1.min.js"></script>

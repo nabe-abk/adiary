@@ -44,7 +44,7 @@
 		<th>メッセージ</th>
 		<td>
 			<textarea name="ping_txt" id="ping-txt" class="w400" rows="2"><@esc(ps.ping_txt || "新しい記事が公開されました。\n\n「%t」")></textarea>
-			<div>%t: 記事タイトル, %u: 記事URL, アイコン: <$icon = v.blog.iconfile || "<@v.pubdist_dir>icon.png">
+			<div>%t: 記事タイトル, %u: 記事URL, アイコン: <$icon = v.blog.iconfile || "<@v.pubdist_dir>default-icon.png">
 			<a href="<@Basepath><@icon>" data-lightbox="box"><img class="middle" src="<@Basepath><@icon>" style="max-width:24px; max-height:24px;"></a><span class="help" data-help="アイコンの変更は「管理画面」→「基本設定」の「サイトアイコン」から行えます。">?</span></div>
 		</td>
 	</tr>
