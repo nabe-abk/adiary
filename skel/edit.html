@@ -267,16 +267,15 @@
 </article>
 
 
-<input type="hidden" value="<@v.sys.edit_lock_time>" id="edit-lock-time">
-<div style="display:none">
+<div style="display:none"><!-- display none -->
 <span id="new-tag-append">追加</span>
 <span id="new-tag-cancel">キャンセル</span>
-<span id="edit-confirm">この記事を編集している人が他にいますが、編集を継続しますか？%u</span>
+<span id="edit-confirm">他にこの記事を編集している人がいますが、編集を継続しますか？%u</span>
 <span id="msg-multiline">複数行を一度に処理できません。</span>
 <span id="msg-upload-error">アップロードに失敗しました。</span>
 <span id="msg-upload-fail">%n 個中 %f 個のアップロードに失敗しました。</span>
 <span id="image-dir"><@v.blogimg_dir()></span>
-
+<span id="edit-lock-time"><@v.sys.edit_lock_time></span>
 
 <@> タグ追加フォーム
 <div id="tag-select-form">
@@ -295,8 +294,11 @@
 <span id="paste-tag" data-file="<@tags.file>" data-exif="<@tags.exif>"></span>
 <span id="imglink-info" data-class="<@s.image_class>" data-target="<@s.image_target>" data-data="<@s.image_data>"></span>
 
-<div id="thumbnail-info"><br>
-<select name="paste">
+<form id="upload-form"><!-- upload dialog -->
+<div id="dnd-files"></div>
+<div id="file-btn-div"><input type="file" name="file_ary" multiple id="file-btn"></div>
+
+<select id="paste-imgtag" name="paste">
 	<option value="<@tags.thumb>">サムネイルを貼付</option>
 	<option value="<@tags.image>">大きい画像を貼付</option>
 </select>&ensp;
@@ -321,12 +323,16 @@
 		<option value="float-r">右寄せ（回り込み）</option>
 	</select>
 </ul>
-</div>
+
+<div id="progress"><span class="label"></span></div>
+
+</form><!-- End of upload dialog -->
 
 
 <div id="size-other" data-title="サムネイルサイズ">
 <input type="number" value="120" class="w50" min="60" max="800">px （60～800）
 </div>
 
-</div>
 
+
+</div><!-- display none end -->

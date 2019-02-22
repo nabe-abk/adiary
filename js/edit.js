@@ -4,10 +4,13 @@
 //############################################################################
 //[TAB=8]
 'use strict';
+//### global variables #######################################################
 var insert_text;	// global function
 var insert_image;	// global function for album.js
 var DialogWidth;
+var IE11;
 var html_mode;		// html input mode
+
 $(function(){
 //############################################################################
 var body = $('#body');
@@ -17,7 +20,6 @@ var parsel = $('#select-parser');
 var edit   = $('#editarea');
 
 var addtag  = $secure('#edit-add-tag');
-var fileup  = $secure('#edit-file-upload');
 var dndbody = $('#edit');
 
 load_tags_list(tagsel);
@@ -168,10 +170,24 @@ upsel.change(function(){
 //############################################################################
 // ■編集ロック機能
 //############################################################################
-var edit_pkey = parseInt($('#edit-pkey').val());
+var edit_pkey = $('#edit-pkey').val();
 var edit_sid;
-var el_time = $('#edit-lock-time').val();
+var el_time   = $('#edit-lock-time').text() || 0;
 var do_edit;
+
+// 初期化
+if (Storage.defined('edit_pkey')) {
+	// ロック済みの場合解除
+	ajax_edit_unlock({
+		name: Storage.get('edit_pkey'),
+		sid:  Storage.get('edit_sid'),
+		callback: edit_mode
+	});
+	Storage.remove('edit_pkey');
+	Storage.remove('edit_sid');
+} else {
+	edit_mode();
+}
 
 function edit_mode() {
 	if (!edit_pkey || el_time<10) {
@@ -202,20 +218,6 @@ function edit_mode() {
 		callback: edit_lock_checked
 	});
 }
-
-// ロック済の場合、解除する
-if (Storage.defined('edit_pkey')) {
-	ajax_edit_unlock({
-		name: Storage.get('edit_pkey'),
-		sid:  Storage.get('edit_sid'),
-		callback: edit_mode
-	});
-	Storage.remove('edit_pkey');
-	Storage.remove('edit_sid');
-} else {
-	edit_mode();
-}
-
 
 //----------------------------------------------------------------------------
 // ●編集中の確認結果
@@ -269,6 +271,7 @@ function start_edit(){
 //----------------------------------------------------------------------------
 var lock_interval;
 function set_lock_interval() {
+	if (el_time<1) return;
 	lock_interval = setInterval(do_edit_lock, el_time*1000);
 }
 
@@ -352,7 +355,7 @@ function ajax_edit_lock(opt) {
 // ●カーソル位置にテキスト挿入
 //----------------------------------------------------------------------------
 // save to global for album.js
-insert_image = function(text, caption, fclass) {
+insert_image = function(text, caption, fig_class) {
 	if (html_mode) {
 		var imgdir = $('#image-dir').text();
 		text = text.replace(/\[image:((?:\\[:\[\]]|[^\]])+)\]/g, function(ma, m1){
@@ -399,19 +402,19 @@ insert_image = function(text, caption, fclass) {
 	// キャプションとブロックの処理
 	//------------------------------------------------------------------
 	if (caption) caption = caption.replace(/^\s+/,'').replace(/\s+$/,'');
-	if (caption || fclass) {
+	if (caption || fig_class) {
 		caption = caption ? caption : '';
-		fclass  = fclass  ? fclass  : '';
+		fig_class  = fig_class  ? fig_class  : '';
 		if (helper_mode == 'default') {
-			if (caption) fclass = fclass + ((fclass == '') ? '' : ' ') + "caption=" + caption
-			if (fclass) {
-				text = ">>|figure " + fclass + "\n"
+			if (caption) fig_class = fig_class + ((fig_class == '') ? '' : ' ') + "caption=" + caption
+			if (fig_class) {
+				text = "\n>>|figure " + fig_class + "\n"
 					+ text + "\n" +
 					"|<<\n";
 			}
 		} else {
 			text = (helper_mode == 'markdown' ? ' ' : '')
-				+ '<figure class="' + fclass + '">'
+				+ "\n" + '<figure class="' + fig_class + '">'
 				+ text
 				+ (caption ? '<figcaption>'+ tag_esc_amp(caption) +'</figcaption>' : '').toString()
 				+ "</figure>\n";
@@ -451,96 +454,96 @@ function replace_selection( text ) {
 //############################################################################
 // ■ファイルアップロード機能
 //############################################################################
-var paste_type;
-var dnd_files;
-var thumb= $('#thumbnail-info').detach();
+var $upform   = $('#upload-form').detach();
+var $file_btn = $upform.find('#file-btn');
+var $fileup   = $secure('#edit-file-upload');
 //----------------------------------------------------------------------------
 // ●アップロードダイアログ
 //----------------------------------------------------------------------------
-fileup.click( function(){
-	var form = $('<form>').append( thumb );
-	var div  = $('<div>') .append( form  );
-	var cnt  = 0;
+$fileup.click(function(){
+	update_files_view([]);
+	open_upload_dialog();
+});
+function open_upload_dialog(files) {
+	var div = $('<div>').append( $upform );
+	var cnt = 0;
 
-	if (dnd_files) {
-		var dnd = $('<div>').attr('id', 'dnd-files');
-		for(var i=0; i<dnd_files.length; i++) {
-			var fs  = size_format(dnd_files[i].size);
-			var file = $('<div>').text(
-				dnd_files[i].name + ' (' + fs + ')'
-			);
-			dnd.append( file );
-		}
-		dnd.css('margin-bottom', '8px');
-		dnd.insertBefore(form);
+	if (files) {
+		$file_btn.hide();
+		update_files_view(files);
+	} else {
+		$file_btn.show();
 	}
 
 	// 設定済サムネイルサイズをロードさせるためのidの細工
-	var thsize = thumb.find('select.thumbnail-size');
+	var thsize = $upform.find('select.thumbnail-size');
 	if (thsize.length==1) thsize.attr('id', 'thumbnail-size');
-
-	function create_input_file() {
-		var inp = $('<input>').attr({
-			type: 'file',
-			name: 'file' + cnt.toString() + '_ary'
-		}).prop('multiple', true);
-		cnt++;
-		return $('<div>').append(inp);
-	}
-	function input_change() {
-		var files = form.find('input[type="file"]');
-		var flag;
-		files.each(function(num, obj){
-			if ($(obj).val() == '') flag=true;
-		});
-		if (flag) return;
-
-		// すべて使用済のとき１つ追加
-		var inp = create_input_file();
-		inp.change( input_change );
-		inp.insertBefore( thumb );
-	}
-	input_change();
 
 	// ボタンの設定
 	var buttons = {};
 	var ok_func = buttons['Upload'] = function(){
-		var flag;
-		form.find('input[type="file"]').each(function(num, obj){
-			if ($(obj).val() != '') flag=true;
-		});
-		if(!dnd_files && !flag) return;	// 1つもセットされていない
-		paste_type = form.find('select[name="paste"]').val() || '';
+		if (!files && !$file_btn.val()) return;	// no selected
 
-		var exif    = $('#paste-to-exif').prop('checked');
-		var caption = $('#paste-caption').val();
-		var fclass  = $('#paste-class').val();
-		ajax_upload( form[0], dnd_files, function(data, folder){
-			upload_files_insert(data, folder, exif, caption, fclass);
+		div.parent().find('.ui-button').button("option", "disabled", true);
+
+		ajax_upload( $upform[0], files, {
+			callback: function(data, folder){
+				upload_files_insert(data, folder, {
+					exif: $('#paste-to-exif').prop('checked'),
+					caption: $('#paste-caption').val(),
+					fig_class: $('#paste-class').val(),
+					img_tag:  $upform.find('#paste-imgtag').val(),
+					file_tag: $('#paste-tag').data('file'),
+					exif_tag: $('#paste-tag').data('exif')
+				});
+			},
+			complete: function(){
+				div.dialog( 'close' );
+				$upform.detach();
+				div.remove();
+			}
 		});
 
-		dnd_files = null;
-		div.dialog( 'close' );
-		thumb.detach();
-		div.remove();
+		$file_btn.val('');
 	};
 	buttons[ $('#ajs-cancel').text() ] = function(){
 		div.dialog( 'close' );
-		thumb.detach();
+		$upform.detach();
 		div.remove();
 	};
 	div.dialog({
 		modal: true,
 		width:  DialogWidth,
-		minHeight: 200,
-		title:   fileup.data('title'),
+		// minHeight: 200,
+		title:   $fileup.data('title'),
 		buttons: buttons
 	});
+}
+//----------------------------------------------------------------------------
+// ●選択ファイル一覧表示 / ファイル選択後の処理
+//----------------------------------------------------------------------------
+function update_files_view(files) {
+	var $div = $upform.find('#dnd-files');
+	$div.empty();
+	for(var i=0; i<files.length; i++) {
+		if (!files[i]) continue;
+		var fs  = size_format(files[i].size);
+		var div = $('<div>').text(
+			files[i].name + ' (' + fs + ')'
+		);
+		$div.append(div);
+	}
+}
+
+$file_btn.on('change', function() {
+	var files = $file_btn[0].files;
+	update_files_view(files)
 });
+
 //----------------------------------------------------------------------------
 // ●アップロード後の処理
 //----------------------------------------------------------------------------
-function upload_files_insert(data, folder, exif, caption, fclass) {
+function upload_files_insert(data, folder, opt) {
 	try {
 		data['fail']    = parseInt(data['fail']);
 		data['success'] = parseInt(data['success']);
@@ -559,12 +562,10 @@ function upload_files_insert(data, folder, exif, caption, fclass) {
 	}
 
 	// 記事に挿入
-	var img_tag  = paste_type;
-	var file_tag = $('#paste-tag').data('file');
 	var ary = data['files'];
 	if (!data['success'] || !ary) return;
 
-	var exiftag = exif ? $('#paste-tag').data('exif') : null;
+	var exiftag = opt.exif ? opt.exif_tag : null;
 	var text = '';
 	var esc_dir = esc_satsuki_tag(folder);
 	for(var i=0; i<ary.length; i++) {
@@ -582,19 +583,19 @@ function upload_files_insert(data, folder, exif, caption, fclass) {
 		}
 
 		// タグ生成
-		var tag = ary[i].isImg ? img_tag : file_tag;
+		var tag = ary[i].isImg ? opt.img_tag : opt.file_tag;
 		tag = tag.replace(/%([cdef])/g, function($0,$1){ return rep[$1] });
 		// 記録
 		text += (text ? "\n" : "") + tag;
 	}
 
-	insert_image(text, caption, fclass);
+	insert_image(text, opt.caption, opt.fig_class);
 }
 
 //----------------------------------------------------------------------------
 // ●アップロード処理
 //----------------------------------------------------------------------------
-function ajax_upload( form_dom, upfiles, callback ) {
+function ajax_upload( form_dom, files, option ) {
 	var date = $('#edit-date').val().toString() || '';
 	var year;
 	var mon;
@@ -606,23 +607,38 @@ function ajax_upload( form_dom, upfiles, callback ) {
 		year = d.getFullYear();
 		mon  = (101 + d.getMonth()).toString().substr(1);
 	}
-	var folder = fileup.data('folder');
+	var folder = $fileup.data('folder');
 	if (folder == '') folder='adiary/%y/';
 	folder = folder.replace('%y', year).replace('%m', mon).replace(/^\/+/, '');
 
 	// FormData生成
 	var fd = new FormData( form_dom );
+	if (!IE11 && !$file_btn.val()) fd.delete('_file_btn');
 	fd.append('csrf_check_key', $('#csrf-key').val());
 	fd.append('action', 'etc/ajax_upload');
 	fd.append('folder', folder);
 
 	// DnDされたファイル
-	if (upfiles) {
-		for(var i=0; i<upfiles.length; i++) {
-			if (!upfiles[i]) continue;
-			fd.append('file_ary', upfiles[i]);
+	if (files) {
+		for(var i=0; i<files.length; i++) {
+			if (!files[i]) continue;
+			fd.append('file_ary', files[i]);
 		}
 	}
+
+	// progress bar init
+	var $prog  = $('#progress');
+	var $label = $prog.find('.label').text('');
+	$prog.show();
+	$prog.progressbar({
+		value: 0,
+		change: function() {
+			$label.text( $prog.progressbar( "value" ) + "%" );
+		},
+		complete: function() {
+			$label.text( "Upload complite!" );
+		}
+	});
 
 	// submit処理
 	$.ajax(Vmyself + '?etc/ajax_dummy', {
@@ -637,7 +653,19 @@ function ajax_upload( form_dom, upfiles, callback ) {
 		},
 		success: function(data) {
 			console.log('[ajax_upload()] http post success');
-			if (callback) callback(data, folder);
+			if (option.callback) option.callback(data, folder);
+		},
+		complete: function(xhr, text) {
+			$prog.hide();
+			if (option.complete) option.complete(xhr, text);
+		},
+		xhr: function() {
+			var XHR = $.ajaxSettings.xhr();
+			XHR.upload.addEventListener('progress', function(e){
+				var par = Math.floor(e.loaded*100/e.total + 0.5);
+				$prog.progressbar({ value: par });
+			});
+			return XHR;
 		}
 	});
 }
@@ -654,12 +682,12 @@ dndbody.on("drop", function(evt) {
 	if (!do_edit) return;
 	if (!evt.originalEvent.dataTransfer) return;
 
-	dnd_files = evt.originalEvent.dataTransfer.files;
-	if (!dnd_files || !dnd_files.length) return;
+	var files = evt.originalEvent.dataTransfer.files;
+	if (!files || !files.length) return;
 	if (!window.FormData) return;
 
 	// ダイアログを出す
-	fileup.click();
+	open_upload_dialog(files);
 });
 
 //############################################################################
