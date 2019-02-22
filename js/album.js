@@ -55,6 +55,9 @@ $( function(){
 	var isMac = /Mac/.test(navigator.platform);
 	var isSphone = $('#sp-alubm').length;
 
+	// フラグ管理
+	var key_event_stop;
+
 //////////////////////////////////////////////////////////////////////////////
 // ●初期化処理
 //////////////////////////////////////////////////////////////////////////////
@@ -615,6 +618,8 @@ function update_selected_files() {
 // ファイル名の編集
 //----------------------------------------------------------------------------
 function edit_file_name(li) {
+	key_event_stop = true;
+
 	var inp = $('<input>').attr({
 		type:  'text',
 		value: li.data('name')
@@ -643,6 +648,7 @@ function edit_file_name(li) {
 	// ○フォーカスが離れた（編集終了）
 	//-------------------------------------------
 	inp.blur(function(evt){
+		key_event_stop = false;
 		li.text( li.data('name') );
 	});
 	
@@ -1312,6 +1318,7 @@ function album_delete_files() {
 	})
 }
 $(document).on('keydown', function(evt) {
+	if (key_event_stop) return;
 	if ($('#lightbox').is(':visible')) return;
 	if ($('div.ui-dialog').is(':visible')) return;
 	if (evt.keyCode != 46) return;
