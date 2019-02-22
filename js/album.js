@@ -1433,12 +1433,17 @@ function ajax_upload(files) {
 	}
 
 	// progress message
-	var $span = $('<span>');
-	{
-		var div = $('<div>').addClass("message uploading");
-		div.append( $('#uploading-msg').text() + ' ' );
-		div.append( $span );
-	}
+	var $label = $('<span>').addClass( 'label' );
+	var $prog  = $('<div>').append( $label );
+	$prog.progressbar({
+		value: 0,
+		change: function() {
+			$label.text( "Uploading " + $prog.progressbar( "value" ) + "%" );
+		},
+		complete: function() {
+			$label.text( "Upload complite!" );
+		}
+	});
 
 	// submit処理
 	$.ajax(upform.attr('action'), {
@@ -1459,7 +1464,7 @@ function ajax_upload(files) {
 			var XHR = $.ajaxSettings.xhr();
 			XHR.upload.addEventListener('progress', function(e){
 		                var par = Math.floor(e.loaded*100/e.total + 0.5);
-		                $span.text( '(' + par +'%)' );
+		                $prog.progressbar({ value: par });
 			});
 			return XHR;
 		}
@@ -1467,7 +1472,7 @@ function ajax_upload(files) {
 
 	message.hide();
 	message.empty();
-	message.append( div );
+	message.append( $prog );
 	message.showDelay();
 
 	return false;
