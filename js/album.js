@@ -1459,7 +1459,7 @@ function ajax_upload(files) {
 		xhr: function(){
 			var XHR = $.ajaxSettings.xhr();
 			XHR.upload.addEventListener('progress', function(e){
-		                var par = parseInt(e.loaded*100/e.total + 0.5);
+		                var par = Math.floor(e.loaded*100/e.total + 0.5);
 		                $span.text( '(' + par +'%)' );
 			});
 			return XHR;
