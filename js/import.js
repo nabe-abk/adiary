@@ -70,7 +70,7 @@ adiary_session($('button.import'), {
 		var XHR = $.ajaxSettings.xhr();
 		XHR.upload.addEventListener('progress', xhr_progress);
 		return XHR;
-	},
+	}
 });
 
 
