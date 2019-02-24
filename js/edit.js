@@ -456,6 +456,7 @@ function replace_selection( text ) {
 //############################################################################
 var $upform   = $('#upload-form').detach();
 var $file_btn = $upform.find('#file-btn');
+var $file_div = $upform.find('#file-btn-div');
 var $fileup   = $secure('#edit-file-upload');
 //----------------------------------------------------------------------------
 // ●アップロードダイアログ
@@ -469,10 +470,10 @@ function open_upload_dialog(files) {
 	var cnt = 0;
 
 	if (files) {
-		$file_btn.hide();
+		$file_div.hide();
 		update_files_view(files);
 	} else {
-		$file_btn.show();
+		$file_div.show();
 	}
 
 	// 設定済サムネイルサイズをロードさせるためのidの細工

@@ -296,7 +296,10 @@
 
 <form id="upload-form"><!-- upload dialog -->
 <div id="dnd-files"></div>
-<div id="file-btn-div"><input type="file" name="file_ary" multiple id="file-btn"></div>
+<div id="file-btn-div">
+	<button type="button" data-target="#file-btn">ファイルを選択</button>
+	<input type="file" name="_file_btn" multiple id="file-btn" class="display-none">
+</div>
 
 <select id="paste-imgtag" name="paste">
 	<option value="<@tags.thumb>">サムネイルを貼付</option>

@@ -47,7 +47,10 @@
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="folder" value="" id="upload-folder">
 	<div id="dnd-files"></div>
-	<div id="file-btn-div"><input type="file" name="_file_btn" multiple id="file-btn"></div>
+	<div id="file-btn-div">
+	<button type="button" data-target="#file-btn">ファイルを選択</button>
+	<input type="file" name="_file_btn" multiple id="file-btn" class="display-none">
+	</div>
 	サムネイル<select name="size" id="thumbnail-size" class="r js-save js-combo" data-target="#size-other" data-format="%vpx">
 			<option value="120" selected>120px</option>
 			<option value="160">160px</option>
