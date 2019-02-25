@@ -17,13 +17,6 @@
 <div class="body">
 	<p>ファイルから記事データをインポートします。</p>
 
-<@ifexec(Develop && !exists(Query.ajax), begin)>
-	<p id="no-ajax-link"><a href="<@v.myself>?<@v.skeleton>&amp;ajax=0">※Ajaxを使わない（Develop時のみ表示）</a></p>
-<$end>
-<@ifexec(Query.ajax eq '0', begin)>
-	<p><strong class="warning">※Ajaxを使わないで処理を行います。</strong></p>
-<$end>
-
 	<ul>
 		<li>公開/非公開などのフラグが未設定の場合、現在の標準設定が引き継がれます。</li>
 		<li>トラックバック情報は無視されます。</li>
