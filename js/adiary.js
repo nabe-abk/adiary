@@ -1183,7 +1183,6 @@ initfunc.push( function(R){
 	R.findx('button[data-target]').click( function(evt){
 		var $obj = $(evt.target);
 		var $tar = $obj.rootfind( $obj.data('target') );
-		console.log($tar);
 		if (! $tar.length ) return;
 
 		$tar.click();
