@@ -4,10 +4,11 @@
 
 <@> システムモード
 <$v.system_mode("記事一覧")>
-<$s = v.blog>
 
-<$v.no_robots=0>
+<$no_robots=0>
 <$v.add_header(#'<meta name="robots" content="noindex">\n')>
+
+<$s = v.blog>
 
 <@>--------------------------------------------
 <@> 検索、条件指定ロジック

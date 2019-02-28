@@ -343,7 +343,7 @@ sub read_query_form {
 		} elsif ($_ eq '_theme') {	# テーマ指定
 			$self->load_theme( $v );
 		}
-		$self->{no_robots}=1;
+		$ROBJ->{no_robots}=1;
 		$self->{sp_query} .= "&$_=$v";
 		delete $q->{$_};
 	}
@@ -636,8 +636,9 @@ sub save_blogset_sys {
 sub system_mode {
 	my ($self, $title) = @_;
 	my $ROBJ = $self->{ROBJ};
-	$self->{system_mode} = 1;
-	$self->{no_robots}   = 1;
+	$self->{system_mode}    = 1;
+	$ROBJ->{no_robots}      = 1;
+	$ROBJ->{load_jquery_ui} = 1;
 	if ($title ne '') { $self->{title} = $title; }
 
 	if ($self->{blog}->{sysmode_notheme}){

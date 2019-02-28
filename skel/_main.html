@@ -25,7 +25,7 @@
 
 <@> dayモードでの処理
 <$ifexec(ret.mode eq 'day', begin)>
-	<$v.no_robots=1>
+	<$no_robots=1>
 	<@>（現在は無効）ログが1件なら key で redirect
 	<$ifexec(0 && ##logs==0, begin)>
 		<$t=logs#0>
@@ -52,7 +52,7 @@
 <$page = ret.page)>
 <@>
 <@ifexec(ret.mode eq 'search', begin.search)>
-<$v.no_robots=1>
+<$no_robots=1>
 <article class="system message search">
 <$q=''>
 <$q .= if(ret.q, '&amp;q=' . ret.q, '')>

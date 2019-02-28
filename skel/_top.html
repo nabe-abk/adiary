@@ -6,6 +6,7 @@
 
 <@> システムモード
 <$v.system_mode()>
+<$no_robots = 0>
 
 <@> アップデート警告
 <@ifcall(v.require_update, '_sub/require_update')>
@@ -75,6 +76,4 @@
 <$end>
 
 <@><!--=====================================================================-->
-<@> Robots避けをoffに
-<$v.no_robots = 0>
 <$v.title = title>

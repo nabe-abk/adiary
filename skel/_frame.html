@@ -13,9 +13,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="generator" content="adiary <@v.VERSION>">
 <meta name="author" content="<@v.blogid>">
-<@if(v.no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
+<@if(no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
 <@>
-<@if(v.system_mode || load_jquery, #'<link class="css-defer" href="<@Basepath><@v.pubdist_dir>jquery-ui/jquery-ui.structure.min.css">\n')>
+<@if(load_jquery_ui, #'<link class="css-defer" href="<@Basepath><@v.pubdist_dir>jquery-ui/jquery-ui.structure.min.css">\n')>
 <link class="css-defer" href="<@Basepath><@v.pubdist_dir>lightbox/lightbox.css">
 <@>
 <@forexec(t, v.load_jscss(Basepath, 'csslib'), begin)>
@@ -51,7 +51,7 @@
 <@>
 <!-- JavaScript ============================================-->
 <script defer src="<@Basepath><@v.script_dir>jquery-3.3.1.min.js"></script>
-<@if(v.system_mode || load_jquery, #'<script defer src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>\n')>
+<@if(load_jquery_ui, #'<script defer src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>\n')>
 <script defer src="<@Basepath><@v.script_dir>adiary.js?<@get_lastmodified(v.script_dir)>"></script>
 <@forexec(t, v.load_jscss(Basepath, 'jslib'), begin)>
 <script defer src="<@t>"></script>
