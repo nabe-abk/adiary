@@ -1520,7 +1520,7 @@ sub dump_hash {
 		$x =~ s/%[Vv]/$h->{$_}/g;
 		push(@ary, $x);
 	}
-	return \@ary;
+	return join('',@ary);
 }
 
 1;
