@@ -975,15 +975,10 @@ nav.tree {
 ●デザイン編集
 ---------------------------------------------------------------------*/
 .design-module-edit.display {	/* 表示ボタンを押したとき */
-	background-color:	#fcc;
+	background-color:	#888;
 }
-.design-module-edit:hover {
-	background-color:	#faa;
-}
-
-/* モジュールの設定画面 */
-.ui-dialog table.blog-setting {
-	font-size:		10pt;
+.design-module-edit:hover:not(.hoverstop) {
+	background-color:	#a00;
 }
 
 /*--------------------------------------------------------------------

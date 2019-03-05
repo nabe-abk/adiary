@@ -13,11 +13,7 @@
 html {
 	font-family:		"メイリオ", sans-serif;
 }
-/*
-h1, h2, h3, h4, h5, h6, .dropdown-menu, button {
-	font-family:		"Yu Gothic", "メイリオ", sans-serif;
-}
-*/
+
 /*--------------------------------------------------------------------
 ■全体表示（システム関連）
 ---------------------------------------------------------------------*/
@@ -1075,8 +1071,6 @@ figure.center, figure.c {
 .module-edit-header span.ui-icon:hover {
 	background-color:       #eee;
 }
-
-
 #body .module-edit-header * {
 	vertical-align:		top;
 }
