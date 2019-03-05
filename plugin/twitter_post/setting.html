@@ -20,14 +20,13 @@
 		<th>認証状態</th>
 		<td>
 			<strong><@ps.screen_name></strong> で認証されています。
-			<button type="button" id="do-oauth"><label>再認証する</label>
+			<button type="button" id="do-oauth">再認証する</button>
 		</td>
 	</tr>
 	<tr>
 		<th>記事の通知</th>
 		<td>
-			<input type="checkbox" name="ping" value="1"<@if(ps.ping, ' checked')>>
-			<label>新着記事をTwitterに通知する</label>
+			<label><input type="checkbox" name="ping" value="1"<@if(ps.ping, ' checked')>>新着記事をTwitterに通知する</label>
 		</td>
 	</tr>
 	<tr>

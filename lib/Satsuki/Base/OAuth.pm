@@ -32,7 +32,7 @@ sub new {
 sub request_token {
 	my $self = shift;
 	my $h    = shift;
-	my $url  = shift;	# callback url
+	my $url  = shift || $h->{callback_url};
 	my $ROBJ = $self->{ROBJ};
 
 	my $oauth = {
@@ -59,9 +59,9 @@ sub request_token {
 	});
 
 	if (!ref($res)) { return undef; }	# error
-	my $res = $self->parse_response( join('', @$res) );
+	my $res = $self->parse_response( $http, join('', @$res) );
 	if ($res->{oauth_callback_confirmed} ne 'true') {
-		$ROBJ->error("OAuth request_token response error\n");
+		$ROBJ->error("OAuth request_token response error : $res->{error}\n");
 		return undef;
 	}
 	return $res;
@@ -99,7 +99,7 @@ sub request_access_token {
 	});
 
 	if (!ref($res)) { return undef; }	# error
-	return $self->parse_response( join('', @$res) );
+	return $self->parse_response( $http, join('', @$res) );
 }
 
 #------------------------------------------------------------------------------
@@ -338,9 +338,19 @@ sub oauth_encode_uricom {
 #------------------------------------------------------------------------------
 sub parse_response {
 	my $self = shift;
-	my @ary = split(/&/, shift);
+	my $http = shift;
+	my $res  = shift;
 	my %h;
-	foreach (@ary) {
+	$h{status} = $http->{status};
+
+	if ($http->{status} >= 400) {
+		if ($res =~ m|<error\s+(?:code="(\d+)")?>([^<]*)</error>|i) {
+			my $err = $2 . ($1 ? " (code=$1)" : '');
+			$h{error} = $err;
+		}
+		return \%h;
+	}
+	foreach(split(/&/, $res)) {
 		my ($k, $v) = split(/=/, $_, 2);
 		$v =~ tr/+/ /;
 		$v =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;

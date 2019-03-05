@@ -12,8 +12,8 @@
 <$tw = call('_sub/load_twitter_info')>
 <$oauth = loadpm("Base::OAuth")>
 
-<$r = oauth.request_token(tw, "<@Server_url><@v.myself>?twitter/oauth_verify")>
-<$ifexec(!r, begin)>
+<$r = oauth.request_token(tw)>
+<@ifexec(!r, begin)>
 	<@"1">
 	<$break()>
 <$end>
@@ -26,5 +26,6 @@
 <$ps.back_url = back_url>
 <$v.update_plgset(name, ps)>
 
+
 <@"0\n">
-<@"<@tw.authorize_path>?oauth_token=<@ps.oauth_token>">
+<@"<@tw.callback_url>?oauth_token=<@ps.oauth_token>&__callback=" . esc("<@v.server_url><@v.myself>?twitter/oauth_verify")>
