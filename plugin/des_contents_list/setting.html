@@ -36,8 +36,8 @@
 	<tr>
 		<th>折り畳みスイッチ<span class="help" data-help="ノードを開閉スイッチを表示するか指定します。">?</span></th>
 		<td>
-			<input type="checkbox" name="switch" value="1"<@if(ps.switch, ' checked')>
-			 class="js-enable" data-target="#des-conlist-nclose"><label>表示する</label>
+			<label><input type="checkbox" name="switch" value="1"<@if(ps.switch, ' checked')>
+			 class="js-enable" data-target="#des-conlist-nclose">表示する</label>
 			&emsp;<label><input type="checkbox" name="nclose" id="des-conlist-nclose" value="1"<@if(ps.nclose, ' checked')>>標準で閉じる</label>
 		</td>
 	</tr>
