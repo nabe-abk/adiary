@@ -503,7 +503,7 @@ function module_setting(obj, mode) {
 	// フォーム本体をロード
 	body.load(url, function(){
 		var id = obj.attr('id');
-		if (id) body.prepend( $('<div>').text('id = #' + id) );
+		// if (id) body.prepend( $('<div>').text('id = #' + id).addClass('plugin-setting-id') );
 		if (1 || mode == 'css') {	// HTMLソースを表示
 			var vbtn = $('<button>').attr('type','button');
 			vbtn.text( $('#btn-view-html').text() );
