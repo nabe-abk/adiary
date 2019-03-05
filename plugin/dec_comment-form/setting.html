@@ -2,13 +2,20 @@
 <@local(ps)>
 <$ps=argv#0>
 	<$txt = ps.msg_txt><$ifexec(ps.lf2br, begin)><$replace(txt, '<br>', "\n")><$end>
-	フォームの後ろに出力する内容。
+	<div>
+	フォームの後ろに表示するテキスト。
 	<textarea class="w512" rows="4" name="msg_txt"><@esc(txt)></textarea>
-	<a href="<@v.myself>?etc/allow_tags&amp;n=usertext" target="_blank">※使用可能なHTMLタグ</a><br>
+	<label><input type="checkbox" name="lf2br" value="1"<@if(ps.lf2br,' checked')>>改行有効</label>
+	<a href="<@v.myself>?etc/allow_tags&amp;n=usertext" target="_blank">※使用可能なHTMLタグ</a>
+	</div>
 
 	<ul class="checkbox">
-	<li><label><input type="checkbox" name="lf2br" value="1"<@if(ps.lf2br,' checked')>>改行を有効にする</label></li>
 	<li><label><input type="checkbox" name="email" value="1"<@if(ps.email,' checked')>>E-mail入力欄を表示する</label></li>
 	<li><label><input type="checkbox" name="url"   value="1"<@if(ps.url  ,' checked')>>URL入力欄を表示する</label></li>
+	<li>非公開ボタンにヘルプ表示<br>
+		<input type="text" class="w400" name="hidden_help" value="<@ps.hidden_help>">
+	</li>
 	</ul>
+
+
 
