@@ -290,7 +290,7 @@ sub object_free_finish {
 	undef $self->{Loadpm_array};
 	undef $self->{ROBJ};
 
-	foreach my $obj (@$mods) {
+	foreach my $obj (reverse(@$mods)) {
 		if (!$obj->can('Finish')) { next; }
 		$obj->Finish();
 	}
