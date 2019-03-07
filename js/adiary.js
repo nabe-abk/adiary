@@ -1166,9 +1166,24 @@ initfunc.push( function(R){
 //●textareaでのタブ入力
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	R.findx('textarea').keydown( function(evt){
-		var obj = $(evt.target);
-		if (obj.prop('readonly') || obj.prop('disabled')) return;
+	var $ta = R.findx('textarea');
+
+	$ta.focus( function(evt){
+		var $obj = $(evt.target);
+		$obj.data('_tab_stop', true);
+	});
+	$ta.keydown( function(evt){
+		var $obj = $(evt.target);
+		if ($obj.prop('readonly') || $obj.prop('disabled')) return;
+
+		// ESC key
+		if (evt.keyCode == 27) return $obj.data('_tab_stop', true);
+
+		// フォーカス直後のTABは遷移させる
+		if ($obj.data('_tab_stop')) {
+			$obj.data('_tab_stop', false);
+			return;
+		}
 		if (evt.shiftKey || evt.keyCode != 9) return;
 
 		evt.preventDefault();
@@ -1452,16 +1467,18 @@ $(function(){
 	// 10key押されるか、10秒経ったら設定
 	var cnt=0;
 	var tarea = form.find('textarea');
-	var enable_func = function(){
-		tarea.off('keydown');
-		$('#comment-form-sid').val(sid);
-		post.prop('disabled', false);
-	};
-	tarea.on('keydown', function(){
+	var hook  = function(){
 		cnt++;
 		if (cnt<10) return;
 		enable_func()
-	});
+	};
+	tarea.on('keydown', hook);
+
+	var enable_func = function(){
+		tarea.off('keydown', hook);
+		$('#comment-form-sid').val(sid);
+		post.prop('disabled', false);
+	};
 	setTimeout(enable_func, 10000);
 });
 //////////////////////////////////////////////////////////////////////////////
