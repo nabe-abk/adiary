@@ -30,17 +30,12 @@
 	<tr>
 		<th>ブログID</th><td><input type="text" class="w80" name="id" id="blogid" value="<@Auth.id>" readonly>（変更不可）</td>
 	</tr>
-	<tr>
-		<th>デザイン</th>
-		<td>
-			<label><input type="checkbox" name="load_design" value="1"<@if(Form.load_design || Form.load_design eq '',' checked')>>標準デザインをロードする</label>
-		</td>
-	</tr>
+	<input type="hidden" name="load_design" value="1">
 	<@ifexec(Auth.isadmin, begin)>
 	<tr>
 		<th>設定</th>
 		<td>
-			<label><input type="checkbox" name="default_blog" value="1"<@if(Form.default_blog || Form.default_blog eq '',' checked')>>デフォルトブログに設定する</label><span class="help" data-help="標準で表示されるブログとして設定します。複数のブログを作成しない場合、onを推奨します。\nこの設定は「システム管理」から変更できます。設定しない場合、adiaryのトップページにはブログの一覧が表示されます。">?</span>
+			<label><input type="checkbox" name="default_blog" value="1"<@if(Form.default_blog || Form.default_blog eq '',' checked')>>デフォルトブログに設定する</label><span class="help" data-help="標準で表示されるブログとして設定します。複数ブログを作成しない場合「設定する」が推奨です。\nこの設定は「システム管理」から変更できます。">?</span>
 		</td>
 	</tr>
 	<$end>
