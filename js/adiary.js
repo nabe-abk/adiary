@@ -95,12 +95,11 @@ $(function(){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●RSSからの参照リンクURLの細工を消す
+//●RSSからのリンクhashを消す
 //////////////////////////////////////////////////////////////////////////////
 {
-	var x = window.location.toString();
-	if (x.indexOf('#rss-tm') > 0) {
-		window.location = x.replace(/#rss-tm\d*/,'');
+	if (window.location.hash.indexOf('#rss-tm') == 0) {
+		history.pushState("", document.title, location.pathname + location.search);
 	}
 }
 
