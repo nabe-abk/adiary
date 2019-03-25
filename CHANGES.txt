@@ -4,9 +4,10 @@
 
 -[https://bookmark.hatenastaff.com/entry/2019/05/28/141208:はてなブックマークの常時SSL化]に伴い、はてなブックマークへのリンクを https に変更。
 -RFC7231に準拠し、リダイレクトを相対パスで出力するよう変更。
--【fix】トップページの2ページ目で「前のページ」のリンクが正しくない。（[https://adiary.adiary.jp/0409#com:Thanks to sabazo]）
--【fix】mixiの画像サーバ等、一部のサイトにSSL接続できない。((Net::SSLeayモジュールで、[w:Server_Name_Indication:SNI]が有効になっていないため。))
--【fix】ヘッダのみを応答するとき、「Content-Length: 0」を送れていなかった。
+-【Fix】トップページの2ページ目で「前のページ」のリンクが正しくない。（[https://adiary.adiary.jp/0409#com:Thanks to sabazo]）
+-【Fix】mixiの画像サーバ等、一部のサイトにSSL接続できない。((Net::SSLeayモジュールで、[w:Server_Name_Indication:SNI]が有効になっていないため。))
+-【Fix】ヘッダのみを応答するとき、「Content-Length: 0」を送れていなかった。
+-【Fix/httpd】mime.types をロードする際、コメントも処理していた。
 
 *Ver3.23 : 2019/03/12
 
