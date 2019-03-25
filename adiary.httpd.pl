@@ -312,6 +312,7 @@ if ($MIME_FILE && -e $MIME_FILE) {
 		my $c=0;
 		while(<$fh>) {
 			chomp($_);
+			$_ =~ s/#.*//;
 			my ($type, @ary) = split(/\s+/, $_);
 			if ($type eq '' || !@ary) { next; }
 			foreach(@ary) {
