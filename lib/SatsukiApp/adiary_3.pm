@@ -333,6 +333,7 @@ sub make_thumbnail_for_notimage {
 		if ($dir =~ m|/\.trashbox/|) {	# ゴミ箱内？
 			$self->remove_trash_timestamp($name);
 		}
+		$self->image_magick_text_encode( $name );
 		my $text = "$name\r\n$tm\r\n$fs";
 		$img->Annotate(
 			text => $text,
@@ -353,6 +354,7 @@ sub make_thumbnail_for_notimage {
 		$img->Write( $tmpfile );
 		rename($tmpfile, $f);
 	} else {
+		$f =~ s/%/%%/g;
 		$img->Write( $f );
 	}
 	return 0;
@@ -369,6 +371,17 @@ sub size_format() {
 	if ($s > 1023487) { return sprintf("%.3g", $s/1048576) . ' MB'; }
 	if ($s >     999) { return sprintf("%.3g", $s/1024   ) . ' KB'; }
 	return $s . ' Byte';
+}
+
+sub image_magick_text_encode {
+	my $self = shift;
+	foreach(@_) {		# See more https://imagemagick.org/api/annotate.php
+		$_ =~ s/%%/%/g;
+		$_ =~ s/&/&amp;/g;
+		$_ =~ s/</&lt;/g;
+		$_ =~ s/>/&gt;/g;
+	}
+	return @_;
 }
 
 #------------------------------------------------------------------------------
@@ -694,6 +707,7 @@ sub rename_file {
 	my $name = $form->{name};
 	$ROBJ->fs_encode(\$old );
 	$ROBJ->fs_encode(\$name);
+
 	if ( !$self->check_file_name($old ) || !$self->album_check_ext($old ) ) { return -2; }
 	if ( !$self->check_file_name($name) || !$self->album_check_ext($name) ) { return -1; }
 
@@ -805,7 +819,6 @@ sub image_folder_to_dir_and_create {
 	return $dir;
 }
 
-
 #------------------------------------------------------------------------------
 # ○画像フォルダ名/ファイル名チェック
 #------------------------------------------------------------------------------
@@ -813,7 +826,7 @@ sub check_file_name {
 	my ($self, $file) = @_;
 	if ($file eq '' || $file =~ /^\./) { return 0; }	# ng
 	# 制御コードや / 等の使用不可文字
-	if ($file =~ m![\x00-\x1f\\/\:*\?\"\'<>|&]!) { return 0; }
+	if ($file =~ m![\x00-\x1f/:\\\*\?\"<>|]!) { return 0; }	# Windows準拠
 	return 1;	# ok
 }
 # 最後のスラッシュを取り除く
