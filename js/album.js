@@ -1499,7 +1499,9 @@ function ajax_upload(files) {
 // ●リンクのエンコード
 //////////////////////////////////////////////////////////////////////////////
 function encode_link(str){
-	return str.replace(/#/g, "%23");
+	return str.replace(/([%#"'?])/g, function (w,m1) {
+		return '%' + m1.charCodeAt(0).toString(16);
+	});
 }
 
 //############################################################################
