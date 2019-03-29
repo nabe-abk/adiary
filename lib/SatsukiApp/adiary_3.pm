@@ -330,6 +330,9 @@ sub make_thumbnail_for_notimage {
 			my $jcode = $ROBJ->load_codepm();
 			$name = $jcode->from_to($name, $code, 'UTF-8');
 		}
+		if ($dir =~ m|/\.trashbox/|) {	# ゴミ箱内？
+			$self->remove_trash_timestamp($name);
+		}
 		my $text = "$name\r\n$tm\r\n$fs";
 		$img->Annotate(
 			text => $text,
@@ -642,7 +645,7 @@ sub move_files {
 		# ゴミ箱からファイルを移動
 		#---------------------------------
 		if ($src_trash && !-d "$from$_") {
-			$des =~ s/\.#[\d\-]+//g;	# ここを修正したら album.js も修正すること
+			$self->remove_trash_timestamp($des);
 		}
 		#---------------------------------
 		# 同じファイル名が存在する
@@ -669,6 +672,13 @@ sub move_files {
 	}
 	my $f = $#fail+1;
 	return wantarray ? ($f, \@fail) : $f;
+}
+
+sub remove_trash_timestamp {
+	my $self = shift;
+	foreach(@_) {
+		$_ =~ s/(.*)\.#\d\d\d\d\d\d\d\d-\d\d\d\d\d\d/$1/;
+	}
 }
 
 #------------------------------------------------------------------------------
