@@ -8,6 +8,7 @@
 -【Fix】mixiの画像サーバ等、一部のサイトにSSL接続できない。((Net::SSLeayモジュールで、[w:Server_Name_Indication:SNI]が有効になっていないため。))
 -【Fix】ヘッダのみを応答するとき、「Content-Length: 0」を送れていなかった。
 -【Fix/httpd】mime.types をロードする際、コメントも処理していた。
+-【Fix/httpd】"file?query" 形式のとき、ファイルをロードできない。
 
 *Ver3.23 : 2019/03/12
 

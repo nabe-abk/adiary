@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.10';
-our $SPEC_VER = '1.10';	# specification version for compatibility
+our $VERSION  = '1.11';
+our $SPEC_VER = '1.11';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
 #						Copyright (C)2019 nabe@abk
 ###############################################################################
-# Last Update : 2019/02/21
+# Last Update : 2019/03/30
 #
 BEGIN {
 	my $path = $0;
@@ -658,6 +658,7 @@ sub try_file_read {
 	my $file  = $state->{file};
 
 	$file =~ s|/+|/|g;
+	$file =~ s|\?.*||;
 	if ($file =~ m|/\.\./|) { return; }
 	if ($INDEX && $file ne '/' && substr($file, -1) eq '/') {
 		$file .= $INDEX;
