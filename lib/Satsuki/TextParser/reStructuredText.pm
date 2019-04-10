@@ -145,6 +145,12 @@ sub parse_block {
 sub do_parse_block {
 	my ($self, $out, $lines, $nest) = @_;
 
+	# 先頭空行除去
+	while(@$lines && $lines->[0] eq '') { shift(@$lines); }
+
+	# 空データ
+	if ($nest && !@$lines) { return; }
+
 	#
 	# セクション情報
 	#
@@ -265,8 +271,9 @@ sub do_parse_block {
 			while(@$lines) {
 				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1]);
 				if ($type ne 'list' || $opt->{mark} ne $mark) { last; }
+				shift(@$lines);
 
-				my $item = $self->extract_block($lines, $opt->{len}, shift(@$lines));
+				my $item = $self->extract_block($lines, $opt->{len}, $opt->{first});
 
 				my $n = $#$out+1;
 				$self->do_parse_block($out, $item, 'list-item');
@@ -299,8 +306,9 @@ sub do_parse_block {
 				) {
 					last;
 				}
+				shift(@$lines);
 
-				my $item = $self->extract_block($lines, $opt->{len}, shift(@$lines));
+				my $item = $self->extract_block($lines, $opt->{len}, $opt->{first});
 
 				my $n = $#$out+1;
 				$self->do_parse_block($out, $item, 'list-item');
@@ -317,20 +325,18 @@ sub do_parse_block {
 		#----------------------------------------------
 		# フィールドリスト : field_list / table
 		#----------------------------------------------
-		if ($x =~ /^:(.+): / && substr($1,0,1) ne ' ' &&  substr($1,-1) ne ' ') {
+		if ($btype eq 'field') {
 			unshift(@$lines, $x);
 
 			my @fields;
 			while(@$lines) {
-				my $t = $lines->[0];
-				if ($t eq '') { shift(@$lines); next; }
-				if ($t !~ /^:(.+): +(.*)/ || substr($1,0,1) eq ' ' ||  substr($1,-1) eq ' ') { last; }
-
+				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1]);
+				if ($type ne 'field') { last; }
 				shift(@$lines);
-				my $name = $1;
-				my $val  = $2;
-				my $body = $self->extract_block($lines, 0, '');
-				$body->[0] = $val;	# 最初の行は最小インデントに合わせる
+
+				my $name = $opt->{name};
+				my $body = $self->extract_block($lines, $opt->{len}, '');
+				$body->[0] = $opt->{value};	# 最初の行は最小インデントに合わせる
 
 				# dt classifier
 				$self->tag_escape($name);
@@ -352,7 +358,38 @@ sub do_parse_block {
 		}
 
 		#----------------------------------------------
-		# 定義リスト（最後に処理） : definition_list
+		# オプションリスト : option_list / table
+		#----------------------------------------------
+		if ($btype eq 'option') {
+			unshift(@$lines, $x);
+
+			push(@$out, "<table class=\"option-list\">\x02");
+			push(@$out, "<tbody>\x02");
+
+			while(@$lines) {
+				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1], 'option');
+				if ($type ne 'option') { last; }
+				shift(@$lines);
+
+				my $body = $self->extract_block($lines, $opt->{len}, '');
+				$body->[0] = $opt->{value};	# 最初の行は最小インデントに合わせる
+
+				# dt classifier
+				push(@$out, "<tr><th>$opt->{option}</th>");	# {option} is tag escaped
+				my $n = $#$out+1;
+				$self->do_parse_block($out, $body, 'nest');
+				$out->[$n] = '<td>' . $out->[$n];
+				$out->[$#$out] .= "</td>";
+				push(@$out, "</tr>\x02");
+			}
+
+			push(@$out, "</tbody>\x02");
+			push(@$out, "</table>\x02");
+			next;
+		}
+
+		#----------------------------------------------
+		# 定義リスト : definition_list
 		#----------------------------------------------
 		if ($btype eq 'definition') {
 			unshift(@$lines, $x);
@@ -381,6 +418,7 @@ sub do_parse_block {
 			push(@$out, "</dl>\x02", '');
 			next;
 		}
+
 		#----------------------------------------------
 		# エラー
 		#----------------------------------------------
@@ -428,10 +466,11 @@ sub test_block {
 	my $mode = shift;
 
 	# 箇条書きリスト
-	if ($x =~ /^(([\*\+\-•‣⁃]) +)/) {
+	if ($x =~ /^(([\*\+\-•‣⁃])( +|$))/) {
 		return ('list', {
-			len  => length($1),
-			mark => $2
+			first => $3 eq '' ? ''    : $x,
+			len   => $3 eq '' ? undef : length($1),
+			mark  => $2
 		});
 	}
 
@@ -452,7 +491,46 @@ sub test_block {
 		}
 	}
 
-	# 定義リスト
+	# フィールドリスト
+	if ($x =~ /^:(.+):(?: +|$)(.*)/ && substr($1,0,1) ne ' ' &&  substr($1,-1) ne ' ') {
+		return ('field', {
+			name  => $1,
+			value => $2
+		});
+	}
+
+	# オプションリスト
+	if ($x =~ /^-[A-Za-z0-9]/ || $x =~ /^--\w/ || $x =~ m|^/\w|) {
+		my $z = $x;
+		my @buf;
+		$z =~ s/(<[^>]+>)/push(@buf,$1), "<$#buf>"/eg;
+
+		my ($o, $v) = split(/  +/, $z, 2);
+		my $option;
+		foreach(split(/, /, $o)) {
+			if ($_ =~ /^(-[A-Za-z0-9])( ?)(.*)/ || $_ =~ /^((?:--|\/)\w[\w-]*)([= ]?)(.*)/) {
+				my $op  = $1;
+				my $sp  = $2;
+				my $arg = $3;
+				if ($arg eq '' || $arg =~ /^[a-zA-Z][a-zA-Z0-9_-]*$/ || $arg =~ /^<(\d+)>$/) {
+					if ($1 ne '') { $arg = $buf[$1]; }
+					$self->tag_escape($op, $arg);
+					$option .= ($option ? ', ' : '') . "$op$sp<var>$arg</var>";
+					next;
+				}
+			}
+			if ($mode eq 'option') {
+				$self->parse_error("Invalid option list : $x");
+			}
+			last;
+		} 
+		return ('option', {
+			option=> $option,
+			value => $v
+		});
+	}
+
+	# 定義リスト（最後に処理）
 	if ($x !~ /^ / && $y =~ /^( +)/) {
 		return ('definition', {
 			len => length($1)
@@ -483,7 +561,7 @@ sub do_test_block_enumrate {
 	my $x    = shift;
 	my $mode = shift || 'other';
 
-	if ($x !~ /^((\w+|#)\. +)/ && $x !~ /^(\(?(\w+|#)\) +)/) { return; }
+	if ($x !~ /^((\w+|#)\.( +|$))/ && $x !~ /^(\(?(\w+|#)\)( +|$))/) { return; }
 
 	my $subtype = 'dot';
 	if (substr($1,-1) eq ')') {
@@ -491,16 +569,19 @@ sub do_test_block_enumrate {
 	}
 	my $len = length($1);
 	my $seq = $2;
+	if ($3 eq '') { $x=''; $len=undef; }
 
 	if ($seq eq '#') {	# auto
 		return ('enum', {
+			first   => $x,
 			len     => $len,
 			subtype => $subtype,
 			numtype => 'auto'
 		});
 	}
-	if ($seq =~ /^[1-9]\d*$/) {
+	if ($seq =~ /^[1-9]\d*$/ || $seq eq '0') {
 		return ('enum', {
+			first   => $x,
 			len     => $len,
 			subtype => $subtype,
 			numtype => 'arabic',
@@ -511,6 +592,7 @@ sub do_test_block_enumrate {
 	  || $mode eq 'roman' && $seq =~ /^[ABE-KN-UWYZ]$/	# exclude [CDLMVX]
 	  || $mode eq 'other' && $seq =~ /^[A-Z]$/) {
 		return ('enum', {
+			first   => $x,
 			len     => $len,
 			subtype => $subtype,
 			numtype => 'upper-alpha',
@@ -521,6 +603,7 @@ sub do_test_block_enumrate {
 	  || $mode eq 'roman' && $seq =~ /^[abe-kn-uwyz]$/	# exclude [cdlmvx]
 	  || $mode eq 'other' && $seq =~ /^[a-z]$/) {
 		return ('enum', {
+			first   => $x,
 			len     => $len,
 			subtype => $subtype,
 			numtype => 'lower-alpha',
@@ -532,6 +615,7 @@ sub do_test_block_enumrate {
 	my ($type, $num) = $self->parse_roman_number($seq);
 	if ($type) {
 		return ('enum', {
+			first   => $x,
 			len     => $len,
 			subtype => $subtype,
 			mode    => 'roman',
@@ -560,7 +644,7 @@ sub extract_block {
 	while(@$lines) {
 		my $y = $lines->[0];
 		if ($y eq '') {		# 空行
-			push(@block, '');
+			if (@block) { push(@block, ''); }
 		} elsif ($y =~ /^( +)/) {
 			my $l = length($1);
 			if (!$len || $len > $l) {
@@ -1074,6 +1158,15 @@ sub tag_escape {
 		$_ =~ s/"/&quot;/g;
 	}
 	return $_[0];
+}
+
+#------------------------------------------------------------------------------
+# ●記法エラー
+#------------------------------------------------------------------------------
+sub parse_error {
+	my $self = shift;
+	my $err  = '[parse error] ' . shift;
+	return $self->{ROBJ}->notice($err, @_);
 }
 
 
