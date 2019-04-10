@@ -126,6 +126,13 @@ div.ascii-art {
 	margin-bottom:	0px;
 	font-family: "Mona", "MS PGothic", "ＭＳ Ｐゴシック", "IPA MONAPGOTHIC", "IPA モナー Pゴシック", sans-serif;
 }
+/* 列挙型 for reST */
+ol.arabic	> li { list-style-type: decimal; }
+ol.upper-alpha	> li { list-style-type: upper-alpha; }
+ol.lower-alpha	> li { list-style-type: lower-alpha; }
+ol.upper-roman	> li { list-style-type: upper-roman; }
+ol.lower-roman	> li { list-style-type: lower-roman; }
+
 /* 麻雀記法 */
 img.mahjong {
 	vertical-align:	bottom;
@@ -136,6 +143,7 @@ img.mahjong {
 	margin-left:	0.2em;
 	margin-right:	0.2em;
 }
+
 /* 等幅 */
 .mono, .pre {
 	font-family:	monospace;

@@ -1,0 +1,32 @@
+<@40.is_function>
+<@local(s,parser)>
+<$s = v.blog>
+<@>
+<@> reStructuredText
+<@>
+<$parser = loadpm('TextParser::reStructuredText')>
+
+<$parser.section_hnum = 3>	h3からスタート
+<$parser.tab_width    = 8>	タブの幅
+
+<$parser.lf_patch      = true>	日本語のpタグ中の改行を消す
+
+<$parser.span_sanchor  = true>	見出し先頭に span.sanchor を挿入する
+<$parser.section_link  = true>	見出しタグにアンカーを挿入する
+<$parser.section_anchor    = s.section_anchor>
+<$parser.subsection_anchor = s.subsection_anchor>
+
+<$ifexec(0, begin)>
+<$parser.satsuki_tags     = true>	satsuki記法のタグ [tag:XXX]
+<$parser.satsuki_seemore  = true>	「続きを読む」記法
+<$parser.satsuki_footnote = true>	(())によるコメント記法
+<$parser.qiita_math       = true>	Qiitaのmathブロック記法
+<$parser.seemore_msg = s.seemore_msg || '続きを読む'>
+
+さつきパーサーのロード
+<$ifexec(parser.satsuki_tags, begin)>
+	<$parser.satsuki_obj = v.load_parser('default')>
+<$end>
+<$end>
+
+<$return(parser)>
