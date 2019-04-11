@@ -393,11 +393,8 @@ sub parse_block {
 	my $links = $self->{links};
 	my @p_block;
 
-	my $next_blank=1;
 	while(@$lines) {
-		my $blank = $next_blank;
-		$next_blank = 0;
-
+		my $blank = !@p_block;
 		my $x = shift(@$lines);
 		if ($x =~ /^\s*$/) { $x=''; }
 
@@ -407,14 +404,12 @@ sub parse_block {
 				$self->p_block_end(\@ary, \@p_block, $pmode);
 				push(@ary, $x);
 			}
-			$next_blank = 1;
 			next;
 		}
 		# 特殊行
 		if (ord(substr($x, -1)) < 3) {
 			$self->p_block_end(\@ary, \@p_block, $pmode);
 			push(@ary, $x);
-			$next_blank = 1;
 			next;
 		}
 
@@ -505,7 +500,6 @@ sub parse_block {
 				push(@ary, @$blk);
 			}
 			push(@ary, "</$ulol>\x01");
-			$next_blank = 1;
 			next;
 		}
 
@@ -529,7 +523,6 @@ sub parse_block {
 			push(@ary, @$blk);
 			push(@ary, '</blockquote>');
 			push(@ary, '');
-			$next_blank = 1;
 			next;
 		}
 
@@ -555,7 +548,6 @@ sub parse_block {
 			push(@ary, "<pre><code>$first\x02");
 			push(@ary, @code);
 			push(@ary, "</code></pre>\x02");
-			$next_blank = 1;
 			next;
 		}
 
@@ -563,12 +555,9 @@ sub parse_block {
 		# [GFM] テーブル
 		#----------------------------------------------
 		if ($self->{gfm_ext} && $blank
-		 && $x =~ /|/
-		 && $lines->[0] =~ /^[\s\|\-:]+$/
-		 && $lines->[0] =~ /\s*(?:\-+)?\s*\|\s*\-+\s*/
+		 && $x =~ /^\s*\|/
+		 && $lines->[0] =~ /^\s*|(?:\s*:?\-{3,}:?\s*\|)+\s*$/
 		) {
-			$self->p_block_end(\@ary, \@p_block, $pmode);
-
 			my @buf = ($x);
 			while(@$lines && $lines->[0] =~ /\|/) {
 				push(@buf, shift(@$lines));
@@ -621,11 +610,9 @@ sub parse_block {
 				}
 				if (@tbl) { push(@ary, "</tbody>\x02"); }
 				push(@ary, "</table>\x02");
-				$next_blank = 1;
 				next;
 			}
 		}
-
 
 		#----------------------------------------------
 		# 続きを読む記法
