@@ -17,12 +17,11 @@ sub new {
 	my $self = bless({}, shift);
 	$self->{ROBJ} = shift;
 
-	$self->{section_hnum} = 3;	# H3から使用する
-	$self->{tab_width}    = 8;	# タブの幅
+	$self->{section_hnum}   = 3;	# H3から使用する
+	$self->{section_number} = 0;	# 章番号を挿入する
+	$self->{tab_width}      = 8;	# タブの幅
 
-	$self->{lf_patch}     = 1;	# 日本語のpタグ中の改行を消す
-	$self->{span_sanchor} = 0;	# 見出し先頭に span.sanchor を挿入する
-	$self->{section_link} = 0;	# 見出しタグにリンクを挿入する
+	$self->{lf_patch}       = 1;	# 日本語のpタグ中の改行を消す
 
 	return $self;
 }
@@ -50,7 +49,8 @@ sub text_parser {
 
 	# 内部変数初期化
 	$self->{links} = {};
-	$self->{enum_cache} = {};
+	$self->{enum_cache}     = {};
+	$self->{transion_cache} = {'' => 0};
 	$self->init_unique_link_name();
 	if ( $sobj ) {
 		$sobj->{thisurl}  = $self->{thisurl};
@@ -74,18 +74,8 @@ sub text_parser {
 	#-------------------------------------------
 	# ○後処理
 	#-------------------------------------------
-	my $sec;
-	if (substr($lines->[$#$lines],-2) eq "\x02\x01") { $sec=pop(@$lines); }
-	while(@$lines && $lines->[$#$lines] eq '') { pop(@$lines); }
-	if ($sec) { push(@$lines, $sec); }
-
 	# [S] <toc>の後処理
 	my $all = join("\n", @$lines);
-
-	if (0 && $self->{satsuki_tags} && $self->{satsuki_obj}) {
-		$sobj->{sections} = $self->{sections};
-		$sobj->post_process( \$all );
-	}
 
 	# [S] Moreの処理
 	my $short = '';
@@ -145,18 +135,18 @@ sub parse_block {
 sub do_parse_block {
 	my ($self, $out, $lines, $nest) = @_;
 
-	# 先頭空行除去
-	while(@$lines && $lines->[0] eq '') { shift(@$lines); }
-
-	# 空データ
-	if ($nest && !@$lines) { return; }
+	while(@$lines && $lines->[0] eq '') {
+		shift(@$lines);			# 先頭空行除去
+	}
+	if ($nest && !@$lines) { return; }	# 空データ
 
 	#
 	# セクション情報
 	#
+	my $seclv       = 0;
+	my $seclv_cache = {};
 	my $sections    = $self->{sections};
-	my $subsections = [];
-	my $in_section;
+	my $sectioning  = !$nest;
 
 	# 入れ子要素、かつ、空行を含まない時は行処理をしない
 	my $ptag = ($nest && !(grep {$_ eq '' } @$lines)) ? '' : 'p';
@@ -183,6 +173,91 @@ sub do_parse_block {
 				$self->block_end($out, \@p_block, $ptag);
 				$blocks++;
 			}
+			next;
+		}
+
+		#----------------------------------------------
+		# タイトル or トランジション : title or transition
+		#----------------------------------------------
+		if (my $m = $self->test_transition($x)) {
+			my $title = '';
+			my $mark;		# overline/underline
+
+			if ($#p_block == 0) {
+				$title = shift(@p_block);
+				$mark  = "/$m";
+			} elsif ($y ne '') {
+				$title = shift(@$lines);
+				$mark  = "$m/";
+				my $z = shift(@$lines);
+				if (my $m2 = $self->test_transition($z)) {
+					if ($m eq $m2) {
+						$mark = "$m/$m";
+					} else {
+						$self->parse_error("Title overline & underline mismatch : %s", $title);
+						next;
+					}
+				} else {	# overline のみ
+					$self->parse_error("Title overline without underline : %s", $title);
+					next;
+				}
+			}
+			#----------------------------------------------
+			# トランジション : transition
+			#----------------------------------------------
+			$title =~ s/^\s+//;
+			if ($title eq '') {
+				if ($nest) {
+					$self->parse_error("transition only allowed at the top level : %s", $x);
+				} else {
+					push(@$out, '', "<hr />\x02", '');
+				}
+				next;
+			}
+
+			#----------------------------------------------
+			# タイトル : title
+			#----------------------------------------------
+			my $level = $seclv_cache->{$mark} ||= ++$seclv;
+
+			$self->tag_escape($title);
+			my $h = $self->{section_hnum} + $level -1;
+			if (6 < $h) { $h=6; }
+
+			if ($level == 1 && $sectioning && @$out) {
+				push(@$out, "</section>\x02");
+				push(@$out, "<section>\x02");
+			}
+
+			# セクション情報の生成
+			my $base = '';
+			my $secs = $sections;
+			foreach(2..$level) {
+				my $s = @$secs ? $secs->[$#$secs] : undef;
+				if (!$s) {
+					$s = {
+						num	=> "${base}.0",
+						title	=> '(none)',
+						count	=> 0
+					};
+					push(@$secs, $s);
+				}
+				$base = $s->{num};
+				$secs = $s->{children} ||= [];
+			}
+
+			my $count = $#$secs<0 ? 1 : $secs->[$#$secs]->{count} + 1;
+			my $num   = $base . ($level>1 ? '.' : '') . $count;
+			my $id    = $self->{unique_linkname} . 'p' . $num;
+			push(@$secs, {
+				id	=> $id,
+				num	=> $num,
+				title	=> $title,
+				count	=> $count
+			});
+
+			my $num_text = $self->{section_number} || 1 ? "$num." : '';
+			push(@$out, '', "<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\"><span class=\"section-number\">$num_text</span>$title</a></h$h>", '');
 			next;
 		}
 
@@ -440,6 +515,12 @@ sub do_parse_block {
 	# 文末空行の除去
 	while(@$out && $out->[$#$out] eq '') { pop(@$out); }
 
+	# セクショニングを行う
+	if ($sectioning) {
+		unshift(@$out, "<section>\x02");
+		push(@$out,'',"</section>\x02");
+	}
+
 	return $out;
 }
 
@@ -454,7 +535,16 @@ sub skip_blank {
 	}
 	return $lines;
 }
-
+#------------------------------------------------------------------------------
+# トランジション or titleの判定
+#------------------------------------------------------------------------------
+sub test_transition {
+	my $self  = shift;
+	my $x     = shift;
+	my $cache = $self->{transion_cache};
+	if (exists($cache->{$x})) { return $cache->{$x}; }
+	return ($cache->{$x} = ($x =~ /^([!"#\$%&'\(\)\*\+,\-\.\/:;<=>\?\@\[\\\]^_`\{\|\}\~]{4,})$/) ? substr($x,0,1) : undef);
+}
 #------------------------------------------------------------------------------
 # 特殊ブロックの開始判定
 #------------------------------------------------------------------------------
@@ -1165,8 +1255,8 @@ sub tag_escape {
 #------------------------------------------------------------------------------
 sub parse_error {
 	my $self = shift;
-	my $err  = '[parse error] ' . shift;
-	return $self->{ROBJ}->notice($err, @_);
+	my $err  = '[reST:error] ' . shift;
+	return $self->{ROBJ}->warn($err, @_);
 }
 
 
