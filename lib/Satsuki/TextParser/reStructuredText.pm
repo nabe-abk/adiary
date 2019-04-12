@@ -7,6 +7,7 @@ use strict;
 package Satsuki::TextParser::reStructuredText;
 our $VERSION = '0.10';
 #------------------------------------------------------------------------------
+require Encode;
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -21,6 +22,7 @@ sub new {
 	$self->{section_number} = 0;	# 章番号を挿入する
 	$self->{tab_width}      = 8;	# タブの幅
 
+	$self->{ambiguous_full} = 0;	# Ambiguousな文字コードをfullwidthとして扱う
 	$self->{lf_patch}       = 1;	# 日本語のpタグ中の改行を消す
 
 	return $self;
@@ -30,11 +32,13 @@ sub new {
 # ■メインルーチン
 ###############################################################################
 # 行末記号
-#	\x01	
 #	\x02	これ以上、処理しない
-#	\x03	ブロックの終わりマーク
+#	\x03	
 # 文中記号
-#	\x02	pブロック処理に使用
+#	\x01	pブロック処理やブロック処理で使用
+#
+# マルチバイト処理で仕様
+#	\x04-\x07
 #
 #------------------------------------------------------------------------------
 # ●記事本文の整形
@@ -42,6 +46,8 @@ sub new {
 sub text_parser {
 	my ($self, $text) = @_;
 	my $sobj = $self->{satsuki_tags} && $self->{satsuki_obj};	# Satsuki parser
+
+	$text =~ s/[\x00-\x06]//g;		# 特殊文字削除
 
 	# 行に分解
 	my $lines = [ split(/\n/, $text) ];
@@ -153,9 +159,9 @@ sub do_parse_block {
 
 	# リストアイテムモード
 	my $item_mode = ($ptag && $nest eq 'list-item') ? $#$out+1 : undef;
-	my $blocks    = 0;
+	my @blocks;
 	if ($item_mode) {
-		$ptag = "\x02p";
+		$ptag = "\x01p";
 	}
 
 	my @p_block;
@@ -165,20 +171,20 @@ sub do_parse_block {
 		my $x = shift(@$lines);
 		my $y = $lines->[0];
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# 空行
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if ($x eq '') {
 			if (@p_block) {
 				$self->block_end($out, \@p_block, $ptag);
-				$blocks++;
+				push(@blocks, 'p');
 			}
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# タイトル or トランジション : title or transition
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if (my $m = $self->test_transition($x)) {
 			my $title = '';
 			my $mark;		# overline/underline
@@ -207,8 +213,9 @@ sub do_parse_block {
 			#----------------------------------------------
 			$title =~ s/^\s+//;
 			if ($title eq '') {
+				push(@blocks, 'transition');
 				if ($nest) {
-					$self->parse_error("transition only allowed at the top level : %s", $x);
+					$self->parse_error("Transition only allowed at the top level : %s", $x);
 				} else {
 					push(@$out, '', "<hr />\x02", '');
 				}
@@ -218,6 +225,11 @@ sub do_parse_block {
 			#----------------------------------------------
 			# タイトル : title
 			#----------------------------------------------
+			push(@blocks, 'title');
+			if ($nest) {
+				$self->parse_error("Title only allowed at the top level : %s", $x);
+				next;
+			}
 			my $level = $seclv_cache->{$mark} ||= ++$seclv;
 
 			$self->tag_escape($title);
@@ -256,17 +268,17 @@ sub do_parse_block {
 				count	=> $count
 			});
 
-			my $num_text = $self->{section_number} || 1 ? "$num." : '';
+			my $num_text = $self->{section_number} ? "$num. " : '';
 			push(@$out, '', "<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\"><span class=\"section-number\">$num_text</span>$title</a></h$h>", '');
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# ブロック
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if ($x =~ /^( +)/) {
 			$self->block_end($out, \@p_block, $ptag);
-			$blocks=999;
+			push(@blocks, 'quote');
 
 			# block抽出
 			my $block = $self->extract_block( $lines, 0, $x );
@@ -278,13 +290,13 @@ sub do_parse_block {
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# リテラルブロック : literal_block
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if ($x =~ /^(.*)::$/ && $y eq '') {
 			$x = $1;
-			$blocks=999;
 			$self->block_end($out, \@p_block, $ptag);
+			push(@blocks, 'literal');
 
 			if ($x ne '') {
 				# "Paragraph ::" to "Paragraph"
@@ -319,25 +331,214 @@ sub do_parse_block {
 			}
 		}
 
-		#----------------------------------------------
-		# 特殊ブロック判定
-		#----------------------------------------------
-		my ($btype, $bopt) = !@p_block && $self->test_block($nest, $x, $y, 'first');
-		if ($btype && $btype ne 'list' && $btype ne 'enum') {
-			$blocks=999;
+		#--------------------------------------------------------------
+		# グリッドテーブル
+		#--------------------------------------------------------------
+		if (!@p_block && $x =~ /^\+(?:\-+\+){2,}/ && $y =~ /^[\+\|]/) {
+			push(@blocks, 'table');
+			unshift(@$lines, $x);
+
+			my @table;
+			my @table_hack;
+			my @separator;
+			my $len = length($x);
+			my $malformed;
+			while(@$lines && $lines->[0] =~ /^[\+\|]/) {
+				my $x = shift(@$lines);
+				if ($x =~ /^\+[\+=]*\+$/) {	# header split border
+					push(@separator, $#table+1);
+					$x =~ tr/=/-/;
+				}
+				push(@table, $x);
+				$self->mb_hack($x);
+				push(@table_hack, $x);
+
+				# check length
+				if ($len != length($x)) {
+					$malformed = 1;
+				}
+				if ($x !~ /[\+|]$/) {
+					$malformed = 1;
+				}
+			}
+
+			#------------------------------------------------------
+			# エラー処理
+			#------------------------------------------------------
+			my $err=0;
+			if ($#separator > 0) {
+				$err++;
+				$self->parse_error("Multiple table head/body separators, only one allowed");
+			} elsif ($separator[0] == $#table) {
+				$err++;
+				$self->parse_error("Table head/body row separator not allowed at the end");
+			}
+			if ($malformed) {
+				$err++;
+				$self->parse_error("Malformed table");
+			}
+			if ($err) {
+				next;
+			}
+
+			#------------------------------------------------------
+			# parse table structure
+			#------------------------------------------------------
+			my %colp;
+			my %rowp;
+			my %box;
+			sub split_row {
+				my $rows = shift;
+				my $x0   = shift;	# view start  (x0,y0)
+				my $y0   = shift;
+				my $xl   = shift;	# view length (xl,yl)
+				my $yl   = shift;
+				my $first= shift;	# first call flag
+				if ($yl<2) { return; }
+
+				my $p=$y0;
+				$rowp{$p}=1;
+
+				foreach(1..($yl-1)) {
+					my $yp = $y0 + $_;
+					my $s  = substr($rows->[$yp], $x0, $xl);
+					if ($s !~ /^\+[\+\-]*\+$/) { next; }
+
+					if (!$first && $p == $y0 && $_ == ($yl-1)) {	# no split --> one column box
+						$box{$y0}->{$x0} = [$xl, $yl];
+						# $self->debug("box ($x0,$y0) length ($xl,$yl)");
+						last;
+					}
+
+					# found row spliter
+					&split_col($rows, $x0, $p, $xl, $yp-$p+1);
+
+					$p = $yp;
+					$rowp{$p} = 1;
+				}
+			}
+			sub split_col {
+				my $rows = shift;
+				my $x0   = shift;	# view start  (x0,y0)
+				my $y0   = shift;
+				my $xl   = shift;	# view length (xl,yl)
+				my $yl   = shift;
+				if ($xl<2) { return; }
+
+				my $p=$x0;
+				$colp{$p}=1;
+
+				foreach(1..($xl-1)) {
+					my $xp = $x0 + $_;
+					if (substr($rows->[$y0], $xp, 1) ne '+') { next; }
+
+					my $f=0;
+					foreach my $i (1..($yl-1)) {
+						my $c = substr($rows->[$y0+$i], $xp, 1);
+						if ($c ne '+' && $c ne '|') { $f=1; last; }
+					}
+					$f && next;
+
+					if ($p == $x0 && $_ == ($xl-1)) {	# no split --> one column box
+						$box{$y0}->{$x0} = [$xl, $yl];
+						# $self->debug("box ($x0,$y0) length ($xl,$yl)");
+						last;
+					}
+
+					# found col spliter
+					&split_row($rows, $p, $y0, $xp-$p+1, $yl);
+
+					$p = $xp;
+					$colp{$p}=1;
+				}
+			}
+			#------------------------------------------------------
+			&split_row(\@table_hack, 0, 0, $len, $#table+1, 1);
+			#------------------------------------------------------
+			{
+				my $n=1;
+				foreach(sort {$a <=> $b} keys(%colp)) {
+					$colp{$_} = $n++;
+				}
+				$n=1;
+				foreach(sort {$a <=> $b} keys(%rowp)) {
+					$rowp{$_} = $n++;
+				}
+			}
+
+			#------------------------------------------------------
+			# output table
+			#------------------------------------------------------
+			my $head = $separator[0];
+			push(@$out, "<table>\x02");
+			push(@$out, $head ? "<thead>\x02" :  "<tbody>\x02");
+
+			my $td = $head ? 'th' : 'td';
+			foreach my $y0 (0..$#table) {
+				my $r = $box{$y0};
+				if (!$r) { next;}
+				my @cols = sort {$a <=> $b} keys(%$r);
+
+				if ($head && $y0 == $head) {
+					push(@$out, "</thead>\x02");
+					push(@$out, "<tbody>\x02");
+					$td = 'td';
+				}
+
+				push(@$out, "<tr>\x02");
+				foreach my $x0 (@cols) {
+					my ($xl, $yl) = @{ $r->{$x0} };
+					my @column;
+					my $indent = 0x7fffffff;
+					foreach(1..$yl-2) {
+						my $s = $self->mb_substr($table[$y0+$_], $x0+1, $xl-2);
+						$s =~ s/ +$//;
+						if ($s =~ /^( +)/) {
+							my $l = length($1);
+							$indent = ($l<$indent) ? $l : $indent;
+						}
+						push(@column, $s);
+					}
+					foreach(@column) {
+						$_ = substr($_, $indent);
+					}
+
+					my $colspan = $colp{$x0+$xl-1} - $colp{$x0};
+					my $rowspan = $rowp{$y0+$yl-1} - $rowp{$y0};
+					$colspan = $colspan<2 ? '' : " colspan=\"$colspan\"";
+					$rowspan = $rowspan<2 ? '' : " rowspan=\"$rowspan\"";
+
+					my $n = $#$out+1;
+					$self->do_parse_block($out, \@column, 'nest');
+					$out->[$n] = "<$td$colspan$rowspan>" . $out->[$n];
+					$out->[$#$out] .= "</$td>";
+				}
+				push(@$out, "</tr>\x02");
+			}
+			push(@$out, "</tbody>\x02");
+			push(@$out, "</table>\x02");
+			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
+		# 特殊ブロック判定
+		#--------------------------------------------------------------
+		my ($btype, $bopt) = !@p_block && $self->test_block($nest, $x, $y, 'first');
+		if ($btype) {
+			push(@blocks, $btype eq 'enum' ? 'list' : $btype);
+		}
+
+		#--------------------------------------------------------------
 		# 通常行
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if (!$btype) {
 			push(@p_block, $x);	# 段落ブロック
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# 箇条書きリスト : bullet_list
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if ($btype eq 'list') {
 			my $mark = $bopt->{mark};
 			unshift(@$lines, $x);
@@ -360,9 +561,9 @@ sub do_parse_block {
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# 列挙リスト : enumerated_list
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if ($btype eq 'enum') {
 			my $subtype = $bopt->{subtype};
 			my $numtype = $bopt->{numtype};
@@ -397,9 +598,9 @@ sub do_parse_block {
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# フィールドリスト : field_list / table
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if ($btype eq 'field') {
 			unshift(@$lines, $x);
 
@@ -432,9 +633,9 @@ sub do_parse_block {
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# オプションリスト : option_list / table
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if ($btype eq 'option') {
 			unshift(@$lines, $x);
 
@@ -463,9 +664,9 @@ sub do_parse_block {
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# 定義リスト : definition_list
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if ($btype eq 'definition') {
 			unshift(@$lines, $x);
 			push(@$out, "<dl>\x02");
@@ -494,20 +695,27 @@ sub do_parse_block {
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# エラー
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		$self->{ROBJ}->error("Internal Error: Unknown block type '$btype'");
 	}
 
+	#----------------------------------------------------------------------
+	# loop end
+	#----------------------------------------------------------------------
+
 	if ($item_mode) {
-		if ($blocks <= 1) {	# <p>を除去
+		if ($#blocks==0 && ($blocks[0] eq 'p' && $blocks[0] eq 'list')
+		 || $#blocks==1 && ($blocks[0] eq 'p' && $blocks[1] eq 'list')
+		) {
+			# <p>を除去
 			for(my $i=$item_mode; $i <= $#$out; $i++) {
-				$out->[$i] =~ s|</?\x02p>||g;
+				$out->[$i] =~ s|</?\x01p>||g;
 			}
 		} else {		# <p>を有効化
 			for(my $i=$item_mode; $i <= $#$out; $i++) {
-				$out->[$i] =~ s|(</?)\x02p>|${1}p>|g;
+				$out->[$i] =~ s|(</?)\x01p>|${1}p>|g;
 			}
 		}
 	}
@@ -543,7 +751,7 @@ sub test_transition {
 	my $x     = shift;
 	my $cache = $self->{transion_cache};
 	if (exists($cache->{$x})) { return $cache->{$x}; }
-	return ($cache->{$x} = ($x =~ /^([!"#\$%&'\(\)\*\+,\-\.\/:;<=>\?\@\[\\\]^_`\{\|\}\~]{4,})$/) ? substr($x,0,1) : undef);
+	return ($cache->{$x} = ($x =~ /^([!"#\$%&'\(\)\*\+,\-\.\/:;<=>\?\@\[\\\]^_`\{\|\}\~])\1{3,}$/) ? $1 : undef);
 }
 #------------------------------------------------------------------------------
 # 特殊ブロックの開始判定
@@ -788,278 +996,6 @@ sub block_end {
 }
 
 #//////////////////////////////////////////////////////////////////////////////
-# ●[02] ブロックのパース
-#//////////////////////////////////////////////////////////////////////////////
-sub xxxxxxxxx {
-	my ($self, $lines, $rec) = @_;
-
-	my $pmode=1;
-	my $seemore = 1;
-	my $next_blank;
-	if ($rec && !grep{ $_ eq '' } @$lines) { $pmode=0; }
-
-	my @p_block;
-	my @ary;
-	if ($lines->[$#$lines] ne '') { push(@$lines, ''); }
-	my $links = $self->{links};
-	while(@$lines) {
-		my $blank = $next_blank;
-		$next_blank = 0;
-
-		my $x = shift(@$lines);
-		if ($x =~ /^\s*$/) { $x=''; }
-
-		# 空行
-		if ($x eq '' ) {
-			if (@p_block) {
-				$self->p_block_end(\@ary, \@p_block, $pmode);
-				push(@ary, $x);
-			}
-			$next_blank = 1;
-			next;
-		}
-		# 特殊行
-		if (ord(substr($x, -1)) < 3) {
-			$self->p_block_end(\@ary, \@p_block, $pmode);
-			push(@ary, $x);
-			$next_blank = 1;
-			next;
-		}
-
-		#----------------------------------------------
-		# リストブロック
-		#----------------------------------------------
-		if ($x =~ /^ ? ? ?(\*|\+|\-|\d+\.) /) {
-			$self->p_block_end(\@ary, \@p_block, $pmode);
-			my $ulol = length($1)<2 ? 'ul' : 'ol';
-			my $mark = $self->{strict_list} ? $1 : undef;
-			$mark = ($mark =~ /^\d+\./) ? '0' : $mark;
-			my @list=($x);
-			my $blank=0;
-			while(@$lines) {
-				$x = shift(@$lines);
-				if ($x ne '' && ord(substr($x, -1)) < 4) { last; }
-				if ($blank && $x !~ /^ ? ? ?(\*|\+|\-|\d+\.) |^ /) { last; }
-				if ($blank && $1 && $mark) {	# リストの開始文字判定
-					my $m = $1;
-					$m = ($m =~ /^\d+\./) ? '0' : $m;
-					if ($mark ne $m) { last; }
-				}
-				push(@list, $x);
-				$blank = ($x eq '');
-			}
-			unshift(@$lines, $x);
-			if ($list[$#list] eq '') { pop(@list); }
-
-			# listの構成
-			push(@ary, "<$ulol>\x01");
-			my @ul;
-			my $li = [];
-			my $blank=0;
-			my $ul_indent = -1;
-			my %p;
-			while(@list) {
-				$x = shift(@list);
-				if ($x =~ /^( ? ? ?)(?:\*|\+|\-|\d+\.) +(.*)$/
-				 && ($ul_indent == -1 || length($1) == $ul_indent)) {
-					if (@$li) {
-						push(@ul, $li);
-					}
-					$li = [$2];
-					$ul_indent = length($1);
-					if ($blank) { $p{$li} = 1; }
-					$blank=0;
-					next;
-				} elsif ( $x eq '' )  {
-					$blank=1;
-					$p{$li} = 1;
-				} else {
-					$blank=0;
-					for(my $i=0; $i<$ul_indent; $i++) {
-						# そのブロックのインデント除去
-						if (ord($x) != 0x20) { next; }
-						$x = substr($x,1);
-					}
-				}
-				push(@$li, $x);
-			}
-			if (@$li) { push(@ul, $li); }
-
-			# [GFM] checkbox list
-			if ($self->{gfm_ext}) {
-				foreach my $li (@ul) {
-					if ($li->[0] =~ /^\[( |x)\](.*)/) {
-						$li->[0] = '<label><input type="checkbox"'
-							 . ($1 eq 'x' ? ' checked>' : '>')
-							 . $li->[0] . '</label>';
-					}
-				}
-			}
-
-			# ネスト処理
-			foreach my $li (@ul) {
-				if ($#$li == 0) {
-					push(@ary, $p{$li} ? "<li><p>$li->[0]</p></li>" : "<li>$li->[0]</li>");
-					next;
-				}
-				# [M] リストネスト時は先頭スペースを最大4つ除去する
-				foreach(@$li) {
-					$_ =~ s/^  ? ? ?//;
-				}
-				my $blk = $self->parse_block($li, 1);
-				if ($blk->[$#$blk] eq '') { pop(@$blk); }
-				$blk->[0] = '<li>' . $blk->[0];
-				$blk->[$#$blk] .= '</li>';
-				push(@ary, @$blk);
-			}
-			push(@ary, "</$ulol>\x01");
-			$next_blank = 1;
-			next;
-		}
-
-		#----------------------------------------------
-		# 引用ブロック [M] ブロックは入れ子処理する
-		#----------------------------------------------
-		if ($x =~ /^ ? ? ?>/) {
-			$self->p_block_end(\@ary, \@p_block, $pmode);
-			push(@ary, '<blockquote>');
-			my $p = 0;
-			my @block;
-			while(@$lines && $x ne '') {
-				$x =~ s/^ ? ? ?>\s?(.*)$/$1/;	# [M] '>'後の除去するスペースは1つまで
-				if ($x ne '' || $block[$#block] ne '') {
-					push(@block, $x);
-				}
-				$x = shift(@$lines);
-			}
-			# [M] 入れ子処理する
-			my $blk = $self->parse_block( $self->parse_special_block(\@block, 1) );
-			push(@ary, @$blk);
-			push(@ary, '</blockquote>');
-			push(@ary, '');
-			$next_blank = 1;
-			next;
-		}
-
-
-		#----------------------------------------------
-		# [GFM] テーブル
-		#----------------------------------------------
-		if ($self->{gfm_ext} && $blank
-		 && $x =~ /|/
-		 && $lines->[0] =~ /^[\s\|\-:]+$/
-		 && $lines->[0] =~ /\s*(?:\-+)?\s*\|\s*\-+\s*/
-		) {
-			$self->p_block_end(\@ary, \@p_block, $pmode);
-
-			my @buf = ($x);
-			while(@$lines && $lines->[0] =~ /\|/) {
-				push(@buf, shift(@$lines));
-			}
-			my @tbl = @buf;	# copy
-
-			# 行頭と行末の | と空白を除去
-			foreach(@tbl) {
-				$_ =~ s/^\s*\|?//;
-				$_ =~ s/\|?\s*$//;
-			}
-			my @th = split(/\s*\|\s*/, shift(@tbl));	# 1行目
-			my @hr = split(/\s*\|\s*/, shift(@tbl));	# 2行目
-			my $err = ($#th > $#hr);			# [GFM] カラム数不一致
-			my @class;
-			foreach(@hr) {
-				if ($#class >= $#th) { next; }		# [GFM] thの分しか読み込まない
-				if ($_ !~ /^(:)?-*(:)?/) { $err=1; last; }
-
-				my $c;
-				if ($1 && $2) {
-					$c = 'c';
-				} elsif ($1) {
-					$c = 'l';
-				} elsif ($2) {
-					$c = 'r';
-				}
-				push(@class, $c);
-			}
-
-			# 書式が正しくない時は無効
-			if ($err) {
-				shift(@buf);
-				unshift(@$lines, @buf);
-			} else {
-				# テーブル展開
-				push(@ary, "<table><thead><tr>\x02");
-				push(@ary, "\t<th>" . join("</th>\n\t<th>", @th) . "</th>");
-				push(@ary, "</tr></thead>\x02");
-				if (@tbl) { push(@ary, "<tbody>\x02"); }
-				foreach(@tbl) {
-					my @cols = split(/\s*\|\s*/, $_);
-					push(@ary, "<tr>\x02");
-					foreach(@class) {
-						my $t = shift(@cols);
-						my $c = $_ ? " class=\"$_\"" : '';
-						push(@ary, "\t<td$c>$t</td>");
-					}
-					push(@ary, "</tr>\x02");
-				}
-				if (@tbl) { push(@ary, "</tbody>\x02"); }
-				push(@ary, "</table>\x02");
-				$next_blank = 1;
-				next;
-			}
-		}
-
-
-		#----------------------------------------------
-		# 続きを読む記法
-		#----------------------------------------------
-		if ($blank && $seemore && $self->{satsuki_seemore} && ($x eq '====' || $x eq '=====')) {
-			$self->p_block_end(\@ary, \@p_block, $pmode);
-			push(@ary, <<TEXT);
-<p class="seemore"><a class="seemore" href="$self->{thisurl}">$self->{seemore_msg}</a></p><!--%SeeMore%-->\x02
-TEXT
-			chomp($ary[$#ary]);
-			$seemore=0;
-			next;
-		}
-
-		#----------------------------------------------
-		# <hr />
-		#----------------------------------------------
-		my $y = $x;
-		$y =~ s/\s//g;
-		if ($y =~ /^\*\*\*\**$|^----*$|^____*$/) {
-			$self->p_block_end(\@ary, \@p_block, $pmode);
-			push(@ary, "<hr />\x01");
-			next;
-		}
-
-		#----------------------------------------------
-		# リンク定義。[M] 参照名が空文字の場合は無効
-		#----------------------------------------------
-		if ($x =~ /^ ? ? ?\[([^\]]+)\]:\s*(.*?)\s*(?:\s*("[^\"]*"|'[^\']*')\s*)?\s*$/) {
-			$self->p_block_end(\@ary, \@p_block, $pmode);
-			my $name = $1;
-			my $url  = $2;
-			my $title = substr($3,1);
-			chop($title);
-			$url =~ s/^<\s*(.*?)\s*>$/$1/;
-			$name =~ tr/A-Z/a-z/;
-			$self->tag_escape($url, $title);
-			$links->{$name} = { url => $url, title => $title };
-
-			# 次が空行なら除去する
-			if ($lines->[0] eq '') { shift(@$lines); }
-			next;
-		}
-
-	}
-	# 文末空行の除去
-	while(@ary && $ary[$#ary] eq '') { pop(@ary); }
-	return \@ary;
-}
-
-#//////////////////////////////////////////////////////////////////////////////
 # ●[02] インライン記法の処理
 #//////////////////////////////////////////////////////////////////////////////
 sub parse_oneline {
@@ -1260,6 +1196,67 @@ sub parse_error {
 }
 
 
+
+###############################################################################
+# マルチバイト処理
+###############################################################################
+#------------------------------------------------------------------------------
+# マルチバイト文字を文字幅ベースでsubstr
+#------------------------------------------------------------------------------
+sub mb_substr {
+	my $self  = shift;
+	my $str   = shift;
+	my $start = shift;
+	my $len   = shift;
+	if ($str !~ /[^\x00-\x7f]/) { return substr($str, $start, $len); }
+
+	my @buf;
+	$self->mb_hack($str, \@buf);
+	my $x = substr($str, 0, $start);
+	my $y = substr($str, $start, $len);
+	$self->mb_hack_recovery($x, \@buf);	# $y を正しく戻すために必要
+	$self->mb_hack_recovery($y, \@buf);
+
+	return $y;
+}
+
+#------------------------------------------------------------------------------
+# マルチバイト文字を文字幅に合わせて置換
+#------------------------------------------------------------------------------
+sub mb_hack {
+	my $self = shift;
+	my $str  = $_[0];
+	my $buf  = $_[1] || [];
+	if ($str !~ /[^\x00-\x7f]/) { return $str; }
+
+	Encode::_utf8_on($str);		# Fullwidth from EastAsianWidth-12.0.0.txt
+	$str =~ s/([\x{1100}-\x{115F}\x{231A}-\x{231B}\x{2329}-\x{232A}\x{23E9}-\x{23EC}\x{23F0}\x{23F3}\x{25FD}-\x{25FE}\x{2614}-\x{2615}\x{2648}-\x{2653}\x{267F}\x{2693}\x{26A1}\x{26AA}-\x{26AB}\x{26BD}-\x{26BE}\x{26C4}-\x{26C5}\x{26CE}\x{26D4}\x{26EA}\x{26F2}-\x{26F3}\x{26F5}\x{26FA}\x{26FD}\x{2705}\x{270A}-\x{270B}\x{2728}\x{274C}\x{274E}\x{2753}-\x{2755}\x{2757}\x{2795}-\x{2797}\x{27B0}\x{27BF}\x{2B1B}-\x{2B1C}\x{2B50}\x{2B55}\x{2E80}-\x{303E}\x{3041}-\x{3247}\x{3250}-\x{4DBF}\x{4E00}-\x{A4C6}\x{A960}-\x{A97C}\x{AC00}-\x{D7A3}\x{F900}-\x{FAFF}\x{FE10}-\x{FE19}\x{FE30}-\x{FE6B}\x{FF01}-\x{FF60}\x{FFE0}-\x{FFE6}\x{16FE0}-\x{1B2FB}\x{1F004}\x{1F0CF}\x{1F18E}\x{1F191}-\x{1F19A}\x{1F200}-\x{1F320}\x{1F32D}-\x{1F335}\x{1F337}-\x{1F37C}\x{1F37E}-\x{1F393}\x{1F3A0}-\x{1F3CA}\x{1F3CF}-\x{1F3D3}\x{1F3E0}-\x{1F3F0}\x{1F3F4}\x{1F3F8}-\x{1F43E}\x{1F440}\x{1F442}-\x{1F4FC}\x{1F4FF}-\x{1F53D}\x{1F54B}-\x{1F54E}\x{1F550}-\x{1F567}\x{1F57A}\x{1F595}-\x{1F596}\x{1F5A4}\x{1F5FB}-\x{1F64F}\x{1F680}-\x{1F6C5}\x{1F6CC}\x{1F6D0}-\x{1F6D2}\x{1F6D5}\x{1F6EB}-\x{1F6EC}\x{1F6F4}-\x{1F6FA}\x{1F7E0}-\x{1F7EB}\x{1F90D}-\x{1F9FF}\x{1FA70}-\x{3FFFD}])/push(@$buf, $1), "\x04\x07"/eg;
+
+	# Ambiguous
+	my $amb = $self->{ambiguous_full} ? "\x05\x07" : "\x05";
+	$str =~ s/([\x{2010}\x{2013}-\x{2016}\x{2018}-\x{2019}\x{201C}-\x{201D}\x{2020}-\x{2022}\x{2024}-\x{2027}\x{2030}\x{2032}-\x{2033}\x{2035}\x{203B}\x{203E}\x{2074}\x{207F}\x{2081}-\x{2084}\x{20AC}\x{2103}\x{2105}\x{2109}\x{2113}\x{2116}\x{2121}-\x{2122}\x{2126}\x{212B}\x{2153}-\x{2154}\x{215B}-\x{215E}\x{2160}-\x{216B}\x{2170}-\x{2179}\x{2189}\x{2190}-\x{2199}\x{21B8}-\x{21B9}\x{21D2}\x{21D4}\x{21E7}\x{2200}\x{2202}-\x{2203}\x{2207}-\x{2208}\x{220B}\x{220F}\x{2211}\x{2215}\x{221A}\x{221D}-\x{2220}\x{2223}\x{2225}\x{2227}-\x{222C}\x{222E}\x{2234}-\x{2237}\x{223C}-\x{223D}\x{2248}\x{224C}\x{2252}\x{2260}-\x{2261}\x{2264}-\x{2267}\x{226A}-\x{226B}\x{226E}-\x{226F}\x{2282}-\x{2283}\x{2286}-\x{2287}\x{2295}\x{2299}\x{22A5}\x{22BF}\x{2312}\x{2460}-\x{24E9}\x{24EB}-\x{254B}\x{2550}-\x{2573}\x{2580}-\x{258F}\x{2592}-\x{2595}\x{25A0}-\x{25A1}\x{25A3}-\x{25A9}\x{25B2}-\x{25B3}\x{25B6}-\x{25B7}\x{25BC}-\x{25BD}\x{25C0}-\x{25C1}\x{25C6}-\x{25C8}\x{25CB}\x{25CE}-\x{25D1}\x{25E2}-\x{25E5}\x{25EF}\x{2605}-\x{2606}\x{2609}\x{260E}-\x{260F}\x{261C}\x{261E}\x{2640}\x{2642}\x{2660}-\x{2661}\x{2663}-\x{2665}\x{2667}-\x{266A}\x{266C}-\x{266D}\x{266F}\x{269E}-\x{269F}\x{26BF}\x{26C6}-\x{26CD}\x{26CF}-\x{26D3}\x{26D5}-\x{26E1}\x{26E3}\x{26E8}-\x{26E9}\x{26EB}-\x{26F1}\x{26F4}\x{26F6}-\x{26F9}\x{26FB}-\x{26FC}\x{26FE}-\x{26FF}\x{273D}\x{2776}-\x{277F}\x{2B56}-\x{2B59}\x{3248}-\x{324F}\x{E000}-\x{F8FF}\x{FE00}-\x{FE0F}\x{FFFD}\x{1F100}-\x{1F10A}\x{1F110}-\x{1F12D}\x{1F130}-\x{1F169}\x{1F170}-\x{1F18D}\x{1F18F}-\x{1F190}\x{1F19B}-\x{1F1AC}\x{E0100}-\x{10FFFD}])/push(@$buf, $1), $amb/eg;
+
+	$str =~ s/([^\x00-\x7f])/push(@$buf, $1), "\x06"/eg;
+	Encode::_utf8_off($str);
+
+	return ($_[0] = $str);
+}
+
+sub mb_hack_recovery {
+	my $self = shift;
+	my $str  = $_[0];
+	my $buf  = $_[1];
+	if ($str !~ /[\x04-\x07]/) { return $str; }
+
+	Encode::_utf8_on($str);
+	$str =~ s/\x07//g;
+	$str =~ s/\x04/shift(@$buf)/eg;
+	$str =~ s/\x05/shift(@$buf)/eg;
+	$str =~ s/\x06/shift(@$buf)/eg;
+	Encode::_utf8_off($str);
+
+	return ($_[0] = $str);
+}
 
 
 1;
