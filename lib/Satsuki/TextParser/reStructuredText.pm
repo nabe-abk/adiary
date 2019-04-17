@@ -343,6 +343,7 @@ sub do_parse_block {
 			my @separator;
 			my $len = length($x);
 			my $malformed;
+			my $err=0;
 			while(@$lines && $lines->[0] =~ /^[\+\|]/) {
 				my $x = shift(@$lines);
 				if ($x =~ /^\+[\+=]*\+$/) {	# header split border
@@ -350,12 +351,18 @@ sub do_parse_block {
 					$x =~ tr/=/-/;
 				}
 				push(@table, $x);
+				my $bak = $x;
 				$self->mb_hack($x);
 				push(@table_hack, $x);
 
 				# check length
 				if ($len != length($x)) {
-					$malformed = 1;
+					if ($len < length($x)) {
+						$self->parse_error("Table width over  : %s", $bak);
+					} else {
+						$self->parse_error("Table width under : %s", $bak);
+					}
+					$err++;
 				}
 				if ($x !~ /[\+|]$/) {
 					$malformed = 1;
@@ -365,7 +372,6 @@ sub do_parse_block {
 			#------------------------------------------------------
 			# エラー処理
 			#------------------------------------------------------
-			my $err=0;
 			if ($#separator > 0) {
 				$err++;
 				$self->parse_error("Multiple table head/body separators, only one allowed");
@@ -469,17 +475,17 @@ sub do_parse_block {
 			#------------------------------------------------------
 			# output table
 			#------------------------------------------------------
-			my $head = $separator[0];
+			my $thead = $separator[0];
 			push(@$out, "<table>\x02");
-			push(@$out, $head ? "<thead>\x02" :  "<tbody>\x02");
+			push(@$out, $thead ? "<thead>\x02" :  "<tbody>\x02");
 
-			my $td = $head ? 'th' : 'td';
+			my $td = $thead ? 'th' : 'td';
 			foreach my $y0 (0..$#table) {
 				my $r = $box{$y0};
 				if (!$r) { next;}
 				my @cols = sort {$a <=> $b} keys(%$r);
 
-				if ($head && $y0 == $head) {
+				if ($thead && $y0 == $thead) {
 					push(@$out, "</thead>\x02");
 					push(@$out, "<tbody>\x02");
 					$td = 'td';
@@ -511,6 +517,187 @@ sub do_parse_block {
 					my $n = $#$out+1;
 					$self->do_parse_block($out, \@column, 'nest');
 					$out->[$n] = "<$td$colspan$rowspan>" . $out->[$n];
+					$out->[$#$out] .= "</$td>";
+				}
+				push(@$out, "</tr>\x02");
+			}
+			push(@$out, "</tbody>\x02");
+			push(@$out, "</table>\x02");
+			next;
+		}
+
+		#--------------------------------------------------------------
+		# シンプルテーブル
+		#--------------------------------------------------------------
+		if (!@p_block && $x =~ /^(=+)((?: +=+)+)$/) {
+			push(@blocks, 'table');
+
+			my $len  = length($x);
+			my @cols = (length($1));
+			my @margins;
+			{
+				my $z = $2;
+				while ($z =~ /^( +)(=+)(.*)/ ){
+					push(@margins, length($1));
+					push(@cols,    length($2));
+					$z = $3;
+				}
+			}
+			push(@margins, 0);	# 最後のカラム用
+
+			my @table;
+			my $thead;
+			{
+				my @ary;
+				my $cnt=0;
+				while(@$lines) {
+					my $t = shift(@$lines);
+					push(@ary, $t);
+					if ($t !~ /^=[ =]*$/) {
+						next;
+					}
+					# border found
+					push(@table, @ary);
+					undef @ary;
+					if ($cnt || $lines->[0] eq '') {
+						$cnt++;
+						last;
+					}
+					if (!$cnt) {
+						$thead=1;
+						push(@table, { thead=>1 });
+					}
+					$cnt++;
+				}
+				if (@ary) {
+					unshift(@$lines, @ary);
+				}
+			}
+
+			# blank skip
+			@table = grep { $_ ne '' } @table;
+
+			#------------------------------------------------------
+			# scan table
+			#------------------------------------------------------
+			my @buf;
+			my @rows;
+			my $err = 0;
+			my $r_cols    = \@cols;
+			my $r_margins = \@margins;
+			my $r_spans   = [];
+			while(@table) {
+				my $t = shift(@table);
+				my $bak = $t;
+				if (ref($t)) {
+					push(@rows, 'thead');
+					next;
+				}
+				$self->mb_hack($t, \@buf);
+
+				my $border;	# --------等によるカラム連結
+				if ($table[0] =~ /^-[ -]+$/ || $table[0] =~ /^=[ =]+$/) {
+					my $b = shift(@table);
+					if ($len != length($b)) {
+						if ($len < length($b)) {
+							$self->parse_error("Table width over  : %s", $b);
+						} else {
+							$self->parse_error("Table width under : %s", $b);
+						}
+						$err++;
+						next;
+					}
+					my $pat = $b;
+					$pat =~ tr/-/=/;
+					my @cols2;
+					my @margins2;
+					my @spans2;
+					my $add =0;
+					my $span=1;
+					foreach(0..$#cols) {
+						my $c = $cols[$_];
+						my $m = $margins[$_];
+						my $ct = substr($pat,  0, $c);
+						my $sp = substr($pat, $c, $m);
+
+						if ($ct =~ /[^=]/ || $sp =~ / =|= /) {
+							$self->parse_error("Column span alignment problem : %s", $b);
+							$err++;
+							last;
+						}
+						if ($sp =~ /^=+$/) {	# chain
+							$add += $c + $m;
+							$span++;
+						} else {		# margin is space
+							push(@cols2, $add + $c);
+							push(@margins2, $m);
+							push(@spans2,   $span);
+							$add=0;
+							$span=1;
+						}
+						$pat = substr($pat, $cols[$_] + $margins[$_]);
+					}
+					if (!$pat) {	# no error
+						$r_cols    = \@cols2;
+						$r_margins = \@margins2;
+						$r_spans   = \@spans2;
+					}
+
+					# border行が連続している場合の処理
+					if ($table[0] =~ /^-[ -]+$/ || $table[0] =~ /^=[ =]+$/) {
+						unshift(@table, '');
+					}
+				}
+
+				my @row;
+				foreach(0..$#$r_cols) {
+					my $sp = substr($t, $r_cols->[$_], $r_margins->[$_]);
+					if ($sp =~ /[^ ]/) {
+						$err++;
+						undef @row;
+						$self->parse_error("Text in column margin : %s", $bak);
+						last;
+					}
+					my $text = substr($t, 0, $r_cols->[$_]);
+					$text =~ s/^ +//;
+					push(@row, {
+						span => $r_spans->[$_],
+						text => $text
+					});
+					$t = substr($t, $r_cols->[$_] + $r_margins->[$_]);
+				}
+				if ($t ne '' && @row) { $row[$#row]->{text} .= $t; }
+				push(@rows, \@row);
+			}
+
+			#------------------------------------------------------
+			# output table
+			#------------------------------------------------------
+			if ($err) { next; }
+
+			push(@$out, "<table>\x02");
+			push(@$out, $thead ? "<thead>\x02" :  "<tbody>\x02");
+
+			my $td = $thead ? 'th' : 'td';
+			foreach my $row (@rows) {
+				if ($thead && !ref($row)) {
+					push(@$out, "</thead>\x02");
+					push(@$out, "<tbody>\x02");
+					$td = 'td';
+					next;
+				}
+
+				push(@$out, "<tr>\x02");
+				foreach(@$row) {
+					my $text = $_->{text};
+					my $span = $_->{span};
+					$self->mb_hack_recovery($text, \@buf);
+
+					my $colspan = $span<2 ? '' : " colspan=\"$span\"";
+
+					my $n = $#$out+1;
+					$self->do_parse_block($out, [ $text ], 'nest');
+					$out->[$n] = "<$td$colspan>" . $out->[$n];
 					$out->[$#$out] .= "</$td>";
 				}
 				push(@$out, "</tr>\x02");
@@ -704,7 +891,6 @@ sub do_parse_block {
 	#----------------------------------------------------------------------
 	# loop end
 	#----------------------------------------------------------------------
-
 	if ($item_mode) {
 		if ($#blocks==0 && ($blocks[0] eq 'p' && $blocks[0] eq 'list')
 		 || $#blocks==1 && ($blocks[0] eq 'p' && $blocks[1] eq 'list')
@@ -1192,6 +1378,9 @@ sub tag_escape {
 sub parse_error {
 	my $self = shift;
 	my $err  = '[reST:error] ' . shift;
+	foreach(@_) {
+		$_ =~ s/ /&ensp;/g;
+	}
 	return $self->{ROBJ}->warn($err, @_);
 }
 

@@ -9,12 +9,28 @@
 <$parser.section_hnum = 3>	h3からスタート
 <$parser.tab_width    = 8>	タブの幅
 
-<$parser.lf_patch      = true>	日本語のpタグ中の改行を消す
+<$parser.lf_patch       = true>	日本語のpタグ中の改行を消す
 
-<$parser.span_sanchor  = true>	見出し先頭に span.sanchor を挿入する
-<$parser.section_link  = true>	見出しタグにアンカーを挿入する
-<$parser.section_anchor    = s.section_anchor>
-<$parser.subsection_anchor = s.subsection_anchor>
+<$parser.ambiguous_full = false>
+	テーブル記法などで文字幅が重要になる際、
+	Unicodeの規定で文字幅が A (Ambiguous/曖昧) と
+	なっている文字（一部除く）を全角として扱う設定。
+
+	デフォルトは false で、reSTオリジナル互換。
+	この状態では ≠ のような一部記号が半角文字として扱われるため、
+	テーブル幅が見た目揃っていてもエラーになる。
+
+	○正しい記述
+		+------+----+
+		| 記号 | ≠  |
+		+------+----+
+	○エラー	※ambiguous_full=true では正しい記述
+		+------+----+
+		| 記号 | ≠ |
+		+------+----+
+
+	Sphinx等との互換性を重要視する場合は false のままにする。
+
 
 <$ifexec(0, begin)>
 <$parser.satsuki_tags     = true>	satsuki記法のタグ [tag:XXX]
