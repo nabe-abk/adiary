@@ -275,23 +275,6 @@ sub do_parse_block {
 		}
 
 		#--------------------------------------------------------------
-		# ブロック
-		#--------------------------------------------------------------
-		if ($x =~ /^( +)/) {
-			$self->block_end($out, \@p_block, $ptag);
-			push(@blocks, 'quote');
-
-			# block抽出
-			my $block = $self->extract_block( $lines, 0, $x );
-
-			if ($out->[$#$out] ne '') { push(@$out, ''); }
-			push(@$out, "<blockquote>\x02");
-			$self->do_parse_block($out, $block, 'nest');
-			push(@$out, "</blockquote>\x02", '');
-			next;
-		}
-
-		#--------------------------------------------------------------
 		# リテラルブロック : literal_block
 		#--------------------------------------------------------------
 		if ($x =~ /^(.*)::$/ && $y eq '') {
@@ -331,6 +314,47 @@ sub do_parse_block {
 					next;
 				}
 			}
+		}
+
+		#--------------------------------------------------------------
+		# 引用ブロック : block_quote
+		#--------------------------------------------------------------
+		if ($x =~ /^( +)/) {
+			$self->block_end($out, \@p_block, $ptag);
+			push(@blocks, 'quote');
+
+			# block抽出
+			my $block = $self->extract_block( $lines, 0, $x );
+
+			# Doctest check
+			if ($block->[0] =~ /^>>>/ && !(grep { $_ eq '' } @$block)) {
+				unshift(@$lines, @$block);
+				next;	# goto Doctest
+			}
+			if ($out->[$#$out] ne '') { push(@$out, ''); }
+			push(@$out, "<blockquote>\x02");
+			$self->do_parse_block($out, $block, 'nest');
+			push(@$out, "</blockquote>\x02", '');
+			next;
+		}
+
+		#--------------------------------------------------------------
+		# Doctestブロック : doctest_block
+		#--------------------------------------------------------------
+		if (!@p_block && $x =~ /^>>> /) {
+			my @block = ($x);
+			while(@$lines && $lines->[0] ne '') {
+				push(@block, shift(@$lines));
+			}
+
+			push(@$out, "<pre class=\"syntax-highlight\">\x02");
+			foreach(@block) {
+				$self->tag_escape($_);
+				$_ =~ s/\\/&#92;/g;	# escape backslash
+				push(@$out, "$_\x02");
+			}
+			push(@$out, "</pre>\x02", '');
+			next;
 		}
 
 		#--------------------------------------------------------------
