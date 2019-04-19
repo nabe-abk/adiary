@@ -338,372 +338,18 @@ sub do_parse_block {
 			push(@blocks, 'table');
 			unshift(@$lines, $x);
 
-			my @table;
-			my @table_hack;
-			my @separator;
-			my $len = length($x);
-			my $malformed;
-			my $err=0;
-			while(@$lines && $lines->[0] =~ /^[\+\|]/) {
-				my $x = shift(@$lines);
-				if ($x =~ /^\+[\+=]*\+$/) {	# header split border
-					push(@separator, $#table+1);
-					$x =~ tr/=/-/;
-				}
-				push(@table, $x);
-				my $bak = $x;
-				$self->mb_hack($x);
-				push(@table_hack, $x);
-
-				# check length
-				if ($len != length($x)) {
-					if ($len < length($x)) {
-						$self->parse_error("Table width over  : %s", $bak);
-					} else {
-						$self->parse_error("Table width under : %s", $bak);
-					}
-					$err++;
-				}
-				if ($x !~ /[\+|]$/) {
-					$malformed = 1;
-				}
-			}
-
-			#------------------------------------------------------
-			# エラー処理
-			#------------------------------------------------------
-			if ($#separator > 0) {
-				$err++;
-				$self->parse_error("Multiple table head/body separators, only one allowed");
-			} elsif ($separator[0] == $#table) {
-				$err++;
-				$self->parse_error("Table head/body row separator not allowed at the end");
-			}
-			if ($malformed) {
-				$err++;
-				$self->parse_error("Malformed table");
-			}
-			if ($err) {
-				next;
-			}
-
-			#------------------------------------------------------
-			# parse table structure
-			#------------------------------------------------------
-			my %colp;
-			my %rowp;
-			my %box;
-			sub split_row {
-				my $rows = shift;
-				my $x0   = shift;	# view start  (x0,y0)
-				my $y0   = shift;
-				my $xl   = shift;	# view length (xl,yl)
-				my $yl   = shift;
-				my $first= shift;	# first call flag
-				if ($yl<2) { return; }
-
-				my $p=$y0;
-				$rowp{$p}=1;
-
-				foreach(1..($yl-1)) {
-					my $yp = $y0 + $_;
-					my $s  = substr($rows->[$yp], $x0, $xl);
-					if ($s !~ /^\+[\+\-]*\+$/) { next; }
-
-					if (!$first && $p == $y0 && $_ == ($yl-1)) {	# no split --> one column box
-						$box{$y0}->{$x0} = [$xl, $yl];
-						# $self->debug("box ($x0,$y0) length ($xl,$yl)");
-						last;
-					}
-
-					# found row spliter
-					&split_col($rows, $x0, $p, $xl, $yp-$p+1);
-
-					$p = $yp;
-					$rowp{$p} = 1;
-				}
-			}
-			sub split_col {
-				my $rows = shift;
-				my $x0   = shift;	# view start  (x0,y0)
-				my $y0   = shift;
-				my $xl   = shift;	# view length (xl,yl)
-				my $yl   = shift;
-				if ($xl<2) { return; }
-
-				my $p=$x0;
-				$colp{$p}=1;
-
-				foreach(1..($xl-1)) {
-					my $xp = $x0 + $_;
-					if (substr($rows->[$y0], $xp, 1) ne '+') { next; }
-
-					my $f=0;
-					foreach my $i (1..($yl-1)) {
-						my $c = substr($rows->[$y0+$i], $xp, 1);
-						if ($c ne '+' && $c ne '|') { $f=1; last; }
-					}
-					$f && next;
-
-					if ($p == $x0 && $_ == ($xl-1)) {	# no split --> one column box
-						$box{$y0}->{$x0} = [$xl, $yl];
-						# $self->debug("box ($x0,$y0) length ($xl,$yl)");
-						last;
-					}
-
-					# found col spliter
-					&split_row($rows, $p, $y0, $xp-$p+1, $yl);
-
-					$p = $xp;
-					$colp{$p}=1;
-				}
-			}
-			#------------------------------------------------------
-			&split_row(\@table_hack, 0, 0, $len, $#table+1, 1);
-			#------------------------------------------------------
-			{
-				my $n=1;
-				foreach(sort {$a <=> $b} keys(%colp)) {
-					$colp{$_} = $n++;
-				}
-				$n=1;
-				foreach(sort {$a <=> $b} keys(%rowp)) {
-					$rowp{$_} = $n++;
-				}
-			}
-
-			#------------------------------------------------------
-			# output table
-			#------------------------------------------------------
-			my $thead = $separator[0];
-			push(@$out, "<table>\x02");
-			push(@$out, $thead ? "<thead>\x02" :  "<tbody>\x02");
-
-			my $td = $thead ? 'th' : 'td';
-			foreach my $y0 (0..$#table) {
-				my $r = $box{$y0};
-				if (!$r) { next;}
-				my @cols = sort {$a <=> $b} keys(%$r);
-
-				if ($thead && $y0 == $thead) {
-					push(@$out, "</thead>\x02");
-					push(@$out, "<tbody>\x02");
-					$td = 'td';
-				}
-
-				push(@$out, "<tr>\x02");
-				foreach my $x0 (@cols) {
-					my ($xl, $yl) = @{ $r->{$x0} };
-					my @column;
-					my $indent = 0x7fffffff;
-					foreach(1..$yl-2) {
-						my $s = $self->mb_substr($table[$y0+$_], $x0+1, $xl-2);
-						$s =~ s/ +$//;
-						if ($s =~ /^( +)/) {
-							my $l = length($1);
-							$indent = ($l<$indent) ? $l : $indent;
-						}
-						push(@column, $s);
-					}
-					foreach(@column) {
-						$_ = substr($_, $indent);
-					}
-
-					my $colspan = $colp{$x0+$xl-1} - $colp{$x0};
-					my $rowspan = $rowp{$y0+$yl-1} - $rowp{$y0};
-					$colspan = $colspan<2 ? '' : " colspan=\"$colspan\"";
-					$rowspan = $rowspan<2 ? '' : " rowspan=\"$rowspan\"";
-
-					my $n = $#$out+1;
-					$self->do_parse_block($out, \@column, 'nest');
-					$out->[$n] = "<$td$colspan$rowspan>" . $out->[$n];
-					$out->[$#$out] .= "</$td>";
-				}
-				push(@$out, "</tr>\x02");
-			}
-			push(@$out, "</tbody>\x02");
-			push(@$out, "</table>\x02");
+			$self->parse_grid_table($out, $lines);
 			next;
 		}
 
 		#--------------------------------------------------------------
 		# シンプルテーブル
 		#--------------------------------------------------------------
-		if (!@p_block && $x =~ /^(=+)((?: +=+)+)$/) {
+		if (!@p_block && $x =~ /^=+(?: +=+)+$/) {
 			push(@blocks, 'table');
+			unshift(@$lines, $x);
 
-			my $len  = length($x);
-			my @cols = (length($1));
-			my @margins;
-			{
-				my $z = $2;
-				while ($z =~ /^( +)(=+)(.*)/ ){
-					push(@margins, length($1));
-					push(@cols,    length($2));
-					$z = $3;
-				}
-			}
-			push(@margins, 0);	# 最後のカラム用
-
-			my @table;
-			my $thead;
-			{
-				my @ary;
-				my $cnt=0;
-				while(@$lines) {
-					my $t = shift(@$lines);
-					push(@ary, $t);
-					if ($t !~ /^=[ =]*$/) {
-						next;
-					}
-					# border found
-					push(@table, @ary);
-					undef @ary;
-					if ($cnt || $lines->[0] eq '') {
-						$cnt++;
-						last;
-					}
-					if (!$cnt) {
-						$thead=1;
-						push(@table, { thead=>1 });
-					}
-					$cnt++;
-				}
-				if (@ary) {
-					unshift(@$lines, @ary);
-				}
-			}
-
-			# blank skip
-			@table = grep { $_ ne '' } @table;
-
-			#------------------------------------------------------
-			# scan table
-			#------------------------------------------------------
-			my @buf;
-			my @rows;
-			my $err = 0;
-			my $r_cols    = \@cols;
-			my $r_margins = \@margins;
-			my $r_spans   = [];
-			while(@table) {
-				my $t = shift(@table);
-				my $bak = $t;
-				if (ref($t)) {
-					push(@rows, 'thead');
-					next;
-				}
-				$self->mb_hack($t, \@buf);
-
-				my $border;	# --------等によるカラム連結
-				if ($table[0] =~ /^-[ -]+$/ || $table[0] =~ /^=[ =]+$/) {
-					my $b = shift(@table);
-					if ($len != length($b)) {
-						if ($len < length($b)) {
-							$self->parse_error("Table width over  : %s", $b);
-						} else {
-							$self->parse_error("Table width under : %s", $b);
-						}
-						$err++;
-						next;
-					}
-					my $pat = $b;
-					$pat =~ tr/-/=/;
-					my @cols2;
-					my @margins2;
-					my @spans2;
-					my $add =0;
-					my $span=1;
-					foreach(0..$#cols) {
-						my $c = $cols[$_];
-						my $m = $margins[$_];
-						my $ct = substr($pat,  0, $c);
-						my $sp = substr($pat, $c, $m);
-
-						if ($ct =~ /[^=]/ || $sp =~ / =|= /) {
-							$self->parse_error("Column span alignment problem : %s", $b);
-							$err++;
-							last;
-						}
-						if ($sp =~ /^=+$/) {	# chain
-							$add += $c + $m;
-							$span++;
-						} else {		# margin is space
-							push(@cols2, $add + $c);
-							push(@margins2, $m);
-							push(@spans2,   $span);
-							$add=0;
-							$span=1;
-						}
-						$pat = substr($pat, $cols[$_] + $margins[$_]);
-					}
-					if (!$pat) {	# no error
-						$r_cols    = \@cols2;
-						$r_margins = \@margins2;
-						$r_spans   = \@spans2;
-					}
-
-					# border行が連続している場合の処理
-					if ($table[0] =~ /^-[ -]+$/ || $table[0] =~ /^=[ =]+$/) {
-						unshift(@table, '');
-					}
-				}
-
-				my @row;
-				foreach(0..$#$r_cols) {
-					my $sp = substr($t, $r_cols->[$_], $r_margins->[$_]);
-					if ($sp =~ /[^ ]/) {
-						$err++;
-						undef @row;
-						$self->parse_error("Text in column margin : %s", $bak);
-						last;
-					}
-					my $text = substr($t, 0, $r_cols->[$_]);
-					$text =~ s/^ +//;
-					push(@row, {
-						span => $r_spans->[$_],
-						text => $text
-					});
-					$t = substr($t, $r_cols->[$_] + $r_margins->[$_]);
-				}
-				if ($t ne '' && @row) { $row[$#row]->{text} .= $t; }
-				push(@rows, \@row);
-			}
-
-			#------------------------------------------------------
-			# output table
-			#------------------------------------------------------
-			if ($err) { next; }
-
-			push(@$out, "<table>\x02");
-			push(@$out, $thead ? "<thead>\x02" :  "<tbody>\x02");
-
-			my $td = $thead ? 'th' : 'td';
-			foreach my $row (@rows) {
-				if ($thead && !ref($row)) {
-					push(@$out, "</thead>\x02");
-					push(@$out, "<tbody>\x02");
-					$td = 'td';
-					next;
-				}
-
-				push(@$out, "<tr>\x02");
-				foreach(@$row) {
-					my $text = $_->{text};
-					my $span = $_->{span};
-					$self->mb_hack_recovery($text, \@buf);
-
-					my $colspan = $span<2 ? '' : " colspan=\"$span\"";
-
-					my $n = $#$out+1;
-					$self->do_parse_block($out, [ $text ], 'nest');
-					$out->[$n] = "<$td$colspan>" . $out->[$n];
-					$out->[$#$out] .= "</$td>";
-				}
-				push(@$out, "</tr>\x02");
-			}
-			push(@$out, "</tbody>\x02");
-			push(@$out, "</table>\x02");
+			$self->parse_simple_table($out, $lines);
 			next;
 		}
 
@@ -919,6 +565,402 @@ sub do_parse_block {
 }
 
 #------------------------------------------------------------------------------
+# グリッドテーブルの処理
+#------------------------------------------------------------------------------
+sub parse_grid_table {
+	my $self  = shift;
+	my $out   = shift;
+	my $lines = shift;
+
+	my @table;
+	my @table_hack;
+	my @separator;
+	my $len = length($lines->[0]);	# first border
+	my $malformed;
+	my $err=0;
+	while(@$lines && $lines->[0] =~ /^[\+\|]/) {
+		my $x = shift(@$lines);
+		if ($x =~ /^\+[\+=]*\+$/) {	# header split border
+			push(@separator, $#table+1);
+			$x =~ tr/=/-/;
+		}
+		push(@table, $x);
+		my $bak = $x;
+		$self->mb_hack($x);
+		push(@table_hack, $x);
+
+		# check length
+		if ($len != length($x)) {
+			if ($len < length($x)) {
+				$self->parse_error("Table width over  : %s", $bak);
+			} else {
+				$self->parse_error("Table width under : %s", $bak);
+			}
+			$err++;
+		}
+		if ($x !~ /[\+|]$/) {
+			$malformed = 1;
+		}
+	}
+
+	#------------------------------------------------------
+	# エラー処理
+	#------------------------------------------------------
+	if ($#separator > 0) {
+		$err++;
+		$self->parse_error("Multiple table head/body separators, only one allowed");
+	} elsif ($separator[0] == $#table) {
+		$err++;
+		$self->parse_error("Table head/body row separator not allowed at the end");
+	}
+	if ($malformed) {
+		$err++;
+		$self->parse_error("Malformed table");
+	}
+	if ($err) {
+		return;
+	}
+
+	#------------------------------------------------------
+	# parse table structure
+	#------------------------------------------------------
+	my %colp;
+	my %rowp;
+	my %box;
+
+	$self->grid_table_split_row(\@table_hack, \%box, \%colp, \%rowp, 0, 0, $len, $#table+1, 1);
+
+	#------------------------------------------------------
+	{
+		my $n=1;
+		foreach(sort {$a <=> $b} keys(%colp)) {
+			$colp{$_} = $n++;
+		}
+		$n=1;
+		foreach(sort {$a <=> $b} keys(%rowp)) {
+			$rowp{$_} = $n++;
+		}
+	}
+
+	#------------------------------------------------------
+	# output table
+	#------------------------------------------------------
+	my $thead = $separator[0];
+	push(@$out, "<table>\x02");
+	push(@$out, $thead ? "<thead>\x02" :  "<tbody>\x02");
+
+	my $td = $thead ? 'th' : 'td';
+	foreach my $y0 (0..$#table) {
+		my $r = $box{$y0};
+		if (!$r) { next;}
+		my @cols = sort {$a <=> $b} keys(%$r);
+
+		if ($thead && $y0 == $thead) {
+			push(@$out, "</thead>\x02");
+			push(@$out, "<tbody>\x02");
+			$td = 'td';
+		}
+
+		push(@$out, "<tr>\x02");
+		foreach my $x0 (@cols) {
+			my ($xl, $yl) = @{ $r->{$x0} };
+			my @column;
+			my $indent = 0x7fffffff;
+			foreach(1..$yl-2) {
+				my $s = $self->mb_substr($table[$y0+$_], $x0+1, $xl-2);
+				$s =~ s/ +$//;
+				if ($s =~ /^( +)/) {
+					my $l = length($1);
+					$indent = ($l<$indent) ? $l : $indent;
+				}
+				push(@column, $s);
+			}
+			foreach(@column) {
+				$_ = substr($_, $indent);
+			}
+
+			my $colspan = $colp{$x0+$xl-1} - $colp{$x0};
+			my $rowspan = $rowp{$y0+$yl-1} - $rowp{$y0};
+			$colspan = $colspan<2 ? '' : " colspan=\"$colspan\"";
+			$rowspan = $rowspan<2 ? '' : " rowspan=\"$rowspan\"";
+
+			my $n = $#$out+1;
+			$self->do_parse_block($out, \@column, 'nest');
+			$out->[$n] = "<$td$colspan$rowspan>" . $out->[$n];
+			$out->[$#$out] .= "</$td>";
+		}
+		push(@$out, "</tr>\x02");
+	}
+	push(@$out, "</tbody>\x02");
+	push(@$out, "</table>\x02");
+}
+
+#------------------------------------------------------
+# parse grid table structure
+#------------------------------------------------------
+sub grid_table_split_row {
+	my $self = shift;
+	my $rows = shift;
+	my $box  = shift;
+	my $colp = shift;
+	my $rowp = shift;
+
+	my $x0   = shift;	# view start  (x0,y0)
+	my $y0   = shift;
+	my $xl   = shift;	# view length (xl,yl)
+	my $yl   = shift;
+	my $first= shift;	# first call flag
+	if ($yl<2) { return; }
+
+	my $p=$y0;
+	$rowp->{$p}=1;
+
+	foreach(1..($yl-1)) {
+		my $yp = $y0 + $_;
+		my $s  = substr($rows->[$yp], $x0, $xl);
+		if ($s !~ /^\+[\+\-]*\+$/) { next; }
+
+		if (!$first && $p == $y0 && $_ == ($yl-1)) {	# no split --> one column box
+			$box->{$y0}->{$x0} = [$xl, $yl];
+			# $self->debug("box ($x0,$y0) length ($xl,$yl)");
+			last;
+		}
+
+		# found row spliter
+		$self->grid_table_split_col($rows, $box, $colp, $rowp, $x0, $p, $xl, $yp-$p+1);
+
+		$p = $yp;
+		$rowp->{$p} = 1;
+	}
+}
+
+sub grid_table_split_col {
+	my $self = shift;
+	my $rows = shift;
+	my $box  = shift;
+	my $colp = shift;
+	my $rowp = shift;
+
+	my $x0   = shift;	# view start  (x0,y0)
+	my $y0   = shift;
+	my $xl   = shift;	# view length (xl,yl)
+	my $yl   = shift;
+	if ($xl<2) { return; }
+
+	my $p=$x0;
+	$colp->{$p}=1;
+
+	foreach(1..($xl-1)) {
+		my $xp = $x0 + $_;
+		if (substr($rows->[$y0], $xp, 1) ne '+') { next; }
+
+		my $f=0;
+		foreach my $i (1..($yl-1)) {
+			my $c = substr($rows->[$y0+$i], $xp, 1);
+			if ($c ne '+' && $c ne '|') { $f=1; last; }
+		}
+		$f && next;
+
+		if ($p == $x0 && $_ == ($xl-1)) {	# no split --> one column box
+			$box->{$y0}->{$x0} = [$xl, $yl];
+			# $self->debug("box ($x0,$y0) length ($xl,$yl)");
+			last;
+		}
+
+		# found col spliter
+		$self->grid_table_split_row($rows, $box, $colp, $rowp, $p, $y0, $xp-$p+1, $yl);
+
+		$p = $xp;
+		$colp->{$p}=1;
+	}
+}
+
+#------------------------------------------------------------------------------
+# シンプルテーブル
+#------------------------------------------------------------------------------
+sub parse_simple_table {
+	my $self  = shift;
+	my $out   = shift;
+	my $lines = shift;
+
+	my $x = shift(@$lines);
+	if ($x !~ /^(=+)(.*)$/) { return; }
+
+	my $len  = length($x);
+	my @cols = (length($1));
+	my @margins;
+	{
+		my $z = $2;
+		while ($z =~ /^( +)(=+)(.*)/ ){
+			push(@margins, length($1));
+			push(@cols,    length($2));
+			$z = $3;
+		}
+	}
+	push(@margins, 0);	# 最後のカラム用
+
+	my @table;
+	my $thead;
+	{
+		my @ary;
+		my $cnt=0;
+		while(@$lines) {
+			my $t = shift(@$lines);
+			push(@ary, $t);
+			if ($t !~ /^=[ =]*$/) {
+				next;
+			}
+			# border found
+			push(@table, @ary);
+			undef @ary;
+			if ($cnt || $lines->[0] eq '') {
+				$cnt++;
+				last;
+			}
+			if (!$cnt) {
+				$thead=1;
+				push(@table, { thead=>1 });
+			}
+			$cnt++;
+		}
+		if (@ary) {
+			unshift(@$lines, @ary);
+		}
+	}
+
+	# blank skip
+	@table = grep { $_ ne '' } @table;
+
+	#------------------------------------------------------
+	# scan table
+	#------------------------------------------------------
+	my @buf;
+	my @rows;
+	my $err = 0;
+	my $r_cols    = \@cols;
+	my $r_margins = \@margins;
+	my $r_spans   = [];
+	while(@table) {
+		my $t = shift(@table);
+		my $bak = $t;
+		if (ref($t)) {
+			push(@rows, 'thead');
+			next;
+		}
+		$self->mb_hack($t, \@buf);
+
+		my $border;	# --------等によるカラム連結
+		if ($table[0] =~ /^-[ -]+$/ || $table[0] =~ /^=[ =]+$/) {
+			my $b = shift(@table);
+			if ($len != length($b)) {
+				if ($len < length($b)) {
+					$self->parse_error("Table width over  : %s", $b);
+				} else {
+					$self->parse_error("Table width under : %s", $b);
+				}
+				$err++;
+				next;
+			}
+			my $pat = $b;
+			$pat =~ tr/-/=/;
+			my @cols2;
+			my @margins2;
+			my @spans2;
+			my $add =0;
+			my $span=1;
+			foreach(0..$#cols) {
+				my $c = $cols[$_];
+				my $m = $margins[$_];
+				my $ct = substr($pat,  0, $c);
+				my $sp = substr($pat, $c, $m);
+
+				if ($ct =~ /[^=]/ || $sp =~ / =|= /) {
+					$self->parse_error("Column span alignment problem : %s", $b);
+					$err++;
+					last;
+				}
+				if ($sp =~ /^=+$/) {	# chain
+					$add += $c + $m;
+					$span++;
+				} else {		# margin is space
+					push(@cols2, $add + $c);
+					push(@margins2, $m);
+					push(@spans2,   $span);
+					$add=0;
+					$span=1;
+				}
+				$pat = substr($pat, $cols[$_] + $margins[$_]);
+			}
+			if (!$pat) {	# no error
+				$r_cols    = \@cols2;
+				$r_margins = \@margins2;
+				$r_spans   = \@spans2;
+			}
+
+			# border行が連続している場合の処理
+			if ($table[0] =~ /^-[ -]+$/ || $table[0] =~ /^=[ =]+$/) {
+				unshift(@table, '');
+			}
+		}
+
+		my @row;
+		foreach(0..$#$r_cols) {
+			my $sp = substr($t, $r_cols->[$_], $r_margins->[$_]);
+			if ($sp =~ /[^ ]/) {
+				$err++;
+				undef @row;
+				$self->parse_error("Text in column margin : %s", $bak);
+				last;
+			}
+			my $text = substr($t, 0, $r_cols->[$_]);
+			$text =~ s/^ +//;
+			push(@row, {
+				span => $r_spans->[$_],
+				text => $text
+			});
+			$t = substr($t, $r_cols->[$_] + $r_margins->[$_]);
+		}
+		if ($t ne '' && @row) { $row[$#row]->{text} .= $t; }
+		push(@rows, \@row);
+	}
+
+	if ($err) { return; }
+
+	#------------------------------------------------------
+	# output table
+	#------------------------------------------------------
+	push(@$out, "<table>\x02");
+	push(@$out, $thead ? "<thead>\x02" :  "<tbody>\x02");
+
+	my $td = $thead ? 'th' : 'td';
+	foreach my $row (@rows) {
+		if ($thead && !ref($row)) {
+			push(@$out, "</thead>\x02");
+			push(@$out, "<tbody>\x02");
+			$td = 'td';
+			next;
+		}
+
+		push(@$out, "<tr>\x02");
+		foreach(@$row) {
+			my $text = $_->{text};
+			my $span = $_->{span};
+			$self->mb_hack_recovery($text, \@buf);
+
+			my $colspan = $span<2 ? '' : " colspan=\"$span\"";
+
+			my $n = $#$out+1;
+			$self->do_parse_block($out, [ $text ], 'nest');
+			$out->[$n] = "<$td$colspan>" . $out->[$n];
+			$out->[$#$out] .= "</$td>";
+		}
+		push(@$out, "</tr>\x02");
+	}
+	push(@$out, "</tbody>\x02");
+	push(@$out, "</table>\x02");
+}
+
+#------------------------------------------------------------------------------
 # ブランク行（空行）の除去
 #------------------------------------------------------------------------------
 sub skip_blank {
@@ -929,6 +971,7 @@ sub skip_blank {
 	}
 	return $lines;
 }
+
 #------------------------------------------------------------------------------
 # トランジション or titleの判定
 #------------------------------------------------------------------------------
@@ -939,6 +982,7 @@ sub test_transition {
 	if (exists($cache->{$x})) { return $cache->{$x}; }
 	return ($cache->{$x} = ($x =~ /^([!"#\$%&'\(\)\*\+,\-\.\/:;<=>\?\@\[\\\]^_`\{\|\}\~])\1{3,}$/) ? $1 : undef);
 }
+
 #------------------------------------------------------------------------------
 # 特殊ブロックの開始判定
 #------------------------------------------------------------------------------
