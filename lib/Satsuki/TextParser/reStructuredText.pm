@@ -166,6 +166,7 @@ sub do_parse_block {
 
 	my @p_block;
 	my @dl_block;
+	unshift(@$lines, '');
 	push(@$lines, '');
 	while(@$lines) {
 		my $x = shift(@$lines);
@@ -196,8 +197,8 @@ sub do_parse_block {
 				$title = shift(@$lines);
 				$mark  = "$m/";
 				my $z = shift(@$lines);
-				if (my $m2 = $self->test_transition($z)) {
-					if ($m eq $m2) {
+				if ($self->test_transition($z)) {
+					if ($x eq $z) {
 						$mark = "$m/$m";
 					} else {
 						$self->parse_error("Title overline & underline mismatch : %s", $title);
@@ -323,12 +324,24 @@ sub do_parse_block {
 					push(@$out, "<pre class=\"syntax-highlight\">\x02");
 					foreach(@$block) {
 						$self->tag_escape($_);
+						$_ =~ s/\\/&#92;/g;	# escape backslash
 						push(@$out, "$_\x02");
 					}
 					push(@$out, "</pre>\x02", '');
 					next;
 				}
 			}
+		}
+
+		#--------------------------------------------------------------
+		# ラインブロック : line_block
+		#--------------------------------------------------------------
+		if (!@p_block && $x =~ /^\| /) {
+			push(@blocks, 'line-block');
+			unshift(@$lines, $x);
+
+			$self->parse_line_block($out, $lines);
+			next;
 		}
 
 		#--------------------------------------------------------------
@@ -562,6 +575,76 @@ sub do_parse_block {
 	}
 
 	return $out;
+}
+
+#------------------------------------------------------------------------------
+# ラインブロックの処理
+#------------------------------------------------------------------------------
+sub parse_line_block {
+	my $self  = shift;
+	my $out   = shift;
+	my $lines = shift;
+
+	my $lf_patch = $self->{lf_patch};
+
+	my @block;
+	while(@$lines) {
+		my $x = $lines->[0];
+		if ($x =~ /^\| / || $x eq '|') {
+			push(@block, substr($x, 2));
+			shift(@$lines);
+			next;
+		}
+		if ($x =~ /^ +(.*)/) {
+			my $z  = $1;
+			my $y  = pop(@block);
+			my $sp = $lf_patch && 0x7f<ord(substr($y,-1)) && 0x7f<ord($z) ? '' : ' ';
+			push(@block, "$y$sp$z");
+			shift(@$lines);
+			next;
+		}
+		last;
+	}
+	$self->parse_line_block_step2($out, \@block);
+}
+
+sub parse_line_block_step2 {
+	my $self  = shift;
+	my $out   = shift;
+	my $block = shift;
+	if (!@$block) { return; }
+
+	my $indent = 0x7ffffffff;
+	foreach(@$block) {		# 最小インデントを調べる
+		if ($_ !~ /^( +)/) { $indent=0; last; }
+
+		my $x = length($1);
+		if ($x<$indent) { $indent=$x; }
+	}
+	# remove indent
+	$block = [ map { substr($_, $indent) } @$block ];
+
+	# output
+	push(@$out, "<div class=\"line-block\">\x02");
+	while(@$block) {
+		my $x = shift(@$block);
+		if ($x eq '') {
+			push(@$out, "<div><br></div>");
+			next;
+		}
+		if (substr($x,0,1) ne ' ') {
+			$self->tag_escape($x);
+			push(@$out, "<div>$x</div>");
+			next;
+		}
+		# indent found
+		my @ary = ($x);
+		while(@$block && substr($block->[0],0,1) eq ' ') {
+			push(@ary, shift(@$block));
+		}
+		$self->parse_line_block_step2($out, \@ary);		# nest line-block
+	}
+	push(@$out, "</div>\x02");
 }
 
 #------------------------------------------------------------------------------

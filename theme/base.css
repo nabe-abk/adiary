@@ -249,7 +249,7 @@ div.body-footer {
 }
 
 /*--------------------------------------------------------------------
-●記法関連 / reST
+●記法関連 / reST (reStructuredText)
 ---------------------------------------------------------------------*/
 /* 列挙型 */
 ol.arabic	> li { list-style-type: decimal; }
@@ -264,8 +264,16 @@ ol.lower-roman	> li { list-style-type: lower-roman; }
 	text-align:	left;
 }
 .body table.option-list th var {
-	font-family;	italic;
+	font-style:	italic;
 	font-weight:	bold;
+}
+
+.line-block {
+	margin:		1em 0 1em 2em;
+	font-style:	italic;
+}
+.line-block .line-block {
+	margin:		0 0 0 2em;
 }
 
 /*--------------------------------------------------------------------
