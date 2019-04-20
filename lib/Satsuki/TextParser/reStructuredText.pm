@@ -25,6 +25,13 @@ sub new {
 	$self->{ambiguous_full} = 0;	# Ambiguousな文字コードをfullwidthとして扱う
 	$self->{lf_patch}       = 1;	# 日本語のpタグ中の改行を消す
 
+	$self->{footnote_symbols} = [ qw(
+		* &dagger; &Dagger; &sect; &para; # &spades; &hearts; &diams; &clubs;
+	)];
+
+	$self->{unique_id_base} = '';	# 処理する記事ごとにidベース（先頭）
+	$self->{thisurl}        = '';	# 処理する記事のURL
+
 	return $self;
 }
 
@@ -32,10 +39,11 @@ sub new {
 # ■メインルーチン
 ###############################################################################
 # 行末記号
-#	\x02	これ以上、処理しない
-#	\x03	
+#	\x02		これ以上、処理しない
+#	\x02\x02	セクションの終わり
 # 文中記号
 #	\x01	pブロック処理やブロック処理で使用
+#	\x03	文字エスケープに使用
 #
 # マルチバイト処理で仕様
 #	\x04-\x07
@@ -45,25 +53,20 @@ sub new {
 #------------------------------------------------------------------------------
 sub text_parser {
 	my ($self, $text) = @_;
-	my $sobj = $self->{satsuki_tags} && $self->{satsuki_obj};	# Satsuki parser
-
-	$text =~ s/[\x00-\x06]//g;		# 特殊文字削除
+	$text =~ s/[\x00-\x07]//g;		# 特殊文字削除
 
 	# 行に分解
 	my $lines = [ split(/\n/, $text) ];
 	undef $text;
 
 	# 内部変数初期化
-	$self->{links} = {};
+	$self->{footnotes} = {};
+	$self->{footnotes_auto} = [];
+	$self->{footnote_symc}  = 0;	# footnote symbols counter
+	$self->{links}          = {};
+
 	$self->{enum_cache}     = {};
 	$self->{transion_cache} = {'' => 0};
-	$self->init_unique_link_name();
-	if ( $sobj ) {
-		$sobj->{thisurl}  = $self->{thisurl};
-		$sobj->{thispkey} = $self->{thispkey};
-		$sobj->{thisymd}  = $self->{thisymd};
-		$sobj->init_unique_link_name();
-	}
 
 	# セクション情報の初期化
 	$self->{sections} = [];
@@ -74,7 +77,10 @@ sub text_parser {
 	# [01] ブロックのパース
 	$lines = $self->parse_block($lines);
 
-	# [02] インライン記法の処理
+	# [02] 注釈と引用参照のブロック処理
+	$lines = $self->explicit_block_process($lines);
+
+	# [03] インライン記法の処理
 	$lines = $self->parse_inline($lines);
 
 	#-------------------------------------------
@@ -97,23 +103,7 @@ sub text_parser {
 	$all   =~ s/[\x00-\x03]//g;
 	$short =~ s/[\x00-\x03]//g;
 
-	# 内部変数復元
-	$self->restore_unique_link_name();
-
 	return wantarray ? ($all, $short) : $all;
-}
-
-#------------------------------------------------------------------------------
-# ●unique_link_nameの生成と破棄
-#------------------------------------------------------------------------------
-sub init_unique_link_name {
-	my $self = shift;
-	$self->{unique_linkname_bak} = $self->{unique_linkname};
-	$self->{unique_linkname} ||= $self->{thispkey} ? "k$self->{thispkey}" : '';
-}
-sub restore_unique_link_name {
-	my $self = shift;
-	$self->{unique_linkname} = $self->{unique_linkname_bak};
 }
 
 ###############################################################################
@@ -151,7 +141,6 @@ sub do_parse_block {
 	#
 	my $seclv       = 0;
 	my $seclv_cache = {};
-	my $sections    = $self->{sections};
 	my $sectioning  = !$nest;
 
 	# 入れ子要素、かつ、空行を含まない時は行処理をしない
@@ -238,13 +227,13 @@ sub do_parse_block {
 			if (6 < $h) { $h=6; }
 
 			if ($level == 1 && $sectioning && @$out) {
-				push(@$out, "</section>\x02");
+				push(@$out, "</section>\x02\x02");
 				push(@$out, "<section>\x02");
 			}
 
 			# セクション情報の生成
 			my $base = '';
-			my $secs = $sections;
+			my $secs = $self->{sections};
 			foreach(2..$level) {
 				my $s = @$secs ? $secs->[$#$secs] : undef;
 				if (!$s) {
@@ -261,7 +250,7 @@ sub do_parse_block {
 
 			my $count = $#$secs<0 ? 1 : $secs->[$#$secs]->{count} + 1;
 			my $num   = $base . ($level>1 ? '.' : '') . $count;
-			my $id    = $self->{unique_linkname} . 'p' . $num;
+			my $id    = $self->{unique_id_base} . 'h' . $num;
 			push(@$secs, {
 				id	=> $id,
 				num	=> $num,
@@ -369,7 +358,7 @@ sub do_parse_block {
 		}
 
 		#--------------------------------------------------------------
-		# グリッドテーブル
+		# グリッドテーブル : grid_table
 		#--------------------------------------------------------------
 		if (!@p_block && $x =~ /^\+(?:\-+\+){2,}/ && $y =~ /^[\+\|]/) {
 			push(@blocks, 'table');
@@ -387,6 +376,67 @@ sub do_parse_block {
 			unshift(@$lines, $x);
 
 			$self->parse_simple_table($out, $lines);
+			next;
+		}
+
+		#--------------------------------------------------------------
+		# 脚注 : footnote_references
+		#--------------------------------------------------------------
+		if (!@p_block && $x =~ /^\.\. +\[(\d+|#?[^\]]*|\*)\](?: +(.*))?$/ && $self->check_footnote_label($1)) {
+			my $label = $1;
+			my $body  = $2;
+			my $fn    = $self->{footnotes};
+			my $key   = $label;
+			$key =~ tr/A-Z/a-z/;
+
+			while(@$lines && $lines->[0] =~ /^ /) {
+				$body = $self->join_line($body, shift(@$lines));
+			}
+			my $h = {
+				type  => 'footnote',
+				label => $label,
+				body  => $body
+			};
+			if ($label eq '*') {
+				my $symbol = $self->get_footnote_symbol( $self->{footnote_symc} );
+				$self->{footnote_symc}++;
+				$h->{id}    = "s$self->{footnote_symc}";
+				$h->{label} = $symbol;
+				$fn->{$symbol} = $h;
+
+			} elsif ($label =~ /^#/) {		# auto-number
+				push(@{$self->{footnotes_auto}}, $h);
+				if ($label ne '#') {
+					$fn->{$key} = $h;
+				}
+
+			} elsif ($label =~ /^(\d+)$/) {		# footnote [1], [2]...
+				if ($fn->{$key}) {
+					$fn->{$key} = 'error';
+					$self->parse_error("Duplicate footnote target name : %s", $label);
+				} else {
+					$fn->{$key} = $h;
+				}
+			} else {				# hyperlink
+				$h->{type} = 'citation';
+				if ($fn->{$key}) {
+					$fn->{$key} = 'error';
+					$self->parse_error("Duplicate link target name : %s", $label);
+				} else {
+					$fn->{$key} = $h;
+				}
+			}
+			push(@$out, $h);
+			next;
+		}
+
+		#--------------------------------------------------------------
+		# コメント : comment
+		#--------------------------------------------------------------
+		if (!@p_block && $x =~ /^\.\.(?: |$)/) {
+			while(@$lines && $lines->[0] =~ /^ /) {
+				shift(@$lines);
+			}
 			next;
 		}
 
@@ -589,13 +639,29 @@ sub do_parse_block {
 		}
 	}
 
+	#----------------------------------------------------------------------
+	# footnote number
+	#----------------------------------------------------------------------
+	{
+		my $fn   = $self->{footnotes};
+		my $auto = $self->{footnotes_auto};
+		my $num  = 1;
+		foreach(@$auto) {
+			while($fn->{$num}) {
+				$num++;
+			}
+			$fn->{$num} = $_;
+			$_->{label} = $num;
+		}
+	}
+
 	# 文末空行の除去
 	while(@$out && $out->[$#$out] eq '') { pop(@$out); }
 
 	# セクショニングを行う
 	if ($sectioning) {
 		unshift(@$out, "<section>\x02");
-		push(@$out,'',"</section>\x02");
+		push(@$out,'',"</section>\x02\x02");
 	}
 
 	return $out;
@@ -609,8 +675,6 @@ sub parse_line_block {
 	my $out   = shift;
 	my $lines = shift;
 
-	my $lf_patch = $self->{lf_patch};
-
 	my @block;
 	while(@$lines) {
 		my $x = $lines->[0];
@@ -620,10 +684,7 @@ sub parse_line_block {
 			next;
 		}
 		if ($x =~ /^ +(.*)/) {
-			my $z  = $1;
-			my $y  = pop(@block);
-			my $sp = $lf_patch && 0x7f<ord(substr($y,-1)) && 0x7f<ord($z) ? '' : ' ';
-			push(@block, "$y$sp$z");
+			push(@block, $self->join_line(pop(@block), $1));
 			shift(@$lines);
 			next;
 		}
@@ -1310,7 +1371,6 @@ sub block_end {
 	my $out  = shift;
 	my $blk  = shift;
 	my $tag  = shift;
-	my $lf_patch = $self->{lf_patch};
 	if (!@$blk) { return; }
 
 	# ブロック末空行の除去
@@ -1318,12 +1378,7 @@ sub block_end {
 
 	my $line = shift(@$blk);
 	foreach(@$blk) {
-		if ($lf_patch && 0x7f < ord(substr($line,-1)) &&  0x7f < ord($_)) {
-			# 日本語文章中に改行が含まれるとスペースになり汚いため行連結する。
-			$line .= $_;
-			next;
-		}
-		$line .= "\n" . $_;
+		$line = $self->join_line($line, $_);
 	}
 
 	$self->tag_escape($line);
@@ -1332,17 +1387,184 @@ sub block_end {
 	@$blk = ();
 }
 
-#//////////////////////////////////////////////////////////////////////////////
-# ●[02] インライン記法の処理
-#//////////////////////////////////////////////////////////////////////////////
-sub parse_oneline {
-	my ($self, $text) = @_;
-	my $lines = $self->parse_inline( [$text] );
-	return $lines->[0];
+#----------------------------------------------
+# 行連結処理
+#----------------------------------------------
+sub join_line {
+	my $self = shift;
+	my $x    = shift;
+	my $y    = shift;
+	if (! $self->{lf_patch}) { return "$x\n$y"; }
+
+	# 日本語文章中に改行が含まれるとスペースになり汚いため改行を除去する。
+	my $sp = 0x7f<ord(substr($x,-1)) &&  0x7f<ord($y) ? '' : "\n";
+	return "$x$sp$y";
 }
 
+#//////////////////////////////////////////////////////////////////////////////
+# ●[02] 脚注と引用参照の処理
+#//////////////////////////////////////////////////////////////////////////////
+sub explicit_block_process {
+	my $self  = shift;
+	my $lines = shift;
+
+	my $out = [];
+	my $block;
+	my @fn_buf;
+	$self->{footnote_symc} = 0;
+	
+	while(@$lines) {
+		my $x = shift(@$lines);
+		if (!ref($x)) {
+			$x = $self->parse_inline_reference($x);
+
+			if (@fn_buf && substr($x,-2) eq "\x02\x02") {	# section end
+				push(@$out, "<footer>\x02");
+				push(@$out, @fn_buf);
+				push(@$out, "</footer>\x02");
+				undef @fn_buf;
+			}
+			push(@$out, $x);
+			next;
+		}
+		my $type = $x->{type};
+		if (!$type) { next; }		# 通常起きない
+
+		my $div = 1;
+		my $o   = $out;
+		if ($type eq 'footnote') {
+			$div = 0;
+			$o = \@fn_buf;
+		}
+		$div && push(@$o, "<div class=\"$type\">\x02");
+		unshift(@$lines, $x);
+		while(@$lines) {
+			my $y = $lines->[0];
+			if (!ref($y) || $y->{type} ne $type) { last; }
+
+			my $h = shift(@$lines);
+			$h->{body} = $self->parse_inline_reference($h->{body});
+			push(@$o, $h);
+		}
+		$div && push(@$o, "</div>\x02");
+	}
+	return $out;
+}
+
+sub parse_inline_reference {
+	my $self = shift;
+	my $z    = shift;
+	my $x = '';
+	while($z =~ /^(|.*?[^\w\,\.\x80-\xff]|>)\[(\d+|\*|#?[^\]]*)\]_([^\w\x80-\xff].*|<|)$/s) {
+		my $m = $2;
+		$x .= $1;
+		$z  = $3;
+		if ($self->check_footnote_label($m)) {
+			my $y = $self->reference_to_footnote($m);
+			$x .= $y ? $y : "[$m]";
+		} else {
+			$x .= "[$m]_";
+		}
+	}
+	$x .= $z;
+	return $x;
+}
+
+sub reference_to_footnote {
+	my $self  = shift;
+	my $label = shift;
+	my $key   = $label;
+	$key =~ tr/A-Z/a-z/;
+
+	my $fn   = $self->{footnotes};
+	my $auto = $self->{footnotes_auto};
+
+	my $h;
+	if ($label eq '*') {
+		my $symbol = $self->get_footnote_symbol( $self->{footnote_symc} );
+		$self->{footnote_symc}++;
+		$h = $fn->{$symbol};
+		if (!$h) {
+			$self->parse_error("Too many symbol footnote references");
+			return "<a href=\"#**error\" title=\"Too many symbol footnote references\">[$label]_</a>";
+		}
+	} elsif ($label =~ /^#/ && $fn->{$key}) {
+		$h = $fn->{$key};
+
+	} elsif ($label =~ /^#/) {
+		$h = shift(@$auto);
+		while($h && ref($h) && $h->{used}) {
+			$h = shift(@$auto);
+		}
+		if (!$h) {
+			$self->parse_error("Too many autonumbered footnote references");
+			return "<a href=\"#**error\" title=\"Too many autonumbered footnote references\">[$label]_</a>";
+		}
+	} else {
+		$h = $fn->{$key};
+		if (!$h) {
+			$self->parse_error("Unknown target name : %s", $label);
+			return;
+		}
+	}
+	if (!ref($h)) { return; }	# Dupluicate label
+	$h->{used} = 1;
+	my $id = $h->{id} || $h->{label};
+	my $type = $h->{type};
+
+	return "<span class=\"$type rest-$type\" id=\"backref-$id\"><a href=\"$self->{thisurl}#fn-$id\">[$h->{label}]</a></span>";
+}
+
+#//////////////////////////////////////////////////////////////////////////////
+# ●[03] インライン記法の処理
+#//////////////////////////////////////////////////////////////////////////////
 sub parse_inline {
-	my ($self, $lines) = @_;
+	my $self  = shift;
+	my $lines = shift;
+
+	foreach(@$lines) {
+		if (substr($_,-1) eq "\x02") { next; }
+
+		# backslash escape
+		$_ =~ s/\\ //g;
+		$_ =~ s/\\(.)/"\x03" . ord($1) . "\x03"/eg;
+
+		if (ref($_)) {
+			my $type  = $_->{type};
+			my $label = $_->{label};
+			my $body  = $_->{body};
+			my $id    = $_->{id} || $label;
+			$_ = "<p class=\"$type\" id=\"fn-$id\"><a href=\"$self->{thisurl}#backref-$id\">[$label]</a> : $body</p>";
+		}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	}
+	#-----------------------------------------------
+	# エスケープを戻す
+	#-----------------------------------------------
+	foreach(@$lines) {
+		$_ =~ s/\x03(\d+)\x03/chr($1)/eg;
+	}
+	return $lines;
+}
+
+sub xxxxx {
+	my $self  = shift;
+	my $lines = shift;
 
 	# 強調タグ処理避け
 	sub escape_special_char {
@@ -1450,7 +1672,7 @@ sub parse_inline {
 		# inline code
 		$_ =~ s|(`+)(.+?)\1|
 			my $s = $2;
-			$self->escape_in_code($s);
+		#	$self->escape_in_code($s);
 			"<code>$s</code>";
 		|eg;
 	}
@@ -1507,6 +1729,31 @@ sub parse_roman_number {
 		return ('lower-roman', $ROMAN_L{$1} + $ROMAN_L{$2} + $ROMAN_L{$3} + $ROMAN_L{$4});
 	}
 	return;
+}
+
+#------------------------------------------------------------------------------
+# ●footnote labelの書式チェック
+#------------------------------------------------------------------------------
+sub check_footnote_label {
+	my $self = shift;
+	my $x    = shift;
+	if ($x eq '*' || $x eq '#') { return 1; }
+	return ($x =~ /^#?[A-Za-z0-9\x80-\xff]+(?:[\-_\.][A-Za-z0-9\x80-\xff]+)*$/);
+}
+
+#------------------------------------------------------------------------------
+# ●footnote symbolの取得
+#------------------------------------------------------------------------------
+sub get_footnote_symbol {
+	my $self = shift;
+	my $num  = shift;	# 0 to 
+
+	my $sym  = $self->{footnote_symbols};
+	my $syms = $#$sym+1;	# how many symbols
+
+	my $d = int($num/$syms) +1;
+	my $x = $num - $d*$syms;
+	return $sym->[$x] x $d;
 }
 
 #------------------------------------------------------------------------------

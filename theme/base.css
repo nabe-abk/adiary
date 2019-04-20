@@ -275,6 +275,20 @@ ol.lower-roman	> li { list-style-type: lower-roman; }
 .line-block .line-block {
 	margin:		0 0 0 2em;
 }
+div.citation {
+	margin:		1em 0 1em 2em;
+}
+article section .rest-footnote a {
+	font-size:		70%;
+	line-height:		140%;
+	vertical-align:		top;
+	text-decoration:	none;
+	border-bottom-width:	1px;
+	border-bottom-style:	dotted;
+}
+article section .rest-footnote a:hover {
+	border-bottom-style:	solid;
+}
 
 /*--------------------------------------------------------------------
 ●フォントサイズ／種類設定
