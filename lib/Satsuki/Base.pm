@@ -1731,6 +1731,8 @@ sub _message {
 	my $ary = $self->{Message};
 	$self->tag_escape($class,$msg);
 	push(@$ary, "<div class=\"$class\">$msg</div>");
+
+	return $msg;
 }
 
 #------------------------------------------------------------------------------

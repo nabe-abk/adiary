@@ -289,6 +289,12 @@ article section .rest-footnote a {
 article section .rest-footnote a:hover {
 	border-bottom-style:	solid;
 }
+.problematic {
+	color:			red;
+	text-decoration:	underline;
+}
+
+
 
 /*--------------------------------------------------------------------
 ●フォントサイズ／種類設定
