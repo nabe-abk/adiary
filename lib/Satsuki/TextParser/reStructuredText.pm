@@ -70,6 +70,7 @@ sub text_parser {
 	# 内部変数初期化
 	$self->{footnotes_auto} = [];
 	$self->{links}          = {};	# link target hash
+	$self->{anonymous_links}= [];	# Anonymouse hyperlinks
 	$self->{ids}            = {};	# all id hash
 
 	# セクション情報の初期化
@@ -448,25 +449,30 @@ sub do_parse_block {
 		#--------------------------------------------------------------
 		# リンクターゲット : target
 		#--------------------------------------------------------------
-		if (!@p_block && $x =~ /^\.\. +_[^:]+\s*:/) {
+		if (!@p_block && $x =~ /^\.\. +_(?:`[^`]+` ?|(?:\\.|[^:])*):(?: +.*|$)|^__(?: |$)/) {
 			unshift(@$lines, $x);
 
 			my $links = $self->{links};
 
 			my $h = { type => 'link' };
 			my $label;
-			while(@$lines && $lines->[0] =~ /^ *\.\. +_([^:]+?):(?: +(.*)|$)/) {
+			while(@$lines && $lines->[0] =~ /^\.\. +_(`[^`]+` ?|(?:\\.|[^:])*):(?: +(.*)|$)|^_(_)(?: +(.*)|$)/) {
 				shift(@$lines);
-				$label = $1;
-				my $url = $2;
+				$label = $1 || $3;
+				my $url = $3 ? $4 : $2;
 
 				# labelの加工
 				$label =~ s/ $//g;		# 最後のスペース1つだけは取り除く
 				$self->backslash_process($label);
 				$self->normalize_label($label);
-				if ($label =~ /^ / || $label =~ / $/) {
+				if ($label eq '_') {
+					push(@{ $self->{anonymous_links} }, $h);
+
+				} elsif ($label =~ /^ / || $label =~ / $/ || $label eq '') {
 					my $msg = $self->parse_error("Malformed hyperlink target: %s", $label);
-					$links->{$label}->{error} = $msg;
+					if ($label ne '') {
+						$links->{$label}->{error} = $msg;
+					}
 
 				} elsif ($links->{$label}) {
 					my $msg = $self->parse_error("Duplicate link target name: %s", $label);
@@ -1500,7 +1506,8 @@ sub parse_inline {
 
 	my $out = [];
 	my @footnote_buf;	# footnote buffer
-	$self->{footnote_symc} = 0;
+	$self->{footnote_symc}   = 0;
+	$self->{anonymous_linkc} = 0;
 
 	my $id;
 	while(@$lines) {
@@ -1560,6 +1567,13 @@ sub parse_inline {
 		}
 		#---------------------------------------------------------
 		push(@$out, $x);
+	}
+	#---------------------------------------------------------
+	# check anonymous link count
+	#---------------------------------------------------------
+	if (($#{$self->{anonymous_links}}+1) >= $self->{anonymous_linkc}) {
+		$self->parse_error("Too many anonymous hyperlink targets: ref=%d / def=%d",
+				 $self->{anonymous_linkc}, $#{$self->{anonymous_links}}+1);
 	}
 	return $out;
 }
@@ -1623,20 +1637,21 @@ sub parse_oneline {
 				|\*
 				|``
 				|[`\[]
-				|([A-Za-z0-9\x80-\xff]+(?:\x01?[\-_\.]\x01?[A-Za-z0-9\x80-\xff]+)*)_
+				|([A-Za-z0-9\x80-\xff]+(?:\x01?[\-_\.]\x01?[A-Za-z0-9\x80-\xff]+)*)(__?)
 			)\x01?(.*?)$
 		!xs) {
 			$_ .= $1;
-			$x  =  $4;
+			$x  =  $5;
 			my $m = $2;
 
 			# シンプルなインラインリンク
 			if ($3 ne '') {
 				my $y = $3;
+				my $m = $4;
 				if ($x eq '' || $x =~ /^[ <]/) {
-					$_ .= $self->inline_link($y);
+					$_ .= $self->inline_link($y, '', $m);
 				} else {
-					$_ .= $y . "_";
+					$_ .= $y . $m;
 				}
 				next;
 			}
@@ -1702,7 +1717,7 @@ $Markup{'``'} = {
 	}
 };
 $Markup{'`'} = {
-	pt   => qr/^(.*?[^ \n\x01])\x01?(`_?)\x01(.*)/s,
+	pt   => qr/^(.*?[^ \n\x01])\x01?(`_?_?)\x01(.*)/s,
 	func => sub {
 		my $self = shift;
 		my $str  = shift;
@@ -1711,7 +1726,7 @@ $Markup{'`'} = {
 		if ($m eq '`') {
 			return "<span class=\"\">$str</span>";
 		}
-		return $self->inline_link($str, "`");
+		return $self->inline_link($str, "`", $m);
 	}
 };
 $Markup{'['} = {
@@ -1797,9 +1812,11 @@ sub inline_reference {
 sub inline_link {
 	my $self  = shift;
 	my $label = shift;
-	my $mark  = shift;
+	my $mark0 = shift || '';
+	my $mark1 = shift || '_';
 	my $orig  = shift;
 	my $check = shift || {};
+	my $nest  = shift;
 
 	my $err_label = $orig eq '' ? $label : "\"$label\" from \"$orig\"";
 	$orig = $orig ne '' ? $orig : $label;
@@ -1807,7 +1824,7 @@ sub inline_link {
 	# 循環参照チェック
 	if ($check->{$label}) {
 		my $err = $self->parse_error("Indirect hyperlink target is circular reference: %s", $err_label);
-		return $self->make_problematic_link("$mark$orig${mark}_", $err);
+		return $self->make_problematic_link("$mark0$orig$mark1", $err);
 	}
 	$check->{$label} = 1;
 
@@ -1816,23 +1833,31 @@ sub inline_link {
 	$key =~ tr/A-Z/a-z/;
 
 	my $h = $self->{links}->{$key};
+	if (!$nest && substr($mark1,-2) eq '__') {
+		$h = $self->{anonymous_links}->[ $self->{anonymous_linkc} ];
+		$self->{anonymous_linkc}++;
+		if (!$h) {
+			my $err = $self->parse_error("Too many anonymous hyperlink references");
+			return $self->make_problematic_link("$mark0$orig$mark1", $err);
+		}
+	}
 	if ($h->{duplicate}) {
 		my $err = $self->parse_error("Duplicate target name is defined: %s", $err_label);
-		return $self->make_problematic_link("$mark$orig${mark}_", $err);
+		return $self->make_problematic_link("$mark0$orig$mark1", $err);
 	}
 	my $url = exists($h->{url}) ? $h->{url} : ('#' . $h->{id});
 	if ($url eq '' || $url eq '#') {
 		my $err = $self->parse_error("Unknown target name: %s", $err_label);
-		return $self->make_problematic_link("$mark$orig${mark}_", $err);
+		return $self->make_problematic_link("$mark0$orig$mark1", $err);
 	}
 
 	# link
 	if ($url =~ /^(`?)(.*)\1_$/) {
-		return $self->inline_link($2, $mark, $orig, $check);
+		return $self->inline_link($2, $mark0, $mark1, $orig, $check, 'nest');
 	}
 
 	$self->tag_escape($label, $url);
-	return "<a href=\"$url\">${label}</a>";
+	return "<a href=\"$url\">${orig}</a>";
 }
 
 #//////////////////////////////////////////////////////////////////////////////
