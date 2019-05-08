@@ -486,7 +486,7 @@ sub do_parse_block {
 				$self->backslash_escape($url);
 
 				$h->{url} = $url;
-				$self->debug("link /$label/ --> $url");
+				# $self->debug("link /$label/ --> $url");
 				last;
 			}
 			# ターゲットがないリンク（この場所へのリンク）
@@ -495,7 +495,7 @@ sub do_parse_block {
 				$h->{id} = $id;
 				push(@$out, $h);
 				push(@blocks, 'link');
-				$self->debug("link here /$label/ #$id");
+				# $self->debug("link here /$label/ #$id");
 			}
 			next;
 		}
@@ -724,7 +724,7 @@ sub do_parse_block {
 			$_->{label} = $num;
 		}
 		foreach(keys(%$links)) {
-			my $h = $->{$_};
+			my $h = $links->{$_};
 			if (!ref($h) || $h->{id}) { next; }
 
 			my $label = $h->{_label} || $h->{label};
@@ -1280,7 +1280,7 @@ sub test_block {
 				}
 			}
 			if ($mode eq 'option') {
-				$self->parse_error("Invalid option list : $x");
+				$self->parse_error("Invalid option list: %s", $x);
 			}
 			last;
 		} 
@@ -1610,7 +1610,7 @@ sub parse_oneline {
 		!seg;
 		Encode::_utf8_off($_);
 
-		my $d = $_; $d =~ s/\x01/1/g; $self->debug($d);
+		# my $d = $_; $d =~ s/\x01/1/g; $self->debug($d);
 
 		#--------------------------------------------------------
 		# インラインマークアップの認識
@@ -1632,7 +1632,12 @@ sub parse_oneline {
 
 			# シンプルなインラインリンク
 			if ($3 ne '') {
-				$_ .= $self->inline_link($3);
+				my $y = $3;
+				if ($x eq '' || $x =~ /^[ <]/) {
+					$_ .= $self->inline_link($y);
+				} else {
+					$_ .= $y . "_";
+				}
 				next;
 			}
 
@@ -1783,7 +1788,7 @@ sub inline_reference {
 	my $backref_id = $self->generate_link_id("backref-$name");
 	push(@{ $h->{backrefs} ||= [] }, $backref_id);
 
-	return "<span class=\"$type rest-$type\" id=\"$backref_id\"><a href=\"$self->{thisurl}#$h->{id}\">[$name]</a></span>";
+	return "<span class=\"$type rest-$type\" id=\"$backref_id\"><a href=\"$self->{thisurl}#$h->{id}\">[$h->{label}]</a></span>";
 }
 
 #------------------------------------------------------------------------------
@@ -2087,7 +2092,7 @@ sub tag_escape {
 #------------------------------------------------------------------------------
 sub parse_error {
 	my $self = shift;
-	my $err  = '[reST:error] ' . shift;
+	my $err  = '[reST] ' . shift;
 	return $self->{ROBJ}->warn($err, @_);
 }
 
