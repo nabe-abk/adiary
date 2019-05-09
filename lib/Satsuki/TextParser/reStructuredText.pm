@@ -406,6 +406,9 @@ sub do_parse_block {
 			while(@$lines && $lines->[0] =~ /^ /) {
 				$body = $self->join_line($body, shift(@$lines));
 			}
+			$self->backslash_escape($body);
+			$self->tag_escape($body);
+
 			my $h = {
 				type  => 'footnote',
 				label => $label,
@@ -1595,19 +1598,19 @@ sub parse_oneline {
 			(^|&quot;|&lt;|[ >\-:/\'\(\[\p{gc:Ps}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}])
 			(?=[\[\*`\|_])
 		!
-			index($invalid_po, $1) < 0 ? "$1\x01" : $1
+			($1 eq '' || index($invalid_po, $1) < 0) ? "$1\x01" : $1
 		!exg;
 		$_ =~ s!
 			(^|&quot;|&lt;|[ \n>\-:/\'\(\[\p{gc:Ps}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}])
 			(?=[A-Za-z0-9\x80-\xff]+(?:[\-_\.][A-Za-z0-9\x80-\xff]+)*_)
 		!
-			index($invalid_po, $1) < 0 ? "$1\x01" : $1
+			($1 eq '' || index($invalid_po, $1) < 0) ? "$1\x01" : $1
 		!exg;
 		$_ =~ s!
 			([\]\*`\|_])
-			(?=(&quot;|&gt;|[ \n\x03<\-\.,:;\!\?/\'\)\]\}\p{gc:Pe}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}]))
+			(?=($|&quot;|&gt;|[ \n\x03<\-\.,:;\!\?/\'\)\]\}\p{gc:Pe}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}]))
 		!
-			index($invalid_po, $2) < 0 ? "$1\x01" : $1
+			($2 eq '' || index($invalid_po, $2) < 0) ? "$1\x01" : $1
 		!exg;
 
 		# 開始記号が "**"強調** や 「``」リテラル`` のように囲まれてないか確認
@@ -1621,7 +1624,8 @@ sub parse_oneline {
 		Encode::_utf8_off($_);
 
 		# my $d = $_; $d =~ s/\x01/1/g; $self->debug($d);
-		my $x=$_;
+
+		my $x= $_;
 		$_='';
 
 		while ($x =~ m!^(.*?)\x01
@@ -1855,6 +1859,7 @@ sub inline_link {
 	$self->backslash_un_escape($label);
 	return "\x02link\x02$label\x02$mark0\x02$mark1\x02";
 }
+
 sub output_inline_link {
 	my $self  = shift;
 	my $label = shift;
@@ -1922,12 +1927,7 @@ sub parse_finalize {
 	#---------------------------------------------------------
 	foreach(@$lines) {
 		if (!ref($_)) {
-			$_ =~ s/\x02ref\x02([^\x02]*)\x02/
-				$self->output_inline_reference($1)
-			/eg;
-			$_ =~ s/\x02link\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02/
-				$self->output_inline_link($1,$2,$3)
-			/eg;
+			$self->output_link_footnote_citation($_);
 			next;
 		}
 		my $type  = $_->{type};
@@ -1935,6 +1935,8 @@ sub parse_finalize {
 		my $body  = $_->{body};
 		my $bid   = $_->{backrefs};	# array
 		my $brefs = '';
+		$self->output_link_footnote_citation($body);
+
 		if ($bid) {
 			$label = "<a href=\"$self->{thisurl}#$bid->[0]\">$label</a>";
 		}
@@ -1963,6 +1965,20 @@ sub parse_finalize {
 
 	return $lines;
 }
+
+sub output_link_footnote_citation {
+	my $self = shift;
+	foreach(@_) {
+		$_ =~ s/\x02ref\x02([^\x02]*)\x02/
+			$self->output_inline_reference($1)
+		/eg;
+		$_ =~ s/\x02link\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02/
+			$self->output_inline_link($1,$2,$3)
+		/eg;
+	}
+	return $_[0];
+}
+
 ###############################################################################
 # サブルーチン
 ###############################################################################
