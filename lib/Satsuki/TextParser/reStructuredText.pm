@@ -51,6 +51,7 @@ sub new {
 # 文中記号
 #	\x01		pブロック処理やブロック処理で使用 
 #	\x01		インラインマークアップの区切り
+#	\x02		link等の後処理に使用
 #	\x03		文字(\)エスケープに使用
 #
 # マルチバイト処理で仕様
@@ -449,14 +450,14 @@ sub do_parse_block {
 		#--------------------------------------------------------------
 		# リンクターゲット : target
 		#--------------------------------------------------------------
-		if (!@p_block && $x =~ /^\.\. +_(?:`[^`]+` ?|(?:\\.|[^:])*):(?: +.*|$)|^__(?: |$)/) {
+		if (!@p_block && $x =~ /^\.\. +_(?:`(?:\\.|[^`])+` ?|(?:\\.|[^:])*):(?: +.*|$)|^__(?: |$)/) {
 			unshift(@$lines, $x);
 
 			my $links = $self->{links};
 
 			my $h = { type => 'link' };
 			my $label;
-			while(@$lines && $lines->[0] =~ /^\.\. +_(`[^`]+` ?|(?:\\.|[^:])*):(?: +(.*)|$)|^_(_)(?: +(.*)|$)/) {
+			while(@$lines && $lines->[0] =~ /^\.\. +_(`(?:\\.|[^`])+` ?|(?:\\.|[^:])*):(?: +(.*)|$)|^_(_)(?: +(.*)|$)/) {
 				shift(@$lines);
 				$label = $1 || $3;
 				my $url = $3 ? $4 : $2;
@@ -465,31 +466,35 @@ sub do_parse_block {
 				$label =~ s/ $//g;		# 最後のスペース1つだけは取り除く
 				$self->backslash_process($label);
 				$self->normalize_label($label);
+				my $key = $label;
+				$self->tag_escape($key);
+
 				if ($label eq '_') {
 					push(@{ $self->{anonymous_links} }, $h);
 
 				} elsif ($label =~ /^ / || $label =~ / $/ || $label eq '') {
 					my $msg = $self->parse_error("Malformed hyperlink target: %s", $label);
 					if ($label ne '') {
-						$links->{$label}->{error} = $msg;
+						$links->{$key}->{error} = $msg;
 					}
 
-				} elsif ($links->{$label}) {
+				} elsif ($links->{$key}) {
 					my $msg = $self->parse_error("Duplicate link target name: %s", $label);
-					$links->{$label}->{error} = $msg;
-					$links->{$label}->{duplicate} = 1;
+					$links->{$key}->{error} = $msg;
+					$links->{$key}->{duplicate} = 1;
 				} else {
-					$links->{$label} = $h;
+					$links->{$key} = $h;
 				}
-
-				if ($url eq '') { next; }
 
 				# URLがある
 				while(@$lines && $lines->[0] =~ /^ +(.*)/) {
-					$url .= $1;
+					$url .= " $1";
 					shift(@$lines);
 				}
+				if ($url =~ /^ *$/) { next; }
+
 				$self->backslash_escape($url);
+				$self->normalize_link_url($url);
 
 				$h->{url} = $url;
 				# $self->debug("link /$label/ --> $url");
@@ -1506,8 +1511,6 @@ sub parse_inline {
 
 	my $out = [];
 	my @footnote_buf;	# footnote buffer
-	$self->{footnote_symc}   = 0;
-	$self->{anonymous_linkc} = 0;
 
 	my $id;
 	while(@$lines) {
@@ -1568,13 +1571,6 @@ sub parse_inline {
 		#---------------------------------------------------------
 		push(@$out, $x);
 	}
-	#---------------------------------------------------------
-	# check anonymous link count
-	#---------------------------------------------------------
-	if (($#{$self->{anonymous_links}}+1) >= $self->{anonymous_linkc}) {
-		$self->parse_error("Too many anonymous hyperlink targets: ref=%d / def=%d",
-				 $self->{anonymous_linkc}, $#{$self->{anonymous_links}}+1);
-	}
 	return $out;
 }
 
@@ -1625,10 +1621,6 @@ sub parse_oneline {
 		Encode::_utf8_off($_);
 
 		# my $d = $_; $d =~ s/\x01/1/g; $self->debug($d);
-
-		#--------------------------------------------------------
-		# インラインマークアップの認識
-		#--------------------------------------------------------
 		my $x=$_;
 		$_='';
 
@@ -1641,7 +1633,7 @@ sub parse_oneline {
 			)\x01?(.*?)$
 		!xs) {
 			$_ .= $1;
-			$x  =  $5;
+			$x  = $5;
 			my $m = $2;
 
 			# シンプルなインラインリンク
@@ -1751,8 +1743,16 @@ $Markup{'['} = {
 sub inline_reference {
 	my $self  = shift;
 	my $label = shift;
-	my $key   = $label;
-	$key =~ s/\x01//g;
+	$label =~ s/\x01//g;
+	$self->backslash_un_escape($label);
+	return "\x02ref\x02$label\x02";
+}
+sub output_inline_reference {
+	my $self  = shift;
+	my $label = shift;
+	$self->backslash_un_escape($label);
+
+	my $key = $label;
 	$key =~ tr/A-Z/a-z/;
 
 	my $links = $self->{links};
@@ -1814,10 +1814,57 @@ sub inline_link {
 	my $label = shift;
 	my $mark0 = shift || '';
 	my $mark1 = shift || '_';
+	$label =~ s/\x01//g;
+
+	if ($mark0 eq '`'
+	 && $label =~ /^(?:(.*) +|)&lt;(.+?)&gt;$/s
+	 && substr($2,0,1) ne ' '
+	 && substr($2,-1)  ne ' '
+	 && index($2, '&lt;')<0 && index($2, '&gt;')<0) {
+		#---------------------------------------------
+		# Embedded URIs
+		#---------------------------------------------
+		my $url = $2;
+		$label = $1;
+		$label =~ s/ +$//;
+		my $key = $label;
+
+		my $links = $self->{links};
+		my $anonymous = ($mark1 eq '`__');
+
+		$self->normalize_label($key);
+		$self->normalize_link_url($url);
+
+		if ($key ne '' && !$anonymous && $links->{$key}) {
+			my $msg = $self->parse_error("Duplicate link target name: %s", $label);
+			$links->{$label}->{error} = $msg;
+			$links->{$label}->{duplicate} = 1;
+		} elsif (!$anonymous) {
+			my $k = $key ne '' ? $key : $url;
+			$links->{$k} = {
+				type => 'link',
+				url  => $url
+			};
+		}
+
+		$label = $label eq '' ? $url : $label;
+		if ($anonymous) {
+			return "<a href=\"$url\">${label}</a>";
+		}
+	}
+	$self->backslash_un_escape($label);
+	return "\x02link\x02$label\x02$mark0\x02$mark1\x02";
+}
+sub output_inline_link {
+	my $self  = shift;
+	my $label = shift;
+	my $mark0 = shift || '';
+	my $mark1 = shift || '_';
 	my $orig  = shift;
 	my $check = shift || {};
 	my $nest  = shift;
 
+	$self->backslash_un_escape($label);
 	my $err_label = $orig eq '' ? $label : "\"$label\" from \"$orig\"";
 	$orig = $orig ne '' ? $orig : $label;
 
@@ -1829,7 +1876,6 @@ sub inline_link {
 	$check->{$label} = 1;
 
 	my $key = $label;
-	$key =~ s/\x01//g;
 	$key =~ tr/A-Z/a-z/;
 
 	my $h = $self->{links}->{$key};
@@ -1852,10 +1898,11 @@ sub inline_link {
 	}
 
 	# link
-	if ($url =~ /^(`?)(.*)\1_$/) {
-		return $self->inline_link($2, $mark0, $mark1, $orig, $check, 'nest');
+	if ($url =~ /^(.*)_$/) {
+		return $self->output_inline_link($1, $mark0, $mark1, $orig, $check, 'nest');
 	}
 
+	$url =~ s/ //g;
 	$self->tag_escape($label, $url);
 	return "<a href=\"$url\">${orig}</a>";
 }
@@ -1867,11 +1914,22 @@ sub parse_finalize {
 	my $self  = shift;
 	my $lines = shift;
 
+	$self->{footnote_symc}   = 0;
+	$self->{anonymous_linkc} = 0;
+
 	#---------------------------------------------------------
-	# footnote/citation の出力処理
+	# footnote/citation/link の出力処理
 	#---------------------------------------------------------
 	foreach(@$lines) {
-		if (!ref($_)) { next; }
+		if (!ref($_)) {
+			$_ =~ s/\x02ref\x02([^\x02]*)\x02/
+				$self->output_inline_reference($1)
+			/eg;
+			$_ =~ s/\x02link\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02/
+				$self->output_inline_link($1,$2,$3)
+			/eg;
+			next;
+		}
 		my $type  = $_->{type};
 		my $label = '[' . $_->{label} . ']';
 		my $body  = $_->{body};
@@ -1888,6 +1946,14 @@ sub parse_finalize {
 			$brefs = '<span class="fn-backref">(' .	join(', ', @a) . ')</span> ';
 		}
 		$_ = "<p class=\"$type\" id=\"$_->{id}\">$label</a> $brefs$body</p>";
+	}
+
+	#---------------------------------------------------------
+	# check anonymous link count
+	#---------------------------------------------------------
+	if (($#{$self->{anonymous_links}}+1) > $self->{anonymous_linkc}) {
+		$self->parse_error("Too many anonymous hyperlink targets: ref=%d / def=%d",
+				 $self->{anonymous_linkc}, $#{$self->{anonymous_links}}+1);
 	}
 
 	#---------------------------------------------------------
@@ -1972,6 +2038,26 @@ sub normalize_label {
 }
 
 #------------------------------------------------------------------------------
+# ●リンクURLを正規化
+#------------------------------------------------------------------------------
+sub normalize_link_url {
+	my $self  = shift;
+	foreach(@_) {
+		$_ =~ s/^ +//g;
+		$_ =~ s/ +$//g;
+
+		# alias
+		if ($_ =~ /^(`?)(.*)\1_$/) {
+			$_ = $2 . '_';
+			$_ =~ s/ +/ /g;
+		} else {
+			$_ =~ s/ //g;
+		}
+	}
+	return $_[0]
+}
+
+#------------------------------------------------------------------------------
 # ●ラベル等からidを生成
 #------------------------------------------------------------------------------
 sub generate_id_from_string {
@@ -2034,7 +2120,7 @@ sub backslash_escape {
 	foreach(@$ary) {
 		$_ =~ s!\\(.)!
 			my $c = ord($1);
-			index("\n .:*`|\\_", $1)<0 ? "\x03$1" : "\x03$c";
+			index("\n .:*`|\\_<>", $1)<0 ? "\x03$1" : "\x03$c";
 		!seg;
 	}
 	return $_[0];
