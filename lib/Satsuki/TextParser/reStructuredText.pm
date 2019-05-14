@@ -72,6 +72,7 @@ sub text_parser {
 	$self->{footnotes_auto} = [];
 	$self->{links}          = {};	# link target hash
 	$self->{anonymous_links}= [];	# Anonymouse hyperlinks
+	$self->{substitutions}  = {};	# Substitution
 	$self->{ids}            = {};	# all id hash
 
 	# セクション情報の初期化
@@ -276,48 +277,6 @@ sub do_parse_block {
 		}
 
 		#--------------------------------------------------------------
-		# リテラルブロック : literal_block
-		#--------------------------------------------------------------
-		if ($x =~ /^(.*)::$/ && $y eq '') {
-			$x = $1;
-			$self->block_end($out, \@p_block, $ptag);
-			push(@blocks, 'literal');
-
-			if ($x ne '') {
-				# "Paragraph ::" to "Paragraph"
-				# "Paragraph::"  to "Paragraph:"
-				if (substr($x,-1) ne ' ') { $x .= ':'; }
-				$x =~ s/ +$//;
-				unshift(@$lines, '::');
-				unshift(@$lines, '');
-			} else {
-				$self->skip_blank($lines);
-				if ($lines->[0] =~ /^( )/ || $lines->[0] =~ /^([!"#\$%&'\(\)\*\+,\-\.\/:;<=>\?\@\[\\\]^_`\{\|\}\~])/) {
-					my $block = [];
-					if ($1 eq ' ') {
-						$x = shift(@$lines);
-						$block = $self->extract_block( $lines, 0, $x );
-					} else {
-						my $mark = $1;
-						while(@$lines && substr($lines->[0],0,1) eq $mark) {
-							push(@$block, shift(@$lines));
-						}
-					}
-
-					if ($out->[$#$out] ne '') { push(@$out, ''); }
-					push(@$out, "<pre class=\"syntax-highlight\">\x02");
-					foreach(@$block) {
-						$self->tag_escape($_);
-						$_ =~ s/\\/&#92;/g;	# escape backslash
-						push(@$out, "$_\x02");
-					}
-					push(@$out, "</pre>\x02", '');
-					next;
-				}
-			}
-		}
-
-		#--------------------------------------------------------------
 		# Doctestブロック : doctest_block
 		#--------------------------------------------------------------
 		if (!@p_block && $x =~ /^>>> /) {
@@ -344,28 +303,6 @@ sub do_parse_block {
 			unshift(@$lines, $x);
 
 			$self->parse_line_block($out, $lines);
-			next;
-		}
-
-		#--------------------------------------------------------------
-		# 引用ブロック : block_quote	※先に処理してはいけない
-		#--------------------------------------------------------------
-		if ($x =~ /^( +)/) {
-			$self->block_end($out, \@p_block, $ptag);
-			push(@blocks, 'quote');
-
-			# block抽出
-			my $block = $self->extract_block( $lines, 0, $x );
-
-			# Doctest check
-			if ($block->[0] =~ /^>>>/ && !(grep { $_ eq '' } @$block)) {
-				unshift(@$lines, @$block);
-				next;	# goto Doctest
-			}
-			if ($out->[$#$out] ne '') { push(@$out, ''); }
-			push(@$out, "<blockquote>\x02");
-			$self->do_parse_block($out, $block, 'nest');
-			push(@$out, "</blockquote>\x02", '');
 			next;
 		}
 
@@ -453,15 +390,18 @@ sub do_parse_block {
 		#--------------------------------------------------------------
 		# リンクターゲット : target
 		#--------------------------------------------------------------
-		if (!@p_block && $x =~ /^\.\. +_(?:`(?:\\.|[^`])+` ?|(?:\\.|[^:])*):(?: +.*|$)|^__(?: |$)/) {
+		if (!@p_block && $x =~ /^\.\. +_|^__(?: |$)/) {
 			unshift(@$lines, $x);
-
 			my $links = $self->{links};
 
 			my $h = { type => 'link' };
 			my $label;
-			while(@$lines && $lines->[0] =~ /^\.\. +_(`(?:\\.|[^`])+` ?|(?:\\.|[^:])*):(?: +(.*)|$)|^_(_)(?: +(.*)|$)/) {
-				shift(@$lines);
+			while(@$lines && $lines->[0] =~ /^\.\. +_|^__(?: |$)/) {
+				my $z = shift(@$lines);
+				if ($z !~ /^\.\. +_(`(?:\\.|[^`\\])+` ?|(?:\\.|[^:\\])*):(?: +(.*)|$)|^_(_)(?: +(.*)|$)/) {
+					$self->parse_error("Malformed hyperlink target: %s", $z);
+					next;
+				}
 				$label = $1 || $3;
 				my $url = $3 ? $4 : $2;
 
@@ -515,6 +455,29 @@ sub do_parse_block {
 		}
 
 		#--------------------------------------------------------------
+		# 置換定義 : definition substitution
+		#--------------------------------------------------------------
+		if (!@p_block && $x =~ /^\.\. +\|/) {
+			unshift(@$lines, $x);
+			my $sub = $self->{substitutions};
+
+			while(@$lines && $lines->[0] =~ /^\.\. +\|/) {
+				my $z = shift(@$lines);
+				if ($z !~ /^\.\. /) {
+					$self->parse_error("Malformed substitution definition: %s", $z);
+					next;
+				}
+			}
+		}
+
+		#--------------------------------------------------------------
+		# ディテクティブ : directive
+		#--------------------------------------------------------------
+		if (!@p_block && $x =~ /^\.\. +\|/) {
+			# 
+		}
+
+		#--------------------------------------------------------------
 		# コメント : comment
 		#--------------------------------------------------------------
 		if (!@p_block && $x =~ /^\.\.(?: |$)/) {
@@ -530,14 +493,6 @@ sub do_parse_block {
 		my ($btype, $bopt) = !@p_block && $self->test_block($nest, $x, $y, 'first');
 		if ($btype) {
 			push(@blocks, $btype eq 'enum' ? 'list' : $btype);
-		}
-
-		#--------------------------------------------------------------
-		# 通常行
-		#--------------------------------------------------------------
-		if (!$btype) {
-			push(@p_block, $x);	# 段落ブロック
-			next;
 		}
 
 		#--------------------------------------------------------------
@@ -614,7 +569,7 @@ sub do_parse_block {
 				# dt classifier
 				$self->backslash_escape($name);
 				$self->tag_escape($name);
-				push(@fields, "<tr><th>$name</th>");
+				push(@fields, "<tr><th>$name:</th>");
 
 				$self->parse_nest_block_with_tag(\@fields, $body, '<td>', '</td>');
 				push(@fields, "</tr>\x02");
@@ -638,13 +593,20 @@ sub do_parse_block {
 			push(@$out, "<table class=\"option-list\">\x02");
 			push(@$out, "<tbody>\x02");
 
+			my $mode = 'option';
 			while(@$lines) {
-				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1], 'option');
-				if ($type ne 'option') { last; }
+				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1], $mode);
+				if ($type ne 'option') {
+					if ($mode eq 'option') {	# ブランク行なしでオプションリストが終わっている
+						$self->parse_error("Option list ends without a blank line: %s", $lines->[0]);
+					}
+					last;
+				}
 				shift(@$lines);
 
 				my $body = $self->extract_block($lines, $opt->{len}, '');
 				$body->[0] = $opt->{value};	# 最初の行は最小インデントに合わせる
+				$mode = $body->[$#$body] eq '' ? '' : 'option';
 
 				# dt classifier
 				push(@$out, "<tr><th>$opt->{option}</th>");	# {option} is tag escaped
@@ -684,6 +646,80 @@ sub do_parse_block {
 				$self->parse_nest_block_with_tag($out, $dd, '<dd>', '</dd>');
 			}
 			push(@$out, "</dl>\x02", '');
+			next;
+		}
+
+		#--------------------------------------------------------------
+		# リテラルブロック : literal_block    ※先に処理してはいけない
+		#--------------------------------------------------------------
+		if ($x =~ /^((?:\\.|[^\\])*)::$/ && $y eq '') {
+			$x = $1;
+			$self->block_end($out, \@p_block, $ptag);
+			push(@blocks, 'literal');
+
+			if ($x ne '') {
+				# "Paragraph ::" to "Paragraph"
+				# "Paragraph::"  to "Paragraph:"
+				if (substr($x,-1) ne ' ') { $x .= ':'; }
+				$self->backslash_escape($x);
+				$x =~ s/ +$//;
+				$self->backslash_escape_cancel($x);
+				unshift(@$lines, '::');
+				unshift(@$lines, '');
+			} else {
+				$self->skip_blank($lines);
+				if ($lines->[0] =~ /^( )/ || $lines->[0] =~ /^([!"#\$%&'\(\)\*\+,\-\.\/:;<=>\?\@\[\\\]^_`\{\|\}\~])/) {
+					my $block = [];
+					if ($1 eq ' ') {
+						$x = shift(@$lines);
+						$block = $self->extract_block( $lines, 0, $x );
+					} else {
+						my $mark = $1;
+						while(@$lines && substr($lines->[0],0,1) eq $mark) {
+							push(@$block, shift(@$lines));
+						}
+					}
+
+					if ($out->[$#$out] ne '') { push(@$out, ''); }
+					push(@$out, "<pre class=\"syntax-highlight\">\x02");
+					foreach(@$block) {
+						$self->tag_escape($_);
+						$_ =~ s/\\/&#92;/g;	# escape backslash
+						push(@$out, "$_\x02");
+					}
+					push(@$out, "</pre>\x02", '');
+					next;
+				}
+			}
+		}
+
+		#--------------------------------------------------------------
+		# 引用ブロック : block_quote	※先に処理してはいけない
+		#--------------------------------------------------------------
+		if ($x =~ /^( +)/) {
+			$self->block_end($out, \@p_block, $ptag);
+			push(@blocks, 'quote');
+
+			# block抽出
+			my $block = $self->extract_block( $lines, 0, $x );
+
+			# Doctest check
+			if ($block->[0] =~ /^>>>/ && !(grep { $_ eq '' } @$block)) {
+				unshift(@$lines, @$block);
+				next;	# goto Doctest
+			}
+			if ($out->[$#$out] ne '') { push(@$out, ''); }
+			push(@$out, "<blockquote>\x02");
+			$self->do_parse_block($out, $block, 'nest');
+			push(@$out, "</blockquote>\x02", '');
+			next;
+		}
+
+		#--------------------------------------------------------------
+		# 通常行
+		#--------------------------------------------------------------
+		if (!$btype) {
+			push(@p_block, $x);	# 段落ブロック
 			next;
 		}
 
@@ -1265,7 +1301,7 @@ sub test_block {
 	}
 
 	# フィールドリスト
-	if ($x =~ /^:(.+):(?: +|$)(.*)/ && substr($1,0,1) ne ' ' &&  substr($1,-1) ne ' ') {
+	if ($x =~ /^:((?:\\.|[^:\\])+):(?: +|$)(.*)/ && substr($1,0,1) ne ' ' &&  substr($1,-1) ne ' ') {
 		return ('field', {
 			name  => $1,
 			value => $2
@@ -1280,6 +1316,7 @@ sub test_block {
 
 		my ($o, $v) = split(/  +/, $z, 2);
 		my $option;
+		my $err;
 		foreach(split(/, /, $o)) {
 			if ($_ =~ /^(-[A-Za-z0-9])( ?)(.*)/ || $_ =~ /^((?:--|\/)\w[\w-]*)([= ]?)(.*)/) {
 				my $op  = $1;
@@ -1293,15 +1330,15 @@ sub test_block {
 					next;
 				}
 			}
-			if ($mode eq 'option') {
-				$self->parse_error("Invalid option list: %s", $x);
-			}
+			$err=1;
 			last;
 		} 
-		return ('option', {
-			option=> $option,
-			value => $v
-		});
+		if (!$err) {
+			return ('option', {
+				option=> $option,
+				value => $v
+			});
+		}
 	}
 
 	# 定義リスト（最後に処理）
@@ -1602,7 +1639,7 @@ sub parse_oneline {
 		!exg;
 		$_ =~ s!
 			(^|&quot;|&lt;|[ \n>\-:/\'\(\[\p{gc:Ps}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}])
-			(?=[A-Za-z0-9\x80-\xff]+(?:[\-_\.][A-Za-z0-9\x80-\xff]+)*_)
+			(?=[A-Za-z0-9\p{gc:L}\p{gc:N}]+(?:[\-_\.][A-Za-z0-9\p{gc:L}\p{gc:N}]+)*_)
 		!
 			($1 eq '' || index($invalid_po, $1) < 0) ? "$1\x01" : $1
 		!exg;
@@ -1708,7 +1745,7 @@ $Markup{'``'} = {
 	func => sub {
 		my $self = shift;
 		my $str  = shift;
-		$self->backslash_escape_cancel($str);
+		$self->backslash_escape_cancel_with_tag_escape($str);
 		return "<span class=\"pre\">$str</span>";
 	}
 };
@@ -2016,13 +2053,24 @@ sub parse_roman_number {
 }
 
 #------------------------------------------------------------------------------
-# ●footnote labelの書式チェック
+# ●simple label / footnote label check
 #------------------------------------------------------------------------------
+sub check_simple_label {
+	my $self = shift;
+	my $x    = shift;
+	if ($x !~ /[\x80-\xff]/) {
+		return ($x =~ /^#?[A-Za-z0-9]+(?:[\-_\.][A-Za-z0-9]+)*$/);
+	}
+	Encode::_utf8_on($x);
+	return ($x =~ /^[A-Za-z0-9\p{gc:L}\p{gc:N}]+(?:[\-_\.][A-Za-z0-9\p{gc:L}\p{gc:N}]+)*$/)
+}
+
 sub check_footnote_label {
 	my $self = shift;
 	my $x    = shift;
 	if ($x eq '*' || $x eq '#') { return 1; }
-	return ($x =~ /^#?[A-Za-z0-9\x80-\xff]+(?:[\-_\.][A-Za-z0-9\x80-\xff]+)*$/);
+	$x =~ s/^#//g;
+	return $self->check_simple_label($x);
 }
 
 #------------------------------------------------------------------------------
@@ -2134,9 +2182,13 @@ sub backslash_escape {
 	my $self = shift;
 	my $ary  = ref($_[0]) ? $_[0] : \@_;
 	foreach(@$ary) {
-		$_ =~ s!\\(.)!
-			my $c = ord($1);
-			index("\n .:*`|\\_<>", $1)<0 ? "\x03$1" : "\x03$c";
+		$_ =~ s!\\(.)|\\$!
+			if ($1 eq '') {
+				"\x03";
+			} else {
+				my $d = ord($1);
+				index("\n .:*`|\\_<>", $1)<0 ? "\x03$1" : "\x03$d";
+			}
 		!seg;
 	}
 	return $_[0];
@@ -2148,10 +2200,8 @@ sub backslash_escape {
 my %BackslashUnEscape = (
 	ord(' ') => '',
 	ord("\n")=> '',
-	ord('&') => '&amp;',
 	ord('<') => '&lt;',
-	ord('>') => '&gt;',
-	ord('"') => '&quot;'
+	ord('>') => '&gt;'
 );
 sub backslash_un_escape {
 	my $self = shift;
@@ -2169,12 +2219,20 @@ sub backslash_un_escape {
 # 処理をキャンセル
 #----------------------------------------------------------
 my %BackslashCancel = (
-	ord('&') => '&amp;',
 	ord('<') => '&lt;',
-	ord('>') => '&gt;',
-	ord('"') => '&quot;'
+	ord('>') => '&gt;'
 );
 sub backslash_escape_cancel {
+	my $self = shift;
+	my $ary  = ref($_[0]) ? $_[0] : \@_;
+	foreach(@$ary) {
+		$_ =~ s/\x03(\d+)/chr($1)/eg;
+		$_ =~ s/\x03/\\/g;
+	}
+	return $_[0];
+}
+
+sub backslash_escape_cancel_with_tag_escape {
 	my $self = shift;
 	my $ary  = ref($_[0]) ? $_[0] : \@_;
 	foreach(@$ary) {
@@ -2192,8 +2250,8 @@ sub backslash_process {
 	my $self = shift;
 	my $ary  = ref($_[0]) ? $_[0] : \@_;
 	foreach(@$ary) {
-		$_ =~ s!\\(.)!
-			($1 eq ' ' || $1 eq "\n") ? '' : $1;
+		$_ =~ s!\\(.)|\\$!
+			($1 eq ' ' || $1 eq "\n" || $1 eq '') ? '' : $1;
 		!seg;
 	}
 	return $_[0];

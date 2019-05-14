@@ -278,7 +278,7 @@ Restart of %s is required!=%sの再起動が必要です！
 [reST] Malformed table=[reST] テーブルの記述が不正です
 [reST] Column span alignment problem: %s=[reST] テーブルのカラム位置が揃っていません: %s
 [reST] Text in column margin: %s=[reST] テーブルのマージン部にテキストが存在します: %s
-[reST] Invalid option list: %s=[reST] オプションリストの記述が正しくありません: %s
+[reST] Option list ends without a blank line: %s=[reST] オプションリストが空行なしで終わっています: %s
 [reST] Inline "%s" start-string without end-string=[reST] インラインタグ「%s」の終了記述がありません
 [reST] Too many symbol footnote references=[reST] 脚注のシンボル参照が定義よりも多すぎます
 [reST] Too many autonumbered footnote references=[reST] 脚注の自動番号参照が定義よりも多すぎます
@@ -287,3 +287,6 @@ Restart of %s is required!=%sの再起動が必要です！
 [reST] Target is not footnote/citation: %s=[reST] 参照している脚注か引用が見つかりません: %s
 [reST] Indirect hyperlink target is circular reference: %s=[reST] リンクが循環参照しています: %s
 [reST] Unknown target name: %s=[reST] ターゲット名が見つかりません: %s
+[reST] Too many anonymous hyperlink references=[reST] 無名リンクの参照が多すぎます
+[reST] Too many anonymous hyperlink targets: ref=%d / def=%d=[reST] 無名リンクの定義が多すぎます: 参照=%d / 定義=%d
+[reST] Malformed substitution definition: %s=[reST] 置換定義の記述が不正です: %s
