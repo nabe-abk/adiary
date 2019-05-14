@@ -2277,7 +2277,7 @@ sub tag_escape {
 #------------------------------------------------------------------------------
 sub parse_error {
 	my $self = shift;
-	my $err  = '[reST] ' . shift;
+	my $err  = '[RST] ' . shift;
 	return $self->{ROBJ}->warn($err, @_);
 }
 

@@ -264,29 +264,29 @@ Restart of %s is required!=%sの再起動が必要です！
 ###############################################################################
 # Base/TextParser/reStructuredText.pm
 ###############################################################################
-[reST] Title overline & underline mismatch: %s=[reST] タイトルの上線と下線が一致していません: %s
-[reST] Title overline without underline: %s=[reST] タイトルの上線しかありません: %s
-[reST] Transition only allowed at the top level: %s=[reST] トランジションはトップレベル要素にしか記述できません: %s
-[reST] Title only allowed at the top level: %s=[reST] タイトルはトップレベル要素にしか記述できません: %s
-[reST] Duplicate footnote target name: %s=[reST] 脚注名が重複しています: %s
-[reST] Duplicate link target name: %s=[reST] リンクターゲット名が重複しています: %s
-[reST] Malformed hyperlink target: %s=[reST] リンクターゲットの記述が不正です: %s
-[reST] Table width over: %s=[reST] テーブルの幅がオーバーしています: %s
-[reST] Table width under: %s=[reST] テーブルの幅が足りていません: %s
-[reST] Multiple table head/body separators, only one allowed=[reST] テーブルのhead/bodyセパレーターは1つしか記述できません
-[reST] Table head/body row separator not allowed at the end=[reST] テーブルのhead/bodyセパレーターは最後には記述できません
-[reST] Malformed table=[reST] テーブルの記述が不正です
-[reST] Column span alignment problem: %s=[reST] テーブルのカラム位置が揃っていません: %s
-[reST] Text in column margin: %s=[reST] テーブルのマージン部にテキストが存在します: %s
-[reST] Option list ends without a blank line: %s=[reST] オプションリストが空行なしで終わっています: %s
-[reST] Inline "%s" start-string without end-string=[reST] インラインタグ「%s」の終了記述がありません
-[reST] Too many symbol footnote references=[reST] 脚注のシンボル参照が定義よりも多すぎます
-[reST] Too many autonumbered footnote references=[reST] 脚注の自動番号参照が定義よりも多すぎます
-[reST] Citation not found: %s=[reST] 引用参照が見つかりません: %s
-[reST] Duplicate target name is defined: %s=[reST] 参照しているターゲット名は重複定義されています: %s
-[reST] Target is not footnote/citation: %s=[reST] 参照している脚注か引用が見つかりません: %s
-[reST] Indirect hyperlink target is circular reference: %s=[reST] リンクが循環参照しています: %s
-[reST] Unknown target name: %s=[reST] ターゲット名が見つかりません: %s
-[reST] Too many anonymous hyperlink references=[reST] 無名リンクの参照が多すぎます
-[reST] Too many anonymous hyperlink targets: ref=%d / def=%d=[reST] 無名リンクの定義が多すぎます: 参照=%d / 定義=%d
-[reST] Malformed substitution definition: %s=[reST] 置換定義の記述が不正です: %s
+[RST] Title overline & underline mismatch: %s=[RST] タイトルの上線と下線が一致していません: %s
+[RST] Title overline without underline: %s=[RST] タイトルの上線しかありません: %s
+[RST] Transition only allowed at the top level: %s=[RST] トランジションはトップレベル要素にしか記述できません: %s
+[RST] Title only allowed at the top level: %s=[RST] タイトルはトップレベル要素にしか記述できません: %s
+[RST] Duplicate footnote target name: %s=[RST] 脚注名が重複しています: %s
+[RST] Duplicate link target name: %s=[RST] リンクターゲット名が重複しています: %s
+[RST] Malformed hyperlink target: %s=[RST] リンクターゲットの記述が不正です: %s
+[RST] Table width over: %s=[RST] テーブルの幅がオーバーしています: %s
+[RST] Table width under: %s=[RST] テーブルの幅が足りていません: %s
+[RST] Multiple table head/body separators, only one allowed=[RST] テーブルのhead/bodyセパレーターは1つしか記述できません
+[RST] Table head/body row separator not allowed at the end=[RST] テーブルのhead/bodyセパレーターは最後には記述できません
+[RST] Malformed table=[RST] テーブルの記述が不正です
+[RST] Column span alignment problem: %s=[RST] テーブルのカラム位置が揃っていません: %s
+[RST] Text in column margin: %s=[RST] テーブルのマージン部にテキストが存在します: %s
+[RST] Option list ends without a blank line: %s=[RST] オプションリストが空行なしで終わっています: %s
+[RST] Inline "%s" start-string without end-string=[RST] インラインタグ「%s」の終了記述がありません
+[RST] Too many symbol footnote references=[RST] 脚注のシンボル参照が定義よりも多すぎます
+[RST] Too many autonumbered footnote references=[RST] 脚注の自動番号参照が定義よりも多すぎます
+[RST] Citation not found: %s=[RST] 引用参照が見つかりません: %s
+[RST] Duplicate target name is defined: %s=[RST] 参照しているターゲット名は重複定義されています: %s
+[RST] Target is not footnote/citation: %s=[RST] 参照している脚注か引用が見つかりません: %s
+[RST] Indirect hyperlink target is circular reference: %s=[RST] リンクが循環参照しています: %s
+[RST] Unknown target name: %s=[RST] ターゲット名が見つかりません: %s
+[RST] Too many anonymous hyperlink references=[RST] 無名リンクの参照が多すぎます
+[RST] Too many anonymous hyperlink targets: ref=%d / def=%d=[RST] 無名リンクの定義が多すぎます: 参照=%d / 定義=%d
+[RST] Malformed substitution definition: %s=[RST] 置換定義の記述が不正です: %s
