@@ -483,110 +483,28 @@ sub do_parse_block {
 		}
 
 		#--------------------------------------------------------------
-		# 置換定義 : definition substitution
+		# 置換定義       : definition substitution
+		# ディレクティブ : directive
 		#--------------------------------------------------------------
-		if (!@p_block && $x =~ /^\.\. +\|/) {
-			unshift(@$lines, $x);
-			my $sub = $self->{substitutions};
-
-			while(@$lines && $lines->[0] =~ /^\.\. +\|/) {
-				my $z = shift(@$lines);
-				if ($z !~ /^\.\. /) {
-					$self->parse_error('Malformed substitution definition: %s', $z);
-					next;
-				}
+		my $substitution;
+		if (!@p_block && $x =~ /^\.\. +(\|.*)/) {
+			my $z = $1;
+			if ($z !~ /^\|((?:\\.|[^\\\|])+|)\|(?: +(.*)|$)/ || substr($1,0,1) eq ' ' ||  substr($1,-1) eq ' ') {
+				$self->parse_error('Malformed substitution definition: %s', $x);
+				next;
 			}
+			$substitution = $1;
+			$substitution =~ tr/A-Z/a-z/;
+			$x = '.. ' . $2;
 		}
-
-		#--------------------------------------------------------------
-		# ディレクティブ : directive / See reStructuredText_2.pm
-		#--------------------------------------------------------------
-		if (!@p_block && $x =~ /^\.\. +([A-Za-z0-9]+(?:[\-_\.][A-Za-z0-9]+)*) ?:: *(.*)/) {
-			my $type  = $1;
-			my $first = $2;
-			$type =~ tr/A-Z/a-z/;
-
-			my @pre;
-			if ($first ne '') {
-				push(@pre, $first);
-			}
-			if (@$lines && $lines->[0] eq '') {
-				push(@pre, shift(@$lines));
-			}
-			my $block = $self->extract_block( $lines, 0 );
-			unshift(@$block, @pre);
-
-			my $d = $self->load_directive($type);
-			if (!$d) {
-				$self->parse_error('Unknown directive type: %s', $type);
-				next;
-			}
-			if ($type ne 'image' && $d->{substitution}) {
-				$self->parse_error('"%s" directive can only be used within a substitution definition', $type);
-				next;
-			}
-
-			#-----------------------------------------
-			# argument
-			#-----------------------------------------
-			my @arg;
-			my $ret;
-			while(@$block && $block->[0] ne '' && $block->[0] !~ /^:/) {
-				my $v = shift(@$block);
-				while(@$block && $block->[0] =~ /^ +(.*)/) {
-					shift(@$block);
-					$v .= ($v ne '' ? ' ' : '') . $1;
-				}
-				push(@arg, $v);
-			}
-
-			if (0<$d->{arg} && !@arg) {
-				$self->parse_error('"%s" directive argument(s) required', $type);
-				next;
-			}
-
-			#-----------------------------------------
-			# option
-			#-----------------------------------------
-			my $option = {};
-			my $err;
-			while(@$block && $block->[0] =~ /^:(\w+):(?: +(.*)|$)/) {
-				shift(@$block);
-				my $opt = $1;
-				my $v   = $2;
-				while(@$block && $block->[0] =~ /^ +(.*)/) {
-					shift(@$block);
-					$v .= ($v ne '' ? ' ' : '') . $1;
-				}
-				if (! $d->{option}->{$opt}) {
-					$self->parse_error('"%s" directive invalid option: %s', $type, $opt);
-					$err=1;
-					last;
-				}
-				if (exists($option->{$opt})) {
-					$self->parse_error('"%s" directive duplicate option: %s', $type, $opt);
-					$err=1;
-					last;
-				}
-				$option->{$opt} = $v;
-			}
-			if ($err) { next; }
-			#-----------------------------------------
-			# content
-			#-----------------------------------------
-			while(@$block && $block->[0] eq '') { shift(@$block); }
-
-			if ($d->{content} eq '0' && @$block) {
-				$self->parse_error('"%s" directive no content permitted: %s', $type, $block->[0]);
-				next;
-			}
-
-			#-----------------------------------------
-			# call directive
-			#-----------------------------------------
-			my $name = $d->{method};
-			my $ary  = $self->$name(\@arg, $option, $block);
-			push(@$out, @$ary);
+		if (!@p_block && $x =~ /^\.\. +([A-Za-z0-9]+(?:[\-_\.][A-Za-z0-9]+)*) ?::(?: +(.*)|$)/) {
+			# See more: reStructuredText_2.pm
+			$self->parse_directive($out, $lines, $substitution, $1, $2);
+			next;
+		}
+		if ($substitution ne '') {
+			$self->extract_block( $lines, 0 );
+			$self->parse_error('Substitution definition "%s" empty or invalid', $substitution);
 			next;
 		}
 
@@ -594,9 +512,7 @@ sub do_parse_block {
 		# コメント : comment
 		#--------------------------------------------------------------
 		if (!@p_block && $x =~ /^\.\.(?: |$)/) {
-			while(@$lines && $lines->[0] =~ /^ /) {
-				shift(@$lines);
-			}
+			$self->extract_block( $lines, 0 );
 			next;
 		}
 
@@ -873,7 +789,7 @@ sub do_parse_block {
 	}
 
 	#----------------------------------------------------------------------
-	return $out;
+	return wantarray ? ($out, \@blocks) : $out;
 }
 
 #//////////////////////////////////////////////////////////////////////////////
@@ -1723,7 +1639,7 @@ sub parse_oneline {
 
 		Encode::_utf8_on($_);
 		$_ =~ s!
-			(^|&quot;|&lt;|[ >\-:/\'\(\[\p{gc:Ps}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}])
+			(^|&quot;|&lt;|[ \n>\-:/\'\(\[\p{gc:Ps}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}])
 			(?=[\[\*`\|_])
 		!
 			($1 eq '' || index($invalid_po, $1) < 0) ? "$1\x01" : $1
@@ -1760,7 +1676,7 @@ sub parse_oneline {
 			(	\*\*
 				|\*
 				|``
-				|[`\[]
+				|[`\[\|]
 				|([A-Za-z0-9\x80-\xff]+(?:\x01?[\-_\.]\x01?[A-Za-z0-9\x80-\xff]+)*)(__?)
 			)\x01?(.*?)$
 		!xs) {
@@ -1852,6 +1768,15 @@ BEGIN{
 				return "<span class=\"\">$str</span>";
 			}
 			return $self->inline_link($str, "`", $m);
+		}
+	};
+	$Markup{'|'} = {
+		pt   => qr/^(.*?[^ \n\x01])\x01?(\|_?_?)\x01(.*)/s,
+		func => sub {
+			my $self  = shift;
+			my $label = shift;
+			my $m     = shift;
+			return $self->inline_substitution($label, $m);
 		}
 	};
 	$Markup{'['} = {
@@ -1948,6 +1873,7 @@ sub inline_link {
 	my $label = shift;
 	my $mark0 = shift || '';
 	my $mark1 = shift || '_';
+	my $text  = shift;
 	$label =~ s/\x01//g;
 
 	if ($mark0 eq '`'
@@ -1987,12 +1913,13 @@ sub inline_link {
 		}
 	}
 	$self->backslash_un_escape($label);
-	return "\x02link\x02$label\x02$mark0\x02$mark1\x02";
+	return "\x02link\x02$label\x02$text\x02$mark0\x02$mark1\x02";
 }
 
 sub output_inline_link {
 	my $self  = shift;
 	my $label = shift;
+	my $text  = shift;
 	my $mark0 = shift || '';
 	my $mark1 = shift || '_';
 	my $orig  = shift;
@@ -2039,7 +1966,33 @@ sub output_inline_link {
 
 	$url =~ s/ //g;
 	$self->tag_escape($label, $url);
-	return "<a href=\"$url\">${orig}</a>";
+	if (!defined $text) { $text=$orig; }
+	return "<a href=\"$url\">$text</a>";
+}
+
+#------------------------------------------------------------------------------
+# 置換参照の処理
+#------------------------------------------------------------------------------
+sub inline_substitution {
+	my $self  = shift;
+	my $label = shift;
+	my $mark  = shift;
+
+	my $key = $label;
+	$key =~ tr/A-Z/a-z/;
+
+	my $ss = $self->{substitutions};
+	if (!exists($ss->{$key})) {
+		my $err = $self->parse_error('Undefined substitution referenced: %s', $label);
+		return $self->make_problematic_span("|$label$mark", $err);
+	}
+
+	my $text = $ss->{$key};
+	if (substr($mark,-1) eq '_') {
+		return $self->inline_link($label, '|', $mark, $text);
+	}
+
+	return $text;
 }
 
 ###############################################################################
@@ -2091,7 +2044,7 @@ sub parse_finalize {
 	#---------------------------------------------------------
 	# escapeを戻す
 	#---------------------------------------------------------
-	$self->backslash_un_escape($lines);
+	$self->backslash_un_escape(@$lines);
 
 	return $lines;
 }
@@ -2102,8 +2055,8 @@ sub output_link_footnote_citation {
 		$_ =~ s/\x02ref\x02([^\x02]*)\x02/
 			$self->output_inline_reference($1)
 		/eg;
-		$_ =~ s/\x02link\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02/
-			$self->output_inline_link($1,$2,$3)
+		$_ =~ s/\x02link\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02/
+			$self->output_inline_link($1,$2,$3,$4)
 		/eg;
 	}
 	return $_[0];
@@ -2275,8 +2228,7 @@ sub make_problematic_span {
 #------------------------------------------------------------------------------
 sub backslash_escape {
 	my $self = shift;
-	my $ary  = ref($_[0]) ? $_[0] : \@_;
-	foreach(@$ary) {
+	foreach(@_) {
 		$_ =~ s!\\(.)|\\$!
 			if ($1 eq '') {
 				"\x03";
@@ -2303,9 +2255,7 @@ BEGIN {
 };
 sub backslash_un_escape {
 	my $self = shift;
-	my $ary  = ref($_[0]) ? $_[0] : \@_;
-
-	foreach(@$ary) {
+	foreach(@_) {
 		$_ =~ s/\x03(\d+)/
 			exists($BackslashUnEscape{$1}) ? $BackslashUnEscape{$1} : chr($1);
 		/eg;
@@ -2325,8 +2275,7 @@ BEGIN {
 };
 sub backslash_escape_cancel {
 	my $self = shift;
-	my $ary  = ref($_[0]) ? $_[0] : \@_;
-	foreach(@$ary) {
+	foreach(@_) {
 		$_ =~ s/\x03(\d+)/chr($1)/eg;
 		$_ =~ s/\x03/\\/g;
 	}
@@ -2335,8 +2284,7 @@ sub backslash_escape_cancel {
 
 sub backslash_escape_cancel_with_tag_escape {
 	my $self = shift;
-	my $ary  = ref($_[0]) ? $_[0] : \@_;
-	foreach(@$ary) {
+	foreach(@_) {
 		$_ =~ s/\x03(\d+)/
 			"\\" . (exists($BackslashCancel{$1}) ? $BackslashCancel{$1} : chr($1));
 		/eg;
@@ -2349,8 +2297,7 @@ sub backslash_escape_cancel_with_tag_escape {
 #----------------------------------------------------------
 sub backslash_process {
 	my $self = shift;
-	my $ary  = ref($_[0]) ? $_[0] : \@_;
-	foreach(@$ary) {
+	foreach(@_) {
 		$_ =~ s!\\(.)|\\$!
 			($1 eq ' ' || $1 eq "\n" || $1 eq '') ? '' : $1;
 		!seg;
@@ -2363,8 +2310,7 @@ sub backslash_process {
 #------------------------------------------------------------------------------
 sub tag_escape {
 	my $self = shift;
-	my $ary  = ref($_[0]) ? $_[0] : \@_;
-	foreach(@$ary) {
+	foreach(@_) {
 		$_ =~ s/&/&amp;/g;
 		$_ =~ s/</&lt;/g;
 		$_ =~ s/>/&gt;/g;
