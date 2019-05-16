@@ -39,13 +39,13 @@ sub parse_directive {
 	#-----------------------------------------
 	# type check
 	#-----------------------------------------
-	if ($type ne 'image' && ($subst eq '' && $d->{substitution})) {
+	if ($type ne 'image' && ($subst eq '' && $d->{subst})) {
 		$self->parse_error('"%s" directive can only be used within a substitution definition', $type);
 		return;
 	}
-	if ($type ne 'image' && ($subst ne '' && !$d->{substitution})) {
-		$self->parse_error('Substitution definition "%s" empty or invalid', $subst);
-		$subst='';
+	if ($type ne 'image' && ($subst ne '' && !$d->{subst})) {
+		$self->parse_error('Substitution definition empty or invalid: %s / %s directive', $subst, $type);
+		$subst='';	# 置換定義は失敗だが、出力自体は行う
 	}
 
 	#-----------------------------------------
@@ -106,9 +106,10 @@ sub parse_directive {
 	#-----------------------------------------
 	my $p = $d->{parse};
 	if ($p) {
+		my $text = join(' ', @$block);
 		my ($ary, $blocks) = $self->do_parse_block([], $block, 'list-item');
 		if ($#$blocks != 0 || $blocks->[0] ne $p) {
-			$self->parse_error('"%s" directive may contain a single %s only', $type, $p);
+			$self->parse_error('"%s" directive may contain a single %s only: %s', $type, $p, $text);
 			return;
 		}
 		$block = $ary;
@@ -123,7 +124,7 @@ sub parse_directive {
 	# call directive
 	#-----------------------------------------
 	my $name = $d->{method} || $type . '_directive';
-	my $ary  = $self->$name($block, \@arg, $option);
+	my $ary  = $self->$name($block, \@arg, $option, $type);
 
 	if ($subst ne '') {
 		my $text = join('', @$ary);
@@ -147,13 +148,13 @@ sub load_directive {
 
 	#----------------------------------------------------------------------
 	$Directive{image} = {
-		substitution => 1,
+		subst  => 1,
 		arg    => 1,
 		content=> 0,
 		option => [ qw(alt height width scale align target) ]
 	};
 	$Directive{replace} = {
-		substitution => 1,
+		subst  => 1,
 		arg    => 0,
 		content=> 1,
 		parse  => 'p',
@@ -161,16 +162,26 @@ sub load_directive {
 	};
 
 	#----------------------------------------------------------------------
-	$Directive{caution} = {
-		arg    => 0,
-		content=> 1,
-		option => [ qw(class name) ]
-	};
+	# admonition
+	#----------------------------------------------------------------------
+	{
+		my @ary = qw(attention caution danger error hint important note tip warning admonition);
+		my $h = {
+			arg    => 0,
+			content=> 1,
+			method => 'admonition_directive',
+			option => [ qw(class name) ]
+		};
+		foreach(@ary) {
+			$Directive{$_} = $h;
+		}
+	}
 
 	#======================================================================
 	#======================================================================
 	foreach(keys(%Directive)) {
 		my $d = $Directive{$_};
+		if (ref($d->{option}) ne 'ARRAY') { next; }
 		$d->{option} = { map {$_ => 1} @{$d->{option}} };
 	}
 	#======================================================================
@@ -192,13 +203,7 @@ sub image_directive {
 	$file =~ s/ //g;
 	
 	my @ary;
-	push(@ary, "file = $file<br>");
-	foreach(keys(%$opt)) {
-		push(@ary, "	opt $_=$opt->{$_}<br>");
-	}
-	foreach(@$block) {
-		push(@ary, "	>> $_<br>");
-	}
+	push(@ary, "[image = $file]");
 	return \@ary;
 }
 
@@ -211,28 +216,22 @@ sub replace_directive {
 	return $block;
 }
 
-#------------------------------------------------------------------------------
-# caution
-#------------------------------------------------------------------------------
-sub caution_directive {
+#//////////////////////////////////////////////////////////////////////////////
+# admonitions
+#//////////////////////////////////////////////////////////////////////////////
+sub admonition_directive {
 	my $self  = shift;
 	my $block = shift;
 	my $arg   = shift;
 	my $opt   = shift;
+	my $type  = shift;
 
-	my $file = join('', @$arg);
-	$file =~ s/ //g;
-	
 	my @ary;
-	push(@ary, "file = $file<br>");
-	foreach(keys(%$opt)) {
-		push(@ary, "	opt $_=$opt->{$_}<br>");
-	}
-	foreach(@$block) {
-		push(@ary, "	>> $_<br>");
-	}
+	push(@ary, "<div class=\"admonition $type\">\x02");
+	push(@ary, "<p class=\"admonition-title\">$type:</p>");
+	$self->do_parse_block(\@ary, $block, 'nest');
+	push(@ary, "</blockquote>\x02", '');
 	return \@ary;
 }
-
 
 1;

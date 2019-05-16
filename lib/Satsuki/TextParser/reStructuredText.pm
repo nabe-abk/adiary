@@ -62,7 +62,8 @@ sub new {
 # ●記事本文の整形
 #------------------------------------------------------------------------------
 sub text_parser {
-	my ($self, $text) = @_;
+	my $self = shift;
+	my $text = shift;
 	$text =~ s/[\x00-\x07]//g;		# 特殊文字削除
 
 	# 行に分解
@@ -122,7 +123,8 @@ sub text_parser {
 # ●[01] ブロックのパース
 ###############################################################################
 sub parse_block {
-	my ($self, $lines) = @_;
+	my $self  = shift;
+	my $lines = shift;
 
 	$self->{footnote_symc}  = 0;	# footnote symbols counter
 	$self->{enum_cache}     = {};
@@ -168,7 +170,10 @@ sub parse_block {
 }
 
 sub do_parse_block {
-	my ($self, $out, $lines, $nest) = @_;
+	my $self  = shift;
+	my $out   = shift;
+	my $lines = shift;
+	my $nest  = shift;
 
 	while(@$lines && $lines->[0] eq '') {
 		shift(@$lines);			# 先頭空行除去
@@ -188,7 +193,7 @@ sub do_parse_block {
 	# リストアイテムモード
 	my $item_mode = ($ptag && $nest eq 'list-item') ? $#$out+1 : undef;
 	my @blocks;
-	if ($item_mode) {
+	if ($item_mode ne '') {
 		$ptag = "\x01p";
 	}
 
@@ -495,7 +500,12 @@ sub do_parse_block {
 			}
 			$substitution = $1;
 			$substitution =~ tr/A-Z/a-z/;
-			$x = '.. ' . $2;
+			if ($2 eq '' && $y =~ /^ /) {	# |example|
+				$x = '..' . $y;		# 	image::
+				shift(@$lines);		#		filename.jpg
+			} else {
+				$x = '.. ' . $2;
+			}
 		}
 		if (!@p_block && $x =~ /^\.\. +([A-Za-z0-9]+(?:[\-_\.][A-Za-z0-9]+)*) ?::(?: +(.*)|$)/) {
 			# See more: reStructuredText_2.pm
@@ -504,7 +514,7 @@ sub do_parse_block {
 		}
 		if ($substitution ne '') {
 			$self->extract_block( $lines, 0 );
-			$self->parse_error('Substitution definition "%s" empty or invalid', $substitution);
+			$self->parse_error('Substitution definition empty or invalid: %s', $substitution);
 			next;
 		}
 
@@ -771,7 +781,7 @@ sub do_parse_block {
 	}
 
 	# リストアイテム要素の特殊処理
-	if ($item_mode) {
+	if ($item_mode ne '') {
 		while($blocks[$#blocks] eq 'link') { pop(@blocks); }
 
 		if ($#blocks==0 && ($blocks[0] eq 'p' || $blocks[0] eq 'list')
@@ -1556,6 +1566,21 @@ sub parse_inline {
 	my $self  = shift;
 	my $lines = shift;
 
+	#-----------------------------------------------------------------
+	# substitution
+	#-----------------------------------------------------------------
+	{
+		my $ss = $self->{substitutions};
+		$self->{substitution_mode} = 1;
+		foreach(keys(%$ss)) {
+			$self->{substitution_label} = $_;
+			$self->parse_oneline($ss->{$_});
+		}
+		$self->{substitution_mode} = 0;
+	}
+	#-----------------------------------------------------------------
+	# main text
+	#-----------------------------------------------------------------
 	my $out = [];
 	my @footnote_buf;	# footnote buffer
 
@@ -1802,6 +1827,9 @@ BEGIN{
 sub inline_reference {
 	my $self  = shift;
 	my $label = shift;
+	if ($self->{substitution_mode}) {
+		return $self->error_in_substitution("[$label]_");
+	}
 	$label =~ s/\x01//g;
 	$self->backslash_un_escape($label);
 	return "\x02ref\x02$label\x02";
@@ -1881,6 +1909,11 @@ sub inline_link {
 	 && substr($2,0,1) ne ' '
 	 && substr($2,-1)  ne ' '
 	 && index($2, '&lt;')<0 && index($2, '&gt;')<0) {
+
+		if ($self->{substitution_mode}) {
+			return $self->error_in_substitution("$mark0$label$mark1");
+		}
+
 		#---------------------------------------------
 		# Embedded URIs
 		#---------------------------------------------
@@ -1978,6 +2011,10 @@ sub inline_substitution {
 	my $label = shift;
 	my $mark  = shift;
 
+	if ($self->{substitution_mode}) {
+		return $self->error_in_substitution("|$label$mark");
+	}
+
 	my $key = $label;
 	$key =~ tr/A-Z/a-z/;
 
@@ -1993,6 +2030,13 @@ sub inline_substitution {
 	}
 
 	return $text;
+}
+
+sub error_in_substitution {
+	my $self = shift;
+	my $text = shift;
+	my $msg = $self->parse_error('Substitution definition contains illegal element: %s', $self->{substitution_label});
+	return $self->make_problematic_span($text, $msg);
 }
 
 ###############################################################################
