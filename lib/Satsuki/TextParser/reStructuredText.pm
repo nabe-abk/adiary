@@ -7,7 +7,8 @@ use strict;
 package Satsuki::TextParser::reStructuredText;
 our $VERSION = '0.10';
 #------------------------------------------------------------------------------
-require Encode;
+use Satsuki::AutoLoader;
+use Encode ();
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -117,9 +118,9 @@ sub text_parser {
 ###############################################################################
 # ■パーサー本体
 ###############################################################################
-#//////////////////////////////////////////////////////////////////////////////
+###############################################################################
 # ●[01] ブロックのパース
-#//////////////////////////////////////////////////////////////////////////////
+###############################################################################
 sub parse_block {
 	my ($self, $lines) = @_;
 
@@ -137,8 +138,35 @@ sub parse_block {
 	}
 
 	my @out;
-	return $self->do_parse_block(\@out, $lines);
+	my $r = $self->do_parse_block(\@out, $lines);
+
+	#----------------------------------------------------------------------
+	# footnote number / generate id
+	#----------------------------------------------------------------------
+	{
+		my $links = $self->{links};
+		my $auto  = $self->{footnotes_auto};
+		my $num   = 1;
+		foreach(@$auto) {
+			while($links->{$num}) {
+				$num++;
+			}
+			$links->{$num} = $_;
+			$_->{label} = $num;
+		}
+		foreach(keys(%$links)) {
+			my $h = $links->{$_};
+			if (!ref($h) || $h->{id}) { next; }
+
+			my $label = $h->{_label} || $h->{label};
+			$h->{id} = $self->generate_link_id( ($h->{type} eq 'footnote' ? 'fn-' : '') . $label );
+		}
+	}
+	#----------------------------------------------------------------------
+
+	return $r;
 }
+
 sub do_parse_block {
 	my ($self, $out, $lines, $nest) = @_;
 
@@ -201,11 +229,11 @@ sub do_parse_block {
 					if ($x eq $z) {
 						$mark = "$m/$m";
 					} else {
-						$self->parse_error("Title overline & underline mismatch: %s", $title);
+						$self->parse_error('Title overline & underline mismatch: %s', $title);
 						next;
 					}
 				} else {	# overline のみ
-					$self->parse_error("Title overline without underline: %s", $title);
+					$self->parse_error('Title overline without underline: %s', $title);
 					next;
 				}
 			}
@@ -216,7 +244,7 @@ sub do_parse_block {
 			if ($title eq '') {
 				push(@blocks, 'transition');
 				if ($nest) {
-					$self->parse_error("Transition only allowed at the top level: %s", $x);
+					$self->parse_error('Transition only allowed at the top level: %s', $x);
 				} else {
 					push(@$out, '', "<hr />\x02", '');
 				}
@@ -228,7 +256,7 @@ sub do_parse_block {
 			#----------------------------------------------
 			push(@blocks, 'title');
 			if ($nest) {
-				$self->parse_error("Title only allowed at the top level: %s", $x);
+				$self->parse_error('Title only allowed at the top level: %s', $x);
 				next;
 			}
 			my $level = $seclv_cache->{$mark} ||= ++$seclv;
@@ -366,7 +394,7 @@ sub do_parse_block {
 
 			} elsif ($label =~ /^(\d+)$/) {		# footnote [1], [2]...
 				if ($links->{$key}) {
-					my $msg = $self->parse_error("Duplicate footnote target name: %s", $label);
+					my $msg = $self->parse_error('Duplicate footnote target name: %s', $label);
 					$links->{$key}->{error} = $msg;
 					$links->{$key}->{duplicate} = 1;
 				} else {
@@ -376,7 +404,7 @@ sub do_parse_block {
 			} else {				# hyperlink
 				$h->{type} = 'citation';
 				if ($links->{$key}) {
-					my $msg = $self->parse_error("Duplicate link target name: %s", $label);
+					my $msg = $self->parse_error('Duplicate link target name: %s', $label);
 					$links->{$key}->{error} = $msg;
 					$links->{$key}->{duplicate} = 1;
 				} else {
@@ -399,7 +427,7 @@ sub do_parse_block {
 			while(@$lines && $lines->[0] =~ /^\.\. +_|^__(?: |$)/) {
 				my $z = shift(@$lines);
 				if ($z !~ /^\.\. +_(`(?:\\.|[^`\\])+` ?|(?:\\.|[^:\\])*):(?: +(.*)|$)|^_(_)(?: +(.*)|$)/) {
-					$self->parse_error("Malformed hyperlink target: %s", $z);
+					$self->parse_error('Malformed hyperlink target: %s', $z);
 					next;
 				}
 				$label = $1 || $3;
@@ -416,13 +444,13 @@ sub do_parse_block {
 					push(@{ $self->{anonymous_links} }, $h);
 
 				} elsif ($label =~ /^ / || $label =~ / $/ || $label eq '') {
-					my $msg = $self->parse_error("Malformed hyperlink target: %s", $label);
+					my $msg = $self->parse_error('Malformed hyperlink target: %s', $label);
 					if ($label ne '') {
 						$links->{$key}->{error} = $msg;
 					}
 
 				} elsif ($links->{$key}) {
-					my $msg = $self->parse_error("Duplicate link target name: %s", $label);
+					my $msg = $self->parse_error('Duplicate link target name: %s', $label);
 					$links->{$key}->{error} = $msg;
 					$links->{$key}->{duplicate} = 1;
 				} else {
@@ -464,17 +492,102 @@ sub do_parse_block {
 			while(@$lines && $lines->[0] =~ /^\.\. +\|/) {
 				my $z = shift(@$lines);
 				if ($z !~ /^\.\. /) {
-					$self->parse_error("Malformed substitution definition: %s", $z);
+					$self->parse_error('Malformed substitution definition: %s', $z);
 					next;
 				}
 			}
 		}
 
 		#--------------------------------------------------------------
-		# ディテクティブ : directive
+		# ディレクティブ : directive / See reStructuredText_2.pm
 		#--------------------------------------------------------------
-		if (!@p_block && $x =~ /^\.\. +\|/) {
-			# 
+		if (!@p_block && $x =~ /^\.\. +([A-Za-z0-9]+(?:[\-_\.][A-Za-z0-9]+)*) ?:: *(.*)/) {
+			my $type  = $1;
+			my $first = $2;
+			$type =~ tr/A-Z/a-z/;
+
+			my @pre;
+			if ($first ne '') {
+				push(@pre, $first);
+			}
+			if (@$lines && $lines->[0] eq '') {
+				push(@pre, shift(@$lines));
+			}
+			my $block = $self->extract_block( $lines, 0 );
+			unshift(@$block, @pre);
+
+			my $d = $self->load_directive($type);
+			if (!$d) {
+				$self->parse_error('Unknown directive type: %s', $type);
+				next;
+			}
+			if ($type ne 'image' && $d->{substitution}) {
+				$self->parse_error('"%s" directive can only be used within a substitution definition', $type);
+				next;
+			}
+
+			#-----------------------------------------
+			# argument
+			#-----------------------------------------
+			my @arg;
+			my $ret;
+			while(@$block && $block->[0] ne '' && $block->[0] !~ /^:/) {
+				my $v = shift(@$block);
+				while(@$block && $block->[0] =~ /^ +(.*)/) {
+					shift(@$block);
+					$v .= ($v ne '' ? ' ' : '') . $1;
+				}
+				push(@arg, $v);
+			}
+
+			if (0<$d->{arg} && !@arg) {
+				$self->parse_error('"%s" directive argument(s) required', $type);
+				next;
+			}
+
+			#-----------------------------------------
+			# option
+			#-----------------------------------------
+			my $option = {};
+			my $err;
+			while(@$block && $block->[0] =~ /^:(\w+):(?: +(.*)|$)/) {
+				shift(@$block);
+				my $opt = $1;
+				my $v   = $2;
+				while(@$block && $block->[0] =~ /^ +(.*)/) {
+					shift(@$block);
+					$v .= ($v ne '' ? ' ' : '') . $1;
+				}
+				if (! $d->{option}->{$opt}) {
+					$self->parse_error('"%s" directive invalid option: %s', $type, $opt);
+					$err=1;
+					last;
+				}
+				if (exists($option->{$opt})) {
+					$self->parse_error('"%s" directive duplicate option: %s', $type, $opt);
+					$err=1;
+					last;
+				}
+				$option->{$opt} = $v;
+			}
+			if ($err) { next; }
+			#-----------------------------------------
+			# content
+			#-----------------------------------------
+			while(@$block && $block->[0] eq '') { shift(@$block); }
+
+			if ($d->{content} eq '0' && @$block) {
+				$self->parse_error('"%s" directive no content permitted: %s', $type, $block->[0]);
+				next;
+			}
+
+			#-----------------------------------------
+			# call directive
+			#-----------------------------------------
+			my $name = $d->{method};
+			my $ary  = $self->$name(\@arg, $option, $block);
+			push(@$out, @$ary);
+			next;
 		}
 
 		#--------------------------------------------------------------
@@ -598,7 +711,7 @@ sub do_parse_block {
 				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1], $mode);
 				if ($type ne 'option') {
 					if ($mode eq 'option') {	# ブランク行なしでオプションリストが終わっている
-						$self->parse_error("Option list ends without a blank line: %s", $lines->[0]);
+						$self->parse_error('Option list ends without a blank line: %s', $lines->[0]);
 					}
 					last;
 				}
@@ -760,32 +873,10 @@ sub do_parse_block {
 	}
 
 	#----------------------------------------------------------------------
-	# footnote number / generate id
-	#----------------------------------------------------------------------
-	{
-		my $links = $self->{links};
-		my $auto  = $self->{footnotes_auto};
-		my $num   = 1;
-		foreach(@$auto) {
-			while($links->{$num}) {
-				$num++;
-			}
-			$links->{$num} = $_;
-			$_->{label} = $num;
-		}
-		foreach(keys(%$links)) {
-			my $h = $links->{$_};
-			if (!ref($h) || $h->{id}) { next; }
-
-			my $label = $h->{_label} || $h->{label};
-			$h->{id} = $self->generate_link_id( ($h->{type} eq 'footnote' ? 'fn-' : '') . $label );
-		}
-	}
-
-	#----------------------------------------------------------------------
 	return $out;
 }
 
+#//////////////////////////////////////////////////////////////////////////////
 #------------------------------------------------------------------------------
 # ラインブロックの処理
 #------------------------------------------------------------------------------
@@ -880,9 +971,9 @@ sub parse_grid_table {
 		# check length
 		if ($len != length($x)) {
 			if ($len < length($x)) {
-				$self->parse_error("Table width over: %s", $bak);
+				$self->parse_error('Table width over: %s', $bak);
 			} else {
-				$self->parse_error("Table width under: %s", $bak);
+				$self->parse_error('Table width under: %s', $bak);
 			}
 			$err++;
 		}
@@ -896,14 +987,14 @@ sub parse_grid_table {
 	#------------------------------------------------------
 	if ($#separator > 0) {
 		$err++;
-		$self->parse_error("Multiple table head/body separators, only one allowed");
+		$self->parse_error('Multiple table head/body separators, only one allowed');
 	} elsif ($separator[0] == $#table) {
 		$err++;
-		$self->parse_error("Table head/body row separator not allowed at the end");
+		$self->parse_error('Table head/body row separator not allowed at the end');
 	}
 	if ($malformed) {
 		$err++;
-		$self->parse_error("Malformed table");
+		$self->parse_error('Malformed table');
 	}
 	if ($err) {
 		return;
@@ -1139,9 +1230,9 @@ sub parse_simple_table {
 			my $b = shift(@table);
 			if ($len != length($b)) {
 				if ($len < length($b)) {
-					$self->parse_error("Table width over: %s", $b);
+					$self->parse_error('Table width over: %s', $b);
 				} else {
-					$self->parse_error("Table width under: %s", $b);
+					$self->parse_error('Table width under: %s', $b);
 				}
 				$err++;
 				next;
@@ -1160,7 +1251,7 @@ sub parse_simple_table {
 				my $sp = substr($pat, $c, $m);
 
 				if ($ct =~ /[^=]/ || $sp =~ / =|= /) {
-					$self->parse_error("Column span alignment problem: %s", $b);
+					$self->parse_error('Column span alignment problem: %s', $b);
 					$err++;
 					last;
 				}
@@ -1194,7 +1285,7 @@ sub parse_simple_table {
 			if ($sp =~ /[^ ]/) {
 				$err++;
 				undef @row;
-				$self->parse_error("Text in column margin: %s", $bak);
+				$self->parse_error('Text in column margin: %s', $bak);
 				last;
 			}
 			my $text = substr($t, 0, $r_cols->[$_]);
@@ -1446,7 +1537,7 @@ sub extract_block {
 	my $len   = shift;
 	my $first = shift;
 
-	my @block = ($first);
+	my @block = defined $first ? ($first) : ();
 	my $flex  = ($len == 0);	# 最小インデント検出
 	if ($flex && $first =~ /^( +)/) {
 		$len = length($1);
@@ -1541,9 +1632,9 @@ sub join_line {
 	return "$x$sp$y";
 }
 
-#//////////////////////////////////////////////////////////////////////////////
+###############################################################################
 # ●[02] インライン記法の処理
-#//////////////////////////////////////////////////////////////////////////////
+###############################################################################
 my %Markup;
 sub parse_inline {
 	my $self  = shift;
@@ -1732,50 +1823,52 @@ sub parse_oneline {
 #------------------------------------------------------------------------------
 # マークアップの定義
 #------------------------------------------------------------------------------
-$Markup{'**'} = {
-	pt  => qr/^(.*?[^ \n\x01])\x01?(\*\*)\x01(.*)/s,
-	tag => 'strong'
-};
-$Markup{'*'} = {
-	pt  => qr/^(.*?[^ \n\x01])\x01?(\*)\x01(.*)/s,
-	tag => 'em'
-};
-$Markup{'``'} = {
-	pt   => qr/^(.*?[^ \n\x01])\x01?(``)\x01(.*)/s,
-	func => sub {
-		my $self = shift;
-		my $str  = shift;
-		$self->backslash_escape_cancel_with_tag_escape($str);
-		return "<span class=\"pre\">$str</span>";
-	}
-};
-$Markup{'`'} = {
-	pt   => qr/^(.*?[^ \n\x01])\x01?(`_?_?)\x01(.*)/s,
-	func => sub {
-		my $self = shift;
-		my $str  = shift;
-		my $m    = shift;
-
-		if ($m eq '`') {
-			return "<span class=\"\">$str</span>";
+BEGIN{
+	$Markup{'**'} = {
+		pt  => qr/^(.*?[^ \n\x01])\x01?(\*\*)\x01(.*)/s,
+		tag => 'strong'
+	};
+	$Markup{'*'} = {
+		pt  => qr/^(.*?[^ \n\x01])\x01?(\*)\x01(.*)/s,
+		tag => 'em'
+	};
+	$Markup{'``'} = {
+		pt   => qr/^(.*?[^ \n\x01])\x01?(``)\x01(.*)/s,
+		func => sub {
+			my $self = shift;
+			my $str  = shift;
+			$self->backslash_escape_cancel_with_tag_escape($str);
+			return "<span class=\"pre\">$str</span>";
 		}
-		return $self->inline_link($str, "`", $m);
-	}
-};
-$Markup{'['} = {
-	ignore_start => 1,
-	pt   => qr/^(\d+|\x01?\*\x01?|\#?[^\]]*)\](_)\x01(.*)/s,
-	func => sub {
-		my $self  = shift;
-		my $label = shift;
-		$label =~ s/\x01//g;
+	};
+	$Markup{'`'} = {
+		pt   => qr/^(.*?[^ \n\x01])\x01?(`_?_?)\x01(.*)/s,
+		func => sub {
+			my $self = shift;
+			my $str  = shift;
+			my $m    = shift;
 
-		if ($self->check_footnote_label($label)) {
-			my $y = $self->inline_reference($label);
-			return ($y ? $y : "[$label]");
+			if ($m eq '`') {
+				return "<span class=\"\">$str</span>";
+			}
+			return $self->inline_link($str, "`", $m);
 		}
-		return;
-	}
+	};
+	$Markup{'['} = {
+		ignore_start => 1,
+		pt   => qr/^(\d+|\x01?\*\x01?|\#?[^\]]*)\](_)\x01(.*)/s,
+		func => sub {
+			my $self  = shift;
+			my $label = shift;
+			$label =~ s/\x01//g;
+
+			if ($self->check_footnote_label($label)) {
+				my $y = $self->inline_reference($label);
+				return ($y ? $y : "[$label]");
+			}
+			return;
+		}
+	};
 };
 
 #------------------------------------------------------------------------------
@@ -1805,7 +1898,7 @@ sub output_inline_reference {
 		$self->{footnote_symc}++;
 		$h = $links->{$symbol};
 		if (!$h) {
-			$self->parse_error("Too many symbol footnote references");
+			$self->parse_error('Too many symbol footnote references');
 			return "<a href=\"#**error\" title=\"Too many symbol footnote references\">[$label]_</a>";
 		}
 	} elsif ($label =~ /^#/ && $links->{$key}) {
@@ -1817,25 +1910,25 @@ sub output_inline_reference {
 			$h = shift(@$auto);
 		}
 		if (!$h) {
-			my $msg = $self->parse_error("Too many autonumbered footnote references");
+			my $msg = $self->parse_error('Too many autonumbered footnote references');
 			return $self->make_problematic_link("[$label]_", $msg);
 		}
 	} else {
 		$h = $links->{$key};
 		if (!$h) {
-			my $msg = $self->parse_error("Citation not found: %s", $label);
+			my $msg = $self->parse_error('Citation not found: %s', $label);
 			return $self->make_problematic_span("[$label]", $msg);
 		}
 	}
 	if ($h->{error}) {
 		my $err = $h->{error};
 		if ($h->{duplicate}) {
-			$err = $self->parse_error("Duplicate target name is defined: %s", $label);
+			$err = $self->parse_error('Duplicate target name is defined: %s', $label);
 		}
 		return $self->make_problematic_link("[$label]_", $h->{error});
 	}
 	if ($h->{type} ne 'footnote' && $h->{type} ne 'citation') {
-		my $msg = $self->parse_error("Target is not footnote/citation: %s", $label);
+		my $msg = $self->parse_error('Target is not footnote/citation: %s', $label);
 		return $self->make_problematic_span("[$label]", $msg);
 	}
 	$h->{used} = 1;
@@ -1877,7 +1970,7 @@ sub inline_link {
 		$self->normalize_link_url($url);
 
 		if ($key ne '' && !$anonymous && $links->{$key}) {
-			my $msg = $self->parse_error("Duplicate link target name: %s", $label);
+			my $msg = $self->parse_error('Duplicate link target name: %s', $label);
 			$links->{$label}->{error} = $msg;
 			$links->{$label}->{duplicate} = 1;
 		} elsif (!$anonymous) {
@@ -1912,7 +2005,7 @@ sub output_inline_link {
 
 	# 循環参照チェック
 	if ($check->{$label}) {
-		my $err = $self->parse_error("Indirect hyperlink target is circular reference: %s", $err_label);
+		my $err = $self->parse_error('Indirect hyperlink target is circular reference: %s', $err_label);
 		return $self->make_problematic_link("$mark0$orig$mark1", $err);
 	}
 	$check->{$label} = 1;
@@ -1925,17 +2018,17 @@ sub output_inline_link {
 		$h = $self->{anonymous_links}->[ $self->{anonymous_linkc} ];
 		$self->{anonymous_linkc}++;
 		if (!$h) {
-			my $err = $self->parse_error("Too many anonymous hyperlink references");
+			my $err = $self->parse_error('Too many anonymous hyperlink references');
 			return $self->make_problematic_link("$mark0$orig$mark1", $err);
 		}
 	}
 	if ($h->{duplicate}) {
-		my $err = $self->parse_error("Duplicate target name is defined: %s", $err_label);
+		my $err = $self->parse_error('Duplicate target name is defined: %s', $err_label);
 		return $self->make_problematic_link("$mark0$orig$mark1", $err);
 	}
 	my $url = exists($h->{url}) ? $h->{url} : ('#' . $h->{id});
 	if ($url eq '' || $url eq '#') {
-		my $err = $self->parse_error("Unknown target name: %s", $err_label);
+		my $err = $self->parse_error('Unknown target name: %s', $err_label);
 		return $self->make_problematic_link("$mark0$orig$mark1", $err);
 	}
 
@@ -1949,9 +2042,9 @@ sub output_inline_link {
 	return "<a href=\"$url\">${orig}</a>";
 }
 
-#//////////////////////////////////////////////////////////////////////////////
+###############################################################################
 # ●[03] 最終処理
-#//////////////////////////////////////////////////////////////////////////////
+###############################################################################
 sub parse_finalize {
 	my $self  = shift;
 	my $lines = shift;
@@ -1991,7 +2084,7 @@ sub parse_finalize {
 	# check anonymous link count
 	#---------------------------------------------------------
 	if (($#{$self->{anonymous_links}}+1) > $self->{anonymous_linkc}) {
-		$self->parse_error("Too many anonymous hyperlink targets: ref=%d / def=%d",
+		$self->parse_error('Too many anonymous hyperlink targets: ref=%d / def=%d',
 				 $self->{anonymous_linkc}, $#{$self->{anonymous_links}}+1);
 	}
 
@@ -2022,22 +2115,24 @@ sub output_link_footnote_citation {
 #------------------------------------------------------------------------------
 # ●ローマ数字の解析
 #------------------------------------------------------------------------------
-my %ROMAN_U = (
-	'I'  =>   1, 'II'  =>   2, 'III'  =>   3, 'IV' =>   4, 'V' =>   5,
-	'VI' =>   6, 'VII' =>   7, 'VIII' =>   8, 'IX' =>   9,
-	'X'  =>  10, 'XX'  =>  20, 'XXX'  =>  30, 'XL' =>  40, 'L' =>  50,
-	'LX' =>  60, 'LXX' =>  70, 'LXXX' =>  80, 'XC' =>  90,
-	'C'  => 100, 'CC'  => 200, 'CCC'  => 300, 'CD' => 400, 'D' => 500,
-	'DC' => 600, 'DCC' => 700, 'DCCC' => 800, 'CM' => 900,
-	'M'  =>1000, 'MM'  =>2000, 'MMM'  =>3000,'MMMM'=>4000
-);
+my %ROMAN_U;
 my %ROMAN_L;
-foreach(keys(%ROMAN_U)) {
-	my $l = $_;
-	$l =~ tr/A-Z/a-z/;
-	$ROMAN_L{$l} = $ROMAN_U{$_};
-}
-
+BEGIN {
+	%ROMAN_U = (
+		'I'  =>   1, 'II'  =>   2, 'III'  =>   3, 'IV' =>   4, 'V' =>   5,
+		'VI' =>   6, 'VII' =>   7, 'VIII' =>   8, 'IX' =>   9,
+		'X'  =>  10, 'XX'  =>  20, 'XXX'  =>  30, 'XL' =>  40, 'L' =>  50,
+		'LX' =>  60, 'LXX' =>  70, 'LXXX' =>  80, 'XC' =>  90,
+		'C'  => 100, 'CC'  => 200, 'CCC'  => 300, 'CD' => 400, 'D' => 500,
+		'DC' => 600, 'DCC' => 700, 'DCCC' => 800, 'CM' => 900,
+		'M'  =>1000, 'MM'  =>2000, 'MMM'  =>3000,'MMMM'=>4000
+	);
+	foreach(keys(%ROMAN_U)) {
+		my $l = $_;
+		$l =~ tr/A-Z/a-z/;
+		$ROMAN_L{$l} = $ROMAN_U{$_};
+	}
+};
 sub parse_roman_number {
 	my $self = shift;
 	my $r    = shift;
@@ -2197,12 +2292,15 @@ sub backslash_escape {
 #----------------------------------------------------------
 # エスケープを戻す
 #----------------------------------------------------------
-my %BackslashUnEscape = (
-	ord(' ') => '',
-	ord("\n")=> '',
-	ord('<') => '&lt;',
-	ord('>') => '&gt;'
-);
+my %BackslashUnEscape;
+BEGIN {
+	%BackslashUnEscape = (
+		ord(' ') => '',
+		ord("\n")=> '',
+		ord('<') => '&lt;',
+		ord('>') => '&gt;'
+	);
+};
 sub backslash_un_escape {
 	my $self = shift;
 	my $ary  = ref($_[0]) ? $_[0] : \@_;
@@ -2218,10 +2316,13 @@ sub backslash_un_escape {
 #----------------------------------------------------------
 # 処理をキャンセル
 #----------------------------------------------------------
-my %BackslashCancel = (
-	ord('<') => '&lt;',
-	ord('>') => '&gt;'
-);
+my %BackslashCancel;
+BEGIN {
+	%BackslashCancel = (
+		ord('<') => '&lt;',
+		ord('>') => '&gt;'
+	);
+};
 sub backslash_escape_cancel {
 	my $self = shift;
 	my $ary  = ref($_[0]) ? $_[0] : \@_;
