@@ -30,8 +30,8 @@ sub new {
 		* &dagger; &Dagger; &sect; &para; # &spades; &hearts; &diams; &clubs;
 	)];
 
-	$self->{unique_id_base} = '';	# 処理する記事ごとにidベース（先頭）
 	$self->{thisurl}        = '';	# 処理する記事のURL
+	$self->{thispkey}       = '';	# 処理する記事のpkey = unique id = [0-9]+
 
 	# 引用符マークの組
 	# https://en.wikipedia.org/wiki/Quotation_mark#Summary_table
@@ -54,8 +54,9 @@ sub new {
 #	\x01		インラインマークアップの区切り
 #	\x02		link等の後処理に使用
 #	\x03		文字(\)エスケープに使用
+#	\x08		trimマーク
 #
-# マルチバイト処理で仕様
+# マルチバイト処理で使用 / ブロック処理のみで使用
 #	\x04-\x07
 #
 #------------------------------------------------------------------------------
@@ -64,7 +65,7 @@ sub new {
 sub text_parser {
 	my $self = shift;
 	my $text = shift;
-	$text =~ s/[\x00-\x07]//g;		# 特殊文字削除
+	$text =~ s/[\x00-\x08]//g;		# 特殊文字削除
 
 	# 行に分解
 	my $lines = [ split(/\n/, $text) ];
@@ -76,6 +77,17 @@ sub text_parser {
 	$self->{anonymous_links}= [];	# Anonymouse hyperlinks
 	$self->{substitutions}  = {};	# Substitution
 	$self->{ids}            = {};	# all id hash
+
+	# 記事固有変数
+	$self->{unique_id} = 'k' . $self->{thispkey};
+	{
+		my $attr = $self->{image_attr};
+		$attr =~ s/%k/$self->{unique_id}/g;
+		if ($attr ne '' && substr($attr,0,1) ne ' ') {
+			$attr = ' ' . $attr;
+		}
+		$self->{current_image_attr} = $attr;
+	}
 
 	# セクション情報の初期化
 	$self->{sections} = [];
@@ -442,8 +454,7 @@ sub do_parse_block {
 				$label =~ s/ $//g;		# 最後のスペース1つだけは取り除く
 				$self->backslash_process($label);
 				$self->normalize_label($label);
-				my $key = $label;
-				$self->tag_escape($key);
+				my $key = $self->generate_key_from_label_with_tag_escape($label);
 
 				if ($label eq '_') {
 					push(@{ $self->{anonymous_links} }, $h);
@@ -508,8 +519,7 @@ sub do_parse_block {
 			}
 		}
 		if (!@p_block && $x =~ /^\.\. +([A-Za-z0-9]+(?:[\-_\.][A-Za-z0-9]+)*) ?::(?: +(.*)|$)/) {
-			# See more: reStructuredText_2.pm
-			$self->parse_directive($out, $lines, $substitution, $1, $2);
+			$self->parse_directive($out, $lines, $substitution, "$1", "$2");
 			next;
 		}
 		if ($substitution ne '') {
@@ -1574,7 +1584,7 @@ sub parse_inline {
 		$self->{substitution_mode} = 1;
 		foreach(keys(%$ss)) {
 			$self->{substitution_label} = $_;
-			$self->parse_oneline($ss->{$_});
+			$self->parse_oneline($ss->{$_}->{text});
 		}
 		$self->{substitution_mode} = 0;
 	}
@@ -1590,7 +1600,7 @@ sub parse_inline {
 		my $type = ref($x) ? $x->{type} : undef;
 
 		#---------------------------------------------------------
-		# insert link id
+		# insert 4 id
 		#---------------------------------------------------------
 		if ($type eq 'link') {
 			$id = " id=\"$x->{id}\"";
@@ -1758,6 +1768,7 @@ sub parse_oneline {
 			}
 		}
 		$_ .= $x;
+		$_ =~ s/\x01//g;
 	}
 	return $_[0];
 }
@@ -1970,8 +1981,7 @@ sub output_inline_link {
 	}
 	$check->{$label} = 1;
 
-	my $key = $label;
-	$key =~ tr/A-Z/a-z/;
+	my $key = $self->generate_key_from_label($label);
 
 	my $h = $self->{links}->{$key};
 	if (!$nest && substr($mark1,-2) eq '__') {
@@ -1994,12 +2004,12 @@ sub output_inline_link {
 
 	# link
 	if ($url =~ /^(.*)_$/) {
-		return $self->output_inline_link($1, $mark0, $mark1, $orig, $check, 'nest');
+		return $self->output_inline_link($1, $text, $mark0, $mark1, $orig, $check, 'nest');
 	}
 
 	$url =~ s/ //g;
 	$self->tag_escape($label, $url);
-	if (!defined $text) { $text=$orig; }
+	$text = $text eq '' ? $orig : $text;
 	return "<a href=\"$url\">$text</a>";
 }
 
@@ -2015,21 +2025,22 @@ sub inline_substitution {
 		return $self->error_in_substitution("|$label$mark");
 	}
 
-	my $key = $label;
-	$key =~ tr/A-Z/a-z/;
-
-	my $ss = $self->{substitutions};
+	my $key = $self->generate_key_from_label($label);
+	my $ss  = $self->{substitutions};
 	if (!exists($ss->{$key})) {
 		my $err = $self->parse_error('Undefined substitution referenced: %s', $label);
 		return $self->make_problematic_span("|$label$mark", $err);
 	}
 
-	my $text = $ss->{$key};
+	my $subst = $ss->{$key};
+	my $text  = $subst->{text};
+	my $ltrim = $subst->{ltrim} ? "\x08" : '';
+	my $rtrim = $subst->{rtrim} ? "\x08" : '';
 	if (substr($mark,-1) eq '_') {
-		return $self->inline_link($label, '|', $mark, $text);
+		return $ltrim . $self->inline_link($label, '|', $mark, $text) . $rtrim;
 	}
 
-	return $text;
+	return "$ltrim$text$rtrim";
 }
 
 sub error_in_substitution {
@@ -2075,6 +2086,15 @@ sub parse_finalize {
 			$brefs = '<span class="fn-backref">(' .	join(', ', @a) . ')</span> ';
 		}
 		$_ = "<p class=\"$type\" id=\"$_->{id}\">$label</a> $brefs$body</p>";
+		
+	}
+
+	#---------------------------------------------------------
+	# trim
+	#---------------------------------------------------------
+	foreach(@$lines) {
+		$_ =~ s/[ \n]+\x08//g;
+		$_ =~ s/\x08[ \n]*//g;
 	}
 
 	#---------------------------------------------------------
@@ -2181,16 +2201,29 @@ sub get_footnote_symbol {
 }
 
 #------------------------------------------------------------------------------
-# ●リンクlabelを正規化
+# ●リンクlabel/keyを正規化
 #------------------------------------------------------------------------------
 sub normalize_label {
 	my $self  = shift;
 	foreach(@_) {
 		$_ =~ s/^`(.*)`$/$1/;
-		$_ =~ s/\s+/ /g;
-		$_ =~ tr/A-Z/a-z/;
 	}
 	return $_[0]
+}
+
+sub generate_key_from_label {
+	my $self  = shift;
+	foreach(@_) {
+		$_ =~ s/  +/ /g;
+		$_ =~ tr/A-Z/a-z/;
+	}
+	return $_[0];
+}
+
+sub generate_key_from_label_with_tag_escape {
+	my $self  = shift;
+	$self->generate_key_from_label(@_);
+	return $self->tag_escape(@_);
 }
 
 #------------------------------------------------------------------------------
@@ -2221,7 +2254,7 @@ sub generate_id_from_string {
 	my $label = shift;
 	my $default = shift || 'id';
 	$label =~ tr/A-Z /a-z-/;
-	$label =~ s/[^\w\-\.\x80-\xff]//g;
+	$label =~ s/[^\w\-\.\x80-\xff]+/-/g;
 	return $label eq '' ? $default : $label;
 }
 
@@ -2237,7 +2270,7 @@ sub generate_implicit_link_id {
 }
 sub generate_link_id {
 	my $self  = shift;
-	my $base  = $self->{unique_id_base} . shift;
+	my $base  = $self->{unique_id} . shift;
 	my $level = shift || 2;
 	my $ids   = $self->{ids};
 
@@ -2295,7 +2328,7 @@ BEGIN {
 		ord("\n")=> '',
 		ord('<') => '&lt;',
 		ord('>') => '&gt;'
-	);
+	);	# unicode directive の関係で & を含めないこと
 };
 sub backslash_un_escape {
 	my $self = shift;

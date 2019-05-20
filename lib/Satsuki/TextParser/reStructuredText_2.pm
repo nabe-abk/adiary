@@ -71,7 +71,6 @@ sub parse_directive {
 	# option
 	#-----------------------------------------
 	my $option = {};
-	my $err;
 	while(@$block && $block->[0] =~ /^:(\w+):(?: +(.*)|$)/) {
 		shift(@$block);
 		my $opt = $1;
@@ -81,7 +80,7 @@ sub parse_directive {
 			$v .= ($v ne '' ? ' ' : '') . $1;
 		}
 		if (! $d->{option}->{$opt}) {
-			$self->parse_error('"%s" directive invalid option: %s', $type, $opt);
+			$self->parse_error('"%s" directive unknown option: %s', $type, $opt);
 			return;
 		}
 		if (exists($option->{$opt})) {
@@ -123,8 +122,10 @@ sub parse_directive {
 	#-----------------------------------------
 	# call directive
 	#-----------------------------------------
+	$self->{directive} = $type;		# used by error message
 	my $name = $d->{method} || $type . '_directive';
-	my $ary  = $self->$name($block, \@arg, $option, $type);
+	my $ret  = $self->$name($block, \@arg, $option, $type);
+	my $ary = ref($ret) ? $ret : [$ret];
 
 	if ($subst ne '') {
 		my $text = join('', @$ary);
@@ -132,7 +133,12 @@ sub parse_directive {
 		if (exists($ss->{$subst})) {
 			$self->parse_error('Duplicate substitution definition name: %s', $subst);
 		}
-		$self->{substitutions}->{$subst} = $text;
+		my $key = $self->generate_key_from_label($subst);
+		$self->{substitutions}->{$subst} = {
+			text  => $text,
+			ltrim => exists($option->{trim}) || exists($option->{ltrim}),
+			rtrim => exists($option->{trim}) || exists($option->{rtrim})
+		};
 	} else {
 		push(@$out, @$ary);
 	}
@@ -147,12 +153,17 @@ sub load_directive {
 	if (%Directive) { return $Directive{$type}; }
 
 	#----------------------------------------------------------------------
+	# image
+	#----------------------------------------------------------------------
 	$Directive{image} = {
-		subst  => 1,
 		arg    => 1,
 		content=> 0,
-		option => [ qw(alt height width scale align target) ]
+		option => [ qw(alt height width scale align target class name) ]
 	};
+
+	#----------------------------------------------------------------------
+	# with substitution
+	#----------------------------------------------------------------------
 	$Directive{replace} = {
 		subst  => 1,
 		arg    => 0,
@@ -160,12 +171,23 @@ sub load_directive {
 		parse  => 'p',
 		option => [ qw(alt height width scale align target) ]
 	};
+	$Directive{unicode} = {
+		subst  => 1,
+		arg    => 1,
+		content=> 0,
+		option => [ qw(ltrim rtrim trim) ]
+	};
+	$Directive{date} = {
+		subst  => 1,
+		arg    => 1,
+		content=> 0
+	};
 
 	#----------------------------------------------------------------------
 	# admonition
 	#----------------------------------------------------------------------
 	{
-		my @ary = qw(attention caution danger error hint important note tip warning admonition);
+		my @ary = qw(attention caution danger error hint important note tip warning admonition class name);
 		my $h = {
 			arg    => 0,
 			content=> 1,
@@ -190,6 +212,9 @@ sub load_directive {
 ###############################################################################
 # ■ディレクティブの処理
 ###############################################################################
+#//////////////////////////////////////////////////////////////////////////////
+# iamge
+#//////////////////////////////////////////////////////////////////////////////
 #------------------------------------------------------------------------------
 # image
 #------------------------------------------------------------------------------
@@ -201,16 +226,62 @@ sub image_directive {
 
 	my $file = join('', @$arg);
 	$file =~ s/ //g;
-	
-	my @ary;
-	push(@ary, "[image = $file]");
-	return \@ary;
+	$file = $self->{image_path} . $file;
+
+	my $class = $self->make_name_and_class_attr($opt);
+
+	return qq|<a href="$file"$self->{current_image_attr}$class><img src="$file"></a>|;
 }
 
+#//////////////////////////////////////////////////////////////////////////////
+# with substitution
+#//////////////////////////////////////////////////////////////////////////////
 #------------------------------------------------------------------------------
 # replace
 #------------------------------------------------------------------------------
 sub replace_directive {
+	my $self  = shift;
+	my $block = shift;
+	return $block;
+}
+
+#------------------------------------------------------------------------------
+# unicode
+#------------------------------------------------------------------------------
+sub unicode_directive {
+	my $self  = shift;
+	my $block = shift;
+	my $arg   = shift;
+	my $opt   = shift;
+
+	my $text='';
+	foreach(@$arg) {
+		if ($_ =~ /(.*?) *\.\..*/) {
+			$text .= "$1 ";
+			last;
+		};
+		$text .= "$_ ";
+	}
+	chop($text);
+	$text =~ s/(?:^| +)(?:0x|x|\\x|U\+|u|\\u|&#x)([A-Fa-f0-9]+)|(\d+)(?= |$)/
+		my $d = $2 ne '' ? $2 : hex($1);
+		"\x{03}38#$d;";		# 38 = '&'
+	/egi;
+	$text =~ s/ +\x03/\x03/g;
+	$text =~ s/(\x{03}38#\d+;) +/$1/g;
+
+	foreach(qw(trim ltrim rtrim)) {
+		if ($opt->{$_} eq '') { next; }
+		$self->parse_error('"%s" directive "%s" option invalid value: %s',
+			$self->{directive}, $_, $opt->{$_});
+	}
+	return $text;
+}
+
+#------------------------------------------------------------------------------
+# date
+#------------------------------------------------------------------------------
+sub date_directive {
 	my $self  = shift;
 	my $block = shift;
 	return $block;
@@ -225,13 +296,51 @@ sub admonition_directive {
 	my $arg   = shift;
 	my $opt   = shift;
 	my $type  = shift;
+	my $class = $self->make_name_and_class_attr($opt);
 
 	my @ary;
-	push(@ary, "<div class=\"admonition $type\">\x02");
+	push(@ary, "<div class=\"admonition $type\"$class>\x02");
 	push(@ary, "<p class=\"admonition-title\">$type:</p>");
 	$self->do_parse_block(\@ary, $block, 'nest');
-	push(@ary, "</blockquote>\x02", '');
+	push(@ary, "</div>\x02", '');
 	return \@ary;
+}
+
+###############################################################################
+# ■ subroutine
+###############################################################################
+sub make_name_and_class_attr {
+	my $self   = shift;
+	my $option = shift;
+
+	my $attr = '';
+	#-----------------------------------------
+	# option check
+	#-----------------------------------------
+	if ($option->{name} ne '') {
+		my $label = $option->{name};
+		my $base = $self->generate_id_from_string( $label );
+		my $id   = $self->generate_implicit_link_id( $base );
+		my $key  = $self->generate_key_from_label_with_tag_escape( $label );
+
+		my $links = $self->{links};
+		if ($links->{$key}) {
+			my $msg = $self->parse_error('Duplicate link target name: %s', $label);
+			$links->{$key}->{error} = $msg;
+			$links->{$key}->{duplicate} = 1;
+		} else {
+			$links->{$key} = {
+				type => 'link',
+				id   => $id
+			};
+			$attr .= " id=\"$id\"";
+		}
+	}
+	if ($option->{class} ne '') {
+		my $class = $self->generate_id_from_string( $option->{class} );
+		$attr .= " class=\"$class\"";
+	}
+	return $attr;
 }
 
 1;

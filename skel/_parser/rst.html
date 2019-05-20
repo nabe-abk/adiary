@@ -31,18 +31,7 @@
 
 	Sphinx等との互換性を重要視する場合は false のままにする。
 
-
-<$ifexec(0, begin)>
-<$parser.satsuki_tags     = true>	satsuki記法のタグ [tag:XXX]
-<$parser.satsuki_seemore  = true>	「続きを読む」記法
-<$parser.satsuki_footnote = true>	(())によるコメント記法
-<$parser.qiita_math       = true>	Qiitaのmathブロック記法
-<$parser.seemore_msg = s.seemore_msg || '続きを読む'>
-
-さつきパーサーのロード
-<$ifexec(parser.satsuki_tags, begin)>
-	<$parser.satsuki_obj = v.load_parser('default')>
-<$end>
-<$end>
+<$parser.image_path = v.blogimg_dir()>
+<$parser.image_attr = 'data-lightbox="%k"'>
 
 <$return(parser)>
