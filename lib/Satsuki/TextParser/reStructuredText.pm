@@ -1957,13 +1957,14 @@ sub inline_link {
 		}
 	}
 	$self->backslash_un_escape($label);
-	return "\x02link\x02$label\x02$text\x02$mark0\x02$mark1\x02";
+	return "\x02link\x02$label\x02$text\x02\x02$mark0\x02$mark1\x02";
 }
 
 sub output_inline_link {
 	my $self  = shift;
 	my $label = shift;
 	my $text  = shift;
+	my $attr  = shift;
 	my $mark0 = shift || '';
 	my $mark1 = shift || '_';
 	my $orig  = shift;
@@ -1973,6 +1974,12 @@ sub output_inline_link {
 	$self->backslash_un_escape($label);
 	my $err_label = $orig eq '' ? $label : "\"$label\" from \"$orig\"";
 	$orig = $orig ne '' ? $orig : $label;
+
+	# for image-link
+	if ($mark0 eq 'img') {
+		$orig = $mark1;
+		$mark0 = $mark1 = '';
+	}
 
 	# 循環参照チェック
 	if ($check->{$label}) {
@@ -2003,8 +2010,8 @@ sub output_inline_link {
 	}
 
 	# link
-	if ($url =~ /^(.*)_$/) {
-		return $self->output_inline_link($1, $text, $mark0, $mark1, $orig, $check, 'nest');
+	if ((my $x = $self->check_link_label($url)) ne '') {
+		return $self->output_inline_link($x, $text, $attr, $mark0, $mark1, $orig, $check, 'nest');
 	}
 
 	$url =~ s/ //g;
@@ -2119,8 +2126,9 @@ sub output_link_footnote_citation {
 		$_ =~ s/\x02ref\x02([^\x02]*)\x02/
 			$self->output_inline_reference($1)
 		/eg;
-		$_ =~ s/\x02link\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02/
-			$self->output_inline_link($1,$2,$3,$4)
+		# link / image directiveでも使用しているので注意
+		$_ =~ s/\x02link\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02([^\x02]*)\x02/
+			$self->output_inline_link($1,$2,$3,$4,$5)
 		/eg;
 	}
 	return $_[0];
@@ -2171,7 +2179,7 @@ sub check_simple_label {
 	my $self = shift;
 	my $x    = shift;
 	if ($x !~ /[\x80-\xff]/) {
-		return ($x =~ /^#?[A-Za-z0-9]+(?:[\-_\.][A-Za-z0-9]+)*$/);
+		return ($x =~ /^[A-Za-z0-9]+(?:[\-_\.][A-Za-z0-9]+)*$/);
 	}
 	Encode::_utf8_on($x);
 	return ($x =~ /^[A-Za-z0-9\p{gc:L}\p{gc:N}]+(?:[\-_\.][A-Za-z0-9\p{gc:L}\p{gc:N}]+)*$/)
@@ -2183,6 +2191,16 @@ sub check_footnote_label {
 	if ($x eq '*' || $x eq '#') { return 1; }
 	$x =~ s/^#//g;
 	return $self->check_simple_label($x);
+}
+
+sub check_link_label {
+	my $self = shift;
+	my $x    = shift;
+	if (substr($x,-1) ne '_') { return; }
+	chop($x);
+	if ($x =~ /^`([^`]+)`$/) { return $1; }
+	my $r = $self->check_simple_label($x);
+	return $r ? $x : undef;
 }
 
 #------------------------------------------------------------------------------
@@ -2236,7 +2254,7 @@ sub normalize_link_url {
 		$_ =~ s/ +$//g;
 
 		# alias
-		if ($_ =~ /^(`?)(.*)\1_$/) {
+		if ($_ =~ /^((`?).*\1)_$/) {
 			$_ = $2 . '_';
 			$_ =~ s/ +/ /g;
 		} else {
@@ -2270,7 +2288,7 @@ sub generate_implicit_link_id {
 }
 sub generate_link_id {
 	my $self  = shift;
-	my $base  = $self->{unique_id} . shift;
+	my $base  = shift;
 	my $level = shift || 2;
 	my $ids   = $self->{ids};
 

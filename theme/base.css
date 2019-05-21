@@ -306,6 +306,22 @@ p.admonition-title {
 	text-indent:		0;
 }
 
+.align-left {
+	float:			left;
+	margin-right:		1em;
+}
+.align-right {
+	float:			right;
+	margin-left:		1em;
+}
+.align-center img {
+	display:		block;
+	margin-left:		auto;
+	margin-right:		auto;
+}
+.align-top    img { vertical-align: top; }
+.align-bottom img { vertical-align: bottom; }
+.align-middle img { vertical-align: middle; }
 
 /*--------------------------------------------------------------------
 ●フォントサイズ／種類設定
