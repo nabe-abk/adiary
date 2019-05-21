@@ -314,7 +314,8 @@ p.admonition-title {
 	float:			right;
 	margin-left:		1em;
 }
-.align-center img {
+figure.align-center,
+.align-center > img {
 	display:		block;
 	margin-left:		auto;
 	margin-right:		auto;

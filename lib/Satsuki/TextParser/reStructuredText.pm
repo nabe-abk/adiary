@@ -1527,6 +1527,7 @@ sub parse_nest_block_with_tag {
 	}
 	$out->[$n]  = $tag0 . $out->[$n];
 	$out->[$m] .= $tag1;
+	return $out;
 }
 
 #------------------------------------------------------------------------------
@@ -2271,7 +2272,7 @@ sub generate_id_from_string {
 	my $self  = shift;
 	my $label = shift;
 	my $default = shift || 'id';
-	$label =~ tr/A-Z /a-z-/;
+	$label =~ tr/A-Z/a-z/;
 	$label =~ s/[^\w\-\.\x80-\xff]+/-/g;
 	return $label eq '' ? $default : $label;
 }

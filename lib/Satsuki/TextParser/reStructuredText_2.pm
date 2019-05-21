@@ -71,27 +71,27 @@ sub parse_directive {
 	#-----------------------------------------
 	# option
 	#-----------------------------------------
-	my $option = {};
+	my $opt = {};
 	while(@$block && $block->[0] =~ /^:(\w+):(?: +(.*)|$)/) {
 		shift(@$block);
-		my $opt = $1;
-		my $v   = $2;
-		$opt =~ tr/A-Z/a-z/;
+		my $k = $1;
+		my $v = $2;
+		$k =~ tr/A-Z/a-z/;
 		while(@$block && $block->[0] =~ /^ +(.*)/) {
 			shift(@$block);
 			$v .= ($v ne '' ? ' ' : '') . $1;
 		}
-		if (! $d->{option}->{$opt}) {
-			$self->parse_error('"%s" directive unknown option: %s', $type, $opt);
+		if (! $d->{option}->{$k}) {
+			$self->parse_error('"%s" directive unknown option: %s', $type, $k);
 			return;
 		}
-		if (exists($option->{$opt})) {
-			$self->parse_error('"%s" directive duplicate option: %s', $type, $opt);
+		if (exists($opt->{$k})) {
+			$self->parse_error('"%s" directive duplicate option: %s', $type, $k);
 			return;
 		}
-		$option->{$opt} = $v;
+		$opt->{$k} = $v;
 	}
-	$option->{_subst} = ($subst ne '');
+	$opt->{_subst} = ($subst ne '');
 
 	#-----------------------------------------
 	# content
@@ -127,7 +127,7 @@ sub parse_directive {
 	#-----------------------------------------
 	$self->{directive} = $type;		# used by error message
 	my $name = $d->{method} || $type . '_directive';
-	my $ret  = $self->$name($block, $arg, $option, $type);
+	my $ret  = $self->$name($block, $arg, $opt, $type);
 	my $ary = ref($ret) ? $ret : [$ret];
 
 	if ($subst ne '') {
@@ -139,8 +139,8 @@ sub parse_directive {
 		my $key = $self->generate_key_from_label($subst);
 		$self->{substitutions}->{$subst} = {
 			text  => $text,
-			ltrim => exists($option->{trim}) || exists($option->{ltrim}),
-			rtrim => exists($option->{trim}) || exists($option->{rtrim})
+			ltrim => exists($opt->{trim}) || exists($opt->{ltrim}),
+			rtrim => exists($opt->{trim}) || exists($opt->{rtrim})
 		};
 	} else {
 		push(@$out, @$ary);
@@ -162,6 +162,11 @@ sub load_directive {
 		arg     => 1,
 		content => 0,
 		option  => [ qw(alt height width scale align target class name) ]
+	};
+	$Directive{figure} = {
+		arg     => 1,
+		content => 1,
+		option  => [ qw(alt height width scale align target class name figwidth figclass) ]
 	};
 
 	#----------------------------------------------------------------------
@@ -236,8 +241,9 @@ sub image_directive {
 	if ($opt->{alt} ne '') {
 		$alt = $opt->{alt};
 		$self->tag_escape($alt);
-		$attr .= " alt=\"$alt\"";
 	}
+	$attr .= " alt=\"$alt\"";
+
 	if (exists($opt->{align})) {
 		my $a = $opt->{align};
 		$a =~ tr/A-Z/a-z/;
@@ -259,11 +265,13 @@ sub image_directive {
 	}
 	my $w;
 	my $h;
+	my $wp;
 	if (exists($opt->{width})) {
-		if ($opt->{width} !~ /^(\d+|\d*\.\d+)$/) {
+		if ($opt->{width} !~ /^(\d+|\d*\.\d+) *(%?)$/) {
 			return $self->invalid_option_error($opt, 'width');
 		}
 		$w = $1;
+		$wp= $2;
 	}
 	if (exists($opt->{height})) {
 		if ($opt->{height} !~ /^(\d+|\d*\.\d+)$/) {
@@ -278,14 +286,14 @@ sub image_directive {
 			$h = $h ne '' ? $h : $y;
 		}
 		if ($w eq '' || $h eq '') {
-			$self->parse_error('"%s" directive ignore "scale" option. Please use with "width" and "height" options');
+			$self->ignore_option_error('scale');
 		} else {
 			$w = $w * $scale;
 			$h = $h * $scale;
 		}
 	}
 	if ($w ne '') {
-		$attr .= " width=\"$w\"";
+		$attr .= " width=\"$w$wp\"";
 	}
 	if ($h ne '') {
 		$attr .= " height=\"$h\"";
@@ -313,17 +321,116 @@ sub image_directive {
 }
 
 sub get_image_size {
-	my $self  = shift;
-	my $file  = $self->{ROBJ}->get_filepath( shift );
+	my $self = shift;
+	my $file = $self->{ROBJ}->get_filepath( shift );
 
-	my ($x,$y);
-	eval {
-		require Image::Magick;
-		my $im = Image::Magick->new(@_);
-		$im->Read( $file );
-		($x,$y) = $im->Get('width', 'height');
-	};
-	return ($x,$y);
+	my $cache = $self->{_image_size_cache} ||= {};
+	if (! $cache->{$file}) {
+		eval {
+			require Image::Magick;
+			my $im = Image::Magick->new(@_);
+			$im->Read( $file );
+			my ($x,$y) = $im->Get('width', 'height');
+			$cache->{$file} = [ $x, $y ];
+		};
+	}
+	return @{ $cache->{$file} }
+}
+
+#------------------------------------------------------------------------------
+# figure
+#------------------------------------------------------------------------------
+sub figure_directive {
+	my $self  = shift;
+	my $block = shift;
+	my $_file = shift;
+	my $opt   = shift;
+	$_file =~ s/ //g;
+	my $file = $self->{image_path} . $_file;
+
+	my $attr='';
+	my $class='';
+	my $center;
+	if (exists($opt->{align})) {
+		my $a = $opt->{align};
+		$a =~ tr/A-Z/a-z/;
+		if ($a ne 'left' && $a ne 'center' && $a ne 'right') {
+			return $self->invalid_option_error($opt, 'align');
+		}
+		$class .= " align-$a";
+		$center = ($a eq 'center');
+		delete $opt->{align};
+	}
+
+	if (exists($opt->{figwidth})) {
+		if ($opt->{figwidth} =~ /^image$/i) {
+			my ($x,$y) = $self->get_image_size($file);
+			if ($x eq '') {
+				$self->ignore_option_error('figwidth');
+			} else {
+				$attr .= " style=\"width: ${x}px;\"";
+			}
+		} else {
+			if ($opt->{figwidth} !~ /^(\d+|\d*\.\d+) *(%?)$/) {
+				return $self->invalid_option_error($opt, 'figwidth');
+			}
+			my $unit = $2 ? $2 : 'px';
+			$attr .= " style=\"width: $1$unit;\"";
+		}
+	} elsif ($center) {
+		my ($x,$y) = $self->get_image_size($file);
+		if ($x eq '') {
+			$self->ignore_option_error('align');
+		} else {
+			$attr .= " style=\"width: ${x}px;\"";
+		}
+	}
+	if ($opt->{figclass} ne '') {
+		my $c = $self->normalize_class_string( $opt->{figclass} );
+		$class .= " $c";
+	}
+
+	my $img = $self->image_directive($block, $_file, $opt);
+	if ($img eq '') { return; }
+
+	if ($class) {
+		$attr .= ' class="' . substr($class,1) . '"';
+	}
+
+	if (!@$block) {
+		return qq|<figure$attr>$img</figure>|;
+	}
+
+	#---------------------------------------------------------
+	# figcaption and legend
+	#---------------------------------------------------------
+	my @caption;
+	while(@$block && $block->[0] ne '') {
+		push(@caption, shift(@$block));
+	}
+
+	my $caption='';
+	my $content='';
+	my $text = join(' ', @caption);
+	if ($text ne '..') {
+		my ($ary, $blocks) = $self->do_parse_block([], \@caption, 'list-item');
+		if ($#$blocks != 0 || $blocks->[0] ne 'p') {
+			$self->parse_error('"%s" directive caption must be a paragraph or empty comment: %s', $self->{directive}, $text);
+			return;
+		}
+		$caption = '<figcaption>' . join("\n", @$ary) . '</figcaption>';
+		while(@$block && $block->[0] eq '') {
+			shift(@$block);
+		}
+	}
+
+	if (@$block) {
+		my $ary = $self->parse_nest_block_with_tag([], $block, "<div class=\"legend\">", "</div>");
+		$content = join("\n", @$ary);
+	}
+	$caption .= ($caption && $content ne '') ? "\n" : '';
+
+	return qq|<figure$attr>$img\n$caption$content</figure>|;
 }
 
 #//////////////////////////////////////////////////////////////////////////////
@@ -397,16 +504,16 @@ sub admonition_directive {
 # ■ subroutine
 ###############################################################################
 sub make_name_and_class_attr {
-	my $self   = shift;
-	my $option = shift;
-	my $class  = shift || '';
+	my $self  = shift;
+	my $opt   = shift;
+	my $class = shift || '';
 
 	my $attr = '';
 	#-----------------------------------------
 	# option check
 	#-----------------------------------------
-	if ($option->{name} ne '') {
-		my $label = $option->{name};
+	if ($opt->{name} ne '') {
+		my $label = $opt->{name};
 		my $base = $self->generate_id_from_string( $label );
 		my $id   = $self->generate_link_id( $base );
 		my $key  = $self->generate_key_from_label_with_tag_escape( $label );
@@ -424,8 +531,8 @@ sub make_name_and_class_attr {
 			$attr .= " id=\"$id\"";
 		}
 	}
-	if ($option->{class} ne '') {
-		my $c = $self->generate_id_from_string( $option->{class} );
+	if ($opt->{class} ne '') {
+		my $c = $self->normalize_class_string( $opt->{class} );
 		$class .= " $c";
 	}
 	if ($class ne '') {
@@ -433,6 +540,18 @@ sub make_name_and_class_attr {
 		$attr .= " class=\"$class\"";
 	}
 	return $attr;
+}
+
+#------------------------------------------------------------------------------
+# class name
+#------------------------------------------------------------------------------
+sub normalize_class_string {
+	my $self  = shift;
+	my $class = shift;
+	$class =~ tr/A-Z/a-z/;
+	$class =~ s/[^\w\-\.\x80-\xff ]+/-/g;
+	$class =~ s/  +/ /g;
+	return $class;
 }
 
 #------------------------------------------------------------------------------
@@ -445,6 +564,19 @@ sub invalid_option_error {
 	my $v = $opt->{$name};
 	$v = $v eq '' ? '(none)' : $v;
 	$self->parse_error('"%s" directive "%s" option invalid value: %s', $self->{directive}, $name, $v);
+	return;
+}
+
+#------------------------------------------------------------------------------
+# ignore option
+#------------------------------------------------------------------------------
+sub ignore_option_error {
+	my $self = shift;
+	my $opt  = shift;
+	my $name = shift;
+	my $v = $opt->{$name};
+	$v = $v eq '' ? '(none)' : $v;
+	$self->parse_error('"%s" directive ignore "%s" option: %s', $self->{directive}, $name, $v);
 	return;
 }
 
