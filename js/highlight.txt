@@ -1,27 +1,6 @@
-Common
--Apache
--Bash
--C#
--C++
--CSS
--CoffeeScript
--Device Tree (*.dts)
--Diff
--HTML, XML
--HTTP
--Ini
--JSON
--Java
--JavaScript
--Makefile
--Markdown
--Nginx
--Objective-C
--PHP
--Perl
--Python
--Ruby
--SQL
+Version: 9.15.6
+
+Common : ALL
 
 Other options
 -Intel x86 Assembly
@@ -30,11 +9,7 @@ Other options
 -AVR Assembler
 -VHDL
 -Verilog
--Basic
 -DOS.bat
 -PowerShell
--VB.NET
--VBScript
--Swift
 -Lisp
 -TeX
