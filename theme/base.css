@@ -111,11 +111,9 @@ table.plugins button {
 /*--------------------------------------------------------------------
 ●記法関連
 ---------------------------------------------------------------------*/
-/* セクションアンカー */
-span.sanchor {
-	margin-right:	0.3em;
+pre {
+	white-space:	pre-wrap;
 }
-
 /* アスキーアート記法 */
 div.ascii-art {
 /*	font-size:	12pt;	*/
@@ -294,16 +292,22 @@ article section .rest-footnote a:hover {
 	text-decoration:	underline;
 }
 
-div.admonition {
-	background-color:	rgba(128,128,128,0.1);
+div.admonition, div.topic {
+	background-color:	rgba(255,210,210,0.7);
 	border:			1px solid #888;
 	margin:			1em 0;
-	padding:		0.2em;
+	padding:		0.2em 1em;
 }
-p.admonition-title {
+div.admonition.note, div.topic {
+	background-color:	rgba(128,128,128,0.1);
+}
+div.admonition p.admonition-title,
+div.topic      p.topic-title {
 	font-weight:		bold;
 	font-size:		1.3;
 	text-indent:		0;
+	margin-top:		0;
+	text-decoration:	underline;
 }
 
 .align-left {
@@ -323,6 +327,19 @@ figure.align-center,
 .align-top    img { vertical-align: top; }
 .align-bottom img { vertical-align: bottom; }
 .align-middle img { vertical-align: middle; }
+
+.line-number-block {
+	color:			blue;
+	float:			left;
+	margin-right:		1em;
+	padding-right:		2px;
+	border-right:		solid rgba(0,0,0,0.3) 1px;
+	text-align:		right;
+}
+
+pre.line-number {
+	white-space:		pre;
+}
 
 /*--------------------------------------------------------------------
 ●フォントサイズ／種類設定

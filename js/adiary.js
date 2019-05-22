@@ -489,6 +489,21 @@ $(function(){
 	load_script(ScriptDir + 'highlight.pack.js', function(){
 		$codes.each(function(i, block) {
 			hljs.highlightBlock(block);
+
+			var $obj = $(block);
+			if (! $obj.hasClass('line-number')) return;
+
+			var num = parseInt($obj.data('number'));
+			if (!num || num == NaN) num=1;
+
+			var $div = $('<div>').addClass('line-number-block');
+			var cnt  = $obj.text().split("\n").length -1;
+			var line = '';
+			for(var i=0; i<cnt; i++) {
+				line += (num+i).toString() + "\n";
+			}
+			$div.text(line);
+			$obj.prepend( $div );
 		});
 	});
 	var style = $('<link>').attr({

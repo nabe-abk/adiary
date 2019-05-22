@@ -290,3 +290,10 @@ Restart of %s is required!=%sの再起動が必要です！
 [RST] Too many anonymous hyperlink references=[RST] 無名リンクの参照が多すぎます
 [RST] Too many anonymous hyperlink targets: ref=%d / def=%d=[RST] 無名リンクの定義が多すぎます: 参照=%d / 定義=%d
 [RST] Malformed substitution definition: %s=[RST] 置換定義の記述が不正です: %s
+[RST] Substitution definition empty or invalid: %s=[RST] 置換定義が空もしくは無効です: %s
+[RST] Undefined substitution referenced: %s=[RST] 置換参照が定義されていません: %s
+[RST] Substitution definition contains illegal element: %s=[RST] 置換定義に使用できない要素が含まれています: %s
+
+###############################################################################
+# Base/TextParser/reStructuredText_2.pm
+###############################################################################

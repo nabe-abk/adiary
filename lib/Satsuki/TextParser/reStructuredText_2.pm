@@ -5,11 +5,11 @@ use strict;
 use Satsuki::TextParser::reStructuredText ();
 package Satsuki::TextParser::reStructuredText;
 ###############################################################################
-# ■ディレクティブのロード
+# ■ディレクティブのパース
 ###############################################################################
 my %Directive;
 #------------------------------------------------------------------------------
-# ○directiveの処理
+# parse directive
 #------------------------------------------------------------------------------
 sub parse_directive {
 	my $self  = shift;
@@ -53,16 +53,25 @@ sub parse_directive {
 	#-----------------------------------------
 	my $arg;
 	if ($d->{arg}) {
-		while(@$block && $block->[0] ne '' && $block->[0] !~ /^:\w+:/) {
+		while(@$block && $block->[0] ne ''
+		  && ($block->[0] !~ /^:((?:\\.|[^:\\])+):(?: +(.*)|$)/  || substr($1,0,1) eq ' ' ||  substr($1,-1) eq ' ')
+		) {
 			$arg .= ' ' . shift(@$block);
 		}
 		$arg =~ s/^ +//;
 		$arg =~ s/ +$//;
 		$arg =~ s/  +/ /g;
-		if ($arg eq '') {
+		if ($arg eq '' && $d->{arg}==2) {
 			$arg = $d->{default};
 			if (!defined $arg) {
 				$self->parse_error('"%s" directive argument required', $type);
+				return;
+			}
+		} elsif ($d->{max_arg}) {
+			my @a = split(/ /, $arg);
+			my $c = $#a +1;
+			if ($d->{max_arg} < $c) {
+				$self->parse_error('"%s" maximum %d argument(s) allowed, %d supplied: %s', $type, $d->{arg_max}, $c, $arg);
 				return;
 			}
 		}
@@ -72,11 +81,13 @@ sub parse_directive {
 	# option
 	#-----------------------------------------
 	my $opt = {};
-	while(@$block && $block->[0] =~ /^:(\w+):(?: +(.*)|$)/) {
+	while(@$block && $block->[0] =~ /^:((?:\\.|[^:\\])+):(?: +(.*)|$)/  && substr($1,0,1) ne ' ' &&  substr($1,-1) ne ' ') {
 		shift(@$block);
 		my $k = $1;
 		my $v = $2;
 		$k =~ tr/A-Z/a-z/;
+		$self->backslash_process($k);
+
 		while(@$block && $block->[0] =~ /^ +(.*)/) {
 			shift(@$block);
 			$v .= ($v ne '' ? ' ' : '') . $1;
@@ -91,6 +102,11 @@ sub parse_directive {
 		}
 		$opt->{$k} = $v;
 	}
+	if (%$opt && @$block && $block->[0] ne '') {
+		$self->parse_error('"%s" invalid option block: %s', $type, $block->[0]);
+		return;
+	}
+
 	$opt->{_subst} = ($subst ne '');
 
 	#-----------------------------------------
@@ -100,6 +116,10 @@ sub parse_directive {
 
 	if ($d->{content} eq '0' && @$block) {
 		$self->parse_error('"%s" directive no content permitted: %s', $type, $block->[0]);
+		return;
+	}
+	if ($d->{content}==2 && !@$block) {
+		$self->parse_error('"%s" directive content required', $type);
 		return;
 	}
 
@@ -127,6 +147,7 @@ sub parse_directive {
 	#-----------------------------------------
 	$self->{directive} = $type;		# used by error message
 	my $name = $d->{method} || $type . '_directive';
+	$name =~ tr/-/_/;
 	my $ret  = $self->$name($block, $arg, $opt, $type);
 	my $ary = ref($ret) ? $ret : [$ret];
 
@@ -156,57 +177,106 @@ sub load_directive {
 	if (%Directive) { return $Directive{$type}; }
 
 	#----------------------------------------------------------------------
-	# image
+	# arg, content flag
 	#----------------------------------------------------------------------
-	$Directive{image} = {
-		arg     => 1,
-		content => 0,
-		option  => [ qw(alt height width scale align target class name) ]
-	};
-	$Directive{figure} = {
-		arg     => 1,
-		content => 1,
-		option  => [ qw(alt height width scale align target class name figwidth figclass) ]
-	};
-
+	my $none     = 0;
+	my $any      = 1;
+	my $required = 2;
+	my $opt_default = [ qw(class name) ];
 	#----------------------------------------------------------------------
-	# with substitution
-	#----------------------------------------------------------------------
-	$Directive{replace} = {
-		subst   => 1,
-		arg     => 0,
-		content => 1,
-		parse   => 'p',
-		option  => [ qw(alt height width scale align target) ]
-	};
-	$Directive{unicode} = {
-		subst   => 1,
-		arg     => 1,
-		content => 0,
-		option  => [ qw(ltrim rtrim trim) ]
-	};
-	$Directive{date} = {
-		subst   => 1,
-		arg     => 1,
-		default => '%Y-%m-%d',
-		content => 0
-	};
-
-	#----------------------------------------------------------------------
-	# admonition
+	# Admonitions
 	#----------------------------------------------------------------------
 	{
-		my @ary = qw(attention caution danger error hint important note tip warning admonition class name);
+		my @ary = qw(attention caution danger error hint important note tip warning class name);
 		my $h = {
-			arg     => 0,
-			content => 1,
+			arg     => $none,
+			content => $required,
 			method  => 'admonition_directive',
-			option  => [ qw(class name) ]
+			option  => $opt_default
 		};
 		foreach(@ary) {
 			$Directive{$_} = $h;
 		}
 	}
+	$Directive{admonition} = {
+		arg     => $required,
+		content => $required,
+		method  => 'topic_directive',
+		option  => $opt_default
+	};
+
+	#----------------------------------------------------------------------
+	# Images
+	#----------------------------------------------------------------------
+	$Directive{image} = {
+		arg     => $required,
+		content => $none,
+		option  => [ qw(alt height width scale align target class name) ]
+	};
+	$Directive{figure} = {
+		arg     => $required,
+		content => $any,
+		option  => [ qw(alt height width scale align target class name figwidth figclass) ]
+	};
+
+	#----------------------------------------------------------------------
+	# Body Elements
+	#----------------------------------------------------------------------
+	$Directive{topic} = {
+		arg     => $required,
+		content => $required,
+		option  => $opt_default
+	};
+	$Directive{'parsed-literal'} = {
+		arg     => $none,
+		content => $required,
+		option  => $opt_default
+	};
+	$Directive{code} = {
+		arg     => $any,
+		max_arg => 1,
+		content => $required,
+		option  =>  [ qw(number-lines name class) ]
+	};
+
+	#----------------------------------------------------------------------
+	# Tables
+	#----------------------------------------------------------------------
+
+	#----------------------------------------------------------------------
+	# Document Parts
+	#----------------------------------------------------------------------
+
+	#----------------------------------------------------------------------
+	# References
+	#----------------------------------------------------------------------
+
+	#----------------------------------------------------------------------
+	# for Substitution Definitions
+	#----------------------------------------------------------------------
+	$Directive{replace} = {
+		subst   => 1,
+		arg     => $none,
+		content => $required,
+		parse   => 'p',
+		option  => [ qw(alt height width scale align target) ]
+	};
+	$Directive{unicode} = {
+		subst   => 1,
+		arg     => $required,
+		content => $none,
+		option  => [ qw(ltrim rtrim trim) ]
+	};
+	$Directive{date} = {
+		subst   => 1,
+		arg     => $required,
+		default => '%Y-%m-%d',
+		content => $none
+	};
+
+	#----------------------------------------------------------------------
+	# Miscellaneous
+	#----------------------------------------------------------------------
 
 	#======================================================================
 	#======================================================================
@@ -219,10 +289,29 @@ sub load_directive {
 	return $Directive{$type};
 }
 ###############################################################################
-# ■ディレクティブの処理
+# ■各ディレクティブの処理
 ###############################################################################
 #//////////////////////////////////////////////////////////////////////////////
-# iamge
+# ●Admonitions
+#//////////////////////////////////////////////////////////////////////////////
+sub admonition_directive {
+	my $self  = shift;
+	my $block = shift;
+	my $arg   = shift;
+	my $opt   = shift;
+	my $type  = shift;
+
+	my $at = $self->make_name_and_class_attr($opt, "admonition $type");
+	my @ary;
+	push(@ary, "<div$at>\x02");
+	push(@ary, "<p class=\"admonition-title\">$type:</p>");
+	$self->do_parse_block(\@ary, $block, 'nest');
+	push(@ary, "</div>\x02", '');
+	return \@ary;
+}
+
+#//////////////////////////////////////////////////////////////////////////////
+# ●Iamges
 #//////////////////////////////////////////////////////////////////////////////
 #------------------------------------------------------------------------------
 # image
@@ -434,7 +523,98 @@ sub figure_directive {
 }
 
 #//////////////////////////////////////////////////////////////////////////////
-# with substitution
+# ●Body Elements
+#//////////////////////////////////////////////////////////////////////////////
+#------------------------------------------------------------------------------
+# topic
+#------------------------------------------------------------------------------
+sub topic_directive {
+	my $self  = shift;
+	my $block = shift;
+	my $title = shift;
+	my $opt   = shift;
+	my $type  = shift;
+
+	$self->backslash_escape($title);
+	$self->tag_escape($title);
+	if ($type eq 'admonition') {
+		$title .= ':';
+	}
+
+	my $at = $self->make_name_and_class_attr($opt, $type);
+	my @ary;
+	push(@ary, "<div$at>\x02");
+	push(@ary, "<p class=\"$type-title\">$title:</p>");
+	$self->do_parse_block(\@ary, $block, 'nest');
+	push(@ary, "</div>\x02", '');
+	return \@ary;
+}
+
+#------------------------------------------------------------------------------
+# parsed-literal
+#------------------------------------------------------------------------------
+sub parsed_literal_directive {
+	my $self  = shift;
+	my $block = shift;
+	my $arg   = shift;
+	my $opt   = shift;
+
+	$self->backslash_escape(@$block);
+	$self->tag_escape(@$block);
+
+	my $at = $self->make_name_and_class_attr($opt, 'parsed-literal');
+	my @ary;
+	push(@ary, "<pre$at>\x02");
+	push(@ary, @$block);
+	push(@ary, "</pre>\x02", '');
+	return \@ary;
+}
+
+#------------------------------------------------------------------------------
+# parsed-literal
+#------------------------------------------------------------------------------
+sub code_directive {
+	my $self  = shift;
+	my $block = shift;
+	my $lang  = shift;
+	my $opt   = shift;
+
+	foreach (@$block) {
+		$self->tag_escape($_);
+		$_ =~ s/\\/&#92;/g;	# escape backslash
+	}
+
+	my $num='';
+	my $class='syntax-highlight';
+	if (exists($opt->{'number-lines'})) {
+		$num = $opt->{'number-lines'};
+		if ($num ne '') {
+			if ($num !~ /^(-?\d+)$/) {
+				$self->invalid_option_error($opt, 'number-lines');
+			}
+		} else {
+			$num = 1;
+		}
+		$num = " data-number=\"$num\"";
+		$class .= ' line-number';
+	}
+
+	# <pre class="syntax-highlight python"></pre>
+
+	if ($lang ne '') {
+		$self->normalize_class_string( $lang );
+		$class .= " $lang";
+	}
+
+	my $at = $self->make_name_and_class_attr($opt, $class);
+	my @ary;
+	push(@ary, "<pre$at$num>\x02");
+	push(@ary, @$block);
+	push(@ary, "</pre>\x02", '');
+	return \@ary;
+}
+#//////////////////////////////////////////////////////////////////////////////
+# ●for Substitution
 #//////////////////////////////////////////////////////////////////////////////
 #------------------------------------------------------------------------------
 # replace
@@ -479,25 +659,6 @@ sub date_directive {
 
 	require POSIX;
 	return POSIX::strftime($arg, localtime());
-}
-
-#//////////////////////////////////////////////////////////////////////////////
-# admonitions
-#//////////////////////////////////////////////////////////////////////////////
-sub admonition_directive {
-	my $self  = shift;
-	my $block = shift;
-	my $arg   = shift;
-	my $opt   = shift;
-	my $type  = shift;
-	my $at    = $self->make_name_and_class_attr($opt);
-
-	my @ary;
-	push(@ary, "<div class=\"admonition $type\"$at>\x02");
-	push(@ary, "<p class=\"admonition-title\">$type:</p>");
-	$self->do_parse_block(\@ary, $block, 'nest');
-	push(@ary, "</div>\x02", '');
-	return \@ary;
 }
 
 ###############################################################################
