@@ -238,6 +238,11 @@ sub load_directive {
 		content => $required,
 		option  =>  [ qw(number-lines name class) ]
 	};
+	$Directive{math} = {
+		arg     => $any,
+		content => $any,
+		option  =>  [ qw(name) ]
+	};
 
 	#----------------------------------------------------------------------
 	# Tables
@@ -582,6 +587,7 @@ sub code_directive {
 	foreach (@$block) {
 		$self->tag_escape($_);
 		$_ =~ s/\\/&#92;/g;	# escape backslash
+		$_ .= "\x02";
 	}
 
 	my $num='';
@@ -613,6 +619,48 @@ sub code_directive {
 	push(@ary, "</pre>\x02", '');
 	return \@ary;
 }
+
+#------------------------------------------------------------------------------
+# math
+#------------------------------------------------------------------------------
+sub math_directive {
+	my $self  = shift;
+	my $block = shift;
+	my $arg   = shift;
+	my $opt   = shift;
+
+	push(@$block, $arg);
+	foreach (@$block) {
+		$self->tag_escape($_);
+		$_ .= ($_ ne '') ? "\x02" : '';
+	}
+	$arg = pop(@$block);
+
+	if (@$block) {
+		my $text = join('', @$block);
+		if ($text =~ /\\\\/) {
+			unshift(@$block, "\\begin{split}\x02");
+			push   (@$block, "\\end{split}\x02");
+		}
+	}
+	if ($arg ne '') {
+		if (@$block) {
+			unshift(@$block, "$arg\\\\\x02");
+			unshift(@$block, "\\begin{align}\\begin{aligned}\x02");
+			push   (@$block, "\\end{aligned}\\end{align}\x02");
+		} else {
+			$block = [ $arg ];
+		}
+	} 
+
+	my $at = $self->make_name_and_class_attr($opt, 'math');
+	my @ary;
+	push(@ary, "<div$at>\x02");
+	push(@ary, @$block);
+	push(@ary, "</div>\x02", '');
+	return \@ary;
+}
+
 #//////////////////////////////////////////////////////////////////////////////
 # ●for Substitution
 #//////////////////////////////////////////////////////////////////////////////
