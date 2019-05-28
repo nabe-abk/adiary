@@ -703,8 +703,6 @@ sub do_parse_block {
 		#--------------------------------------------------------------
 		if ($x =~ /^((?:\\.|[^\\])*)::$/ && $y eq '') {
 			$x = $1;
-			$self->block_end($out, \@p_block, $ptag);
-			push(@blocks, 'literal');
 
 			if ($x ne '') {
 				# "Paragraph ::" to "Paragraph"
@@ -716,6 +714,9 @@ sub do_parse_block {
 				unshift(@$lines, '::');
 				unshift(@$lines, '');
 			} else {
+				$self->block_end($out, \@p_block, $ptag);
+				push(@blocks, 'literal');
+
 				$self->skip_blank($lines);
 				if ($lines->[0] =~ /^( )/ || $lines->[0] =~ /^([!"#\$%&'\(\)\*\+,\-\.\/:;<=>\?\@\[\\\]^_`\{\|\}\~])/) {
 					my $block = [];
@@ -1648,7 +1649,7 @@ sub parse_inline {
 			push(@$out, "</footer>\x02");
 			next;
 		}
-		if (substr($x,-2) ne "\x02") {
+		if (substr($x,-1) ne "\x02") {
 			$self->parse_oneline($x);
 		}
 		#---------------------------------------------------------

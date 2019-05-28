@@ -340,6 +340,13 @@ figure.align-center,
 pre.line-number {
 	white-space:		pre;
 }
+p.rubric {
+	margin-top:		30px;
+	font-weight:		bold;
+}
+div.compound p:nth-child(n + 2) {
+	text-indent:		0;
+}
 
 /*--------------------------------------------------------------------
 ●フォントサイズ／種類設定

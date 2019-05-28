@@ -8,6 +8,9 @@ package Satsuki::TextParser::reStructuredText;
 # ■ディレクティブのパース
 ###############################################################################
 my %Directive;
+my $NONE     = 0;
+my $ANY      = 1;
+my $REQUIRED = 2;
 #------------------------------------------------------------------------------
 # parse directive
 #------------------------------------------------------------------------------
@@ -61,16 +64,16 @@ sub parse_directive {
 		$arg =~ s/^ +//;
 		$arg =~ s/ +$//;
 		$arg =~ s/  +/ /g;
-		if ($arg eq '' && $d->{arg}==2) {
+		if ($arg eq '' && $d->{arg}==$REQUIRED) {
 			$arg = $d->{default};
 			if (!defined $arg) {
 				$self->parse_error('"%s" directive argument required', $type);
 				return;
 			}
-		} elsif ($d->{max_arg}) {
+		} elsif ($d->{arg_max}) {
 			my @a = split(/ /, $arg);
 			my $c = $#a +1;
-			if ($d->{max_arg} < $c) {
+			if ($d->{arg_max} < $c) {
 				$self->parse_error('"%s" maximum %d argument(s) allowed, %d supplied: %s', $type, $d->{arg_max}, $c, $arg);
 				return;
 			}
@@ -81,32 +84,33 @@ sub parse_directive {
 	# option
 	#-----------------------------------------
 	my $opt = {};
-	while(@$block && $block->[0] =~ /^:((?:\\.|[^:\\])+):(?: +(.*)|$)/  && substr($1,0,1) ne ' ' &&  substr($1,-1) ne ' ') {
-		shift(@$block);
-		my $k = $1;
-		my $v = $2;
-		$k =~ tr/A-Z/a-z/;
-		$self->backslash_process($k);
-
-		while(@$block && $block->[0] =~ /^ +(.*)/) {
+	if ($d->{option}) {
+		while(@$block && $block->[0] =~ /^:((?:\\.|[^:\\])+):(?: +(.*)|$)/  && substr($1,0,1) ne ' ' &&  substr($1,-1) ne ' ') {
 			shift(@$block);
-			$v .= ($v ne '' ? ' ' : '') . $1;
-		}
-		if (! $d->{option}->{$k}) {
-			$self->parse_error('"%s" directive unknown option: %s', $type, $k);
-			return;
-		}
-		if (exists($opt->{$k})) {
-			$self->parse_error('"%s" directive duplicate option: %s', $type, $k);
-			return;
-		}
-		$opt->{$k} = $v;
-	}
-	if (%$opt && @$block && $block->[0] ne '') {
-		$self->parse_error('"%s" invalid option block: %s', $type, $block->[0]);
-		return;
-	}
+			my $k = $1;
+			my $v = $2;
+			$k =~ tr/A-Z/a-z/;
+			$self->backslash_process($k);
 
+			while(@$block && $block->[0] =~ /^ +(.*)/) {
+				shift(@$block);
+				$v .= ($v ne '' ? ' ' : '') . $1;
+			}
+			if (! $d->{option}->{$k}) {
+				$self->parse_error('"%s" directive unknown option: %s', $type, $k);
+				return;
+			}
+			if (exists($opt->{$k})) {
+				$self->parse_error('"%s" directive duplicate option: %s', $type, $k);
+				return;
+			}
+			$opt->{$k} = $v;
+		}
+		if (%$opt && @$block && $block->[0] ne '') {
+			$self->parse_error('"%s" invalid option block: %s', $type, $block->[0]);
+			return;
+		}
+	}
 	$opt->{_subst} = ($subst ne '');
 
 	#-----------------------------------------
@@ -114,11 +118,11 @@ sub parse_directive {
 	#-----------------------------------------
 	while(@$block && $block->[0] eq '') { shift(@$block); }
 
-	if ($d->{content} eq '0' && @$block) {
+	if ($d->{content}==$NONE && @$block) {
 		$self->parse_error('"%s" directive no content permitted: %s', $type, $block->[0]);
 		return;
 	}
-	if ($d->{content}==2 && !@$block) {
+	if ($d->{content}==$REQUIRED && !@$block) {
 		$self->parse_error('"%s" directive content required', $type);
 		return;
 	}
@@ -148,7 +152,7 @@ sub parse_directive {
 	$self->{directive} = $type;		# used by error message
 	my $name = $d->{method} || $type . '_directive';
 	$name =~ tr/-/_/;
-	my $ret  = $self->$name($block, $arg, $opt, $type);
+	my $ret  = $self->$name($arg, $opt, $block, $type);
 	my $ary = ref($ret) ? $ret : [$ret];
 
 	if ($subst ne '') {
@@ -177,45 +181,44 @@ sub load_directive {
 	if (%Directive) { return $Directive{$type}; }
 
 	#----------------------------------------------------------------------
-	# arg, content flag
+	# option values
 	#----------------------------------------------------------------------
-	my $none     = 0;
-	my $any      = 1;
-	my $required = 2;
-	my $opt_default = [ qw(class name) ];
+	my $OPT_DEFAULT = { map { $_ => 1} qw(class name) };
+	my $OPT_NONE    = undef;
+
 	#----------------------------------------------------------------------
 	# Admonitions
 	#----------------------------------------------------------------------
 	{
 		my @ary = qw(attention caution danger error hint important note tip warning class name);
 		my $h = {
-			arg     => $none,
-			content => $required,
+			arg     => $NONE,
+			content => $REQUIRED,
 			method  => 'admonition_directive',
-			option  => $opt_default
+			option  => $OPT_DEFAULT
 		};
 		foreach(@ary) {
 			$Directive{$_} = $h;
 		}
 	}
 	$Directive{admonition} = {
-		arg     => $required,
-		content => $required,
+		arg     => $REQUIRED,
+		content => $REQUIRED,
 		method  => 'topic_directive',
-		option  => $opt_default
+		option  => $OPT_DEFAULT
 	};
 
 	#----------------------------------------------------------------------
 	# Images
 	#----------------------------------------------------------------------
 	$Directive{image} = {
-		arg     => $required,
-		content => $none,
+		arg     => $REQUIRED,
+		content => $NONE,
 		option  => [ qw(alt height width scale align target class name) ]
 	};
 	$Directive{figure} = {
-		arg     => $required,
-		content => $any,
+		arg     => $REQUIRED,
+		content => $ANY,
 		option  => [ qw(alt height width scale align target class name figwidth figclass) ]
 	};
 
@@ -223,25 +226,55 @@ sub load_directive {
 	# Body Elements
 	#----------------------------------------------------------------------
 	$Directive{topic} = {
-		arg     => $required,
-		content => $required,
-		option  => $opt_default
+		arg     => $REQUIRED,
+		content => $REQUIRED,
+		option  => $OPT_DEFAULT
 	};
 	$Directive{'parsed-literal'} = {
-		arg     => $none,
-		content => $required,
-		option  => $opt_default
+		arg     => $NONE,
+		content => $REQUIRED,
+		option  => $OPT_DEFAULT
 	};
 	$Directive{code} = {
-		arg     => $any,
-		max_arg => 1,
-		content => $required,
+		arg     => $ANY,
+		arg_max => 1,
+		content => $REQUIRED,
 		option  =>  [ qw(number-lines name class) ]
 	};
 	$Directive{math} = {
-		arg     => $any,
-		content => $any,
+		arg     => $ANY,
+		content => $ANY,
 		option  =>  [ qw(name) ]
+	};
+	$Directive{rubric} = {
+		arg     => $REQUIRED,
+		content => $NONE,
+		option  => $OPT_DEFAULT
+	};
+	# Quote directive
+	{
+		my @ary = qw(epigraph highlights pull-quote);
+		my $h = {
+			arg     => $NONE,
+			content => $REQUIRED,
+			method  => 'quote_directive',
+			option  => $OPT_NONE
+		};
+		foreach(@ary) {
+			$Directive{$_} = $h;
+		}
+	};
+	$Directive{compound} = {
+		arg     => $NONE,
+		content => $REQUIRED,
+		method  => 'div_directive',
+		option  => $OPT_DEFAULT
+	};
+	$Directive{container} = {
+		arg     => $ANY,
+		content => $REQUIRED,
+		method  => 'div_directive',
+		option  => [ qw(name) ]
 	};
 
 	#----------------------------------------------------------------------
@@ -261,22 +294,22 @@ sub load_directive {
 	#----------------------------------------------------------------------
 	$Directive{replace} = {
 		subst   => 1,
-		arg     => $none,
-		content => $required,
+		arg     => $NONE,
+		content => $REQUIRED,
 		parse   => 'p',
 		option  => [ qw(alt height width scale align target) ]
 	};
 	$Directive{unicode} = {
 		subst   => 1,
-		arg     => $required,
-		content => $none,
+		arg     => $REQUIRED,
+		content => $NONE,
 		option  => [ qw(ltrim rtrim trim) ]
 	};
 	$Directive{date} = {
 		subst   => 1,
-		arg     => $required,
+		arg     => $REQUIRED,
 		default => '%Y-%m-%d',
-		content => $none
+		content => $NONE
 	};
 
 	#----------------------------------------------------------------------
@@ -301,9 +334,9 @@ sub load_directive {
 #//////////////////////////////////////////////////////////////////////////////
 sub admonition_directive {
 	my $self  = shift;
-	my $block = shift;
 	my $arg   = shift;
 	my $opt   = shift;
+	my $block = shift;
 	my $type  = shift;
 
 	my $at = $self->make_name_and_class_attr($opt, "admonition $type");
@@ -323,9 +356,9 @@ sub admonition_directive {
 #------------------------------------------------------------------------------
 sub image_directive {
 	my $self  = shift;
-	my $block = shift;
 	my $_file = shift;
 	my $opt   = shift;
+	my $block = shift;
 	$_file =~ s/ //g;
 	my $file = $self->{image_path} . $_file;
 
@@ -436,9 +469,9 @@ sub get_image_size {
 #------------------------------------------------------------------------------
 sub figure_directive {
 	my $self  = shift;
-	my $block = shift;
 	my $_file = shift;
 	my $opt   = shift;
+	my $block = shift;
 	$_file =~ s/ //g;
 	my $file = $self->{image_path} . $_file;
 
@@ -484,7 +517,7 @@ sub figure_directive {
 		$class .= " $c";
 	}
 
-	my $img = $self->image_directive($block, $_file, $opt);
+	my $img = $self->image_directive($_file, $opt, $block);
 	if ($img eq '') { return; }
 
 	if ($class) {
@@ -535,9 +568,9 @@ sub figure_directive {
 #------------------------------------------------------------------------------
 sub topic_directive {
 	my $self  = shift;
-	my $block = shift;
 	my $title = shift;
 	my $opt   = shift;
+	my $block = shift;
 	my $type  = shift;
 
 	$self->backslash_escape($title);
@@ -560,9 +593,9 @@ sub topic_directive {
 #------------------------------------------------------------------------------
 sub parsed_literal_directive {
 	my $self  = shift;
-	my $block = shift;
 	my $arg   = shift;
 	my $opt   = shift;
+	my $block = shift;
 
 	$self->backslash_escape(@$block);
 	$self->tag_escape(@$block);
@@ -580,9 +613,9 @@ sub parsed_literal_directive {
 #------------------------------------------------------------------------------
 sub code_directive {
 	my $self  = shift;
-	my $block = shift;
 	my $lang  = shift;
 	my $opt   = shift;
+	my $block = shift;
 
 	foreach (@$block) {
 		$self->tag_escape($_);
@@ -625,9 +658,9 @@ sub code_directive {
 #------------------------------------------------------------------------------
 sub math_directive {
 	my $self  = shift;
-	my $block = shift;
 	my $arg   = shift;
 	my $opt   = shift;
+	my $block = shift;
 
 	push(@$block, $arg);
 	foreach (@$block) {
@@ -661,6 +694,57 @@ sub math_directive {
 	return \@ary;
 }
 
+#------------------------------------------------------------------------------
+# 注釈 / rubric
+#------------------------------------------------------------------------------
+sub rubric_directive {
+	my $self  = shift;
+	my $arg   = shift;
+	my $opt   = shift;
+
+	my $at = $self->make_name_and_class_attr($opt, 'rubric');
+	return "<p$at>$arg</p>";
+}
+
+#------------------------------------------------------------------------------
+# epigraph, highlights, pull-quote
+#------------------------------------------------------------------------------
+sub quote_directive {
+	my $self  = shift;
+	my $arg   = shift;
+	my $opt   = shift;
+	my $block = shift;
+	my $type  = shift;
+
+	my $at = $self->make_name_and_class_attr($opt, $type);
+	my @ary;
+	push(@ary, "<blockquote$at>\x02");
+	$self->do_parse_block(\@ary, $block, 'nest');
+	push(@ary, "</blockquote>\x02", '');
+	return \@ary;
+}
+
+#------------------------------------------------------------------------------
+# compound, container
+#------------------------------------------------------------------------------
+sub div_directive {
+	my $self  = shift;
+	my $arg   = shift;
+	my $opt   = shift;
+	my $block = shift;
+	my $class = shift;
+
+	if ($arg ne '') {
+		$class .= ' ' . $self->normalize_class_string($arg);
+	}
+	my $at = $self->make_name_and_class_attr($opt, $class);
+	my @ary;
+	push(@ary, "<div$at>\x02");
+	$self->do_parse_block(\@ary, $block, 'nest');
+	push(@ary, "</div>\x02", '');
+	return \@ary;
+}
+
 #//////////////////////////////////////////////////////////////////////////////
 # ●for Substitution
 #//////////////////////////////////////////////////////////////////////////////
@@ -669,6 +753,8 @@ sub math_directive {
 #------------------------------------------------------------------------------
 sub replace_directive {
 	my $self  = shift;
+	my $arg   = shift;
+	my $opt   = shift;
 	my $block = shift;
 	return $block;
 }
@@ -678,7 +764,6 @@ sub replace_directive {
 #------------------------------------------------------------------------------
 sub unicode_directive {
 	my $self  = shift;
-	my $block = shift;
 	my $text  = shift;
 	my $opt   = shift;
 
@@ -702,7 +787,6 @@ sub unicode_directive {
 #------------------------------------------------------------------------------
 sub date_directive {
 	my $self  = shift;
-	my $block = shift;
 	my $arg   = shift;
 
 	require POSIX;
