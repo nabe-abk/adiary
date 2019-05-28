@@ -139,11 +139,6 @@ sub parse_directive {
 			return;
 		}
 		$block = $ary;
-	} else {
-		#foreach(@$block) {
-		#	$self->backslash_escape($_);
-		#	$self->tag_escape($_);
-		#}
 	}
 
 	#-----------------------------------------
@@ -280,6 +275,17 @@ sub load_directive {
 	#----------------------------------------------------------------------
 	# Tables
 	#----------------------------------------------------------------------
+	$Directive{table} = {
+		arg     => $ANY,
+		content => $REQUIRED,
+		parse   => 'table',
+		option  => $OPT_DEFAULT
+	};
+	$Directive{'csv-table'} = {
+		arg     => $ANY,
+		content => $REQUIRED,
+		option  => [ qw(widths header-rows stub-columns header file url encoding delim quote keepspace escape class name) ]
+	};
 
 	#----------------------------------------------------------------------
 	# Document Parts
@@ -360,7 +366,8 @@ sub image_directive {
 	my $opt   = shift;
 	my $block = shift;
 	$_file =~ s/ //g;
-	my $file = $self->{image_path} . $_file;
+	my $file = $self->check_and_load_file_path($_file);
+	if (!defined $file) { return; }
 
 	my $attr='';
 	my $class='';
@@ -413,7 +420,7 @@ sub image_directive {
 			$h = $h ne '' ? $h : $y;
 		}
 		if ($w eq '' || $h eq '') {
-			$self->ignore_option_error('scale');
+			$self->ignore_option_error($opt, 'scale');
 		} else {
 			$w = $w * $scale;
 			$h = $h * $scale;
@@ -473,7 +480,8 @@ sub figure_directive {
 	my $opt   = shift;
 	my $block = shift;
 	$_file =~ s/ //g;
-	my $file = $self->{image_path} . $_file;
+	my $file = $self->check_and_load_file_path($_file);
+	if (!defined $file) { return; }
 
 	my $attr='';
 	my $class='';
@@ -493,7 +501,7 @@ sub figure_directive {
 		if ($opt->{figwidth} =~ /^image$/i) {
 			my ($x,$y) = $self->get_image_size($file);
 			if ($x eq '') {
-				$self->ignore_option_error('figwidth');
+				$self->ignore_option_error($opt, 'figwidth');
 			} else {
 				$attr .= " style=\"width: ${x}px;\"";
 			}
@@ -507,7 +515,7 @@ sub figure_directive {
 	} elsif ($center) {
 		my ($x,$y) = $self->get_image_size($file);
 		if ($x eq '') {
-			$self->ignore_option_error('align');
+			$self->ignore_option_error($opt, 'align');
 		} else {
 			$attr .= " style=\"width: ${x}px;\"";
 		}
@@ -582,7 +590,7 @@ sub topic_directive {
 	my $at = $self->make_name_and_class_attr($opt, $type);
 	my @ary;
 	push(@ary, "<div$at>\x02");
-	push(@ary, "<p class=\"$type-title\">$title:</p>");
+	push(@ary, "<p class=\"$type-title\">$title</p>");
 	$self->do_parse_block(\@ary, $block, 'nest');
 	push(@ary, "</div>\x02", '');
 	return \@ary;
@@ -744,6 +752,32 @@ sub div_directive {
 	push(@ary, "</div>\x02", '');
 	return \@ary;
 }
+#//////////////////////////////////////////////////////////////////////////////
+# ●Table Elements
+#//////////////////////////////////////////////////////////////////////////////
+#------------------------------------------------------------------------------
+# table
+#------------------------------------------------------------------------------
+sub table_directive {
+	my $self  = shift;
+	my $title = shift;
+	my $opt   = shift;
+	my $block = shift;
+
+	if ($title eq '') { return $block; }
+	if ($block->[0] !~ /^<table/i) {
+		unshift(@$block, '!! Internal error on table directive !!');
+		return $block;
+	}
+
+	$self->backslash_escape($title);
+	$self->tag_escape($title);
+
+	my $x = shift(@$block);
+	unshift(@$block, "<caption>$title</caption>");
+	unshift(@$block, $x);
+	return $block;
+}
 
 #//////////////////////////////////////////////////////////////////////////////
 # ●for Substitution
@@ -845,6 +879,46 @@ sub normalize_class_string {
 	$class =~ s/[^\w\-\.\x80-\xff ]+/-/g;
 	$class =~ s/  +/ /g;
 	return $class;
+}
+
+#------------------------------------------------------------------------------
+# check file path
+#------------------------------------------------------------------------------
+sub check_and_load_file_path {
+	my $self = shift;
+	my $file = shift;
+	my $orig = $file;
+
+	if ($self->{file_secure}) {
+		$file =~ s!(^|/)\.+/!$1!g;
+		$file =~ s|/+|/|g;
+		$file =~ s|^/||;
+		$file =~ s|[\x00-\x1f]| |g;
+
+		if ($file =~ m|^([^/]+/)(.*)| && $1 eq $self->{file_secure}) {
+			$file = $self->{image_path} . $2;
+		} else {
+			$self->parse_error('"%s" directive file security error: %s', $self->{directive}, $orig);
+			return;
+		}
+	}
+	if ($self->{ROBJ}) {
+		$self->{ROBJ}->fs_encode(\$file);
+	}
+	my $_file = $self->get_filepath($file);
+	if (!-r $_file) {
+		$self->parse_error('"%s" directive file not found: %s', $self->{directive}, $orig);
+	}
+	return $file;
+}
+
+#------------------------------------------------------------------------------
+# get_filepath
+#------------------------------------------------------------------------------
+sub get_filepath {
+	my $self = shift;
+	my $file = shift;
+	return $self->{ROBJ} ? $self->{ROBJ}->get_filepath( $file ) : $file;
 }
 
 #------------------------------------------------------------------------------
