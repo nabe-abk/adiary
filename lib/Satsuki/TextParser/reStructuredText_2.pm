@@ -59,8 +59,9 @@ sub parse_directive {
 		while(@$block && $block->[0] ne ''
 		  && ($block->[0] !~ /^:((?:\\.|[^:\\])+):(?: +(.*)|$)/  || substr($1,0,1) eq ' ' ||  substr($1,-1) eq ' ')
 		) {
-			$arg .= ' ' . shift(@$block);
+			$arg = $self->join_line($arg, shift(@$block));
 		}
+		$arg =~ s/\n/ /g;
 		$arg =~ s/^ +//;
 		$arg =~ s/ +$//;
 		$arg =~ s/  +/ /g;
@@ -92,10 +93,31 @@ sub parse_directive {
 			$k =~ tr/A-Z/a-z/;
 			$self->backslash_process($k);
 
-			while(@$block && $block->[0] =~ /^ +(.*)/) {
-				shift(@$block);
-				$v .= ($v ne '' ? ' ' : '') . $1;
+			# multi line option
+			{
+				my @ary;
+				my $min;
+				while(@$block && $block->[0] =~ /^( +)/) {
+					push(@ary, shift(@$block));
+					my $l = length($1);
+					if (!defined $min || $l<$min) {
+						$min = $l;
+					}
+				}
+
+				if ($d->{keep_lf}->{$k}) {	# 改行を保持する
+					foreach(@ary) {
+						$_ = substr($_, $min);
+						$v = $self->join_line($v, $_);
+					}
+				} else {
+					foreach(@ary) {
+						$_ =~ s/^ +//;
+						$v = $self->join_line($v, $_, ' ');
+					}
+				}
 			}
+
 			if (! $d->{option}->{$k}) {
 				$self->parse_error('"%s" directive unknown option: %s', $type, $k);
 				return;
@@ -103,6 +125,9 @@ sub parse_directive {
 			if (exists($opt->{$k})) {
 				$self->parse_error('"%s" directive duplicate option: %s', $type, $k);
 				return;
+			}
+			if (! $d->{keep_lf}->{$k}) {
+				$v =~ s/\n/ /g;
 			}
 			$opt->{$k} = $v;
 		}
@@ -284,7 +309,8 @@ sub load_directive {
 	$Directive{'csv-table'} = {
 		arg     => $ANY,
 		content => $REQUIRED,
-		option  => [ qw(widths header-rows stub-columns header file url encoding delim quote keepspace escape class name) ]
+		option  => [ qw(widths header-rows stub-columns header file url encoding delim quote keepspace escape class name) ],
+		keep_lf => [ qw(header) ]
 	};
 
 	#----------------------------------------------------------------------
@@ -326,8 +352,12 @@ sub load_directive {
 	#======================================================================
 	foreach(keys(%Directive)) {
 		my $d = $Directive{$_};
-		if (ref($d->{option}) ne 'ARRAY') { next; }
-		$d->{option} = { map {$_ => 1} @{$d->{option}} };
+		if (ref($d->{option}) eq 'ARRAY') {
+			$d->{option} = { map {$_ => 1} @{$d->{option}} };
+		}
+		if (ref($d->{keep_lf}) eq 'ARRAY') {
+			$d->{keep_lf} = { map {$_ => 1} @{$d->{keep_lf}} };
+		}
 	}
 	#======================================================================
 	return $Directive{$type};
@@ -779,6 +809,251 @@ sub table_directive {
 	return $block;
 }
 
+#------------------------------------------------------------------------------
+# csv-table
+#------------------------------------------------------------------------------
+sub csv_table_directive {
+	my $self  = shift;
+	my $title = shift;
+	my $opt   = shift;
+	my $block = shift;
+
+	my $delim  = exists($opt->{delim}) ? $opt->{delim} : ',';
+	my $quote  = exists($opt->{quote}) ? $opt->{quote} : '"';
+	my $escape = $opt->{escape};
+	$self->decode_unicode_symbol($delim, $quote, $escape);
+
+	if (exists($opt->{delim})  && (length($delim)  != 1 || $delim eq $quote || $delim eq $escape)) {
+		return $self->invalid_option_error($opt, 'delim');
+	}
+	if (exists($opt->{quote})  && (length($quote)  != 1 || $quote eq $delim || $quote eq $escape)) {
+		return $self->invalid_option_error($opt, 'quote');
+	}
+	if (exists($opt->{escape}) && (length($escape) != 1 || $delim eq $escape || $quote eq $escape)) {
+		return $self->invalid_option_error($opt, 'escape');
+	}
+	if ($opt->{keepspace} ne '') {
+		return $self->invalid_option_error($opt, 'keepspace');
+	}
+	
+	if ($title ne '') {
+		$self->backslash_escape($title);
+		$self->tag_escape($title);
+	}
+
+	my $h_rows   = 0;
+	my $stub_cols= 0;
+	if (exists($opt->{'header-rows'})) {
+		$h_rows = $opt->{'header-rows'};
+		if ($h_rows !~ /^\d+$/) {
+			return $self->invalid_option_error($opt, 'header-rows');
+		}
+	}
+	if (exists($opt->{'stub-columns'})) {
+		$stub_cols = $opt->{'stub-columns'};
+		if ($stub_cols !~ /^\d+$/) {
+			return $self->invalid_option_error($opt, 'stub-columns');
+		}
+	}
+
+	my @widths;
+	if (exists($opt->{widths})) {
+		if ($opt->{widths} eq '') {
+			return $self->invalid_option_error($opt, 'widths');
+		}
+		@widths = split(/ *, */, $opt->{widths});
+		my $total  = 0;
+		foreach(@widths) {
+			if ($_ !~ /^\d+$/ || $_ == 0) {
+				return $self->invalid_option_error($opt, 'widths');
+			}
+			$total += $_;
+		}
+		foreach(@widths) {
+			$_ = int($_*100/$total + 0.5) . '%';
+		}
+	}
+
+	#------------------------------------------------------
+	# header
+	#------------------------------------------------------
+	my $header;
+	my $h_max_cols;
+	if ($opt->{header} ne '') {
+		my ($rows, $min_cols, $max_cols) = $self->parse_cvs_data([ split(/\n/, $opt->{header}) ], ',', '"', '', exists($opt->{keepspace}));
+		if (!$rows) { return; }
+		$header = $rows;
+		$h_max_cols = $max_cols;
+	}
+
+	#------------------------------------------------------
+	# parse cvs
+	#------------------------------------------------------
+	my ($rows, $min_cols, $max_cols) = $self->parse_cvs_data($block, $delim, $quote, $escape, exists($opt->{keepspace}), 'delim check');
+	if (!$rows) { return; }
+
+	if ($header && $max_cols < $h_max_cols) {
+		$max_cols = $h_max_cols;
+	}
+
+	#------------------------------------------------------
+	# check header-rows, stub-columns, widths
+	#------------------------------------------------------
+	if ($h_rows && $#$rows < $h_rows) {
+		return $self->invalid_option_error($opt, 'header-rows');
+	}
+	if ($stub_cols && $min_cols <= $stub_cols) {
+		return $self->invalid_option_error($opt, 'stub-columns');
+	}
+	if (@widths) {
+		if ($#widths+1 != $max_cols) {
+			return $self->invalid_option_error($opt, 'widths');
+		}
+	}
+
+	#------------------------------------------------------
+	# output table
+	#------------------------------------------------------
+	if ($header) {
+		unshift(@$rows, @$header);
+		$h_rows += $#$header + 1;
+	}
+
+	my $out = [];
+	push(@$out, "<table>\x02");
+	if ($title ne '') {
+		push(@$out, "<caption>$title</caption>");
+	}
+	if (@widths) {
+		push(@$out, "<colgroup>\x02");
+		foreach(@widths) {
+			push(@$out, "\t<col style=\"width: $_\">\x02");
+		}
+		push(@$out, "</colgroup>\x02");
+	}
+	push(@$out, $h_rows ? "<thead>\x02" :  "<tbody>\x02");
+	my $td = $h_rows ? 'th' : 'td';
+
+	foreach my $y (0..$#$rows) {
+		my $row = $rows->[$y];
+		if ($h_rows && $y==$h_rows) {
+			push(@$out, "</thead><tbody>");
+			$td = 'td';
+		}
+		push(@$out, "<tr>\x02");
+		foreach(0..($max_cols-1)) {
+			my $text = $row->[$_];
+			my $t = $_<$stub_cols ? 'th' : $td;
+			if ($text =~ /^[\n ]*$/) {
+				push(@$out, "<$t>&ensp;</$t>");
+				next;
+			}
+			$self->parse_nest_block_with_tag($out, [ split(/\n/, $text) ], "<$t>", "</$t>");
+		}
+		push(@$out, "</tr>\x02");
+	}
+	push(@$out, "</tbody>\x02");
+	push(@$out, "</table>\x02");
+	return $out;
+}
+
+sub parse_cvs_data {
+	my $self   = shift;
+	my $lines  = shift;
+	my $delim  = shift;
+	my $quote  = shift;
+	my $escape = shift;
+	my $keepspace = shift;
+	my $delim_chk = shift;
+
+	my @rows;
+	my $min_cols;
+	my $max_cols = -1;
+	while(@$lines) {
+		my $x = shift(@$lines);
+		my @a = split(//, $x);
+
+		my @cols;
+		my $col='';
+		my $last_c;
+		my $q;
+		while(@a || $q) {
+			if ($q && !@a) {
+				if (!@$lines) { last; }
+				my $y = "\n" . shift(@$lines);
+				@a = split(//, $y);
+				$x .= $y;
+			}
+			my $c = shift(@a);
+			$last_c = $c;
+			if ($q) {
+				# in quote
+				if ($c eq $escape) {
+					$col .= shift(@a);
+					next;
+				}
+				if ($c ne $quote) {
+					$col .= $c;
+					next;
+				}
+				if ($a[0] eq $quote) {	# "xxx""yyy" --> xxx"yyy
+					$col .= $quote;
+					shift(@a);
+					next;
+				}
+				# Quote end
+				$q=0;
+				if ($delim_chk && @a && $a[0] ne $delim) {
+					$self->parse_error('"%s" directive error in CSV data \'%s\' expected after \'%s\': %s', $self->{directive}, $delim, $quote, $x);
+					return;
+				}
+				next;
+			} elsif ($c eq $delim) {
+				push(@cols, $col);
+				$col='';
+				if (!$keepspace) {
+					while(@a && $a[0] eq ' ') {
+						shift(@a);
+					}
+				}
+				next;
+
+			} elsif ($c eq $escape) {
+				$col .= shift(@a);
+				next;
+
+			} elsif ($col ne '') {
+				# in column
+				$col .= $c;
+				next;
+			}
+
+			# not in column
+			if ($c eq ' ') { next; }
+			if ($c eq $quote) {
+				$q = 1;
+				next;
+			}
+			$col .= $c;
+		}
+		if ($q) {	# in quote
+			$self->parse_error('"%s" directive error in CSV data, unexpected end of data quoted: %s', $self->{directive}, $x);
+			return;
+		}
+		if ($col ne '' || $last_c eq $delim) {
+			push(@cols, $col);
+		}
+		push(@rows, \@cols);
+		if ($max_cols <= $#cols) {
+			$max_cols = $#cols+1;
+		}
+		if (!defined $min_cols || $#cols <= $min_cols) {
+			$min_cols = $#cols+1;
+		}
+	}
+	return (\@rows, $min_cols, $max_cols);
+}
+
 #//////////////////////////////////////////////////////////////////////////////
 # ●for Substitution
 #//////////////////////////////////////////////////////////////////////////////
@@ -895,7 +1170,7 @@ sub check_and_load_file_path {
 		$file =~ s|^/||;
 		$file =~ s|[\x00-\x1f]| |g;
 
-		if ($file =~ m|^([^/]+/)(.*)| && $1 eq $self->{file_secure}) {
+		if ($file =~ m|^([^/]*/)(.*)| && $1 eq $self->{file_secure}) {
 			$file = $self->{image_path} . $2;
 		} else {
 			$self->parse_error('"%s" directive file security error: %s', $self->{directive}, $orig);
@@ -919,6 +1194,18 @@ sub get_filepath {
 	my $self = shift;
 	my $file = shift;
 	return $self->{ROBJ} ? $self->{ROBJ}->get_filepath( $file ) : $file;
+}
+
+#------------------------------------------------------------------------------
+# decode unicode symbol
+#------------------------------------------------------------------------------
+sub decode_unicode_symbol {
+	my $self  = shift;
+	foreach(@_) {
+		if ($_ !~ /^(?:0x|x|\\x|U\+|u|\\u|&#x)([A-Fa-f0-9]+)|(\d+)$/) { next; }
+		my $d = $2 ne '' ? $2 : hex($1);
+		$_ = chr($d);
+	}
 }
 
 #------------------------------------------------------------------------------
@@ -946,6 +1233,5 @@ sub ignore_option_error {
 	$self->parse_error('"%s" directive ignore "%s" option: %s', $self->{directive}, $name, $v);
 	return;
 }
-
 
 1;

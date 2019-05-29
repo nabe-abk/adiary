@@ -1566,10 +1566,12 @@ sub join_line {
 	my $self = shift;
 	my $x    = shift;
 	my $y    = shift;
-	if (! $self->{lf_patch}) { return "$x\n$y"; }
+	my $z    = shift || "\n";
+	if ($x eq '') { return $y; }
+	if (! $self->{lf_patch}) { return "$x$z$y"; }
 
 	# 日本語文章中に改行が含まれるとスペースになり汚いため改行を除去する。
-	my $sp = 0x7f<ord(substr($x,-1)) &&  0x7f<ord($y) ? '' : "\n";
+	my $sp = 0x7f<ord(substr($x,-1)) &&  0x7f<ord($y) ? '' : $z;
 	return "$x$sp$y";
 }
 
