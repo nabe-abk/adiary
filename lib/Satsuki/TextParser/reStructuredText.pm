@@ -542,7 +542,7 @@ sub do_parse_block {
 		#--------------------------------------------------------------
 		# 特殊ブロック判定
 		#--------------------------------------------------------------
-		my ($btype, $bopt) = !@p_block && $self->test_block($nest, $x, $y, 'first');
+		my ($btype, $bopt) = !@p_block && $self->test_block($nest, $x, $lines, 0, 'first');
 		if ($btype) {
 			push(@blocks, $btype eq 'enum' ? 'list' : $btype);
 		}
@@ -556,7 +556,7 @@ sub do_parse_block {
 
 			push(@$out, "<ul>\x02");
 			while(@$lines) {
-				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1]);
+				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines, 1);
 				if ($type ne 'list' || $opt->{mark} ne $mark) { last; }
 				shift(@$lines);
 
@@ -584,7 +584,7 @@ sub do_parse_block {
 				push(@$out, "<ol class=\"$bopt->{numtype}\"$start>\x02");
 			}
 			while(@$lines) {
-				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1], $mode);
+				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines, 1, $mode);
 				if ($type ne 'enum' || $opt->{subtype} ne $subtype
 				 || $opt->{numtype} ne 'auto' && ($opt->{numtype} ne $numtype || $opt->{num} != $num)
 				) {
@@ -610,7 +610,7 @@ sub do_parse_block {
 
 			my @fields;
 			while(@$lines) {
-				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1]);
+				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines, 1);
 				if ($type ne 'field') { last; }
 				shift(@$lines);
 
@@ -647,7 +647,7 @@ sub do_parse_block {
 
 			my $mode = 'option';
 			while(@$lines) {
-				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1], $mode);
+				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines, 1, $mode);
 				if ($type ne 'option') {
 					if ($mode eq 'option') {	# ブランク行なしでオプションリストが終わっている
 						$self->parse_error('Option list ends without a blank line: %s', $lines->[0]);
@@ -679,7 +679,7 @@ sub do_parse_block {
 			unshift(@$lines, $x);
 			push(@$out, "<dl>\x02");
 			while(@$lines) {
-				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines->[1]);
+				my ($type, $opt) = $self->test_block($nest, $lines->[0], $lines, 1);
 				if ($type ne 'definition') { last; }
 
 				my $dt = shift(@$lines);
@@ -1302,8 +1302,10 @@ sub test_block {
 	my $self = shift;
 	my $nest = shift;
 	my $x    = shift;
-	my $y    = shift;
+	my $lines= shift;
+	my $l_num= shift;
 	my $mode = shift;
+	my $y = $lines->[$l_num];
 
 	# 箇条書きリスト
 	if ($x =~ /^(([\*\+\-•‣⁃])( +|$))/) {
@@ -1363,7 +1365,14 @@ sub test_block {
 			}
 			$err=1;
 			last;
-		} 
+		}
+		if ($v eq '' && !$err) {
+			foreach($l_num..$#$lines) {
+				if ($lines->[$_] eq '') { next; }
+				$err = ($lines->[$_] !~ /^ /);
+				last;
+			}
+		}
 		if (!$err) {
 			return ('option', {
 				option=> $option,
