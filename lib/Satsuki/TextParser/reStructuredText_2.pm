@@ -892,6 +892,8 @@ sub csv_table_directive {
 	my ($rows, $min_cols, $max_cols) = $self->parse_cvs_data($block, $delim, $quote, $escape, exists($opt->{keepspace}), 'delim check');
 	if (!$rows) { return; }
 
+	# stub-columns の $min_cols は body のみ判定
+	# widths の $max_cols は header を含めて判定
 	if ($header && $max_cols < $h_max_cols) {
 		$max_cols = $h_max_cols;
 	}
