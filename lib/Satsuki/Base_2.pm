@@ -1262,12 +1262,6 @@ sub redirect {
 	$status_msg ||= "302 Moved Temporarily";	# GETへメソッド変更なし
 
 	$uri =~ s/[\x00-\x1f]//g;		# 不正文字除去
-
-	# 相対パスの場合絶対URIに書き換え
-	if (! $self->{Redirect_use_relative_url} && $uri !~ m!^(?:\w+://|//)!) {
-		if (substr($uri,0,1) ne '/') { $uri = $self->{Basepath} . $uri; }
-		$uri = $self->{Server_url} . $uri;
-	}
 	if ($self->{No_redirect}) { $status_msg='200 OK'; }
 
 	my $status = ($status_msg =~ /^(\d+)/) ? $1 : 302 ;

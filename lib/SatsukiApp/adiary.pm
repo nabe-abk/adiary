@@ -138,7 +138,7 @@ sub main {
 	$self->authorization();
 
 	# Server_urlのセキィリティを確保
-	$self->security_check();
+	$self->secure_http_host();
 
 	# pinfoとブログの選択。テーマ選択
 	my $blogid = $self->blogid_and_pinfo();
@@ -212,7 +212,7 @@ sub authorization {
 #------------------------------------------------------------------------------
 # ●HTTP_HOST インジェクション対策
 #------------------------------------------------------------------------------
-sub security_check {
+sub secure_http_host {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 
