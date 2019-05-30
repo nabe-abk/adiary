@@ -18,19 +18,17 @@ use Socket;
 sub new {
 	my $self = bless({}, shift);
 	my $ROBJ = shift;
+	$self->{ROBJ} = $ROBJ;
 
-	$self->{ROBJ}    = $ROBJ;
-	$self->{cookie}  = {};	# 空の hash
-	$self->{timeout} = 30;
-	$self->{auto_redirect} = 1;	# リダイレクト処理を１回だけ追う
-	if (defined $ROBJ) {
-		$self->{http_agent} = "Satsuki-system $ROBJ->{VERSION} ";
-	}
-	$self->{http_agent} = "Simple HTTP agent $VERSION";
+	$self->{cookie}     = {};
 	$self->{use_cookie} = 0;
+	$self->{timeout}    = 30;
+	$self->{redirect}   = 5;	# リダイレクト処理を行う回数
+	$self->{use_sni}    = 1;	# use SNI
 
-	$self->{sni}      = 1;		# use SNI
-	$self->{log_file} = '';		# (DEBUG) output send/response log
+	$self->{http_agent} = "Simple HTTP agent $VERSION";
+	# $self->{log_file} = 'http.log';	# (DEBUG) connection log
+
 	return $self;
 }
 
@@ -117,6 +115,7 @@ sub send_http_request {
 		close($sock);
 	}
 	$self->save_log(\@response);
+	$self->save_log_spliter();
 	if (! @response) {
 		if (!$r || $timeout) {
 			return $self->error($sock, "Connection timeout '%s' (timeout %d sec)", $host, $self->{timeout});
@@ -165,7 +164,7 @@ sub send_https_request {
 	my $ssl = Net::SSLeay::new($ctx);
 	goto cleanup if $errs = Net::SSLeay::print_errs('SSL_new') or !$ssl;
 
-	if ($self->{sni} && 1.45<$Net::SSLeay::VERSION) {
+	if ($self->{use_sni} && 1.45<$Net::SSLeay::VERSION) {
 		Net::SSLeay::set_tlsext_host_name($ssl, $host);
 	}
 
@@ -180,6 +179,7 @@ sub send_https_request {
 
 	($written, $errs) = Net::SSLeay::ssl_write_all($ssl, join('', @_));
 	goto cleanup unless $written;
+	$self->save_log(\@_);
 
 	($data, $errs) = Net::SSLeay::ssl_read_all($ssl);
 
@@ -203,6 +203,8 @@ cleanup2:
 		push(@response, $data)
 	}
 	#----------------------------------------------------------------------
+	$self->save_log(\@response);
+	$self->save_log_spliter();
 	if (! @response) {
 		return $self->error($sock, "SSL connection error by '%s'", $host);
 	}
@@ -246,12 +248,12 @@ sub request {
 	my $self = shift;
 	my $method = shift;
 	my $url = shift;
-	$self->{redirects} = 0;
+	$self->{redirect_cnt} = 0;
 	while (1) {
 		my $r = $self->do_request($method, $url, @_);
 		# 正常終了
 		my $status = $self->{status};
-		if (!$self->{location} || $status<301 || 303<$status || (++$self->{redirects}) > $self->{auto_redirect}) {
+		if (!$self->{location} || $status<301 || 303<$status || (++$self->{redirect_cnt}) > $self->{redirect}) {
 			return wantarray ? ($status, $self->{header}, $r) : $r;
 		}
 		# Redirect
@@ -416,7 +418,11 @@ sub save_log {
 	my $self = shift;
 	my $file = $self->{log_file};
 	if (!$file) { return; }
-	$self->{ROBJ}->fappend_lines($file, \@_);
+	$self->{ROBJ}->fappend_lines($file, @_);
+}
+sub save_log_spliter {
+	my $self = shift;
+	$self->save_log([ "\n" . ('-' x 80) . "\n" ]);
 }
 
 ###############################################################################
