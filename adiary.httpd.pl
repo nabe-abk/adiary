@@ -84,9 +84,10 @@ my %MIME_TYPE = (
 	png  => 'image/png',
 	jpg  => 'image/jpeg',
 	jpeg => 'image/jpeg',
+	gif  => 'image/gif',
 	ico  => 'image/vnd.microsoft.icon'
 );
-my $DENY_EXTS_Reg = qr/\.(?:cgi|pl|pm)(?:$|\.)/;	# deny extensions regexp
+my $DENY_EXTS_Reg = qr/\.(?:cgi|pl|pm)(?:$|\.)/i;	# deny extensions regexp
 
 #------------------------------------------------------------------------------
 # for RFC date
@@ -700,8 +701,12 @@ sub try_file_read {
 	my $lastmod = &rfc_date( $st[9] );
 	my $header  = "Last-Modified: $lastmod\r\n";
 	$header .= "Content-Length: $size\r\n";
-	if ($file =~ /\.([\w\-]+)$/ && $MIME_TYPE{$1}) {
-		$header .= "Content-Type: $MIME_TYPE{$1}\r\n";
+	if ($file =~ /\.([\w\-]+)$/) {
+		my $ext = $1;
+		$ext =~ tr/A-Z/a-z/;
+		if ($MIME_TYPE{$ext}) {
+			$header .= "Content-Type: $MIME_TYPE{$ext}\r\n";
+		}
 	}
 	if ($state->{if_modified} && $state->{if_modified} eq $lastmod) {
 		return &_304_not_modified($state, $header);
