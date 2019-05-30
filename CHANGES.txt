@@ -1,5 +1,9 @@
 [UTF-8][Japanese]
 
+*Ver3.24 : 2019/05/30
+
+-【fix】トップページの2ページ目で「前のページ」のリンクが正しくない。（[https://adiary.adiary.jp/0409#com:Thanks to sabazo]）
+
 *Ver3.23 : 2019/03/12
 
 -Pocketのシェア数が取得できなくなっていたので取得機能を削除しました。((query.yahooapis.com が突然サービス終了したため))
