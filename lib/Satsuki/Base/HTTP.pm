@@ -30,7 +30,7 @@ sub new {
 	$self->{use_cookie} = 0;
 
 	$self->{sni}      = 1;		# use SNI
-	$self->{log_file} = 'xxx.log';	# (DEBUG) output send/response log
+	$self->{log_file} = '';		# (DEBUG) output send/response log
 	return $self;
 }
 
