@@ -1348,7 +1348,7 @@ sub import_img {
 
 		if ($rewrite) {
 			$msg .= "  Rewrite : $rewrite urls\n";
-			$self->rebuild_blog({ logs => $log });
+			$self->rebuild_blog({ logs => [ $log ] });
 		}
 	}
 
