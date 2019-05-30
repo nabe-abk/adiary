@@ -7,10 +7,10 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = 3.23;
-our $OUTVERSION = '3.24';
+our $VERSION = 3.30;
+our $OUTVERSION = '3.30';
 our $SUBVERSION = 'beta';	# ex) beta, dev
-our $DATA_VERSION = 3.23;
+our $DATA_VERSION = 3.24;
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
@@ -138,7 +138,7 @@ sub main {
 	$self->authorization();
 
 	# Server_urlのセキィリティを確保
-	$self->security_check();
+	$self->secure_http_host();
 
 	# pinfoとブログの選択。テーマ選択
 	my $blogid = $self->blogid_and_pinfo();
@@ -212,7 +212,7 @@ sub authorization {
 #------------------------------------------------------------------------------
 # ●HTTP_HOST インジェクション対策
 #------------------------------------------------------------------------------
-sub security_check {
+sub secure_http_host {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 

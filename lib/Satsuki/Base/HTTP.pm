@@ -1,12 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # HTTPモジュール
-#						(C)2006-2018 nabe / nabe@abk
+#						(C)2006-2019 nabe / nabe@abk
 #------------------------------------------------------------------------------
 # 簡易実装の HTTP モジュールです。
 #
 package Satsuki::Base::HTTP;
-our $VERSION = '1.33';
+our $VERSION = '1.40';
 #------------------------------------------------------------------------------
 use Socket;
 ###############################################################################
@@ -18,16 +18,17 @@ use Socket;
 sub new {
 	my $self = bless({}, shift);
 	my $ROBJ = shift;
+	$self->{ROBJ} = $ROBJ;
 
-	$self->{ROBJ}    = $ROBJ;
-	$self->{cookie}  = {};	# 空の hash
-	$self->{timeout} = 30;
-	$self->{auto_redirect} = 1;	# リダイレクト処理を１回だけ追う
-	if (defined $ROBJ) {
-		$self->{http_agent} = "Satsuki-system $ROBJ->{VERSION} ";
-	}
-	$self->{http_agent} = "Simple HTTP agent $VERSION";
+	$self->{cookie}     = {};
 	$self->{use_cookie} = 0;
+	$self->{timeout}    = 30;
+	$self->{redirect}   = 5;	# リダイレクト処理を行う回数
+	$self->{use_sni}    = 1;	# use SNI
+
+	$self->{http_agent} = "Simple HTTP agent $VERSION";
+	# $self->{log_file} = 'http.log';	# (DEBUG) connection log
+
 	return $self;
 }
 
@@ -39,14 +40,23 @@ sub new {
 #------------------------------------------------------------------------------
 sub get_data {
 	my $self = shift;
+	return $self->do_get_data('send_http_request',  @_);
+}
+sub get_data_ssl {
+	my $self = shift;
+	return $self->do_get_data('send_https_request', @_);
+}
+sub do_get_data {
+	my $self = shift;
+	my $func = shift;
 	my $host = shift;
 	my $port = shift;
 
-	my $socket = $self->connect_host($host, $port);
-	if (!defined $socket) { return ; }
-	my $res = $self->send_http_request($socket, $host, @_);
+	my $sock = $self->connect_host($host, $port);
+	if (!defined $sock) { return ; }
+	my $res = $self->$func($sock, $host, @_);
 	if (!defined $res) { return ; }
-	close($socket);
+	close($sock);
 
 	return $res;
 }
@@ -82,35 +92,35 @@ sub connect_host {
 # ●GET, POST, HEAD などを送り、データを受信する
 #------------------------------------------------------------------------------
 sub send_http_request {
-	my $self   = shift;
-	my $socket = shift;
-	my $host   = shift;
-	my $ROBJ   = $self->{ROBJ};
+	my $self = shift;
+	my $sock = shift;
+	my $host = shift;
 	{
 		my $request = join('', @_);
-		syswrite($socket, $request, length($request));
-		$self->{debug_file} && $ROBJ->fappend_lines($self->{debug_file}, $request);
+		syswrite($sock, $request, length($request));
+		$self->save_log(\@_);
 	}
 	my @response;
 	my $vec_in = '';
-	vec($vec_in, fileno($socket), 1) = 1;
+	vec($vec_in, fileno($sock), 1) = 1;
 	my ($r, $timeout);
 	{
-		local $SIG{ALRM} = sub { close($socket); $timeout=1; };
+		local $SIG{ALRM} = sub { close($sock); $timeout=1; };
 		alarm( $self->{timeout} );
 		$r = select($vec_in, undef, undef, $self->{timeout});
-		if (vec($vec_in, fileno($socket), 1) ) {
-			@response = <$socket>;
+		if (vec($vec_in, fileno($sock), 1) ) {
+			@response = <$sock>;
 		}
 		alarm(0);
-		close($socket);
+		close($sock);
 	}
-	$self->{debug_file} && $ROBJ->fappend_lines($self->{debug_file}, \@response);
+	$self->save_log(\@response);
+	$self->save_log_spliter();
 	if (! @response) {
 		if (!$r || $timeout) {
-			return $self->error($socket, "Connection timeout '%s' (timeout %d sec)", $host, $self->{timeout});
+			return $self->error($sock, "Connection timeout '%s' (timeout %d sec)", $host, $self->{timeout});
 		}
-		return $self->error($socket, "Connection closed by '%s'", $host);
+		return $self->error($sock, "Connection closed by '%s'", $host);
 	}
 
 	$self->parse_status_line($response[0], $host);
@@ -130,7 +140,78 @@ sub parse_status_line {
 	}
 }
 
+#------------------------------------------------------------------------------
+# ●https 
+#------------------------------------------------------------------------------
+sub send_https_request {
+	my $self = shift;
+	my $sock = shift;
+	my $host = shift;
 
+	eval { require Net::SSLeay; };
+	if ($@) {
+		return $self->error(undef, "Net::SSLeay module not found (please install this server)");
+	}
+	#----------------------------------------------------------------------
+	my ($data, $errs, $written);
+
+	my $ctx = Net::SSLeay::new_x_ctx();
+	goto cleanup2 if $errs = Net::SSLeay::print_errs('CTX_new') or !$ctx;
+
+	Net::SSLeay::CTX_set_options($ctx, &Net::SSLeay::OP_ALL);
+	goto cleanup2 if $errs = Net::SSLeay::print_errs('CTX_set_options');
+
+	my $ssl = Net::SSLeay::new($ctx);
+	goto cleanup if $errs = Net::SSLeay::print_errs('SSL_new') or !$ssl;
+
+	if ($self->{use_sni} && 1.45<$Net::SSLeay::VERSION) {
+		Net::SSLeay::set_tlsext_host_name($ssl, $host);
+	}
+
+	Net::SSLeay::set_fd($ssl, fileno($sock));
+	goto cleanup if $errs = Net::SSLeay::print_errs('set_fd');
+
+	Net::SSLeay::connect($ssl);
+	goto cleanup if $errs = Net::SSLeay::print_errs('SSL_connect');
+
+	my $server_cert = Net::SSLeay::get_peer_certificate($ssl);
+	Net::SSLeay::print_errs('get_peer_certificate');
+
+	($written, $errs) = Net::SSLeay::ssl_write_all($ssl, join('', @_));
+	goto cleanup unless $written;
+	$self->save_log(\@_);
+
+	($data, $errs) = Net::SSLeay::ssl_read_all($ssl);
+
+cleanup:
+	Net::SSLeay::free($ssl);
+
+cleanup2:
+	Net::SSLeay::CTX_free($ctx);
+	close($sock);
+
+	#----------------------------------------------------------------------
+	# parse
+	#----------------------------------------------------------------------
+	my @response;
+	while($data =~ /([^\n]*\n)(.*)/s) {
+		push(@response, $1);
+		$data = $2;
+		if ($1 eq "\n") { last; }
+	}
+	if ($data ne '') {
+		push(@response, $data)
+	}
+	#----------------------------------------------------------------------
+	$self->save_log(\@response);
+	$self->save_log_spliter();
+	if (! @response) {
+		return $self->error($sock, "SSL connection error by '%s'", $host);
+	}
+
+	$self->parse_status_line($response[0], $host);
+	return \@response;
+}
 
 ###############################################################################
 # ■上位サービスルーチン
@@ -167,12 +248,12 @@ sub request {
 	my $self = shift;
 	my $method = shift;
 	my $url = shift;
-	$self->{redirects} = 0;
+	$self->{redirect_cnt} = 0;
 	while (1) {
 		my $r = $self->do_request($method, $url, @_);
 		# 正常終了
 		my $status = $self->{status};
-		if (!$self->{location} || $status<301 || 303<$status || (++$self->{redirects}) > $self->{auto_redirect}) {
+		if (!$self->{location} || $status<301 || 303<$status || (++$self->{redirect_cnt}) > $self->{redirect}) {
 			return wantarray ? ($status, $self->{header}, $r) : $r;
 		}
 		# Redirect
@@ -265,32 +346,11 @@ sub do_request {
 	# $self->{ROBJ}->debug($header);
 	# $self->{ROBJ}->debug($content);
 	my $res;
-	if ($https) {
-		eval { require Net::SSLeay; };
-		if ($@) {
-			return $self->error(undef, "Net::SSLeay module not found (please install this server)");
-		}
-		my ($page, $result, @headers);
-		if ($method eq 'POST') {
-			($page, $result, @headers) = Net::SSLeay::post_https($host, $port, $path, $header, $content);
-		} else {
-			($page, $result, @headers) = Net::SSLeay::get_https ($host, $port, $path, $header);
-		}
-
-		$self->parse_status_line($result, $host);
-
-		$res = [ $result ];
-		while(@headers) {
-			my $name = shift(@headers);
-			my $val  = shift(@headers);
-			push(@$res, "$name: $val");
-		}
-		push(@$res, '');
-		push(@$res, $page);
-	} else {
+	{
+		my $func = $https ? 'get_data_ssl' : 'get_data';
 		# Only HTTP/1.0, because chunked not support.
 		my $request = "$method $path HTTP/1.0\r\n$header\r\nConnection: close\r\n$content";
-		$res = $self->get_data($host, $port, $request);
+		$res = $self->$func($host, $port, $request);
 		if (ref($res) ne 'ARRAY') { return $res; }	# fail to return
 	}
 
@@ -349,6 +409,20 @@ sub set_timeout {
 sub set_agent {
 	my $self = shift;
 	$self->{http_agent} = shift || "Simple HTTP agent $VERSION";
+}
+
+#------------------------------------------------------------------------------
+# ●USER-AGENTの設定
+#------------------------------------------------------------------------------
+sub save_log {
+	my $self = shift;
+	my $file = $self->{log_file};
+	if (!$file) { return; }
+	$self->{ROBJ}->fappend_lines($file, @_);
+}
+sub save_log_spliter {
+	my $self = shift;
+	$self->save_log([ "\n" . ('-' x 80) . "\n" ]);
 }
 
 ###############################################################################

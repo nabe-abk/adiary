@@ -1,12 +1,20 @@
 [UTF-8][Japanese]
 
-*Ver3.24 : 2019/xx/xx
+*Ver3.30 : 2019/xx/xx
+
+-
+
+*Ver3.24 : 2019/05/31
 
 -RSSからのリンクhash（#rss-tm）を除去する際、リロードしないようにしました。
+-[https://bookmark.hatenastaff.com/entry/2019/05/28/141208:はてなブックマークの常時SSL化]に伴い、はてなブックマークへのリンクを https に変更。
+-RFC7231に準拠し、リダイレクトを相対パスで出力するよう変更。
 -アルバムにアップロード時の拡張子制約を緩和し、半角英数以外を含むものを許可しました。（[https://adiary.adiary.jp/0409#c1:Thanks to harata]）
 -【conf】{<$v.album_allow_ver_ext>}の設定を削除
-trust_mode時に、拡張子制限が外れるという誤った説明が残っていた。((危険すぎるため途中で制限が外れないよう仕様変更されたのですが、説明を変更するのを忘れていた。))
 -【アルバム】ファイル名に使えない文字の制限を緩和しました。
+-【Fix】トップページの2ページ目で「前のページ」のリンクが正しくない。（[https://adiary.adiary.jp/0409#com:Thanks to sabazo]）
+-【Fix】mixiの画像サーバ等、一部のサイトにSSL接続できない。((Net::SSLeayモジュールで、[w:Server_Name_Indication:SNI]が有効になっていないため。))
+-【Fix】ヘッダのみを応答するとき、「Content-Length: 0」を送れていなかった。
 -【Fix/httpd】mime.types をロードする際、コメントも処理していた。
 -【Fix/httpd】"file?query" 形式のとき、ファイルをロードできない。
 -【Fix/アルバム】ゴミ箱関連のファイル名の挙動がおかしい。

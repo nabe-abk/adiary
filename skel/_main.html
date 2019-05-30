@@ -50,6 +50,7 @@
 
 <@><!--========================================================================-->
 <$page = ret.page)>
+<$url  = v.myself>
 <@>
 <@ifexec(ret.mode eq 'search', begin.search)>
 <$no_robots=1>
@@ -225,7 +226,7 @@
 	<$ps = v.load_plgset('dea_art-info')>
 	<div class="art-info" data-module-name="dea_art-info" data-fix="1">
 		<@ifexec(ps.hatena_bicon, begin)>
-		<a class="http-bookmark" href="http://b.hatena.ne.jp/entry/<@url>"><img src="//b.st-hatena.com/entry/image/<@url>" alt="はてブ数"></a>
+		<a class="http-bookmark" href="https://b.hatena.ne.jp/entry/<@url>"><img src="//b.st-hatena.com/entry/image/<@url>" alt="はてブ数"></a>
 		<$end>
 		<$x = if(t.priority, ps.wiki_tm, ps.tmdate)>
 		<@ifexec(x==3,      begin)><span class="write-date"><@t.year>/<@t.mon>/<@t.day></span><$end>

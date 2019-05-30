@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.40';
+our $VERSION = '2.41';
 our $RELOAD;
 my %StatCache;
 #------------------------------------------------------------------------------
@@ -813,7 +813,7 @@ sub http_headers {
 	# Content-Type;
 	$ctype   ||= $self->{Content_type};
 	$charset ||= $self->{System_coding};
-	if ($clen) {
+	if ($clen ne '') {
 		$header .= "Content-Length: $clen\r\n";
 	}
 	$header .= <<HEADER;
