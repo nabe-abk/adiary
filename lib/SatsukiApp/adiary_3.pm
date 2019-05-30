@@ -851,11 +851,9 @@ sub album_check_ext_one {
 	my ($self, $ext) = @_;
 	$ext =~ tr/A-Z/a-z/;
 	if ($self->{album_image_ext}->{$ext} || $self->{album_allow_ext}->{$ext}) { return 1; }
-	if (!$self->{album_allow_ver_ext}) { return 0; }
 
-	# adiary-3.00-beta1.3.tbz のようなファイルを許可
-	# '#' は内部使用（ゴミ箱）
-	return ($ext =~ /[-#]/ || $ext =~ /^\d/);
+	# 特殊な文字を含むか、数字で始まる
+	return ($ext =~ /[^\w]/ || $ext =~ /^\d/);
 }
 
 #------------------------------------------------------------------------------
