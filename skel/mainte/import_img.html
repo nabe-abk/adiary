@@ -112,10 +112,12 @@ function import_img_rec(arts, i) {
 function import_img_start(arts) {
 	if (!arts[0]) {
 		log('Article not found');
+		import_img_stop();
 		return;
 	}
 	if (!(arts[0] instanceof Object)) {
 		log('Load Error : ', arts[0]);
+		import_img_stop();
 		return;
 	}
 	$('#action').val(act);

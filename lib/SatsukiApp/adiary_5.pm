@@ -1188,7 +1188,7 @@ sub import_img_init {
 	# 記事の取得
 	#-------------------------------------------------------------
 	$q{sort} = ['yyyymmdd', 'tm'];	# ソート
-	$q{cols} = ['yyyymmdd', 'tm', 'title', 'parser'];
+	$q{cols} = ['pkey', 'yyyymmdd', 'tm', 'title', 'parser'];
 
 	my $logs = $DB->select("${blogid}_art", \%q);
 
