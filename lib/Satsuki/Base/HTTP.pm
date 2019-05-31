@@ -51,6 +51,7 @@ sub do_get_data {
 	my $func = shift;
 	my $host = shift;
 	my $port = shift;
+	$self->{error} = undef;
 
 	my $sock = $self->connect_host($host, $port);
 	if (!defined $sock) { return ; }
@@ -206,7 +207,10 @@ cleanup2:
 	$self->save_log(\@response);
 	$self->save_log_spliter();
 	if (! @response) {
-		return $self->error($sock, "SSL connection error by '%s'", $host);
+		if ($self->{use_sni} && $errs =~ /sslv3 alert handshake failure/) {
+			return $self->error(undef, "Net::SSLeay Ver$Net::SSLeay::VERSION not support SNI connection");
+		}
+		return $self->error(undef, "Net::SSLeay Ver$Net::SSLeay::VERSION fail connection: '%s'", $host);
 	}
 
 	$self->parse_status_line($response[0], $host);
@@ -434,18 +438,18 @@ sub error_to_root {
 }
 
 sub error {
-	my $self   = shift;
-	my $socket = shift;
-	my $error  = shift;
-	my $ROBJ   = $self->{ROBJ};
-	if (defined $socket) { close($socket); }
+	my $self  = shift;
+	my $sock  = shift;
+	my $error = shift;
+	my $ROBJ  = $self->{ROBJ};
+	if (defined $sock) { close($sock); }
 	if (defined $ROBJ) {
 		if ($self->{error_to_root}) { return $ROBJ->error($error, @_); }
 		$error = $ROBJ->message_translate($error, @_);
 	} elsif (@_) {
 		$error = sprintf($error, @_);
 	}
-	$self->{error_msg} = $error;
+	$self->{error} = $error;
 	return undef;
 }
 

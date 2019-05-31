@@ -20,6 +20,12 @@
 		<li>ファイル当たりの最大容量: <@(v.uplaod_files_max>>20)>MB</li>
 	</ul>
 
+<@ifexec(! lib_check('Net::SSLeay'), begin, begin)>
+
+	<p class="error">※この機能を使用するには「Net::SSLeay」ライブラリが必要です（サーバ管理者にご確認ください）。</p>
+
+<$else>
+
 	<form action="<@v.myself>?<@v.skeleton>" method="POST" enctype="multipart/form-data" id="import-form">
 	<div id="form-common">
 	<input type="hidden" name="action" value="<@v.skeleton>_init" id="action">
@@ -48,10 +54,11 @@
 
 	<div id="progress"><span class="label"></span></div>
 
-	<textarea id="session-log" rows="14" class="w98p" readonly style="overflow-x: scroll; text-wrap: none;"></textarea>
+	<textarea id="session-log" rows="14" class="w98p" readonly style="overflow-x: scroll; white-space: pre;"></textarea>
 	<p class="ni">処理中：<span id="session-msg"></span></p>
 	</div>
 
+<$end>
 </div>
 </article>
 

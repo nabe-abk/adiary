@@ -1234,6 +1234,7 @@ sub import_img {
 	my $msg = '';
 	my $http = $ROBJ->loadpm("Base::HTTP");
 	my %rep;
+	my $error;
 	foreach my $e ($html->getAll) {
 		my $type = $e->type();
 		if ($type ne 'tag') { next; }
@@ -1256,10 +1257,12 @@ sub import_img {
 		if ($url_s && index($url_s, $blogimg_url) != 0) {
 			$img_s = $self->get_imgdata($http, $url_s);
 			$msg  .= '  Download ' . ($img_s ? 'success' : 'fail!  ') . ' : ' . $url_s . "\n";
+			if ($http->{error}) { $error = $http->{error}; }
 		}
 		if ($url_l && index($url_l, $blogimg_url) != 0) {
 			$img_l = $self->get_imgdata($http, $url_l);
 			$msg  .= '  Download ' . ($img_l ? 'success' : 'fail!  ') . ' : ' . $url_l . "\n";
+			if ($http->{error}) { $error = $http->{error}; }
 		}
 		if ($img_s && !$img_l) {
 			$url_l = $url_s;
@@ -1351,7 +1354,9 @@ sub import_img {
 			$self->rebuild_blog({ logs => [ $log ] });
 		}
 	}
-
+	if ($error) {
+		$msg .= "\n(ERROR) $error\n";
+	}
 	chomp($msg);
 	return (0,$msg);
 }
@@ -1363,7 +1368,7 @@ sub get_imgdata {
 	my $self = shift;
 	my $http = shift;
 	my ($st, $h, $res) = $http->get(@_);
-	if ($st>299) { return ; }
+	if (!$res || $st>299) { return ; }
 
 	return join('', @$res);
 }
