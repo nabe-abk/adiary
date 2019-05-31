@@ -14,9 +14,10 @@
 -【アルバム】ファイル名に使えない文字の制限を緩和しました。
 -【Fix】トップページの2ページ目で「前のページ」のリンクが正しくない。（[https://adiary.adiary.jp/0409#com:Thanks to sabazo]）
 -【Fix】mixiの画像サーバ等、一部のサイトにSSL接続できない。((Net::SSLeayモジュールで、[w:Server_Name_Indication:SNI]が有効になっていないため。))
--【Fix】ヘッダのみを応答するとき、「Content-Length: 0」を送れていなかった。
+-【Fix】body が 0byte の結果を応答するとき、「Content-Length: 0」を送れていなかった。
 -【Fix/httpd】mime.types をロードする際、コメントも処理していた。
 -【Fix/httpd】"file?query" 形式のとき、ファイルをロードできない。
+-【Fix/httpd】拡張子判定時、大文字小文字を区別してしまう。
 -【Fix/アルバム】ゴミ箱関連のファイル名の挙動がおかしい。
 -【Fix/アルバム】ファイル名に特殊文字を含む場合の挙動がおかしい時がある。
 -【Fix/Markdown】「|:---|:---|」のようなテーブルを認識できない。
