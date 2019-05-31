@@ -1,7 +1,7 @@
 use strict;
 #-------------------------------------------------------------------------------
 # テキストデータベース
-#						(C)2005-2017 nabe@abk
+#						(C)2005-2019 nabe@abk
 #-------------------------------------------------------------------------------
 # 旧名 : DB_pseudo
 #
@@ -13,7 +13,7 @@ package Satsuki::DB_text;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 
-our $VERSION = '1.22';
+our $VERSION = '1.23';
 our $FileNameFormat = "%05d";
 our %IndexCache;
 ###############################################################################
@@ -91,9 +91,10 @@ sub select {
 	#---------------------------------------------
 	# 選択カラムが正しいか？
 	#---------------------------------------------
-	if ($h->{cols}) {
-		$h->{cols} = ref($h->{cols}) ? $h->{cols} : [ $h->{cols} ];
-		if (my @ary = grep { !$exists_cols->{$_} } @{ $h->{cols} }) {
+	my $sel_cols = $h->{cols};
+	if ($sel_cols) {
+		$sel_cols = ref($sel_cols) ? $sel_cols : [ $sel_cols ];
+		if (my @ary = grep { !$exists_cols->{$_} } @$sel_cols) {
 			foreach(@ary) {
 				$self->error("Select column '$_' is not exists");
 			}
@@ -378,10 +379,22 @@ FUNCTION_TEXT
 	# コピー生成
 	#---------------------------------------------
 	# 各配列要素の hashref を破壊しないためコピー生成
-	foreach(@$db) {
-		my %h = %$_;
-		$_ = \%h;
-		delete $h{'*'};		# loaded flag
+	if ($sel_cols) {
+		my $func='sub { my $db = shift; foreach(@$db) {';
+		$func .= '$_ = {';
+		foreach(@$sel_cols) {
+			$func .= "$_=>\$_->{$_},"
+		}
+		chop($func);
+		$func .= '}}}';
+		$func = $self->eval_and_cache($func);
+		&$func($db);
+	} else {
+		foreach(@$db) {
+			my %h = %$_;
+			$_ = \%h;
+			delete $h{'*'};		# loaded flag
+		}
 	}
 
 	return wantarray ? ($db,$hits) : $db;
