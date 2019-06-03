@@ -96,10 +96,13 @@ sub send_http_request {
 	my $self = shift;
 	my $sock = shift;
 	my $host = shift;
+
+	$self->save_log_spliter();
+	$self->save_log(\@_);
+
 	{
 		my $request = join('', @_);
 		syswrite($sock, $request, length($request));
-		$self->save_log(\@_);
 	}
 	my @response;
 	my $vec_in = '';
@@ -149,6 +152,9 @@ sub send_https_request {
 	my $sock = shift;
 	my $host = shift;
 
+	$self->save_log_spliter();
+	$self->save_log(\@_);
+
 	eval { require Net::SSLeay; };
 	if ($@) {
 		return $self->error(undef, "Net::SSLeay module not found (please install this server)");
@@ -180,7 +186,6 @@ sub send_https_request {
 
 	($written, $errs) = Net::SSLeay::ssl_write_all($ssl, join('', @_));
 	goto cleanup unless $written;
-	$self->save_log(\@_);
 
 	($data, $errs) = Net::SSLeay::ssl_read_all($ssl);
 
@@ -205,7 +210,6 @@ cleanup2:
 	}
 	#----------------------------------------------------------------------
 	$self->save_log(\@response);
-	$self->save_log_spliter();
 	if (! @response) {
 		if ($self->{use_sni} && $errs =~ /sslv3 alert handshake failure/) {
 			return $self->error(undef, "Net::SSLeay Ver$Net::SSLeay::VERSION not support SNI connection");
@@ -422,11 +426,11 @@ sub save_log {
 	my $self = shift;
 	my $file = $self->{log_file};
 	if (!$file) { return; }
-	$self->{ROBJ}->fappend_lines($file, @_);
+	$self->{ROBJ}->fappend_lines($file, shift);
 }
 sub save_log_spliter {
 	my $self = shift;
-	$self->save_log([ "\n" . ('-' x 80) . "\n" ]);
+	$self->save_log("\n" . ('-' x 80) . "\n");
 }
 
 ###############################################################################
@@ -450,6 +454,7 @@ sub error {
 		$error = sprintf($error, @_);
 	}
 	$self->{error} = $error;
+	$self->save_log("\n[ERROR] $error\n");
 	return undef;
 }
 
