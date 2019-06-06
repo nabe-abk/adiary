@@ -364,10 +364,10 @@ FUNCTION_TEXT
 	}
 
 	#---------------------------------------------
-	# all data load?
+	# all data load? / index 外のカラムが必要?
 	#---------------------------------------------
 	if (!$load_all_data) {
-		my $cols = $h->{cols};	# index 外のカラムが必要
+		my $cols = $sel_cols;
 		if (!$cols) { $cols = [ keys(%$exists_cols) ]; }
 		if (grep { !$index_cols->{$_} } @$cols) {
 			foreach(@$db) {
