@@ -95,11 +95,17 @@ sub write_check {
 
 sub lib_check {
 	my ($self, $lib) = @_;
-	$lib =~ s|::|/|g;
-	eval { require "$lib.pm"; };
-	return !$@ ? 1 : 0;
+	my $pm = $lib;
+	$pm =~ tr|::|/|;
+	eval { require "$pm.pm"; };
+	if ($@) { return 0; }
+	my $ver;
+	{
+		no strict "refs";
+		$ver = ${$lib . '::VERSION'};
+	}
+	return $ver ? $ver : '?.??';
 }
-
 
 ###############################################################################
 # ■データダンプ

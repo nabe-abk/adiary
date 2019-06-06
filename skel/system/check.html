@@ -27,8 +27,8 @@ System-Coding : <@System_coding>
 <h3>ファイルシステムチェック</h3>
 
 <$fail = 0>
-<$ok = '<strong>OK</strong>'>
-<$ng = '<strong class="warning">NG</strong>'>
+<$ok = '<strong class="good">Good</strong>'>
+<$ng = '<strong class="warning">Failure</strong>'>
 <table class="mono">
 <thead>
 <tr>
@@ -55,13 +55,13 @@ System-Coding : <@System_coding>
 </tr>
 </thead><tbody>
 <tr>
-	<td>Image::Magick</td><td class="c"><@if(lib_check('Image::Magick'), ok, ng)></td>
+	<td>Image::Magick</td><td class="c"><@if(x = lib_check('Image::Magick'), #'<strong class="good">Ver<@x></strong>', ng)></td>
 	<td>存在すれば画像縮小可能</td>
 </tr><tr>
-	<td>Net::SSLeay</td><td class="c"><@if(lib_check('Net::SSLeay'), ok, ng)></td>
-	<td>Twitter通知, push通知などに使用</td>
+	<td>Net::SSLeay</td><td class="c"><@if(x = lib_check('Net::SSLeay'), #'<strong class="good">Ver<@x></strong>', ng)></td>
+	<td>外部サイトへのhttps通信に必要</td>
 </tr><tr>
-	<td>CryptX</td><td class="c"><@if(lib_check('Net::SSLeay'), ok, ng)></td>
+	<td>CryptX</td><td class="c"><@if(x = lib_check('CryptX'), #'<strong class="good">Ver<@x></strong>', ng)></td>
 	<td>push通知プラグインで使用</td>
 </tr>
 </table>
@@ -69,7 +69,7 @@ System-Coding : <@System_coding>
 
 <h3>環境変数（システム情報）</h3>
 
-<p>バグ報告などでご利用ください。サーバの状況がわかりませんと対応しきれないことがありますので、必要に応じてこの情報を示して頂けると助かります。</p>
+<p>バグ報告などでご利用ください。必要に応じて（提示を求められたら）この情報を示して頂けると助かります。</p>
 
 <textarea cols="74" rows="22" wrap="soft" readonly class="w100p" style="font-size:100%;">
 CGI_mode	<@CGI_mode>

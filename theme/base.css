@@ -618,6 +618,9 @@ div.messages div.notice {
 div.add-msg {
 	margin-top:	1em;
 }
+.good {
+	color:		blue;
+}
 
 /*--------------------------------------------------------------------
 ●検索とハイライトとタグ

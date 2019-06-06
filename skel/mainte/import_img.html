@@ -1,5 +1,5 @@
 <@6>
-<@local(s,err)>
+<@local(s,x,err)>
 <$err=FormError>
 
 <@> システムモード
@@ -20,7 +20,8 @@
 		<li>ファイル当たりの最大容量: <@(v.uplaod_files_max>>20)>MB</li>
 	</ul>
 
-<@ifexec(! lib_check('Net::SSLeay'), begin, begin)>
+<$x = lib_check('Net::SSLeay')>
+<@ifexec(!x, begin, begin)>
 
 	<p class="error">※この機能を使用するには「Net::SSLeay」ライブラリが必要です（サーバ管理者にご確認ください）。</p>
 
@@ -45,6 +46,11 @@
 		<li><label><input type="checkbox" name="media" value="1">動画等もコピーする（&lt;video&gt;/&lt;audio&gt;タグ）</label></li>
 	</ul>
 	</div>
+
+<@ifexec(x <= 1.45, begin)>
+	<p class="warning">※Net::SSLeayライブラリ Ver<@x> が古いため、mixi等、一部サイトへの接続に失敗する可能性があります。</p>
+<$end>
+
 	<button type="button" id="start">処理開始</button>
 	<button type="button" id="stop" style="display: none">処理中止</button>
 	</form>
