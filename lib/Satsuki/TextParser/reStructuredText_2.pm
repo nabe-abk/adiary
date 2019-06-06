@@ -135,6 +135,12 @@ sub parse_directive {
 			$self->parse_error('"%s" invalid option block: %s', $type, $block->[0]);
 			return;
 		}
+		if (exists($opt->{class})) {
+			my $c = $self->normalize_class_string( $opt->{class} );
+			if ($c eq '') {
+				return $self->invalid_option_error($opt, 'class');
+			}
+		}
 	}
 	$opt->{_subst} = ($subst ne '');
 
@@ -552,6 +558,9 @@ sub figure_directive {
 	}
 	if ($opt->{figclass} ne '') {
 		my $c = $self->normalize_class_string( $opt->{figclass} );
+		if ($c eq '') {
+			return $self->invalid_option_error($opt, 'figclass');
+		}
 		$class .= " $c";
 	}
 
@@ -679,8 +688,7 @@ sub code_directive {
 	# <pre class="syntax-highlight python"></pre>
 
 	if ($lang ne '') {
-		$self->normalize_class_string( $lang );
-		$class .= " $lang";
+		$class = $self->append_and_normalize_class_string( $class, $lang );
 	}
 
 	my $at = $self->make_name_and_class_attr($opt, $class);
@@ -773,7 +781,7 @@ sub div_directive {
 	my $class = shift;
 
 	if ($arg ne '') {
-		$class .= ' ' . $self->normalize_class_string($arg);
+		$class = $self->append_and_normalize_class_string( $class, $arg );
 	}
 	my $at = $self->make_name_and_class_attr($opt, $class);
 	my @ary;
@@ -1136,8 +1144,7 @@ sub make_name_and_class_attr {
 		}
 	}
 	if ($opt->{class} ne '') {
-		my $c = $self->normalize_class_string( $opt->{class} );
-		$class .= " $c";
+		$class = $self->append_and_normalize_class_string( $class, $opt->{class} );
 	}
 	if ($class ne '') {
 		$class =~ s/^ +//;
@@ -1149,12 +1156,24 @@ sub make_name_and_class_attr {
 #------------------------------------------------------------------------------
 # class name
 #------------------------------------------------------------------------------
+sub append_and_normalize_class_string {
+	my $self  = shift;
+	my $class = shift;
+	foreach(@_) {
+		my $c = $self->normalize_class_string( $_ );
+		if ($c eq '') { next; }
+		$class .= ($class eq '' ? '' : ' ') . $c;
+	}
+	return $class;
+}
+
 sub normalize_class_string {
 	my $self  = shift;
 	my $class = shift;
 	$class =~ tr/A-Z/a-z/;
-	$class =~ s/[^\w\-\.\x80-\xff ]+/-/g;
+	$class =~ s/[^a-z0-9 ]+/-/g;
 	$class =~ s/  +/ /g;
+	$class =~ s/(^| )[\-\d]+/$1/g;
 	return $class;
 }
 
