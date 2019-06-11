@@ -5,25 +5,27 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="author" content="nabe">
 <meta name="robots" content="noindex,nofollow">
-<script src="js/jquery-3.min.js"></script>
+<meta name="viewport" id="viewport" content="width=device-width">
+<script src="js/jquery-3.3.1.min.js"></script>
 <link rel="stylesheet" media="all" href="theme/base.css" id="base-css">
 <link rel="stylesheet" media="all" href="theme/satsuki2/satsuki2/satsuki2.css" id="theme">
+<link rel="stylesheet" media="screen and (max-device-width: 500px)" href="theme/satsuki2/satsuki2/sphone.css" id="theme">
 	<title>adiary簡易インストールヘルプ</title>
 </head>
-<body>
+<body id="body" class="system">
 <div id="adiary-body">
 <!--ヘッダ部================================================================-->
-<div class="page-title">
+<div id="page-title">
 <h1>adiary簡易インストールヘルプ</h1>
 </div>
 
 <div class="display-none">
-<p><strong style="color:red;">【重要】CSSが適用されていません</strong></p><p>この文字が表示されている場合、テーマファイル（theme/ 以下）が読み出せていない可能性があります。cgi-bin/ 以下などに adiary を設置した場合、直接ファイルが読み出せなくなるサーバがあるようです。<br><strong><a href="http://adiary.org/v3man/install/theme_not_read">→解決方法はこちら</a></strong></p>
+<p><strong style="color:red;">【重要】CSSが適用されていません</strong></p><p>この文字が表示されている場合、テーマファイル（theme/ 以下）が読み出せていない可能性があります。cgi-bin/ 以下などに adiary を設置した場合、直接ファイルが読み出せなくなる特殊なサーバがあるようです。<br><strong><a href="http://adiary.org/v3man/install/theme_not_read">→解決方法はこちら</a></strong></p>
 <br><br><br>
 </div>
 
 
-<div id="hatena-body">
+<div id="hatena-body"><div>
 <!--内容====================================================================-->
 <div class="main">
 
@@ -48,16 +50,15 @@
 
 	<ul>
 		<li>うまくいかない時は<a href="http://adiary.org/v3man/install/troubles">トラブル事例集</a>を参考にしてください。</li>
-		<li>このファイル不要ですので設定後に削除して構いません。</li>
+		<li>このファイル不要ですので設定後に削除しても構いません。</li>
 	</ul>
 	</section>
 
 	<section>
 	<h3>補足</h3>
 	<ul>
-		<li><a href="http://adiary.org/v3man/setting/mod_rewrite">mod_rewrite</a> を .htaccess に設定することで<strong class="warning">URL中の adiary.cgi の文字列を消すことができます。</strong></li>
-		<li>標準で特定のブログを表示させたい場合は<a href="adiary.cgi?system/">システム管理</a>から設定してください。</li>
-		<li>SpeedyCGI, FastCGI, mod_perl2などを利用すると、より高速に動作させることができます。</li>
+		<li><a href="http://adiary.org/v3man/setting/mod_rewrite">mod_rewrite</a> を .htaccess に設定することで<strong class="warning">URL中の adiary.cgi の文字列を消す</strong>ことができます。</li>
+		<li>FastCGI, mod_perl2などを利用すると、より高速に動作させることができます。</li>
 	</ul>
 	</ul>
 	</section>
@@ -73,7 +74,7 @@
 <div class="hatena-moduletitle">Information</div>
 <div class="hatena-modulebody">
 <ul class="hatena-section">
-<li class="description"><p>adiary Version3は<strong>HTML5準拠</strong>のblog/CMSです。</p></li>
+<li class="description"><p>adiaryはHTML5準拠のCMSです。</p></li>
 </ul>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->
@@ -119,7 +120,7 @@
 </aside> <!-- End of sidebar -->
 
 <!--End of body ============================================================-->
-</div> <!-- End of #hatena-body -->
+</div></div> <!-- End of #hatena-body -->
 <!--フッタ-->
 <footer id="footer">Valid HTML5/CSS</footer>
 </div> <!-- End of #adiary-body -->
@@ -127,6 +128,7 @@
 <!--スクリプト==============================================================-->
 <script>
 $(function() {
+	// security check
 	var result = $('#result');
 	var url = window.location.toString();
 	url = url.replace(/\/[^\/]+$/, '/');
@@ -135,16 +137,18 @@ $(function() {
 	$('#security-errors').empty();
 	$.get('__cache/index.html',function(){ security_error('__cache') });
 	$.get(   'data/index.html',function(){ security_error('data'   ) });
+
+	function security_error(dir) {
+		var err = $('#security-errors');
+		var div = $('<div>');
+		var st  = $('<strong>').addClass('error').text('【セキュリティ警告】');
+		var sp  = $('<span>').html('「<a href="' + dir + '/index.html">' + dir + '</a>」ディレクトリがweb上から読み込めます！（<a href="http://adiary.org/v3man/install/move_data_dir">対策方法</a>）');
+		div.append(st,sp);
+		err.append(div);
+		err.show();
+	}
+///////////////////////////////////////////////////////////////////////////////
 });
-function security_error(dir) {
-	var err = $('#security-errors');
-	var div = $('<div>');
-	var st  = $('<strong>').addClass('error').text('【セキュリティ警告】');
-	var sp  = $('<span>').html('「<a href="' + dir + '/index.html">' + dir + '</a>」ディレクトリがweb上から読み込めます！（<a href="http://adiary.org/v3man/install/move_data_dir">対策方法</a>）');
-	div.append(st,sp);
-	err.append(div);
-	err.show();
-}
 </script>
 </body>
 </html>

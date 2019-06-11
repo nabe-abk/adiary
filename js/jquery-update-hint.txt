@@ -1,0 +1,6 @@
+
+If you want to update jQuery, rewrite the following files:
+
+	skel/_frame.html
+	index.html
+

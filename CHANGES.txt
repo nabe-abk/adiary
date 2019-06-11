@@ -2,9 +2,11 @@
 
 *Ver3.30 : 2019/xx/xx
 
+-index.htmlをレスポンシブ対応にしました。
 -【Fix】PostgreSQL/MySQL運用時、外部画像取り込みが動作しない。
 -【Fix】画像取り込み時のエラーメッセージがちゃんと表示されない。
 -【Fix】システムチェック画面でCryptXの確認が正しくなかった。
+-【Fix】index.html内のscriptが動いてなかった。
 
 *Ver3.24 : 2019/05/31
 
