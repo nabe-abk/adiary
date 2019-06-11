@@ -257,7 +257,6 @@ function start_edit(){
 	$('#edit').find('form, button:not(.no-disable), input, select').prop('disabled', false);
 	$('#edit').find('textarea').prop('readonly', false);
 	if (!window.FormData) $('#edit').find('.js-fileup').prop('disabled', true);
-	init_helper();
 
 	// ページを離れるときにunlock
 	$(window).on('unload', function(){
@@ -812,6 +811,16 @@ parsel.change( function(){
 });
 parsel.change();	// call init_helper()
 
+//----------------------------------------------------------------------------
+// ●paste処理 / init_helper() 後に呼び出すこと
+//----------------------------------------------------------------------------
+{
+	var txt = $('#paste-txt');
+	if (txt.length && $('#editarea').val() == "") {
+		insert_image( txt.text(), $('#paste-caption').text(), $('#paste-class').text() );
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // ■記法ヘルパーの各機能
 //////////////////////////////////////////////////////////////////////////////
@@ -1054,14 +1063,5 @@ function esc_satsuki_tag_nested(str) {
 	return str;
 }
 
-//############################################################################
-// ■paste処理 / init_helper() 後に呼び出すこと
-//############################################################################
-(function() {
-	var txt = $('#paste-txt');
-	if (!txt || $('#editarea').val() != "") return;
-
-	insert_image( txt.text(), $('#paste-caption').text(),  $('#paste-class').text() );
-})();
 //############################################################################
 });
