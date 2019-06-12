@@ -17,10 +17,11 @@ use Encode ();
 #------------------------------------------------------------------------------
 sub new {
 	my $self = bless({}, shift);
-	$self->{ROBJ} = shift;
+	my $ROBJ = $self->{ROBJ} = shift;
 
 	$self->{section_hnum}   = 3;	# H3から使用する
 	$self->{tab_width}      = 8;	# タブの幅
+	$self->{system_coding}  = $ROBJ ? $ROBJ->{System_coding} : 'utf8';
 
 	$self->{ambiguous_full} = 0;	# Ambiguousな文字コードをfullwidthとして扱う
 	$self->{lf_patch}       = 1;	# 日本語のpタグ中の改行を消す
@@ -67,7 +68,9 @@ sub new {
 sub text_parser {
 	my $self = shift;
 	my $text = shift;
-	$text =~ s/[\x00-\x08]//g;		# 特殊文字削除
+
+	# 特殊文字削除, 変更時は reStructuredText_2.pm も修正すること
+	$text =~ s/[\x00-\x08]//g;
 
 	# 行に分解
 	my $lines = [ split(/\n/, $text) ];
@@ -100,6 +103,9 @@ sub text_parser {
 	#-------------------------------------------
 	# ○処理スタート
 	#-------------------------------------------
+	# [00] 前処理
+	$lines = $self->preprocess($lines);
+
 	# [01] ブロックのパース
 	$lines = $self->parse_block($lines);
 
@@ -116,9 +122,6 @@ sub text_parser {
 	my $short = '';
 	$self->post_process(\$all);
 
-
-
-
 	# 特殊文字の除去
 	$all   =~ s/[\x00-\x08]//g;
 	$short =~ s/[\x00-\x08]//g;
@@ -129,6 +132,23 @@ sub text_parser {
 # ■パーサー本体
 ###############################################################################
 ###############################################################################
+# ●[00] 初期処理
+###############################################################################
+sub preprocess {
+	my $self  = shift;
+	my $lines = shift;
+
+	my $tw = $self->{tab_width};
+	foreach(@$lines) {
+		$_ =~ s/\s+$//g;		# 行末スペース除去
+
+		# TAB to SPACE 8つ
+		$_ =~ s/(.*?)\t/$1 . (' ' x ($tw - (length($1) % $tw)))/eg;
+	}
+	return $lines;
+}
+
+###############################################################################
 # ●[01] ブロックのパース
 ###############################################################################
 sub parse_block {
@@ -138,15 +158,6 @@ sub parse_block {
 	$self->{footnote_symc}  = 0;	# footnote symbols counter
 	$self->{enum_cache}     = {};
 	$self->{transion_cache} = {'' => 0};
-
-	# 前処理
-	my $tw = $self->{tab_width};
-	foreach(@$lines) {
-		$_ =~ s/\s+$//g;		# 行末スペース除去
-
-		# TAB to SPACE 8つ
-		$_ =~ s/(.*?)\t/$1 . (' ' x ($tw - (length($1) % $tw)))/eg;
-	}
 
 	my @out;
 	my $r = $self->do_parse_block(\@out, $lines);
@@ -2455,7 +2466,12 @@ sub tag_escape {
 sub parse_error {
 	my $self = shift;
 	my $err  = '[RST] ' . shift;
-	return $self->{ROBJ}->warn($err, @_);
+	my $ROBJ = $self->{ROBJ};
+
+	if ($ROBJ) {
+		return $ROBJ->warn($err, @_);
+	}
+	return sprintf($err, @_);
 }
 
 ###############################################################################

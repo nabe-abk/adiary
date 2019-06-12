@@ -22,6 +22,7 @@ sub parse_directive {
 	my $type  = shift;
 	my $first = shift;
 	$type =~ tr/A-Z/a-z/;
+	$self->{directive} = $type;	# used by error message
 
 	my @pre;
 	if ($first ne '') {
@@ -133,9 +134,12 @@ sub parse_directive {
 			$opt->{$k} = $v;
 		}
 		if (%$opt && @$block && $block->[0] ne '') {
-			$self->parse_error('"%s" invalid option block: %s', $type, $block->[0]);
+			$self->parse_error('"%s" directive invalid option block: %s', $type, $block->[0]);
 			return;
 		}
+		#-----------------------------------------
+		# option check
+		#-----------------------------------------
 		if (exists($opt->{class})) {
 			my $c = $self->normalize_class_string( $opt->{class} );
 			if ($c eq '') {
@@ -143,19 +147,75 @@ sub parse_directive {
 			}
 			$opt->{_class} = $c;
 		}
+		if (exists($opt->{file}) && $opt->{file} eq '') {
+			return $self->invalid_option_error($opt, 'file');
+		}
+		if (exists($opt->{url}) && $opt->{url} eq '') {
+			return $self->invalid_option_error($opt, 'url');
+		}
+		if (exists($opt->{encoding}) && $opt->{encoding} eq '') {
+			return $self->invalid_option_error($opt, 'encoding');
+		}
+		if (exists($opt->{file}) && exists($opt->{url})) {
+			$self->parse_error('"%s" directive may not both "file" and "url" options', $type);
+			return;
+		}
 	}
 	$opt->{_subst} = ($subst ne '');
 
 	#-----------------------------------------
-	# content
+	# load external content: file/url
 	#-----------------------------------------
 	while(@$block && $block->[0] eq '') { shift(@$block); }
 
+	my $external = ($opt->{file} ne '' || $opt->{url} ne '');
+	if ($external && @$block) {
+		$self->parse_error('"%s" directive may not both specify an external file/url and content: %s', $type, $opt->{url} || $opt->{file});
+		return;
+	}
+
+	if ($opt->{file} ne '') {
+		# import file
+		my $file = $self->check_and_load_file_path($opt->{file});
+		if (!defined $file) {
+			return;
+		}
+		$block = $self->fread_lines($file);
+		foreach(@$block) {
+			chomp($_);
+		}
+		if (!$d->{file_raw}) {
+			$block = $self->preprocess($block);
+		}
+
+		# encoding
+		my $enc = $opt->{encoding};
+		if ($enc) {
+			my $data = join("\x00", @$block);
+			eval {
+				require Encode;
+				Encode::from_to($data, $enc, $self->{system_coding});
+			};
+			if ($@) {
+				$self->parse_error('"%s" directive file encoding error: "%s", file: "%s"', $type, $enc, $opt->{file});
+				return;
+			}
+			$data =~ s/[\x01-\x08]//g;
+			$block = [ split("\x00", $data) ];
+		}
+	}
+	if ($opt->{url} ne '') {
+		$block = [ "(\"$type\" directive not support url option)" ];
+	}
+
+	#-----------------------------------------
+	# content
+	#-----------------------------------------
 	if ($d->{content}==$NONE && @$block) {
 		$self->parse_error('"%s" directive no content permitted: %s', $type, $block->[0]);
 		return;
 	}
-	if ($d->{content}==$REQUIRED && !@$block) {
+	if ($d->{content}==$REQUIRED && !@$block && !$external) {
 		$self->parse_error('"%s" directive content required', $type);
 		return;
 	}
@@ -177,7 +237,6 @@ sub parse_directive {
 	#-----------------------------------------
 	# call directive
 	#-----------------------------------------
-	$self->{directive} = $type;		# used by error message
 	my $name = $d->{method} || $type . '_directive';
 	$name =~ tr/-/_/;
 	my $ret  = $self->$name($arg, $opt, $block, $type);
@@ -325,6 +384,8 @@ sub load_directive {
 		option  => [ qw(widths header-rows stub-columns header file url encoding delim quote keepspace escape class name) ],
 		keep_lf => [ qw(header) ]
 	};
+	# Not support
+	#	list-table
 
 	#----------------------------------------------------------------------
 	# Document Parts
@@ -352,6 +413,8 @@ sub load_directive {
 	#----------------------------------------------------------------------
 	# References
 	#----------------------------------------------------------------------
+	# Not support
+	#	target-notes
 	# NOT IMPLEMENTED YET on Sphinx
 	#	footnotes, citations
 
@@ -393,6 +456,14 @@ sub load_directive {
 	#----------------------------------------------------------------------
 	# Miscellaneous
 	#----------------------------------------------------------------------
+	$Directive{raw} = {
+		arg     => $REQUIRED,
+		content => $REQUIRED,
+		file_raw=> 1,
+		option  => [ qw(file url encoding) ]
+	};
+	# Not support
+	#	include, 
 
 	#======================================================================
 	#======================================================================
@@ -1270,6 +1341,29 @@ sub date_directive {
 }
 
 #//////////////////////////////////////////////////////////////////////////////
+# ●for Miscellaneous
+#//////////////////////////////////////////////////////////////////////////////
+#------------------------------------------------------------------------------
+# raw
+#------------------------------------------------------------------------------
+sub raw_directive {
+	my $self  = shift;
+	my $arg   = shift;
+	my $opt   = shift;
+	my $block = shift;
+	$arg =~ tr/A-Z/a-z/;
+
+	if ($arg ne 'html') {
+		return;
+	}
+
+	foreach(@$block) {
+		$_ .= "\x02";
+	}
+	return $block;
+}
+
+#//////////////////////////////////////////////////////////////////////////////
 # ●no work directive
 #//////////////////////////////////////////////////////////////////////////////
 sub no_work_directive {
@@ -1280,6 +1374,9 @@ sub no_work_directive {
 ###############################################################################
 # ■ subroutine
 ###############################################################################
+#------------------------------------------------------------------------------
+# attribute
+#------------------------------------------------------------------------------
 sub make_name_and_class_attr {
 	my $self  = shift;
 	my $opt   = shift;
@@ -1369,6 +1466,7 @@ sub check_and_load_file_path {
 	my $_file = $self->get_filepath($file);
 	if (!-r $_file) {
 		$self->parse_error('"%s" directive file not found: %s', $self->{directive}, $orig);
+		return;
 	}
 	return $file;
 }
@@ -1380,6 +1478,28 @@ sub get_filepath {
 	my $self = shift;
 	my $file = shift;
 	return $self->{ROBJ} ? $self->{ROBJ}->get_filepath( $file ) : $file;
+}
+
+#------------------------------------------------------------------------------
+# file read
+#------------------------------------------------------------------------------
+sub fread_lines {
+	my $self = shift;
+	my $file = shift;
+	my $ROBJ = $self->{ROBJ};
+	if ($ROBJ) {
+		return $ROBJ->fread_lines_cached($file);
+	}
+
+	require Fcntl;
+	my $fh;
+	my @lines;
+	if ( !sysopen($fh, $file, &Fcntl::O_RDONLY) ) {
+		return [];
+	}
+	@lines = <$fh>;
+	close($fh);
+	return \@lines;
 }
 
 #------------------------------------------------------------------------------
