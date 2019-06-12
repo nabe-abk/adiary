@@ -257,6 +257,11 @@ sub load_directive {
 		content => $REQUIRED,
 		option  => $OPT_DEFAULT
 	};
+	$Directive{sidebar} = {
+		arg     => $REQUIRED,
+		content => $REQUIRED,
+		option  => [ qw(subtitle class name) ]
+	};
 	$Directive{'parsed-literal'} = {
 		arg     => $NONE,
 		content => $REQUIRED,
@@ -656,6 +661,38 @@ sub topic_directive {
 	my @ary;
 	push(@ary, "<div$at>\x02");
 	push(@ary, "<p class=\"$type-title\">$title</p>");
+	$self->do_parse_block(\@ary, $block, 'nest');
+	push(@ary, "</div>\x02", '');
+	return \@ary;
+}
+
+#------------------------------------------------------------------------------
+# sidebar
+#------------------------------------------------------------------------------
+sub sidebar_directive {
+	my $self  = shift;
+	my $title = shift;
+	my $opt   = shift;
+	my $block = shift;
+	my $type  = shift;
+
+	my $subtitle;
+	if (exists($opt->{subtitle})) {
+		$subtitle = $opt->{subtitle};
+		if ($subtitle eq '') {
+			return $self->invalid_option_error($opt, 'subtitle');
+		}
+	}
+
+	$self->backslash_escape($title, $subtitle);
+
+	my $at = $self->make_name_and_class_attr($opt, 'sidebar');
+	my @ary;
+	push(@ary, "<div$at>\x02");
+	push(@ary, "<p class=\"sidebar-title\">$title</p>");
+	if ($subtitle ne '') {
+		push(@ary, "<p class=\"sidebar-subtitle\">$subtitle</p>");
+	}
 	$self->do_parse_block(\@ary, $block, 'nest');
 	push(@ary, "</div>\x02", '');
 	return \@ary;
