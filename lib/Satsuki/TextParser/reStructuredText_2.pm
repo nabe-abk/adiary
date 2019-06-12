@@ -58,7 +58,7 @@ sub parse_directive {
 	my $arg;
 	if ($d->{arg}) {
 		while(@$block && $block->[0] ne ''
-		  && ($block->[0] !~ /^:((?:\\.|[^:\\])+):(?: +(.*)|$)/  || substr($1,0,1) eq ' ' ||  substr($1,-1) eq ' ')
+		  && (!$d->{option} || $block->[0] !~ /^:((?:\\.|[^:\\])+):(?: +(.*)|$)/  || substr($1,0,1) eq ' ' ||  substr($1,-1) eq ' ')
 		) {
 			$arg = $self->join_line($arg, shift(@$block));
 		}
@@ -276,18 +276,20 @@ sub load_directive {
 	#----------------------------------------------------------------------
 	# Admonitions
 	#----------------------------------------------------------------------
-	{
-		my @ary = qw(attention caution danger error hint important note tip warning class name);
-		my $h = {
-			arg     => $NONE,
-			content => $REQUIRED,
-			method  => 'admonition_directive',
-			option  => $OPT_DEFAULT
-		};
-		foreach(@ary) {
-			$Directive{$_} = $h;
-		}
-	}
+	$Directive{attention} = 
+	$Directive{caution} = 
+	$Directive{danger} = 
+	$Directive{error} = 
+	$Directive{hint} = 
+	$Directive{important} = 
+	$Directive{note} = 
+	$Directive{tip} = 
+	$Directive{warning} = {
+		arg     => $NONE,
+		content => $REQUIRED,
+		method  => 'admonition_directive',
+		option  => $OPT_DEFAULT
+	};
 	$Directive{admonition} = {
 		arg     => $REQUIRED,
 		content => $REQUIRED,
@@ -344,17 +346,13 @@ sub load_directive {
 		option  => $OPT_DEFAULT
 	};
 	# Quote directive
-	{
-		my @ary = qw(epigraph highlights pull-quote);
-		my $h = {
-			arg     => $NONE,
-			content => $REQUIRED,
-			method  => 'quote_directive',
-			option  => $OPT_NONE
-		};
-		foreach(@ary) {
-			$Directive{$_} = $h;
-		}
+	$Directive{epigraph} = 
+	$Directive{highlights} = 
+	$Directive{'pull-quote'} = {
+		arg     => $NONE,
+		content => $REQUIRED,
+		method  => 'quote_directive',
+		option  => $NONE
 	};
 	$Directive{compound} = {
 		arg     => $NONE,
@@ -462,8 +460,30 @@ sub load_directive {
 		file_raw=> 1,
 		option  => [ qw(file url encoding) ]
 	};
+	$Directive{role} = {
+		arg     => $REQUIRED,
+		content => $ANY,
+		option  => $ANY
+	};
+	$Directive{'default-role'} = {
+		arg     => $ANY,
+		content => $NONE,
+		option  => $NONE
+	};
+	$Directive{title} = {
+		arg     => $REQUIRED,
+		content => $NONE,
+		option  => $NONE,
+		method  => 'no_work_directive'
+	};
+	$Directive{'restructuredtext-test-directive'} = {
+		arg     => $NONE,
+		content => $ANY,
+		option  => $NONE,
+		method  => 'no_work_directive'
+	};
 	# Not support
-	#	include, 
+	#	include, class
 
 	#======================================================================
 	#======================================================================
@@ -1361,6 +1381,37 @@ sub raw_directive {
 		$_ .= "\x02";
 	}
 	return $block;
+}
+#------------------------------------------------------------------------------
+# raw
+#------------------------------------------------------------------------------
+sub raw_directive {
+	my $self  = shift;
+	my $arg   = shift;
+	my $opt   = shift;
+	my $block = shift;
+	$arg =~ tr/A-Z/a-z/;
+
+	if ($arg ne 'html') {
+		return;
+	}
+
+	foreach(@$block) {
+		$_ .= "\x02";
+	}
+	return $block;
+}
+#------------------------------------------------------------------------------
+# default-role
+#------------------------------------------------------------------------------
+sub default_role_directive {
+	my $self  = shift;
+	my $arg   = shift;
+	$arg =~ tr/A-Z/a-z/;
+
+	# need role check
+
+	return "\x02role\x02$arg\x02";
 }
 
 #//////////////////////////////////////////////////////////////////////////////
