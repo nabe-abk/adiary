@@ -117,14 +117,15 @@ sub parse_directive {
 					}
 				}
 			}
-
-			if (! $d->{option}->{$k}) {
-				$self->parse_error('"%s" directive unknown option: %s', $type, $k);
-				return;
-			}
-			if (exists($opt->{$k})) {
-				$self->parse_error('"%s" directive duplicate option: %s', $type, $k);
-				return;
+			if ($d->{option} != $ANY) {
+				if (! $d->{option}->{$k}) {
+					$self->parse_error('"%s" directive unknown option: %s', $type, $k);
+					return;
+				}
+				if (exists($opt->{$k})) {
+					$self->parse_error('"%s" directive duplicate option: %s', $type, $k);
+					return;
+				}
 			}
 			if (! $d->{keep_lf}->{$k}) {
 				$v =~ s/\n/ /g;
@@ -357,6 +358,14 @@ sub load_directive {
 	#----------------------------------------------------------------------
 	# HTML-Specific
 	#----------------------------------------------------------------------
+	$Directive{meta} = {
+		arg     => $NONE,
+		content => $NONE,
+		option  => $ANY,
+		method  => 'no_work_directive'
+	};
+	# NOT IMPLEMENTED YET on Sphinx
+	#	Imagemap
 
 	#----------------------------------------------------------------------
 	# for Substitution Definitions
