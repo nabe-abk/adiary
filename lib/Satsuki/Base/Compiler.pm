@@ -6,6 +6,7 @@ use strict;
 package Satsuki::Base::Compiler;
 our $VERSION = '1.80';
 #(簡易履歴)
+# 2019/06 Ver1.81  grep() を修正
 # 2019/01 Ver1.80  出力先を配列からスカラに変更
 # 2019/01 Ver1.76  match() の修正
 # 2018/12 Ver1.75  hash(), {a=>b} の仕様変更（{}は元に戻す）
@@ -365,15 +366,12 @@ FUNC
 #--------------------------------------------------------------------
 $Builtin_func{grep} = <<'FUNC';
 sub {
-	my ($data, $x) = @_;
-	if (ref $data ne 'ARRAY') {
-		return ($data =~ /$x/) ? 1 : 0;
+	my $x = shift;
+	my $ary = $_[0];
+	if (ref($ary) ne 'ARRAY') {
+		$ary = \@_;
 	}
-	my @ary;
-	foreach(@$data) {
-		if ($_ =~ /$x/) { push(@ary, $_); }
-	}
-	return \@ary;
+	return [ grep {/$x/} @$ary ];
 }
 FUNC
 #--------------------------------------------------------------------
