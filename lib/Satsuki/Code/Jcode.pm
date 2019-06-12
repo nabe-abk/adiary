@@ -4,7 +4,7 @@ use strict;
 #						(C)2006-03 nabe / nabe@abk.nu
 #------------------------------------------------------------------------------
 package Satsuki::Code::Jcode;
-our $VERSION = '2.00';
+our $VERSION = '2.01';
 #------------------------------------------------------------------------------
 # http://homepage2.nifty.com/hobbit/html/jcode.html
 # にある UTF-8 変換表問題に対応する動的パッチを内部的に実行する。
@@ -43,7 +43,8 @@ sub init {
 	if ($Encode::VERSION) { return ; }
 	eval {
 		require Encode;
-		require Encode::Guess; import Encode::Guess qw(euc-jp shiftjis iso-2022-jp);
+		require Encode::Guess;
+		import  Encode::Guess;
 	};
 	if ($@) { die "Load failed Encode::*"; }
 }
@@ -95,7 +96,7 @@ sub get_codename {
 	my $str = shift;
 	if (!ref $str) { my $s=$str; $str=\$s; }
 
-	my $code = Encode::Guess::guess_encoding($$str);
+	my $code = Encode::Guess::guess_encoding($$str, qw/euc-jp shiftjis 7bit-jis/);
 	if (ref $code) { return $code->name(); }
 	return 'UTF-8';		# if unknown, return UTF-8(default)
 }
