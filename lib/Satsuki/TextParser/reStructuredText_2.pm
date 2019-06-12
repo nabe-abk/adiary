@@ -328,6 +328,13 @@ sub load_directive {
 		content => $NONE,
 		option  => [ qw(depth local backlinks class) ]
 	};
+	$Directive{sectnum} = {
+		arg     => $NONE,
+		content => $NONE,
+		method  => 'sectnum_directive',
+		option  => [ qw(depth prefix suffix start) ]
+	};
+	$Directive{'section-numbering'} = $Directive{sectnum};
 
 	#----------------------------------------------------------------------
 	# References
@@ -1132,6 +1139,33 @@ sub contents_directive {
 	push(@out, "\x02<toc>$attr</toc>\x02");
 	push(@out, "</div>\x02");
 	return \@out;
+}
+
+#------------------------------------------------------------------------------
+# sectnum
+#------------------------------------------------------------------------------
+sub sectnum_directive {
+	my $self  = shift;
+	my $title = shift;
+	my $opt   = shift;
+
+	if (exists($opt->{prefix}) && $opt->{prefix} eq '') {
+		return $self->invalid_option_error($opt, 'prefix');
+	}
+	if (exists($opt->{suffix}) && $opt->{suffix} eq '') {
+		return $self->invalid_option_error($opt, 'suffix');
+	}
+
+	if (exists($opt->{depth}) && $opt->{depth} !~ /^-?\d+$/) {
+		return $self->invalid_option_error($opt, 'depth');
+	}
+	if (exists($opt->{start}) && $opt->{start} !~ /^-?\d+$/) {
+		return $self->invalid_option_error($opt, 'start');
+	}
+	$self->tag_escape($opt->{prefix}, $opt->{suffix});
+
+	unshift(@{ $self->{sectnums} }, $opt);
+	return '';
 }
 
 

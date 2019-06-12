@@ -20,7 +20,6 @@ sub new {
 	$self->{ROBJ} = shift;
 
 	$self->{section_hnum}   = 3;	# H3から使用する
-	$self->{section_number} = 0;	# 章番号を挿入する
 	$self->{tab_width}      = 8;	# タブの幅
 
 	$self->{ambiguous_full} = 0;	# Ambiguousな文字コードをfullwidthとして扱う
@@ -96,6 +95,7 @@ sub text_parser {
 	$self->{sections} = [];
 	$self->{local_sections} = [];
 	$self->{current_section}= { children => $self->{sections} };
+	$self->{sectnums} = [];
 
 	#-------------------------------------------
 	# ○処理スタート
@@ -295,7 +295,7 @@ sub do_parse_block {
 					$err = 1;
 					last;
 				}
-				$base = $s->{num};
+				$base = $s->{_num};
 				$secs = $s->{children} ||= [];	# 修正時は current_section 初期化も修正する
 			}
 			if ($err) {
@@ -306,17 +306,40 @@ sub do_parse_block {
 			my $num   = $base . ($level>1 ? '.' : '') . $count;
 			my $base  = $self->generate_id_from_string($title, 'h' . $num);
 			my $id    = $self->generate_implicit_link_id( $base );
+
+			# generate section number
+			my $number='';
+			foreach(@{ $self->{sectnums} }) {
+				my $depth = $_->{depth};
+				if (1<$level && $depth ne '' && $depth<$level) { next; }
+
+				my $start = $_->{start};
+				if ($start ne '' && $start != 1) {
+					$num =~ s/^(\d+)/
+						$1 +$start -1
+					/eg;
+				}
+				$number .= "$_->{prefix}$num$_->{suffix} ";
+			}
+			my $_title = $title;
+			my $num_text = '';
+			if ($number ne '') {
+				chop($number);
+				$num_text = " <span class=\"section-number\">``$number``</span> ";
+			}
+
+			# save section information
 			my $sec = {
 				id	=> $id,
-				num	=> $num,
+				_num	=> $num,
+				number  => $number,
 				title	=> $title,
 				count	=> $count
 			};
 			push(@$secs, $sec);
 			$self->{current_section} = $sec;
 
-			my $num_text = $self->{section_number} ? "$num. " : '';
-			push(@$out, '', "<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\"><span class=\"section-number\">$num_text</span>$title</a></h$h>", '');
+			push(@$out, '', "<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\">$num_text$title</a></h$h>", '');
 			next;
 		}
 
@@ -2478,7 +2501,9 @@ sub generate_toc {
 
 	foreach(@$secs) {
 		my $subs = $_->{children};
-		my $link = "<a href=\"$self->{thisurl}#$_->{id}\">$_->{title}</a>";
+		my $num  = $_->{number};
+		if ($num ne '') { $num .= ' '; }
+		my $link = "<a href=\"$self->{thisurl}#$_->{id}\">$num$_->{title}</a>";
 		if (!$subs || !@$subs) {
 			$out .= "$tab\t<li>$link</li>\n";
 			next;
