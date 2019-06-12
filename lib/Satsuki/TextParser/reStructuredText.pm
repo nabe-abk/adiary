@@ -55,7 +55,7 @@ sub new {
 # 文中記号
 #	\x01		pブロック処理やブロック処理で使用 
 #	\x01		インラインマークアップの区切り
-#	\x02		link等の後処理に使用
+#	\x02		link/toc等の後処理に使用
 #	\x03		文字(\)エスケープに使用
 #	\x08		trimマーク
 #
@@ -94,6 +94,8 @@ sub text_parser {
 
 	# セクション情報の初期化
 	$self->{sections} = [];
+	$self->{local_sections} = [];
+	$self->{current_section}= { children => $self->{sections} };
 
 	#-------------------------------------------
 	# ○処理スタート
@@ -110,24 +112,16 @@ sub text_parser {
 	#-------------------------------------------
 	# ○後処理
 	#-------------------------------------------
-
-	# [S] <toc>の後処理
 	my $all = join("\n", @$lines);
-
-	# [S] Moreの処理
 	my $short = '';
-	if (0 && $all =~ /^((.*?)\n?<p class="seemore">.*)<!--%SeeMore%-->\x02?\n(.*)$/s ) {
-		$short = $1;
-		$all = $2 . "<!--%SeeMore%-->" . $3;
-		if ($short =~ m|^.*<section>(.*)$|si && index($1, '</section>')<=0) {
-			$short .= "\n</section>";
-		}
-	}
+	$self->post_process(\$all);
+
+
+
 
 	# 特殊文字の除去
-	$all   =~ s/[\x00-\x03]//g;
-	$short =~ s/[\x00-\x03]//g;
-
+	$all   =~ s/[\x00-\x08]//g;
+	$short =~ s/[\x00-\x08]//g;
 	return wantarray ? ($all, $short) : $all;
 }
 
@@ -294,30 +288,32 @@ sub do_parse_block {
 			# セクション情報の生成
 			my $base = '';
 			my $secs = $self->{sections};
+			my $err;
 			foreach(2..$level) {
 				my $s = @$secs ? $secs->[$#$secs] : undef;
 				if (!$s) {
-					$s = {
-						num	=> "${base}.0",
-						title	=> '(none)',
-						count	=> 0
-					};
-					push(@$secs, $s);
+					$err = 1;
+					last;
 				}
 				$base = $s->{num};
-				$secs = $s->{children} ||= [];
+				$secs = $s->{children} ||= [];	# 修正時は current_section 初期化も修正する
 			}
-
+			if ($err) {
+				$self->parse_error('Title level inconsistent: %s', $title);
+				next;
+			}
 			my $count = $#$secs<0 ? 1 : $secs->[$#$secs]->{count} + 1;
 			my $num   = $base . ($level>1 ? '.' : '') . $count;
 			my $base  = $self->generate_id_from_string($title, 'h' . $num);
 			my $id    = $self->generate_implicit_link_id( $base );
-			push(@$secs, {
+			my $sec = {
 				id	=> $id,
 				num	=> $num,
 				title	=> $title,
 				count	=> $count
-			});
+			};
+			push(@$secs, $sec);
+			$self->{current_section} = $sec;
 
 			my $num_text = $self->{section_number} ? "$num. " : '';
 			push(@$out, '', "<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\"><span class=\"section-number\">$num_text</span>$title</a></h$h>", '');
@@ -2437,6 +2433,66 @@ sub parse_error {
 	my $self = shift;
 	my $err  = '[RST] ' . shift;
 	return $self->{ROBJ}->warn($err, @_);
+}
+
+###############################################################################
+# ●[99] 後処理
+###############################################################################
+sub post_process {
+	my $self = shift;
+	my $rtxt = shift;
+
+	# 目次の処理
+	$$rtxt =~ s|\x02<toc>(.*?)</toc>\x02|$self->post_toc($1)|eg;
+}
+
+sub post_toc {
+	my $self = shift;
+	my $opt;
+	foreach(split(':', shift)) {
+		if ($_ =~ /^(\w+)=(.*)$/) {
+			$opt->{$1} = $2;
+			next;
+		}
+		$opt->{$_}=1;
+	}
+	$opt->{class} = "toc" . ($opt->{class} eq '' ? '' : ' ' . $opt->{class});
+
+	my $secs = $self->{sections};
+	if ($opt->{local} ne '' && $self->{local_sections}->[$opt->{local}]) {
+		$secs = $self->{local_sections}->[$opt->{local}]->{children};
+		if (!$secs) { return; }
+	}
+	return $self->generate_toc($secs, $opt, $opt->{depth}) . "\n";
+}
+
+sub generate_toc {
+	my $self  = shift;
+	my $secs  = shift;
+	my $opt   = shift;
+	my $depth = shift;
+	my $level = shift || 0;
+
+	my $tab = "\t" x $level;
+	my $out = $level ? "$tab<ul>\n" : "<ul class=\"$opt->{class}\">\n";
+
+	foreach(@$secs) {
+		my $subs = $_->{children};
+		my $link = "<a href=\"$self->{thisurl}#$_->{id}\">$_->{title}</a>";
+		if (!$subs || !@$subs) {
+			$out .= "$tab\t<li>$link</li>\n";
+			next;
+		}
+
+		$out .= "$tab\t<li>$link\n";
+		if ($depth eq '' || 1<$depth) {
+			if (1<$depth) { $depth=$depth-1; }
+			$out .=	$self->generate_toc($subs, $opt, $depth, $level+1);
+		}
+		$out .= "</li>\n";
+	}
+	$out .= "$tab</ul>";
+	return $out;
 }
 
 ###############################################################################

@@ -140,6 +140,7 @@ sub parse_directive {
 			if ($c eq '') {
 				return $self->invalid_option_error($opt, 'class');
 			}
+			$opt->{_class} = $c;
 		}
 	}
 	$opt->{_subst} = ($subst ne '');
@@ -322,9 +323,20 @@ sub load_directive {
 	#----------------------------------------------------------------------
 	# Document Parts
 	#----------------------------------------------------------------------
+	$Directive{contents} = {
+		arg     => $ANY,
+		content => $NONE,
+		option  => [ qw(depth local backlinks class) ]
+	};
 
 	#----------------------------------------------------------------------
 	# References
+	#----------------------------------------------------------------------
+	# NOT IMPLEMENTED YET on Sphinx
+	#	footnotes, citations
+
+	#----------------------------------------------------------------------
+	# HTML-Specific
 	#----------------------------------------------------------------------
 
 	#----------------------------------------------------------------------
@@ -790,6 +802,7 @@ sub div_directive {
 	push(@ary, "</div>\x02", '');
 	return \@ary;
 }
+
 #//////////////////////////////////////////////////////////////////////////////
 # ●Table Elements
 #//////////////////////////////////////////////////////////////////////////////
@@ -1065,6 +1078,64 @@ sub parse_cvs_data {
 }
 
 #//////////////////////////////////////////////////////////////////////////////
+# ●Document Parts
+#//////////////////////////////////////////////////////////////////////////////
+#------------------------------------------------------------------------------
+# contents
+#------------------------------------------------------------------------------
+sub contents_directive {
+	my $self  = shift;
+	my $title = shift;
+	my $opt   = shift;
+
+	my $attr='';
+	my $class='contents topic';
+	if (exists($opt->{depth})) {
+		my $d = $opt->{depth};
+		if ($d !~ /^\d+$/) {
+			return $self->invalid_option_error($opt, 'depth');
+		}
+		$attr .= "depth=$d:"
+	}
+	if (exists($opt->{backlinks})) {
+		my $b = $opt->{backlinks};
+		$b =~ tr/A-Z/a-z/;
+		if ($b ne 'entry' && $b ne 'top' && $b ne 'none') {
+			return $self->invalid_option_error($opt, 'backlinks');
+		}
+		$attr .= "backlinks=$b:"
+	}
+	if (exists($opt->{local})) {
+		if ($opt->{local} ne '') {
+			return $self->invalid_option_error($opt, 'local');
+		}
+		my $sec = $self->{current_section};
+		my $ary = $self->{local_sections};
+		push(@$ary, $sec);
+		$attr .= "local=$#$ary:";
+		$class .= ' local';
+	} elsif ($title eq '') {
+		$title = 'Contents';
+	}
+	chop($attr);
+
+	#---------------------------------------------------------
+	# output
+	#---------------------------------------------------------
+	my $at = $self->make_name_and_class_attr($opt, $class);
+
+	my @out;
+	push(@out, "<div$at>\x02");
+	if ($title ne '') {
+		push(@out, "<p class=\"topic-title toc-title\">$title</p>");
+	}
+	push(@out, "\x02<toc>$attr</toc>\x02");
+	push(@out, "</div>\x02");
+	return \@out;
+}
+
+
+#//////////////////////////////////////////////////////////////////////////////
 # ●for Substitution
 #//////////////////////////////////////////////////////////////////////////////
 #------------------------------------------------------------------------------
@@ -1143,8 +1214,8 @@ sub make_name_and_class_attr {
 			$attr .= " id=\"$id\"";
 		}
 	}
-	if ($opt->{class} ne '') {
-		$class = $self->append_and_normalize_class_string( $class, $opt->{class} );
+	if ($opt->{_class}) {
+		$class .= ($class eq '' ? '' : ' ') . $opt->{_class};
 	}
 	if ($class ne '') {
 		$class =~ s/^ +//;

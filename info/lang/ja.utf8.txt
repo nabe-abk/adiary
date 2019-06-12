@@ -268,6 +268,7 @@ Restart of %s is required!=%sの再起動が必要です！
 [RST] Title overline without underline: %s=[RST] タイトルの上線しかありません: %s
 [RST] Transition only allowed at the top level: %s=[RST] トランジションはトップレベル要素にしか記述できません: %s
 [RST] Title only allowed at the top level: %s=[RST] タイトルはトップレベル要素にしか記述できません: %s
+[RST] Title level inconsistent: %s=[RST] タイトルの深さが正しくありません: %s
 [RST] Duplicate footnote target name: %s=[RST] 脚注名が重複しています: %s
 [RST] Duplicate link target name: %s=[RST] リンクターゲット名が重複しています: %s
 [RST] Malformed hyperlink target: %s=[RST] リンクターゲットの記述が不正です: %s
