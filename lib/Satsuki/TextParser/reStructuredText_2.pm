@@ -328,13 +328,20 @@ sub load_directive {
 		content => $NONE,
 		option  => [ qw(depth local backlinks class) ]
 	};
-	$Directive{sectnum} = {
+	$Directive{sectnum} =
+	$Directive{'section-numbering'} = {
 		arg     => $NONE,
 		content => $NONE,
 		method  => 'sectnum_directive',
 		option  => [ qw(depth prefix suffix start) ]
 	};
-	$Directive{'section-numbering'} = $Directive{sectnum};
+
+	$Directive{header} =
+	$Directive{footer} = {
+		arg     => $NONE,
+		content => $REQUIRED,
+		method  => 'no_work_directive'
+	};
 
 	#----------------------------------------------------------------------
 	# References
@@ -1168,7 +1175,6 @@ sub sectnum_directive {
 	return '';
 }
 
-
 #//////////////////////////////////////////////////////////////////////////////
 # ●for Substitution
 #//////////////////////////////////////////////////////////////////////////////
@@ -1215,6 +1221,14 @@ sub date_directive {
 
 	require POSIX;
 	return POSIX::strftime($arg, localtime());
+}
+
+#//////////////////////////////////////////////////////////////////////////////
+# ●no work directive
+#//////////////////////////////////////////////////////////////////////////////
+sub no_work_directive {
+	my $self  = shift;
+	return '';
 }
 
 ###############################################################################
