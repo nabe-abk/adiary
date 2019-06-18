@@ -7,7 +7,7 @@ package Satsuki::TextParser::Satsuki;
 # ※注意。パッケージ名変更時は78行目付近も修正のこと！
 
 use Satsuki::AutoLoader;
-our $VERSION = '2.22';
+our $VERSION = '2.23';
 #------------------------------------------------------------------------------
 # \x00-\x03は内部で使用するため、処理の過程で除去されます。
 #	\x00 文字列の一時退避用
@@ -26,12 +26,9 @@ my $INFO_END_MARK   = '#---end';
 # ※$self内のハッシュkey
 my %allow_override = (asid => 1, chain_line => 2,
  timestamp_date => 1, timestamp_time => 1, 
- anchor_basename =>1, footnote_basename => 1, unique_linkname => 1,
  toc_anchor => 2, toc_level => 2,
  section_count => 2, subsection_count => 2, subsubsection_count => 2,
  section_anchor => 1, subsection_anchor => 1, subsubsection_anchor => 1,
- http_target  => 1, http_class  => 1, http_rel  => 1,
- image_target => 1, image_class => 1, image_rel => 1,
  br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
  list_br => 2, seemore_msg => 1, tex_mode => 2);
 ###############################################################################
@@ -56,8 +53,18 @@ sub new {
 	$self->{section_hnum} = 3;	# section level
 	$self->{toc_level}    = 1;	# toc は level 0-1 を出力
 
+	$self->{indent} = '';		# indent all line
+	$self->{asid}   = '';		# Amazon ID
+	$self->{seemore_msg} = '';	# default "See More..."
+	$self->{image_attr}  = '';	# image link attribute for lightbox
+
 	$self->init_tags();
 	$self->load_plugins(@_);
+
+	# 処理する記事ごとに設定
+	$self->{thisurl}  = '';		# 記事のURL
+	$self->{thispkey} = '';		# 記事のpkey = unique id = [0-9]+
+	$self->{thisymd}  = '';		# 記事の日付 yyyymmdd
 
 	return $self;
 }
@@ -261,7 +268,7 @@ sub load_tagdata {
 			$tag_hash->{class} = "$CSS_CLASS_PREFIX$class";
 			# タイトルなど
 			my ($title, $option, $url) = split(/\s*,\s*/, $value, 3);
-			$ROBJ->tag_escape( $title, $option );
+			$self->tag_escape( $title, $option );
 			if ($url =~ /^(\d+)\s*,\s*(.*)$/) {	# 受け取り引数指定
 				$tag_hash->{argc} = $1;
 				$url = $2;
@@ -396,9 +403,6 @@ sub text_parser {
 	$self->{section_count}     = int($opt->{section_count});	# section counter
 	$self->{subsection_count}  = int($opt->{subsection_count});	# sub-section counter
 
-	# ユニークリンク名の生成
-	$self->init_unique_link_name();
-
 	# 内部変数の退避
 	my %backup;
 	foreach(keys(%allow_override)) {
@@ -429,7 +433,6 @@ sub text_parser {
 	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
 	$self->{vars_}= $self->{vars};
 	$self->{vars} = \%backup_vars;
-	$self->restore_unique_link_name();
 
 	# エスケープした文字列の復元
 	if (! $self->{escape_no_dencode}) {
@@ -446,19 +449,6 @@ sub text_parser {
 		$short=~ s/<!--%SeeMore%-->.*?<!--%MoreEnd%-->//sg
 	}
 	return wantarray ? ($data, $short) : $data;
-}
-
-#------------------------------------------------------------------------------
-# ●unique_link_nameの生成と破棄
-#------------------------------------------------------------------------------
-sub init_unique_link_name {
-	my $self = shift;
-	$self->{unique_linkname_bak} = $self->{unique_linkname};
-	$self->{unique_linkname} ||= 'k'.($self->{thispkey} || int(rand(0x80000000)));
-}
-sub restore_unique_link_name {
-	my $self = shift;
-	$self->{unique_linkname} = $self->{unique_linkname_bak};
 }
 
 ###############################################################################
@@ -1305,7 +1295,7 @@ sub parse_section {
 	# 変数初期化
 	$self->{in_section}       = 0;
 	$self->{more_read}        = 0;
-	$self->{now_anchor_name}  = "$self->{unique_linkname}p0";	# default
+	$self->{now_anchor_name}  = "p0";	# default
 
 	# 行頭改行無視
 	if (ref($lines->[0]) eq 'HASH') { shift(@$lines); }
@@ -1423,8 +1413,8 @@ sub section {
 	$line = substr($line, 1);
 	$line =~ s/^\s*//g;
 	$line =~ s/\s*$//g;
-	my $anchor =  $self->{section_anchor};
-	my $name   = ($self->{anchor_basename} || "$self->{unique_linkname}p") . $sec_c;
+	my $anchor = $self->{section_anchor};
+	my $name   = 'p' . $sec_c;
 	if ($line =~ /^([\w\-\.\d]+)(:[^\*]+)?\*(.*)/s) {
 		$name = $1;
 		$line = $3;
@@ -1962,7 +1952,7 @@ sub footnote {
 	# 同じ内容は、同じfootnoteを参照する
 	my $number;
 	my $name;
-	my $name_base = $self->{footnote_basename} || "$self->{unique_linkname}n";
+	my $name_base = 'fn';
 	if (exists $hash->{$note}) {	# 同じ内容注釈がある
 		$number = $hash->{$note};
 		$name   = "$name_base$number";
@@ -2142,45 +2132,34 @@ sub encode_uricom {
 #------------------------------------------------------------------------------
 sub make_attr {
 	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my ($ary, $tag, $type, $noattr) = @_;
-	$noattr ||= {};
+	my ($ary, $tag, $type) = @_;
 
 	# target/class/rel 設定, type未定義のとき初期値なし(mailto:等)
-	my $target = $noattr->{target} ? '' : $self->{"${type}_target"};
-	my $class  = $noattr->{class}  ? '' : $self->{"${type}_class"};
-	my $data   = $noattr->{data}   ? '' : $self->{"${type}_data"};
-	my $title  = $tag->{title} || $tag->{name};
+	my $class;
+	my $title = $tag->{title} || $tag->{name};
 	while(1) {
 		my $x = $ary->[0];
-		if (substr($x, 0, 7) eq 'target=') { $target = substr(shift(@$ary), 7); next; }
-		if (substr($x, 0, 6) eq 'title=' ) { $title  = substr(shift(@$ary), 6); next; }
-		if (substr($x, 0, 6) eq 'class=' ) { $class  = substr(shift(@$ary), 6); next; }
-		if (substr($x, 0, 5) eq 'data='  ) { $data   = substr(shift(@$ary), 4); next; }
+		if ($x =~ /^title=\s*(.*?)\s*$/) { shift(@$ary); $title = $1; next; }
+		if ($x =~ /^class=\s*(.*?)\s*$/) { shift(@$ary); $class = $1; next; }
 		last;
 	}
-	$target =~ s/[^\w\-]//g;
-	$class  =~ s/[^\w\s:\-]//g;
-	$data   =~ s/%k/$self->{unique_linkname}/g;
-	$ROBJ->tag_escape($title);
+	$class =~ s/[^\w\s:\-]//g;
+	$self->tag_escape($title);
 
-	if ($class ne '' && $tag->{class} ne '') { $class =" $class"; }
-	if ($class ne '' || $tag->{class} ne '') { $class =" class=\"$tag->{class}$class\""; }
-	if ($title  ne '') { $class .=" title=\"$title\""; }
-	if ($target ne '') { $class .=" target=\"$target\""; }
-	if ($data ne '') {	# ex)a1=bbb a2=ccc  ※この仕様を変更したら edit.js / adiary_5.pm も変更する
-		my @ary = split(/\s+/, $data);
-		foreach(@ary) {
-			if ($_ !~ /^([A-Za-z][\w\-]*)=(.*)$/) { next; }
-			my $n = $1;
-			my $v = $2;
-			$ROBJ->tag_escape($v);
-			$class .=" data-$n=\"$v\"";
-		}
+	my $attr='';
+	if ($class ne '' || $tag->{class} ne '') {
+		my $sp = ($class ne '' && $tag->{class} ne '') ? ' ' : '';
+		$attr  =" class=\"$tag->{class}$sp$class\"";
+	}
+	if ($title  ne '')    { $attr .= " title=\"$title\""; }
+	if ($type eq 'image' && $self->{image_attr} ne '') {
+		my $at = $self->{image_attr};
+		$at =~ s/%k/$self->{thispkey}/g;
+		$attr .= $at;
 	}
 
 	# 属性文字列を返す
-	return $class;
+	return $attr;
 }
 #--------------------------------------
 # name の設定

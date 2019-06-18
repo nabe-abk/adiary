@@ -111,30 +111,6 @@
 		</select>
 		</td>
 	</tr>
-	<tr><th>[記法]リンク<span class="help" data-help="記法を使ってリンクするときにデフォルトで設定される属性値を指定します。なお、targetの設定は非推奨です。">?</span></th>
-		<@> これらの設定値の安全性は入力した記事HTMLの安全性と同様に保証される。
-		<td>
-		class <input type="text" name="http_class" class="w80" value="<@s.http_class>"> 
-		target <input type="text" name="http_target" class="w80" value="<@s.http_target>"><br>
-		data<span class="help" data-help="aaa=bbbと設定するとdata-aaa=&quot;bbb&quot;という属性が作られます。複数書く場合は「,」区切りで記述してください。\n%kは記事ごとのユニークな文字列に置換されます。">?</span> <input type="text" name="http_data" class="w80p" value="<@s.http_data>">
-		</td>
-	</tr>
-	<tr><th>[記法]画像リンク<span class="help" data-help="記法を使って画像を表示するとき（さらにそれがリンクになるとき）のデフォルト属性値を指定します。なお、targetの設定は非推奨です。">?</span></th>
-		<td>
-		class <input type="text" name="image_class" class="w80" value="<@s.image_class>"> 
-		target <input type="text" name="image_target" class="w80" value="<@s.image_target>"><br>
-		data<span class="help" data-help="デフォルトは「lightbox=%k」です。">?</span> <input type="text" name="image_data" class="w80p" value="<@s.image_data>">
-		</td>
-	</tr>
-	<tr><th>セクションアンカー<span class="help" data-help="「見出し」の先頭に付くリンクマーク。%dでセクション番号。">?</span></th>
-		<td><input type="text" name="section_anchor" class="w120" value="<@tag_escape(s.section_anchor)>" id="sec-anchor">
-		<button type="button" id="set-sanchor-number">章番号を出力</button>
-		<span class="help" data-help="「1.」「2.1」「2.5」等の章番号を出力するよう設定します。記事先頭で [*section_number] と書いてその記事だけ切り替えることもできます。">?</span>
-		</td>
-	</tr>
-	<tr><th>サブセクションアンカー<span class="help" data-help="「小見出し」の先頭に付くリンクマーク。%dでセクション番号、%sでサブセクション番号。">?</span></th>
-		<td><input type="text" name="subsection_anchor" class="w120" value="<@tag_escape(s.subsection_anchor)>" id="subsec-anchor"></td>
-	</tr>
 	<tr>
 		<th>「続きを読む」の表記<span class="help" data-help="「====」表記により、一覧表示時に記事本文が省略された場合のメッセージ。">?</span></th>
 		<td<@err.c_seemore_msg>>

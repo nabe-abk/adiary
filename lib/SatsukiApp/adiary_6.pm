@@ -215,6 +215,20 @@ sub sys_update_315 {
 	$self->update_sysdat('ping_servers_txt', $pings);
 }
 
+#------------------------------------------------------------------------------
+# ●システムアップデート for Ver3.30
+#------------------------------------------------------------------------------
+sub sys_update_330 {
+	my $self  = shift;
+	my $blogs = shift;
+	foreach(@$blogs) {
+		my $blog = $self->load_blogset($_);
+		foreach(qw(http_target http_class http_data image_target image_class image_data section_anchor subsection_anchor)) {
+			$self->update_blogset($blog, $_, undef);
+		}
+	}
+}
+
 ###############################################################################
 # ■Version2 to 3 移行ルーチン
 ###############################################################################

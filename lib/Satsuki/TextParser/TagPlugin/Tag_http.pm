@@ -54,7 +54,7 @@ sub http {
 		return &$image($pobj, $tag, $cmd, $ary, 'http');
 	}
 	# 属性/リンク名
-	my $attr = $pobj->make_attr($ary, $tag, 'http');
+	my $attr = $pobj->make_attr($ary, $tag);
 	my $bookmark='';
 	if ($ary->[0] eq 'bookmark') {
 		shift(@$ary);

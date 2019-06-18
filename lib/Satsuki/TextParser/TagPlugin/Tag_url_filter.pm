@@ -257,8 +257,7 @@ sub _filter {
 			if ($title eq '') { last; }
 			my $jcode = $ROBJ->load_codepm_if_needs($title);
 			$jcode && $jcode->from_to( \$title, $charset, $ROBJ->{System_coding} );
-			my $class = $pobj->make_attr([], {}, 'http');
-			return "<a href=\"$urlf\"$class>$title</a>";
+			return "<a href=\"$urlf\">$title</a>";
 		}
 		return "[(access failed) $urlf]";
 	}

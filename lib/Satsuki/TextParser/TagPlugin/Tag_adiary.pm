@@ -215,7 +215,7 @@ sub adiary_tag {
 	chop($url);
 
 	# 属性
-	my $attr = $pobj->make_attr($ary, $tag, 'http');
+	my $attr = $pobj->make_attr($ary, $tag);
 	my $name = $pobj->make_name($ary, $x);
 
 	return "<a href=\"$url\"$attr>$name</a>";
@@ -238,7 +238,7 @@ sub adiary_link_base {
 		unshift(@$ary, "title=$title");
 	}
 	# 属性
-	my $attr = $pobj->make_attr($ary, $tag, 'http');
+	my $attr = $pobj->make_attr($ary, $tag);
 	# リンク名
 	if ($ary->[0] ne '') { $name=join(':', @$ary); }
 	return "<a href=\"$url\"$attr>$name</a>";

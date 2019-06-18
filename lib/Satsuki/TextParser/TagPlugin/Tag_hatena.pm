@@ -114,7 +114,7 @@ sub hatena_graph {
 		return "<a href=\"$url\"$attr><img src=\"http://graph.hatena.ne.jp/$id/graph?graphname=$graph\" class=\"hatena-graph-image graph\" alt=\"$name\"></a>";
 	}
 	# 属性/リンク名
-	my $attr = $pobj->make_attr($ary, $tag, 'http');
+	my $attr = $pobj->make_attr($ary, $tag);
 	   $name = $pobj->make_name($ary, $name);
 
 	# リンク構成
