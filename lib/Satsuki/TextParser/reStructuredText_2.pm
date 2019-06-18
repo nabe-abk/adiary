@@ -928,7 +928,8 @@ sub image_directive {
 		$at .= $self->{current_image_attr};
 	}
 
-	return $url ne '' ? "<a href=\"$url\"$at>$tag</a>" : "<span$at>$tag</span>";
+	my $at2 = $self->make_image_attribute();
+	return $url ne '' ? "<a href=\"$url\"$at$at2>$tag</a>" : "<span$at>$tag</span>";
 }
 
 sub get_image_size {
@@ -946,6 +947,15 @@ sub get_image_size {
 		};
 	}
 	return @{ $cache->{$file} }
+}
+
+sub make_image_attribute {
+	my $self = shift;
+	my $at   = $self->{image_attr};
+	if ($at eq '') { return; }
+
+	$at =~ s/%k/$self->{thispkey}/g;
+	return ' ' . $at;
 }
 
 #------------------------------------------------------------------------------

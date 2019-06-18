@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 #
 package Satsuki::TextParser::reStructuredText;
-our $VERSION = '0.10';
+our $VERSION = '1.00';
 #------------------------------------------------------------------------------
 use Satsuki::AutoLoader;
 use Encode ();
