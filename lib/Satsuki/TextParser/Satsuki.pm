@@ -2155,7 +2155,7 @@ sub make_attr {
 	if ($type eq 'image' && $self->{image_attr} ne '') {
 		my $at = $self->{image_attr};
 		$at =~ s/%k/$self->{thispkey}/g;
-		$attr .= $at;
+		$attr .= ' ' . $at;
 	}
 
 	# 属性文字列を返す
