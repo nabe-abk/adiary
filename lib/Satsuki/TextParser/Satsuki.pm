@@ -1039,7 +1039,7 @@ sub parse_list_ulol {
 
 	my $li;
 	while(@$lines) {
-		if ($lines->[0] !~ /^([\+\-]+)(.*)/) { last; }
+		if ($lines->[0] !~ /^([\+\-]+)\s*(.*)/) { last; }
 		my $length = length($1);
 		my $data   = $2;
 		if ($length < $depth) { last; }
@@ -1114,7 +1114,7 @@ sub parse_list_dl {
 		# タグ中の : を処理しないため、先にタグを処理する
 		$line = $self->parse_tag($line);
 
-		my ($dummy, $dt, $dd) = split(':', $line, 3);
+		my ($dummy, $dt, $dd) = split(/\s*:\s*/, $line, 3);
 		$dt = $dt ne '' ? $dt="<dt>$dt</dt>" : "\t";
 
 		my $out = $self->list_line_chain( $dd, $lines, {':' => 1} );
@@ -1421,6 +1421,8 @@ sub section {
 
 	# 見出しの処理
 	$line = substr($line, 1);
+	$line =~ s/^\s*//g;
+	$line =~ s/\s*$//g;
 	my $anchor =  $self->{section_anchor};
 	my $name   = ($self->{anchor_basename} || "$self->{unique_linkname}p") . $sec_c;
 	if ($line =~ /^([\w\-\.\d]+)(:[^\*]+)?\*(.*)/s) {
@@ -1465,6 +1467,8 @@ sub section {
 sub subsection {
 	my ($self, $line) = @_;
 	$line = substr($line, 2);
+	$line =~ s/^\s*//g;
+	$line =~ s/\s*$//g;
 
 	# セクションカウント
 	my $sec_c    = $self->{section_count};
@@ -1516,6 +1520,8 @@ sub subsection {
 sub subsubsection {
 	my ($self, $line) = @_;
 	$line = substr($line, 3);
+	$line =~ s/^\s*//g;
+	$line =~ s/\s*$//g;
 
 	# セクションカウント
 	my $sec_c     = $self->{section_count};

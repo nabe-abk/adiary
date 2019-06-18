@@ -4,6 +4,7 @@
 
 -[https://adiary.org/v3man/reStructuredText/:reStructuredText]に対応しました。
 -index.htmlをレスポンシブ対応にしました。
+-【記法】リストやタイトル記法で文字の手前スペースを除去するようにしました。
 -【Fix】PostgreSQL/MySQL運用時、外部画像取り込みが動作しない。
 -【Fix】画像取り込み時のエラーメッセージがちゃんと表示されない。
 -【Fix】システムチェック画面でCryptXの確認が正しくなかった。
