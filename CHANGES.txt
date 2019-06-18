@@ -2,6 +2,7 @@
 
 *Ver3.30 : 2019/xx/xx
 
+-[https://adiary.org/v3man/reStructuredText/:reStructuredText]に対応しました。
 -index.htmlをレスポンシブ対応にしました。
 -【Fix】PostgreSQL/MySQL運用時、外部画像取り込みが動作しない。
 -【Fix】画像取り込み時のエラーメッセージがちゃんと表示されない。
