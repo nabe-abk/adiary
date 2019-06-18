@@ -28,8 +28,6 @@ sub new {
 	$self->{sectioning}   = 1;	# sectionタグを適時挿入する
 	$self->{gfm_ext}      = 1;	# GitHub Flavored Markdown拡張を使用する
 	$self->{strict_list}  = 1;	# リスト開始記号が異なる時、違うブロックと判定する（標準非準拠）
-
-	$self->{span_sanchor} = 0;	# 見出し先頭に span.sanchor を挿入する
 	$self->{section_link} = 0;	# 見出しタグにリンクを挿入する
 
 	$self->{satsuki_tags}     = 0;	# satsuki記法のタグを有効にする
@@ -37,6 +35,11 @@ sub new {
 	$self->{satsuki_seemore}  = 1;	# 「続きを読む」記法
 	$self->{satsuki_footnote} = 0;	# (())による注釈
 	$self->{qiita_math}       = 1;	# Qiitaのmathブロック記法
+
+	# 処理する記事ごとに設定
+	$self->{thisurl}  = '';		# 記事のURL
+	$self->{thispkey} = '';		# 記事のpkey = unique id = [0-9]+
+	$self->{thisymd}  = '';		# 記事の日付 yyyymmdd
 
 	return $self;
 }
@@ -71,12 +74,10 @@ sub text_parser {
 
 	# 内部変数初期化
 	$self->{links} = {};
-	$self->init_unique_link_name();
 	if ( $sobj ) {
 		$sobj->{thisurl}  = $self->{thisurl};
 		$sobj->{thispkey} = $self->{thispkey};
 		$sobj->{thisymd}  = $self->{thisymd};
-		$sobj->init_unique_link_name();
 	}
 
 	# セクション情報の初期化
@@ -131,23 +132,7 @@ sub text_parser {
 	$all   =~ s/[\x00-\x03]//g;
 	$short =~ s/[\x00-\x03]//g;
 
-	# 内部変数復元
-	$self->restore_unique_link_name();
-
 	return wantarray ? ($all, $short) : $all;
-}
-
-#------------------------------------------------------------------------------
-# ●unique_link_nameの生成と破棄
-#------------------------------------------------------------------------------
-sub init_unique_link_name {
-	my $self = shift;
-	$self->{unique_linkname_bak} = $self->{unique_linkname};
-	$self->{unique_linkname} ||= $self->{thispkey} ? "k$self->{thispkey}" : '';
-}
-sub restore_unique_link_name {
-	my $self = shift;
-	$self->{unique_linkname} = $self->{unique_linkname_bak};
 }
 
 ###############################################################################
@@ -274,9 +259,9 @@ sub parse_special_block {
 			# アンカー処理
 			my $text = $2;
 			if ($level==1) {	# [S] h3
-				my $anchor = $self->{section_anchor};
+				my $anchor = '';
 				my $scount = $#$sections+2;
-				my $name   = "$self->{unique_linkname}p" . $scount;
+				my $name   = 'p' . $scount;
 				$anchor =~ s/%n/$scount/g;
 				$subsections = [];
 				push(@$sections, {
@@ -286,17 +271,14 @@ sub parse_special_block {
 					section_count => $scount,
 					children => $subsections
 				});
-				if ($self->{span_sanchor}) {
-					$text = "<span class=\"sanchor\">$anchor</span>$text";
-				}
 				if ($self->{section_link}) {
 					$text = "<a href=\"$self->{thisurl}#$name\" id=\"$name\">$text</a>";
 				}
 			} elsif ($level==2) {	# [S] h4
-				my $anchor = $self->{subsection_anchor};
+				my $anchor = '';
 				my $scount = $#$sections    +1;
 				my $sscount= $#$subsections +2;
-				my $name   = "$self->{unique_linkname}p" . "$scount.$sscount";
+				my $name   = 'p' . "$scount.$sscount";
 				$anchor =~ s/%n/$scount/g;
 				$anchor =~ s/%s/$sscount/g;
 				push(@$subsections, {
@@ -306,7 +288,6 @@ sub parse_special_block {
 					section_count => $scount,
 					subsection_count => $sscount
 				});
-				$text = "<span class=\"sanchor\">$anchor</span>$text";
 				if ($self->{section_link}) {
 					$text = "<a href=\"$self->{thisurl}#$name\" id=\"$name\">$text</a>";
 				}
