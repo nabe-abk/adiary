@@ -365,7 +365,7 @@ sub parse_directive {
 	my $arg;
 	if ($d->{arg}) {
 		while(@$block && $block->[0] ne ''
-		  && (!$d->{option} || $block->[0] !~ /^:((?:\\.|[^:\\])+):(?: +(.*)|$)/  || substr($1,0,1) eq ' ' ||  substr($1,-1) eq ' ')
+		  && (!$d->{options} || $block->[0] !~ /^:((?:\\.|[^:\\])+):(?: +(.*)|$)/  || substr($1,0,1) eq ' ' ||  substr($1,-1) eq ' ')
 		) {
 			$arg = $self->join_line($arg, shift(@$block));
 		}
@@ -390,10 +390,10 @@ sub parse_directive {
 	}
 
 	#-----------------------------------------
-	# option
+	# options
 	#-----------------------------------------
 	my $opt = {};
-	if ($d->{option}) {
+	if ($d->{options}) {
 		while(@$block && $block->[0] =~ /^:((?:\\.|[^:\\])+):(?: +(.*)|$)/  && substr($1,0,1) ne ' ' &&  substr($1,-1) ne ' ') {
 			shift(@$block);
 			my $k = $1;
@@ -425,8 +425,8 @@ sub parse_directive {
 					}
 				}
 			}
-			if ($d->{option} != $ANY) {
-				if (! $d->{option}->{$k}) {
+			if ($d->{options} != $ANY) {
+				if (! $d->{options}->{$k}) {
 					$self->parse_error('"%s" directive unknown option: %s', $type, $k);
 					return;
 				}
@@ -445,7 +445,7 @@ sub parse_directive {
 			return;
 		}
 		#-----------------------------------------
-		# option check
+		# options check
 		#-----------------------------------------
 		if (exists($opt->{class})) {
 			my $c = $self->normalize_class_string( $opt->{class} );
@@ -598,13 +598,13 @@ sub load_directive {
 		arg     => $NONE,
 		content => $REQUIRED,
 		method  => 'admonition_directive',
-		option  => $OPT_DEFAULT
+		options => $OPT_DEFAULT
 	};
 	$Directive{admonition} = {
 		arg     => $REQUIRED,
 		content => $REQUIRED,
 		method  => 'topic_directive',
-		option  => $OPT_DEFAULT
+		options => $OPT_DEFAULT
 	};
 
 	#----------------------------------------------------------------------
@@ -613,12 +613,12 @@ sub load_directive {
 	$Directive{image} = {
 		arg     => $REQUIRED,
 		content => $NONE,
-		option  => [ qw(alt height width scale align target class name) ]
+		options => [ qw(alt height width scale align target class name) ]
 	};
 	$Directive{figure} = {
 		arg     => $REQUIRED,
 		content => $ANY,
-		option  => [ qw(alt height width scale align target class name figwidth figclass) ]
+		options => [ qw(alt height width scale align target class name figwidth figclass) ]
 	};
 
 	#----------------------------------------------------------------------
@@ -627,33 +627,33 @@ sub load_directive {
 	$Directive{topic} = {
 		arg     => $REQUIRED,
 		content => $REQUIRED,
-		option  => $OPT_DEFAULT
+		options => $OPT_DEFAULT
 	};
 	$Directive{sidebar} = {
 		arg     => $REQUIRED,
 		content => $REQUIRED,
-		option  => [ qw(subtitle class name) ]
+		options => [ qw(subtitle class name) ]
 	};
 	$Directive{'parsed-literal'} = {
 		arg     => $NONE,
 		content => $REQUIRED,
-		option  => $OPT_DEFAULT
+		options => $OPT_DEFAULT
 	};
 	$Directive{code} = {
 		arg     => $ANY,
 		arg_max => 1,
 		content => $REQUIRED,
-		option  =>  [ qw(number-lines name class) ]
+		options =>  [ qw(number-lines name class) ]
 	};
 	$Directive{math} = {
 		arg     => $ANY,
 		content => $ANY,
-		option  =>  [ qw(name) ]
+		options =>  [ qw(name) ]
 	};
 	$Directive{rubric} = {
 		arg     => $REQUIRED,
 		content => $NONE,
-		option  => $OPT_DEFAULT
+		options => $OPT_DEFAULT
 	};
 	# Quote directive
 	$Directive{epigraph} = 
@@ -662,19 +662,19 @@ sub load_directive {
 		arg     => $NONE,
 		content => $REQUIRED,
 		method  => 'quote_directive',
-		option  => $NONE
+		options => $NONE
 	};
 	$Directive{compound} = {
 		arg     => $NONE,
 		content => $REQUIRED,
 		method  => 'div_directive',
-		option  => $OPT_DEFAULT
+		options => $OPT_DEFAULT
 	};
 	$Directive{container} = {
 		arg     => $ANY,
 		content => $REQUIRED,
 		method  => 'div_directive',
-		option  => [ qw(name) ]
+		options => [ qw(name) ]
 	};
 
 	#----------------------------------------------------------------------
@@ -684,12 +684,12 @@ sub load_directive {
 		arg     => $ANY,
 		content => $REQUIRED,
 		parse   => 'table',
-		option  => $OPT_DEFAULT
+		options => $OPT_DEFAULT
 	};
 	$Directive{'csv-table'} = {
 		arg     => $ANY,
 		content => $REQUIRED,
-		option  => [ qw(widths header-rows stub-columns header file url encoding delim quote keepspace escape class name) ],
+		options => [ qw(widths header-rows stub-columns header file url encoding delim quote keepspace escape class name) ],
 		keep_lf => [ qw(header) ]
 	};
 	# Not support
@@ -701,14 +701,14 @@ sub load_directive {
 	$Directive{contents} = {
 		arg     => $ANY,
 		content => $NONE,
-		option  => [ qw(depth local backlinks class) ]
+		options => [ qw(depth local backlinks class) ]
 	};
 	$Directive{sectnum} =
 	$Directive{'section-numbering'} = {
 		arg     => $NONE,
 		content => $NONE,
 		method  => 'sectnum_directive',
-		option  => [ qw(depth prefix suffix start) ]
+		options => [ qw(depth prefix suffix start) ]
 	};
 
 	$Directive{header} =
@@ -732,7 +732,7 @@ sub load_directive {
 	$Directive{meta} = {
 		arg     => $NONE,
 		content => $NONE,
-		option  => $ANY,
+		options => $ANY,
 		method  => 'no_work_directive'
 	};
 	# NOT IMPLEMENTED YET on Sphinx
@@ -746,13 +746,13 @@ sub load_directive {
 		arg     => $NONE,
 		content => $REQUIRED,
 		parse   => 'p',
-		option  => [ qw(alt height width scale align target) ]
+		options => [ qw(alt height width scale align target) ]
 	};
 	$Directive{unicode} = {
 		subst   => 1,
 		arg     => $REQUIRED,
 		content => $NONE,
-		option  => [ qw(ltrim rtrim trim) ]
+		options => [ qw(ltrim rtrim trim) ]
 	};
 	$Directive{date} = {
 		subst   => 1,
@@ -768,28 +768,28 @@ sub load_directive {
 		arg     => $REQUIRED,
 		content => $REQUIRED,
 		file_raw=> 1,
-		option  => [ qw(file url encoding) ]
+		options => [ qw(file url encoding) ]
 	};
 	$Directive{role} = {
 		arg     => $REQUIRED,
 		content => $ANY,
-		option  => $ANY
+		options => $ANY
 	};
 	$Directive{'default-role'} = {
 		arg     => $ANY,
 		content => $NONE,
-		option  => $NONE
+		options => $NONE
 	};
 	$Directive{title} = {
 		arg     => $REQUIRED,
 		content => $NONE,
-		option  => $NONE,
+		options => $NONE,
 		method  => 'no_work_directive'
 	};
 	$Directive{'restructuredtext-test-directive'} = {
 		arg     => $NONE,
 		content => $ANY,
-		option  => $NONE,
+		options => $NONE,
 		method  => 'no_work_directive'
 	};
 	# Not support
@@ -799,8 +799,8 @@ sub load_directive {
 	#======================================================================
 	foreach(keys(%Directive)) {
 		my $d = $Directive{$_};
-		if (ref($d->{option}) eq 'ARRAY') {
-			$d->{option} = { map {$_ => 1} @{$d->{option}} };
+		if (ref($d->{options}) eq 'ARRAY') {
+			$d->{options} = { map {$_ => 1} @{$d->{options}} };
 		}
 		if (ref($d->{keep_lf}) eq 'ARRAY') {
 			$d->{keep_lf} = { map {$_ => 1} @{$d->{keep_lf}} };
