@@ -281,6 +281,7 @@ Restart of %s is required!=%sの再起動が必要です！
 [RST] Text in column margin: %s=[RST] テーブルのマージン部にテキストが存在します: %s
 [RST] Option list ends without a blank line: %s=[RST] オプションリストが空行なしで終わっています: %s
 [RST] Inline "%s" start-string without end-string=[RST] インラインタグ「%s」の終了記述がありません
+[RST] Mismatch both interpreted text role prefix and reference suffix: %s=[RST] roleとシンボル参照の両方は指定できません: %s
 [RST] Too many symbol footnote references=[RST] 脚注のシンボル参照が定義よりも多すぎます
 [RST] Too many autonumbered footnote references=[RST] 脚注の自動番号参照が定義よりも多すぎます
 [RST] Citation not found: %s=[RST] 引用参照が見つかりません: %s

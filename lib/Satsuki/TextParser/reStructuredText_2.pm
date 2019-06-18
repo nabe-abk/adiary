@@ -5,6 +5,313 @@ use strict;
 use Satsuki::TextParser::reStructuredText ();
 package Satsuki::TextParser::reStructuredText;
 ###############################################################################
+# ■Interpreted Text Roles
+###############################################################################
+my %Roles;
+my $DefaultRole = 'title';
+#------------------------------------------------------------------------------
+# inline text role
+#------------------------------------------------------------------------------
+sub text_role {
+	my $self  = shift;
+	my $whole = shift;
+	my $name  = shift;
+	my $str   = shift;
+	if ($name eq '') { $name = $self->{default_role}; }
+	$name =~ tr/A-Z/a-z/;
+	$str  =~ s/\x01//g;
+	if ($name eq '') { $name = $DefaultRole; }
+
+	my $roles = $self->load_roles();
+	my $role  = $roles->{$name};
+	if (!$role) {
+		my $msg = $self->parse_error('Unknown interpreted text role: %s', $name);
+		return $self->make_problematic_span($whole, $msg);
+	}
+
+	#-----------------------------------------
+	# check and format
+	#-----------------------------------------
+	if ($role->{check} && $str !~ /$role->{check}/) {
+		my $msg = $self->parse_error('"%s" role invalid integer: %s', $name, $str);
+		return $self->make_problematic_span($whole, $msg);
+	}
+	if ($role->{literal}) {
+		$self->backslash_escape_cancel_with_tag_escape($str);
+	}
+
+	#-----------------------------------------
+	# load class
+	#-----------------------------------------
+	my $class = $role->{class};
+	if ($role->{opt}) {
+		$class = ($class ne '' ? ' ' : '') . $role->{opt}->{_class};
+	}
+
+	#-----------------------------------------
+	# method
+	#-----------------------------------------
+	if ($role->{method}) {
+		my $method = $role->{method};
+		return $self->$method($whole, $name, $str, $role->{opt}, $class);
+	}
+
+	if ($class ne '') { $class = " class=\"$class\""; }
+	#-----------------------------------------
+	# link replace
+	#-----------------------------------------
+	if ($role->{link}) {
+		my $link = $role->{link};
+		my $text = $role->{text};
+		$link =~ s/%s/$str/g;
+		$text =~ s/%s/$str/g;
+		return "<a$class href=\"$link\">$text</a>";
+	}
+
+	#-----------------------------------------
+	# tag replace
+	#-----------------------------------------
+	my $tag = $role->{tag};
+	if ($tag) {
+		return "<$tag$class>$str</$tag>";
+	}
+
+	#-----------------------------------------
+	# other
+	#-----------------------------------------
+	my $msg = $self->parse_error('Internal error role: %s', $name);
+	return $self->make_problematic_span($whole, $msg);
+}
+
+#------------------------------------------------------------------------------
+# load roles
+#------------------------------------------------------------------------------
+sub load_roles {
+	my $self  = shift;
+	if ($self->{roles}) {
+		return $self->{roles};
+	}
+	if (!%Roles) {
+		$self->init_roles();
+	}
+	my %r = %Roles;		# Copy default roles
+	return ($self->{roles} = \%r);
+}
+#------------------------------------------------------------------------------
+# define Roles
+#------------------------------------------------------------------------------
+sub init_roles {
+	my $self = shift;
+
+	$Roles{emphasis} = {
+		tag => 'em'
+	};
+	$Roles{strong} = {
+		tag => 'strong'
+	};
+	$Roles{literal} = {
+		tag   => 'span',
+		class => 'pre'
+	};
+	$Roles{code} = {
+		method  => 'code_role',
+		literal => 1,
+		class   => 'code',
+		options => [ qw(class language) ]
+	};
+	$Roles{math} = {
+		literal => 1,
+		tag     => 'span',
+		class   => 'math'
+	};
+	$Roles{'pep-reference'} = 
+	$Roles{pep} = {
+		check => qr/^-?\d+$/,
+		text  => "PEP %s",
+		link  => "https://www.python.org/dev/peps/pep-%s",
+		class => 'pep'
+	};
+	$Roles{'rfc-reference'} = 
+	$Roles{rfc} = {
+		check => qr/^-?\d+$/,
+		text  => "RFC %s",
+		link  => "https://tools.ietf.org/html/rfc%s.html",
+		class => 'rfc'
+	};
+	$Roles{subscript} =
+	$Roles{sub} = {
+		tag   => 'sub'
+	};
+	$Roles{superscript} =
+	$Roles{sup} = {
+		tag   => 'sub'
+	};
+	$Roles{'title-reference'} = 
+	$Roles{title} = 
+	$Roles{t} = {
+		tag   => 'cite'
+	};
+	$Roles{raw} = {
+		method  => 'raw_role',
+		options => [ qw(class format) ]
+	};
+	foreach(keys(%Roles)) {
+		my $r = $Roles{$_};
+		if (ref($r->{options}) eq 'ARRAY') {
+			$r->{options} = { map {$_ => 1} @{$r->{options}} };
+		} else {
+			$r->{options} = { class => 1 };
+		}
+	}
+}
+#//////////////////////////////////////////////////////////////////////////////
+# Roles
+#//////////////////////////////////////////////////////////////////////////////
+#------------------------------------------------------------------------------
+# code
+#------------------------------------------------------------------------------
+sub code_role {
+	my $self  = shift;
+	my $whole = shift;
+	my $name  = shift;
+	my $str   = shift;
+	my $opt   = shift;
+	my $class = shift;
+
+	my $lang = $opt->{language};
+	if ($lang ne '') {
+		$class = $self->append_and_normalize_class_string($class, $lang);
+	}
+
+	if ($class ne '') { $class = " class=\"$class\""; }
+	return "<code$class>$str</code>";
+}
+
+#------------------------------------------------------------------------------
+# raw
+#------------------------------------------------------------------------------
+sub raw_role {
+	my $self  = shift;
+	my $whole = shift;
+	my $name  = shift;
+	my $str   = shift;
+	my $opt   = shift;
+	my $class = shift;
+
+	my $format = $opt->{format};
+	if ($format ne 'html') {
+		my $msg = $self->parse_error('"%s" role supports only "html" format: %s', $name, $format);
+		return $self->make_problematic_span($whole, $msg);
+	}
+
+	$self->backslash_escape_cancel($str);
+	$self->tag_escape_cancel($str);
+
+	if ($class ne '') { $class = " class=\"$class\""; }
+	return "<span$class>$str</span>";
+}
+
+#//////////////////////////////////////////////////////////////////////////////
+# Role Directives
+#//////////////////////////////////////////////////////////////////////////////
+#------------------------------------------------------------------------------
+# [Directive] default-role
+#------------------------------------------------------------------------------
+sub default_role_directive {
+	my $self  = shift;
+	my $role  = shift;
+	$role =~ tr/A-Z/a-z/;
+
+	my $roles = $self->load_roles();
+	if ($role ne '' && !$roles->{$role}) {
+		$self->parse_error('"%s" directive unknown text role: %s', $self->{directive}, $role);
+		return;
+	}
+	return {
+		type => 'default-role',
+		role => $role
+	};
+}
+
+#------------------------------------------------------------------------------
+# [Directive] role
+#------------------------------------------------------------------------------
+sub role_directive {
+	my $self  = shift;
+	my $role  = shift;
+	my $opt   = shift;
+	# $role =~ tr/A-Z/a-z/;		# compatible for Sphinx v1.4.9
+
+	return {
+		type => 'role',
+		role => $role,
+		opt  => $opt
+	};
+}
+sub do_role_directive {
+	my $self = shift;
+	my $role = shift;
+	my $opt  = shift;
+	my $type = 'role';
+
+	my $inherit;
+	if ($role =~ /^([^ ]+) *\( *([^ ]+) *\)$/) {
+		$role = $1;
+		$inherit = $2;
+	}
+	if ($role !~ /[A-Za-z0-9]+(?:\x01?[\-_\+:\.]\x01?[A-Za-z0-9]+)*$/) {
+		$self->parse_error('"%s" directive arguments not valid role names: %s', $type, $role);
+		return;
+	}
+
+	#-----------------------------------------
+	# load original role
+	#-----------------------------------------
+	my %r;
+	my $roles = $self->load_roles();
+	if ($inherit ne '') {
+		if (! $roles->{$inherit}) {
+			$self->parse_error('"%s" directive unknown text role: %s', $type, $inherit);
+			return;
+		}
+		%r = %{ $roles->{$inherit} };	# copy
+	} else {
+		%r = (
+			tag     => 'span',
+			options => { class => 1}
+		);
+		$inherit = $role;
+	}
+
+	#-----------------------------------------
+	# option check
+	#-----------------------------------------
+	foreach(keys(%$opt)) {
+		if ($_ =~ /^_/) { next; }
+		if (! $r{options}->{$_}) {
+			$self->parse_error('"%s" role unknown option: %s', $role, $_);
+			return;
+		}
+	}
+	if (!exists($opt->{class})) {
+		$opt->{class} = $role;
+		my $c = $self->normalize_class_string( $opt->{class} );
+		if ($c eq '') {
+			$self->parse_error('"%s" role cannot make "%s" into a class name', $role, $role);
+			return;
+		}
+		$opt->{_class} = $c;
+	}
+
+	#-----------------------------------------
+	# save
+	#-----------------------------------------
+	$roles->{$role} = \%r;
+	$r{opt} = $opt;
+	return;
+}
+
+###############################################################################
 # ■ディレクティブのパース
 ###############################################################################
 my %Directive;
@@ -240,7 +547,7 @@ sub parse_directive {
 	my $name = $d->{method} || $type . '_directive';
 	$name =~ tr/-/_/;
 	my $ret  = $self->$name($arg, $opt, $block, $type);
-	my $ary = ref($ret) ? $ret : [$ret];
+	my $ary = ref($ret) eq 'ARRAY' ? $ret : [$ret];
 
 	if ($subst ne '') {
 		my $text = join('', @$ary);
@@ -249,11 +556,14 @@ sub parse_directive {
 			$self->parse_error('Duplicate substitution definition name: %s', $subst);
 		}
 		my $key = $self->generate_key_from_label($subst);
-		$self->{substitutions}->{$subst} = {
+		my $h   = {
+			type  => 'substitution',
 			text  => $text,
 			ltrim => exists($opt->{trim}) || exists($opt->{ltrim}),
 			rtrim => exists($opt->{trim}) || exists($opt->{rtrim})
 		};
+		$self->{substitutions}->{$subst} = $h;
+		push(@$out, $h);
 	} else {
 		push(@$out, @$ary);
 	}
@@ -1381,37 +1691,6 @@ sub raw_directive {
 		$_ .= "\x02";
 	}
 	return $block;
-}
-#------------------------------------------------------------------------------
-# raw
-#------------------------------------------------------------------------------
-sub raw_directive {
-	my $self  = shift;
-	my $arg   = shift;
-	my $opt   = shift;
-	my $block = shift;
-	$arg =~ tr/A-Z/a-z/;
-
-	if ($arg ne 'html') {
-		return;
-	}
-
-	foreach(@$block) {
-		$_ .= "\x02";
-	}
-	return $block;
-}
-#------------------------------------------------------------------------------
-# default-role
-#------------------------------------------------------------------------------
-sub default_role_directive {
-	my $self  = shift;
-	my $arg   = shift;
-	$arg =~ tr/A-Z/a-z/;
-
-	# need role check
-
-	return "\x02role\x02$arg\x02";
 }
 
 #//////////////////////////////////////////////////////////////////////////////

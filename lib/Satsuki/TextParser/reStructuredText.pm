@@ -83,22 +83,15 @@ sub text_parser {
 	$self->{substitutions}  = {};	# Substitution
 	$self->{ids}            = {};	# all id hash
 
-	# 記事固有変数
-	$self->{unique_id} = 'k' . $self->{thispkey};
-	{
-		my $attr = $self->{image_attr};
-		$attr =~ s/%k/$self->{unique_id}/g;
-		if ($attr ne '' && substr($attr,0,1) ne ' ') {
-			$attr = ' ' . $attr;
-		}
-		$self->{current_image_attr} = $attr;
-	}
-
 	# セクション情報の初期化
 	$self->{sections} = [];
 	$self->{local_sections} = [];
 	$self->{current_section}= { children => $self->{sections} };
 	$self->{sectnums} = [];
+
+	# init roles
+	$self->{default_role}='';
+	$self->{roles} = undef;
 
 	#-------------------------------------------
 	# ○処理スタート
@@ -1623,18 +1616,6 @@ sub parse_inline {
 	my $lines = shift;
 
 	#-----------------------------------------------------------------
-	# substitution
-	#-----------------------------------------------------------------
-	{
-		my $ss = $self->{substitutions};
-		$self->{substitution_mode} = 1;
-		foreach(keys(%$ss)) {
-			$self->{substitution_label} = $_;
-			$self->parse_oneline($ss->{$_}->{text});
-		}
-		$self->{substitution_mode} = 0;
-	}
-	#-----------------------------------------------------------------
 	# main text
 	#-----------------------------------------------------------------
 	my $out = [];
@@ -1646,7 +1627,29 @@ sub parse_inline {
 		my $type = ref($x) ? $x->{type} : undef;
 
 		#---------------------------------------------------------
-		# insert 4 id
+		# substitution text
+		#---------------------------------------------------------
+		if ($type eq 'substitution') {
+			$self->{substitution_label} = $x;
+			$self->parse_oneline($x->{text});
+			$self->{substitution_label} = undef;
+			next;
+		}
+
+		#---------------------------------------------------------
+		# role
+		#---------------------------------------------------------
+		if ($type eq 'default-role') {
+			$self->{default_role} = $x->{role};
+			next;
+		}
+		if ($type eq 'role') {
+			$self->do_role_directive($x->{role}, $x->{opt});
+			next;
+		}
+
+		#---------------------------------------------------------
+		# insert id
 		#---------------------------------------------------------
 		if ($type eq 'link') {
 			$id = " id=\"$x->{id}\"";
@@ -1717,22 +1720,22 @@ sub parse_oneline {
 		#--------------------------------------------------------
 		# http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules
 		# simple-inline-markup is False (default)
-
+		# 	"\x03(?:32|10|62|45|58|47|39|40|34)" is " \n>-:/'(\""'s backslash escaped string
 		Encode::_utf8_on($_);
 		$_ =~ s!
-			(^|&quot;|&lt;|[ \n>\-:/\'\(\[\p{gc:Ps}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}])
-			(?=[\[\*`\|_])
+			(^|&quot;|&lt;|\x03(?:32|10|62|45|58|47|39|40|34)|[ \n>\-:/\'\(\[\p{gc:Ps}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}])
+			(?=[\[\*`\|_:])
 		!
 			($1 eq '' || index($invalid_po, $1) < 0) ? "$1\x01" : $1
 		!exg;
 		$_ =~ s!
-			(^|&quot;|&lt;|[ \n>\-:/\'\(\[\p{gc:Ps}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}])
+			(^|&quot;|&lt;|\x03(?:32|10|62|45|58|47|39|40|34)|[ \n>\-:/\'\(\[\p{gc:Ps}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}])
 			(?=[A-Za-z0-9\p{gc:L}\p{gc:N}]+(?:[\-_\.][A-Za-z0-9\p{gc:L}\p{gc:N}]+)*_)
 		!
 			($1 eq '' || index($invalid_po, $1) < 0) ? "$1\x01" : $1
 		!exg;
 		$_ =~ s!
-			([\]\*`\|_])
+			([\]\*`\|_:])
 			(?=($|&quot;|&gt;|[ \n\x03<\-\.,:;\!\?/\'\)\]\}\p{gc:Pe}\p{gc:Pi}\p{gc:Pf}\p{gc:Pd}\p{gc:Po}]))
 		!
 			($2 eq '' || index($invalid_po, $2) < 0) ? "$1\x01" : $1
@@ -1757,7 +1760,7 @@ sub parse_oneline {
 			(	\*\*
 				|\*
 				|``
-				|[`\[\|]
+				|[`\[\|:]
 				|([A-Za-z0-9\x80-\xff]+(?:\x01?[\-_\.]\x01?[A-Za-z0-9\x80-\xff]+)*)(__?)
 			)\x01?(.*?)$
 		!xs) {
@@ -1790,9 +1793,9 @@ sub parse_oneline {
 			# seacrh end markup
 			if ($x =~ /$pt/) {
 				my $xbak = $x;
-				$x = $3;
+				$x = $+;
 				if ($h->{func}) {
-					my $r = &{$h->{func}}($self, $1, $2);
+					my $r = &{$h->{func}}($self, $1, $2, $3, $4);
 					if (! defined $r) {
 						$_ .= $m;	# 開始文字を無視
 						$x  = $xbak;
@@ -1823,15 +1826,15 @@ sub parse_oneline {
 #------------------------------------------------------------------------------
 BEGIN{
 	$Markup{'**'} = {
-		pt  => qr/^(.*?[^ \n\x01])\x01?(\*\*)\x01(.*)/s,
+		pt  => qr/^(.*?[^ \n\x01])\x01?\*\*\x01(.*)/s,
 		tag => 'strong'
 	};
 	$Markup{'*'} = {
-		pt  => qr/^(.*?[^ \n\x01])\x01?(\*)\x01(.*)/s,
+		pt  => qr/^(.*?[^ \n\x01])\x01?\*\x01(.*)/s,
 		tag => 'em'
 	};
 	$Markup{'``'} = {
-		pt   => qr/^(.*?[^ \n\x01])\x01?(``)\x01(.*)/s,
+		pt   => qr/^(.*?[^ \n\x01])\x01?``\x01(.*)/s,
 		func => sub {
 			my $self = shift;
 			my $str  = shift;
@@ -1840,19 +1843,42 @@ BEGIN{
 		}
 	};
 	$Markup{'`'} = {
-		pt   => qr/^(.*?[^ \n\x01])\x01?(`_?_?)\x01(.*)/s,
+		pt   => qr/^((.*?[^ \n\x01])\x01?`\x01?(?::([A-Za-z0-9]+(?:\x01?[\-_\+:\.]\x01?[A-Za-z0-9]+)*):)?\x01?(_?_?))\x01(.*)/s,
 		func => sub {
 			my $self = shift;
+			my $whole= '`' . shift;
 			my $str  = shift;
+			my $role = shift;
 			my $m    = shift;
 
-			if ($m eq '`') {
-				return "<span class=\"\">$str</span>";
+			if (!$m) {
+				return $self->text_role($whole, $role, $str);
 			}
-			return $self->inline_link($str, "`", $m);
+			if ($role ne '') {
+				my $msg = $self->parse_error('Mismatch both interpreted text role prefix and reference suffix: %s', $whole);
+				return $self->make_problematic_span($whole, $msg);
+			}
+			return $self->inline_link($str, "`", "`$m");
+		}
+	};
+	$Markup{':'} = {
+		ignore_start => 1,
+		pt   => qr/^(([A-Za-z0-9]+(?:\x01?[\-_\+:\.]\x01?[A-Za-z0-9]+)*):\x01?`(.*?[^ \n\x01])\x01?`(_?_?))\x01(.*)/s,
+		func => sub {
+			my $self = shift;
+			my $whole= ':' . shift;
+			my $role = shift;
+			my $str  = shift;
+			my $m    = shift;
+			if ($m) {
+				my $msg = $self->parse_error('Mismatch both interpreted text role prefix and reference suffix: %s', $whole);
+				return $self->make_problematic_span($whole, $msg);
+			}
+			return $self->text_role($whole, $role, $str);
 		}
 	};
 	$Markup{'|'} = {
+		ignore_start => 1,
 		pt   => qr/^(.*?[^ \n\x01])\x01?(\|_?_?)\x01(.*)/s,
 		func => sub {
 			my $self  = shift;
@@ -1863,7 +1889,7 @@ BEGIN{
 	};
 	$Markup{'['} = {
 		ignore_start => 1,
-		pt   => qr/^(\d+|\x01?\*\x01?|\#?[^\]]*)\](_)\x01(.*)/s,
+		pt   => qr/^(\d+|\x01?\*\x01?|\#?[^\]]*)\]_\x01(.*)/s,
 		func => sub {
 			my $self  = shift;
 			my $label = shift;
@@ -1884,7 +1910,7 @@ BEGIN{
 sub inline_reference {
 	my $self  = shift;
 	my $label = shift;
-	if ($self->{substitution_mode}) {
+	if ($self->{substitution_label} ne '') {
 		return $self->error_in_substitution("[$label]_");
 	}
 	$label =~ s/\x01//g;
@@ -1967,7 +1993,7 @@ sub inline_link {
 	 && substr($2,-1)  ne ' '
 	 && index($2, '&lt;')<0 && index($2, '&gt;')<0) {
 
-		if ($self->{substitution_mode}) {
+		if ($self->{substitution_label} ne '') {
 			return $self->error_in_substitution("$mark0$label$mark1");
 		}
 
@@ -2074,7 +2100,7 @@ sub inline_substitution {
 	my $label = shift;
 	my $mark  = shift;
 
-	if ($self->{substitution_mode}) {
+	if ($self->{substitution_label} ne '') {
 		return $self->error_in_substitution("|$label$mark");
 	}
 
@@ -2367,8 +2393,8 @@ sub make_problematic_span {
 #------------------------------------------------------------------------------
 # ●バックスラッシュのエスケープ
 #------------------------------------------------------------------------------
-sub backslash_escape {
-	my $self = shift;
+sub backslash_escape {		# ※仕様変更時は「インラインマークアップ認識」も
+	my $self = shift;	#   変更すること。
 	foreach(@_) {
 		$_ =~ s!\\(.)|\\$!
 			if ($1 eq '') {
@@ -2417,7 +2443,7 @@ BEGIN {
 sub backslash_escape_cancel {
 	my $self = shift;
 	foreach(@_) {
-		$_ =~ s/\x03(\d+)/chr($1)/eg;
+		$_ =~ s/\x03(\d+)/"\\" . chr($1)/eg;
 		$_ =~ s/\x03/\\/g;
 	}
 	return $_[0];
@@ -2456,6 +2482,17 @@ sub tag_escape {
 		$_ =~ s/</&lt;/g;
 		$_ =~ s/>/&gt;/g;
 		$_ =~ s/"/&quot;/g;
+	}
+	return $_[0];
+}
+
+sub tag_escape_cancel {
+	my $self = shift;
+	foreach(@_) {
+		$_ =~ s/&lt;/</g;
+		$_ =~ s/&gt;/>/g;
+		$_ =~ s/&quot;/"/g;
+		$_ =~ s/&amp;/&/g;
 	}
 	return $_[0];
 }
