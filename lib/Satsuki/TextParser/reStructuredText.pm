@@ -299,7 +299,7 @@ sub do_parse_block {
 					$err = 1;
 					last;
 				}
-				$base = $s->{_num};
+				$base = $s->{num};
 				$secs = $s->{children} ||= [];	# 修正時は current_section 初期化も修正する
 			}
 			if ($err) {
@@ -317,13 +317,14 @@ sub do_parse_block {
 				my $depth = $_->{depth};
 				if (1<$level && $depth ne '' && $depth<$level) { next; }
 
+				my $n = $num;
 				my $start = $_->{start};
 				if ($start ne '' && $start != 1) {
-					$num =~ s/^(\d+)/
+					$n =~ s/^(\d+)/
 						$1 +$start -1
 					/eg;
 				}
-				$number .= "$_->{prefix}$num$_->{suffix} ";
+				$number .= "$_->{prefix}$n$_->{suffix} ";
 			}
 			my $num_text = '';
 			if ($number ne '') {
@@ -334,7 +335,7 @@ sub do_parse_block {
 			# save section information
 			my $sec = {
 				id	=> $id,
-				_num	=> $num,
+				num	=> $num,
 				number  => $number,
 				title	=> $title,
 				count	=> $count
