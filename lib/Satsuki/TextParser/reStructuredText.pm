@@ -308,7 +308,7 @@ sub do_parse_block {
 			}
 			my $count = $#$secs<0 ? 1 : $secs->[$#$secs]->{count} + 1;
 			my $num   = $base . ($level>1 ? '.' : '') . $count;
-			my $base  = $self->generate_id_from_string($title, 'h' . $num);
+			my $base  = $self->generate_id_from_string($title, 'p' . $num);
 			my $id    = $self->generate_implicit_link_id( $base );
 
 			# generate section number
