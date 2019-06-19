@@ -33,7 +33,7 @@ sub text_role {
 	# check and format
 	#-----------------------------------------
 	if ($role->{check} && $str !~ /$role->{check}/) {
-		my $msg = $self->parse_error('"%s" role invalid integer: %s', $name, $str);
+		my $msg = $self->parse_error('"%s" role invalid argument: %s', $name, $str);
 		return $self->make_problematic_span($whole, $msg);
 	}
 	if ($role->{literal}) {
@@ -79,7 +79,7 @@ sub text_role {
 	#-----------------------------------------
 	# other
 	#-----------------------------------------
-	my $msg = $self->parse_error('Internal error role: %s', $name);
+	my $msg = $self->parse_error('"%s" role internal error', $name);
 	return $self->make_problematic_span($whole, $msg);
 }
 
@@ -355,7 +355,7 @@ sub parse_directive {
 		return;
 	}
 	if ($type ne 'image' && ($subst ne '' && !$d->{subst})) {
-		$self->parse_error('Substitution definition empty or invalid: %s / %s directive', $subst, $type);
+		$self->parse_error('"%s" substitution definition empty or invalid: %s', $subst, $type);
 		$subst='';	# 置換定義は失敗だが、出力自体は行う
 	}
 
@@ -504,7 +504,7 @@ sub parse_directive {
 				Encode::from_to($data, $enc, $self->{system_coding});
 			};
 			if ($@) {
-				$self->parse_error('"%s" directive file encoding error: "%s", file: "%s"', $type, $enc, $opt->{file});
+				$self->parse_error('"%s" directive file encoding error: "%s", file="%s"', $type, $enc, $opt->{file});
 				return;
 			}
 			$data =~ s/[\x01-\x08]//g;

@@ -299,3 +299,33 @@ Restart of %s is required!=%sの再起動が必要です！
 ###############################################################################
 # Base/TextParser/reStructuredText_2.pm
 ###############################################################################
+[RST] Unknown interpreted text role: %s=[RST] 未知のロールです: %s
+[RST] "%s" role invalid argument: %s=[RST] 「%s」ロール: 無効な引数です: %s
+[RST] "%s" role internal error=[RST] 「%s」ロール: 内部エラーが発生しました
+[RST] "%s" role supports only "html" format: %s=[RST] 「%s」ロールはhtmlフォーマットのみサポートしています: %s
+[RST] "%s" directive unknown text role: %s=[RST] 「%s」ディレクティブ: 未知のロールが指定されています: %s
+[RST] "%s" directive arguments not valid role names: %s=[RST] 「%s」ディレクティブ: 引数のロール名が無効です: %s
+[RST] "%s" role unknown option: %s=[RST] 「%s」ロール: 未知のオプションです: %s
+[RST] "%s" role cannot make "%s" into a class name=[RST] 「%s」ロール: 「%s」からクラス名を生成できません
+[RST] Unknown directive type: %s=[RST] 未知のディレクティブです: %s
+[RST] "%s" directive can only be used within a substitution definition=[RST] 「%s」ディレクティブは、置換定義でのみ使用できます
+[RST] "%s" substitution definition empty or invalid: %s=[RST] 置換定義「%s」の中身が無効または空です: %s
+[RST] "%s" directive argument required=[RST] 「%s」ディレクティブには引数が必要です
+[RST] "%s" maximum %d argument(s) allowed, %d supplied: %s=[RST] 「%s」ディレクティブの引数は最大「%d個」までです: %s
+[RST] "%s" directive unknown option: %s=[RST] 「%s」ディレクティブ: 未知のオプションです: %s
+[RST] "%s" directive duplicate option: %s=[RST] 「%s」ディレクティブ: オプションが重複しています: %s
+[RST] "%s" directive invalid option block: %s=[RST] 「%s」ディレクティブ: オプションブロックが不正です: %s
+[RST] "%s" directive may not both "file" and "url" options=[RST] 「%s」ディレクティブ: fileとurlオプションは同時に指定できません %s
+[RST] "%s" directive may not both specify an external file/url and content: %s=[RST] 「%s」ディレクティブ: 外部file/urlと本文は同時に指定できません: %s
+[RST] "%s" directive file encoding error: "%s", file="%s"=[RST] 「%s」ディレクティブ: ファイルエンコーディングの指定が正しくありません: %s / file=%s
+[RST] "%s" directive no content permitted: %s=[RST] 「%s」ディレクティブには本文を記述できません: %s
+[RST] "%s" directive content required=[RST] 「%s」ディレクティブには本文が必要です: %s
+[RST] "%s" directive may contain a single %s only: %s=[RST] 「%s」ディレクティブには単一の「%s」を指定してください: %s
+[RST] Duplicate substitution definition name: %s=[RST] 置換定義の名前が重複しています: %s
+[RST] "%s" directive caption must be a paragraph or empty comment: %s=[RST] 「%s」ディレクティブのキャプションは単一段落か空である必要があります: %s
+[RST] "%s" directive error in CSV data '%s' expected after '%s': %s=[RST] 「%s」ディレクティブCSVエラー:「%s」が「%s」の後に必要です: %s
+[RST] "%s" directive error in CSV data, unexpected end of data quoted: %s=[RST] 「%s」ディレクティブCSVエラー: 引用符が閉じられていません: %s
+[RST] "%s" directive file security error: %s=[RST] 「%s」ディレクティブ: ファイルセキュリティエラー: %s
+[RST] "%s" directive file not found: %s=[RST] 「%s」ディレクティブ: ファイルが見つかりません: %s
+[RST] "%s" directive "%s" option invalid value: %s=[RST] 「%s」ディレクティブ: 「%s」オプションの値が不正です: %s
+[RST] "%s" directive ignore "%s" option: %s=[RST] 「%s」ディレクティブ: 「%s」オプションが正しくありません: %s
