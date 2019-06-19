@@ -144,11 +144,6 @@ sub parse_special_block {
 	my $sectioning = $nest ? 0 : $self->{sectioning};
 
 	my @ary;
-	#
-	# セクション情報
-	#
-	my $sections    = $self->{sections};
-	my $subsections = [];
 
 	#
 	# 連続する空行を1つの空行にする。特殊ブロックをブロックとして切り出す。
@@ -165,6 +160,10 @@ sub parse_special_block {
 		# GFM拡張の一部 https://github.github.com/gfm/#html-block
 		address|aside|base|hr|option|source
 	!x;
+
+	#----------------------------------------------------------------------
+	# main loop
+	#----------------------------------------------------------------------
 	push(@$lines, '');
 	while(@$lines) {
 		my $x = shift(@$lines);
@@ -196,9 +195,9 @@ sub parse_special_block {
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# [Qiita] MathJax
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if ($self->{qiita_math} && $x =~ /^```math\s*$/) {
 			my @code;
 			$x = shift(@$lines);
@@ -212,9 +211,9 @@ sub parse_special_block {
 			next;
 		}
 
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		# [GFM] シンタックスハイライト
-		#----------------------------------------------
+		#--------------------------------------------------------------
 		if ($self->{gfm_ext} && $x =~ /^```([^`]*?)\s*$/) {
 			my ($lang,$file) = split(':', $1, 2);
 			my @code;
@@ -243,113 +242,106 @@ sub parse_special_block {
 			next;
 		}
 
-		# h3などの見出し
+		#--------------------------------------------------------------
+		# 見出し記法
+		#--------------------------------------------------------------
+		# 下線==/--による見出し
+		# [M] 2個以上の連なりで文末にスペース以外の文字がない
+		if ($x =~ /^===*\s*$/ && !$newblock) {
+			$x = '# '  . pop(@ary);
+		}
+		if ($x =~ /^---*\s*$/ && !$newblock) {
+			$x = '## ' . pop(@ary);
+		}
+
+		# 見出し
 		if ($x =~ /^(#+)\s*(.*?)\s*\#*$/) {
 			if (!$newblock) { push(@ary,''); }
+
 			my $level = length($1);
-			my $n = $self->{section_hnum} + $level - 1;
-			if ($n>6) { $n=6; }
+			my $title = $2;
 			if ($level == 1 && $sectioning && @ary) {
 				push(@ary, "</section>\x02\x01");
 				push(@ary, "<section>\x02");
 				$in_section=1;
 			}
-			# アンカー処理
-			my $text = $2;
-			if ($level==1) {	# [S] h3
-				my $anchor = '';
-				my $scount = $#$sections+2;
-				my $name   = 'p' . $scount;
-				$anchor =~ s/%n/$scount/g;
-				$subsections = [];
-				push(@$sections, {
-					name => $name,
-					title => $self->parse_oneline($text),
-					anchor => $anchor,
-					section_count => $scount,
-					children => $subsections
-				});
-				if ($self->{section_link}) {
-					$text = "<a href=\"$self->{thisurl}#$name\" id=\"$name\">$text</a>";
+
+			# セクション情報の生成
+			my $base = '';
+			my $secs = $self->{sections};
+			foreach(2..$level) {
+				my $s = @$secs ? $secs->[$#$secs] : undef;
+				if (!$s) {
+					if ($base eq '') { $base='0'; }
+					$s = {
+						num	=> "${base}.0",
+						title	=> '(none)',
+						count	=> 0
+					};
+					push(@$secs, $s);
 				}
-			} elsif ($level==2) {	# [S] h4
-				my $anchor = '';
-				my $scount = $#$sections    +1;
-				my $sscount= $#$subsections +2;
-				my $name   = 'p' . "$scount.$sscount";
-				$anchor =~ s/%n/$scount/g;
-				$anchor =~ s/%s/$sscount/g;
-				push(@$subsections, {
-					name => $name,
-					title => $self->parse_oneline($text),
-					anchor => $anchor,
-					section_count => $scount,
-					subsection_count => $sscount
-				});
-				if ($self->{section_link}) {
-					$text = "<a href=\"$self->{thisurl}#$name\" id=\"$name\">$text</a>";
-				}
+				$base = $s->{num};
+				$secs = $s->{children} ||= [];
 			}
-			push(@ary,"<h$n>$text</h$n>\x01");
+			my $count = $#$secs<0 ? 1 : $secs->[$#$secs]->{count} + 1;
+			my $num   = $base . ($level>1 ? '.' : '') . $count;
+			my $id    = $self->generate_id_from_string($title, 'p' . $num);
+
+			# save section information
+			my $sec = {
+				id	=> $id,
+				num	=> $num,
+				number  => undef,
+				title	=> $self->parse_oneline($title),
+				count	=> $count
+			};
+			push(@$secs, $sec);
+
+			# output html
+			my $h  = $self->{section_hnum} + $level -1;
+			if (6 < $h) { $h=6; }
+			push(@ary, "$self->{indent}<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\">$title</a></h$h>");
 			push(@ary,'');
 			$newblock=1;
 			next;
 		}
 
-		# 下線==による見出し
-		# [M] 2個以上の連なりで文末にスペース以外の文字がない
-		if ($x =~ /^===*\s*$/ && !$newblock) {
-			my $prev = pop(@ary);
-			my $n = $self->{section_hnum};
-			push(@ary, '');
-			if ($sectioning) {
-				push(@ary, "</section>\x02\x01");
-				push(@ary, "<section>\x02");
-				$in_section=1;
-			}
-			push(@ary,"<h$n>$prev</h$n>\x01");
-			push(@ary, '');
-			$newblock=1;
-			next;
-		}
-
-		# 下線--による見出し
-		# [M] 2個以上の連なりで文末にスペース以外の文字がない
-		if ($x =~ /^---*\s*$/ && !$newblock) {
-			my $prev = pop(@ary);
-			my $n = $self->{section_hnum}+1;
-			push(@ary, '');
-			push(@ary,"<h$n>$prev</h$n>\x01");
-			push(@ary, '');
-			$newblock=1;
-			next;
-		}
-
-		# ただの空行
+		#--------------------------------------------------------------
+		# 空行
+		#--------------------------------------------------------------
 		if ($x eq '') {
 			if (!$newblock) { push(@ary,''); }
 			$newblock=1;
 			next;
 		}
 
+		#--------------------------------------------------------------
 		# 文章行
+		#--------------------------------------------------------------
 		$newblock=0;
 
+		#--------------------------------------------------------------
 		# [S] Satsukiタグのマクロ展開
+		#--------------------------------------------------------------
 		if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
 			if ($x =~ m!(.*?)\[\*toc(\d*)(?:|:(.*?))\](.*)!) {
 				if ($1 ne '') { push(@ary,$1); }
-				push(@ary,'',"<toc>level=$2:$3</toc>\x01");
+				push(@ary,'',"<toc>depth=$2:$3</toc>\x01");
 				if ($3 ne '') { push(@ary,$4); }
 				next;
 			}
 		}
 		push(@ary, $x);
 	}
+
+	#----------------------------------------------------------------------
 	# 文末空行の除去
+	#----------------------------------------------------------------------
 	while(@ary && $ary[$#ary] eq '') { pop(@ary); }
 
+	#----------------------------------------------------------------------
 	# セクショニングを行う
+	#----------------------------------------------------------------------
 	if ($sectioning && grep { $_ =~ /[^\s]/ } @ary) {
 		unshift(@ary, "<section>\x02");
 		push(@ary,'',"</section>\x02\x01");
@@ -889,6 +881,18 @@ sub encode_email {
 		     else { '&#x' . sprintf('%X',ord($1)) .';'; }
 	]eg;
 	return $str;
+}
+
+#------------------------------------------------------------------------------
+# ●ラベル等からidを生成
+#------------------------------------------------------------------------------
+sub generate_id_from_string {
+	my $self  = shift;
+	my $label = shift;
+	my $default = shift || 'id';
+	$label =~ tr/A-Z/a-z/;
+	$label =~ s/[^\w\-\.\x80-\xff]+/-/g;
+	return $label eq '' ? $default : $label;
 }
 
 1;
