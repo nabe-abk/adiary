@@ -607,15 +607,6 @@ h3 a:link, h3 a:visited, h3 a:hover {
 	text-decoration:		none;
 }
 
-h3 span.sanchor {
-	margin-right:		   0;
-	color:					rgb(255,132,206);
-	text-shadow:			-1pt -1pt 2pt #fff,
-			1pt -1pt 2pt #fff, -1pt  1pt 2pt #fff,
-			1pt  1pt 2pt #fff,
-			-4pt -4pt 10pt rgb(255,132,206), 10pt 4pt 10pt rgb(255,132,206);
-}
-
 h3 span.timestamp {
 	margin-right:		   0;
 	color:					rgb(255,132,206);
@@ -652,16 +643,6 @@ h4 del, h4 strong {
 			1pt -1pt 2pt #fff, -1pt  1pt 2pt #fff,
 			1pt  1pt 2pt #fff,
 			-4pt -4pt 8pt #BC7EEC, 10pt 4pt 8pt #BC7EEC;
-}
-
-h4 span.sanchor {
-	margin-right:		   0;
-	color:				  #BC7EEC;
-	text-shadow:			-1pt -1pt 2pt #fff,
-			1pt -1pt 2pt #fff, -1pt  1pt 2pt #fff,
-			1pt  1pt 2pt #fff,
-			-4pt -4pt 8pt #BC7EEC, 10pt 4pt 8pt #BC7EEC;
-	border-bottom:			3px solid rgba(188,126,236,0.5);
 }
 
 h4 span.timestamp {

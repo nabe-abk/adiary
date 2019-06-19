@@ -189,11 +189,6 @@ dl {
 ul.none, ol.none {
 	list-style:	none;
 }
-/* 目次 */
-ul.toc li span.sanchor {
-	margin-left:	-16px;
-	margin-right:	0.5em;
-}
 
 audio, video,
 article figure,

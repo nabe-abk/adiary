@@ -490,11 +490,6 @@ h3 a:link, h3 a:visited, h3 a:hover {
 /*  font-family:            serif; */
 }
 
-h3 span.sanchor {
-    margin-right:           0.2em;
-    color:                  #945f4b;
-}
-
 h3 span.timestamp {
     font-size:              13px;
     color:                  #945f4b;
@@ -516,10 +511,6 @@ h4 a:link, h4 a:visited, h4 a:hover {
 h4 span {
     color:                  #c7a666;
 /*  font-family:            serif; */
-}
-
-h4 span.sanchor {
-    margin-right:           0.25em;
 }
 
 h4 span.timestamp {

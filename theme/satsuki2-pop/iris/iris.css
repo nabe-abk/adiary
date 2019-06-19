@@ -510,10 +510,6 @@ h3:before {
 /*     content:                counters(sec, ".") "."; */
 }
 
-h3 span.sanchor {
-    display:                none;
-}
-
 h3 span.timestamp {
     font-size:              16px;
     color:                  black;
@@ -542,10 +538,6 @@ h4 a:link, h4 a:visited, h4 a:hover {
 }
 
 h4 span {
-}
-
-h4 span.sanchor {
-    margin-right:           0.25em;
 }
 
 h4 span.timestamp {
