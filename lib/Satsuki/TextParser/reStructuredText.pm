@@ -325,7 +325,6 @@ sub do_parse_block {
 				}
 				$number .= "$_->{prefix}$num$_->{suffix} ";
 			}
-			my $_title = $title;
 			my $num_text = '';
 			if ($number ne '') {
 				chop($number);
@@ -2524,8 +2523,9 @@ sub post_process {
 
 sub post_toc {
 	my $self = shift;
-	my $opt;
-	foreach(split(':', shift)) {
+	my $arg  = shift;
+	my $opt  = {};
+	foreach(split(':', $arg)) {
 		if ($_ =~ /^(\w+)=(.*)$/) {
 			$opt->{$1} = $2;
 			next;
