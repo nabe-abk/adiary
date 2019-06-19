@@ -46,7 +46,7 @@ sub amazon_search {
 	my $nihongo = "%E6%97%A5%E6%9C%AC%E8%AA%9E";	# '日本語' by UTF-8
 
 	# アソシエイトID &tag=user-id
-	my $asid = $pobj->{asid};
+	my $asid = $pobj->{vars}->{asid};
 	$asid =~ s/[^\w\-\.]//g;	# 不要文字除去
 	if ($asid ne '') { $asid="&tag=$asid"; }
 
@@ -64,7 +64,7 @@ sub amazon_asin {
 	my ($pobj, $tag, $cmd, $ary) = @_;
 
 	# アソシエイトID &tag=user-id
-	my $asid = $pobj->{asid};
+	my $asid = $pobj->{vars}->{asid};
 	$asid =~ s/[^\w\-\.]//g;	# 不要文字除去
 
 	# ASIN/ISBNロード

@@ -7,7 +7,7 @@ package Satsuki::TextParser::Satsuki;
 # ※注意。パッケージ名変更時は78行目付近も修正のこと！
 
 use Satsuki::AutoLoader;
-our $VERSION = '2.23';
+our $VERSION = '2.30';
 #------------------------------------------------------------------------------
 # \x00-\x03は内部で使用するため、処理の過程で除去されます。
 #	\x00 文字列の一時退避用
@@ -20,17 +20,16 @@ my $CSS_CLASS_PREFIX = 'tag-';
 my $INFO_BEGIN_MARK = '#---begin_plugin_info';
 my $INFO_END_MARK   = '#---end';
 #------------------------------------------------------------------------------
-# その記事だけの設定を許可する設定値
-#   1 文字列
-#   2 数値
-# ※$self内のハッシュkey
-my %allow_override = (asid => 1, chain_line => 2,
- timestamp_date => 1, timestamp_time => 1, 
- toc_anchor => 2, toc_level => 2,
- section_count => 2, subsection_count => 2, subsubsection_count => 2,
- section_anchor => 1, subsection_anchor => 1, subsubsection_anchor => 1,
- br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
- list_br => 2, seemore_msg => 1, tex_mode => 2);
+# その記事だけの設定を許可する設定値（$self内変数）
+#	1 文字列
+#	2 数値
+my %allow_override = (
+	chain_line => 2,
+	section_number => 1, section_start  => 1,
+	timestamp_date => 1, timestamp_time => 1,
+	br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
+	list_br => 2, seemore_msg => 1, tex_mode => 2
+);
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -49,13 +48,16 @@ sub new {
 	$self->{br_mode} = 1;
 	$self->{ls_mode} = 1;
 	$self->{chain_line} = 1;
-	$self->{section_hnum} = 3;	# section level
-	$self->{toc_level}    = 1;	# toc は level 0-1 を出力
+
+	$self->{section_hnum}   = 3;	# section level
+	$self->{section_number} = 0;	# 章番号なし
+	$self->{section_start}  = 1;	# 章の開始番号
 
 	$self->{indent} = '';		# indent all line
-	$self->{asid}   = '';		# Amazon ID
 	$self->{seemore_msg} = '';	# default "See More..."
 	$self->{image_attr}  = '';	# image link attribute for lightbox
+
+	$self->{vars} = {};		# 内部自由変数
 
 	$self->init_tags();
 	$self->load_plugins(@_);
@@ -66,257 +68,6 @@ sub new {
 	$self->{thisymd}  = '';		# 記事の日付 yyyymmdd
 
 	return $self;
-}
-
-###############################################################################
-# ■記法タグのロードルーチン
-###############################################################################
-#------------------------------------------------------------------------------
-# ●記法タグの初期化
-#------------------------------------------------------------------------------
-sub init_tags {
-	my $self = shift;
-	$self->{tags} = {};
-	$self->{macros} = {};
-}
-
-#------------------------------------------------------------------------------
-# ●プラグインをロードする
-#------------------------------------------------------------------------------
-sub load_plugins {
-	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $dir = shift;
-
-	if (!$dir) {
-		$INC{'Satsuki/TextParser/Satsuki.pm'} =~ m|(.*/)\w+\.\w+|;
-		$dir=$1 . "TagPlugin/";
-	}
-
-	my $cfile = $self->{plugin_cache_file};
-	my $x = $ROBJ->get_lastmodified($cfile);
-	my $y = $ROBJ->get_lastmodified_in_dir($dir);
-	if ($x < $y) {
-		return $self->generate_plugin_cache($cfile, $dir);
-	}
-	my $h = $ROBJ->fread_hash_cached($cfile);
-	foreach(keys(%$h)) {
-		$self->{tags}->{$_} = { plugin => $h->{$_} };
-	}
-}
-
-sub generate_plugin_cache {
-	my $self = shift;
-	my $cfile= shift;
-	my $dir  = shift;
-	my $ROBJ = $self->{ROBJ};
-
-	my $files = $ROBJ->search_files($dir, {ext => '.pm'});
-	map { s/^Tag_(\w+)\.pm$/$1/ } @$files;
-
-	# キャッシュファイルが設定されてない場合は全ロードして戻る
-	if ($cfile eq '') {
-		foreach(@$files) {
-			$self->eval_load_plugin($_);
-			next;
-		}
-		return;
-	}
-
-	# キャッシュの生成
-	my %h = ('::FileVersion' => 1);
-	foreach my $f (@$files) {
-		my $lines = $ROBJ->fread_lines("${dir}Tag_$f.pm");
-		my $in_info;
-		foreach(@$lines) {
-			$_ =~ s/^\s*//;
-			$_ =~ s/[\r\n]*$//;
-			if (!$in_info) {
-				if ($_ eq $INFO_BEGIN_MARK) { $in_info=1; }
-				next;
-			}
-			if ($_ eq $INFO_END_MARK) { last; }
-			#
-			# プラグイン情報のパース
-			#	$tags->{asin}
-			if ($_ !~ /^\$tags->\{("|'|)?([^\}\"\']+)\1\}/) { next; }
-			$h{$2} = $f;
-			$self->{tags}->{$2} = { plugin => $f };
-		}
-	}
-	# キャッシュに保存
-	$ROBJ->fwrite_hash($cfile, \%h);
-}
-
-
-#------------------------------------------------------------------------------
-# ●タグ定義のロード
-#------------------------------------------------------------------------------
-# タグデータ構造
-# $tag = $tags{tag_name};
-#	$tag{data}   = tag data
-#	$tag{argc}   = argments for url data
-#	$tag{option} = tag option
-# (search only)
-#	$tag{name}   = tag name
-#	$tag{title}  = title
-#	$tag{class}  = html style sheet class
-# (alias or html tag)
-#	$tag{alias}  = alias to
-#	$tag{html}   = html tag
-sub load_tagdata {
-	my ($self, $data, $allow_load) = @_;
-	my $ROBJ = $self->{ROBJ};
-	my $file;
-	if (!ref($data)) {
-		$file = $data;
-		$data = $ROBJ->get_filepath( $data );
-		if (!-r $data) { return ; }
-		$data = $ROBJ->fread_lines_cached( $data, {DelCR => 1} );
-	}
-
-	# 現在の設定ロード
-	my $basepath = $ROBJ->{Basepath};
-	my $tags   = $self->{tags};
-	my $macros = $self->{macros};
-	my @load_files;
-	while(@$data) {
-		my $line = shift(@$data);
-		chomp($line);
-		if (ord($line) == 0x23) { next; }		# 先頭'#'はコメント
-		#---------------------------------------------------------------
-		# プラグインロード？
-		#---------------------------------------------------------------
-		if ($line =~ /^plugin\s+(\w+)/i) {
-			$self->eval_load_plugin($1);
-			next;
-		}
-		#---------------------------------------------------------------
-		# 他のファイルをロード
-		#---------------------------------------------------------------
-		if ($line =~ /^load\s+([\w\/\.]+)/i) {
-			if ($allow_load) { push(@load_files, $ROBJ->get_relative_path($file, $1)); }
-			next;
-		}
-		#---------------------------------------------------------------
-		# マクロ定義
-		#---------------------------------------------------------------
-		if ($line =~ /^\*(.+?)\s*$/) {
-			my $tag = $1;
-			my @ary;
-			while (@$data) {
-				my $x = shift(@$data);
-				if (ord($x) == 0x23) { next; }	# 先頭 # コメント
-				chomp($x);
-				if ($x =~ /^\s*$/) { last; }
-				unshift(@ary,$x);
-			}
-			$macros->{$tag} = \@ary;
-			next;
-		}
-		#---------------------------------------------------------------
-		# タグ定義
-		#---------------------------------------------------------------
-		if ($line !~ /^([\w\-\+#:]+)\s*=\s*(.*?)\s*$/s) { next; }	# '=' のない行は無視
-		my $tag   = $1;
-		my $value = $2;
-		$tag =~ s/[\"\']//g;
-		my @ary = split(':', $tag);
-		if ($#ary > 1) {	# : が２つ以上ある
-			my $cmd = shift(@ary); pop(@ary);
-			while (@ary) {
-				$cmd .= ':' . shift(@ary);
-				$tags->{$cmd} ||= {};
-			}
-		}
-
-		# タグ定義処理
-		my $tag_hash = $tags->{$tag} ||= {};
-
-		if (substr($value,0,1) eq '>') {	# alias
-			$tag_hash->{alias} = substr($value, 1);
-
-		} elsif (substr($value,0,5) eq 'html:') { # HTMLタグ置換
-			my $tag = substr($value, 5);
-			$tag =~ s/>/&gt;/g;
-			$tag =~ s/</&lt;/g;
-			($tag_hash->{html}, $tag_hash->{attribute}) = split(/\s+/, $tag, 2);
-			if ($tag_hash->{attribute} ne '') {
-				$tag_hash->{attribute} = ' ' . $tag_hash->{attribute};
-			}
-		} elsif (substr($value,0,5) eq 'text:') { # text置換
-			my $text = substr($value, 5);
-			$text =~ s/^\s*(.*?)\s*$/$1/g;
-			$tag_hash->{data} = $text;
-			$tag_hash->{argc} = 9;
-			$tag_hash->{replace_html} = 1;
-
-		} elsif (substr($value,0,7) eq 'plugin:') { # プラグイン設定
-			my $plg = substr($value, 7);
-			if ($plg =~ /[^\w]/) { next; }
-			$tag_hash->{plugin} = $plg;
-		} else {
-			if (substr($value,0,1) eq '<') {	# HTML置換
-				$value = "$tag,ASCII,9," . $value;
-			}
-			# タグの（リンク）クラス
-			my $class =$tag;
-			$class =~ s/#.*//;
-			$tag_hash->{name} = $class;
-			$class =~ s/[^A-Za-z0-9 ]/-/g;
-			$tag_hash->{class} = "$CSS_CLASS_PREFIX$class";
-			# タイトルなど
-			my ($title, $option, $url) = split(/\s*,\s*/, $value, 3);
-			$self->tag_escape( $title, $option );
-			if ($url =~ /^(\d+)\s*,\s*(.*)$/) {	# 受け取り引数指定
-				$tag_hash->{argc} = $1;
-				$url = $2;
-			} else {
-				$tag_hash->{argc} = 1;
-				$url .= '$1';
-			}
-			$url =~ s/\"/&quot;/g;
-			if ($title  ne '') { $tag_hash->{title}  = $title;  }
-			if ($option ne '') { $tag_hash->{option} = $option; }
-			if ($url eq 'block:') {	# block要素ならば、空行が出るまで読み込み
-				$url = '';
-				while(@$data) {
-					my $add = shift(@$data);
-					chomp($add);
-					# $add =~ s/^\s*(.*?)\s*\n?$/$1/;	# 前後の空白除去
-					if ($add eq '') { last; }
-					$url .= $add;
-				}
-			}
-			if ($url ne '') {
-				if (substr($url,0,1) eq '<') {	# HTML置換
-					$tag_hash->{replace_html}=1;
-				}
-				if ($url =~ /^html:(.*)/) {	# HTML置換
-					$tag_hash->{replace_html}=1;
-					$url = $1;
-				}
-				$tag_hash->{data} = $url;
-			}
-		}
-	}
-	# 他のファイルロード（エラーなし）
-	foreach(@load_files) {
-		$self->load_tagdata( $_ );
-	}
-}
-
-#------------------------------------------------------------------------------
-# ●プラグインのロード
-#------------------------------------------------------------------------------
-sub eval_load_plugin {
-	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $file = shift;
-	$file =~ s/[^\w]//g;
-	# $ROBJ->debug("load tag plugin '$file'");
-	eval{ $ROBJ->loadpm("${TAG_PLUGIN_CLASS}$file", $self->{tags}); };
-	if ($@) { $ROBJ->error('[plugin load failed] %s', $@); }
 }
 
 ###############################################################################
@@ -333,35 +84,30 @@ sub text_parser {
 	$opt ||= {};	# オプション
 
 	# 初期設定
-	$self->{sections}       = [];	# 空のarray
-	$self->{subsections}    = [];
-	$self->{subsubsections} = [];
-	$self->{options}        = {};	# 空のhash
-	$self->{vars}         ||= {};	# タグ置換用データ。内部自由変数
-	$self->{section_count}     = int($opt->{section_count});	# section counter
-	$self->{subsection_count}  = int($opt->{subsection_count});	# sub-section counter
+	$self->{sections} = [];
+	$self->{sction_number} = 1;
 
 	# 内部変数の退避
 	my %backup;
-	foreach(keys(%allow_override)) {
-		$backup{$_} = $self->{$_};
+	foreach(keys(%allow_override)) { $backup{$_} = $self->{$_}; }
+	my %backup_vars = %{ $self->{vars} };	# copy
+
+	{
+		# [01]ブロック処理、コメント除去処理
+		$lines = $self->block_parser($lines);
+
+		# [02]セクション、目次処理
+		$lines = $self->parse_section($lines);
+
+		# 内部変数復元（[01]での最終オーバーライド結果を[03]で使わないため）
+		foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
+
+		# [03]記法タグの処理
+		$lines = $self->replace_original_tag($lines);
+
+		# [04]段落/改行処理
+		$lines = $self->paragraph_processing($lines);
 	}
-	my %backup_vars = %{ $self->{vars} };
-
-	# [01]ブロック処理、コメント除去処理
-	$lines = $self->block_parser($lines);
-
-	# [02]セクション、目次処理
-	$lines = $self->parse_section($lines);
-
-	# 内部変数復元（[01]での最終オーバーライド結果を[03]で使わないため）
-	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
-
-	# [03]記法タグの処理
-	$lines = $self->replace_original_tag($lines);
-
-	# [04]段落/改行処理
-	$lines = $self->paragraph_processing($lines);
 
 	# [99]後処理
 	my $data = join('', @$lines);
@@ -369,22 +115,14 @@ sub text_parser {
 
 	# 内部変数の復元
 	foreach(keys(%allow_override)) { $self->{$_} = $backup{$_}; }
-	$self->{vars_}= $self->{vars};
 	$self->{vars} = \%backup_vars;
 
-	# エスケープした文字列の復元
-	if (! $self->{escape_no_dencode}) {
-		# ( ) [ ] { } | * ^ ~: = + - を復元
-		$self->un_escape( $data );
-	}
-
-	# Moreの処理
+	# SeeMoreの処理
 	my $short;
-	if ($self->{more_read}) {
-		$short=$data;
-		$data =~ s/\s*<p\s*class="seemore">.*?<!--%SeeMore%-->/<!--%SeeMore%-->/g;
-		$data =~ s/\n?<!--%MoreEnd%-->\n//;
-		$short=~ s/<!--%SeeMore%-->.*?<!--%MoreEnd%-->//sg
+	if ($data =~ /<!--%SeeMore%-->/) {
+		$short = $data;
+		$data  =~ s/\s*<p\s*class="seemore">.*?<!--%SeeMore%-->/<!--%SeeMore%-->/;
+		$short =~ s|<!--%SeeMore%-->.*|\n</section>|sg;
 	}
 	return wantarray ? ($data, $short) : $data;
 }
@@ -408,7 +146,7 @@ sub block_parser {
 		before => '',	# ブロック開始直後に出力するHTML
 		after  => '',	# ブロック終了直前に出力するHTML
 		pre    => 0,	# 1 = indent禁止
-		all    => 1	# 最初のブロック
+		top    => 1	# トップレベルのブロック
 	};
 
 	my @ary;
@@ -632,7 +370,7 @@ sub block_parser_main {
 	# \x02 は >> -- <<などのブロック中のみ行末に付加される。
 	# リストブロック内での項目連結処理を、項目内のブロックで行わないための細工。
 	my $end      = $st->{end};
-	my $blk_mark = $st->{all} ? '' : "\x02";
+	my $blk_mark = $st->{top} ? '' : "\x02";
 
 	my $in_comment;
 	my $class;		# リストブロック用クラス指定
@@ -870,6 +608,10 @@ sub block_parser_main {
 		#-------------------------------------------------
 		# 平文処理
 		#-------------------------------------------------
+		# ブロック中は見出し記法を常に無効に
+		if (! $st->{top} && $st->{atag}) {
+			$line =~ s/^\*/&#42;/;
+		}
 		# htmlタグ無効
 		if (! $st->{htag}) {
 			$line =~ s/&/&amp;/g;
@@ -1213,114 +955,139 @@ sub parse_table {
 ###############################################################################
 # ■[02] セクション処理、目次処理
 ###############################################################################
-# 行末改行のある行は処理終了とみなす。
-my %marks;
-$marks{'*'}     = \&section;
-$marks{'**'}    = \&subsection;
-$marks{'***'}   = \&subsubsection;
-$marks{'****'}  = \&subsubsubsection;
-$marks{'*****'} = \&dummy;
-$marks{'='}     = \&dummy;
-$marks{'=='}    = \&dummy;
-$marks{'==='}   = \&dummy;
-$marks{'===='}  = \&super_more_read;
-$marks{'====='} = \&super_more_read;
 sub parse_section {
 	my ($self, $lines) = @_;
-	my @ary;
-	my $class;
-
-	# 変数初期化
-	$self->{in_section}       = 0;
-	$self->{more_read}        = 0;
-	$self->{now_anchor_name}  = "p0";	# default
+	my @out;
 
 	# 行頭改行無視
 	if (ref($lines->[0]) eq 'HASH') { shift(@$lines); }
 
-	# 先頭が見出しでない場合、section を開始する
-	foreach(@$lines) {
-		if ($_ =~ /^::/ || $_ eq "" || ref($_) eq 'HASH') { next; }
-		if (substr($_, 0, 1) ne '*' || substr($_, 0, 2) eq '**') {
-			$self->{in_section} = 1;
-			push(@ary, "<section>\n");
-		}
-		last;
-	}
-
+	#----------------------------------------------------------------------
+	# main loop
+	#----------------------------------------------------------------------
+	my $seemore;
+	my $cur_anchor='';
 	while($#$lines >= 0) {
 		my $line = shift(@$lines);
 
-		#-------------------------------------------------
+		#--------------------------------------------------------------
 		# 処理済み行は飛ばす
-		#-------------------------------------------------
+		#--------------------------------------------------------------
 		my $end_mark = substr($line, -1);		# \n/\x01 で終わる行は処理済み
 		if (ref($line) eq 'HASH' || $end_mark eq "\n" || $end_mark eq "\x01") {
-			push(@ary, $line);
+			push(@out, $line);
 			next;
 		}
-		# 変数書き換え記法を読み飛ばす（なくても大丈夫だけど……）
+		# 変数書き換え記法を読み飛ばす
 		if (substr($line,0,2) eq '::') {
-			push(@ary, $line);
+			push(@out, $line);
 			next;
 		}
 
-		#-------------------------------------------------
-		# セクション、続きを読むの判別
-		#-------------------------------------------------
-		my $mark = substr($line, 0, 1);
-		if (exists $marks{$mark}) {
-			for(my $i=2; $i<6 ;$i++) {
-				my $x = substr($line, 0, $i);
-				if (! exists $marks{$x}) { last; }
-				$mark = $x;
+		#--------------------------------------------------------------
+		# セクション
+		#--------------------------------------------------------------
+		if ($line =~ /^(\*+)([\w\-\.]+\*)?\s*(.*)/) {
+			my $level = length($1);
+			my $name  = $2;
+			my $title = $3;
+
+			if ($level==1 && @out) {
+				push(@out, "</section>\n");
+				push(@out, "<section>\n");
 			}
-			my $rewrite = &{ $marks{$mark} }($self, $line);
- 			if (!defined $rewrite) { next; }
-			if (ref($rewrite)) {  push(@ary, @$rewrite); } else { push(@ary, $rewrite); }
+
+			# セクション情報の生成
+			my $base = '';
+			my $secs = $self->{sections};
+			foreach(2..$level) {
+				my $s = @$secs ? $secs->[$#$secs] : undef;
+				if (!$s) {
+					$s = {
+						num	=> "${base}.0",
+						title	=> '(none)',
+						count	=> 0
+					};
+					push(@$secs, $s);
+				}
+				$base = $s->{_num};
+				$secs = $s->{children} ||= [];
+			}
+			my $count = $#$secs<0 ? 1 : $secs->[$#$secs]->{count} + 1;
+			my $num   = $base . ($level>1 ? '.' : '') . $count;
+			my $id    = 'p' . $num;
+
+			# generate section number
+			my $number='';
+			if ($self->{section_number}) {
+				my $start = $self->{section_start};
+				if ($start ne '' && $start != 1) {
+					$num =~ s/^(\d+)/
+						$1 +$start -1
+					/eg;
+				}
+				$number .= "$_->{prefix}$num$_->{suffix} ";
+			}
+			my $num_text = '';
+			if ($number ne '') {
+				chop($number);
+				$num_text = " <span class=\"section-number\">$number</span> ";
+			}
+
+			# save section information
+			my $sec = {
+				id	=> $id,
+				_num	=> $num,
+				number  => $number,
+				title	=> $title,
+				count	=> $count
+			};
+			$cur_anchor = $id;	# for seemore
+			push(@$secs, $sec);
+
+			# output html
+			my $h = $self->{section_hnum} + $level -1;
+			if (6 < $h) { $h=6; }
+			push(@out, "$self->{indent}<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\">$num_text$title</a></h$h>\n");
+
+			# タグ処理
+			$sec->{title} = $self->parse_tag( $sec->{title} );	# タグ処理
+			$sec->{title} =~ s/\(\(.*?\)\)//g;			# 注釈の削除
 			next;
 		}
+
+		#--------------------------------------------------------------
+		# 続きを読む
+		#--------------------------------------------------------------
+		if ($line =~ /^=====?/) {
+			if ($seemore) { next; }
+			$seemore = 1;
+			my $msg = $self->{seemore_msg} || 'See More...';
+			push(@out, "$self->{indent}<p class=\"seemore\"><a href=\"$self->{thisurl}#$cur_anchor\">$msg</a></p><!--%SeeMore%-->\n");
+			next;
+		}
+
+		#--------------------------------------------------------------
 		# 行頭 - * の手前に半角スペースを置くエスケープ処理対応
+		#--------------------------------------------------------------
 		if (ord($line) == 0x20 && index(' - + * | : = > < #', substr($line, 0, 2)) > 0) {
-			push(@ary, substr($line, 1));
+			push(@out, substr($line, 1));
 			next;
 		}
-		#-------------------------------------------------
+		#--------------------------------------------------------------
 		# 通常行
-		#-------------------------------------------------
-		push(@ary, $line);
+		#--------------------------------------------------------------
+		push(@out, $line);
 	}
 
-	if ($self->{in_section}) {
-		push(@ary, {section_end => 1});	# 位置をマーキング
-	}
-	if ($self->{more_read})  { push(@ary, "<!--%MoreEnd%-->\n"); }
-	if ($self->{in_section}) {
-		push(@ary, "</section>\n");
-	}
+	#----------------------------------------------------------------------
+	# 後処理
+	#----------------------------------------------------------------------
+	unshift(@out, "<section>\n");
+	push(@out, {section_end => 1});	# 位置をマーキング
+	push(@out,'',"</section>\n");
 
-	# セクションタイトルのタグの処理
-	my $func;
-	$func = sub {
-		my $ary = shift;
-		foreach(@$ary) {
-			$_->{title} = $self->parse_tag( $_->{title} );	# タグ処理
-			$_->{title} =~ s/\(\(.*?\)\)//g;		# 注釈の削除
-			my $subs = $_->{children};
-			if (!$subs || !@$subs) { next; }
-			&$func($subs);
-		}
-	};
-	&$func($self->{sections});
-
-	return \@ary;
-}
-
-#------------------------------------------------------------------------------
-# ●ダミー（何もせずそのまま）
-#------------------------------------------------------------------------------
-sub dummy {
-	return $_[1];
+	return \@out;
 }
 
 #------------------------------------------------------------------------------
@@ -1440,65 +1207,6 @@ sub subsection {
 	my $hnum = $self->{section_hnum} +1;
 	if ($anchor ne '') { $anchor="<span class=\"sanchor\">$anchor</span>"; }
 	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\">$anchor$line</a></h$hnum>\n";
-}
-
-#------------------------------------------------------------------------------
-# ●***subsubsection
-#------------------------------------------------------------------------------
-sub subsubsection {
-	my ($self, $line) = @_;
-	$line = substr($line, 3);
-	$line =~ s/^\s*//g;
-	$line =~ s/\s*$//g;
-
-	# セクションカウント
-	my $sec_c     = $self->{section_count};
-	my $subsec_c  = $self->{subsection_count};
-	my $sub2sec_c = $self->{subsubsection_count} += 1;
-
-	my $anchor = $self->{subsubsection_anchor};
-	$anchor =~ s/%n/$sec_c/g;
-	$anchor =~ s/%s/$subsec_c/g;
-	$anchor =~ s/%t/$sub2sec_c/g;
-	my $name = ($self->{now_subanchor_name} || "$self->{now_anchor_name}.$subsec_c")  . ".$sub2sec_c";
-
-	# セクション情報の保存
-	push(@{$self->{subsubsections}}, {
-		name => $name,
-		title => $line,
-		anchor => $anchor,
-		section_count => $sec_c,
-		subsection_count => $subsec_c,
-		sub2section_count => $sub2sec_c
-	});
-
-	my $hnum = $self->{section_hnum} +2;
-	if ($anchor ne '') { $anchor="<span class=\"sanchor\">$anchor</span>"; }
-	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\" class=\"linkall\">$anchor$line</a></h$hnum>\n";
-}
-
-#------------------------------------------------------------------------------
-# ●****subsubsubsection
-#------------------------------------------------------------------------------
-sub subsubsubsection {
-	my ($self, $line) = @_;
-	$line =~ /^\*(\*+)(.*)/s;
-	my $level = length($1) + $self->{section_hnum};
-	if (6<$level) { $level=6; }
-	return "<h$level>$2</h$level>\n";
-}
-
-#------------------------------------------------------------------------------
-# ●「続きを読む（完全省略）」 - =====
-#------------------------------------------------------------------------------
-sub super_more_read {
-	my ($self, $line) = @_;
-	if ($self->{more_read}) { return ; }
-	$self->{more_read} = 1;
-	my $seemore_msg = $self->{seemore_msg} || 'See More...';
-	return <<HTML;
-$self->{indent}<p class="seemore"><a href="$self->{thisurl}#$self->{now_anchor_name}">$self->{seemore_msg}</a></p><!--%SeeMore%-->
-HTML
 }
 
 ###############################################################################
@@ -1715,15 +1423,6 @@ sub search {
 }
 
 #--------------------------------------------------------------------
-# ●オプションタグ（出力されないタグ）
-#--------------------------------------------------------------------
-sub option {
-	my ($self, $tag, $cmd, $ary) = @_;
-	$self->{options}->{$cmd} = $ary;
-	return '';
-}
-
-#--------------------------------------------------------------------
 # ●link文字列の置換処理
 #--------------------------------------------------------------------
 sub replace_link {
@@ -1932,58 +1631,313 @@ sub output_footnote {
 # ■[99] ポストプロセス
 ###############################################################################
 sub post_process {
-	my ($self, $r_data) = @_;
+	my $self = shift;
+	my $rtxt = shift;
 
-	# 目次
-	while ($$r_data =~ m|<toc>(.*?)</toc>|) {
-		my %h;
-		my $thisurl = $self->{thisurl};
-		foreach(split(':', $1)) {
-			if ($_ =~ /^(\w+)=(.*)$/) {
-				$h{$1} = $2;
+	# エスケープした文字を復元
+	$self->un_escape( $rtxt );
+
+	# 目次の処理
+	$$rtxt =~ s|<toc>(.*?)</toc>|$self->post_toc($1)|eg;
+}
+
+sub post_toc {
+	my $self = shift;
+	my $arg  = shift;
+	my $opt  = {};
+	foreach(split(':', $arg)) {
+		if ($_ =~ /^(\w+)=(.*)$/) {
+			$opt->{$1} = $2;
+			next;
+		}
+		$opt->{$_}=1;
+	}
+	$opt->{class} = "toc" . ($opt->{class} eq '' ? '' : ' ' . $opt->{class});
+
+	my $secs = $self->{sections};
+	return $self->generate_toc($secs, $opt, $opt->{depth}) . "\n";
+}
+
+sub generate_toc {
+	my $self  = shift;
+	my $secs  = shift;
+	my $opt   = shift;
+	my $depth = shift;
+	my $level = shift || 0;
+
+	my $tab = "\t" x $level;
+	my $out = $level ? "$tab<ul>\n" : "<ul class=\"$opt->{class}\">\n";
+
+	foreach(@$secs) {
+		my $subs = $_->{children};
+		my $num  = $_->{number};
+		if ($num ne '') { $num .= ' '; }
+		my $link = "<a href=\"$self->{thisurl}#$_->{id}\">$num$_->{title}</a>";
+		if (!$subs || !@$subs) {
+			$out .= "$tab\t<li>$link</li>\n";
+			next;
+		}
+
+		$out .= "$tab\t<li>$link\n";
+		if ($depth eq '' || 1<$depth) {
+			if (1<$depth) { $depth=$depth-1; }
+			$out .=	$self->generate_toc($subs, $opt, $depth, $level+1);
+		}
+		$out .= "</li>\n";
+	}
+	$out .= "$tab</ul>";
+	return $out;
+}
+
+###############################################################################
+# ■記法タグのロードルーチン
+###############################################################################
+#------------------------------------------------------------------------------
+# ●記法タグの初期化
+#------------------------------------------------------------------------------
+sub init_tags {
+	my $self = shift;
+	$self->{tags} = {};
+	$self->{macros} = {};
+}
+
+#------------------------------------------------------------------------------
+# ●プラグインをロードする
+#------------------------------------------------------------------------------
+sub load_plugins {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $dir = shift;
+
+	if (!$dir) {
+		$INC{'Satsuki/TextParser/Satsuki.pm'} =~ m|(.*/)\w+\.\w+|;
+		$dir=$1 . "TagPlugin/";
+	}
+
+	my $cfile = $self->{plugin_cache_file};
+	my $x = $ROBJ->get_lastmodified($cfile);
+	my $y = $ROBJ->get_lastmodified_in_dir($dir);
+	if ($x < $y) {
+		return $self->generate_plugin_cache($cfile, $dir);
+	}
+	my $h = $ROBJ->fread_hash_cached($cfile);
+	foreach(keys(%$h)) {
+		$self->{tags}->{$_} = { plugin => $h->{$_} };
+	}
+}
+
+sub generate_plugin_cache {
+	my $self = shift;
+	my $cfile= shift;
+	my $dir  = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $files = $ROBJ->search_files($dir, {ext => '.pm'});
+	map { s/^Tag_(\w+)\.pm$/$1/ } @$files;
+
+	# キャッシュファイルが設定されてない場合は全ロードして戻る
+	if ($cfile eq '') {
+		foreach(@$files) {
+			$self->eval_load_plugin($_);
+			next;
+		}
+		return;
+	}
+
+	# キャッシュの生成
+	my %h = ('::FileVersion' => 1);
+	foreach my $f (@$files) {
+		my $lines = $ROBJ->fread_lines("${dir}Tag_$f.pm");
+		my $in_info;
+		foreach(@$lines) {
+			$_ =~ s/^\s*//;
+			$_ =~ s/[\r\n]*$//;
+			if (!$in_info) {
+				if ($_ eq $INFO_BEGIN_MARK) { $in_info=1; }
 				next;
 			}
-			$h{$_}=1;
+			if ($_ eq $INFO_END_MARK) { last; }
+			#
+			# プラグイン情報のパース
+			#	$tags->{asin}
+			if ($_ !~ /^\$tags->\{("|'|)?([^\}\"\']+)\1\}/) { next; }
+			$h{$2} = $f;
+			$self->{tags}->{$2} = { plugin => $f };
 		}
-		$h{anchor} ||= $self->{toc_anchor};
-
-		my $class="toc";
-		if ($h{none} || $h{anchor}) { $class .= " none"; }
-		if ($h{class} ne '') { $class .= " $h{class}"; }
-
-		my $sec_format = sub { "<a href=\"$thisurl#$_->{name}\">$_->{title}</a>" };
-		if ($h{anchor}) {
-			$sec_format = sub { "<span class=\"sanchor\">$_->{anchor}</span><a href=\"$thisurl#$_->{name}\">$_->{title}</a>" };
-		}
-
-		# 項目をリスト作成
-		my @out;
-		my $level = ($h{level} eq '') ? $self->{toc_level} : int($h{level});
-		my $func;
-		$func = sub {
-			my $out = shift;
-			my $ary = shift;
-			my $t   = shift;
-			if (length($t) > $level) { return; }
-			$t .= "\t";
-
-			push(@$out, "<ul class=\"$class\">\n");
-			foreach(@$ary) {
-				my $subs = $_->{children};
-				if (!$subs || !@$subs) {
-					push(@$out, "$t<li>" . &$sec_format() . "</li>\n");
-					next;
-				}
-				push(@$out, "$t<li>" . &$sec_format() . "\n");
-				&$func($out, $subs, $t);
-				push(@$out, "</li>\n");
-			}
-			push(@$out, "</ul>");
-		};
-		&$func(\@out, $self->{sections});
-		my $str = join('', @out);
-		$$r_data =~ s|<toc>(.*?)</toc>|$str|;
 	}
+	# キャッシュに保存
+	$ROBJ->fwrite_hash($cfile, \%h);
+}
+
+
+#------------------------------------------------------------------------------
+# ●タグ定義のロード
+#------------------------------------------------------------------------------
+# タグデータ構造
+# $tag = $tags{tag_name};
+#	$tag{data}   = tag data
+#	$tag{argc}   = argments for url data
+#	$tag{option} = tag option
+# (search only)
+#	$tag{name}   = tag name
+#	$tag{title}  = title
+#	$tag{class}  = html style sheet class
+# (alias or html tag)
+#	$tag{alias}  = alias to
+#	$tag{html}   = html tag
+sub load_tagdata {
+	my ($self, $data, $allow_load) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $file;
+	if (!ref($data)) {
+		$file = $data;
+		$data = $ROBJ->get_filepath( $data );
+		if (!-r $data) { return ; }
+		$data = $ROBJ->fread_lines_cached( $data, {DelCR => 1} );
+	}
+
+	# 現在の設定ロード
+	my $basepath = $ROBJ->{Basepath};
+	my $tags   = $self->{tags};
+	my $macros = $self->{macros};
+	my @load_files;
+	while(@$data) {
+		my $line = shift(@$data);
+		chomp($line);
+		if (ord($line) == 0x23) { next; }		# 先頭'#'はコメント
+		#---------------------------------------------------------------
+		# プラグインロード？
+		#---------------------------------------------------------------
+		if ($line =~ /^plugin\s+(\w+)/i) {
+			$self->eval_load_plugin($1);
+			next;
+		}
+		#---------------------------------------------------------------
+		# 他のファイルをロード
+		#---------------------------------------------------------------
+		if ($line =~ /^load\s+([\w\/\.]+)/i) {
+			if ($allow_load) { push(@load_files, $ROBJ->get_relative_path($file, $1)); }
+			next;
+		}
+		#---------------------------------------------------------------
+		# マクロ定義
+		#---------------------------------------------------------------
+		if ($line =~ /^\*(.+?)\s*$/) {
+			my $tag = $1;
+			my @ary;
+			while (@$data) {
+				my $x = shift(@$data);
+				if (ord($x) == 0x23) { next; }	# 先頭 # コメント
+				chomp($x);
+				if ($x =~ /^\s*$/) { last; }
+				unshift(@ary,$x);
+			}
+			$macros->{$tag} = \@ary;
+			next;
+		}
+		#---------------------------------------------------------------
+		# タグ定義
+		#---------------------------------------------------------------
+		if ($line !~ /^([\w\-\+#:]+)\s*=\s*(.*?)\s*$/s) { next; }	# '=' のない行は無視
+		my $tag   = $1;
+		my $value = $2;
+		$tag =~ s/[\"\']//g;
+		my @ary = split(':', $tag);
+		if ($#ary > 1) {	# : が２つ以上ある
+			my $cmd = shift(@ary); pop(@ary);
+			while (@ary) {
+				$cmd .= ':' . shift(@ary);
+				$tags->{$cmd} ||= {};
+			}
+		}
+
+		# タグ定義処理
+		my $tag_hash = $tags->{$tag} ||= {};
+
+		if (substr($value,0,1) eq '>') {	# alias
+			$tag_hash->{alias} = substr($value, 1);
+
+		} elsif (substr($value,0,5) eq 'html:') { # HTMLタグ置換
+			my $tag = substr($value, 5);
+			$tag =~ s/>/&gt;/g;
+			$tag =~ s/</&lt;/g;
+			($tag_hash->{html}, $tag_hash->{attribute}) = split(/\s+/, $tag, 2);
+			if ($tag_hash->{attribute} ne '') {
+				$tag_hash->{attribute} = ' ' . $tag_hash->{attribute};
+			}
+		} elsif (substr($value,0,5) eq 'text:') { # text置換
+			my $text = substr($value, 5);
+			$text =~ s/^\s*(.*?)\s*$/$1/g;
+			$tag_hash->{data} = $text;
+			$tag_hash->{argc} = 9;
+			$tag_hash->{replace_html} = 1;
+
+		} elsif (substr($value,0,7) eq 'plugin:') { # プラグイン設定
+			my $plg = substr($value, 7);
+			if ($plg =~ /[^\w]/) { next; }
+			$tag_hash->{plugin} = $plg;
+		} else {
+			if (substr($value,0,1) eq '<') {	# HTML置換
+				$value = "$tag,ASCII,9," . $value;
+			}
+			# タグの（リンク）クラス
+			my $class =$tag;
+			$class =~ s/#.*//;
+			$tag_hash->{name} = $class;
+			$class =~ s/[^A-Za-z0-9 ]/-/g;
+			$tag_hash->{class} = "$CSS_CLASS_PREFIX$class";
+			# タイトルなど
+			my ($title, $option, $url) = split(/\s*,\s*/, $value, 3);
+			$self->tag_escape( $title, $option );
+			if ($url =~ /^(\d+)\s*,\s*(.*)$/) {	# 受け取り引数指定
+				$tag_hash->{argc} = $1;
+				$url = $2;
+			} else {
+				$tag_hash->{argc} = 1;
+				$url .= '$1';
+			}
+			$url =~ s/\"/&quot;/g;
+			if ($title  ne '') { $tag_hash->{title}  = $title;  }
+			if ($option ne '') { $tag_hash->{option} = $option; }
+			if ($url eq 'block:') {	# block要素ならば、空行が出るまで読み込み
+				$url = '';
+				while(@$data) {
+					my $add = shift(@$data);
+					chomp($add);
+					# $add =~ s/^\s*(.*?)\s*\n?$/$1/;	# 前後の空白除去
+					if ($add eq '') { last; }
+					$url .= $add;
+				}
+			}
+			if ($url ne '') {
+				if (substr($url,0,1) eq '<') {	# HTML置換
+					$tag_hash->{replace_html}=1;
+				}
+				if ($url =~ /^html:(.*)/) {	# HTML置換
+					$tag_hash->{replace_html}=1;
+					$url = $1;
+				}
+				$tag_hash->{data} = $url;
+			}
+		}
+	}
+	# 他のファイルロード（エラーなし）
+	foreach(@load_files) {
+		$self->load_tagdata( $_ );
+	}
+}
+
+#------------------------------------------------------------------------------
+# ●プラグインのロード
+#------------------------------------------------------------------------------
+sub eval_load_plugin {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $file = shift;
+	$file =~ s/[^\w]//g;
+	# $ROBJ->debug("load tag plugin '$file'");
+	eval{ $ROBJ->loadpm("${TAG_PLUGIN_CLASS}$file", $self->{tags}); };
+	if ($@) { $ROBJ->error('[plugin load failed] %s', $@); }
 }
 
 ###############################################################################
@@ -2029,7 +1983,7 @@ sub tag_delete {
 #------------------------------------------------------------------------------
 sub un_escape {
 	my $self=shift;
-	foreach(@_) {
+	foreach(@_) {	# ( ) [ ] { } | * ^ ~: = + - を復元
 		$_ =~ s/&#(36|40|41|91|93|123|125|124|58|42|94|126|61|43|45);/chr($1)/eg;
 	}
 	return $_[0];

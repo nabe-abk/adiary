@@ -18,7 +18,6 @@ sub load_tags {
 	# 現在の設定ロード
 	my $tags    = $self->{tags};
 	my $titles  = $self->{titles};
-	my $options = $self->{options};
 
 	my @keys = sort keys(%$tags);
 	my @ary;
