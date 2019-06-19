@@ -619,10 +619,6 @@ h4 span {
     color:                  #b5001f;
 }
 
-h4 span.timestamp {
-    font-size:              12px;
-}
-
 /* 小々見出し */
 div.body h5 {
     font-size:              14px;

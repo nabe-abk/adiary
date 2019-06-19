@@ -645,17 +645,6 @@ h4 del, h4 strong {
 			-4pt -4pt 8pt #BC7EEC, 10pt 4pt 8pt #BC7EEC;
 }
 
-h4 span.timestamp {
-	font-size:			100%;
-	line-height:			1.5;
-	color:				  #BC7EEC;
-	text-shadow:			-1pt -1pt 2pt #fff,
-			1pt -1pt 2pt #fff, -1pt  1pt 2pt #fff,
-			1pt  1pt 2pt #fff,
-			-4pt -4pt 8pt #BC7EEC, 10pt 6pt 10pt #BC7EEC;
-	border: none;
-}
-
 /* 小々見出し */
 div.body h5 {
 	font-size:			100%;
