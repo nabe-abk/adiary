@@ -2565,8 +2565,8 @@ sub generate_toc {
 
 		$out .= "$tab\t<li>$link\n";
 		if ($depth eq '' || 1<$depth) {
-			if (1<$depth) { $depth=$depth-1; }
-			$out .=	$self->generate_toc($subs, $opt, $depth, $level+1);
+			my $d = $depth eq '' ? '' : $depth-1;
+			$out .=	$self->generate_toc($subs, $opt, $d, $level+1);
 		}
 		$out .= "</li>\n";
 	}
