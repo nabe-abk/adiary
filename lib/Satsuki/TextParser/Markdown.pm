@@ -39,7 +39,6 @@ sub new {
 	# 処理する記事ごとに設定
 	$self->{thisurl}  = '';		# 記事のURL
 	$self->{thispkey} = '';		# 記事のpkey = unique id = [0-9]+
-	$self->{thisymd}  = '';		# 記事の日付 yyyymmdd
 
 	return $self;
 }
@@ -77,7 +76,6 @@ sub text_parser {
 	if ( $sobj ) {
 		$sobj->{thisurl}  = $self->{thisurl};
 		$sobj->{thispkey} = $self->{thispkey};
-		$sobj->{thisymd}  = $self->{thisymd};
 	}
 
 	# セクション情報の初期化

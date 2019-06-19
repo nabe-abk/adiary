@@ -481,7 +481,6 @@ sub regist_article {
 		# パース準備
 		$parser->{thisurl}  = $self->get_blog_path( $blogid ) . $elink_key;
 		$parser->{thispkey} = $pkey;
-		$parser->{thisymd}  = $art{yyyymmdd};	# 時刻付見出し記法に使用
 		my ($text, $text_s) = $parser->text_parser( $_text );
 		if ($text eq $text_s) { $text_s=""; }
 
