@@ -16,24 +16,22 @@
 load textparser_site_tags.txt
 
 #------------------------------------------------------------------------------
-# マクロ設定（空行で一区切り）
+# マクロ設定（空行で一区切り） / #0 : 引数と置換
 #------------------------------------------------------------------------------
 *section_number
-::toc_anchor=1
-::section_anchor=%n
-::subsection_anchor=%n.%s
+::section_number=1
 
-*section_number0
-::toc_anchor=1
-::toc_level=0
-::section_anchor=%n
+*sectnum
+::section_number=1
 
-*section_number2
-::toc_anchor=1
-::toc_level=2
-::section_anchor=%n
-::subsection_anchor=%n.%s
-::subsubsection_anchor=%n.%s.%t
+*toc
+<toc>#0</toc>
+
+*toc1
+<toc>depth=1:#0</toc>
+
+*toc2
+<toc>depth=2:#0</toc>
 
 #------------------------------------------------------------------------------
 # http プラグイン

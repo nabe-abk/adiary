@@ -25,8 +25,9 @@ my $INFO_END_MARK   = '#---end';
 #	2 数値
 my %allow_override = (
 	chain_line => 2,
-	section_number => 1, section_start  => 1,
-	timestamp_date => 1, timestamp_time => 1,
+	section_number => 2, section_start  => 2,
+	section_prefix => 1, section_suffix => 1,
+	timestamp_date => 1,
 	br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
 	list_br => 2, seemore_msg => 1, tex_mode => 2
 );
@@ -43,8 +44,6 @@ sub new {
 	$self->{ROBJ} = shift;
 	$self->{plugin_cache_file} = shift;
 
-	$self->{timestamp_date} = '%Y/%m/%d';
-	$self->{timestamp_time} = '%J:%M';
 	$self->{br_mode} = 1;
 	$self->{ls_mode} = 1;
 	$self->{chain_line} = 1;
@@ -53,6 +52,7 @@ sub new {
 	$self->{section_number} = 0;	# 章番号なし
 	$self->{section_start}  = 1;	# 章の開始番号
 
+	$self->{timestamp_date} = '%Y/%m/%d';
 	$self->{indent} = '';		# indent all line
 	$self->{seemore_msg} = '';	# default "See More..."
 	$self->{image_attr}  = '';	# image link attribute for lightbox
@@ -65,7 +65,6 @@ sub new {
 	# 処理する記事ごとに設定
 	$self->{thisurl}  = '';		# 記事のURL
 	$self->{thispkey} = '';		# 記事のpkey = unique id = [0-9]+
-	$self->{thisymd}  = '';		# 記事の日付 yyyymmdd
 
 	return $self;
 }
@@ -496,9 +495,21 @@ sub block_parser_main {
 				$2 ? $2 : $self->mini_verbatim($1) /eg;		# mini varbatim {<xxx>}
 			# $line =~ tr/\x01/&/;	# \x01 を & に戻す
 			$line =~ s/\x01#(\d+);/chr($1)/eg;	# { } を戻す
+
 			# マクロ展開
-			$line =~ s#\[\*toc(\d*)(?:|:(.*?))\]#<toc>level=$1:$2</toc>\n#g;
-			$line =~ s/\[\*(.*?)\]/ $macros->{$1} && unshift(@$lines, @{ $macros->{$1} }), ''/eg;
+			$line =~ s!\[\*([^:\]]*)(:[^]]*)?\]!
+				if ($macros->{$1}) {
+					my @ary = @{ $macros->{$1} };
+					my $opt = $2;
+					if ($opt ne '') {
+						foreach(@ary) {
+							$_ =~ s/\#0/$opt/g;
+						}
+					}
+					unshift(@$lines, @ary);
+				}
+				'';
+			!eg;
 		}
 		#-------------------------------------------------
 		# コメント除去
@@ -987,7 +998,7 @@ sub parse_section {
 		#--------------------------------------------------------------
 		# セクション
 		#--------------------------------------------------------------
-		if ($line =~ /^(\*+)([\w\-\.]+\*)?\s*(.*)/) {
+		if ($line =~ m|^(\*+)(?:([\w\-\./: ]+)\*)?\s*(.*)|) {
 			my $level = length($1);
 			my $name  = $2;
 			my $title = $3;
@@ -1003,6 +1014,7 @@ sub parse_section {
 			foreach(2..$level) {
 				my $s = @$secs ? $secs->[$#$secs] : undef;
 				if (!$s) {
+					if ($base eq '') { $base='0'; }
 					$s = {
 						num	=> "${base}.0",
 						title	=> '(none)',
@@ -1010,34 +1022,33 @@ sub parse_section {
 					};
 					push(@$secs, $s);
 				}
-				$base = $s->{_num};
+				$base = $s->{num};
 				$secs = $s->{children} ||= [];
 			}
 			my $count = $#$secs<0 ? 1 : $secs->[$#$secs]->{count} + 1;
 			my $num   = $base . ($level>1 ? '.' : '') . $count;
-			my $id    = 'p' . $num;
+			my $id    = $self->generate_id_from_string($name || $title, 'p' . $num);
 
 			# generate section number
 			my $number='';
 			if ($self->{section_number}) {
+				$number = $self->{section_prefix} . $num . $self->{section_suffix};
 				my $start = $self->{section_start};
 				if ($start ne '' && $start != 1) {
-					$num =~ s/^(\d+)/
+					$number =~ s/^(\d+)/
 						$1 +$start -1
 					/eg;
 				}
-				$number .= "$_->{prefix}$num$_->{suffix} ";
 			}
 			my $num_text = '';
 			if ($number ne '') {
-				chop($number);
 				$num_text = " <span class=\"section-number\">$number</span> ";
 			}
 
 			# save section information
 			my $sec = {
 				id	=> $id,
-				_num	=> $num,
+				num	=> $num,
 				number  => $number,
 				title	=> $title,
 				count	=> $count
@@ -1046,9 +1057,11 @@ sub parse_section {
 			push(@$secs, $sec);
 
 			# output html
-			my $h = $self->{section_hnum} + $level -1;
+			my $h  = $self->{section_hnum} + $level -1;
+			my $tm = ($level==1) ? $self->make_section_timestamp($name) : '';
+
 			if (6 < $h) { $h=6; }
-			push(@out, "$self->{indent}<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\">$num_text$title</a></h$h>\n");
+			push(@out, "$self->{indent}<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\">$num_text$title</a>$tm</h$h>\n");
 
 			# タグ処理
 			$sec->{title} = $self->parse_tag( $sec->{title} );	# タグ処理
@@ -1091,122 +1104,27 @@ sub parse_section {
 }
 
 #------------------------------------------------------------------------------
-# ●*section_title
+# ●section timestamp
 #------------------------------------------------------------------------------
-sub section {
-	my ($self, $line) = @_;
+sub make_section_timestamp {
+	my $self = shift;
+	my $name = shift;
 	my $ROBJ = $self->{ROBJ};
-	my @ary;
 
-	# section の終わり
-	if ($self->{in_section}) {
-		push(@ary, {section_end => 1});	# 位置をマーキング
-		push(@ary, "</section>\n");
+	my $tm;
+	if ($name >= 100000000) {	# 時刻記法
+		my $ROBJ   = $self->{ROBJ};
+		my $format = $self->{timestamp_date} || '%Y/%m/%d';
+		$tm = $ROBJ->tm_printf($format, $name);
+	} elsif (  $name =~ m|^\d+/\d+(?:/\d+)?(?: \d+:\d+)?$|
+		|| $name =~ m|^\d+-\d+(?:-\d+)?(?: \d+:\d+)?$|
+		|| $name =~ m|^\d+:\d+$|)
+	{
+		$tm = $name;
+	} else {
+		return;
 	}
-
-	# section の開始
-	if ($self->{in_section}) { push(@ary, "\n"); }
-	push(@ary, "<section>\n");
-	$self->{in_section} = 1;
-
-	# セクションカウンタの処理
-	my $sec_c = $self->{section_count} += 1;
-	$self->{subsection_count} = 0;
-	$self->{subsubsection_count} = 0;
-
-	# 見出しの処理
-	$line = substr($line, 1);
-	$line =~ s/^\s*//g;
-	$line =~ s/\s*$//g;
-	my $anchor = $self->{section_anchor};
-	my $name   = 'p' . $sec_c;
-	if ($line =~ /^([\w\-\.\d]+)(:[^\*]+)?\*(.*)/s) {
-		$name = $1;
-		$line = $3;
-		my $force_format = substr($2,1);
-		if ($name > 100000000) {	# 時刻記法
-			my $ROBJ = $self->{ROBJ};
-			my $format = $self->{timestamp_time} || '%J:%M';
-			my $h = $ROBJ->time2timehash( $name );
-			my $ymd = sprintf("%04d%02d%02d", $h->{year}, $h->{mon}, $h->{day});
-			if ($ymd != $self->{thisymd}) {
-				$format = $self->{timestamp_date} || '%Y/%m/%d';
-			}
-			$format = $force_format || $format;
-			$line .= ' <span class="timestamp">'
-				. $ROBJ->tm_printf($format, $name) . '</span>';
-		}
-	}
-
-	$anchor =~ s/%n/$sec_c/g;
-	$self->{now_anchor_name} = $name;
-	$self->{subsections} = [];
-	# セクション情報の保存
-	push(@{ $self->{sections} }, {
-		name => $name,
-		title => $line,
-		anchor => $anchor,
-		section_count => $sec_c,
-		children => $self->{subsections}
-	});
-
-	my $hnum = $self->{section_hnum};
-	if ($anchor ne '') { $anchor="<span class=\"sanchor\">$anchor</span>"; }
-	push(@ary, "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\">$anchor$line</a></h$hnum>\n");
-	return \@ary;
-}
-
-#------------------------------------------------------------------------------
-# ●**subsection_title
-#------------------------------------------------------------------------------
-sub subsection {
-	my ($self, $line) = @_;
-	$line = substr($line, 2);
-	$line =~ s/^\s*//g;
-	$line =~ s/\s*$//g;
-
-	# セクションカウント
-	my $sec_c    = $self->{section_count};
-	my $subsec_c = $self->{subsection_count} += 1;
-	$self->{subsubsection_count} = 0;
-
-	my $anchor = $self->{subsection_anchor};
-	my $name   = $self->{now_anchor_name};
-	$name .= '.' . $subsec_c;
-	$self->{now_subanchor_name} = $name;
-	$anchor =~ s/%n/$sec_c/g;
-	$anchor =~ s/%s/$subsec_c/g;
-	if ($line =~ /^([\w\-\.\d]+)(:[^\*]+)?\*(.*)/s) {
-		$name = $1;
-		$line = $3;
-		my $force_format = substr($2,1);
-		if ($name > 100000000) {	# 時刻記法
-			my $ROBJ = $self->{ROBJ};
-			my $format = $self->{timestamp_time} || '%J:%M';
-			my $h = $ROBJ->time2timehash( $name );
-			my $ymd = sprintf("%04d%02d%02d", $h->{year}, $h->{mon}, $h->{day});
-			if ($ymd != $self->{thisymd}) {
-				$format = $self->{timestamp_date} || '%Y/%m/%d';
-			}
-			$format = $force_format || $format;
-			$line .= ' <span class="timestamp">'
-				. $self->{ROBJ}->tm_printf($format, $name) . '</span>';
-		}
-	}
-	# セクション情報の保存
-	$self->{subsubsections} = [];
-	push(@{$self->{subsections}}, {
-		name => $name,
-		title => $line,
-		anchor => $anchor,
-		section_count => $sec_c,
-		subsection_count => $subsec_c,
-		children => $self->{subsubsections}
-	});
-
-	my $hnum = $self->{section_hnum} +1;
-	if ($anchor ne '') { $anchor="<span class=\"sanchor\">$anchor</span>"; }
-	return "<h$hnum><a href=\"$self->{thisurl}#$name\" id=\"$name\">$anchor$line</a></h$hnum>\n";
+	return " <span class=\"timestamp\">$tm</span>";
 }
 
 ###############################################################################
@@ -1432,8 +1350,8 @@ sub replace_link {
 	my $rep  = $self->{vars};
 
 	my @argv = splice(@$ary, 0, $argc);
-	unshift(@argv,  $ROBJ->{Basepath});
-	$url =~ s/\#(\d)/$argv[$1]/g;			# 文字コード変換前
+	unshift(@argv, join(':', @argv));	# for $0/#0
+	$url =~ s/\#(\d)/$argv[$1]/g;		# 文字コード変換前
 
 	if ($code eq 'ASCII' || $code !~ /[A-Z]/) { $code=''; }
 	my $jcode = $code ? $ROBJ->load_codepm() : undef;
@@ -1444,10 +1362,6 @@ sub replace_link {
 	}
 	$url =~ s/\$(\d)/$argv[$1]/g;		# 文字コード変換後
 	$url =~ s/\$\{(\w+)\}/$rep->{$1}/g;	# 任意データ置換
-	# 全引数置換
-	shift(@argv);
-	my $all = join(':', @argv);
-	$url =~ s/\$0/$all/g;
 	return $url;
 }
 
@@ -1652,7 +1566,8 @@ sub post_toc {
 		}
 		$opt->{$_}=1;
 	}
-	$opt->{class} = "toc" . ($opt->{class} eq '' ? '' : ' ' . $opt->{class});
+	my $c = $self->normalize_class_string( $opt->{class} );
+	$opt->{class} = $self->chain_class("toc", $c, exists($opt->{none}) ? 'none' : '');
 
 	my $secs = $self->{sections};
 	return $self->generate_toc($secs, $opt, $opt->{depth}) . "\n";
@@ -1669,6 +1584,8 @@ sub generate_toc {
 	my $out = $level ? "$tab<ul>\n" : "<ul class=\"$opt->{class}\">\n";
 
 	foreach(@$secs) {
+		if ($_->{id} eq '') { next; }
+
 		my $subs = $_->{children};
 		my $num  = $_->{number};
 		if ($num ne '') { $num .= ' '; }
@@ -2005,6 +1922,51 @@ sub parse_class_id {
 	$r  = ($str ne '' ? " class=\"$str\"" : '');
 	$r .= ($id  ne '' ? " id=\"$id\"" : '');
 	return $r;
+}
+
+#------------------------------------------------------------------------------
+# ●classの結合処理
+#------------------------------------------------------------------------------
+sub make_class_attr {
+	my $self  = shift;
+	my $class = $self->chain_class(@_);
+	if ($class eq '') { return; }
+	return " class=\"$class\"";
+}
+sub chain_class {
+	my $self = shift;
+	my $class='';
+	foreach(@_) {
+		if ($_ eq '') { next; }
+		$class .= $_ . ' ';
+	}
+	chop($class);
+	return $class;
+}
+
+#------------------------------------------------------------------------------
+# ●ラベル等からidを生成
+#------------------------------------------------------------------------------
+sub generate_id_from_string {
+	my $self  = shift;
+	my $label = shift;
+	my $default = shift || 'id';
+	$label =~ tr/A-Z/a-z/;
+	$label =~ s/[^\w\-\.\x80-\xff]+/-/g;
+	return $label eq '' ? $default : $label;
+}
+
+#------------------------------------------------------------------------------
+# ●class名の正規化
+#------------------------------------------------------------------------------
+sub normalize_class_string {
+	my $self  = shift;
+	my $class = shift;
+	$class =~ tr/A-Z/a-z/;
+	$class =~ s/[^a-z0-9 ]+/-/g;
+	$class =~ s/  +/ /g;
+	$class =~ s/(^| )[\-\d]+/$1/g;
+	return $class;
 }
 
 #------------------------------------------------------------------------------

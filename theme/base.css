@@ -186,7 +186,7 @@ article div.body .hidden em {
 dl {
 	margin-left:	2em;
 }
-ul.none, ol.none {
+ul.none, ol.none, .none ul, .none ol {
 	list-style:	none;
 }
 
