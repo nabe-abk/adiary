@@ -52,7 +52,7 @@
 <!-- JavaScript ============================================-->
 <script defer src="<@Basepath><@v.script_dir>jquery-3.3.1.min.js"></script>
 <@if(load_jquery_ui, #'<script defer src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>\n')>
-<script defer src="<@Basepath><@v.script_dir>adiary.js?<@get_lastmodified(v.script_dir)>"></script>
+<script defer src="<@Basepath><@v.script_dir>adiary.js?<@get_lastmodified(v.script_dir . 'adiary.js')>"></script>
 <@forexec(t, v.load_jscss(Basepath, 'jslib'), begin)>
 <script defer src="<@t>"></script>
 <$end>

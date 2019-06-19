@@ -1795,9 +1795,7 @@ sub load_jscss {
 	@ary = grep { $h{$_}++; $h{$_}<2 } @ary;
 	foreach(@ary) {
 		if ($_ =~ m!^/|^https?://!i) { next; }
-		my $dir = $_;
-		$dir =~ s|/[^/]+$||;
-		$_ = $base . $_ . '?' . $ROBJ->get_lastmodified( $dir );
+		$_ = $base . $_ . '?' . $ROBJ->get_lastmodified( $_ );
 	}
 	return \@ary;
 }
