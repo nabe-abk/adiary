@@ -44,7 +44,6 @@ sub new {
 	$self->{ROBJ} = shift;
 	$self->{plugin_cache_file} = shift;
 
-	$self->{use_preprocessor} = 1;
 	$self->{timestamp_date} = '%Y/%m/%d';
 	$self->{timestamp_time} = '%J:%M';
 	$self->{br_mode} = 1;
@@ -318,67 +317,6 @@ sub eval_load_plugin {
 	# $ROBJ->debug("load tag plugin '$file'");
 	eval{ $ROBJ->loadpm("${TAG_PLUGIN_CLASS}$file", $self->{tags}); };
 	if ($@) { $ROBJ->error('[plugin load failed] %s', $@); }
-}
-
-###############################################################################
-# ■プリプロセッサー
-###############################################################################
-#------------------------------------------------------------------------------
-# ●記事元データ（本文）の加工
-#------------------------------------------------------------------------------
-# *t* の時刻付き見出し記法用
-#
-# $parser->preprocessor($text);
-# $parser->preprocessor($text, {key_list => 1});
-#
-sub preprocessor {
-	my $self = shift;
-	my $opt = $_[1];
-
-	# *t* がなく、key記法がなければ何もしない
-	if ($_[0] !~ /\*t[\*:]/ && (!$opt->{key_list} || $_[0] !~ /\[key:.*?\]/)) { return []; }
-
-	# 0x00の除去
-	$_[0] =~ s/\x00//g;
-
-	# コメントやブロックの退避
-	my $backup = $self->backup_blocks($_[0]);
-
-	# 置換処理
-	my $now_tm = $self->{ROBJ}->{TM} || time();
-	# *t*section, **t*section
-	$_[0] =~ s/(?:\G|\n)\*(\*?)t([\*\:])/"\n*$1" . ($now_tm++) . $2/eg;
-
-	# key list
-	my @key_list;
-	if ($opt->{key_list}) {
-		while($_[0] =~ m/\[key:([^:\]]+)(?:\:.*?)?\]/g) { push(@key_list, $1); }
-	}
-
-	# ブロックの復元
-	$self->restore_blocks($_[0], $backup);
-
-	return \@key_list;
-}
-
-#------------------------------------------------------------------------------
-# ●データ加工のために、ブロック退避
-#------------------------------------------------------------------------------
-sub backup_blocks {
-	my $self = shift;
-	my @ary;
-	$_[0] .= "\n";
-	$_[0]  =~ s/(<!--.*?-->|\{.*?\}|(?:\G|\n)>+(?:\[|\|\||\|\w+).*?\n\#?(\]|\|\|)<+\n)/push(@ary, $1), "\n\x00$#ary\x00\n"/esg;
-	$_[0]  =~ s/(\{\{[^\}]*\}\}|\{[^\}]*\})/push(@ary, $1), "\x00$#ary\x00"/eg;
-	return \@ary;
-}
-
-sub restore_blocks {
-	my $self = shift;
-	my $ary  = $_[1];
-	$_[0] =~ s/\n\x00(\d+)\x00\n/$ary->[$1]/g;
-	chomp($_[0]);
-	return $_[0];
 }
 
 ###############################################################################

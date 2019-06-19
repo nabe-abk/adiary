@@ -478,11 +478,6 @@ sub regist_article {
 			return 3;
 		}
 
-		# プリプロセッサ
-		if ($parser->{use_preprocessor} && $_text ne '') {
-			$parser->preprocessor( $_text );
-		}
-
 		# パース準備
 		$parser->{thisurl}  = $self->get_blog_path( $blogid ) . $elink_key;
 		$parser->{thispkey} = $pkey;
@@ -492,7 +487,7 @@ sub regist_article {
 
 		# 許可タグ以外の除去処理
 		my $escape = $self->load_tag_escaper( 'article' );
-		$text   = $escape->escape($text);
+		$text = $escape->escape($text);
 		if ($text_s ne '') {
 			$text_s = $escape->escape($text_s);
 		}

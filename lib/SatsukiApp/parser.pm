@@ -69,11 +69,6 @@ sub _main {
 		map { s/\r\n|\r/\n/g } @$text;
 		$text = join('', @$text);
 
-		# preprocessoer
-		if ($parser->{use_preprocessor} && $text ne '') {
-			$parser->preprocessor( $text );
-		}
-
 		my ($text, $text_s) = $parser->text_parser( $text );
 
 		# パーサー内変数を埋め込む
