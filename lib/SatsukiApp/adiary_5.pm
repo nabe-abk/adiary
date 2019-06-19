@@ -196,7 +196,7 @@ sub rebuild_blog {
 		$self->post_process_link_key( $_ );
 		$parser->{thisurl}  = $self->get_blog_path( $blogid ) . $_->{elink_key};
 		$parser->{thispkey} = $_->{pkey};
-		my ($text, $text_s) = $parser->text_parser( $_->{_text} );
+		my ($text, $text_s) = $parser->parse( $_->{_text} );
 		if ($text eq $text_s) { $text_s=""; }
 
 		# 許可タグ以外の除去処理

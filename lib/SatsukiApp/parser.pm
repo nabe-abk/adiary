@@ -69,7 +69,7 @@ sub _main {
 		map { s/\r\n|\r/\n/g } @$text;
 		$text = join('', @$text);
 
-		my ($text, $text_s) = $parser->text_parser( $text );
+		my ($text, $text_s) = $parser->parse( $text );
 
 		# パーサー内変数を埋め込む
 		$ROBJ->{vars} = $parser->{vars_} || {};

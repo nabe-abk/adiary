@@ -481,7 +481,7 @@ sub regist_article {
 		# パース準備
 		$parser->{thisurl}  = $self->get_blog_path( $blogid ) . $elink_key;
 		$parser->{thispkey} = $pkey;
-		my ($text, $text_s) = $parser->text_parser( $_text );
+		my ($text, $text_s) = $parser->parse( $_text );
 		if ($text eq $text_s) { $text_s=""; }
 
 		# 許可タグ以外の除去処理
