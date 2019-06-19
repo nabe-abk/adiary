@@ -29,7 +29,7 @@ my %allow_override = (
 	section_prefix => 1, section_suffix => 1,
 	timestamp_date => 1,
 	br_mode => 2, p_mode => 2, p_class => 1, ls_mode => 1,
-	list_br => 2, seemore_msg => 1, tex_mode => 2
+	seemore_msg => 1, list_br => 2, tex_mode => 2
 );
 ###############################################################################
 # ■基本処理

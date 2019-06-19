@@ -16,24 +16,6 @@
 load textparser_site_tags.txt
 
 #------------------------------------------------------------------------------
-# マクロ設定（空行で一区切り） / #0 : 引数と置換
-#------------------------------------------------------------------------------
-*section_number
-::section_number=1
-
-*sectnum
-::section_number=1
-
-*toc
-<toc>#0</toc>
-
-*toc1
-<toc>depth=1:#0</toc>
-
-*toc2
-<toc>depth=2:#0</toc>
-
-#------------------------------------------------------------------------------
 # http プラグイン
 #------------------------------------------------------------------------------
 # [http://], [ftp://], [mailto:], 
@@ -158,13 +140,6 @@ gtex = Google Chart API, ASCII, 1, <img src="https://chart.googleapis.com/chart?
 
 # mimeTeX（要インストール http://adiary.org/v3man/Satsuki-tag/tex#mimetex）
 mtex = mimeTeX, ASCII, 1, <img src="${Basepath}mimetex.cgi?$1" alt="#1" title="#1" class="tex">
-
-# マクロ
-*tex
-::tex_mode=1
-
-*tex:off
-::tex_mode=0
 
 #------------------------------------------------------------------------------
 # 画像プラグイン／画像アルバム
@@ -307,3 +282,27 @@ huge  = html:span.x-large
 tiny  = html:span.x-small
 scriptsize = html:span.xx-small
 
+#------------------------------------------------------------------------------
+# マクロ設定（空行で一区切り） / #0 : 引数と置換
+#------------------------------------------------------------------------------
+# マクロ名に「:」を使わないこと
+*section_number
+::section_number=1
+
+*sectnum
+::section_number=1
+
+*toc
+<toc>#0</toc>
+
+*toc1
+<toc>depth=1:#0</toc>
+
+*toc2
+<toc>depth=2:#0</toc>
+
+*tex
+::tex_mode=1
+
+*tex-off
+::tex_mode=0
