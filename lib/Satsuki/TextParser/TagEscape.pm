@@ -1,16 +1,19 @@
 use strict;
 #-------------------------------------------------------------------------------
 # TAG escape module
-#						(C)2005-2018 nabe / nabe@abk
+#						(C)2005-2019 nabe / nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::TextParser::TagEscape;
-our $VERSION = '1.32';
+our $VERSION = '1.40';
 #-------------------------------------------------------------------------------
 # ●オプション一覧
 #-------------------------------------------------------------------------------
-# _allow_anytag		すべてのタグを許可する
+# _anytag		すべてのタグを許可する
 # _absolute_path	相対パスを絶対パスに書き換え
 # _absolute_uri		URIをFQDN付のURIに書き換え
+#
+#○特定のタグの属性をすべて不許可
+#	tag		-
 #
 #-------------------------------------------------------------------------------
 # プロトコル を確認する属性
@@ -31,6 +34,13 @@ sub new {
 	my $self = bless({}, shift);
 	$self->{ROBJ} = shift;
 
+	$self->{allow} = {
+		_base      => [],
+		_base_deny => [],
+		_protocol  => []
+	};
+	$self->{modules} = {};
+
 	foreach(@_) {
 		$self->init($_);
 	}
@@ -49,9 +59,14 @@ sub init {
 	my $file = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my %allow;
+	my $allow   = $self->{allow};
+	my $modules = $self->{modules};
+
+	#----------------------------------------------------------------------
+	# 許可タグリスト
+	#----------------------------------------------------------------------
 	my $lines = $ROBJ->fread_lines_cached($file, {DelCR => 1});
-	if (@$lines) { $self->{file_load}=1; }	# for skeleton
+	if (@$lines) { $self->{file_load}=1; }
 	while(@$lines) {
 		my $x = shift(@$lines);
 		chomp($x);
@@ -59,53 +74,46 @@ sub init {
 		my ($tag, $attr) = split(/\s+/, $x, 2);
 		if ($tag eq '_module_start') { last; }
 
-		if ($attr eq '') {		# 標準許可のみ
-			$allow{$tag} = [];
-		} elsif ($attr eq '*') {	# すべて不許可
-			$allow{$tag} = '*';
+		if ($attr eq '') {				# 標準許可のみ
+			$allow->{$tag} = [];
+		} elsif (ord($tag) != 0x5f && $attr eq '-') {	# すべて不許可
+			#     $tag !~ /^_/ && $attr eq '-'
+			$allow->{$tag} = '-';
 		} else {
 			my @ary = split(/\s*,\s*/, $attr);
-			$allow{$tag} = \@ary;
+			$allow->{$tag} = \@ary;
+		}
+	}
+	#----------------------------------------------------------------------
+	# モジュールデータ
+	#----------------------------------------------------------------------
+	{
+		push(@$lines, "\n");
+		my ($name, $html);
+		foreach(@$lines) {
+			chomp($_);
+			if (ord($_) == 0x23) { next; }	# '#'で始まる行はコメント
+			if (defined $name) {
+				if ($_ ne '') { $html .= "$_\n"; next; }
+				# モジュール確定
+				chomp($html);
+				$modules->{$name} = $html;
+				$name = $html = undef;
+			}
+			if (ord($_) != 0x2a) { next; }		# * で始まらない行は無視
+
+			# *name 行
+			$name = substr($_,1);
 		}
 	}
 
-	# モジュールデータのロード
-	my %modules;
-	my ($name, $html);
-	# 外部モジュールファイルのロード
-	my $include  = [];
-	my $mod_file = $allow{_include_module}->[0];
-	if ($mod_file ne '') {
-		# 相対パスを解釈
-		$mod_file = $ROBJ->get_relative_path($file, $mod_file);
-		$include  = $ROBJ->fread_lines_cached($mod_file, {DelCR => 1});
-	}
-	push(@$lines, "\n");
-	foreach(@$lines, @$include) {
-		chomp($_);
-		if (ord($_) == 0x23) { next; }	# '#'で始まる行はコメント
-		if (defined $name) {
-			if ($_ ne '') { $html .= "$_\n"; next; }
-			# モジュール確定
-			chomp($html);
-			$modules{$name} = $html;
-			$name = $html = undef;
-		}
-		if (ord($_) != 0x2a) { next; }		# * で始まらない行は無視
-		# *name という行
-		$name = substr($_,1);
-	}
+	#----------------------------------------------------------------------
 	# 値保存
-	$self->{allow}   = \%allow;
-	$self->{modules} = \%modules;
-	$allow{_base}      ||= [];
-	$allow{_base_deny} ||= [];
-	$allow{_protocol}  ||= [];
-
+	#----------------------------------------------------------------------
 	my $c = $self->{cache} = {};
-	$c->{_base}      = { map { $_ => 1 } @{ $allow{_base}      } };
-	$c->{_base_deny} = { map { $_ => 1 } @{ $allow{_base_deny} } };
-	$c->{_protocol}  = { map { $_ => 1 } @{ $allow{_protocol}  } };
+	$c->{_base}      = { map { $_ => 1 } @{ $allow->{_base}      } };
+	$c->{_base_deny} = { map { $_ => 1 } @{ $allow->{_base_deny} } };
+	$c->{_protocol}  = { map { $_ => 1 } @{ $allow->{_protocol}  } };
 }
 
 #------------------------------------------------------------------------------
@@ -114,6 +122,20 @@ sub init {
 sub anytag {
 	my $self = shift;
 	$self->{allow}->{_anytag} = shift;
+}
+
+#------------------------------------------------------------------------------
+# ●強制除去タグ/属性を指定する
+#------------------------------------------------------------------------------
+sub set_remove_tag {
+	my $self = shift;
+	my $ary  = ref($_[0]) ? $_[0] : \@_;
+	$self->{remove_tag}  = { map { $_ => 1 } @$ary };
+}
+sub set_remove_attr {
+	my $self = shift;
+	my $ary  = ref($_[0]) ? $_[0] : \@_;
+	$self->{remove_attr} = { map { $_ => 1 } @$ary };
 }
 
 #------------------------------------------------------------------------------
@@ -283,25 +305,29 @@ sub parse {
 sub filter {
 	my $self = shift;
 	my $html = shift;
-	if ($self->{allow}->{_anytag}) { return; }
+
+	# 許可情報
+	my $allow       = $self->{allow};
+	my $any         = $allow->{_anytag};
+	my $remove_tag  = $self->{remove_tag}  || {};
+	my $remove_attr = $self->{remove_attr} || {};
+	if ($any && !%$remove_tag && !%$remove_attr) { return; }
 
 	# タグ処理
-	my $allow     = $self->{allow};
 	my $base      = $self->load_allow_at('_base');
 	my $base_deny = $self->load_allow_at('_base_deny');
 	my $protocol  = $self->load_allow_at('_protocol');
 
 	foreach my $p ($html->getAll) {
 		my $type = $p->type();
-		if ($type ne 'tag') {
-			if ($type eq 'comment') {
-				if (!$allow->{_comment}) { $p->remove(); }
-				next;
-			}
-			if ($type eq 'script') {
-				if (!$allow->{script}) { $p->remove(); }
-				next;
-			}
+		my $key;
+		if ($type eq 'tag') {
+			$key = $p->tag();
+		} elsif ($type eq 'comment') {
+			$key = '_comment';
+		} elsif ($type eq 'script') {
+			$key = 'script';
+		} else {
 			next;
 		}
 
@@ -310,7 +336,7 @@ sub filter {
 		#--------------------------------------------------------
 		my $tag = $p->tag();
 
-		if (! $allow->{$tag}) {
+		if ($remove_tag->{$tag} || !$any && !$allow->{$tag}) {
 			$p->remove();
 			next;
 		}
@@ -321,7 +347,11 @@ sub filter {
 		my $allow_at = $self->load_allow_at($tag);
 		my $at = $p->attr();
 		foreach(keys(%$at)) {
-			if (!$allow_at->{$_} || $base_deny->{$_}) {	# 不許可?
+			if ($remove_attr->{$_}) {
+				delete $at->{$_};
+				next;
+			}
+			if (!$any && (!$allow_at->{$_} || $base_deny->{$_})) {	# 不許可?
 				my $f=1;
 				# data- 等のワイルドカードチェック
 				if (!$base_deny->{$_} && $allow_at->{_wild} && index($_,'-')>0) {
@@ -370,7 +400,7 @@ sub load_allow_at {
 
 	my $h = $cache->{$tag} = {};
 	my $x = $allow->{$tag};
-	if ($x eq '*') { return $h; }	# すべて不許可
+	if ($x eq '-') { return $h; }	# すべて不許可
 
 	my @wild;
 	foreach(@{ $allow->{_base} }, @$x) {

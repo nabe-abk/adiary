@@ -471,6 +471,7 @@ sub regist_article {
 	my $parser_name = $form->{parser};
 	$art{parser} = $parser_name;
 
+	my ($text, $short);
 	if ($parser_name ne '') {
 		my $parser = $self->load_parser( $parser_name );
 		if (! ref($parser)) {
@@ -481,30 +482,23 @@ sub regist_article {
 		# パース準備
 		$parser->{thisurl}  = $self->get_blog_path( $blogid ) . $elink_key;
 		$parser->{thispkey} = $pkey;
-		my ($text, $text_s) = $parser->parse( $_text );
-		if ($text eq $text_s) { $text_s=""; }
-
-		# 許可タグ以外の除去処理
-		my $escape = $self->load_tag_escaper( 'article' );
-		$text = $escape->escape($text);
-		if ($text_s ne '') {
-			$text_s = $escape->escape($text_s);
-		}
-
-		# 値保存
-		$art{_text}  = $_text;	# parse 前のテキスト
-		$art{text}   = $text;
-		$art{text_s} = $text_s;	# 短いtext（$text ne $text_sの時のみ）
+		($text, $short) = $parser->parse( $_text );
 	} else {
-		# パーサーなし
-		my $text = "<section>\n$_text\n</section>";
-		$self->load_tag_escaper( 'article' )->escape($text);
-
-		$art{parser} = '';
-		$art{_text}  = $_text;
-		$art{text}   = $text;
-		$art{text_s} = '';
+		$text = "<section>\n$_text\n</section>";
 	}
+	if ($short eq '') { $short = $text; }
+
+	# 許可タグ以外の除去処理
+	my $escape = $self->load_tag_escaper( 'article' );
+	$text  = $escape->escape($text);
+	$escape->set_remove_attr('id');
+	$short = $escape->escape($short);
+	$escape->set_remove_attr();
+
+	# 値保存
+	$art{_text}  = $_text;		# source text
+	$art{text}   = $text;
+	$art{text_s} = ($text eq $short) ? '' : $short;
 	$self->set_description(\%art);
 
 	#------------------------------------------------------------
