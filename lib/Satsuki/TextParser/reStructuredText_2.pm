@@ -1728,22 +1728,12 @@ sub make_name_and_class_attr {
 	#-----------------------------------------
 	if ($opt->{name} ne '') {
 		my $label = $opt->{name};
-		my $base = $self->generate_id_from_string( $label );
-		my $id   = $self->generate_link_id( $base );
-		my $key  = $self->generate_key_from_label_with_tag_escape( $label );
+		my $id    = $self->generate_id_from_string( $label );
 
-		my $links = $self->{links};
-		if ($links->{$key}) {
-			my $msg = $self->parse_error('Duplicate link target name: %s', $label);
-			$links->{$key}->{error} = $msg;
-			$links->{$key}->{duplicate} = 1;
-		} else {
-			$links->{$key} = {
-				type => 'link',
-				id   => $id
-			};
-			$attr .= " id=\"$id\"";
-		}
+		$self->save_explicit_link($label, {
+			type => 'link',
+			id   => $id
+		});
 	}
 	if ($opt->{_class}) {
 		$class .= ($class eq '' ? '' : ' ') . $opt->{_class};

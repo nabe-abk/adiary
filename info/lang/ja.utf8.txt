@@ -289,7 +289,7 @@ Restart of %s is required!=%sの再起動が必要です！
 [RST] Target is not footnote/citation: %s=[RST] 参照している脚注か引用が見つかりません: %s
 [RST] Indirect hyperlink target is circular reference: %s=[RST] リンクが循環参照しています: %s
 [RST] Unknown target name: %s=[RST] ターゲット名が見つかりません: %s
-[RST] Too many anonymous hyperlink references=[RST] 無名リンクの参照が多すぎます
+[RST] Too many anonymous hyperlink references: %s=[RST] 無名リンクの参照が多すぎます: %s
 [RST] Too many anonymous hyperlink targets: ref=%d / def=%d=[RST] 無名リンクの定義が多すぎます: 参照=%d / 定義=%d
 [RST] Malformed substitution definition: %s=[RST] 置換定義の記述が不正です: %s
 [RST] Substitution definition empty or invalid: %s=[RST] 置換定義が空もしくは無効です: %s

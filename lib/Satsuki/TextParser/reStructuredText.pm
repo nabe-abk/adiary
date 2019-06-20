@@ -79,7 +79,7 @@ sub parse {
 	# 内部変数初期化
 	$self->{footnotes_auto} = [];
 	$self->{links}          = {};	# link target hash
-	$self->{anonymous_links}= [];	# Anonymouse hyperlinks
+	$self->{anonymous_links}= [];	# Anonymous hyperlinks
 	$self->{substitutions}  = {};	# Substitution
 	$self->{ids}            = {};	# all id hash
 
@@ -151,6 +151,7 @@ sub parse_block {
 	$self->{footnote_symc}  = 0;	# footnote symbols counter
 	$self->{enum_cache}     = {};
 	$self->{transion_cache} = {'' => 0};
+	$self->{autonumber_duplicate} = [];
 
 	my @out;
 	my $r = $self->do_parse_block(\@out, $lines);
@@ -168,6 +169,10 @@ sub parse_block {
 			}
 			$links->{$num} = $_;
 			$_->{label} = $num;
+		}
+		my $keys = $self->{autonumber_duplicate};
+		foreach(@$keys) {
+			delete $links->{$_};
 		}
 		foreach(keys(%$links)) {
 			my $h = $links->{$_};
@@ -278,12 +283,6 @@ sub do_parse_block {
 				next;
 			}
 			my $level = $seclv_cache->{$mark} ||= ++$seclv;
-
-			$self->backslash_escape($title);
-			$self->tag_escape($title);
-			my $h = $self->{section_hnum} + $level -1;
-			if (6 < $h) { $h=6; }
-
 			if ($level == 1 && $sectioning && @$out) {
 				push(@$out, "</section>\x02\x02");
 				push(@$out, "<section>\x02");
@@ -308,8 +307,7 @@ sub do_parse_block {
 			}
 			my $count = $#$secs<0 ? 1 : $secs->[$#$secs]->{count} + 1;
 			my $num   = $base . ($level>1 ? '.' : '') . $count;
-			my $base  = $self->generate_id_from_string($title, 'p' . $num);
-			my $id    = $self->generate_implicit_link_id( $base );
+			my $id    = $self->generate_id_from_string($title, 'p' . $num);
 
 			# generate section number
 			my $number='';
@@ -332,6 +330,16 @@ sub do_parse_block {
 				$num_text = " <span class=\"section-number\">``$number``</span> ";
 			}
 
+			# save link information
+			{
+				my $label = $title;
+				$self->backslash_process($label);
+				$self->save_implicit_link($label, {
+					type => 'link',
+					id   => $id
+				});
+			}
+
 			# save section information
 			my $sec = {
 				id	=> $id,
@@ -343,6 +351,11 @@ sub do_parse_block {
 			push(@$secs, $sec);
 			$self->{current_section} = $sec;
 
+			# output html
+			$self->backslash_escape($title);
+			$self->tag_escape($title);
+			my $h = $self->{section_hnum} + $level -1;
+			if (6 < $h) { $h=6; }
 			push(@$out, '', "<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\">$num_text$title</a></h$h>", '');
 			next;
 		}
@@ -408,8 +421,6 @@ sub do_parse_block {
 			my $label = $1;
 			my $body  = $2;
 			my $links = $self->{links};
-			my $key   = $label;
-			$key =~ tr/A-Z/a-z/;
 
 			while(@$lines && $lines->[0] =~ /^ /) {
 				$body = $self->join_line($body, shift(@$lines));
@@ -427,32 +438,26 @@ sub do_parse_block {
 				$self->{footnote_symc}++;
 				$h->{_label} = "s$self->{footnote_symc}";
 				$h->{label}  = $symbol;
-				$links->{$symbol} = $h;
+				$links->{"$symbol "} = $h;	# space is avoid duplication
 
 			} elsif ($label =~ /^#/) {		# auto-number
 				push(@{$self->{footnotes_auto}}, $h);
+				my $key = $label;
+				$key =~ tr/A-Z/a-z/;
 				if ($label ne '#') {
-					$links->{$key} = $h;
+					if ($links->{$key}) {
+						push(@{ $self->{autonumber_duplicate} }, $key);
+					} else {
+						$links->{$key} = $h;
+					}
 				}
 
 			} elsif ($label =~ /^(\d+)$/) {		# footnote [1], [2]...
-				if ($links->{$key}) {
-					my $msg = $self->parse_error('Duplicate footnote target name: %s', $label);
-					$links->{$key}->{error} = $msg;
-					$links->{$key}->{duplicate} = 1;
-				} else {
-					$links->{$key} = $h;
-				}
+				$self->save_explicit_link($label, $h, 'footnote');
 
 			} else {				# hyperlink
 				$h->{type} = 'citation';
-				if ($links->{$key}) {
-					my $msg = $self->parse_error('Duplicate link target name: %s', $label);
-					$links->{$key}->{error} = $msg;
-					$links->{$key}->{duplicate} = 1;
-				} else {
-					$links->{$key} = $h;
-				}
+				$self->save_explicit_link($label, $h);
 			}
 			push(@$out, $h);
 			next;
@@ -479,24 +484,15 @@ sub do_parse_block {
 				# labelの加工
 				$label =~ s/ $//g;		# 最後のスペース1つだけは取り除く
 				$self->backslash_process($label);
-				$self->normalize_label($label);
-				my $key = $self->generate_key_from_label_with_tag_escape($label);
+				$self->unquote_label($label);
 
 				if ($label eq '_') {
 					push(@{ $self->{anonymous_links} }, $h);
 
 				} elsif ($label =~ /^ / || $label =~ / $/ || $label eq '') {
-					my $msg = $self->parse_error('Malformed hyperlink target: %s', $label);
-					if ($label ne '') {
-						$links->{$key}->{error} = $msg;
-					}
-
-				} elsif ($links->{$key}) {
-					my $msg = $self->parse_error('Duplicate link target name: %s', $label);
-					$links->{$key}->{error} = $msg;
-					$links->{$key}->{duplicate} = 1;
+					$self->parse_error('Malformed hyperlink target: %s', $label);
 				} else {
-					$links->{$key} = $h;
+					$self->save_explicit_link($label, $h);
 				}
 
 				# URLがある
@@ -504,13 +500,15 @@ sub do_parse_block {
 					$url .= " $1";
 					shift(@$lines);
 				}
-				if ($url =~ /^ *$/) { next; }
+				if ($url =~ /^ *$/) {
+					$h = $h->{alias} = { type => 'link' };
+					next;
+				}
 
 				$self->backslash_escape($url);
 				$self->normalize_link_url($url);
 
 				$h->{url} = $url;
-				# $self->debug("link /$label/ --> $url");
 				last;
 			}
 			# ターゲットがないリンク（この場所へのリンク）
@@ -1914,15 +1912,16 @@ sub inline_reference {
 		return $self->error_in_substitution("[$label]_");
 	}
 	$label =~ s/\x01//g;
-	$self->backslash_un_escape($label);
+	$self->backslash_escape_step2($label);
 	return "\x02ref\x02$label\x02";
 }
 sub output_inline_reference {
 	my $self  = shift;
 	my $label = shift;
-	$self->backslash_un_escape($label);
+	$self->backslash_escape_step2($label);
 
 	my $key = $label;
+	$self->tag_escape_cancel($key);
 	$key =~ tr/A-Z/a-z/;
 
 	my $links = $self->{links};
@@ -1932,7 +1931,7 @@ sub output_inline_reference {
 	if ($label eq '*') {
 		my $symbol = $self->get_footnote_symbol( $self->{footnote_symc} );
 		$self->{footnote_symc}++;
-		$h = $links->{$symbol};
+		$h = $links->{"$symbol "};	# space is avoid duplication
 		if (!$h) {
 			$self->parse_error('Too many symbol footnote references');
 			return "<a href=\"#**error\" title=\"Too many symbol footnote references\">[$label]_</a>";
@@ -1996,39 +1995,35 @@ sub inline_link {
 		if ($self->{substitution_label} ne '') {
 			return $self->error_in_substitution("$mark0$label$mark1");
 		}
-
 		#---------------------------------------------
 		# Embedded URIs
 		#---------------------------------------------
-		my $url = $2;
-		$label = $1;
-		$label =~ s/ +$//;
-		my $key = $label;
-
-		my $links = $self->{links};
-		my $anonymous = ($mark1 eq '`__');
-
-		$self->normalize_label($key);
+		$label = $mark1 eq '`__' ? '' : $1;		# anonymous
+		my $url= $2;
+		$text  = $1;
+		$text  =~ s/ +$//;
 		$self->normalize_link_url($url);
+		$text  = $text eq '' ? $url : $text;		# normalize url 後
 
-		if ($key ne '' && !$anonymous && $links->{$key}) {
-			my $msg = $self->parse_error('Duplicate link target name: %s', $label);
-			$links->{$label}->{error} = $msg;
-			$links->{$label}->{duplicate} = 1;
-		} elsif (!$anonymous) {
-			my $k = $key ne '' ? $key : $url;
-			$links->{$k} = {
+		if ($label ne '') {
+			my $_label = $label;
+			$self->backslash_escape_step2($_label);
+			$self->tag_escape_cancel($_label);
+			$self->save_explicit_link($_label, {
 				type => 'link',
 				url  => $url
-			};
+			});
 		}
 
-		$label = $label eq '' ? $url : $label;
-		if ($anonymous) {
-			return "<a href=\"$url\">${label}</a>";
+		my $alias = $self->check_alias_label($url);
+		if ($alias eq '') {		# not alias
+			return "<a href=\"$url\">$text</a>";
 		}
+		$mark1 = '`_';		# anonymous扱いを止める
+		$label = $alias;
 	}
-	$self->backslash_un_escape($label);
+	$self->backslash_escape_step2($label);
+	$self->tag_escape_cancel($label);
 	return "\x02link\x02$label\x02$text\x02\x02$mark0\x02$mark1\x02";
 }
 
@@ -2043,7 +2038,7 @@ sub output_inline_link {
 	my $check = shift || {};
 	my $nest  = shift;
 
-	$self->backslash_un_escape($label);
+	$self->backslash_escape_step2($label);
 	my $err_label = $orig eq '' ? $label : "\"$label\" from \"$orig\"";
 	$orig = $orig ne '' ? $orig : $label;
 
@@ -2063,11 +2058,13 @@ sub output_inline_link {
 	my $key = $self->generate_key_from_label($label);
 
 	my $h = $self->{links}->{$key};
+	while($h->{alias}) { $h = $h->{alias} }
+
 	if (!$nest && substr($mark1,-2) eq '__') {
 		$h = $self->{anonymous_links}->[ $self->{anonymous_linkc} ];
 		$self->{anonymous_linkc}++;
 		if (!$h) {
-			my $err = $self->parse_error('Too many anonymous hyperlink references');
+			my $err = $self->parse_error('Too many anonymous hyperlink references: %s', $text || $orig);
 			return $self->make_problematic_link("$mark0$orig$mark1", $err);
 		}
 	}
@@ -2082,7 +2079,7 @@ sub output_inline_link {
 	}
 
 	# link
-	if ((my $x = $self->check_link_label($url)) ne '') {
+	if ((my $x = $self->check_alias_label($url)) ne '') {
 		return $self->output_inline_link($x, $text, $attr, $mark0, $mark1, $orig, $check, 'nest');
 	}
 
@@ -2187,7 +2184,7 @@ sub parse_finalize {
 	#---------------------------------------------------------
 	# escapeを戻す
 	#---------------------------------------------------------
-	$self->backslash_un_escape(@$lines);
+	$self->backslash_escape_step2(@$lines);
 
 	return $lines;
 }
@@ -2265,7 +2262,7 @@ sub check_footnote_label {
 	return $self->check_simple_label($x);
 }
 
-sub check_link_label {
+sub check_alias_label {
 	my $self = shift;
 	my $x    = shift;
 	if (substr($x,-1) ne '_') { return; }
@@ -2293,7 +2290,7 @@ sub get_footnote_symbol {
 #------------------------------------------------------------------------------
 # ●リンクlabel/keyを正規化
 #------------------------------------------------------------------------------
-sub normalize_label {
+sub unquote_label {
 	my $self  = shift;
 	foreach(@_) {
 		$_ =~ s/^`(.*)`$/$1/;
@@ -2326,8 +2323,8 @@ sub normalize_link_url {
 		$_ =~ s/ +$//g;
 
 		# alias
-		if ($_ =~ /^((`?).*\1)_$/) {
-			$_ = $2 . '_';
+		if ($_ =~ /^((`?).*\2)_$/) {
+			$_ = $1 . '_';
 			$_ =~ s/ +/ /g;
 		} else {
 			$_ =~ s/ //g;
@@ -2345,23 +2342,20 @@ sub generate_id_from_string {
 	my $default = shift || 'id';
 	$label =~ tr/A-Z/a-z/;
 	$label =~ s/[^\w\-\.\x80-\xff]+/-/g;
-	return $label eq '' ? $default : $label;
+	return $self->generate_link_id($label eq '' ? $default : $label);
 }
 
 #------------------------------------------------------------------------------
 # ●重複しないlink_idを生成
 #------------------------------------------------------------------------------
-# level=1 Implicit（暗黙的）
-# level=2 Explicit（明示的）
-sub generate_implicit_link_id {
+sub save_link_id {
 	my $self  = shift;
-	my $base  = shift;
-	return $self->generate_link_id($base, 1);
+	my $ids   = $self->{ids};
+	$ids->{shift} = 1;
 }
 sub generate_link_id {
 	my $self  = shift;
 	my $base  = shift;
-	my $level = shift || 2;
 	my $ids   = $self->{ids};
 
 	my $id = $base;
@@ -2369,8 +2363,55 @@ sub generate_link_id {
 	while($ids->{$id}) {
 		$id = $base . "-" . (++$i);
 	}
-	$ids->{$id} = $level;
+	$ids->{$id} = 1;
 	return $id;
+}
+
+#------------------------------------------------------------------------------
+# ●リンクターゲットを保存
+#------------------------------------------------------------------------------
+sub save_implicit_link {	# 暗黙的
+	my $self  = shift;
+	my $label = shift;
+	my $data  = shift;
+	my $links = $self->{links};
+	my $key   = $self->generate_key_from_label($label);
+
+	if (!$links->{$key}) {
+		$data->{implicit} = 1;
+		$links->{$key} = $data;
+		return;
+	}
+	# 重複
+	if ($links->{$key}->{implicit}) {	# 暗黙的
+		$links->{$key}->{duplicate} = 1;
+	} else {
+		# すでに明示的リンクがあれば何もしない
+	}
+}
+
+sub save_explicit_link {	# 明示的
+	my $self  = shift;
+	my $label = shift;
+	my $data  = shift;
+	my $type  = shift || 'link';	# or 'footnote'
+	my $links = $self->{links};
+	my $key   = $self->generate_key_from_label($label);
+
+	if (!$links->{$key}) {
+		$links->{$key} = $data;
+		return;
+	}
+	# 重複
+	if ($links->{$key}->{implicit}) {
+		# 暗黙的リンクは上書きする
+		$links->{$key} = $data;
+	} else {
+		# 明示的リンクがすでに存在する
+		my $msg = $self->parse_error("Duplicate $type target name: %s", $label);
+		$links->{$key}->{error} = $msg;
+		$links->{$key}->{duplicate} = 1;
+	}
 }
 
 #------------------------------------------------------------------------------
@@ -2409,22 +2450,22 @@ sub backslash_escape {		# ※仕様変更時は「インラインマークアッ
 }
 
 #----------------------------------------------------------
-# エスケープを戻す
+# エスケープ後の平文に戻す
 #----------------------------------------------------------
-my %BackslashUnEscape;
+my %BES2;
 BEGIN {
-	%BackslashUnEscape = (
+	%BES2 = (
 		ord(' ') => '',
 		ord("\n")=> '',
 		ord('<') => '&lt;',
 		ord('>') => '&gt;'
 	);	# unicode directive の関係で & を含めないこと
 };
-sub backslash_un_escape {
+sub backslash_escape_step2 {
 	my $self = shift;
 	foreach(@_) {
 		$_ =~ s/\x03(\d+)/
-			exists($BackslashUnEscape{$1}) ? $BackslashUnEscape{$1} : chr($1);
+			exists($BES2{$1}) ? $BES2{$1} : chr($1);
 		/eg;
 		$_ =~ s/\x03//g;
 	}
@@ -2433,13 +2474,6 @@ sub backslash_un_escape {
 #----------------------------------------------------------
 # 処理をキャンセル
 #----------------------------------------------------------
-my %BackslashCancel;
-BEGIN {
-	%BackslashCancel = (
-		ord('<') => '&lt;',
-		ord('>') => '&gt;'
-	);
-};
 sub backslash_escape_cancel {
 	my $self = shift;
 	foreach(@_) {
@@ -2449,11 +2483,18 @@ sub backslash_escape_cancel {
 	return $_[0];
 }
 
+my %BECT;
+BEGIN {
+	%BECT = (
+		ord('<') => '&lt;',
+		ord('>') => '&gt;'
+	);
+};
 sub backslash_escape_cancel_with_tag_escape {
 	my $self = shift;
 	foreach(@_) {
 		$_ =~ s/\x03(\d+)/
-			"\\" . (exists($BackslashCancel{$1}) ? $BackslashCancel{$1} : chr($1));
+			"\\" . (exists($BECT{$1}) ? $BECT{$1} : chr($1));
 		/eg;
 		$_ =~ s/\x03/\\/g;
 	}
