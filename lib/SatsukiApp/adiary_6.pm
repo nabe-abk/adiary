@@ -227,6 +227,8 @@ sub sys_update_330 {
 			$self->update_blogset($blog, $_, undef);
 		}
 	}
+	$self->update_sysdat('edit_lock_interval', $self->{sys}->{edit_lock_time});
+	$self->update_sysdat('edit_lock_time', undef);
 }
 
 ###############################################################################

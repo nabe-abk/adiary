@@ -700,6 +700,9 @@ span.tag span.ui-icon-close,
 	margin-top:	0;
 	padding-top:	0;
 }
+.ui-dialog ul {
+	padding-left:	1em;
+}
 
 /* positioning */
 .ui-icon-blank { background-position: 16px 16px; }

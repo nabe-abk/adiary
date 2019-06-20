@@ -59,7 +59,7 @@
 	<tr>
 		<th>同時編集の確認<span class="help" data-help="同じ記事を複数編集したとき確認メッセージを出すシステムです。情報共有CMSなどに利用できます。使用する場合は編集状況の確認間隔（秒）を設定してください。">?</span></th>
 		<td<@err.c_reload_time>>
-			<input type="number" name="edit_lock_time" min="0" max="300" class="w50" value="<@if(s.edit_lock_time eq '', 0, s.edit_lock_time)>">秒（0-9秒＝無効。推奨：30秒）
+			<input type="number" name="edit_lock_interval" min="0" max="300" class="w50" value="<@if(s.edit_lock_interval eq '', 0, s.edit_lock_interval)>">秒（0-9秒＝無効。推奨：30秒）
 		</td>
 	</tr>
 	<tr>

@@ -94,7 +94,7 @@
 
 <@><!--下書きのロード=======================================================-->
 <article class="system notice" id="edit-lock-notice" style="display: none;">
-<h2>他にもこの記事を編集している人がいます</h2>
+<h2>この記事を編集中の人が他にもいます</h2>
 <div class="body">
 	<ul id="edit-lockers"></ul>
 <button id="force-lock-check">確認</button> <span id="check-time"></span>
@@ -275,10 +275,10 @@
 <span id="msg-upload-error">アップロードに失敗しました。</span>
 <span id="msg-upload-fail">%n 個中 %f 個のアップロードに失敗しました。</span>
 <span id="image-dir"><@v.blogimg_dir()></span>
-<span id="edit-lock-time"><@v.sys.edit_lock_time></span>
+<span id="edit-lock-interval"><@v.sys.edit_lock_interval || 0></span>
 
 <@> タグ追加フォーム
-<div id="tag-select-form">
+<form id="tag-select-form">
 <div><select name="taglist" id="tag-select" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'taglist.json')>">
 	<option value="" class="special" data-new="1">【タグを選択か入力】</option>
 </select></div>
@@ -286,7 +286,7 @@
 入力 <input id="input-new-tag" type="text" class="w200 mono"><br>
 ※階層の区切りは「<span class="mono">::</span>」です。<br>※「,」は使用できません。</span>
 </div>
-</div>
+</form>
 
 
 <@> ファイルアップロード用データ
@@ -335,7 +335,5 @@
 <div id="size-other" data-title="サムネイルサイズ">
 <input type="number" value="120" class="w50" min="60" max="800">px （60～800）
 </div>
-
-
 
 </div><!-- display none end -->

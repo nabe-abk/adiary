@@ -1575,51 +1575,35 @@ sub update_plgset {
 # 同じ記事をロックしている場合に、警告を出すシステム
 #
 #------------------------------------------------------------------------------
-# ●ロック状態をチェック
-#------------------------------------------------------------------------------
-sub edit_check_lock {
-	my $self = shift;
-	my $name = shift;
-	my $sid  = shift;
-
-	my ($fh, $ary) = $self->load_lock_file( $name );
-	close($fh);
-	$ary = [ grep { $_->{sid} ne $sid } @$ary ];
-
-	my $json= $self->generate_json($ary, ['id', 'sid', 'tm']);
-	return (0, $json);
-}
-
-#------------------------------------------------------------------------------
 # ●ロックをかける
 #------------------------------------------------------------------------------
-sub edit_unlock {
-	my $self = shift;
-	$self->edit_lock($_[0], $_[1], 'unlock');
-}
 sub edit_lock {
 	my $self = shift;
-	my ($name, $sid, $unlock) = @_;
+	my $pkey = shift;
+	my $sid  = shift;
+	my $opt  = shift || {};
+
 	my $ROBJ = $self->{ROBJ};
 	my $id   = $ROBJ->{Auth}->{id};
 	$sid  =~ s/[\x00-\x1f]//g;
 
 	if (!$self->{allow_edit}) { return -1; }
-	if ($name eq '') { return -2; }
-	if ($self->{sys}->{edit_lock_time} < 1) { return 1; }
+	if ($pkey eq ''){ return -2; }
+	if ($self->{sys}->{edit_lock_interval} < 1) { return 1; }
 
 	# lock処理
-	my ($fh, $ary) = $self->load_lock_file( $name );
+	my ($fh, $ary) = $self->load_lock_file( $pkey );
 	if (!$fh) { return 7; }
 	$ary = [ grep {$_->{id} ne $id || $_->{sid} ne $sid} @$ary ];
-	if ($sid ne '') {
-		if (!$unlock) {
-			push(@$ary, {
-				id => $id,
-				sid=> $sid,
-				tm => $ROBJ->{TM}
-			});
-		}
+
+	if($opt->{unlock}) {
+		$self->update_lock_file($fh, $ary);
+	} elsif ($sid ne '' && (!@$ary || $opt->{force})) {
+		push(@$ary, {
+			id => $id,
+			sid=> $sid,
+			tm => $ROBJ->{TM}
+		});
 		$self->update_lock_file($fh, $ary);
 		pop(@$ary);
 	} else {
@@ -1636,25 +1620,25 @@ sub edit_lock {
 #------------------------------------------------------------------------------
 sub load_lock_file {
 	my $self = shift;
-	my $name = shift;
+	my $pkey = shift;
 	my $ROBJ = $self->{ROBJ};
-	$name =~ s/[^\w\-:]//g;
+	$pkey =~ s/[^\w\-:]//g;
 
 	# 時間
-	my $ctime = $self->{sys}->{edit_lock_time};
+	my $interval = $self->{sys}->{edit_lock_interval};
 
 	# tmpwatch
 	my $dir =  $self->{blog_dir} . 'lock/';
 	$ROBJ->mkdir($dir);
-	$ROBJ->tmpwatch( $dir, $ctime+10 );
+	$ROBJ->tmpwatch( $dir, $interval+10 );
 
 	# lock処理
-	my $file = $dir . $name;
+	my $file = $dir . $pkey;
 	my ($fh,$lines) = $ROBJ->fedit_readlines($file);
-	if (!$fh) { return ; }
+	if (!$fh) { return; }
 
 	my @ary;
-	my $obs_time = $ROBJ->{TM} - ($self->{sys}->{edit_lock_time}+5);
+	my $obs_time = $ROBJ->{TM} - ($interval + 5);
 	foreach(@$lines) {
 		my %h;
 		chomp($_);

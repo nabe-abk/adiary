@@ -1,12 +1,15 @@
 <@6>
 <$ifbreak(csrf_check())>
 <$ifbreak(!v.allow_edit)>
-<@>
-<$(action_return, data) = v.edit_lock( Form.name, Form.sid, Form.unlock )>
 
-<$ifset_status(action_return ne '0', 403)>
+<$(action_return, data) = v.edit_lock( Form.pkey, Form.sid, Form )>
+
 <$v.action_is_main=1>
 <$v.frame_skeleton=''>
 <$set_content_type('application/json')>
-<@data || action_return>
+{
+	"return": <@action_return>,
+	"force": <@int(Form.force)>,
+	"data": <@data || 'null'>
+}
 <@ifcall(Develop, '_sub/ajax_debug')>

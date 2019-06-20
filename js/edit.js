@@ -9,225 +9,274 @@ var insert_text;	// global function
 var insert_image;	// global function for album.js
 var DialogWidth;
 var IE11;
-var html_mode;		// html input mode
 
 $(function(){
 //############################################################################
-var body = $('#body');
-var tagsel = $secure('#tag-select');
-var upsel  = $secure('#upnode-select');
-var parsel = $('#select-parser');
-var edit   = $('#editarea');
+const $tagsel = $secure('#tag-select');
+const $upsel  = $secure('#upnode-select');
+const $parsel = $('#select-parser');
+const $edit   = $('#editarea');
+const CSRF_key = $('#csrf-key').val();
 
-var addtag  = $secure('#edit-add-tag');
-var dndbody = $('#edit');
-
-load_tags_list(tagsel);
-load_contents_list(upsel);
-
-var csrf_key = $('#csrf-key').val();
+load_tags_list($tagsel);
+load_contents_list($upsel);
 
 //############################################################################
 // ■下書きを開く
 //############################################################################
-var sel_draft = $('#select-draft');
-$('#open-draft').click(function(){
-	var pkey = sel_draft.val();
-	window.location = sel_draft.data('base-url') + '0' + pkey + '?edit';
-});
-$('#open-template').click(function(){
-	var pkey = sel_draft.val();
-	window.location = sel_draft.data('base-url') + '0' + pkey + '?edit&template=1';
-});
+{
+	var draft = $('#select-draft');
+	$('#open-draft').click(function(){
+		var pkey = $draft.val();
+		window.location = $draft.data('base-url') + '0' + pkey + '?edit';
+	});
+	$('#open-template').click(function(){
+		var pkey = $draft.val();
+		window.location = $draft.data('base-url') + '0' + pkey + '?edit&template=1';
+	});
+}
 
 //############################################################################
 // ■タグの削除ボタン、タグの追加
 //############################################################################
-//----------------------------------------------------------------------------
-// ●タグの削除ボタン（×ボタン）
-//----------------------------------------------------------------------------
-var tagdel = $('<span>').addClass('ui-icon ui-icon-close');
-tagdel.click(function(evt){
-	var obj = $(evt.target);
-	obj.parent().remove();
-});
-$("#edit-tags span.tag").append( tagdel.clone(true) );
-
-//----------------------------------------------------------------------------
-// ●タグ追加ダイアログの表示
-//----------------------------------------------------------------------------
-var tagsel_dialog;
-var tagsel_form = $secure('#tag-select-form').detach();
-addtag.click( function(){
-	var form = $('<form>').append( tagsel_form );
-	var div  = $('<div>') .append( form  );
-
-	// 入力要素
-	var inp = form.find('#input-new-tag');
-
-	//enterで確定させる
-	function tag_append_func() {
-		var tag = inp.val();
-		if (tag.match(',')) return false;
-		tag_append( tag );
-		div.dialog('close');
-		return false;
-	}
-	inp.keydown(function(evt){
-		if (evt.keyCode != 13) return;
-		return tag_append_func();
+{
+	//--------------------------------------------------------------------
+	// ●タグの削除ボタン（×ボタン）
+	//--------------------------------------------------------------------
+	const $tagdel = $('<span>').addClass('ui-icon ui-icon-close');
+	$tagdel.click(function(evt){
+		var obj = $(evt.target);
+		obj.parent().remove();
 	});
+	$("#edit-tags span.tag").append( $tagdel.clone(true) );
 
-	// ボタンの設定
-	var buttons = {};
-	var ok_func = buttons[$('#new-tag-append').text()] = tag_append_func;
-	buttons[ $('#ajs-cancel').text() ] = function(){
-		div.dialog( 'close' );
-	};
-	div.dialog({
-		modal: true,
-		minWidth:  240,
-		minHeight: 200,
-		title:   addtag.data('title'),
-		buttons: buttons,
-		beforeClose: function(){
-			tagsel.val('');
-			inp.val('');
+	//--------------------------------------------------------------------
+	// ●タグの追加
+	//--------------------------------------------------------------------
+	function tag_append(text) {
+		if (text=="") return;
+
+		var $tags = $('#tags');
+		var ch = $tags.children();
+		for(var i=0; i<ch.length; i++) {
+			if ($(ch[i]).text() == text) return;
 		}
-	});
-	tagsel_dialog = div;
-});
-
-//----------------------------------------------------------------------------
-// ●タグ選択フォームの処理
-//----------------------------------------------------------------------------
-tagsel.change(function(){
-	if ($(':selected',tagsel).data('new')) return;
-	tag_append( tagsel.val() );
-	tagsel_dialog.dialog( 'close' );
-});
-
-//----------------------------------------------------------------------------
-// ●タグの追加
-//----------------------------------------------------------------------------
-function tag_append(tag_text) {
-	if (tag_text=="") return;
-	var tags = $('#tags');
-	var ch = tags.children();
-	for(var i=0; i<ch.length; i++) {
-		if ($(ch[i]).text() == tag_text) return;
+		// append
+		var $tag = $('<span>').addClass('tag').html( tag_esc_amp(text) );
+		var $inp = $('<input>').attr({
+			type: 'hidden',
+			name: 'tag_ary',
+			value: text
+		});
+		$tag.append( $inp, $tagdel.clone(true) );
+		$tags.append( $tag );
 	}
-	var tag = $('<span>').addClass('tag').html( tag_esc_amp(tag_text) );
-	var inp = $('<input>').attr({
-		type: 'hidden',
-		name: 'tag_ary',
-		value: tag_text
+
+	//----------------------------------------------------------------------------
+	// ●タグ追加ダイアログの表示
+	//----------------------------------------------------------------------------
+	const $addtag  = $secure('#edit-add-tag');
+	const $tagform = $secure('#tag-select-form').detach();
+	var $div;
+	$addtag.click( function(){
+		$div = $('<div>').append( $tagform );
+
+		// 入力要素
+		var $inp = $tagform.find('#input-new-tag');
+
+		//enterで確定させる
+		function tag_append_func() {
+			var tag = $inp.val();
+			if (tag.match(',')) return false;
+			tag_append( tag );
+			$div.dialog('close');
+			return false;
+		}
+		$inp.keydown(function(evt){
+			if (evt.keyCode != 13) return;
+			return tag_append_func();
+		});
+
+		// ボタンの設定
+		var buttons = {};
+		var ok_func = buttons[$('#new-tag-append').text()] = tag_append_func;
+		buttons[ $('#ajs-cancel').text() ] = function(){
+			$div.dialog( 'close' );
+		};
+		$div.dialog({
+			modal: true,
+			minWidth:  240,
+			minHeight: 200,
+			title:   $addtag.data('title'),
+			buttons: buttons,
+			beforeClose: function(){
+				$tagsel.val('');
+				$inp.val('');
+			}
+		});
 	});
-	tag.append( inp, tagdel.clone(true) );
-	tags.append(tag);
+
+	//----------------------------------------------------------------------------
+	// ●タグ選択フォームの処理
+	//----------------------------------------------------------------------------
+	$tagsel.change(function(){
+		if ($(':selected', $tagsel).data('new')) return;
+		tag_append( $tagsel.val() );
+		$div.dialog( 'close' );
+	});
 }
 
 //############################################################################
 // ■公開状態の変更
 //############################################################################
-var echk = $('#enable-chk');
-var dchk = $('#draft-chk');
-echk.change( echk_change );
-dchk.change( echk_change );
-echk_change();
+{
+	var $echk = $('#enable-chk');
+	var $dchk = $('#draft-chk');
+	$echk.change( echk_change );
+	$dchk.change( echk_change );
+	echk_change();
 
-function echk_change() {
-	if (dchk.prop('checked')) {	// 下書き
-		$('.save-btn-title').text( dchk.data('on') );
-		return;
+	function echk_change() {
+		if ($dchk.prop('checked')) {	// 下書き
+			$('.save-btn-title').text( $dchk.data('on') );
+			return;
+		}
+		if ($echk.prop('checked'))
+			$('.save-btn-title').text( $echk.data('on') );
+		else
+			$('.save-btn-title').text( $echk.data('off') );
 	}
-	if (echk.prop('checked'))
-		$('.save-btn-title').text( echk.data('on') );
-	else
-		$('.save-btn-title').text( echk.data('off') );
 }
 
 //############################################################################
 // ■upnodeの変更 / link_keyの設定
 //############################################################################
-var upsel = $('#upnode-select');
-var lkey  = $('#link-key');
-upsel.change(function(){
-	if (! lkey.data('suggest')) return;	// 機能がoff
-	var val = lkey.val();
-	if (val != '' && val != lkey.data('set')) return;
+{
+	const $upsel = $('#upnode-select');
+	const $lkey  = $('#link-key');
 
-	var opt = upsel.children(':selected');
-	if (!opt.length) return;
+	$upsel.change(function(){
+		if (! $lkey.data('suggest')) return;	// 機能がoff
+		var val = $lkey.val();
+		if (val != '' && val != $lkey.data('set')) return;
 
-	var set = opt.data('link_key');
-	if (set == undefined) return;
-	if (set.substr(-1) != '/') set += '/';
-	lkey.val( set );
-	lkey.data('set', set);
-});
+		var $opt = $upsel.children(':selected');
+		if (!$opt.length) return;
+
+		var set = $opt.data('link_key');
+		if (set == undefined) return;
+		if (set.substr(-1) != '/') set += '/';
+		$lkey.val( set );
+		$lkey.data('set', set);
+	});
+}
 
 //############################################################################
 // ■編集ロック機能
 //############################################################################
-var edit_pkey = $('#edit-pkey').val();
-var edit_sid;
-var el_time   = $('#edit-lock-time').text() || 0;
-var do_edit;
+{
+//############################################################################
+function edit(pkey) {
+	this.pkey     = pkey;
+	this.sid      = '';
+	this.interval = parseInt( $('#edit-lock-interval').text() );
+	this.timer    = null;
+	this.editing  = false;
 
-// 初期化
-if (Storage.defined('edit_pkey')) {
-	// ロック済みの場合解除
-	ajax_edit_unlock({
-		name: Storage.get('edit_pkey'),
-		sid:  Storage.get('edit_sid'),
-		callback: edit_mode
-	});
-	Storage.remove('edit_pkey');
-	Storage.remove('edit_sid');
-} else {
-	edit_mode();
-}
+	if (!pkey || this.interval<10) this.interval = 0;
+	this.init();
+	this.start();
+};
 
-function edit_mode() {
-	if (!edit_pkey || el_time<10) {
-		do_edit = true;
-		return;
-	}
+//----------------------------------------------------------------------------
+// ●初期化
+//----------------------------------------------------------------------------
+edit.prototype.init = function() {
+	let self = this;
 
-	// 編集モード
-	edit_pkey = '0' + edit_pkey;
 	// sid生成
-	var d = new Date();
+	let d = new Date();
 	if (window.location.hash) {
-		edit_sid = window.location.hash.substr(1).replace('%20', ' ');
+		this.sid = window.location.hash.substr(1).replace('%20', ' ');
 	} else {
-		edit_sid = d.getFullYear()
+		this.sid = d.getFullYear()
 		+ '/' + ('00'+(d.getMonth()+1)).substr(-2)
 		+ '/' + ('00' + d.getDate()   ).substr(-2)
 		+ ' ' + ('00' + d.getHours()  ).substr(-2)
 		+ ':' + ('00' + d.getMinutes()).substr(-2)
 		+ ':' + ('00' + d.getSeconds()).substr(-2);
-		window.location.hash = edit_sid;
+		window.location.hash = this.sid;
 	}
 
-	// 編集中の確認
-	ajax_check_lock({
-		name: edit_pkey,
-		sid:  edit_sid,
-		callback: edit_lock_checked
+	// ロックの強制確認ボタン
+	$('#force-lock-check').click(function(){
+		self.stop_timer();
+		self.lock();
+		self.start_timer();
 	});
 }
 
 //----------------------------------------------------------------------------
-// ●編集中の確認結果
+// ●編集開始
 //----------------------------------------------------------------------------
-function edit_lock_checked(data) {
-	if (!data || !data.length) {
-		return start_edit();
-	}
+edit.prototype.start = function() {
+	if (!this.interval) return this.enable();
+
+	// 他にロックをかけている人は居ないかチェック
+	let self = this;
+	this.lock(function(data) {
+		// 他の編集中の人が居る
+		if (data && data.length) self.open_dialog(data);
+	});
+}
+
+//----------------------------------------------------------------------------
+// ●ロックをかける
+//----------------------------------------------------------------------------
+edit.prototype.lock = function(callback) {
+	let self = this;
+	this.ajax_lock({
+		force:    self.editing || 0,
+		callback: function(h) {
+			if (h.return != 0) return;	 // internal error
+			self.view_lockers(h.data);
+
+			let data = h.data;
+			if (!self.editing && (!data || !data.length)) {
+				self.enable();
+				self.start_timer();
+			}
+			if (callback) return callback(data);
+		}
+	})
+}
+
+//----------------------------------------------------------------------------
+// ●編集中の確認タイマーと手動確認
+//----------------------------------------------------------------------------
+edit.prototype.start_timer = function(callback) {
+	if (this.timer || !this.interval) return;
+
+	let self = this;
+	this.timer = setInterval(function(){
+		self.lock()
+	}, this.interval*1000);
+}
+
+edit.prototype.stop_timer = function() {
+	if (!this.timer) return;
+	clearInterval(this.timer);
+	this.timer = null;
+}
+
+//----------------------------------------------------------------------------
+// ●編集するか確認
+//----------------------------------------------------------------------------
+edit.prototype.open_dialog = function(data) {
+	let self = this;
+
 	// 編集するか確認
-	var html = '<ul>'
+	let html = '<ul>'
 	for(var i in data) {
 		html += '<li>' + data[i].id + ' (' + data[i].sid + ')' + '</li>';
 	}
@@ -236,76 +285,65 @@ function edit_lock_checked(data) {
 		id: '#edit-confirm',
 		hash: { u: html }
 	}, function(flag){
-		if (flag) return start_edit();	// OK
-		// CANCEL
-		$('#edit').find('form, button:not(.no-disable), input, select').prop('disabled', true);
-		$('#edit').find('textarea').prop('readonly', true);
-		$('#del-submit-check').prop('checked', false).change();
+		if (flag) {
+			self.enable();
+			self.lock();
+			self.start_timer();
+			return;
+		}
 
-		do_edit = false;
-		display_lock_state(data);	// 編集中状態の表示
-		set_lock_interval();
+		self.disable();
+		self.start_timer();
 	});
 }
 
-function start_edit(){
-	do_edit = true;
-	do_edit_lock();
-	set_lock_interval();
+//----------------------------------------------------------------------------
+// ●編集できる状態にする
+//----------------------------------------------------------------------------
+edit.prototype.enable = function() {
+	this.editing = true;
 
-	// リロード時に使えるようにするための設定
 	$('#edit').find('form, button:not(.no-disable), input, select').prop('disabled', false);
 	$('#edit').find('textarea').prop('readonly', false);
-	if (!window.FormData) $('#edit').find('.js-fileup').prop('disabled', true);
+	$('#edit').find('.js-fileup').prop('disabled', false);
 
 	// ページを離れるときにunlock
-	$(window).on('unload', function(){
-		Storage.set('edit_pkey', edit_pkey);
-		Storage.set('edit_sid',  edit_sid);
-	});
+	if (this.interval) {
+		let self = this;
+		$(window).on('unload', function(){
+			self.ajax_unlock();
+		});
+	}
 }
 
 //----------------------------------------------------------------------------
-// ●編集中の確認タイマーと手動確認
+// ●編集できない状態にする
 //----------------------------------------------------------------------------
-var lock_interval;
-function set_lock_interval() {
-	if (el_time<1) return;
-	lock_interval = setInterval(do_edit_lock, el_time*1000);
+edit.prototype.disable = function() {
+	this.editing = false;
+
+	$('#edit').find('form, button:not(.no-disable), input, select').prop('disabled', true);
+	$('#edit').find('textarea').prop('readonly', true);
+	$('#edit').find('.js-fileup').prop('disabled', true);
 }
 
-$('#force-lock-check').click(function(){
-	clearInterval(lock_interval);
-	do_edit_lock();
-	set_lock_interval();
-});
-
 //----------------------------------------------------------------------------
-// ●編集中ロックをかけつつ、現在のロック状況を表示
+// ●ロック状態を表示する
 //----------------------------------------------------------------------------
-var lock_notice = $('#edit-lock-notice');
-var lockers_ul  = $('#edit-lockers');
-function do_edit_lock() {
-	ajax_edit_lock({
-		action: do_edit ? 'ajax_lock' : 'ajax_check_lock',
-		name: edit_pkey,
-		sid:  edit_sid,
-		callback: display_lock_state
-	});
-}
+const $lock_notice = $('#edit-lock-notice');
+const $lockers_ul  = $('#edit-lockers');
+edit.prototype.view_lockers = function(data) {
+	$lockers_ul.empty();
 
-function display_lock_state(data) {
-	lockers_ul.empty();
 	if (data && data.length)
-		lock_notice.showDelay();
+		$lock_notice.showDelay();
 	else {
-		lock_notice.hideDelay();
-		if (!do_edit) start_edit();
+		$lock_notice.hideDelay();
 	}
 	// 編集中の人々を表示
 	for(var i in data) {
 		var li = $('<li>').text(data[i].id + ' (' + data[i].sid + ')');
-		lockers_ul.append(li);
+		$lockers_ul.append(li);
 	}
 	var d = new Date();
 	$('#check-time').text(
@@ -318,18 +356,14 @@ function display_lock_state(data) {
 //----------------------------------------------------------------------------
 // ●ロックAjax処理
 //----------------------------------------------------------------------------
-function ajax_edit_unlock(opt) {
+edit.prototype.ajax_unlock = function(opt) {
+	if (!opt) opt={};
 	opt.unlock = 1;
-	return ajax_edit_lock(opt);
+	opt.async  = false;
+	return this.ajax_lock(opt);
 }
-function ajax_check_lock(opt) {
-	opt.action = 'ajax_check_lock';
-	return ajax_edit_lock(opt);
-}
-
-function ajax_edit_lock(opt) {
+edit.prototype.ajax_lock = function(opt) {
 	opt.action = opt.action || 'ajax_lock';
-	console.log(opt.unlock ? 'ajax_unlock' : opt.action, opt.name, opt.sid);
 
 	var param = {
 		type: 'POST',
@@ -337,19 +371,28 @@ function ajax_edit_lock(opt) {
 		dataType: 'json',
 		data: {
 			action: opt.action,
-			csrf_check_key: csrf_key,
-			name: opt.name,
-			sid: opt.sid,
-			unlock: opt.unlock || '0'
+			csrf_check_key: CSRF_key,
+			pkey:   opt.pkey || this.pkey,
+			sid:    opt.sid  || this.sid,
+			unlock: opt.unlock ? 1 : 0,
+			force:  opt.force  ? 1 : 0
 		}
 	};
+	if (opt.async !== undefined) param.async = opt.async;
+
+	let d = param.data;
+	console.log((new Date()).toLocaleTimeString(), opt.unlock ? 'ajax_unlock' : d.action, d.pkey, d.sid, "force=" + d.force);
+
 	if (opt.callback) param.success = opt.callback;
 	$.ajax( param );
 }
-
 //############################################################################
-// ■テキストエリア加工サブルーチン
+	const e = new edit( $('#edit-pkey').val() );
+}
 //############################################################################
+// ■テキストエリア加工
+//############################################################################
+var html_mode;
 //----------------------------------------------------------------------------
 // ●カーソル位置にテキスト挿入
 //----------------------------------------------------------------------------
@@ -672,10 +715,10 @@ function ajax_upload( form_dom, files, option ) {
 //----------------------------------------------------------------------------
 // ●ドラッグ＆ドロップ
 //----------------------------------------------------------------------------
-dndbody.on('dragover', function(evt) {
+$edit.on('dragover', function(evt) {
 	return false;
 });
-dndbody.on("drop", function(evt) {
+$edit.on("drop", function(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
 
@@ -806,10 +849,10 @@ function init_helper(parser_name) {
 //----------------------------------------------------------------------------
 // ●パーサーの変更
 //----------------------------------------------------------------------------
-parsel.change( function(){
-	init_helper( parsel.val() );
+$parsel.change( function(){
+	init_helper( $parsel.val() );
 });
-parsel.change();	// call init_helper()
+$parsel.change();	// call init_helper()
 
 //----------------------------------------------------------------------------
 // ●paste処理 / init_helper() 後に呼び出すこと
