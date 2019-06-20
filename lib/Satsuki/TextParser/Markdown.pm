@@ -77,9 +77,8 @@ sub parse {
 		$sobj->{thisurl}  = $self->{thisurl};
 		$sobj->{thispkey} = $self->{thispkey};
 	}
-
-	# セクション情報の初期化
 	$self->{sections} = [];
+	$self->{ids}      = {};
 
 	#-------------------------------------------
 	# ○処理スタート
@@ -892,7 +891,21 @@ sub generate_id_from_string {
 	my $default = shift || 'id';
 	$label =~ tr/A-Z/a-z/;
 	$label =~ s/[^\w\-\.\x80-\xff]+/-/g;
-	return $label eq '' ? $default : $label;
+	return $self->generate_link_id($label eq '' ? $default : $label);
+}
+
+sub generate_link_id {
+	my $self  = shift;
+	my $base  = shift;
+	my $ids   = $self->{ids};
+
+	my $id = $base;
+	my $i  = 1;
+	while($ids->{$id}) {
+		$id = $base . "-" . (++$i);
+	}
+	$ids->{$id} = 1;
+	return $id;
 }
 
 1;

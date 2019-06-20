@@ -84,7 +84,7 @@ sub parse {
 
 	# 初期設定
 	$self->{sections} = [];
-	$self->{sction_number} = 1;
+	$self->{ids}      = {};
 
 	# 内部変数の退避
 	my %backup;
@@ -1953,9 +1953,22 @@ sub generate_id_from_string {
 	my $default = shift || 'id';
 	$label =~ tr/A-Z/a-z/;
 	$label =~ s/[^\w\-\.\x80-\xff]+/-/g;
-	return $label eq '' ? $default : $label;
+	return $self->generate_link_id($label eq '' ? $default : $label);
 }
 
+sub generate_link_id {
+	my $self  = shift;
+	my $base  = shift;
+	my $ids   = $self->{ids};
+
+	my $id = $base;
+	my $i  = 1;
+	while($ids->{$id}) {
+		$id = $base . "-" . (++$i);
+	}
+	$ids->{$id} = 1;
+	return $id;
+}
 #------------------------------------------------------------------------------
 # ●class名の正規化
 #------------------------------------------------------------------------------
