@@ -205,7 +205,8 @@ edit.prototype.init = function() {
 		+ ' ' + ('00' + d.getHours()  ).substr(-2)
 		+ ':' + ('00' + d.getMinutes()).substr(-2)
 		+ ':' + ('00' + d.getSeconds()).substr(-2);
-		window.location.hash = this.sid;
+		if (this.interval)
+			window.location.hash = this.sid;
 	}
 
 	// ロックの強制確認ボタン
