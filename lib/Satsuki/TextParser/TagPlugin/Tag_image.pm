@@ -52,7 +52,7 @@ sub new {
 # ●image記法
 #------------------------------------------------------------------------------
 sub image {
-	my ($pobj, $tag, $cmd, $ary, $tagclass) = @_;
+	my ($pobj, $tag, $cmd, $ary) = @_;
 	my $tags = $pobj->{tags};
 	my $ROBJ = $pobj->{ROBJ};
 
@@ -115,7 +115,7 @@ sub image {
 	$ROBJ->tag_escape($name);
 	my %tag2 = %$tag;
 	$tag2{title} = $name;
-	my $attr = $pobj->make_attr($ary, \%tag2, $tagclass || 'image');
+	my $attr = $pobj->make_attr($ary, \%tag2, exists($tags->{"$tag_name#ext"}) ? '' : 'image');
 	   $name = $pobj->make_name($ary, $name);
 
 	my $tag = "<a href=\"$link\"$attr><img alt=\"$name\"$size src=\"$url\"></a>";

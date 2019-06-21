@@ -26,6 +26,7 @@ http:image       = サムネイル（HeartRails Capture）, image, 1, http://cap
 http:image#small = サムネイル（HeartRails Capture）, image, 1, http://capture.heartrails.com/120x90?http://$1
 http:image#large = サムネイル（HeartRails Capture）, image, 1, http://capture.heartrails.com/300x225?http://$1
 http:image#link  = サムネイル（HeartRails Capture）, image, 1, http://$1
+http:image#ext   = 1
 
 #------------------------------------------------------------------------------
 # adiary用プラグイン, adiary設定
@@ -64,6 +65,7 @@ google:news  = Googleニュース検索, UTF-8, https://news.google.co.jp/news?l
 google:transit = Googleトランジット, UTF-8, 2, https://www.google.co.jp/transit?saddr=$1&daddr=$2
 google:qr      = QRコード生成, image, 999, https://chart.googleapis.com/chart?cht=qr&chs=92x92&chl=$0
 google:qr#link = QRコード生成, image, 999, $0
+google:qr#ext  = 1
 
 g   = >google
 g:ja= >google:ja
