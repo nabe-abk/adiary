@@ -489,7 +489,7 @@ sub parse_directive {
 		}
 		$block = $self->fread_lines($file);
 		foreach(@$block) {
-			chomp($_);
+			$_ =~ /[\x00-\x08\r\n]//g;
 		}
 		if (!$d->{file_raw}) {
 			$block = $self->preprocess($block);
@@ -507,7 +507,6 @@ sub parse_directive {
 				$self->parse_error('"%s" directive file encoding error: "%s", file="%s"', $type, $enc, $opt->{file});
 				return;
 			}
-			$data =~ s/[\x01-\x08]//g;
 			$block = [ split("\x00", $data) ];
 		}
 	}
