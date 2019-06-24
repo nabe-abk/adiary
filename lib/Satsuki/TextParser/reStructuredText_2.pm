@@ -489,7 +489,7 @@ sub parse_directive {
 		}
 		$block = $self->fread_lines($file);
 		foreach(@$block) {
-			$_ =~ /[\x00-\x08\r\n]//g;
+			$_ =~ s/[\x00-\x08\r\n]//g;
 		}
 		if (!$d->{file_raw}) {
 			$block = $self->preprocess($block);
