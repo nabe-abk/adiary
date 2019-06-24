@@ -24,7 +24,7 @@ sub new {
 	$self->{tab_width} = 4;		# タブの幅
 
 	$self->{lf_patch} = 1;		# 日本語のpタグ中の改行を消す
-	$self->{md_in_htmlblk} = 1;	# Markdown Inside HTML Blocksを許可する
+	$self->{md_in_htmlblk} = 1;	# Markdown Inside HTML Blocksを許可する / PHP Markdown Extra
 	$self->{sectioning}   = 1;	# sectionタグを適時挿入する
 	$self->{gfm_ext}      = 1;	# GitHub Flavored Markdown拡張を使用する
 	$self->{strict_list}  = 1;	# リスト開始記号が異なる時、違うブロックと判定する（標準非準拠）
@@ -34,6 +34,8 @@ sub new {
 	$self->{satsuki_syntax_h} = 1;	# syntaxハイライトをsatsuki記法に準拠させる
 	$self->{satsuki_seemore}  = 1;	# 「続きを読む」記法
 	$self->{satsuki_footnote} = 0;	# (())による注釈
+	$self->{satsuki_in_htmlblk}= 1;	# HTML Blocks中のsatsuki記法を許可する
+
 	$self->{qiita_math}       = 1;	# Qiitaのmathブロック記法
 
 	# 処理する記事ごとに設定

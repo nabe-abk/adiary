@@ -76,10 +76,10 @@ Helpers.push({
 	},
 	figure: {
 		html:		true,
-		start:		"<figure$1>",
-		end:		"$2</figure>",
+		start:		'<figure markdown="1"$1>',
+		end:		'$2</figure>',
 		tag:		"\t$0",
-		arg1_format:	" class=\"$1\"",
+		arg1_format:	' class="$1\"',
 		arg2_format:	"\t<figcaption>$1</figcaption>\n"
 	}
 });
@@ -142,10 +142,10 @@ Helpers.push({
 	},
 	figure: {
 		html:		true,
-		start:		"<figure$1>",
-		end:		"$2</figure>",
+		start:		'<figure$1>',
+		end:		'$2</figure>',
 		tag:		"\t$0",
-		arg1_format:	" class=\"$1\"",
+		arg1_format:	' class="$1\"',
 		arg2_format:	"\t<figcaption>$1</figcaption>\n"
 	}
 });
