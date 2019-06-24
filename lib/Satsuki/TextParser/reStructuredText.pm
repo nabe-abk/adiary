@@ -2017,6 +2017,7 @@ sub inline_link {
 
 		my $alias = $self->check_alias_label($url);
 		if ($alias eq '') {		# not alias
+			$url = $self->url_alias($url);		# files/ to $self->{image_path}
 			return "<a href=\"$url\">$text</a>";
 		}
 		$mark1 = '`_';		# anonymous扱いを止める
@@ -2086,6 +2087,8 @@ sub output_inline_link {
 	$url =~ s/ //g;
 	$self->tag_escape($label, $url);
 	$text = $text eq '' ? $orig : $text;
+
+	$url = $self->url_alias($url);		# files/ to $self->{image_path}
 	return "<a href=\"$url\">$text</a>";
 }
 
@@ -2550,6 +2553,18 @@ sub parse_error {
 		return $ROBJ->warn($err, @_);
 	}
 	return sprintf($err, @_);
+}
+
+#------------------------------------------------------------------------------
+# ●file_secure URL
+#------------------------------------------------------------------------------
+sub url_alias {
+	my $self = shift;
+	my $url  = shift;
+	if ($url =~ m|^([^/]*/)(.*)| && $1 eq $self->{file_secure}) {
+		$url = $self->{image_path} . $2;
+	}
+	return $url;
 }
 
 ###############################################################################

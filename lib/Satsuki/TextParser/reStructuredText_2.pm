@@ -1777,7 +1777,7 @@ sub check_and_load_file_path {
 	my $orig = $file;
 
 	if ($self->{file_secure}) {
-		$file =~ s!(^|/)\.+/!$1!g;
+		$file =~ s!(^|/)\.\.+/!$1!g;
 		$file =~ s|/+|/|g;
 		$file =~ s|^/||;
 		$file =~ s|[\x00-\x1f]| |g;
