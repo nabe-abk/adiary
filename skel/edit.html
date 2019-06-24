@@ -57,6 +57,7 @@
 
 <@> スクリプトをロード
 <$v.regist_js("<@v.script_dir>edit.js")>
+<$v.regist_js("<@v.script_dir>edit-helper.js")>
 
 <@> pasteの処理
 <@ifexec(form_.paste_txt, begin)>
@@ -136,14 +137,22 @@
 	<div>
 	<span class="element" id="edit-title"><span class="edit-caption">タイトル</span><input class="w360 no-enter-submit" type="text" name="title" value="<@art.title>"></span> 
 	<div id="edit-helper">
-	<button class="helper" type="button" id="btn-strong" data-msg="太字にしたい文字列を入力">太字</button>
-	<button class="helper" type="button" id="btn-link"   data-msg="リンクを生成" data-msg1="リンク先" data-val1="http://" data-msg2="リンク文字列">リンク</button>
-	<button class="helper" type="button" id="btn-google" data-msg="Google検索へのリンクを生成" data-msg1="検索する言葉" data-msg2="リンク文字列">検索</button>
-	<button class="helper" type="button" id="btn-list"   data-msg="箇条書きにしたい項目を１行ずつ入力">箇条<@if(!v.sphone,'書き')></button>
-	<button class="helper" type="button" id="btn-quote"  data-msg="引用したい文章を入力" data-sp-msg="引用元サイトがある場合、そのURLを入力してください">引用</button>
-	<button class="helper" type="button" id="btn-annotation" data-msg="注釈にしたい文字列を入力">注釈</button>
-	<button class="helper btn-help" type="button" id="album-open" data-url="<@v.myself>?album/" data-help="画像アルバムからファイルを選択して貼り付けます。">画像</button>
-	<select class="helper" id="select-color" title="選択した文字列に色を付けます。" data-msg="色を変更したい文字列を入力">
+	<button class="helper" type="button" data-type="head"   data-msg="見出しを作ります">見出し</button>
+	<button class="helper" type="button" data-type="strong" data-msg="太字にしたい文字列を入力">太字</button>
+	<button class="helper" type="button" data-type="link"   data-msg="リンクを生成" data-msg0="リンク先" data-val0="http://" data-match0="^(?:https?:\/\/.+|/)" data-msg1="リンク文字列">Link</button>
+	<button class="helper" type="button" data-type="list"   data-msg="箇条書きにしたい項目を１行ずつ入力">リスト</button>
+	<button class="helper" type="button" data-type="quote"  data-msg="引用したい文章を入力" data-sp-msg="引用元サイトがある場合、そのURLを入力してください" data-sp-val="http://" data-sp-match="^https?:\/\/.+">引用</button>
+	<button class="helper" type="button" data-type="anno"   data-msg="注釈にしたい文字列を入力">注釈</button>
+	<button class="helper" type="button" data-type="album" data-url="<@v.myself>?album/">画像</button>
+
+	<select id="other-helper" title="その他の機能を呼び出します。">
+		<option value="" selected>その他</option>
+		<option class="helper" data-type="toc">目次</button>
+		<option class="helper" data-type="google" data-msg="Google検索へのリンクを生成" data-msg0="検索する言葉" data-msg1="リンク文字列（省略可）">検索</button>
+		<option class="helper" data-type="wiki"   data-msg="Wikipediaの項目へリンク">Wikipedia</button>
+	</select>
+
+	<select class="helper" data-type="color" title="選択した文字列に色を付けます。" data-msg="色を変更したい文字列を入力">
 		<option value="" selected>色</option>
 		<option value="#FF0000" style="color:#FF0000;">■</option>
 		<option value="#FFFF00" style="color:#FFFF00;">■</option>
@@ -162,7 +171,7 @@
 		<option value="#C0C0C0" style="color:#C0C0C0;">■</option>
 		<option value="#FFFFFF" style="color:#000000;">□</option>
 	</select>
-	<select class="helper" id="select-fontsize" title="選択した文字列のサイズを変えます。"  data-start-base="[" data-end="]" data-msg="サイズを変更したい文字列を入力">
+	<select class="helper" data-type="fsize" title="選択した文字列のサイズを変えます。"  data-start-base="[" data-end="]" data-msg="サイズを変更したい文字列を入力">
 		<option value="" selected>サイズ</option>
 		<option value="xx-large">大大大</option>
 		<option value="x-large">大大</option>
@@ -171,7 +180,7 @@
 		<option value="x-small">小小</option>
 		<option value="xx-small">小小小</option>
 	</select>
-	<a href="https://adiary.org/v3man/Satsuki/" data-default="Satsuki/" data-markdown="Markdown/" target=_blank id="parser-help-link">記法ヘルプ</a>
+	<a href="#" target="_blank" id="parser-help-link">記法ヘルプ</a>
 	<@ifexec(!v.trust_mode, begin)>
 	<a href="<@v.myself>?etc/allow_tags&amp;n=article" target="_blank">HTMLタグ</a>
 	<$end>

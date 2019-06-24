@@ -1993,7 +1993,7 @@ function form_dialog(h) {
 		var ret = {};
 		var ary = form.serializeArray();
 		for(var i=0; i<ary.length; i++){
-			ret[ ary[i].name ] = ary[i].value;
+			ret[ ary[i].name ] = ary[i].value.replace(/\r/g, '');
 		}
 		h.callback( ret );	// callback
 	};
