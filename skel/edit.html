@@ -143,7 +143,7 @@
 	<button class="helper" type="button" data-type="list"   data-msg="箇条書きにしたい項目を１行ずつ入力">リスト</button>
 	<button class="helper" type="button" data-type="quote"  data-msg="引用したい文章を入力" data-sp-msg="引用元サイトがある場合、そのURLを入力してください" data-sp-val="http://" data-sp-match="^https?:\/\/.+">引用</button>
 	<button class="helper" type="button" data-type="anno"   data-msg="注釈にしたい文字列を入力">注釈</button>
-	<button class="helper" type="button" data-type="album" data-url="<@v.myself>?album/">画像</button>
+	<button class="helper" type="button" data-type="album"  data-url="<@v.myself>?album/">画像</button>
 
 	<select id="other-helper" title="その他の機能を呼び出します。">
 		<option value="" selected>その他</option>
@@ -284,6 +284,8 @@
 <span id="msg-upload-error">アップロードに失敗しました。</span>
 <span id="msg-upload-fail">%n 個中 %f 個のアップロードに失敗しました。</span>
 <span id="image-dir"><@v.blogimg_dir()></span>
+<span id="image-attr"><@replace(s.image_attr, '%k', edit_pkey || 0)></span>
+<span id="exif-tag"><@if(v.blog.exif_tag, ":#[exif:%d:%f:<@v.blog.exif_tag>]", ':#[exif:%d:%f:%271 %272 / %37386mm F%33437 %33434sec ISO%34855]')></span>
 <span id="edit-lock-interval"><@v.sys.edit_lock_interval || 0></span>
 
 <@> タグ追加フォーム
@@ -297,12 +299,6 @@
 </div>
 </form>
 
-
-<@> ファイルアップロード用データ
-<$tags = call('album/_load_tags')>
-<span id="paste-tag" data-file="<@tags.file>" data-exif="<@tags.exif>"></span>
-<span id="imglink-info" data-class="<@s.image_class>" data-target="<@s.image_target>" data-data="<@s.image_data>"></span>
-
 <form id="upload-form"><!-- upload dialog -->
 <div id="dnd-files"></div>
 <div id="file-btn-div">
@@ -310,9 +306,9 @@
 	<input type="file" name="file_ary" multiple id="file-btn" class="display-none">
 </div>
 
-<select id="paste-imgtag" name="paste">
-	<option value="<@tags.thumb>">サムネイルを貼付</option>
-	<option value="<@tags.image>">大きい画像を貼付</option>
+<select id="paste-thumbnail" name="paste">
+	<option value="thumbnail">サムネイルを貼付</option>
+	<option value="original">大きい画像を貼付</option>
 </select>&ensp;
 
 サムネイル<select name="size" id="thumbnail-size" class="r js-save js-combo" data-target="#size-other" data-format="%vpx">

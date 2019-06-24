@@ -9,85 +9,12 @@ var insert_image;	// global function for edit.js, album.js
 
 $(function(){
 //############################################################################
-// ■テキストエリア加工
-//############################################################################
-
-//----------------------------------------------------------------------------
-// ●カーソル位置にテキスト挿入
-//----------------------------------------------------------------------------
-// save to global for album.js
-insert_image = function(text, caption, fig_class) {
-	if (html_mode) {
-		var imgdir = $('#image-dir').text();
-		text = text.replace(/\[image:((?:\\[:\[\]]|[^\]])+)\]/g, function(ma, m1){
-			var ary = m1.split(':');
-			var thumb1 = (ary[0] == 'S') ? '.thumbnail/' : '';
-			var thumb2 = (ary[0] == 'S') ? '.jpg'        : '';
-			ary[1] = unesc_satsuki_tag( ary[1] );
-			ary[2] = unesc_satsuki_tag( ary[2] );
-			var file = imgdir + ary[1] + ary[2];
-			var img  = imgdir + ary[1] + thumb1 + ary[2] + thumb2;
-			// 属性
-			var attr = '';
-			var $info = $('#imglink-info');
-			attr += $info.data('class')  ? ( ' class="' + $info.data('class')  + '"') : '';
-			attr += $info.data('target') ? (' target="' + $info.data('target') + '"') : '';
-			var data = $info.data('data');
-			if (data) {
-				var k = $('#edit-pkey').val()*1 || floor((new Date()).getTime());
-				var ary = data.replace(/%k/g, k).split(/\s+/);
-				for(var i=0; i<ary.length; i++) {
-					var at = ary[i];
-					var ma = at.match(/^([A-Za-z][\w\-]*)=(.*)/);
-					if (!ma) continue;
-					attr += ' data-' + ma[1] + '="' + ma[2] + '"';
-				}
-			}
-			return '<figure class="image">'
-				+ '<a href="' + file + '"' + attr + '>'
-				+ '<img src="' + img + '">'
-				+ '</a></figure>';
-		});
-		text = text.replace(/\[file:((?:\\[:\[\]]|[^\]])+)\]/g, function(ma, m1){
-			var ary = m1.split(':');
-			var ext = ary[0];
-			ary[1] = unesc_satsuki_tag( ary[1] );
-			ary[2] = unesc_satsuki_tag( ary[2] );
-			ary[3] = unesc_satsuki_tag( ary[3] );
-			return '<a href="' + imgdir + ary[1] + ary[2] + '">'
-				+ ary[3] + '</a>';
-		});
-	}
-
-	//------------------------------------------------------------------
-	// キャプションとブロックの処理
-	//------------------------------------------------------------------
-	if (caption) caption = caption.replace(/^\s+/,'').replace(/\s+$/,'');
-	if (caption || fig_class) {
-		caption = caption ? caption : '';
-		fig_class  = fig_class  ? fig_class  : '';
-		if (helper_mode == 'default') {
-			if (caption) fig_class = fig_class + ((fig_class == '') ? '' : ' ') + "caption=" + caption
-			if (fig_class) {
-				text = "\n>>|figure " + fig_class + "\n"
-					+ text + "\n" +
-					"|<<\n";
-			}
-		} else {
-			text = (helper_mode == 'markdown' ? ' ' : '')
-				+ "\n" + '<figure class="' + fig_class + '">'
-				+ text
-				+ (caption ? '<figcaption>'+ tag_esc_amp(caption) +'</figcaption>' : '').toString()
-				+ "</figure>\n";
-		}
-	}
-	return insert_text(text);
-}
-
-//############################################################################
 // ■記法ヘルパー機能
 //############################################################################
 var Helpers = [];
+//----------------------------------------------------------------------------
+// Satsuki
+//----------------------------------------------------------------------------
 Helpers.push({
 	regexp:	/^(?:default|satsuki)/i,
 	escape:	true,
@@ -104,8 +31,25 @@ Helpers.push({
 	toc:	{ func: 'insert',	tag: "\n[*toc]\n" },
 	google:	{ func: 'inline',	tag: '[g:$0$1]', arg_format: ':$1' },
 	wiki:	{ func: 'inline',	tag: '[w:$0]' },
-	album:	{ func: 'album' }
+	album:	{ func: 'album' },
+	image:	{
+		original:	'[image:L:%d:%f:%f%c]',
+		thumbnail:	'[image:S:%d:%f:%f%c]',
+		file:		'[file:%e:%d:%f:%f]',
+		chain:		"\n",
+		exif:		true
+	},
+	figure: {
+		html:		false,
+		start:		">>|figure$1$2",
+		end:		"|<<",
+		arg1_format:	" $1",
+		arg2_format:	" caption=$1"
+	}
 });
+//----------------------------------------------------------------------------
+// Markdown
+//----------------------------------------------------------------------------
 Helpers.push({
 	regexp:	/^markdown/i,
 	escape: true,
@@ -122,8 +66,26 @@ Helpers.push({
 	toc:	{ func: 'insert',	tag: "\n[*toc]\n" },
 	google:	{ func: 'inline',	tag: '[g:$0$1]', arg_format: ':$1' },
 	wiki:	{ func: 'inline',	tag: '[w:$0]' },
-	album:	{ func: 'album' }
+	album:	{ func: 'album' },
+	image:	{
+		original:	'[image:L:%d:%f:%f%c]',
+		thumbnail:	'[image:S:%d:%f:%f%c]',
+		file:		'[file:%e:%d:%f:%f]',
+		chain:		"\n",
+		exif:		true
+	},
+	figure: {
+		html:		true,
+		start:		"<figure$1>",
+		end:		"$2</figure>",
+		tag:		"\t$0",
+		arg1_format:	" class=\"$1\"",
+		arg2_format:	"\t<figcaption>$1</figcaption>\n"
+	}
 });
+//----------------------------------------------------------------------------
+// reStructuredText
+//----------------------------------------------------------------------------
 Helpers.push({
 	regexp:	/^(?:re?st)/i,
 	escape:	false,
@@ -140,8 +102,19 @@ Helpers.push({
 	toc:	{ func: 'insert',	tag: "\n\n.. contents::\n\n" },
 	google:	null,
 	wiki:	null,
-	album:	{ func: 'album' }
+	album:	{ func: 'album' },
+	image:	{
+		original:	'.. image:: files/%d%f',
+		thumbnail:	'.. image:: files/%d.thumbnail/%f.jpg',
+		file:		'`%f <files/%d%f>`__',
+		chain:		"\n\n",
+		blank:		true,
+		exif:		false
+	}
 });
+//----------------------------------------------------------------------------
+// HTML
+//----------------------------------------------------------------------------
 Helpers.push({
 	regexp:	/^(?:simple|html)/i,
 	escape:	false,
@@ -157,7 +130,24 @@ Helpers.push({
 	toc:	null,
 	google:	null,
 	wiki:	null,
-	album:	{ func: 'album' }
+	album:	{ func: 'album' },
+	image:	{
+		//	%a : image attribute
+		//	%p : image_dir
+		original:	'<a href="%p%d%f"><img alt="%f" src="%p%d%f"></a>',
+		thumbnail:	'<a href="%p%d%f"><img alt="%f" src="%p%d.thumbnail/%f"></a>',
+		file:		'<a href="%p%d%f">%f</a>',
+		chain:		"\n",
+		exif:		false
+	},
+	figure: {
+		html:		true,
+		start:		"<figure$1>",
+		end:		"$2</figure>",
+		tag:		"\t$0",
+		arg1_format:	" class=\"$1\"",
+		arg2_format:	"\t<figcaption>$1</figcaption>\n"
+	}
 });
 
 //############################################################################
@@ -167,6 +157,11 @@ function helper(edit) {
 	this.$div    = $secure('#edit-helper');
 	this.$other  = $secure('#other-helper');
 	this.$parsel = $('#select-parser');
+
+	// 画像関連
+	this.image_dir  = $('#image-dir').text();
+	this.image_attr = $('#image-attr').text();
+	this.exif_tag   = $('#exif-tag').text();
 
 	this.helper  = {};
 	this.escape  = false;
@@ -410,8 +405,8 @@ helper.prototype._block2 = function(help, $obj, arg) {
 //----------------------------------------------------------------------------
 // ■画像アルバムを開く
 //----------------------------------------------------------------------------
-function open_album(evt) {
-	var url = $(evt.target).data('url');
+helper.prototype.album = function(help, $obj) {
+	var url = $obj.data('url');
 	var win = window.open(url, 'album', 'location=yes, menubar=no, resizable=yes, scrollbars=yes');
 	win.focus();
 };
@@ -443,7 +438,7 @@ helper.prototype.replace = function(h) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// ■テキストエリア処理ルーチン
+// ■テキストエリア処理
 //////////////////////////////////////////////////////////////////////////////
 //----------------------------------------------------------------------------
 // ●カーソル位置へテキスト挿入
@@ -469,6 +464,22 @@ helper.prototype._insert_text = function(text, sel_flag) {
 	const st = pos + (text.substr(0,1) == "\n" ? 1 : 0);
 	const ed = pos +  text.length;
 	edit.setSelectionRange(sel_flag ? st : ed, ed);
+}
+
+//----------------------------------------------------------------------------
+// ●カーソル位置へブランク行挿入
+//----------------------------------------------------------------------------
+helper.prototype.insert_blank = function(text) {
+	const edit = this.edit;
+	const st   = edit.selectionStart;
+	const ed   = edit.selectionEnd;
+	let   blank = '';
+	if (st == 0) return;
+	blank += (        edit.value.substring(st-1, 1) != "\n")   ? "\n" : '';
+	blank += (st>2 && edit.value.substring(st-2, 2) != "\n\n") ? "\n" : '';
+
+	edit.value = edit.value.substring(0, st) + blank + edit.value.substring(st);
+	edit.setSelectionRange(st + blank.length, ed + blank.length);
 }
 
 //----------------------------------------------------------------------------
@@ -576,14 +587,95 @@ helper.prototype.esc_satsuki_tag_nested = function(str) {
 	return str;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// ■画像挿入
+//////////////////////////////////////////////////////////////////////////////
+helper.prototype.insert_image = function(data) {
+	const help  = this.helper;
+	const image = this.helper.image;
+	const chain = image.chain;
+	if (!image) return;
+
+	let text='';
+	for(let i in data.files) {
+		let file = data.files[i];
+		let tag  = file.isimg ? (file.thumbnail ? image['thumbnail'] : image['original']) : image['file'];
+		let exif = (image.exif && file.exif) ? this.exif_tag : '';
+		// console.log(file);
+
+		if (help['escape']) {
+			file.folder = esc_satsuki_tag( file.folder );
+			file.file   = esc_satsuki_tag( file.file   );
+			file.ext    = esc_satsuki_tag( file.ext    );
+		}
+
+		let rep = {
+			d: file.folder,
+			f: file.file,
+			e: file.ext,
+			c: '',
+			p: this.image_dir,
+			a: this.image_attr
+		};
+
+		if (exif)
+			rep.c = exif.replace(/%([a-z])/g, function($0,$1){ return rep[$1] });
+		
+		text += (text != '' ? chain : '') + tag.replace(/%([\w])/g, function($0,$1){ return rep[$1] });
+	}
+	const fig = this.helper.figure;
+	const htclass = data.class;
+	const caption = data.caption.replace(/^\s+/,'').replace(/\s+$/,'');
+	if (!fig || htclass=='' && caption=='') {
+		if (image['blank']) this.insert_blank();
+		this.insert_text(text);
+		if (image['blank']) this.insert_blank();
+		return;
+	}
+
+	// figure block
+	//	start:	">>|figure$1$2",
+	//	end:	"|<<",
+	//	arg1_format:	" $1",
+	//	arg2_format:	" caption=$1"
+
+	let arg1='';
+	let arg2='';
+	if (htclass != '')
+		arg1 = fig['arg1_format'].replace(/\$1/g, fig.html ? tag_esc(htclass) : htclass);
+	if (caption != '')
+		arg2 = fig['arg2_format'].replace(/\$1/g, caption);
+
+	const start = fig['start'].replace(/\$1/g, arg1).replace(/\$2/g, arg2);
+	const end   = fig['end']  .replace(/\$1/g, arg1).replace(/\$2/g, arg2);
+
+	this.insert_text_and_select("\n" + text + "\n");
+	this.fix_block_selection();
+	this.replace({
+		tag:	fig['tag'],
+		start:	start,
+		end:	end,
+		blank:	fig['blank']
+	});
+}
+
 //############################################################################
-	const h = new helper('#editarea');
+	const help = new helper('#editarea');
+	insert_image = function(data) {
+		return help.insert_image(data);
+	}
 //----------------------------------------------------------------------------
-// ●paste処理 / init_helper() 後に呼び出すこと
+// ●paste処理
 //----------------------------------------------------------------------------
-	var txt = $('#paste-txt');
-	if (txt.length && $edit.val() == "") {
-		insert_image( txt.text(), $('#paste-caption').text(), $('#paste-class').text() );
+	const txt = $('#paste-txt');
+	if (txt.length && $('#editarea').val() == "") {
+		let data;
+		try {
+			data = JSON.parse(txt.text());
+		} catch(e) {
+			console.error(e);
+		}
+		if(data) insert_image( data );
 	}
 //############################################################################
 });

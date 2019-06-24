@@ -1115,45 +1115,36 @@ function paste_button(evt) {
 	var sel = view.find('.selected');
 	if (!sel.length) return false;
 
-	var obj = $(evt.target);
-	var filetag = paste_form.data('tag');
-	var imgtag  = obj.data('tag');
-	var exiftag;
-	if ($('#paste-to-exif').prop('checked')) exiftag = paste_form.data('exif-tag');
+	var thumb = $(evt.target).data('thumbnail') ? true : false;
+	var exif  = $('#paste-to-exif').prop('checked');
 
 	var ary=[];
 	for(var i=0; i<sel.length; i++) {
-		var img = $(sel[i]);
-		var tag = img.data('isimg') ? imgtag : filetag;
-
+		var img  = $(sel[i]);
 		var name = img.data('title').toString();	// 数字のみのファイル名対策
 		var reg  = name.match(/\.(\w+)$/);
 		var ext  = reg ? reg[1] : '';
-		var rep  = {
-			d: esc_satsuki_tag(cur_folder_rel),
-			e: esc_satsuki_tag(ext),
-			f: esc_satsuki_tag(name),
-			c: ''
-		};
-		if (exiftag && img.data('isimg') && name.match(/\.jpe?g$/i)) {
-			rep.c = exiftag.replace(/%([def])/g, function($0,$1){ return rep[$1] });
-		}
-
-		tag = tag.replace(/%([cdef])/g, function($0,$1){ return rep[$1] });
-		ary.push(tag);
+		ary.push({
+			folder: cur_folder,
+			file:	name,
+			ext:	ext,
+			isimg:	img.data('isimg') ? true : false,
+			exif:	img.data('isimg') && exif ? true : false,
+			thumbnail: thumb
+		});
 	}
-	var text= ary.join(evt.ctrlKey ? " \\\n" : "\n");
-	// この仕様を変更したら、edit画面の upload の変更も検討のこと
-
-	var caption = $('#paste-caption').val();
-	var fclass  = $('#paste-class').val();
+	var data = {
+		caption: $('#paste-caption').val(),
+		class:   $('#paste-class').val(),
+		files: ary
+	};
 	if (window.opener) {
 		// 子ウィンドウとして開かれていたら
-		window.opener.insert_image(text, caption, fclass);
+		window.opener.insert_image(data);
 		window.close();
 		return false;
 	}
-	$('#paste-txt').val(text);
+	$('#paste-txt').val( JSON.stringify(data) );
 	paste_form.submit();
 
 	return false;

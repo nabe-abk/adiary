@@ -9,12 +9,12 @@
 	<h4 id="selected-files-title"><label><input type="checkbox" class="js-switch" data-target="#selected-files">選択中のファイル名を表示</label><span class="help" data-help="ファイル名を変更するには「選択ファイル名の表示」から該当ファイルをダブルクリックしてください。">?</span></h4>
 	<ul id="selected-files"></ul>
 
-	<form action="<@v.myself>?edit" method="POST" id="paste-form" data-tag="<@tags.file>" data-exif-tag="<@tags.exif>">
+	<form action="<@v.myself>?edit" method="POST" id="paste-form">
 	<input type="hidden" name="action" value="etc/dummy">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="paste_txt" value="" id="paste-txt">
-	<button type="submit" id="paste-thumbnail" data-select="1" data-tag="<@tags.thumb>">サムネイルを貼付</button>
-	<button type="submit" id="paste-original"  data-select="1" data-tag="<@tags.image>">元画像を貼付</button>
+	<button type="submit" id="paste-thumbnail" data-select="1" data-thumbnail="1">サムネイルを貼付</button>
+	<button type="submit" id="paste-original"  data-select="1" data-thumbnail="0">元画像を貼付</button>
 	<label><input type="checkbox" class="js-switch js-save" data-target="#paste-detail">詳細</label><br>
 	<ul id="paste-detail">
 		<li><label><input type="checkbox" id="paste-to-exif" class="js-save">Exifも貼り付ける</label>
