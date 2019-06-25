@@ -933,42 +933,6 @@ article.edit span.tag:after {
 }
 
 /*--------------------------------------------------------------------
-●jQuery UI, タブ表示（ブログ一覧画面）
----------------------------------------------------------------------*/
-article.jqueryui-tabs {
-	box-shadow:		none;
-}
-.jqueryui-tabs h2 {
-	padding:		0;
-}
-.ui-tabs .ui-tabs-nav li a {
-	color:			#fff;			/* $c=fixfont2 */
-}
-.jqueryui-tabs .body {
-	margin-top:		0;
-	border-radius:		8px;
-	border:			2px solid #3a2faf;	/* $c=border */
-	background-color:	#223;			/* $c=sysbg */
-}
-.ui-tabs .ui-tabs-nav li {
-	border-radius:		8px;
-	border:			2px solid #3a2faf;	/* $c=border */
-	background-color:	#3a2f88;		/* $c=moduletitlebg */
-}
-.ui-tabs .ui-tabs-nav li.ui-tabs-active {
-	border-bottom:		2px solid #223;		/* $c=sysbg */
-	background-color:	#223;			/* $c=sysbg */
-}
-.ui-tabs .ui-tabs-nav {
-	margin-bottom:		-2px;		/* 線の太さに合わせる */
-}
-.ui-tabs .ui-tabs-nav li:not(.ui-tabs-active):hover {
-	border-color:		#3a2faf;		/* $c=border */
-	background-color:	#3a2faf;		/* $c=border */
-}
-
-
-/*--------------------------------------------------------------------
 ●設定ページナビゲーション
 ---------------------------------------------------------------------*/
 nav.tree, nav.tree select {

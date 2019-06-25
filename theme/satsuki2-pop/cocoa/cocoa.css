@@ -1279,8 +1279,7 @@ form#import-form table {
 /*--------------------------------------------------------------------
 ●その他、システムモード, written by nabe@abk
 ---------------------------------------------------------------------*/
-article.system, nav.tree,
-.jqueryui-tabs .body {
+article.system, nav.tree {
 	background-color:	#fcf6f0;
 	border:			1px solid #edc;
 	border-radius:		4px;
@@ -1319,19 +1318,6 @@ article.system ol {
 }
 ul.checkbox {
 	list-style-type:	none;
-}
-
-/* ブログ一覧画面等 */
-.ui-tabs .ui-tabs-nav li {
-	border:			1px solid #edc;
-	background-color:	#edc;
-}
-.ui-tabs .ui-tabs-nav li.ui-tabs-active {
-	border-bottom:		1px solid #fcf6f0;
-	background-color:	#fcf6f0;
-}
-.ui-tabs .ui-tabs-nav li:not(.ui-tabs-active):hover {
-	border-color:		#987;
 }
 
 div.messages div.message {

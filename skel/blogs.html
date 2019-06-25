@@ -12,12 +12,13 @@
 <$list = v.load_blog_list(Query.sort)>
 
 <!--========================================================================-->
-<article class="system jqueryui-tabs">
-	<ul>
-		<li><a href="#list-view">新着ブログ記事</a></li>
-		<li><a href="#table-view">ブログの詳細情報</a></li>
-	</ul>
+<article class="system">
+<h2><@v.title></h2>
 <div class="body">
+	<div>
+	<label><input class="js-switch" type="radio" name="view" data-target="#list-view" checked>新着</label>
+	<label><input class="js-switch" type="radio" name="view" data-target="#table-view" >テーブル表示</label>
+	</div>
 <div id="list-view">
 	<ul>
 	<@forexec(t, list, begin)>

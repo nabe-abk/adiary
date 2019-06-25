@@ -3,11 +3,11 @@
 <$ps=argv#0>
 
 <div class="jqueryui-tabs">
-	<ul>
-		<li><a href="#set-login">ログインヘッダ設定</a></li>
-		<li><a href="#set-header">ヘッダ設定</a></li>
-		<li><a href="#set-all">全体設定</a></li>
-	</ul>
+	<div>
+		<label><input class="js-switch" type="radio" name="view" data-target="#set-login" checked>ログイン部</label>
+		<label><input class="js-switch" type="radio" name="view" data-target="#set-header" checked>ヘッダ部</label>
+		<label><input class="js-switch" type="radio" name="view" data-target="#set-all" checked>全体</label>
+	</div>
 <div class="body">
 <div id="set-login">
 	<table class="blog-setting">
