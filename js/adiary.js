@@ -677,13 +677,15 @@ initfunc.push( function(R){
 		div.html( text );
 	};
 	 helps.mouseenter( {func: helpfunc, div: popup_help}, easy_popup);
-	bhelps.mouseenter( {func: helpfunc, div: popup_help}, easy_popup);
-	if (!SP) bhelps.data('delay', ButtonHelpDelay);	// 長めのディレイ。スマホ除く
 
 	imgs  .mouseleave({div: popup_img }, easy_popup_out);
 	coms  .mouseleave({div: popup_com }, easy_popup_out);
 	helps .mouseleave({div: popup_help}, easy_popup_out);
-	bhelps.mouseleave({div: popup_help}, easy_popup_out);
+
+	if (!SP) {
+		bhelps.mouseenter( {func: helpfunc, div: popup_help}, easy_popup );
+		bhelps.mouseleave({div: popup_help}, easy_popup_out);
+	}
 });
 
 //////////////////////////////////////////////////////////////////////////////

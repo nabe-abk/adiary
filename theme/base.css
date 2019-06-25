@@ -507,7 +507,7 @@ article.edit span.tag {
 .help:after {
 	content:	']';
 }
-.btn-help:after {
+body:not(.sp) .btn-help:after {
 	margin-left:	2px;
 	content:	'[?]';
 }
