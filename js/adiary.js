@@ -976,7 +976,14 @@ initfunc.push( function(R){
 	R.findx('.js-switch').each( function(idx,ele) {
 		var obj = $(ele);
 		var f = display_toggle(obj, true);	// initalize
-		if (f) obj.click( function(evt){ display_toggle($(evt.target), false) } );
+		if (f) obj.click( function(evt){
+			if (obj.attr('type') != "radio") return display_toggle($(evt.target), false);
+
+			const name = obj.attr('name');
+			$('input.js-switch[name=\"' + name + '"]').each(function(idx, dom){
+				display_toggle($(dom), false);
+			});
+		});
 	} );
 });
 
@@ -1228,16 +1235,6 @@ initfunc.push( function(R){
 		var form = $(evt.target).parents('form');
 		$(form[0]).submit();
 	});
-});
-
-
-//////////////////////////////////////////////////////////////////////////////
-//●タブ機能
-//////////////////////////////////////////////////////////////////////////////
-initfunc.push( function(R){
-	var obj = R.findx('.jqueryui-tabs');
-	if (!obj.length) return;
-	obj.tabs();
 });
 
 //////////////////////////////////////////////////////////////////////////////
