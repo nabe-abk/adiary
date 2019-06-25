@@ -214,7 +214,7 @@ _module_start
 # Google-map モジュール
 #------------------------------------------------------------------------------
 *google:map
-<iframe src="https://maps.google.co.jp/maps?output=embed&amp;t=m&amp;hl=ja&amp;z=${zoom}&amp;ll=${center}&amp;q=${q}" style="width:#{width|425}px; height:#{height|350}px;" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
+<iframe src="https://maps.google.co.jp/maps?output=embed&amp;t=m&amp;hl=ja&amp;z=${zoom}&amp;ll=${center}&amp;q=${q}" style="width:#{width|480}px; height:#{height|360}px;" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="google-map"></iframe>
 
 #------------------------------------------------------------------------------
 # hatena-blog モジュール

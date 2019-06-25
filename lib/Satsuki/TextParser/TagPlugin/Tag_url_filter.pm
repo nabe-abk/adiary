@@ -211,8 +211,8 @@ sub _filter {
 		} else {
 			last;	# unknown url type
 		}
-		my $w = 425;
-		my $h = 350;
+		my $w = '';
+		my $h = '';
 		if ($ary->[$#$ary] eq 'small') { $w=300; $h=300; }
 		if ($ary->[$#$ary] eq 'large') { $w='100%; padding: 0'; $h=480; }
 		return "<module name=\"google:map\"$opt width=\"$w\" height=\"$h\">";
