@@ -251,7 +251,7 @@ sub select_by_group {
 	delete $w{limit};
 	delete $w{require_hits};
 
-	my %cols = map {$_ => 1} ($group_col,@$sum_cols,@$max_cols,@$min_cols);
+	my %cols = map {$_ => 1} ('pkey',$group_col,@$sum_cols,@$max_cols,@$min_cols);
 	delete $cols{''};
 	$w{cols} = [ keys(%cols) ];
 

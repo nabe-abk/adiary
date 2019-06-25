@@ -1479,6 +1479,10 @@ sub update_bloginfo_article {
 		require_hits => 1
 	});
 
+	my $darts = $DB->select_by_group("${blogid}_art", {
+		flag     => { enable => 0 }
+	});
+
 	my %up;
 	if ($ary && @$ary) {
 		$up{newest_title} = $ary->[0]->{title};
@@ -1489,7 +1493,8 @@ sub update_bloginfo_article {
 		$up{arts}   = 0;
 		$up{art_tm} = 0;
 	}
-	$self->update_blogset($blogid, 'arts', $up{arts});
+	$self->update_blogset($blogid, 'arts',  $up{arts} );
+	$self->update_blogset($blogid, 'darts', $darts->[0]->{_count});
 	$self->update_bloginfo($blogid, \%up);
 }
 

@@ -20,9 +20,15 @@
 <tr>
 <td>BlogID</td><td><@v.blogid></td>
 </tr><tr>
-<td>記事  </td><td><@v.blog.arts || 0>件</td>
-</tr><tr>
-<td>コメント</td><td><@v.blog.coms || 0>件</td>
+<td>公開記事&ensp;</td><td><@v.blog.arts || 0>件</td>
+</tr>
+<@ifexec(v.blog.darts, begin)>
+<tr>
+<td>非公開記事&ensp;</td><td><@v.blog.darts>件</td>
+</tr>
+<$end>
+<tr>
+<td>コメント&ensp;</td><td><@v.blog.coms || 0>件</td>
 </tr><tr>
 <td colspan="2">『<a href="<@v.myself>"><@s.blog_name></a>』</td>
 </tr>
