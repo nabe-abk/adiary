@@ -191,7 +191,7 @@ sub _filter {
 	while ($url =~ m!^https://www\.google\.(?:co\.jp|com)/maps/([^@]*)\@(.+)$!) {
 		my $place = $1;
 		my $query = $2;
-		if (index('?', $query)<0 && $query =~ /[0-9a-f][0-9a-f]$/) { $query .= ':' . shift(@$ary); }
+		if (index('?', $query)<0 && $ary->[0] =~ /^0x/) { $query .= ':' . shift(@$ary); }
 
 		my $opt='';
 		if ($query =~ /^(-?\d+\.\d+,-?\d+\.\d+)(?:,(\d+)(?:\.\d+)?z)?(.*)/) {
