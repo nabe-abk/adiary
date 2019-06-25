@@ -1196,7 +1196,15 @@ figure.center, figure.c {
 }
 
 /*--------------------------------------------------------------------
-●jQuery UI, dialog/accordion
+●システム画面UI
+---------------------------------------------------------------------*/
+/* import/export画面等 */
+.js-accordion h3 {
+	cursor:			pointer;
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI, dialog
 ---------------------------------------------------------------------*/
 .ui-dialog {
 	background-color:	#f8f8ff;
@@ -1215,10 +1223,6 @@ figure.center, figure.c {
 }
 ul.dynatree-container {
 	min-height:		20px;
-}
-/* import/export画面等 */
-h3.ui-accordion-header {
-	background-color:	#ddd;
 }
 
 /* sortable */
@@ -1357,8 +1361,6 @@ h3.ui-accordion-header {
 .ui-tabs .ui-tabs-nav li:not(.ui-tabs-active):hover {
 	background-color:	#ddd;
 }
-
-
 
 /*--------------------------------------------------------------------
 ●その他
@@ -1626,11 +1628,6 @@ ul.menu {
 .sp #edit-helper button {
 	margin-top:		6px;
 	margin-bottom:		6px;
-}
-
-/* accordion/インポート、エクスポート */
-.sp .ui-accordion-content {
-	padding:		0 4px;
 }
 
 /* フォーム要素 */

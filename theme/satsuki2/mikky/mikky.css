@@ -952,25 +952,6 @@ nav.tree {
 }
 
 /*--------------------------------------------------------------------
-●accordion（インポート、エクスポート画面等）
----------------------------------------------------------------------*/
-div.body h3.ui-accordion-header {
-	font-size:		12pt;
-	line-height:		100%;
-	margin:			0;
-
-	background-color:	#527a6f;	/* $c=footerbg */
-	color:			#fff;
-	border-color:		#ccc;
-}
-.ui-accordion-header-icon {
-	display:		none;
-}
-div.body h3.ui-accordion-header:before {
-	display:		none;
-}
-
-/*--------------------------------------------------------------------
 ●プログレスバー（import等）
 ---------------------------------------------------------------------*/
 .ui-progressbar {

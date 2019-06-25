@@ -1204,9 +1204,6 @@ form#import-form table {
 /*--------------------------------------------------------------------
 ●プログレスバー（import等）
 ---------------------------------------------------------------------*/
-.ui-accordion-header-icon {
-    display:        none;
-}
 .ui-progressbar {
     position:               relative;
     background-color:       #f08daa;
@@ -1236,25 +1233,6 @@ form#import-form table {
     background-color:       rgb(181,0,31);
     background-color:       rgba(181,0,31,0.5);
 }
-
-/*--------------------------------------------------------------------
-●accordion（インポート、エクスポート画面等）
----------------------------------------------------------------------*/
-div.body h3.ui-accordion-header {
-	font-size:		12pt;
-	line-height:		100%;
-	margin:			0;
-
-	background-color:	#f8b;
-	color:			#fff;
-}
-.ui-accordion-header-icon {
-	display:		none;
-}
-div.body h3.ui-accordion-header:before {
-	display:		none;
-}
-
 
 /*--------------------------------------------------------------------
 ●jQuery UI, popup-info/dialog（テーマREADME/記事のタグヘルパー等）

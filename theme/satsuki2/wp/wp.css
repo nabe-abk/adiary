@@ -1053,7 +1053,6 @@ article.edit span.tag:after {
 	padding-top:		0px;
 }
 
-
 /*--------------------------------------------------------------------
 ●jQuery UI, タブ表示（ブログ一覧画面）
 ---------------------------------------------------------------------*/
@@ -1081,7 +1080,6 @@ article.jqueryui-tabs {
 	border-color:		#bbb;			/* $c=border */
 }
 
-
 /*--------------------------------------------------------------------
 ●設定ページナビゲーション
 ---------------------------------------------------------------------*/
@@ -1098,24 +1096,6 @@ nav.tree {
 	border-radius:		4px;
 	border:			1px solid #bbb;		/* $c=border */
 	background-color:	#eef;			/* $c=sysbg */
-}
-
-/*--------------------------------------------------------------------
-●accordion（インポート、エクスポート画面等）
----------------------------------------------------------------------*/
-div.body h3.ui-accordion-header {
-	font-size:		12pt;
-	line-height:		100%;
-	margin:			0 0 1px 0;
-
-	background-color:	#bbf;		/* $c=dialogbg */
-	border-color:		#bbf;		/* $c=dialogbg */
-}
-.ui-accordion-header-icon {
-	display:		none;
-}
-div.body h3.ui-accordion-header:before {
-	display:		none;
 }
 
 /*--------------------------------------------------------------------

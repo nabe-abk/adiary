@@ -1244,10 +1244,17 @@ initfunc.push( function(R){
 //●accordion機能
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	var obj = R.findx('.jqueryui-accordion');
+	const obj = R.findx('.js-accordion');
 	if (!obj.length) return;
-	obj.accordion({
-		heightStyle: "content"
+
+	obj.find("h3").each(function(idx,dom) {
+		var $obj = $(dom);
+		var $div = $(dom).next();
+		if ($div[0].tagName != "DIV") return;
+		$div.hide();
+		$obj.click(function(evt){
+			$div.toggle( DefaultShowSpeed );
+		});
 	});
 });
 

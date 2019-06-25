@@ -1095,9 +1095,6 @@ form#import-form table {
 /*--------------------------------------------------------------------
 ●プログレスバー（import等）
 ---------------------------------------------------------------------*/
-.ui-accordion-header-icon {
-    display:        none;
-}
 .ui-progressbar {
     position:               relative;
     background-color:       rgba(255,255,255,0.5);
@@ -1322,11 +1319,6 @@ article.system ol {
 }
 ul.checkbox {
 	list-style-type:	none;
-}
-
-/* import画面等 */
-h3.ui-accordion-header {
-    background-color:       #f4ead5;
 }
 
 /* ブログ一覧画面等 */

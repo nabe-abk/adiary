@@ -1098,7 +1098,6 @@ article.jqueryui-tabs {
 	border-color:		#ccc;			/* $c=border */;
 }
 
-
 /*--------------------------------------------------------------------
 ●設定ページナビゲーション
 ---------------------------------------------------------------------*/
@@ -1115,24 +1114,6 @@ nav.tree {
 	padding:		0.5em 1em;
 
 	background-color:	#e2edf8;		/* $c=sysbg */
-}
-
-/*--------------------------------------------------------------------
-●accordion（インポート、エクスポート画面等）
----------------------------------------------------------------------*/
-div.body h3.ui-accordion-header {
-	font-size:		12pt;
-	line-height:		100%;
-	margin:			0;
-
-	background-color:	#7291a9;	/* $c=h2bg */
-	color:			#fff;
-}
-.ui-accordion-header-icon {
-	display:		none;
-}
-div.body h3.ui-accordion-header:before {
-	display:		none;
 }
 
 /*--------------------------------------------------------------------

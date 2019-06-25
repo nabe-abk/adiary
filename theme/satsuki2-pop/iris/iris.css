@@ -1053,10 +1053,6 @@ textarea[readonly], textarea[readonly]:focus {
     border:                 none;
 }
 
-h3.ui-accordion-header {
-    background-color:       transparent;
-}
-
 /* ◆ ダイアログ */
 /* --------------------------------------------------------- */
 .ui-dialog, .ui-dialog.error-dialog {

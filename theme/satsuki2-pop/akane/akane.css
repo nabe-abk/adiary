@@ -1333,11 +1333,6 @@ ul.dynatree-container a {
 /*-------------------------------------------------------------
 ●プログレスバー（import等）
 ------------------------------------------------------------ */
-.ui-accordion-header-icon {
-	display:		none;
-}
-
-
 .ui-progressbar {
 	position:			   relative;
 	background-color:	   rgba(255,255,255,0.5);
@@ -1368,14 +1363,6 @@ ul.dynatree-container a {
 	padding:				1px 0 0 1px;
 	background-color:		rgba(252,109,207,0.4);
 } 
-
-
-/* import画面 h3 */
-h3.ui-accordion-header
-{
-	background-color: 		inherit;
-}
-
 
 /*--------------------------------------------------------------------
 ●jQuery UI, popup-info/dialog（テーマREADME/記事のタグヘルパー等）
