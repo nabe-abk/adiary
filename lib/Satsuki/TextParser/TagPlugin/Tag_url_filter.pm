@@ -185,30 +185,37 @@ sub _filter {
 	#------------------------------------------------------------
 	# Google map
 	#------------------------------------------------------------
-	# API infomation : https://developers.google.com/maps/documentation/embed/guide
-	while ($vars->{gmap_key} && $url =~ m!^https://www\.google\.(?:co\.jp|com)/maps/(place/|dir/|)(.+)$!) {
-		my $q = $2;
-		my $type;
-		my $opt;
-		if ($1 eq 'dir/') {
-			$type = 'directions';
-			my ($org, $des) = split('/', $q);
-			$opt = "origin=\"$org\" destination=\"$des\"";
-		} elsif ($1 eq 'place/') {
-			$type = 'search';
-			$q =~ s|/.*||g;
-			$opt = "q=\"$q\"";	# 検索語
-		} elsif ($q =~ /^@(\d+\.\d+,\d+\.\d+)(?:,(\d+)z)?/) {
-			$type = 'view';
-			$opt  = "center=\"$1\" zoom=\"$2\"";
+	# iframe embed
+	# https://maps.google.co.jp/maps?output=embed&t=m&hl=ja&z=18&ll=35.689634,139.692101&q=35.689634,139.692101
+	#
+	while ($url =~ m!^https://www\.google\.(?:co\.jp|com)/maps/([^@]*)\@(.+)$!) {
+		my $place = $1;
+		my $query = $2;
+		if (index('?', $query)<0 && $query =~ /[0-9a-f][0-9a-f]$/) { $query .= ':' . shift(@$ary); }
+
+		my $opt='';
+		if ($query =~ /^(-?\d+\.\d+,-?\d+\.\d+)(?:,(\d+)(?:\.\d+)?z)?(.*)/) {
+			my $center = $1;
+			my $query2 = $3;
+			my $pin;
+			$opt = " center=\"$center\" zoom=\"$2\"";
+			if ($query2 =~ /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/) {
+				$pin = "$1,$2";
+			}
+			if ($pin && $place =~ m|^place/([^/]+)|) {
+				$opt .= " q=\"$1\"";
+				# $opt .= " q=\"$1\@$pin\"";
+			} elsif ($pin) {
+				$opt .= " q=\"$pin\"";
+			}
 		} else {
 			last;	# unknown url type
 		}
 		my $w = 425;
 		my $h = 350;
 		if ($ary->[$#$ary] eq 'small') { $w=300; $h=300; }
-		if ($ary->[$#$ary] eq 'large') { $w='100%'; $h=480; }
-		return "<module name=\"google:map:$type\" key=\"$vars->{gmap_key}\" $opt width=\"$w\" height=\"$h\">";
+		if ($ary->[$#$ary] eq 'large') { $w='100%; padding: 0'; $h=480; }
+		return "<module name=\"google:map\"$opt width=\"$w\" height=\"$h\">";
 	}
 
 	#------------------------------------------------------------
