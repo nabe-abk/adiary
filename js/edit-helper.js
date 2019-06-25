@@ -6,7 +6,24 @@
 'use strict';
 //### global variables #######################################################
 var insert_image;	// global function for edit.js, album.js
-
+/*
+insert_image( data )
+  data = {
+	caption: "caption text",
+	class:   "class text",
+	files: [{
+		folder: "album folder",
+		file:	"file name",
+		ext:	"file extension",
+		isimg:	true or false,
+		exif:	true or false,		// paste exif flag
+		thumbnail: true or false	// paste thumbnail
+	}, {
+		<next file...>
+	}, ...
+	]
+  }
+*/
 $(function(){
 //############################################################################
 // ■記法ヘルパー機能

@@ -427,13 +427,12 @@ function open_upload_dialog(files) {
 
 		ajax_upload( $upform[0], files, {
 			callback: function(data, folder){
-				upload_files_insert(data, folder, {
-					exif: $('#paste-to-exif').prop('checked'),
-					caption: $('#paste-caption').val(),
-					fig_class: $('#paste-class').val(),
-					img_tag:  $upform.find('#paste-imgtag').val(),
-					file_tag: $('#paste-tag').data('file'),
-					exif_tag: $('#paste-tag').data('exif')
+				upload_files_insert(data, {
+					folder:		folder,
+					thumbnail:	$('#paste-thumbnail').val ? true : false,
+					caption:	$('#paste-caption').val(),
+					exif:		$('#paste-to-exif').prop('checked'),
+					class:		$('#paste-class').val()
 				});
 			},
 			complete: function(){
@@ -482,7 +481,7 @@ $file_btn.on('change', function() {
 //----------------------------------------------------------------------------
 // ●アップロード後の処理
 //----------------------------------------------------------------------------
-function upload_files_insert(data, folder, opt) {
+function upload_files_insert(data, opt) {
 	try {
 		data['fail']    = parseInt(data['fail']);
 		data['success'] = parseInt(data['success']);
@@ -496,39 +495,36 @@ function upload_files_insert(data, folder, opt) {
 			f: data['fail'],
 			s: data['success']
 		});
+		return;
 	} else if (data['ret']) {
 		show_error('#msg-upload-error');
+		return;
 	}
 
 	// 記事に挿入
 	var ary = data['files'];
 	if (!data['success'] || !ary) return;
 
-	var exiftag = opt.exif ? opt.exif_tag : null;
-	var text = '';
-	var esc_dir = esc_satsuki_tag(folder);
+	let files = [];
 	for(var i=0; i<ary.length; i++) {
-		var name = ary[i].name;
-		var reg  = name.match(/\.(\w+)$/);
-		var ext  = reg ? reg[1] : '';
-		var rep  = {
-			d: esc_dir,
-			e: esc_satsuki_tag(ext),
-			f: esc_satsuki_tag(name),
-			c: ''
-		};
-		if (exiftag && name.match(/\.jpe?g$/i)) {
-			rep.c = exiftag.replace(/%([def])/g, function($0,$1){ return rep[$1] });
-		}
-
-		// タグ生成
-		var tag = ary[i].isImg ? opt.img_tag : opt.file_tag;
-		tag = tag.replace(/%([cdef])/g, function($0,$1){ return rep[$1] });
-		// 記録
-		text += (text ? "\n" : "") + tag;
+		let file = ary[i];
+		let reg  = name.match(/\.(\w+)$/);
+		let ext  = reg ? reg[1] : '';
+		files.push({
+			folder: opt.folder,
+			file:	file.name,
+			ext:	ext,
+			isimg:	file.isImg,
+			exif:	file.isImg && opt.exif,
+			thumbnail: opt.thumbnail
+		});
 	}
 
-	insert_image(text, opt.caption, opt.fig_class);
+	insert_image({
+		caption: opt.caption,
+		class:   opt.class,
+		files: files
+	});
 }
 
 //----------------------------------------------------------------------------
@@ -618,7 +614,7 @@ $edit.on("drop", function(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
 
-	if (!do_edit) return;
+	if ($edit.prop('readonly')) return;
 	if (!evt.originalEvent.dataTransfer) return;
 
 	var files = evt.originalEvent.dataTransfer.files;
