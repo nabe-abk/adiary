@@ -21,6 +21,7 @@
 	change_hour_int:max = 8
 
 	markdown = flag
+	rst      = flag
 	private = flag
 	ping = flag
 
@@ -47,9 +48,12 @@
 <$ifbreak(form_error())>
 <$ifset(h2.iconfile, h.iconfile, v.plugin_image_dir(h2.iconfile))>
 
-<$ifset( h.markdown, h.parser, 'markdown')>
-<$ifset(!h.markdown && h.parser ne 'markdown', h.parser, 'default')>
+<$ifset( h.markdown,   h.parser, 'markdown')>
+<$ifset( h.rst     ,   h.parser, 'rst')>
+<$ifset(!h.markdown && v.blog.parser eq 'markdown', h.parser, 'default')>
+<$ifset(!h.rst      && v.blog.parser eq 'rst'     , h.parser, 'default')>
 <$delete(h.markdown)>
+<$delete(h.rst)>
 
 
 <@> 設定保存
