@@ -326,6 +326,9 @@ div.sidebar {
 	float:			right;
 	margin-left:		1em;
 }
+figure.align-center {
+	text-align:		center;
+}
 figure.align-center,
 .align-center > img {
 	display:		block;
@@ -458,8 +461,11 @@ span.colorbox {
 	z-index:	10000;
 }
 
+option:disabled {
+	background-color:	#eee;
+}
 /* セレクトボックスの特殊要素（「指定しない」）など */
-select option.special {
+option.special {
 	font-weight:		bold;
 	color:			#800;
 }

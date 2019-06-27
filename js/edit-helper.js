@@ -48,6 +48,10 @@ Helpers.push({
 	toc:	{ func: 'insert',	tag: "\n[*toc]\n" },
 	google:	{ func: 'inline',	tag: '[g:$0$1]', arg_format: ':$1' },
 	wiki:	{ func: 'inline',	tag: '[w:$0]' },
+	cont:	{ func: 'insert',	tag: "\n====\n" },
+	code:	{ func: 'block',	start: '>|?|', end: '||<' },
+	math:	{ func: 'block',	start: '>>>||math', end: '||<<<' },
+	math_i:	{ func: 'inline',	tag: '[[math:$0]]' },
 	album:	{ func: 'album' },
 	image:	{
 		original:	'[image:L:%d:%f:%f%c]',
@@ -83,6 +87,10 @@ Helpers.push({
 	toc:	{ func: 'insert',	tag: "\n[*toc]\n" },
 	google:	{ func: 'inline',	tag: '[g:$0$1]', arg_format: ':$1' },
 	wiki:	{ func: 'inline',	tag: '[w:$0]' },
+	cont:	{ func: 'insert',	tag: "\n====\n" },
+	code:	{ func: 'block',	start: '```', end: '```' },
+	math:	{ func: 'block',	start: '```math', end: '```' },
+	math_i:	{ func: 'inline',	tag: '[[math:$0]]' },
 	album:	{ func: 'album' },
 	image:	{
 		original:	'[image:L:%d:%f:%f%c]',
@@ -119,6 +127,10 @@ Helpers.push({
 	toc:	{ func: 'insert',	tag: "\n\n.. contents::\n\n" },
 	google:	null,
 	wiki:	null,
+	cont:	null,
+	code:	{ func: 'block',	tag: "\t$0", start: ".. code::\n", end: '', blank: true },
+	math:	{ func: 'block',	tag: "\t$0", start: ".. math::\n", end: '', blank: true },
+	math_i:	{ func: 'inline',	tag: ':math:`$0`' },
 	album:	{ func: 'album' },
 	image:	{
 		original:	'.. image:: files/%d%f',
@@ -162,6 +174,10 @@ Helpers.push({
 	toc:	null,
 	google:	null,
 	wiki:	null,
+	cont:	{ func: 'insert',	tag: "\n====\n" },
+	code:	{ func: 'block',	start: '<pre class="syntax-highlight">', end: '</pre>', pre: true },
+	math:	{ func: 'block',	start: '<pre class="math">',		 end: '</pre>', pre: true },
+	math_i:	{ func: 'inline',	tag:   '<span class="math">$0</span>'	              , pre: true },
 	album:	{ func: 'album' },
 	image:	{
 		//	%a : image attribute
@@ -299,10 +315,7 @@ helper.prototype.inline = function(help, $obj) {
 	});
 }
 helper.prototype._inline = function(help, $obj) {
-	this.replace({
-		tag:	help['tag'],
-		arg:	$obj.val()
-	});
+	this.replace(help, $obj.val());
 }
 
 //----------------------------------------------------------------------------
@@ -363,10 +376,7 @@ helper.prototype._ex_inline = function(help, $obj, arg) {
 		arg   = x.replace(/\$1/g, arg);
 	}
 
-	this.replace({
-		tag:	help['tag'],
-		arg:	arg
-	});
+	this.replace(help, arg);
 }
 
 //----------------------------------------------------------------------------
@@ -425,13 +435,7 @@ helper.prototype._block = function(help, $obj) {
 	});
 }
 helper.prototype._block2 = function(help, $obj, arg) {
-	this.replace({
-		tag:	help['tag'],
-		start:	help['start'],
-		end:	help['end'],
-		blank:	help['blank'],
-		arg:	arg
-	});
+	this.replace(help, arg);
 }
 
 //----------------------------------------------------------------------------
@@ -446,26 +450,32 @@ helper.prototype.album = function(help, $obj) {
 //////////////////////////////////////////////////////////////////////////////
 // ■結果反映
 //////////////////////////////////////////////////////////////////////////////
-helper.prototype.replace = function(h) {
+helper.prototype.replace = function(help, arg1, arg2) {
 	let text = this.get_selection();
 	if (!text.length) return;
 
-	let tag   = h['tag']   || '';
-	let start = h['start'] || '';
-	let end   = h['end']   || '';
+	arg1 = (arg1 == undefined) ? '' : arg1;
+	arg2 = (arg2 == undefined) ? '' : arg2;
 
-	const arg = h['arg'] ? h['arg'] : '';
-	tag   = tag  .replace(/\$1/g, arg);
-	start = start.replace(/\$1/g, arg) + (start != '' ? "\n" : '');
-	end   = (end   != '' ? "\n" : '')  + end.replace(/\$1/g, arg);
-	const blank = h['blank'] ? "\n" : '';
+	let tag   = help['tag']   || '';
+	let start = help['start'] || '';
+	let end   = help['end']   || '';
+
+	const arg = help['arg'] ? help['arg'] : '';
+	tag   = tag  .replace(/\$1/g, arg1).replace(/\$2/g, arg2);
+	start = start.replace(/\$1/g, arg1).replace(/\$2/g, arg2) + (start != '' ? "\n" : '');
+	end   = (end   != '' ? "\n" : '')  + end.replace(/\$1/g, arg1).replace(/\$2/g, arg2);
+	const blank = help['blank'] ? "\n" : '';
 
 	const self = this;
 	text = this.each_lines(text, function(str) {
-		if (h['escape'])
+		if (help['escape'])
 			str = self.esc_satsuki_tag_nested(str);
+		if (help['pre'])
+			str = tag_esc(str);
 		return tag ? tag.replace(/\$0/, str) : str;
 	});
+
 	return this.replace_selection(blank + start + text + end + blank);
 }
 
@@ -690,21 +700,9 @@ helper.prototype.insert_image = function(data) {
 	}
 
 	// figure block
-	//	start:	">>|figure$1$2",
-	//	end:	"|<<",
-	//	arg1_format:	" $1",
-	//	arg2_format:	" caption=$1"
-	const start = fig['start'].replace(/\$1/g, arg1).replace(/\$2/g, arg2);
-	const end   = fig['end']  .replace(/\$1/g, arg1).replace(/\$2/g, arg2);
-
 	this.insert_text_and_select("\n" + text + "\n");
 	this.fix_block_selection();
-	this.replace({
-		tag:	fig['tag'],
-		start:	start,
-		end:	end,
-		blank:	fig['blank']
-	});
+	this.replace(fig, arg1, arg2);
 }
 
 //############################################################################
