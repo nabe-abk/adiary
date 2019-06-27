@@ -913,7 +913,7 @@ initfunc.push( function(R) {
 //  data-default="show/hide">
 initfunc.push( function(R){
 	function display_toggle(btn, init) {
-		if (btn[0].tagName == 'A') return false;	// リンククリックは無視
+		if (btn[0].tagName == 'A') return true;	// リンククリックは無視
 		var type = btn[0].tagName == 'INPUT' && btn.attr('type').toLowerCase();
 		var id = btn.data('target');
 		if (!id) {
