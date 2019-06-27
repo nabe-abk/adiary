@@ -1,7 +1,7 @@
 ######################################################################
 title=AMP
-version=1.00
-#					(C)2017 nabe@abk
+version=1.01
+#					(C)2017-2019 nabe@abk
 ######################################################################
 description=サイトをGoogle AMP(Accelerated Mobile Pages)に対応させます
 author=nabe@abk

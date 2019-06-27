@@ -292,10 +292,11 @@ $mop->{filter_img} = sub {
 	if ($at->{width}  =~ /[^\d]/) { $at->{width} =0; }
 	if ($at->{height} =~ /[^\d]/) { $at->{height}=0; }
 
-
 	if (!$at->{width} || !$at->{height}) {
 		$self->load_image_size($at);
 	}
+	$at->{layout}="intrinsic";
+
 	$self->set_lastmodified($at);
 	$p->setTag('amp-img');
 	$p->after('html', '</amp-img>');
@@ -442,7 +443,7 @@ $mop->{layout} = sub {
 	if ($at->{style} =~ /(?:^|\s)height\s*:\s*(\d+)(?:px)?/i) { $at->{height}= $1; }
 
 	if ($at->{width} && $at->{height}) {
-		$at->{layout} = 'responsive';
+		$at->{layout} = 'intrinsic';
 	} else {
 		$at->{layout} = 'fixed-height';
 		$at->{height} ||= $default || 240;
