@@ -61,7 +61,6 @@ MITライセンスやPerlライセンスだと大変助かります。
 
   * jQuery (MIT)
     * jQuery UI (MIT / GPLv2)
-    * jquery-cookie (MIT)
     * dynatree  (MIT)
     * Color Picker (MIT / GPL)
   * Lightbox2 (Creative Commons Attribution 2.5)

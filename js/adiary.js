@@ -31,7 +31,7 @@ var GA_ID;
 //////////////////////////////////////////////////////////////////////////////
 $(function(){
 	// init
-	if (Vmyself) Storage=load_PrefixStorage( Vmyself );
+	if (Vmyself) Storage = new PrefixStorage( Vmyself );
 	set_browser_class_into_body();
 
 	// DB time, Total time
@@ -2120,20 +2120,46 @@ function adiary_session(_btn, opt){
 //
 // ・pathを適切に設定することで、同一ドメイン内で住み分けることができる。
 // ・ただし紳士協定に過ぎないので過剰な期待は禁物
-// is_session  0(default):LocalStorage 1:sessionStorage 2:ワンタイムなobj
 //
 //（利用可能メソッド） set(), get(), remove(), clear()
 //
-function load_PrefixStorage(path) {
-	var ls = new PrefixStorage(path);
-	return ls;	// fail
-}
-function PrefixStorage(path, is_session) {
+function PrefixStorage(path) {
 	// ローカルストレージのロード
-	this.ls = Load_DOMStorage( is_session );
+	this.ls = this.load_storage();
 
 	// プレフィックス
 	this.prefix = String(path) + '::';
+}
+//-------------------------------------------------------------------
+// init
+//-------------------------------------------------------------------
+PrefixStorage.prototype.load_storage = function() {
+	var ls;
+	// LocalStorage
+	try{
+		ls = localStorage;
+		ls.removeItem('$$$');	// test
+	} catch(e) {
+		ls = null;
+	}
+	if (!ls) return new StorageDummy();
+	return ls;
+}
+
+//-------------------------------------------------------------------
+// Storage Dummy Class
+//-------------------------------------------------------------------
+function StorageDummy() {
+	// メンバ関数
+	StorageDummy.prototype.setItem = function(key, val) { this[key] = val; };
+	StorageDummy.prototype.getItem = function(key) { return this[key]; };
+	StorageDummy.prototype.removeItem = function(key) { delete this[key]; };
+	StorageDummy.prototype.clear = function() {
+		for(var k in this) {
+			if(typeof(this[k]) == 'function') continue;
+			delete this[k];
+		}
+	}
 }
 
 //-------------------------------------------------------------------
@@ -2184,46 +2210,38 @@ PrefixStorage.prototype.clear = function(key) {
 	}
 };
 
-//////////////////////////////////////////////////////////////////////////////
-// ■ Storageの取得
-//////////////////////////////////////////////////////////////////////////////
-//(参考資料) http://www.html5.jp/trans/w3c_webstorage.html
-function Load_DOMStorage(is_session) {
-	var storage;
-	// LocalStorage
-	try{
-		if (typeof(localStorage) != "object" && typeof(globalStorage) == "object") {
-			storage = globalStorage[location.host];
-		} else {
-			storage = localStorage;
-		}
-	} catch(e) {
-		// Cookieが無効のとき
-	}
-	// 未定義のとき DOM Storage もどきをロード
-	if (!storage) {
-		storage = new DOMStorageDummy();
-	}
-	return storage;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// ■ sessionStorage 程度の DOM Storage もどき
-//////////////////////////////////////////////////////////////////////////////
-// length, storageイベントは非対応
+//############################################################################
+// jQuery.storage
+//							(C)2019 nabe@abk
+//############################################################################
+// Under source is MIT License
 //
-function DOMStorageDummy() {
-	// メンバ関数
-	DOMStorageDummy.prototype.setItem = function(key, val) { this[key] = val; };
-	DOMStorageDummy.prototype.getItem = function(key) { return this[key]; };
-	DOMStorageDummy.prototype.removeItem = function(key) { delete this[key]; };
-	DOMStorageDummy.prototype.clear = function() {
-		for(var k in this) {
-			if(typeof(this[k]) == 'function') continue;
-			delete this[k];
-		}
+(function (root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(['jquery'], factory);
+	} else if (typeof exports === 'object') {	// CommonJS
+		module.exports = factory(require('jquery'));
+	} else {
+		root.storage   = factory(root.jQuery);	// Browser
 	}
-}
+}(this, function ($) {
+	var ls;
+	$.storage_init = function(_ls) {
+		ls = _ls;
+	}
+	$.storage = function(key, val) {
+		if (val === undefined) return ls.get(key);
+		ls.set(key, val);
+	}
+	$.removeStorage = function(key) {
+		ls.removeItem(key);
+	}
+}));
+$(function(){	// Emulate jquery.cookie for dynatree
+	$.storage_init( Storage );
+	$.cookie = $.storage;
+	$.removeCookie = $.removeStorage;
+});
 
 //############################################################################
 // ■その他jsファイル用サブルーチン
