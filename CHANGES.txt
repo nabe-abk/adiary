@@ -24,6 +24,7 @@
 -【Fix】js や css の強制再読込に失敗する。（[https://github.com/nabe-abk/adiary/issues/6:Thanks to 1484]))
 -【Fix/記法】QRコード記法が正しく動作しない。（Thanks to jimba）
 -【Fix/記法】画像サムネイルでリンク記法のサイズを変更。https対応。
+-【Fix/印刷テーマ】_sagiri でフロートオブジェクトがはみ出す。
 -【Security/DoS】第3者レンタル時、目次記法を使い、見出しに「{<toc></toc>}」と書くことで無限ループさせることができる。
 -他
 

@@ -259,6 +259,9 @@ div.body-main {
 
 /* 本文フッタ部 */
 div.body-footer {
+    float:                  clear;
+}
+div.body-footer * {
     display:                none;
 }
 
