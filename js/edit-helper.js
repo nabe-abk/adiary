@@ -127,6 +127,21 @@ Helpers.push({
 		chain:		"\n\n",
 		blank:		true,
 		exif:		false
+	},
+	figure:	{
+		each:		true,		// each image in each figure
+		original:	'.. figure:: files/%d%f',
+		thumbnail:	".. figure:: files/%d%f\n	:class: thumbnail",
+		start:		'',
+		end:		'$1$2',
+		arg1_format:	"\n	:align: $1",
+		arg2_format:	"\n\n	$1\n",
+		class_map:	{
+			'center':	'center',
+			'float-l':	'left',
+			'float-r':	'right'
+		},
+		exif:		false
 	}
 });
 //----------------------------------------------------------------------------
@@ -613,10 +628,30 @@ helper.prototype.insert_image = function(data) {
 	const chain = image.chain;
 	if (!image) return;
 
+	let fig;
+	let original_tag  = image['original'];
+	let thumbnail_tag = image['thumbnail'];
+	let htclass = data.class;
+	let caption = data.caption.replace(/^\s+/,'').replace(/\s+$/,'');
+	if (htclass!='' || caption!='') {
+		fig = this.helper.figure;
+		if (fig && fig.each) {	// each image in each figure
+			original_tag  = fig.original  ? fig.original  : original_tag;
+			thumbnail_tag = fig.thumbnail ? fig.thumbnail : thumbnail_tag;
+		}
+		if (fig.class_map) htclass = fig.class_map[ htclass ];
+	}
+	let arg1='';
+	let arg2='';
+	if (htclass != '')
+		arg1 = fig['arg1_format'].replace(/\$1/g, fig.html ? tag_esc(htclass) : htclass);
+	if (caption != '')
+		arg2 = fig['arg2_format'].replace(/\$1/g, caption);
+
 	let text='';
 	for(let i in data.files) {
 		let file = data.files[i];
-		let tag  = file.isimg ? (file.thumbnail ? image['thumbnail'] : image['original']) : image['file'];
+		let tag  = file.isimg ? (file.thumbnail ? thumbnail_tag : original_tag) : image['file'];
 		let exif = (image.exif && file.exif) ? this.exif_tag : '';
 		// console.log(file);
 
@@ -637,13 +672,17 @@ helper.prototype.insert_image = function(data) {
 
 		if (exif)
 			rep.c = exif.replace(/%([a-z])/g, function($0,$1){ return rep[$1] });
-		
-		text += (text != '' ? chain : '') + tag.replace(/%([\w])/g, function($0,$1){ return rep[$1] });
+
+		let start='';
+		let end  ='';
+		if (file.isimg && fig && fig.each) {	// figure for each image file
+			start = fig['start'].replace(/\$1/g, arg1).replace(/\$2/g, arg2);
+			end   = fig['end']  .replace(/\$1/g, arg1).replace(/\$2/g, arg2);
+		}
+
+		text += (text != '' ? chain : '') + start + tag.replace(/%([\w])/g, function($0,$1){ return rep[$1] }) + end;
 	}
-	const fig = this.helper.figure;
-	const htclass = data.class;
-	const caption = data.caption.replace(/^\s+/,'').replace(/\s+$/,'');
-	if (!fig || htclass=='' && caption=='') {
+	if (!fig || fig.each) {
 		if (image['blank']) this.insert_blank();
 		this.insert_text(text);
 		if (image['blank']) this.insert_blank();
@@ -655,14 +694,6 @@ helper.prototype.insert_image = function(data) {
 	//	end:	"|<<",
 	//	arg1_format:	" $1",
 	//	arg2_format:	" caption=$1"
-
-	let arg1='';
-	let arg2='';
-	if (htclass != '')
-		arg1 = fig['arg1_format'].replace(/\$1/g, fig.html ? tag_esc(htclass) : htclass);
-	if (caption != '')
-		arg2 = fig['arg2_format'].replace(/\$1/g, caption);
-
 	const start = fig['start'].replace(/\$1/g, arg1).replace(/\$2/g, arg2);
 	const end   = fig['end']  .replace(/\$1/g, arg1).replace(/\$2/g, arg2);
 
