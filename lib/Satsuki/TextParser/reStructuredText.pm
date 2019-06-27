@@ -25,7 +25,8 @@ sub new {
 
 	$self->{ambiguous_full} = 0;	# Ambiguousな文字コードをfullwidthとして扱う
 	$self->{lf_patch}       = 1;	# 日本語のpタグ中の改行を消す
-
+	
+	$self->{adiary_ext} = 1;	# 機能拡張を有効にする
 	$self->{file_secure}= 'files/';	# ファイル参照をセキュアにする
 	$self->{image_path} = '';	# ↑をこのパスに置き換える
 

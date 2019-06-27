@@ -122,7 +122,7 @@ Helpers.push({
 	album:	{ func: 'album' },
 	image:	{
 		original:	'.. image:: files/%d%f',
-		thumbnail:	'.. image:: files/%d.thumbnail/%f.jpg',
+		thumbnail:	".. image:: files/%d%f\n	:class: thumbnail",
 		file:		'`%f <files/%d%f>`__',
 		chain:		"\n\n",
 		blank:		true,

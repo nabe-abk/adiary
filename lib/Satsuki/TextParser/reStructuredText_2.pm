@@ -909,8 +909,13 @@ sub image_directive {
 		$attr .= " height=\"$h\"";
 	}
 
+	my $img_file = $file;
+	if ($self->{adiary_ext} && $opt->{class} =~ /\bthumbnail\b/) {
+		$img_file =~ s|/([^/]+)$|/.thumbnail/$1.jpg|;
+	}
+
 	my $at = $self->make_name_and_class_attr($opt, $class);
-	my $tag = "<img src=\"$file\"$attr>";
+	my $tag = "<img src=\"$img_file\"$attr>";
 
 	my $url = $opt->{_subst} ? '' : $file;
 	if (exists($opt->{target})) {
