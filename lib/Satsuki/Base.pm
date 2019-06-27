@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.41';
+our $VERSION = '2.42';
 our $RELOAD;
 my %StatCache;
 #------------------------------------------------------------------------------
@@ -1333,9 +1333,16 @@ sub read_query {
 # ●クエリー構築	※フォームデータ構築にも使える
 #------------------------------------------------------------------------------
 sub make_query {
+	return &_make_query(shift, '&', @_);
+}
+sub make_query_amp {
+	return &_make_query(shift, '&amp;', @_);
+}
+sub _make_query {
 	my $self = shift;
-	my $h = shift || $self->{Query};
-	my $amp = shift;
+	my $amp  = shift;
+	my $h    = ref($_[0]) ? shift : $self->{Query};
+	my $add  = shift;
 	my $q;
 	foreach(keys(%$h)) {
 		my $k = $_;
@@ -1344,15 +1351,10 @@ sub make_query {
 		foreach(@{ ref($v) ? $v : [$v] }) {
 			my $x = $_;
 			$self->encode_uricom($x);
-			$q .= "$k=$x&";
+			$q .= ($q eq '' ? '' : $amp ) . "$k=$x";
 		}
 	}
-	chop($q);
-	return $q;
-}
-sub make_query_amp {
-	my $q = &make_query(@_);
-	$q =~ s/&/&amp;/g;
+	if ($add ne '') { $q .= "$amp$add"; }
 	return $q;
 }
 
