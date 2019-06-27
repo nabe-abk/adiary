@@ -627,7 +627,7 @@ helper.prototype.insert_image = function(data) {
 		}
 
 		let rep = {
-			d: file.folder,
+			d: file.folder == '/' ? '' : file.folder,
 			f: file.file,
 			e: file.ext,
 			c: '',
