@@ -18,7 +18,7 @@
 	<form action="<@v.myself>?<@v.skeleton>" method="POST" id="export-form">
 	<input type="hidden" name="action" value="<@v.skeleton>">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>" id="csrf-key">
-	<input type="hidden" name="class" value="" id="form-class">
+	<input type="hidden" name="type" value="" id="input-type">
 
 	<ul class="none">
 		<li>出力記事の日付
@@ -56,9 +56,9 @@
 <script-defer><!--
 	load_tags_list( '#tag-select' );
 	$("button.export").click(function(evt){
-		var cls = $(evt.target).data('class');
-		if (!cls) return;
-		$('#form-class').val(cls);
+		var type = $(evt.target).data('type');
+		if (!type) return;
+		$('#input-type').val(type);
 	});
 --></script-defer>
 

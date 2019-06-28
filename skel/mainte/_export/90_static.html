@@ -26,22 +26,21 @@
 
 	<p>※トップページ用に「index」というkeyを持つ記事（コンテンツ）を用意してください。</p>
 
-	<button type="button" name="type" value="90_static" data-class="static" id="static-export" class="export">HTML化して出力</button><br>
+	<button class="export" type="button" name="file" value="90_static" data-log-target="#static-session-log" id="static-export" class="export">HTML化して出力</button><br>
 
-	<textarea id="session-log" rows="10" class="w98p" style="display: none" data-myself="<@v.myself>" data-interval="300" readonly></textarea>
+	<textarea id="static-session-log" rows="10" class="w98p" style="display: none" data-myself="<@v.myself>" data-interval="300"  readonly></textarea>
 </div>
 
 
 <div style="display:none">
 <script-defer><!--
-adiary_session($('#static-export'), {
-	myself: $('#session-log').data('myself'),
+adiary_session($secure('#static-export'), {
+	myself: $secure('#static-session-log').data('myself'),
 	load_formdata: function(btn) {
 		var fd = $('#export-form').serialize();
 		fd += '&' + $.param({
-			type: btn.val(),
+			file: btn.val(),
 			enable_only: 1,
-			class: btn.data('class')
 		});
 		return fd;
 	}

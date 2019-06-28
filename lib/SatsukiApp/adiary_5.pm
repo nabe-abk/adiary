@@ -757,17 +757,16 @@ sub art_import {
 	my %opt;
 	{
 		my %h;
-		my $class = ($form->{class} || $type) . ':';
-		my $len   = length($class);
 		foreach(keys(%$form)) {
-			if (index($_,':')<0) {	# クラス表記を含まない
+			my $x = index($_,':');
+			if ($x<0) {		# クラス表記を含まない
 				$h{$_}=$opt{$_}=$form->{$_};
 				next;
 			}
-			if (substr($_,0,$len) ne $class) { next; }
-			my $x = substr($_,$len);
-			$opt{$x} = $form->{$_};
-			$h{$x}   = $form->{$_};
+			if (substr($_,0,$x) ne $type) { next; }
+			my $y = substr($_,$x);
+			$opt{$y} = $form->{$_};
+			$h  {$y} = $form->{$_};
 		}
 		delete $h{file};
 		delete $h{action};
@@ -1403,21 +1402,27 @@ sub art_export {
 	my $blogid = $self->{blogid};
 
 	# 出力形式確認
-	my $type  = $form->{type};
-	$type =~ s/\W//g;
-	if ($type eq '') {
-		$ROBJ->message('Please select export type');
+	my $skel = $form->{file};
+	$skel =~ s/\W//g;
+	if ($skel eq '') {
+		$ROBJ->message('Please select export type(skeleton)');
 		return 11;
 	}
 
 	# オプション
 	my %opt;
-	my $class = $form->{class};
-	foreach(keys(%$form)) {
-		my $x = index($_, ':');
-		if ($x<0) { $opt{$_}=$form->{$_}; next; }
-		if (substr($_,0,$x) ne $class) { next; }
-		$opt{ substr($_,$x+1) } = $form->{$_};
+	{
+		my $type = $form->{type};
+		if ($type ne '') {
+			$type = $skel;
+			$type =~ s/[\d_]//g;
+		}
+		foreach(keys(%$form)) {
+			my $x = index($_, ':');
+			if ($x<0) { $opt{$_}=$form->{$_}; next; }
+			if (substr($_,0,$x) ne $type) { next; }
+			$opt{ substr($_,$x+1) } = $form->{$_};
+		}
 	}
 
 	#-------------------------------------------------------------
@@ -1483,7 +1488,7 @@ sub art_export {
 	#-------------------------------------------------------------
 	$opt{base_filename} = $filename;
 	$opt{aobj} = $self;
-	$ROBJ->call( $self->{skel_dir} . "_export/$type", $logs, \%opt );
+	$ROBJ->call( $self->{skel_dir} . "_export/$skel", $logs, \%opt );
 
 	return $ROBJ->{export_return};
 }
