@@ -64,6 +64,7 @@ adiary_session($secure('#static-export'), {
 <@>#############################################################################
 <$exporter = loadapp('adiary::Export_static_html')>
 <$ifbreak(!exporter)>
+<$opt.export_dir = export_dir>
 
 <@>////////////////////////////////////////////////////////////////////////////
 <@> 初期化処理（必要なファイルをコピー）
@@ -74,8 +75,8 @@ adiary_session($secure('#static-export'), {
 <$session = argv#0>
 <$option  = argv#1>
 
-<$theme_dir = v.static_theme_dir || 'theme/'>
-<$files_dir = v.static_files_dir || 'files/'>
+<$theme_dir  = v.static_theme_dir || 'theme/'>
+<$files_dir  = v.static_files_dir || 'files/'>
 
 <@>////////////////////////////////////////////////////////////////////////////
 <@> JavaScript to theme/

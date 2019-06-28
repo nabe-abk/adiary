@@ -41,7 +41,7 @@ sub export {
 	#-------------------------------------------------------------
 	# ディレクトリ作成
 	#-------------------------------------------------------------
-	my $dir = $aobj->{blogpub_dir} . 'static/';
+	my $dir = $option->{export_dir};
 	$ROBJ->mkdir($dir);
 	if (!-w $ROBJ->get_filepath($dir)) {
 		$session->msg("Can not create '$dir' or not writeble!");
@@ -104,7 +104,7 @@ sub export {
 	my $url_wrapper = sub {
 		my $proto = shift;
 		my $url = shift;
-		if ($url =~ m|^\w+://|) {
+		if ($url =~ m|^\w+://| || $url =~ m|^//|) {
 			return $url;
 		}
 
@@ -117,8 +117,13 @@ sub export {
 			}
 			$url =~ s[$qr_myself2([^#]*)][
 				my $key = $1;
-				$key =~ s|/|-|g;
-				"./$key.html"
+				if ($key =~ m|^\w+://|) {
+					$key;
+				} else {
+					$key =~ tr|/?|--|;
+					$key =~ s|%3f|-|g;	# %3f = ?
+					"./$key.html"
+				}
 			]eg;
 		}
 		if ($url =~ /^([^#]*)\?\d*$/) {	# 更新検出 ?time は除去
@@ -161,15 +166,17 @@ sub export {
 	my $index;
 	my @files;
 	foreach (@$logs) {
-		# １つの記事を前処理
-		$aobj->post_process_article( $_, \%artopt );
+		if ($_->{ctype} eq 'link') { next; }
 
 		# URL系の書き換え
 		my $file = $_->{link_key};
 		if ($file =~ m|^[/\.]|) { next; }
-		if ($file =~ m|^\w+:|) { next; }
-		$file =~ s|/|-|g;
+		if ($file =~ m!^\w+://!) { next; }
+		$file =~ tr|/?|--|;
 		$file .= '.html';
+
+		# 記事の前処理
+		$aobj->post_process_article( $_, \%artopt );
 
 		# コメント非表示
 		if ($option->{nocom}) {
