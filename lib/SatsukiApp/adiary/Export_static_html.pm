@@ -49,7 +49,7 @@ sub export {
 	}
 
 	# ディレクトリ内の初期化
-	if ($option->{clear}) {
+	if ($option->{format} || $option->{type} eq 'format') {
 		$session->msg("'$dir' clear!");
 		my $files = $ROBJ->search_files($dir, {dir=>1});
 		foreach(@$files) {
@@ -63,6 +63,18 @@ sub export {
 			$session->msg("\tdelete file: $_");
 			$ROBJ->file_delete( $f );
 		}
+	}
+
+	#-------------------------------------------------------------
+	# フォーマットのみで終了
+	#-------------------------------------------------------------
+	if ($option->{type} eq 'format') {
+		$session->msg("\tdelete dir: $dir");
+		$ROBJ->dir_delete( $dir );
+
+		$session->close();
+		$ROBJ->{export_return} = 0;
+		return 0;
 	}
 
 	#---------------------------------------------------------------------

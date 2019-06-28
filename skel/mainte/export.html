@@ -57,8 +57,7 @@
 	load_tags_list( '#tag-select' );
 	$("button.export").click(function(evt){
 		var type = $(evt.target).data('type');
-		if (!type) return;
-		$('#input-type').val(type);
+		$('#input-type').val(type ? type : '');
 	});
 --></script-defer>
 

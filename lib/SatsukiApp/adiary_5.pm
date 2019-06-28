@@ -1417,6 +1417,8 @@ sub art_export {
 			$type = $skel;
 			$type =~ s/[\d_]//g;
 		}
+		$opt{type} = $type;
+
 		foreach(keys(%$form)) {
 			my $x = index($_, ':');
 			if ($x<0) { $opt{$_}=$form->{$_}; next; }

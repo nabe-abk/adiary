@@ -43,10 +43,7 @@ sub export {
 		# ※エクスポートするログの中に対象記事がなければ書き換えない
 	}
 	my $id2link = $option->{id2link};
-	my $parser;
-	if ($key2tm || $id2link) {
-		$parser = $aobj->load_parser('default');
-	}
+	my $parser  = $id2link ? $aobj->load_parser('default') : undef;
 
 	#---------------------------------------------------------------------
 	# ログの解析と保存
