@@ -189,8 +189,10 @@ sub init_path {
 	}
 
 	# cgiファイル名、ディレクトリ設定
+	$ENV{QUERY_STRING}='';
 	my $request = $ENV{REQUEST_URI};
 	if ((my $x = index($request, '?')) >= 0) {
+		$ENV{QUERY_STRING} = substr($request, $x+1);	# Apache's bug, treat "%3f" as "?"
 		$request = substr($request, 0, $x);
 	}
 	if (index($request, '%') >= 0) {
