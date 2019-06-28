@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.11';
-our $SPEC_VER = '1.11';	# specification version for compatibility
+our $VERSION  = '1.12';
+our $SPEC_VER = '1.12';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
 #						Copyright (C)2019 nabe@abk
 ###############################################################################
-# Last Update : 2019/03/30
+# Last Update : 2019/06/28
 #
 BEGIN {
 	my $path = $0;
@@ -618,6 +618,7 @@ sub parse_request {
 			$path = substr($path, 0, $x);
 		}
 	}
+	$path =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
 	$ENV{PATH_INFO} = $path;
 
 	$state->{type} = 'cgi ';
