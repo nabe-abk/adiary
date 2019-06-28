@@ -1413,7 +1413,7 @@ sub art_export {
 	my %opt;
 	{
 		my $type = $form->{type};
-		if ($type ne '') {
+		if ($type eq '') {
 			$type = $skel;
 			$type =~ s/[\d_]//g;
 		}
