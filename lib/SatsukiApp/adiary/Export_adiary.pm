@@ -66,7 +66,7 @@ sub export {
 		#-------------------------------------------------------------
 		if ($_->{parser} =~ /^default/ &&
 		   ($key2tm && $_->{_text} =~ /\[key:/ || $id2link && $_->{_text} =~ /\[id:/)) {
-			my $backup = $parser->backup_blocks($_->{_text});
+			my $backup = $self->backup_blocks($_->{_text});
 
 			# key指定をtm指定に変更
 			if ($key2tm) {
@@ -86,7 +86,7 @@ sub export {
 			}
 
 			# 戻す
-			$parser->restore_blocks($_->{_text}, $backup);
+			$self->restore_blocks($_->{_text}, $backup);
 		}
 
 		#-------------------------------------------------------------
@@ -103,6 +103,26 @@ sub export {
 		print $day;
 	}
 	return 0;
+}
+
+#------------------------------------------------------------------------------
+# ●データ加工のために、ブロック退避
+#------------------------------------------------------------------------------
+sub backup_blocks {
+	my $self = shift;
+	my @ary;
+	$_[0] .= "\n";
+	$_[0]  =~ s/(<!--.*?-->|\{.*?\}|(?:\G|\n)>+(?:\[|\|\||\|\w+).*?\n\#?(\]|\|\|)<+\n)/push(@ary, $1), "\n\x00$#ary\x00\n"/esg;
+	$_[0]  =~ s/(\{\{[^\}]*\}\}|\{[^\}]*\})/push(@ary, $1), "\x00$#ary\x00"/eg;
+	return \@ary;
+}
+
+sub restore_blocks {
+	my $self = shift;
+	my $ary  = $_[1];
+	$_[0] =~ s/\n\x00(\d+)\x00\n/$ary->[$1]/g;
+	chomp($_[0]);
+	return $_[0];
 }
 
 1;
