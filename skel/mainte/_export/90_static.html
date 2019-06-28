@@ -1,16 +1,17 @@
 <@6>
+<@local(export_dir)>
 <@>
 <@> HTML形式
 <@>
 <$logs = argv#0>
 <$opt  = argv#1>
-<@ifexec(! logs, begin.logs)>
+<$export_dir = v.blogpub_dir . 'static/'>
 
-<@ifexec(v.static_output_dir && HTTPD, begin)><$mkdir(v.static_output_dir)><$end>
-<@ifexec(v.static_output_dir && file_writable(v.static_output_dir), begin, begin)>
+<@ifexec(! logs, begin.logs)>
+<@ifexec(v.static_export, begin, begin)>
 <h3 id="static">静的出力</h3>
 <div>
-	<p>記事を <a href="<@Basepath><@v.static_output_dir><@if(HTTPD, 'index.html')>"><@v.static_output_dir></a> に<strong>HTML化して</strong>出力します。非公開記事は出力しません。</p>
+	<p>記事を <a href="<@Basepath><@export_dir>index.html"><@export_dir></a> に<strong>HTML化して</strong>出力します。非公開記事は出力しません。</p>
 
 	<ul class="none">
 		<li><label><input type="checkbox" name="static:clear" value="1">出力ディレクトリ内を初期化する</label></li>
@@ -23,7 +24,7 @@
 		<$end>
 	</ul>
 
-	<p>※トップページ用に「index」というkeyを持つ記事を用意してください。</p>
+	<p>※トップページ用に「index」というkeyを持つ記事（コンテンツ）を用意してください。</p>
 
 	<button type="button" name="type" value="90_static" data-class="static" id="static-export" class="export">HTML化して出力</button><br>
 
@@ -51,19 +52,9 @@ adiary_session($('#static-export'), {
 <@ifexec(Auth.isadmin, begin.isadmin)>
 <h3 id="static">静的出力</h3>
 <div>
-	<p>記事を指定ディレクトリに<strong>HTML化して</strong>出力する機能です。</p>
+	<p>記事を<strong>HTML化して</strong>出力する機能です。</p>
 
-	<p><strong class="error">
-	<@ifexec(! v.static_output_dir, begin, begin)>
-	出力ディレクトリ v.static_output_dir が設定されていません(.conf.cgi)。
-	<$else>
-	<@ifexec(!file_exists(v.static_output_dir), begin, begin)>
-	【エラー】出力ディレクトリ <@v.static_output_dir> が存在しません。</li>
-	<$else>
-	【エラー】出力ディレクトリ <@v.static_output_dir> に書き込めません。</li>
-	<$end>
-	<$end>
-	</strong></p>
+	<p>.conf.cgi に &lt;v.static_export = 1&gt; を設定すると使用できます。</p>
 </div>
 <$end.isadmin>
 <$end>
@@ -86,10 +77,11 @@ adiary_session($('#static-export'), {
 
 <$theme_dir = v.static_theme_dir || 'theme/'>
 <$files_dir = v.static_files_dir || 'files/'>
+
 <@>////////////////////////////////////////////////////////////////////////////
 <@> JavaScript to theme/
 <@>////////////////////////////////////////////////////////////////////////////
-<$dir = v.static_output_dir . theme_dir>
+<$dir = export_dir . theme_dir>
 <$session.msg("Javascript files copy to '<@dir>'")>
 <$mkdir(dir)>
 
@@ -111,7 +103,7 @@ adiary_session($('#static-export'), {
 <@>////////////////////////////////////////////////////////////////////////////
 <@> テーマ to Themeのコピー
 <@>////////////////////////////////////////////////////////////////////////////
-<$dir = v.static_output_dir . theme_dir>
+<$dir = export_dir . theme_dir>
 <$session.msg("Theme files copy to '<@dir>'")>
 
 	<$session.msg("\tmkdir <@dir><@v.template>")>
@@ -148,7 +140,7 @@ adiary_session($('#static-export'), {
 <@>////////////////////////////////////////////////////////////////////////////
 <@> pub-dist/ to pub-dist/
 <@>////////////////////////////////////////////////////////////////////////////
-<$dir = v.static_output_dir . v.pubdist_dir>
+<$dir = export_dir . v.pubdist_dir>
 <$session.msg("public files copy to '<@dir>'")>
 <$mkdir(dir)>
 
@@ -176,7 +168,7 @@ adiary_session($('#static-export'), {
 <@> jsプラグインのコピー
 <@>////////////////////////////////////////////////////////////////////////////
 
-<$dir = v.static_output_dir . theme_dir>
+<$dir = export_dir . theme_dir>
 <$session.msg("Plugin's js files copy to '<@dir>'")>
 <$dir_copy(v.blogpub_dir() . 'js/', dir)>
 
@@ -185,7 +177,7 @@ adiary_session($('#static-export'), {
 <@> アルバムデータのコピー
 <@>////////////////////////////////////////////////////////////////////////////
 
-<$dir = v.static_output_dir . files_dir>
+<$dir = export_dir . files_dir>
 <$session.msg("Album files copy to '<@dir>'")>
 <$dir_copy(v.blogimg_dir(), dir)>
 
@@ -193,5 +185,26 @@ adiary_session($('#static-export'), {
 
 <$end>
 <@>////////////////////////////////////////////////////////////////////////////
+<@> index.htmlを生成する場合の雛形
+<@>////////////////////////////////////////////////////////////////////////////
+<$opt.index_skel = begin>
+<@local(t, logs)>
+<$logs = argv#0>
+<!DOCTYPE html> 
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+	<title>static export logs</title>
+</head>
+<body>
+<h1>static export logs</h1>
+<ul>
+<@forexec(t, logs, begin)>
+<li><@t.year>-<@t.mon>-<@t.day> <a href="<@t.file>"><@t.title></a></li>
+<$end>
+</ul>
+</body>
+</html>
+<$end>
 <@>////////////////////////////////////////////////////////////////////////////
 <$ajax_return = exporter.export( logs, opt )>

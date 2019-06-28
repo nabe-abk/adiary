@@ -4,6 +4,7 @@
 
 -[https://adiary.org/v3man/reStructuredText/:reStructuredText]に対応しました。
 -index.htmlをレスポンシブ対応にしました。
+-静的HTML出力の設定を変更しました。
 -【さつき記法】
 --リストやタイトル記法で文字の手前スペースを除去するようにしました。
 --relやtargetやdataなどの設定を止めました。

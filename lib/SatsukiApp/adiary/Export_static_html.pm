@@ -32,18 +32,20 @@ sub export {
 	#-------------------------------------------------------------
 	my $session = $aobj->open_session( $option->{snum} );
 
-	#-------------------------------------------------------------
-	# ディレクトリ確認
-	#-------------------------------------------------------------
-	my $dir = $aobj->{static_output_dir};
-	if ($dir eq '') {
-		$session->msg("'<\$v.static_output_dir>' not defined.");
-		return ;
+	# 権限確認
+	if (!$aobj->{static_export}) {
+		$session->msg("Static export disabled.");
+		return;
 	}
-	$dir = $ROBJ->get_filepath($dir);
-	if (!-w $dir) {
-		$session->msg("'$dir' is not exists or not writeble!");
-		return ;
+
+	#-------------------------------------------------------------
+	# ディレクトリ作成
+	#-------------------------------------------------------------
+	my $dir = $aobj->{blogpub_dir} . 'static/';
+	$ROBJ->mkdir($dir);
+	if (!-w $ROBJ->get_filepath($dir)) {
+		$session->msg("Can not create '$dir' or not writeble!");
+		return;
 	}
 
 	# ディレクトリ内の初期化
@@ -62,7 +64,6 @@ sub export {
 			$ROBJ->file_delete( $f );
 		}
 	}
-	$ROBJ->mkdir($dir);
 
 	#---------------------------------------------------------------------
 	# 初期化処理
@@ -157,6 +158,8 @@ sub export {
 	$s{rss_files}     = '';
 	$session->msg("blog_dir=$aobj->{blog_dir}");
 
+	my $index;
+	my @files;
 	foreach (@$logs) {
 		# １つの記事を前処理
 		$aobj->post_process_article( $_, \%artopt );
@@ -164,7 +167,7 @@ sub export {
 		# URL系の書き換え
 		my $file = $_->{link_key};
 		if ($file =~ m|^[/\.]|) { next; }
-		if ($file =~ m|\w+:|) { next; }
+		if ($file =~ m|^\w+:|) { next; }
 		$file =~ s|/|-|g;
 		$file .= '.html';
 
@@ -197,8 +200,23 @@ sub export {
 		#-------------------------------------------------------------
 		$session->msg("\t$file : $_->{title}");
 		$ROBJ->fwrite_lines("$dir$file", $out);
+
+		$_->{file} = $file;
+		push(@files, $_);
+		if ($file eq 'index.html') { $index=1; }
+	}
+	#---------------------------------------------------------------------
+	# index.htmlの生成
+	#---------------------------------------------------------------------
+	if (!$index && @files) {
+		my $html = $ROBJ->exec($option->{index_skel}, \@files);
+		$session->msg("Create : index.html");
+		$ROBJ->fwrite_lines($dir . 'index.html', $html);
 	}
 
+	#---------------------------------------------------------------------
+	# 終了処理
+	#---------------------------------------------------------------------
 	$session->msg("Finish : $ROBJ->{Timestamp}");
 	$session->close();
 
