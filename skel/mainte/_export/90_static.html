@@ -199,6 +199,7 @@ adiary_session($('#static-export, #static-export-format'), {
 </head>
 <body>
 <h1>static export logs</h1>
+<div>export date: <@Timestamp></div>
 <ul>
 <@forexec(t, logs, begin)>
 <li><@t.year>-<@t.mon>-<@t.day> <a href="<@t.file>"><@t.title></a></li>
