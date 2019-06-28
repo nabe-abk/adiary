@@ -6,45 +6,7 @@
 <$logs = argv#0>
 <$opt  = argv#1>
 <@ifexec(! logs, begin)>
-<h3 id="sb">Serene Bach形式</h3>
-<div>
-	<p><a href="https://www.google.co.jp/search?q=Serene+Bach&amp;ie=utf-8&amp;oe=utf-8">Serene Bach</a>により拡張されたJUGEM XMLです。</p>
-
-	<ul class="none">
-		<li><label><input type="checkbox" name="sb:allow_pings" value="1" checked>出力記事のトラックバック受付情報を「許可」に設定する</label></li>
-		<li>日付データの時間帯
-		<select name="sb:timezone">
-			<option value="-11">UTC-11:00</option>
-			<option value="-10">UTC-10:00</option>
-			<option value="-9" >UTC-9:00</option>
-			<option value="-8" >UTC-8:00</option>
-			<option value="-7" >UTC-7:00</option>
-			<option value="-6" >UTC-6:00</option>
-			<option value="-5" >UTC-5:00</option>
-			<option value="-4" >UTC-4:00</option>
-			<option value="-3" >UTC-3:00</option>
-			<option value="-2" >UTC-2:00</option>
-			<option value="-1" >UTC-1:00</option>
-			<option value="0"  >UTC (GMT)</option>
-			<option value="1"  >UTC+1:00</option>
-			<option value="2"  >UTC+2:00</option>
-			<option value="3"  >UTC+3:00</option>
-			<option value="4"  >UTC+4:00</option>
-			<option value="5"  >UTC+5:00</option>
-			<option value="6"  >UTC+6:00</option>
-			<option value="7"  >UTC+7:00</option>
-			<option value="8"  >UTC+8:00</option>
-			<option value="9" selected>UTC+9:00 (JST)</option>
-			<option value="10" >UTC+10:00</option>
-			<option value="11" >UTC+11:00</option>
-			<option value="12" >UTC+12:00</option>
-			<option value="13" >UTC+13:00</option>
-			<option value="14" >UTC+14:00</option>
-		</select>（通常は変更不要）</li>
-	</ul>
-
-	<button class="export" name="type" value="25_sb" data-class="sb">Serene Bach形式で保存</button>
-</div>
+	<!-- no output menu, used by 20_jugem.html -->
 <$break()>
 <$end>
 <@>-----------------------------------------------------------------------------
