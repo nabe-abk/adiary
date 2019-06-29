@@ -193,9 +193,13 @@ sub export {
 		#-------------------------------------------------------------
 		# ファイルに書き出し
 		#-------------------------------------------------------------
-		$session->msg("\t$file: $_->{title} pkey=$_->{pkey} $_->{upnode} $_->{priority}");
-		$ROBJ->fwrite_lines("$dir$file", $text);
-
+		my $mod = $ROBJ->get_lastmodified("$dir$file");
+		if ($mod && $mod < $_->{update_tm}) {
+			$session->msg("\t$file: $_->{title}\t\t-> No change");
+		} else {
+			$session->msg("\t$file: $_->{title}");
+			$ROBJ->fwrite_lines("$dir$file", $text);
+		}
 		$_->{file} = $file;
 		push(@files, $_);
 	}
