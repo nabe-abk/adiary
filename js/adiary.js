@@ -734,35 +734,94 @@ initfunc.push( function(R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●フォーム操作による、enable/disableの自動変更
+//●フォーム値の保存	※表示、非表示よりも前に処理すること
+//////////////////////////////////////////////////////////////////////////////
+var opt_dummy_value = "\e\f\e\f\b\n";
+initfunc.push( function(R) {
+	R.findx('input.js-save, select.js-save').each( function(idx, dom) {
+		var obj = $(dom);
+		var id  = obj.attr("id");
+		if (!id) id = 'name=' + obj.attr("name");
+		if (!id) return;
+		console.log("id=", id);
+
+		var type = obj.attr('type');
+		if (type && type.toLowerCase() == 'checkbox') {
+			obj.change( function(evt){
+				var obj = $(evt.target);
+				console.log("set:: ", "id=", id, " val=", val);
+				Storage.set(id, obj.prop('checked') ? 1 : 0);
+			});
+			if ( Storage.defined(id) )
+				obj.prop('checked', Storage.get(id) != 0 );
+			return;
+		}
+		obj.change( function(evt){
+			var obj = $(evt.target);
+			if (obj.val() == opt_dummy_value) return;
+			console.log("set:: ", "id=", id, " val=", val);
+			Storage.set(id, obj.val());
+		});
+		var val = Storage.get(id);
+		console.log("id=", id, " val=", val);
+		if (! val) return;
+		if (dom.tagName != 'SELECT') return obj.val( val );
+
+		// selectで記録されいてる値がない時は追加する
+		set_or_append_option( obj, val );
+	});
+});
+function set_or_append_option(sel, val) {
+	sel.val( val );
+	if (sel.val() == val) return;
+
+	var format = sel.data('format') || '%v';
+	var text = format.replace(/%v/g, val);
+	var opt  = $('<option>').attr('value', val).text( text );
+	sel.append( opt );
+	sel.val( val );
+	sel.change();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//●フォーム操作による、enable/disableの自動変更 (js-saveより後)
 //////////////////////////////////////////////////////////////////////////////
 initfunc.push( function(R){
-	var objs = R.findx('input.js-enable, input.js-disable, select.js-enable, select.js-disable');
+	let objs = R.findx('input.js-enable, input.js-disable, select.js-enable, select.js-disable');
 	function btn_evt(evt) {
-		var btn  = $(evt.target);
-		var form = btn.rootfind( btn.data('target') );
+		let $btn = $(evt.target);
+		let $form = $btn.rootfind( $btn.data('target') );
 
 		var id;
 		var flag;
-		var type=btn.attr('type');
+		var type=$btn.attr('type');
 		if (type) type = type.toLowerCase();
-		if (type == 'checkbox')
-			flag = btn.prop("checked");
-		else if (type == 'radio') {
-			if (! btn.prop("checked")) return;
-			flag = btn.data("state");
-			id   = '-form-name-' + btn.attr('name');
-		} else if (type == 'number' || btn.data('type') == 'int') {
-			var val = btn.val();
+		if (type == 'checkbox') {
+			flag = $btn.prop("checked");
+		} else if (type == 'radio') {
+			if (! $btn.prop("checked")) return;
+			flag = $btn.data("state");
+			id   = 'name:' + $btn.attr('name');
+		} else if (type == 'number' || $btn.data('type') == 'int') {
+			var val = $btn.val();
 			flag = val.length && val > 0;
-		} else
-			flag = ! (btn.val() + '').match(/^\s*$/);
+		} else {
+			flag = ! ($btn.val() + '').match(/^\s*$/);
+		}
+		// id設定
+		if (!id) {
+			id = $btn.attr('id') ? $btn.attr('id') : 'name:' + $btn.attr('name');
+			if (!id) id = $btn.data('gen-id');
+			if (!id) {
+				id = 'js-generate-' + Math.floor( Math.random()*0x80000000 );
+				$btn.data('gen-id', id);
+			}
+		}
 
-		// disabled設定
-		var disable = btn.hasClass('js-disable');
-		id = id ? id : set_dom_id(btn);
-		for(var i=0; i<form.length; i++) {
-			var obj = $(form[i]);
+		// disabled設定判別
+		const disable = $btn.hasClass('js-disable');
+		for(var i=0; i<$form.length; i++) {
+			var obj = $($form[i]);
 			var h   = obj.data('_jsdisable_list') || {};
 			if (flag) h[id] = true;
 			     else delete h[id];
@@ -822,50 +881,6 @@ initfunc.push( function(R){
 	return false;
   })
 });
-
-//////////////////////////////////////////////////////////////////////////////
-//●フォーム値の保存	※表示、非表示よりも前に処理すること
-//////////////////////////////////////////////////////////////////////////////
-var opt_dummy_value = "\e\f\e\f\b\n";
-initfunc.push( function(R) {
-	R.findx('input.js-save, select.js-save').each( function(idx, dom) {
-		var obj = $(dom);
-		var id  = obj.attr("id");
-		if (!id) return;
-		var type = obj.attr('type');
-		if (type && type.toLowerCase() == 'checkbox') {
-			obj.change( function(evt){
-				var obj = $(evt.target);
-				Storage.set(id, obj.prop('checked') ? 1 : 0);
-			});
-			if ( Storage.defined(id) )
-				obj.prop('checked', Storage.get(id) != 0 );
-			return;
-		}
-		obj.change( function(evt){
-			var obj = $(evt.target);
-			if (obj.val() == opt_dummy_value) return;
-			Storage.set(id, obj.val());
-		});
-		var val = Storage.get(id);
-		if (! val) return;
-		if (dom.tagName != 'SELECT') return obj.val( val );
-
-		// selectで記録されいてる値がない時は追加する
-		set_or_append_option( obj, val );
-	});
-});
-function set_or_append_option(sel, val) {
-	sel.val( val );
-	if (sel.val() == val) return;
-
-	var format = sel.data('format') || '%v';
-	var text = format.replace(/%v/g, val);
-	var opt  = $('<option>').attr('value', val).text( text );
-	sel.append( opt );
-	sel.val( val );
-	sel.change();
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //●select boxに選択肢追加（コンボボックス）
@@ -1747,29 +1762,6 @@ function $secure(id) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// 使われてないHTML idを生成
-//////////////////////////////////////////////////////////////////////////////
-function generate_dom_id() {
-	for(var i=0; i<100; i++) {
-		var id = 'js-generate-id-' + Math.floor( Math.random()*0x80000000 );
-		if (! $('#' + id).length ) return id;
-	}
-	throw new UserException("Failed generate_dom_id()");
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// オブジェクトにidを設定
-//////////////////////////////////////////////////////////////////////////////
-function set_dom_id(_obj) {
-	var obj = $(_obj);
-	var id  = obj.attr('id');
-	if (id && id.length) return id;
-	id = generate_dom_id();
-	obj.attr('id', id);
-	return id;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 // CSSファイルの追加
 //////////////////////////////////////////////////////////////////////////////
 function prepend_css(file) {
@@ -2051,7 +2043,10 @@ function adiary_session(_btn, opt){
 			if (reg) {
 				snum = reg[1];
 				ajax_session();
+				return;
 			}
+			console.log(error);
+			
 		}, 'text'
 	);
 
@@ -2075,16 +2070,16 @@ function adiary_session(_btn, opt){
 			data: fd,
 			dataType: opt.dataType || 'text',
 			error: function(data) {
-				if (opt.error) opt.error();
 				console.log('[adiary_session()] http post fail');
-				console.log(data);
-				log_stop();
+				log_stop(function(){
+					if (opt.error) opt.error(data);
+				});
 			},
 			success: function(data) {
-				if (opt.success) opt.success();
 				console.log('[adiary_session()] http post success');
-				console.log(data);
-				log_stop();
+				log_stop(function(){
+					if (opt.success) opt.success(data);
+				});
 			},
 			xhr: opt.xhr
 		});
@@ -2097,16 +2092,17 @@ function adiary_session(_btn, opt){
 		log.data('snum', snum);
 		log_timer = setInterval(log_load, interval);
 	}
-	function log_stop() {
+	function log_stop(func) {
 		if (log_timer) clearInterval(log_timer);
 		log_timer = 0;
-		log_load();
+		log_load(func);
 		btn.prop('disabled', false);
 	}
-	function log_load() {
+	function log_load(func) {
 		var url = load_session + '&snum=' + snum;
 		log.load(url, function(data){
 			log.scrollTop( log.prop('scrollHeight') );
+			if (func) func();
 		});
 	}
   });
