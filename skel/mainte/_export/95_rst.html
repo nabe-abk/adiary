@@ -143,7 +143,7 @@ $(function(){
 <@> index.htmlの雛形
 <@>////////////////////////////////////////////////////////////////////////////
 <$opt.index_skel = begin>
-<@local(t, logs, format)>
+<@local(t, logs, builder, match)>
 <$logs = argv#0>
 <!DOCTYPE html> 
 <html lang="ja">
@@ -154,18 +154,18 @@ $(function(){
 <body>
 <h1>reStructuredText export</h1>
 
-<$format = opt.format>
+<$builder = opt.builder>
 <$match = false>
-<@ifexec( match(format, "epub"), begin)><$match=1>
+<@ifexec( match(builder, "epub"), begin)><$match=1>
 <ul>
-	<li><a href="_build/<@format>/<@opt.project>.epub"><@opt.project>.epub</a></li>
-	<li><a href="_build/<@format>/index.xhtml">index.xhtml</a></li>
+	<li><a href="_build/<@builder>/<@opt.project>.epub"><@opt.project>.epub</a></li>
+	<li><a href="_build/<@builder>/index.xhtml">index.xhtml</a></li>
 </ul>
 <$end>
-<@ifexec( match(format, "html"), begin)><$match=1>
-	<p><a href="_build/<@format>/index.html">index.html</a></p>
+<@ifexec( match(builder, "html"), begin)><$match=1>
+	<p><a href="_build/<@builder>/index.html">index.html</a></p>
 <$end>
-<@ifexec( match(format, "latexpdf"), begin)><$match=1>
+<@ifexec( match(builder, "latexpdf"), begin)><$match=1>
 <ul>
 	<li><a href="_build/latex/index.pdf">index.pdf</a></li>
 	<li><a href="_build/latex/index.dvi">index.dvi</a></li>
@@ -173,7 +173,7 @@ $(function(){
 </ul>
 <$end>
 <@ifexec(!match, begin)>
-	<p><a href="_build/<@format>/">_build/<@format>/</a></p>
+	<p><a href="_build/<@builder>/">_build/<@builder>/</a></p>
 <$end>
 
 <h2>.rst files</h2>

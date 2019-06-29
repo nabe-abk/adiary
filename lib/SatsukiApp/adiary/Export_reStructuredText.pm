@@ -35,10 +35,11 @@ sub export {
 	#-------------------------------------------------------------
 	# ディレクトリ作成
 	#-------------------------------------------------------------
-	my $dir = $option->{export_dir} = $aobj->{blogpub_dir} . 'sphinx/';
+	my $dir  = $option->{export_dir};
+	my $dir_ = $ROBJ->get_filepath($dir);
 
 	$ROBJ->mkdir($dir);
-	if (!-w $ROBJ->get_filepath($dir)) {
+	if (!-w $dir_) {
 		$session->msg("Can not create '$dir' or not writeble!");
 		return;
 	}
@@ -50,19 +51,20 @@ sub export {
 		my $files = $ROBJ->search_files($dir, {dir=>1});
 		foreach(@$files) {
 			if ($_ =~ /^\./) { next; }
-			if ($_ =~ m!^(?:_\w+/|conf.py|Makefile|make.bat)$!i) {
+			if ($_ ne '_build/' && $_ =~ m!^(?:_\w+/|conf.py|Makefile|make.bat)$!i) {
 				push(@keep, $_);
 				next;
 			}
 
-			my $f = "$dir$_";
-			if (-d $f) {
-				$session->msg("\tdelete dir: $_");
-				$ROBJ->dir_delete( $f );
+			my $f_   = "$dir_$_";
+			my $file = $ROBJ->fs_decode( $_ );
+			if (-d $f_) {
+				$session->msg("\tdelete dir: $file");
+				$ROBJ->dir_delete( $f_ );
 				next;
 			}
-			$session->msg("\tdelete file: $_");
-			$ROBJ->file_delete( $f );
+			$session->msg("\tdelete file: $file");
+			$ROBJ->file_delete( $f_ );
 		}
 		foreach(@keep) {
 			$session->msg("\tkeep: $_");
@@ -198,7 +200,7 @@ sub export {
 			$session->msg("\t$file: $_->{title}\t\t-> No change");
 		} else {
 			$session->msg("\t$file: $_->{title}");
-			$ROBJ->fwrite_lines("$dir$file", $text);
+			$ROBJ->fwrite_lines($ROBJ->fs_encode("$dir$file"), $text);
 		}
 		$_->{file} = $file;
 		push(@files, $_);
@@ -252,7 +254,11 @@ sub call_command {
 
 	$session->msg("\$ $command");
 	my $fh;
-	open($fh, "export LC_ALL=C.UTF-8; cd \"$dir\"; $command 2>&1 |");
+	if ($self->{ROBJ}->{IsWindows}) {
+		open($fh, "cd \"$dir\" & $command 2>&1 |");
+	} else {
+		open($fh, "export LC_ALL=C.UTF-8; cd \"$dir\"; $command 2>&1 |");
+	}
 	while (my $x = <$fh>) {
 		$x =~ s/\n//g;
 		$session->msg("\t$x");
