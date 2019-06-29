@@ -26,6 +26,7 @@ sub export {
 	my ($self, $logs, $option) = @_;
 	my $ROBJ = $self->{ROBJ};
 	my $aobj = $option->{aobj};
+	$option->{sphinx} = 1;
 
 	#-------------------------------------------------------------
 	# セッション開始
@@ -34,7 +35,7 @@ sub export {
 
 	# 権限確認
 	if (!$aobj->{static_export}) {
-		$session->msg("Static export disabled.");
+		$session->msg("Static export disabled");
 		return;
 	}
 
@@ -132,7 +133,7 @@ sub export {
 				if ($key =~ m|^\w+://|) {
 					$key;
 				} else {
-					$key =~ tr|/?|--|;
+					$aobj->export_escape_filename($key);
 					$key =~ s|%3f|-|g;	# %3f = ?
 					"./$key.html"
 				}
@@ -184,7 +185,7 @@ sub export {
 		my $file = $_->{link_key};
 		if ($file =~ m|^[/\.]|) { next; }
 		if ($file =~ m!^\w+://!) { next; }
-		$file =~ tr|/?|--|;
+		$aobj->export_escape_filename($file);
 		$file .= '.html';
 
 		# 記事の前処理
@@ -217,7 +218,7 @@ sub export {
 		#-------------------------------------------------------------
 		# ファイルに書き出し
 		#-------------------------------------------------------------
-		$session->msg("\t$file : $_->{title}");
+		$session->msg("\t$file: $_->{title}");
 		$ROBJ->fwrite_lines("$dir$file", $out);
 
 		$_->{file} = $file;
@@ -229,14 +230,14 @@ sub export {
 	#---------------------------------------------------------------------
 	if (!$index && @files) {
 		my $html = $ROBJ->exec($option->{index_skel}, \@files);
-		$session->msg("Create : index.html");
+		$session->msg("Create: index.html");
 		$ROBJ->fwrite_lines($dir . 'index.html', $html);
 	}
 
 	#---------------------------------------------------------------------
 	# 終了処理
 	#---------------------------------------------------------------------
-	$session->msg("Finish : $ROBJ->{Timestamp}");
+	$session->msg("\nFinish: $ROBJ->{Timestamp}");
 	$session->close();
 
 	$ROBJ->{export_return} = 0;

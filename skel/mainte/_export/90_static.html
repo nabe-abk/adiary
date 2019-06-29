@@ -44,6 +44,14 @@ adiary_session($('#static-export, #static-export-format'), {
 			enable_only: 1,
 		});
 		return fd;
+	},
+	success: function(data) {
+		if (!data) return;
+		var ma = data.match(/^ret=(\d+)/);
+		if (!ma || ma && ma[1] == 0) return;
+
+		text = data.replace(/^ret=[^\n]/, "Error code: " + ma[1]);
+		$('#static-session-log').text( text );
 	}
 });
 --></script-defer>
@@ -199,12 +207,19 @@ adiary_session($('#static-export, #static-export-format'), {
 </head>
 <body>
 <h1>static export logs</h1>
-<div>export date: <@Timestamp></div>
-<ul>
+
+<table><tbody>
 <@forexec(t, logs, begin)>
-<li><@t.year>-<@t.mon>-<@t.day> <a href="<@t.file>"><@t.title></a></li>
+<tr>
+	<td><@t.year>-<@t.mon>-<@t.day></td>
+	<td><a href="<@t.file>"><@t.file></a></td>
+	<td><@t.title></td>
+</tr>
 <$end>
-</ul>
+</tbody></table>
+
+<p>export date: <@Timestamp></p>
+
 </body>
 </html>
 <$end>

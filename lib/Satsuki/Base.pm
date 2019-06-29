@@ -54,7 +54,7 @@ sub new {
 	$self->{System_coding} = $Satsuki::SYSTEM_CODING;
 	$self->{Code_lib} = $CODE_LIB;
 	$self->{Locale}   = $LOCALE;
-	$self->{Locale2}  = $LOCALE;
+	$self->{Locale2}  = $LOCALE;	# ex)ja_JP
 
 	# 時刻／日付関連の設定
 	$self->{TM} = time;
