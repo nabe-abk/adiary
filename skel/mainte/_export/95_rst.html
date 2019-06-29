@@ -1,0 +1,196 @@
+<@6>
+<@local(export_dir)>
+<@>
+<@> reStructuredText/Sphinx形式
+<@>
+<$logs = argv#0>
+<$opt  = argv#1>
+<$export_dir = v.blogpub_dir . 'sphinx/'>
+
+<@ifexec(! logs, begin.html)>
+<h3 id="rst">reStructuredText出力 / Sphinx連携</h3>
+<div>
+	<p>reStructuredTextで書かれた記事を <a href="<@Basepath><@export_dir>index.html"><@export_dir></a> に .rst ファイルとして出力します。</p>
+
+	<ul class="none">
+		<li><label><input type="checkbox" name="rst:format" value="1">出力ディレクトリ内を初期化する</label></li>
+		<li><label><input type="checkbox" name="rst:title" value="1" checked>記事タイトルを記事本文の先頭に出力する</label><span class="help" data-help="index.rstだけはこの処理を行いません。">?</span></li>
+		<li><label><input class="js-save js-enable" type="checkbox" name="rst:make_index" value="1" data-target=".index-rst" checked>index.rst を自動生成する<span class="help" data-help="indexというkeyを持つ記事が存在する場合は、その記事に toctree ディレクティブを付加します。">?</span></label>
+			<ul>
+				<li><label><input class="js-save index-rst" type="checkbox" name="rst:numbered" value="1">章番号をつける</label></li>
+				<li>目次の深さ <select class="js-save right index-rst" name="rst:maxdepth">
+					<option value="">無制限</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+				</select>
+				<li>記事の出力 <select class="js-save index-rst" name="rst:order">
+					<option value="date">古い記事から</option>
+					<option value="date_r">新しい記事から</option>
+					<option value="tree">公開コンテンツのみ（ツリー順）</option>
+				</select>
+			</ul>
+		</li>
+<@>
+<@ifexec(v.special_export && Auth.isadmin, begin, begin)>
+<@>
+		<li><label><input type="checkbox" name="rst:sphinx" value="1" class="js-save js-enable" data-target=".sphinx">出力後にSphinxで処理する</label><span class="help" data-help="サーバにSphinxがインストールされている必要があります。コマンドが見つからない場合はエラーになります。">?</span></li>
+		<li><label>出力形式 <input class="js-save sphinx w80" type="text" name="rst:format" value="html" id="sphinx-format">
+			<select class="sphinx" id="sphinx-format-select">
+			<option value="">（選択）</option>
+			<option value="html">HTML</option>
+			<option value="singlehtml">単一のHTML</option>
+			<option value="epub">epub</option>
+			<option value="epub3">epub3</option>
+			<option value="latexpdf">latexpdf</option>
+			<option value="latexpdfja">latexpdfja</option>
+		</select>
+<$else>
+		<li><label><input type="checkbox" name="rst:sphinx" value="0" disabled>出力後にSphinxで処理する</label>
+		<span class="help" data-help="conf.cgi で「&lt;$v.special_export=1&gt;」が設定され、管理者アカウントを使用すればこの機能が有効になります。">?</span></li>
+<$end>
+	</ul>
+
+	<button class="export" type="button" name="file" value="95_rst" data-log-target="#rst-session-log" id="rst-export">reStructuredText出力</button>
+	<button class="export" type="button" name="file" value="95_rst" data-log-target="#rst-session-log" id="rst-export-format" data-type="format">初期化だけ行う</button><br>
+
+	<textarea id="rst-session-log" rows="10" class="w98p" style="display: none" data-myself="<@v.myself>" data-interval="300" readonly></textarea>
+</div>
+
+<div style="display:none">
+<script-defer><!--
+adiary_session($('#rst-export, #rst-export-format'), {
+	myself: $('#rst-session-log').data('myself'),
+	load_formdata: function(btn) {
+		var fd = $('#export-form').serialize();
+		fd += '&' + $.param({
+			file: btn.val()
+		});
+		return fd;
+	},
+	success: function(data) {
+		if (!data) return;
+		var ma = data.match(/^ret=(\d+)/);
+		if (!ma || ma && ma[1] == 0) return;
+
+		text = data.replace(/^ret=[^\n]/, "Error code: " + ma[1]);
+		$('#rst-session-log').text( text );
+	}
+});
+$(function(){
+	var $sel = $('#sphinx-format-select');
+	$sel.val('');
+	$sel.change(function(){
+		$('#sphinx-format').val( $sel.val() );
+		$('#sphinx-format').change();
+		$sel.val('');
+	});
+});
+--></script-defer>
+</div>
+
+<$break()>
+<$end.html>
+<@>#############################################################################
+<@> 静的HTML出力 exporter
+<@>#############################################################################
+<$exporter = loadapp('adiary::Export_reStructuredText')>
+<$ifbreak(!exporter)>
+
+<$opt.export_dir  = export_dir>
+<$opt.title_line  = '@' %x 60>
+<$opt.project     = 'index'>
+<$opt.sphinx_init = "sphinx-quickstart -q -p <@opt.project> -a %a -v 1.0 -l <@Locale> --epub --ext-doctest --ext-todo --ext-mathjax --ext-ifconfig --ext-viewcode --ext-githubpages">
+<$opt.init_check  = 'conf.py'>
+
+
+<@>////////////////////////////////////////////////////////////////////////////
+<@> 初期化処理（必要なファイルをコピー）
+<@>////////////////////////////////////////////////////////////////////////////
+<$opt.init = begin>
+<$ifreturn(! v.special_export)>
+
+<@local(dir, t, files, session, option)>
+<$s = v.blog>
+<$session = argv#0>
+<$option  = argv#1>
+
+<$files_dir  = 'files/'>
+
+<@> アルバムデータのコピー
+<$dir = export_dir . files_dir>
+<$session.msg("Album files copy to '<@dir>'")>
+<$dir_copy(v.blogimg_dir(), dir)>
+<$dir_delete("<@dir>.trashbox/")>
+
+<$end>
+<@>////////////////////////////////////////////////////////////////////////////
+<@> index.rstの雛形
+<@>////////////////////////////////////////////////////////////////////////////
+<$opt.index_rst_skel = begin>
+<@local(t, files)>
+<$files = argv#0>
+.. toctree::
+<@if(opt.numbered,    "\t:numbered:\n")> <@\>
+<@if(opt.maxdepth ne '', "\t:maxdepth: " . int(opt.maxdepth) . "\n")> <@\>
+<@"\n">
+<@forexec(t, files, begin)><@"\t<@t.file>\n"><$end>
+<$end>
+
+<@>////////////////////////////////////////////////////////////////////////////
+<@> index.htmlの雛形
+<@>////////////////////////////////////////////////////////////////////////////
+<$opt.index_skel = begin>
+<@local(t, logs, format)>
+<$logs = argv#0>
+<!DOCTYPE html> 
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+	<title>.rst files</title>
+</head>
+<body>
+<h1>reStructuredText export</h1>
+
+<$format = opt.format>
+<$match = false>
+<@ifexec( match(format, "epub"), begin)><$match=1>
+<ul>
+	<li><a href="_build/<@format>/<@opt.project>.epub"><@opt.project>.epub</a></li>
+	<li><a href="_build/<@format>/index.xhtml">index.xhtml</a></li>
+</ul>
+<$end>
+<@ifexec( match(format, "html"), begin)><$match=1>
+	<p><a href="_build/<@format>/index.html">index.html</a></p>
+<$end>
+<@ifexec( match(format, "latexpdf"), begin)><$match=1>
+<ul>
+	<li><a href="_build/latex/index.pdf">index.pdf</a></li>
+	<li><a href="_build/latex/index.dvi">index.dvi</a></li>
+	<li><a href="_build/latex/index.tex">index.tex</a></li>
+</ul>
+<$end>
+<@ifexec(!match, begin)>
+	<p><a href="_build/<@format>/">_build/<@format>/</a></p>
+<$end>
+
+<h2>.rst files</h2>
+<table><tbody>
+<@forexec(t, logs, begin)>
+<tr>
+	<td><@t.year>-<@t.mon>-<@t.day></td>
+	<td><a href="<@t.file>"><@t.file></a></td>
+	<td><@t.title></td>
+</tr>
+<$end>
+</tbody></table>
+
+<p>export date: <@Timestamp></p>
+</body>
+</html>
+<$end>
+
+<@>////////////////////////////////////////////////////////////////////////////
+<$ajax_return = exporter.export( logs, opt )>

@@ -3,6 +3,7 @@
 *Ver3.30 : 2019/xx/xx
 
 -[https://adiary.org/v3man/reStructuredText/:reStructuredText]に対応しました。
+-[https://adiary.org/v3man/special/sphinx_cms:Sphinx連携機能]が付きました。
 -index.htmlをレスポンシブ対応にしました。
 -静的HTML出力の設定を変更しました。
 -【さつき記法】
