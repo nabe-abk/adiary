@@ -195,7 +195,7 @@ sub export {
 		#-------------------------------------------------------------
 		# ファイルに書き出し
 		#-------------------------------------------------------------
-		my $mod = $ROBJ->get_lastmodified("$dir$file");
+		my $mod = $ROBJ->get_lastmodified( $ROBJ->fs_encode("$dir$file") );
 		if ($mod && $mod > $_->{update_tm}) {
 			$session->msg("\t$file: $_->{title}\t\t-> No change");
 		} else {
