@@ -194,7 +194,7 @@ sub export {
 		# ファイルに書き出し
 		#-------------------------------------------------------------
 		my $mod = $ROBJ->get_lastmodified("$dir$file");
-		if ($mod && $mod < $_->{update_tm}) {
+		if ($mod && $mod > $_->{update_tm}) {
 			$session->msg("\t$file: $_->{title}\t\t-> No change");
 		} else {
 			$session->msg("\t$file: $_->{title}");
@@ -219,8 +219,8 @@ sub export {
 	#---------------------------------------------------------------------
 	if ($sphinx) {
 		$session->msg('');
-		$option->{format} =~ s/\W//g;
-		my $cmd = "make $option->{format}";
+		$option->{builder} =~ s/\W//g;
+		my $cmd = "make $option->{builder}";
 
 		$self->call_command($session, $dir, $cmd);
 	}

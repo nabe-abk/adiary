@@ -13,7 +13,7 @@
 	<p>reStructuredTextで書かれた記事を <a href="<@Basepath><@export_dir>index.html"><@export_dir></a> に .rst ファイルとして出力します。</p>
 
 	<ul class="none">
-		<li><label><input type="checkbox" name="rst:format" value="1">出力ディレクトリ内を初期化する</label></li>
+		<li><label><input type="checkbox" name="rst:format" value="1">出力ディレクトリ内を初期化する</label><span class="help" data-help="conf.py 等はそのまま残されます。">?</span></li>
 		<li><label><input type="checkbox" name="rst:title" value="1" checked>記事タイトルを記事本文の先頭に出力する</label><span class="help" data-help="index.rstだけはこの処理を行いません。">?</span></li>
 		<li><label><input class="js-save js-enable" type="checkbox" name="rst:make_index" value="1" data-target=".index-rst" checked>index.rst を自動生成する<span class="help" data-help="indexというkeyを持つ記事が存在する場合は、その記事に toctree ディレクティブを付加します。">?</span></label>
 			<ul>
@@ -37,8 +37,8 @@
 <@ifexec(v.special_export && Auth.isadmin, begin, begin)>
 <@>
 		<li><label><input type="checkbox" name="rst:sphinx" value="1" class="js-save js-enable" data-target=".sphinx">出力後にSphinxで処理する</label><span class="help" data-help="サーバにSphinxがインストールされている必要があります。コマンドが見つからない場合はエラーになります。">?</span></li>
-		<li><label>出力形式 <input class="js-save sphinx w80" type="text" name="rst:format" value="html" id="sphinx-format">
-			<select class="sphinx" id="sphinx-format-select">
+		<li><label>出力形式 <input class="js-save sphinx w80" type="text" name="rst:builder" value="html" id="sphinx-builder">
+			<select class="sphinx" id="sphinx-builder-select">
 			<option value="">（選択）</option>
 			<option value="html">HTML</option>
 			<option value="singlehtml">単一のHTML</option>
@@ -80,11 +80,11 @@ adiary_session($('#rst-export, #rst-export-format'), {
 	}
 });
 $(function(){
-	var $sel = $('#sphinx-format-select');
+	var $sel = $('#sphinx-builder-select');
 	$sel.val('');
 	$sel.change(function(){
-		$('#sphinx-format').val( $sel.val() );
-		$('#sphinx-format').change();
+		$('#sphinx-builder').val( $sel.val() );
+		$('#sphinx-builder').change();
 		$sel.val('');
 	});
 });
