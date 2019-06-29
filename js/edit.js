@@ -429,7 +429,7 @@ function open_upload_dialog(files) {
 			callback: function(data, folder){
 				upload_files_insert(data, {
 					folder:		folder,
-					thumbnail:	$('#paste-thumbnail').val ? true : false,
+					thumbnail:	$('#paste-thumbnail').val() == '0' ? false : true,
 					caption:	$('#paste-caption').val(),
 					exif:		$('#paste-to-exif').prop('checked'),
 					class:		$('#paste-class').val()
