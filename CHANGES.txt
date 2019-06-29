@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.30 : 2019/xx/xx
+*Ver3.30 : 2019/06/30
 
 -[https://adiary.org/v3man/reStructuredText/:reStructuredText]に対応しました。
 -[https://adiary.org/v3man/special/sphinx_cms:Sphinx連携機能]が付きました。
