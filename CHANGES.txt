@@ -24,7 +24,7 @@
 -【Fix】画像取り込み時のエラーメッセージがちゃんと表示されない。
 -【Fix】システムチェック画面でCryptXの確認が正しくなかった。
 -【Fix】index.html内のscriptが動いてなかった。
--【Fix】js や css の強制再読込に失敗する。（[https://github.com/nabe-abk/adiary/issues/6:Thanks to 1484]))
+-【Fix】js や css の強制再読込に失敗する。（[https://github.com/nabe-abk/adiary/issues/6:Thanks to 1484]）
 -【Fix】スイッチ表示時のタグ一覧等や「すべてのコメントを読む」のリンクをクリックしても反応がない。
 -【Fix/httpd】PATH_INFOに全角文字などを指定できない。((コンテンツkeyに全角文字等を指定すると、記事が開けなくなる。))
 -【Fix/記法】QRコード記法が正しく動作しない。（Thanks to jimba）
