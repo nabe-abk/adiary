@@ -1004,6 +1004,7 @@ sub parse_section {
 			my $title = $3;
 
 			if ($level==1 && @out) {
+				push(@out, {section_end => 1});
 				push(@out, "</section>\n");
 				push(@out, "<section>\n");
 			}
@@ -1097,7 +1098,7 @@ sub parse_section {
 	# 後処理
 	#----------------------------------------------------------------------
 	unshift(@out, "<section>\n");
-	push(@out, {section_end => 1});	# 位置をマーキング
+	push(@out, {section_end => 1});
 	push(@out,'',"</section>\n");
 
 	return \@out;
