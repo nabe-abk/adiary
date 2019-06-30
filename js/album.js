@@ -733,7 +733,7 @@ function set_keydata(folder, node) {
 // ●フォルダを開く
 //////////////////////////////////////////////////////////////////////////////
 function open_folder(node, isReloading) {
-	if (!isReloading) {
+	if (!isReloading && !uploading) {
 		message.hide();
 		all_select.prop('checked', false);
 	}
