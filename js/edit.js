@@ -23,7 +23,7 @@ load_contents_list($upsel);
 // ■下書きを開く
 //############################################################################
 {
-	var draft = $('#select-draft');
+	var $draft = $('#select-draft');
 	$('#open-draft').click(function(){
 		var pkey = $draft.val();
 		window.location = $draft.data('base-url') + '0' + pkey + '?edit';
