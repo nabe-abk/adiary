@@ -49,7 +49,7 @@
 		</select>
 <$else>
 		<li><label><input type="checkbox" name="rst:sphinx" value="0" disabled>出力後にSphinxで処理する</label>
-		<span class="help" data-help="conf.cgi で「&lt;$v.special_export=1&gt;」が設定され、管理者アカウントを使用すればこの機能が有効になります。">?</span></li>
+		<span class="help" data-help="conf.cgi で「&lt;$v.special_export=1&gt;」を設定し、管理者アカウントを使用すればこの機能が有効になります。">?</span></li>
 <$end>
 	</ul>
 
@@ -145,17 +145,18 @@ $(function(){
 <$opt.index_skel = begin>
 <@local(t, logs, builder, match)>
 <$logs = argv#0>
+<$builder = opt.builder>
 <!DOCTYPE html> 
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-	<title>.rst files</title>
+	<title>reStructuredText export</title>
 </head>
 <body>
-<h1>reStructuredText export</h1>
+<h1>reStructuredText export<@if(builder, " (<@builder>)")></h1>
 
-<$builder = opt.builder>
 <$match = false>
+<@ifexec( builder, begin.builders )>
 <@ifexec( match(builder, "epub"), begin)><$match=1>
 <ul>
 	<li><a href="_build/<@builder>/<@opt.project>.epub"><@opt.project>.epub</a></li>
@@ -175,6 +176,7 @@ $(function(){
 <@ifexec(!match, begin)>
 	<p><a href="_build/<@builder>/">_build/<@builder>/</a></p>
 <$end>
+<$end.builders>
 
 <h2>.rst files</h2>
 <table><tbody>

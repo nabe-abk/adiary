@@ -251,16 +251,18 @@ sub export {
 #------------------------------------------------------------------------------
 sub call_command {
 	my ($self, $session, $dir, $command) = @_;
+	my $ROBJ = $self->{ROBJ};
 
 	$session->msg("\$ $command");
 	my $fh;
-	if ($self->{ROBJ}->{IsWindows}) {
+	if ($ROBJ->{IsWindows}) {
 		open($fh, "cd \"$dir\" & $command 2>&1 |");
 	} else {
 		open($fh, "export LC_ALL=C.UTF-8; cd \"$dir\"; $command 2>&1 |");
 	}
 	while (my $x = <$fh>) {
 		$x =~ s/\n//g;
+		$x = $ROBJ->fs_decode($x);
 		$session->msg("\t$x");
 	}
 	close($fh);
