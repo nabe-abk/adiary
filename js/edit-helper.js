@@ -117,7 +117,7 @@ Helpers.push({
 	url:	'https://docutils.sphinx-users.jp/docutils/docs/ref/rst/restructuredtext.html',
 	head:	{ func: 'block',	start: '==============================', end: '==============================', blank: true },
 	strong:	{ func: 'inline',	tag: ' **$0** ' },
-	link:	{ func: 'inline',	tag: '[$0$1]',   arg_format: ':$1' },
+	link:	{ func: 'inline',	tag: '`$1<$0>`__', arg_format: '$1 ' },
 	anno:	{ func: 'inline',	tag: '(($0))'	},
 	list:	{ func: 'block',	tag: '- $0',	blank: true },
 	quote:	{ func: 'block',	tag: "\t$0",	blank: true },
