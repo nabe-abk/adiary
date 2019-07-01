@@ -220,7 +220,7 @@ $mop->{send} = sub {
 	}
 	$send = $#ary;		# 送信済数
 
-	# 残り
+	# 送信後の状態を保存
 	#if (!'debug()') {		# for debug
 		if (@$list) {
 			push(@ary, @$list);
