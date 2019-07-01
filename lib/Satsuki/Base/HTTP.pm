@@ -328,11 +328,10 @@ sub do_request {
 		} else {
 			$content = $post_data;
 		}
-		if (!$https) {
-			# Net::SSLeay::post_https は自動付加するので付けない
-			$header{'Content-Length'} = length($content);
-			$header{'Content-Type'} ||= 'application/x-www-form-urlencoded';
-		}
+
+		# Net::SSLeay::post_https は自動付加するので付けない
+		$header{'Content-Length'} = length($content);
+		$header{'Content-Type'} ||= 'application/x-www-form-urlencoded';
 	}
 
 	#----------------------------------------------------------------------
@@ -346,6 +345,7 @@ sub do_request {
 		$v =~ s/[\s\r\n]*$//;
 		$header .= "$_: $v\r\n";
 	}
+	$header .= "Connction: close\r\n";
 	$header .= $http_cookie;
 
 	#----------------------------------------------------------------------
@@ -357,7 +357,8 @@ sub do_request {
 	{
 		my $func = $https ? 'get_data_ssl' : 'get_data';
 		# Only HTTP/1.0, because chunked not support.
-		my $request = "$method $path HTTP/1.0\r\n$header\r\nConnection: close\r\n$content";
+		my $request = "$method $path HTTP/1.0\r\n$header\r\n$content";
+
 		$res = $self->$func($host, $port, $request);
 		if (ref($res) ne 'ARRAY') { return $res; }	# fail to return
 	}

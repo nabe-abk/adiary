@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.30 : 2019/06/30
+*Ver3.30a : 2019/06/30
 
 -[https://adiary.org/v3man/reStructuredText/:reStructuredText]に対応しました。
 -[https://adiary.org/v3man/special/sphinx_cms:Sphinx連携機能]が付きました。
@@ -32,7 +32,9 @@
 -【Fix/印刷テーマ】_sagiri でフロートオブジェクトがはみ出す。
 -【Fix/Windows】静的HTML出力時、日本語ファイル名が化ける。
 -【Security/DoS】第3者レンタル時、目次記法を使い、見出しに「{<toc></toc>}」と書くことで無限ループさせることができる。
+-【Ver3.30a/Fix】Ver3.24でwebpushの通知に失敗する。
 -他
+
 
 *Ver3.24 : 2019/05/31
 

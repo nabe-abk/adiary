@@ -209,9 +209,9 @@ $mop->{send} = sub {
 		$h{cpub} = $self->base64decode( $cpub );
 		$h{auth} = $self->base64decode( $auth );
 
-		my $r;
-		eval { $r = $self->webpush(\%h, $data) };
-		push(@log, "POST $r : $@ $endp\n");
+		my ($r, $res);
+		eval { ($r, $res) = $self->webpush(\%h, $data) };
+		push(@log, "POST $r : $@ $endp\n" . ($r ? join('',@$res) : ''));
 		if (!$r && !$@) {		# errorなし
 			push(@ary, $x);		# 次回も送信する
 		}
@@ -221,24 +221,26 @@ $mop->{send} = sub {
 	$send = $#ary;		# 送信済数
 
 	# 残り
-	if (@$list) {
-		push(@ary, @$list);
-		$ary[0] = $send . ($send ? ' ' . $ps->{tag} : '') . "\n";
-	} else {
-		# 送信終了
-		$aobj->update_plgset($name, 'url',   undef );
-		$aobj->update_plgset($name, 'title', undef );
-		$aobj->update_plgset($name, 'msg',   undef );
-		$ary[0] = "0\n";
-	}
-	$self->save_list($fh, \@ary);
+	#if (!'debug()') {		# for debug
+		if (@$list) {
+			push(@ary, @$list);
+			$ary[0] = $send . ($send ? ' ' . $ps->{tag} : '') . "\n";
+		} else {
+			# 送信終了
+			$aobj->update_plgset($name, 'url',   undef );
+			$aobj->update_plgset($name, 'title', undef );
+			$aobj->update_plgset($name, 'msg',   undef );
+			$ary[0] = "0\n";
+		}
+		$self->save_list($fh, \@ary);
+	#}
 
 	if ($ROBJ->{Develop} && $ROBJ->{HTTPD}) {
 		foreach(@log) {
 			print STDERR "$name: $_\n";	# debug-safe
 		}
 	}
-	return $ROBJ->{Develop} ? ("send=$send\n",@log) : 0;
+	return $ROBJ->{Develop} ? "send=$send\n" : 0;
 };
 
 #------------------------------------------------------------------------------
@@ -338,7 +340,8 @@ $mop->{webpush} = sub {
 	my $r    = $http->post($url, $header, $body);
 	my $st   = $http->{status};
 
-	return (200<=$st && $st<300) ? 0 : $http->{status};
+	my $ret  = (200<=$st && $st<300) ? 0 : $http->{status};
+	return wantarray ? ($ret, $r) : $ret;
 };
 
 #------------------------------------------------------------------------------
