@@ -117,6 +117,10 @@ h5, h6 {
 pre {
 	white-space:	pre-wrap;
 }
+pre.no-wrap {
+	white-space:	pre;
+}
+
 /* アスキーアート記法 */
 div.ascii-art {
 /*	font-size:	12pt;	*/
