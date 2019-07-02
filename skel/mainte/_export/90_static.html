@@ -95,14 +95,9 @@ adiary_session($('#static-export, #static-export-format'), {
 <$mkdir(dir)>
 
 	<$files = begin_array>
-		adiary.js
-		lightbox.min.js
+		adiary.min.js
+		jquery-ui.min.js
 		highlight.pack.js
-	<$end>
-	<$forexec(t, search_files(v.script_dir), begin)>
-		<$ifnext( substr(t,-3)  ne '.js'     )>
-		<$ifnext( substr(t,0,7) ne 'jquery-' )>
-		<$push(files, t)>
 	<$end>
 	<$forexec(t, files, begin)>
 		<$session.msg("\tcopy to '<@dir><@t>'")>

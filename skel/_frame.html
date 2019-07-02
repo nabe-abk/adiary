@@ -50,16 +50,18 @@
 <link rel="icon" href="<@Basepath><@if(s.iconfile, s.iconfile, #'<@v.pubdist_dir>default-icon.png')>">
 <@>
 <!-- JavaScript ============================================-->
-<script defer src="<@Basepath><@v.script_dir>jquery-3.3.1.min.js"></script>
+<@ifexec(DevelopJS, begin, begin)>
+<@_call(v.script_dir . 'adiary-js-load.html')>
+<$else>
+<script defer src="<@Basepath><@v.script_dir>adiary.min.js?<@get_lastmodified(v.script_dir . 'adiary.min.js')>"></script>
+<$end>
 <@if(load_jquery_ui, #'<script defer src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>\n')>
-<script defer src="<@Basepath><@v.script_dir>adiary.js?<@get_lastmodified(v.script_dir . 'adiary.js')>"></script>
 <@forexec(t, v.load_jscss(Basepath, 'jslib'), begin)>
 <script defer src="<@t>"></script>
 <$end>
 <@forexec(t, v.load_jscss(Basepath, 'js'), begin)>
 <script defer src="<@t>"></script>
 <$end>
-<script defer src="<@Basepath><@v.script_dir>lightbox.min.js"></script>
 <$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">
 <@if(!js_stop && file_size(file), #'<script defer src="<@Basepath><@file>" id="theme-js"></script>\n')>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
