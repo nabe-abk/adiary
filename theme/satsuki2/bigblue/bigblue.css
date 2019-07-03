@@ -909,7 +909,8 @@ th.error input, td.error input {
 }
 
 /* フォーカス */
-th.focus, td.focus {
+th:has(> input:focus),
+td:has(> input:focus) {
 	background-color:	#ffffcc;	/* $c=fixfocusbg1 */
 }
 input[type="text"]:focus,

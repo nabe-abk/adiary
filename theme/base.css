@@ -117,7 +117,12 @@ h5, h6 {
 pre {
 	white-space:	pre-wrap;
 }
-pre.no-wrap {
+
+/* nowrap */
+.nowrap {
+	white-space:	nowrap;
+}
+pre.nowrap {
 	white-space:	pre;
 }
 
@@ -180,11 +185,6 @@ article div.body .hidden a,
 article div.body .hidden strong,
 article div.body .hidden em {
 	color:			rgba(255,255,255,0);
-}
-
-/* nowrap */
-.nowrap {
-	white-space:	nowrap;
 }
 
 dl {
@@ -522,10 +522,10 @@ body:not(.sp) .btn-help:after {
 	content:	'[?]';
 }
 
-#popup-image, #popup-help, #popup-com {
+div.adiary-popup {
 	display:	none;
 	position:	absolute;
-	z-index:	2000;
+	z-index:	1000;
 }
 #popup-help, #popup-com {
 	background-color:	#eee;

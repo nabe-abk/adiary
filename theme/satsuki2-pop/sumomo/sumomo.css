@@ -947,7 +947,8 @@ article.system table {
 
 
 /* フォーカス */
-th.focus, td.focus {
+th:has(> input:focus),
+td:has(> input:focus) {
 	background-color:	#ffc;
 }
 input[type="text"]:focus,
