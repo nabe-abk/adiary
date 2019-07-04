@@ -305,7 +305,7 @@ helper.prototype.inline = function(help, $obj) {
 	if (this.selected()) return this._inline(help, $obj);
 
 	const self = this;
-	form_dialog({
+	adiary.form_dialog({
 		title: $obj.data('msg'),
 		callback: function (h) {
 			if (h.str == '' || h.str.match(/^\s*$/)) return;
@@ -325,7 +325,7 @@ helper.prototype.ex_inline = function(help, $obj) {
 
 	let sel = this.get_selection();
 	if (sel && 0 <= sel.indexOf("\n"))	// 複数行は処理しない
-		return show_error('#msg-multiline');
+		return adiary.show_error('#msg-multiline');
 
 	let elements = [];
 	let i=0;
@@ -349,7 +349,7 @@ helper.prototype.ex_inline = function(help, $obj) {
 	}
 
 	const self = this;
-	form_dialog({
+	adiary.form_dialog({
 		title: $obj.data('msg'),
 		elements: elements,
 		callback: function (h) {
@@ -388,7 +388,7 @@ helper.prototype.block = function(help, $obj) {
 	}
 
 	const self = this;
-	form_dialog({
+	adiary.form_dialog({
 		title: $obj.data('msg'),
 		elements: {
 			type: help['form_type'] || 'textarea',
@@ -412,7 +412,7 @@ helper.prototype._block = function(help, $obj) {
 	const self   = this;
 	const sp_val = $obj.data('sp-val');
 	const sp_reg = $obj.data('sp-match');
-	form_dialog({
+	adiary.form_dialog({
 		title: $obj.data('msg'),
 		elements: [
 			{type:'p', html: $obj.data('sp-msg') },
@@ -472,7 +472,7 @@ helper.prototype.replace = function(help, arg1, arg2) {
 		if (help['escape'])
 			str = self.esc_satsuki_tag_nested(str);
 		if (help['pre'])
-			str = tag_esc(str);
+			str = adiary.tag_esc(str);
 		return tag ? tag.replace(/\$0/, str) : str;
 	});
 
@@ -622,7 +622,7 @@ helper.prototype.esc_satsuki_tag_nested = function(str) {
 		str = ma[1] + "\x03" + buf.length + ma[3];
 		buf.push(ma[2]);
 	}
-	str = esc_satsuki_tag(str)
+	str = adiary.esc_satsuki_tag(str)
 		.replace(/\x03(\d+)/, function(all, num) { return buf[num] })
 		.replace(/\x02/g, "\\]")
 		.replace(/\x01/g, "\\[");
@@ -654,7 +654,7 @@ helper.prototype.insert_image = function(data) {
 	let arg1='';
 	let arg2='';
 	if (htclass != '')
-		arg1 = fig['arg1_format'].replace(/\$1/g, fig.html ? tag_esc(htclass) : htclass);
+		arg1 = fig['arg1_format'].replace(/\$1/g, fig.html ? adiary.tag_esc(htclass) : htclass);
 	if (caption != '')
 		arg2 = fig['arg2_format'].replace(/\$1/g, caption);
 
@@ -666,9 +666,9 @@ helper.prototype.insert_image = function(data) {
 		// console.log(file);
 
 		if (help['escape']) {
-			file.folder = esc_satsuki_tag( file.folder );
-			file.file   = esc_satsuki_tag( file.file   );
-			file.ext    = esc_satsuki_tag( file.ext    );
+			file.folder = adiary.esc_satsuki_tag( file.folder );
+			file.file   = adiary.esc_satsuki_tag( file.file   );
+			file.ext    = adiary.esc_satsuki_tag( file.ext    );
 		}
 
 		let rep = {

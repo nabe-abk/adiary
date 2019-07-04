@@ -100,7 +100,7 @@
 	<div class="yyyymm cond">
 	<span class="search-caption">指定期間</span> <span class="yyyymm"> <@\>
 		<@ret.year>年<@if(ret.mon, "<@ret.mon>月")><@if(ret.day, "<@ret.day>日")>の記事 <@\>
-		<input type="hidden" name="d" value="<@ret.yyyymm>">
+		<input type="hidden" name="d" value="<@ret.yyyymm>"> <@\>
 	</span></div>
 	<$end>
 	</form>
@@ -148,12 +148,12 @@
 	<@ifexec(ret.title_tag, begin)>
 	<span class="list-link"><a href="<@v.myself>?_=artlist&amp;q=<@tag_escape_amp(q2)>">一覧表示に切り替え</a></span>
 	<$end>
-	<label><input type="checkbox" class="js-switch" data-target="article.article div.body div.body-main" data-save="1" checked>記事本文を表示</label>
+	<label><input type="checkbox" class="js-switch" data-target="article.article div.body div.body-main" data-save checked>記事本文を表示</label>
 	</div>
 </div>
 </article>
 <script-defer><!--
-	init_top_search('#top-search-form');
+	adiary.init_top_search('#top-search-form');
 --></script-defer>
 
 <$page_offfset = if(6<page, page-6, 0)>
@@ -278,6 +278,6 @@
 <@forexec(t, ret.words, begin)><span><@t></span><$end>
 </div>
 <script-defer><!--
-	word_highlight('#search-words-list');
+	adiary.word_highlight('#search-words-list');
 --></script-defer>
 <$end>

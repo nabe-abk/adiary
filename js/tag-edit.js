@@ -6,7 +6,7 @@
 'use strict';
 $( function(){
 	var form = $secure('#form');
-	var tree = $('#tree');
+	var tree = $secure('#tree');
 	var join = $('#join-children');
 	var del  = $('#delete');
 	var submit = $('#submit');
@@ -133,7 +133,7 @@ function editNode( node ) {
 	// Replace node with <input>
 	var inp = $('<input>').attr({
 		type:  'text',
-		value: tag_decode_amp(node.data.name)
+		value: adiary.tag_decode_amp(node.data.name)
 	});
 
 	// ノードの選択中表示を解除する
@@ -160,13 +160,13 @@ function editNode( node ) {
 				$(this).blur();
 				break;
 			case 13: // [enter]
-				var name = tag_esc_amp( inp.val() );
+				var name = adiary.tag_esc_amp( inp.val() );
 				if (name.match(/^\s*$/)) {
 					$(this).blur();
 					break;
 				}
 				if (name.match(/[,]|::/)) {
-					show_error('#tag-name-error');
+					adiary.show_error('#tag-name-error');
 					break;
 				}
 				node.data.name = name;
@@ -261,7 +261,7 @@ form.submit(function(){
 			var inp = $('<input>').attr({
 				type: 'hidden',
 				name: 'tag_ary',
-				value: tag_decode_amp(val)
+				value: adiary.tag_decode_amp(val)
 			});
 			div.append(inp);
 			// join情報

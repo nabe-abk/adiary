@@ -44,7 +44,7 @@
 
 <script>
 $('#gad-setting').click(function(evt){
-	textarea_dialog(evt.target, function(data){
+	adiary.textarea_dialog(evt.target, function(data){
 		var x;
 		var client;
 		if (x = data.match(/data-ad-client="([^\"]+)"/i)) {

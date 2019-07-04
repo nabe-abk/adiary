@@ -112,30 +112,32 @@
 </div> <!-- End of #adiary-body -->
 <$end.sp_sysmode>
 
-
-<@> adiary.js用のメッセージ
-<div style="display: none">
-<span id="ajs-ok">OK</span>
-<span id="ajs-cancel">キャンセル</span>
-<span id="ajs-confirm">確認</span>
-<span id="ajs-other">その他</span>
-</div>
 <@v.post_html>
 
-<script>
-var Vmyself='<@v.myself>';
-var Vmyself2='<@v.myself2>';
-var ScriptDir ='<@Basepath><@v.script_dir>';
-var PubdistDir ='<@Basepath><@v.pubdist_dir>';
-var SpecialQuery = '<@v.sp_query>';
-<@ifexec(!v.system_mode && s.gaid, begin)>
-var GA_ID = '<@s.gaid>';
-<$end>
+<@> adiary.js用のメッセージ
+<div style="display: none" class="adiary-msgs" data-secure><!--
+{
+	"ok":		"OK",
+	"cancel":	"キャンセル",
+	"confirm":	"確認",
+	"other":	"その他"
+}
+--></div>
+<div style="display: none" id="adiary-vars"><!--
+{
+	"myself":	"<@v.myself>",
+	"myself2":	"<@v.myself2>",
+	"Basepath":	"<@Basepath>",
+	"ScriptDir":	"<@Basepath><@v.script_dir>",
+	"PubdistDir":	"<@Basepath><@v.pubdist_dir>",
+	"SpecialQuery":	"<@v.sp_query>",
 <@ifexec(Timer, begin)>
-var DBTime    = <@int(Timer.check('db')*10000 + 0.5)/10>;
-var TotalTime = <@int(Timer.check()*10000 + 0.5)/10>;
+	"DBTime":	<@int(Timer.check('db')*10000 + 0.5)/10>,
+	"TotalTime":	<@int(Timer.check()*10000 + 0.5)/10>,
 <$end>
-</script>
+	"GA_ID":	"<@if(!v.system_mode && s.gaid, s.gaid)>"
+}
+--></div>
 
 </body>
 </html>

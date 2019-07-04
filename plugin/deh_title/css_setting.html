@@ -40,7 +40,7 @@
 	</tr>
 	<tr><th>タイトル画像<span class="help" data-help="タイトル文字の代わりに画像を表示します。背景透過のPNG画像を推奨します。">?</span></th>
 		<td>
-			<input type="file" class="js-fileup" id="head-file" name="titleimg"><br>
+			<input type="file" class="fileup" id="head-file" name="titleimg"><br>
 			<@ifexec(ps.titleimg, begin)>
 			<label><input type="checkbox" name="titleimg_void" value="1">現在使用しているファイルを無効にする</label>
 			<$end>
@@ -81,7 +81,7 @@
 	</tr>
 	<tr><th>背景画像</th>
 		<td>
-			<input type="file" class="js-fileup" id="head-file" name="bgfile"><br>
+			<input type="file" class="fileup" id="head-file" name="bgfile"><br>
 			<label><input type="checkbox" name="bgfile_fit" value="1"<@if(ps.bgfile_fit,' checked')>>領域の高さを画像にフィットさせる</label>
 			<span class="help" data-help="画像がタイトル領域がより大きい場合のみ有効になります。">?</span><br>
 			<@ifexec(ps.bgfile, begin)>

@@ -112,7 +112,7 @@ function editNode( node ) {
 	// Replace node with <input>
 	var inp = $('<input>').attr({
 		type:  'text',
-		value: tag_decode(link_key)
+		value: adiary.tag_decode(link_key)
 	});
 
 	// ノードの選択中表示を解除する
@@ -195,6 +195,17 @@ form.submit(function(){
 reset.click(function(){
 	tree.dynatree("getTree").reload();
 });
+
+
+//////////////////////////////////////////////////////////////////////////////
+// ●link_keyのエンコード :: adiary.pmと同一の処理
+//////////////////////////////////////////////////////////////////////////////
+function link_key_encode(text) {
+	if (typeof text != 'string') { return ''; }
+	return text.replace(/[^^\w!\(\)\*\-\.\~\/:;=]/g, function(data) {
+		return '%' + ('0' + data.charCodeAt().toString(16)).substr(-2);
+	}).replace(/^\//, './/');
+}
 
 //############################################################################
 });

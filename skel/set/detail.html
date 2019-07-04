@@ -114,7 +114,7 @@
 	</tr>
 	<tr><th rowspan="3">2つ目のRSS配信</th>
 		<td>対象記事のタグ
-		<select name="rss2_tag" id="tag-select" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'taglist.json')>" data-default="<@s.rss2_tag>">
+		<select name="rss2_tag" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json?<@v.blog.json_tm>" data-default="<@s.rss2_tag>">
 			<option value="" class="special">【配信しない】</option>
 		</select>
 		</td>
@@ -196,5 +196,5 @@
 </article>
 
 <script-defer><!--
-	load_tags_list($secure('#tag-select'));
+	adiary.load_tags_list($secure('#tag-select'));
 --></script-defer>

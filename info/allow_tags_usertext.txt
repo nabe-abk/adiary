@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------------
 # タグ制限を完全になくしたい場合は trust_mode を検討ください。
 _base		id, title, class, style, lang, data-
-_base_deny	data-url, data-src, data-module-name
+_base_deny	data-url, data-src, data-module-name, data-secure
 _protocol	http, https, ftp, mailto, mms
 _comment
 

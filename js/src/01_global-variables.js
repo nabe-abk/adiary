@@ -1,23 +1,33 @@
+/*!
+ * adiary.js (C)nabe@abk
+ */
 'use strict';
-var DialogWidth = 640;
-var DefaultShowSpeed = 300;
-var ButtonHelpDelay = 1000;
-var TouchDnDTime  = 600;
-var DoubleTapTime = 400;
-var PopupOffsetX  = 15;
-var PopupOffsetY  = 10;
 var IE11=false;	// IE11
-var SP;		// adiary内部がスマホモード
-var Storage;
+var SP;		// smart phone mode
+var Storage;	// Storage object
 
-// in _frame.html
-var Vmyself;
-var Vmyself2;
-var ScriptDir;
-var PubdistDir;
-var SpecialQuery;
-var defer;
-var DBTime;
-var TotalTime;
-var ga;
-var GA_ID;
+var adiary = {
+	DialogWidth:		640,
+	DefaultShowSpeed:	300,	// msec
+	TouchDnDTime:		600,	// msec
+	DoubleTapTime:		400,	// msec
+	PopupDelayTime:		300,	// msec
+	PopupOffsetX:		15,
+	PopupOffsetY:		10,
+	CommentEnableTime:	10000,	// msec
+	CommentEnableKeys:	10,
+	SyntaxHighlightTheme:	'adiary'
+};
+/*
+ * other variables from _frame.html
+ *
+ *	adiary.myself
+ *	adiary.myself2
+ *	adiary.Basepath
+  *	adiary.ScriptDir
+ *	adiary.PubdistDir
+ *	adiary.SpecialQuery
+ */
+
+
+

@@ -102,6 +102,10 @@ table.plugins button {
 #com span.abbr-msg {
 	margin-left:		2em;
 }
+#com div.comment-text {
+	white-space:		pre;
+}
+
 /* 投稿者情報 */
 #com div.ip-host-agent {
 	text-align:		right;

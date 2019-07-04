@@ -2,7 +2,6 @@
 <@local(ps)>
 <$ps=argv#0>
 
-<div class="jqueryui-tabs">
 	<div>
 		<label><input class="js-switch" type="radio" name="view" data-target="#set-login" checked>ログイン部</label>
 		<label><input class="js-switch" type="radio" name="view" data-target="#set-header" checked>ヘッダ部</label>
@@ -72,7 +71,7 @@
 	</tr>
 	<tr><th>ヘッダの背景画像</th>
 		<td>
-			<input type="file" class="js-fileup" name="head_bgfile"><br>
+			<input type="file" class="fileup" name="head_bgfile"><br>
 			<label><input type="checkbox" name="head_bgfile_fit" value="1"<@if(ps.head_bgfile_fit,' checked')>>ヘッダの高さを画像にフィットさせる</label>
 			<span class="help" data-help="画像がヘッダがより大きい場合のみ有効になります。">?</span><br>
 			<label><input type="checkbox" name="head_bgfile_norep" value="1"<@if(ps.head_bgfile_norep,' checked')>>ヘッダ画像を繰り返し表示しない</label><br>
@@ -117,7 +116,7 @@
 	</tr>
 	<tr><th>全体の背景画像</th>
 		<td>
-			<input type="file" class="js-fileup" name="bgfile"><br>
+			<input type="file" class="fileup" name="bgfile"><br>
 			<@ifexec(ps.bgfile, begin)>
 			<label><input type="checkbox" name="bgfile_void" value="1">現在使用しているファイルを無効にする</label>
 			<$end>
@@ -144,7 +143,7 @@
 	</tr>
 	<tr><th>表示領域の背景画像</th>
 		<td>
-			<input type="file" class="js-fileup" name="body_bgfile"><br>
+			<input type="file" class="fileup" name="body_bgfile"><br>
 			<@ifexec(ps.body_bgfile, begin)>
 			<label><input type="checkbox" name="body_bgfile_void" value="1">現在使用しているファイルを無効にする</label>
 			<$end>
@@ -162,7 +161,6 @@
 
 </div>
 </div><!-- body -->
-</div><!-- jqueryui-tabs -->
 
 <script>
 $(function(){

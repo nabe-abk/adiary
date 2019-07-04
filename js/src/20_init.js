@@ -1,29 +1,94 @@
 //////////////////////////////////////////////////////////////////////////////
 //●初期化処理
 //////////////////////////////////////////////////////////////////////////////
-$(function(){
-	// init
-	if (Vmyself) Storage = new PrefixStorage( Vmyself );
-	set_browser_class_into_body();
+adiary.init_funcs  = [];
+adiary.init = function(func) {
+	if (func)
+		return this.init_funcs.push(func);
+
+	this.$head = $('head');
+	this.$body = $('#body');
+
+	// load adiary vars
+	let $obj = $secure('#adiary-vars');
+	let data;
+	if ($obj) {
+		const json = $obj.html().replace(/^[\s\S]*?{/, '{').replace(/}[\s\S]*?$/, '}');
+		      data = JSON.parse(json);
+		const ary  = ['myself', 'myself2', 'Basepath', 'ScriptDir', 'PubdistDir', 'SpecialQuery'];
+		for(var i in ary) {
+			this[ary[i]] = data[ary[i]];
+		}
+      	}
+
+	// remove #rss-tm hash
+	if (window.location.hash.indexOf('#rss-tm') == 0) {
+		history.pushState("", document.title, location.pathname + location.search);
+	}
+
+	// PrefixStorage
+	if (this.Basepath)
+		window.Storage = new PrefixStorage( this.Basepath );
 
 	// DB time, Total time
-	$('#system-info-db-time')   .text( DBTime );
-	$('#system-info-total-time').text( TotalTime );
+	if (data.DBTime)    $('#system-info-db-time')   .text( data.DBTime    );
+	if (data.TotalTime) $('#system-info-total-time').text( data.TotalTime );
 
 	// Google Analytics
-	if (GA_ID) {
+	if (data.GA_ID) {
 		ga=function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-		ga('create', GA_ID, 'auto');
+		ga('create', data.GA_ID, 'auto');
 		ga('send', 'pageview');
-		load_script('https://www.google-analytics.com/analytics.js');
+		this.load_script('https://www.google-analytics.com/analytics.js');
 	}
+
+	// other initlize functions
+	const funcs = this.init_funcs;
+	for(var i=0; i<funcs.length; i++)
+		funcs[i].call(this);
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//●<body>にCSSのためのブラウザクラスを設定
+//////////////////////////////////////////////////////////////////////////////
+adiary.init(function() {
+	var x = [];
+	var ua = navigator.userAgent;
+
+	     if (ua.indexOf('Edge/')   != -1) x.push('Edge');
+	else if (ua.indexOf('WebKit/') != -1) x.push('GC');
+	else if (ua.indexOf('Gecko/')  != -1) x.push('Fx');
+
+	var m = ua.match(/MSIE (\d+)/);
+	var n = ua.match(/Trident\/\d+.*rv:(\d+)/);
+	if (n) { x = []; m = n; }		// IE11
+	if (m) {
+		x.push('IE', 'IE' + m[1]);
+		IE11 = true;
+	}
+
+	// adiaryのスマホモード検出
+	if (this.$body.hasClass('sp')) {
+		SP = 1;
+		this.DialogWidth = 320;
+	}
+
+	// bodyにクラス設定する
+	this.$body.addClass( x.join(' ') );
+});
+
+//////////////////////////////////////////////////////////////////////////////
+// defer tags
+//////////////////////////////////////////////////////////////////////////////
+adiary.init(function(){
+	const self=this;
 
 	// css-defer
 	$('link.css-defer').attr('rel', 'stylesheet');
 
-	// load script
+	// load script		ex) twitter-widget of filter syntax
 	$('script-load').each(function(idx, dom) {
-		load_script(dom.getAttribute('src'));
+		self.load_script(dom.getAttribute('src'));
 	});
 
 	// script-defer
@@ -67,72 +132,24 @@ $(function(){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●RSSからのリンクhashを消す
-//////////////////////////////////////////////////////////////////////////////
-{
-	if (window.location.hash.indexOf('#rss-tm') == 0) {
-		history.pushState("", document.title, location.pathname + location.search);
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//●for IE
-//////////////////////////////////////////////////////////////////////////////
-// for IE11
-if (!String.repeat) String.prototype.repeat = function(num){
-	var str='';
-	var x = this.toString();
-	for(var i=0; i<num; i++) str += x;
-	return str;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//●<body>にCSSのためのブラウザクラスを設定
-//////////////////////////////////////////////////////////////////////////////
-function set_browser_class_into_body() {
-	var x = [];
-	var ua = navigator.userAgent;
-
-	     if (ua.indexOf('Edge/')   != -1) x.push('Edge');
-	else if (ua.indexOf('WebKit/') != -1) x.push('GC');
-	else if (ua.indexOf('Gecko/')  != -1) x.push('Fx');
-
-	var m = ua.match(/MSIE (\d+)/);
-	var n = ua.match(/Trident\/\d+.*rv:(\d+)/);
-	if (n) { x = []; m = n; }		// IE11
-	if (m) {
-		x.push('IE', 'IE' + m[1]);
-		IE11 = true;
-	}
-
-	// adiaryのスマホモード検出
-	var body = $('#body');
-	if (body.hasClass('sp')) {
-		SP = 1;
-		DialogWidth = 320;
-	}
-
-	// bodyにクラス設定する
-	body.addClass( x.join(' ') );
-}
-
-//////////////////////////////////////////////////////////////////////////////
 //●特殊Queryの処理
 //////////////////////////////////////////////////////////////////////////////
-$(function(){
-  if (SpecialQuery) {
-	$('#body').find('a').each( function(idx,dom){
+adiary.init(function(){
+ 	if (!this.SpecialQuery) return;
+ 	const myself   = this.myself;
+ 	const sp_query = this.SpecialQuery;
+ 
+ 	$('a').each( function(idx,dom) {
 		var obj = $(dom);
 		var url = obj.attr('href');
 		if (! url) return;
-		if (url.indexOf(Vmyself)!=0) return;
-		if (url.match(/\?[\w\/]+$/)) return;	// 管理画面では解除する
-		if (url.match(/\?(.+&)?_\w+=/)) return;	// すでに特殊Queryがある
+		if (url.indexOf(myself)!=0) return;
+		if (url.match(/\?[\w\/]+$/)) return;		// 管理画面では解除する
+		if (url.match(/\?(.+&)?_\w+=/)) return;		// すでに特殊Queryがある
 
 		var ma =  url.match(/^(.*?)(\?.*?)?(#.*)?$/);
 		if (!ma) return;
-		url = ma[1] + (ma[2] ? ma[2] : '?') + SpecialQuery + (ma[3] ? ma[3] : '');
+		url = ma[1] + (ma[2] ? ma[2] : '?') + sp_query + (ma[3] ? ma[3] : '');
 		obj.attr('href', url);
 	});
-  }
 });

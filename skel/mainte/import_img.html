@@ -35,7 +35,7 @@
 
 	<ul class="none">
 		<li>処理する記事のタグ
-			<select name="tag" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json" data-default="import">
+			<select name="tag" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json?<@v.blog.json_tm>" data-default="import">
 				<option value="">（すべて）</option>
 			</select>
 		</li>
@@ -70,11 +70,11 @@
 
 <script-defer><!--
 //=============================================================================
-load_tags_list( '#tag-select');
+adiary.load_tags_list( '#tag-select');
 $('#start').prop('disabled', false);
 $('#stop') .prop('disabled', false);
 
-var posturl = Vmyself + '?etc/ajax_dummy';
+var posturl = adiary.myself + '?etc/ajax_dummy';
 var $msg  = $secure('#session-msg');
 var $log  = $secure('#session-log');
 var $form = $secure('#import-form');
@@ -88,7 +88,7 @@ function log() {
 	var text = '';
 	for(var i=0; i<arguments.length; i++)
 		text += arguments[i];
-	text = tag_decode(text);
+	text = adiary.tag_decode(text);
 	$log.val( $log.val() + text + "\n" );
 	$log.scrollTop( $log.prop('scrollHeight') );
 }

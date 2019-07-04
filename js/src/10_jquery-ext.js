@@ -3,57 +3,61 @@
 //############################################################################
 $.fn.extend({
 //////////////////////////////////////////////////////////////////////////////
-//●[jQuery] ディレイ付showとhide
+//●ディレイ付showとhide
 //////////////////////////////////////////////////////////////////////////////
 showDelay: function(){
-	var args = Array.prototype.slice.call(arguments);
-	args[0] = (args[0] == undefined) ? DefaultShowSpeed : args[0];
+	let args = Array.from(arguments)
+	args.unshift(adiary.DefaultShowSpeed);
 	return $.fn.show.apply(this, args);
 },
 hideDelay: function(){
-	var args = Array.prototype.slice.call(arguments);
-	args[0] = (args[0] == undefined) ? DefaultShowSpeed : args[0];
+	let args = Array.from(arguments);
+	args.unshift(adiary.DefaultShowSpeed);
 	return $.fn.hide.apply(this, args);
 },
+toggleDelay: function(){
+	let args = Array.from(arguments);
+	args.unshift(adiary.DefaultShowSpeed);
+	return $.fn.toggle.apply(this, args);
+},
 //////////////////////////////////////////////////////////////////////////////
-//●[jQuery] 自分自身と子要素から探す / 同じセレクタでは１度しか見つからない
+//●自分自身と子要素から探す / 同じセレクタでは１度しか見つからない
 //////////////////////////////////////////////////////////////////////////////
 findx: function(sel){
-	var x = $.fn.filter.apply(this, arguments);
-	var y = $.fn.find.apply  (this, arguments);
+	let x = $.fn.filter.apply(this, arguments);
+	let y = $.fn.find.apply  (this, arguments);
 	x = x.add(y);
 	// 重複処理の防止
-	var r = [];
-	sel = '-mark-' + sel.replace(/[^\w\-]/g, '-');
+	const r = [];
+	const mark = '-mark-' + sel;
 	for(var i=0; i<x.length; i++) {
-		var obj = $(x[i]);
-		if (obj.parents('.js-hook-stop').length || obj.hasClass('js-hook-stop')) continue;
-		if (obj.data(sel)) continue;
-		obj.attr('data-' + sel, '1');
+		var $obj = $(x[i]);
+		if ($obj.parents('.js-hook-stop').length || $obj.hasClass('js-hook-stop')) continue;
+		if ($obj.data(mark)) continue;
+		$obj.data(mark, '1');
 		r.push(x[i]);
 	}
 	return $(r);
 },
 //////////////////////////////////////////////////////////////////////////////
-//●[jQuery] findしエラーを無視する
+//●自分を含むrootからfindする
 //////////////////////////////////////////////////////////////////////////////
-myfind: function(sel) {
-	try {
-		return this.find(sel);
-	} catch(e) {
-		console.log(e);
-	}
-	return this.find('#--not-fond--***--');
-},
-//////////////////////////////////////////////////////////////////////////////
-//●[jQuery] 自分を含むrootからfindし、エラーを無視する
-//////////////////////////////////////////////////////////////////////////////
+// document/html に未追加のDOM要素でfindするため
+// $(sel) element for "this" dom element is not append "document/html"
+//
 rootfind: function(sel) {
-	var html = this.parents('html');
-	return html.myfind(sel);
+	var html = this.parents().last();
+	return html.find(sel);
 },
 //////////////////////////////////////////////////////////////////////////////
-//●[jQuery] スマホでDnDをエミュレーションする
+//●指定のdataを持っているか？
+//////////////////////////////////////////////////////////////////////////////
+myhasData: function(name) {
+	const v = this.data(name);
+	return v !== undefined;
+},
+//////////////////////////////////////////////////////////////////////////////
+//●スマホでDnDをエミュレーションする
 //////////////////////////////////////////////////////////////////////////////
 dndEmulation: function(opt){
 	var self = this[0];
@@ -107,7 +111,7 @@ dndEmulation: function(opt){
 		timer = setTimeout(function(){
 			timer = false;
 			flag  = true;
-		}, TouchDnDTime)
+		}, adiary.TouchDnDTime)
 	});
 
 	// mouseupエミュレーション
@@ -166,7 +170,7 @@ dndEmulation: function(opt){
 //////////////////////////////////////////////////////////////////////////////
 });
 //////////////////////////////////////////////////////////////////////////////
-//●[jQuery] ダブルタップイベント
+//●ダブルタップイベント
 //////////////////////////////////////////////////////////////////////////////
 $.event.special.mydbltap = {
 	setup: function(){
@@ -182,7 +186,7 @@ $.event.special.mydbltap = {
 			}
 			flag  = true;
 			mouse = true;
-			setTimeout( function(){ flag = false; }, DoubleTapTime);
+			setTimeout( function(){ flag = false; }, adiary.DoubleTapTime);
 		});
 		$(this).on('touchstart', function(){
 			mouse = false;
@@ -191,10 +195,10 @@ $.event.special.mydbltap = {
 };
 
 //////////////////////////////////////////////////////////////////////////////
-//●[jQuery] $() でXSS対策
+//●$() でXSS対策
 //////////////////////////////////////////////////////////////////////////////
 {
-	var init_orig = $.fn.init;
+	const init_orig = $.fn.init;
 	$.fn.init = function(sel,cont) {
 		if (typeof sel === "string" && sel.match(/<.*?[\W]on\w+\s*=/i))
 			throw 'Security error by adiary.js : ' + sel;

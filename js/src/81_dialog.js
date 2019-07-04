@@ -4,13 +4,13 @@
 //////////////////////////////////////////////////////////////////////////////
 // ●エラーの表示
 //////////////////////////////////////////////////////////////////////////////
-window.show_error = function(h, _arg) {
+adiary.show_error = function(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
 	h.dclass = (h.dclass ? h.dclass : '') + ' error-dialog';
 	h.default_title = 'ERROR';
-	return show_dialog(h);
+	return this.show_dialog(h);
 }
-window.show_dialog = function(h, _arg) {
+adiary.show_dialog = function(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
 	var obj  = h.id && h.id.substr(0,1) == '#' && $secure( h.id ) || $('<div>');
 	var html = obj.html() || h.html;
@@ -31,7 +31,7 @@ window.show_dialog = function(h, _arg) {
 //////////////////////////////////////////////////////////////////////////////
 // ●確認ダイアログ
 //////////////////////////////////////////////////////////////////////////////
-window.my_confirm = function(h, callback) {
+adiary.confirm = function(h, callback) {
 	if (typeof(h) === 'string') h = {id: h, html:h };
 	let $obj = h.id && h.id.substr(0,1) == '#' && $secure( h.id ) || $('<div>');
 	let html = $obj.html() || h.html;
@@ -41,14 +41,14 @@ window.my_confirm = function(h, callback) {
 
 	let $div = $('<div>');
 	$div.html( html );
-	$div.attr('title', h.title || $obj.data('title') || $('#ajs-confirm').text());
+	$div.attr('title', h.title || $obj.data('title') || this.msg('confirm'));
 	let btn = {};
-	btn[ h.btn_ok || $('#ajs-ok').text() ] = function(){
-		div.dialog('close');
+	btn[ h.btn_ok || this.msg('ok') ] = function(){
+		$div.dialog('close');
 		callback(true);
 	};
-	btn[ h.btn_cancel || $('#ajs-cancel').text() ] = function(){
-		div.dialog('close');
+	btn[ h.btn_cancel || this.msg('cancel') ] = function(){
+		$div.dialog('close');
 		callback(false);
 	};
 	$div.dialog({
@@ -65,9 +65,9 @@ window.my_confirm = function(h, callback) {
 //////////////////////////////////////////////////////////////////////////////
 // ●テキストエリア入力のダイアログ
 //////////////////////////////////////////////////////////////////////////////
-window.textarea_dialog = function(dom, func) {
-	var obj  = $(dom);
-	form_dialog({
+adiary.textarea_dialog = function(dom, func) {
+	var obj = $(dom);
+	this.form_dialog({
 		title: obj.data('title'),
 		elements: [
 			{type: 'p', html: obj.data('msg')},
@@ -80,7 +80,7 @@ window.textarea_dialog = function(dom, func) {
 //////////////////////////////////////////////////////////////////////////////
 // ●入力のダイアログの表示
 //////////////////////////////////////////////////////////////////////////////
-window.form_dialog = function(h) {
+adiary.form_dialog = function(h) {
 	var ele = h.elements || { type:'text', name:'str', dclass:'w80p' };
 	if (!Array.isArray(ele)) ele = [ ele ];
 	var div = $('<div>').attr('id','popup-dialog');
@@ -125,7 +125,7 @@ window.form_dialog = function(h) {
 
 	// ボタンの設定
 	var buttons = {};
-	var ok_func = buttons[ $('#ajs-ok').text() ] = function(){
+	var ok_func = buttons[ this.msg('ok') ] = function(){
 		var inputs = div.find('input');
 		for(var i=0; i<inputs.length; i++) {
 			var obj = inputs[i];
@@ -139,7 +139,7 @@ window.form_dialog = function(h) {
 		}
 		h.callback( ret );	// callback
 	};
-	buttons[ $('#ajs-cancel').text() ] = function(){
+	buttons[ this.msg('cancel') ] = function(){
 		div.dialog( 'close' );
 		if (h.cancel) h.cancel();
 	};
@@ -152,7 +152,7 @@ window.form_dialog = function(h) {
 	// ダイアログの表示
 	div.dialog({
 		modal: true,
-		width:  DialogWidth,
+		width:  this.DialogWidth,
 		minHeight: 100,
 		title:   h.title || $('#msg-setting-title').text(),
 		buttons: buttons

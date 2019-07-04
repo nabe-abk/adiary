@@ -201,7 +201,7 @@
 		<$end>
 	</select></span>
 
-	<button type="button" id="edit-file-upload" class="btn-help js-fileup" data-folder="<@if(s.edit_upload ne '', s.edit_upload, 'adiary/%y/')>" data-title="ファイルを選択" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップしてもアップロードできます。">Upload</button>
+	<button type="button" id="edit-file-upload" class="btn-help fileup" data-folder="<@if(s.edit_upload ne '', s.edit_upload, 'adiary/%y/')>" data-title="ファイルを選択" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップしてもアップロードできます。">Upload</button>
 	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_text></button>
 	<@ifexec(!edit_pkey || art.draft, begin)>
 	<button type="submit" name="draft" value="1" id="save-draft" class="btn-help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">下書き<@if(edit_pkey, '保存', '作成')></button>
@@ -238,13 +238,13 @@
 			<li><label><input type="checkbox" name="draft" value="1"<@if(art.draft, ' checked')> id="draft-chk" data-on='下書き'>この記事を下書きとして保存する</label><span class="help" data-help="初公開日時の情報も消去されます。">?</span></li>
 		<$end>
 		<@ifexec(Develop && !v.sphone, begin)>
-			<li><label><input type="checkbox" class="js-save" data-save="1" id="parser-debug" name="parser_debug" value="1"><em>[develop]</em> パーサーのデバッグ</label></li>
+			<li><label><input type="checkbox" class="js-save" id="parser-debug" name="parser_debug" value="1"><em>[develop]</em> パーサーのデバッグ</label></li>
 		<$end>
 		</ul></li>
 		<li><label><input type="checkbox" name="wiki" value="1" data-target="#content-block" class="js-switch"<@if(art.ctype || art.wiki, ' checked')>>コンテンツページにする</label>
 		<input type="hidden" name="priority" value="<@art.priority>">
 		<ul id="content-block" style="display: none">
-			<li>親 <select name="upnode" id="upnode-select" data-default="<@art.upnode>" data-this-pkey="<@edit_pkey>" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'contents.json')>">
+			<li>親 <select name="upnode" id="upnode-select" data-default="<@art.upnode>" data-this-pkey="<@edit_pkey>" data-url="<@Basepath><@v.blogpub_dir>contents.json?<@v.blog.json_tm>">
 				<option value="0">*トップ(root)</option>
 			</select></li>
 			<li>コンテンツkey<span class="help" data-help='"http://", "https://" や "/" ではじまるkeyを指定すると指定URLへのリンクになります。"FrontPage", "top", "index"のいずれかを指定するとブログトップの固定記事になります。'>?</span><input type="text" name="link_key_txt" id="link-key" class="w240" value="<@if(art.ctype, esc(art.link_key))>" data-suggest="<@s.suggest_link_key>"></li>
@@ -296,7 +296,7 @@
 
 <@> タグ追加フォーム
 <form id="tag-select-form">
-<div><select name="taglist" id="tag-select" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'taglist.json')>">
+<div><select name="taglist" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json?<@v.blog.json_tm>">
 	<option value="" class="special" data-new="1">【タグを選択か入力】</option>
 </select></div>
 <div style="margin-top: 1em;">
@@ -308,7 +308,7 @@
 <form id="upload-form"><!-- upload dialog -->
 <div id="dnd-files"></div>
 <div id="file-btn-div">
-	<button type="button" data-target="#file-btn">ファイルを選択</button>
+	<button type="button" class="js-file-btn" data-target="#file-btn">ファイルを選択</button>
 	<input type="file" name="file_ary" multiple id="file-btn" class="display-none">
 </div>
 

@@ -125,7 +125,7 @@ iframe.on('load', function(){
 		var url = obj.attr('href');
 		if (!url) return;
 
-		// if (url.substr(0, if_cw.Vmyself.length) != if_cw.Vmyself
+		// if (url.substr(0, if_cw.adiary.myself.length) != if_cw.adiary.myself
 		//  || url.indexOf('?&')<0 && 0<url.indexOf('?')) {
 			obj.attr('target', '_top');
 		//}
@@ -237,7 +237,7 @@ $('#add-module').change(function(evt){
 
 	var id = obj.attr('id');
 	if (id != '' && $f('#' + id).length) {	// 同じidが既に存在する、↓同じモジュール名が存在する
-		show_error( '#msg-duplicate-id', {
+		adiary.show_error( '#msg-duplicate-id', {
 			n: mod.attr('title') || name
 		});
 		return false;
@@ -350,7 +350,7 @@ function init_module(obj) {
 		close.addClass('ui-icon ui-icon-close ui-button ui-button-icon-only ui-state-default');
 		close.attr('title', btn_close_title);
 		close.click(function(){
-			my_confirm({
+			adiary.confirm({
 				id: '#msg-delete-confirm',
 				hash: { n: obj.attr('title') },
 				btn_ok: $('#btn-close').text(),
@@ -473,7 +473,7 @@ function module_setting(obj, mode) {
 		// 今すぐ保存
 		$.ajax( ajax );
 	};
-	buttons[ $('#ajs-cancel').text() ] = function(){
+	buttons[ adiary.msg('cancel') ] = function(){
 		formdiv.dialog( 'close' );
 	};
 
@@ -490,7 +490,7 @@ function module_setting(obj, mode) {
 	formdiv.dialog({
 		autoOpen: false,
 		modal: true,
-		width:  DialogWidth,
+		width:  adiary.DialogWidth,
 		minHeight: 100,
 		maxHeight: $(window).height(),
 		title:   obj.attr('title').replace('%n', obj.attr('title')),
@@ -514,6 +514,7 @@ function module_setting(obj, mode) {
 			body.prepend( vbtn );
 		}
 		body.append( errdiv );
+		adiary.dom_init( formdiv );
 		formdiv.dialog( "open" );
 	});
 }
@@ -608,9 +609,9 @@ function load_module_html(obj) {
 		var div = $('<div>').html(data);
 		var newobj = div.children( module_selector );
 
+		adiary.dom_init( newobj );
 		obj.replaceWith( newobj );
 		init_module( newobj );	// 表示後に呼び出すこと
-	//	adiary_init( newobj );
 	});
 }
 
@@ -652,8 +653,17 @@ function load_module_css(obj, call) {
 					return ;
 				}
 				// インストール済の時は、CSS強制リロード
-				var r = if_cw.reload_user_css();
-				if (!r) return;	// 成功
+				var $obj = $f('#user-css');
+				var url  = $obj.attr('href');
+				if (!$obj.length || !url || !url.length) {
+					// error 
+				} else {
+					url = url.replace(/\?.*/, '');	// ?より後ろを除去
+					url += '?' + Math.random().toString().replace('.', '');
+					$obj.attr('href', url);
+					console.log('reload user css:', url);
+					return;
+				}
 			}
 
 			// CSSテキストを適用
@@ -718,7 +728,7 @@ function view_html_source(_obj) {
 	div.attr('title', $('#msg-html-source').text() );
 	div.addClass( 'pre' );
 	div.text( obj[0].outerHTML );
-	div.dialog({ width: DialogWidth, maxHeight: $(window).height() });
+	div.dialog({ width: adiary.DialogWidth, maxHeight: $(window).height() });
 }
 
 //############################################################################

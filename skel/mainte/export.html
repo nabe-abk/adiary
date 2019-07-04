@@ -25,7 +25,7 @@
 			<input type="text" class="int w120" name="year" value="">年<span class="help" data-help="YYYY/MM, YYYY-MM-DDなども記入できます。（例）2012/01 2012年1月">?</span>
 		</li>
 		<li>出力する記事のタグ
-			<select name="tag" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json">
+			<select name="tag" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json?<@v.blog.json_tm>">
 				<option value="">（指定しない）</option>
 			</select>
 		</li>
@@ -54,7 +54,7 @@
 
 
 <script-defer><!--
-	load_tags_list( '#tag-select' );
+	adiary.load_tags_list( '#tag-select' );
 	$("button.export").click(function(evt){
 		var type = $(evt.target).data('type');
 		$('#input-type').val(type ? type : '');

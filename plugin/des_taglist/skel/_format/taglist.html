@@ -25,7 +25,7 @@
 <@ifexec(t.children && t.qt<t.qtall, begin, begin)>
 <@p>	<li> <@\>
 	<@ifexec(switch, begin)>	<@\>
-	<span class="js-switch" data-save="1" data-target="#<@id>-<@t.pkey>"<@if(nclose, ' data-default="hide"')>> <@\>
+	<span class="js-switch" data-save data-target="#<@id>-<@t.pkey>"<@if(nclose, ' data-default="hide"')>> <@\>
 	<$end> <@\>
 	<a href="<@v.myself>?&amp;t=<@encode_uricom(x =t.name)>"><@t.sname></a></span> <span class="qt">(<span><@t.qtall></span>)</span>
 <@exec(sub, t, depth+1)>

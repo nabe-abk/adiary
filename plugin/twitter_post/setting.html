@@ -69,7 +69,7 @@ $('#txt-reset').click( function(){
 $('#do-oauth').click( function(){
 	ajax_post(action, {}, function(data){
 		var ma = data.match(/0\r?\n(.*)/);
-		if (!ma) return show_error('#twp-msg-error');
+		if (!ma) return adiary.show_error('#twp-msg-error');
 		var url = ma[1];
 
 		// Twitter側へ飛ばす

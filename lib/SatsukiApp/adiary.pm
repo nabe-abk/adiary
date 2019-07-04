@@ -7,9 +7,9 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION = 3.30;
-our $OUTVERSION = '3.30';
-our $SUBVERSION = 'a';		# ex) beta, dev
+our $VERSION = 3.40;
+our $OUTVERSION = '3.40';
+our $SUBVERSION = 'dev';		# ex) beta, dev
 our $DATA_VERSION = 3.30;
 ###############################################################################
 # ■システム内部イベント
@@ -1748,7 +1748,7 @@ sub link_key_encode {
 	foreach(@_) {
 		if ($_ eq $fp) { $_=''; next; }
 
-		# ここを修正したら adiary.js、contents_list.html も修正のこと
+		# ここを修正したら contents-edit.js も修正のこと
 		$_ =~ s/([^\w!\(\)\*\-\.\~\/:;=])/'%' . unpack('H2',$1)/eg;
 		$_ =~ s|^/|.//|;
 		# myself2が / のとき //lkey となって http://lkey と解釈されるのを防ぐ

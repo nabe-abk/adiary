@@ -2,106 +2,107 @@
 // ■サブルーチン
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
-// セキュアなオブジェクト取得
-//////////////////////////////////////////////////////////////////////////////
-window.$secure = function(id) {
-	var obj = $(document).myfind('[id="' + id.substr(1) + '"]');
-	if (obj.length >1) {
-		show_error('Security Error!<p>id="' + id + '" is duplicate.</p>');
-		return $([]);		// 2つ以上発見された
-	}
-	return obj;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 // CSSファイルの追加
 //////////////////////////////////////////////////////////////////////////////
-window.prepend_css = function(file) {
+adiary.prepend_css = function(file, id) {
 	var css = $("<link>")
 	css.attr({
 		rel: "stylesheet",
 		href: file
 	});
-	$("head").prepend(css);
+	if (id) css.attr('id', id);
+	this.$head.prepend(css);
 	return css;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // load script
 //////////////////////////////////////////////////////////////////////////////
-var load_script_chache = [];
-window.load_script = function(url, func) {
-	if (load_script_chache[url]) {
-		if (func) func();
+adiary.inc = {};
+adiary.load_script = function(url, func) {
+	const inc = this.inc;
+	const x   = inc[url];
+	if (x) {
+		if (!func) return;
+		if (x==1) return func();
+		// now loading
+		x.on('load', func);
 		return;
 	}
-	load_script_chache[url] = 1;
 
-	var $s = $(document.createElement('script'));
+	const $s = $(document.createElement('script'));
+	inc[url] = $s;
 	$s.attr('src',   url);
 	$s.attr('async', 'async');
-	if (func) $s.on('load', func);
-	(document.getElementsByTagName('head')[0]).appendChild( $s[0] );
+
+	if (func) $s.on('load', function(evt){
+		inc[url] = 1;
+		func(evt);
+	});
+
+	// Do not work and "sync" download by jQuery
+	// this.$head.append( $s );
+
+	this.$head[0].appendChild( $s[0] );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// load message
+//////////////////////////////////////////////////////////////////////////////
+adiary.msg = function(key) {
+	if (!this.msgs) this.load_msg();
+	return this.msgs[key];
+}
+adiary.load_msg = function(key) {
+	const msgs = {};
+
+	$('[data-secure].adiary-msgs').each(function(idx,dom) {
+		try {
+			const json = $(dom).html().replace(/^[\s\S]*?{/, '{').replace(/}[\s\S]*?$/, '}');
+			const data = JSON.parse(json);
+			for(var i in data)
+				msgs[i] = data[i];
+		} catch(e) {
+			console.error(e);
+		}
+	});
+	this.msgs = msgs;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // タグ除去
 //////////////////////////////////////////////////////////////////////////////
-window.tag_esc = function(text) {
+adiary.tag_esc = function(text) {
 	return text
-	.replace(/</g, '&lt;')
-	.replace(/>/g, '&gt;')
-	.replace(/"/g, '&quot;')
-	.replace(/'/g, '&apos;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&apos;')
 }
-window.tag_esc_br = function(text) {
-	return tag_esc(text).replace(/\n|\\n/g,'<br>');
+adiary.tag_esc_br = function(text) {
+	return this.tag_esc(text).replace(/\n|\\n/g,'<br>');
 }
-window.tag_esc_amp = function(text) {
-	return tag_esc( text.replace(/&/g,'&amp;') );
+adiary.tag_esc_amp = function(text) {
+	return this.tag_esc( text.replace(/&/g,'&amp;') );
 }
-window.tag_decode = function(text) {
+adiary.tag_decode = function(text) {
 	return text
-	.replace(/&apos;/g, "'")
-	.replace(/&quot;/g, '"')
-	.replace(/&gt;/g, '>')
-	.replace(/&lt;/g, '<')
-	.replace(/&#92;/g, "\\")	// for JSON data
+		.replace(/&apos;/g, "'")
+		.replace(/&quot;/g, '"')
+		.replace(/&gt;/g, '>')
+		.replace(/&lt;/g, '<')
+		.replace(/&#92;/g, "\\")	// for JSON data
 }
-window.tag_decode_amp = function(text) {
-	return tag_decode(text).replace(/&amp;/g,'&');
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// link_keyのエンコード :: adiary.pmと同一の処理
-//////////////////////////////////////////////////////////////////////////////
-window.link_key_encode = function(text) {
-	if (typeof text != 'string') { return ''; }
-	return text.replace(/[^^\w!\(\)\*\-\.\~\/:;=]/g, function(data) {
-		return '%' + ('0' + data.charCodeAt().toString(16)).substr(-2);
-	}).replace(/^\//, './/');
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// 条件にマッチする親要素を最初にみつけるまで探索
-//////////////////////////////////////////////////////////////////////////////
-window.find_parent = function(obj, filter) {
-	for(var i=0; i<999; i++) {
-		obj = obj.parent();
-		if (!obj.length) return;
-		if (!obj[0].tagName) return;
-		if (filter(obj)) return obj;
-	}
-	return;
+adiary.tag_decode_amp = function(text) {
+	return this.tag_decode(text).replace(/&amp;/g,'&');
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // テキストエリアに文字挿入
 //////////////////////////////////////////////////////////////////////////////
-window.insert_to_textarea = function(ta, text) {
+adiary.insert_to_textarea = function(ta, text) {
 	var start = ta.selectionStart;	// カーソル位置
-	// カーソル移動
-	ta.value = ta.value.substring(0, start)	+ text + ta.value.substring(start);
+	ta.value  = ta.value.substring(0, start) + text + ta.value.substring(start);
 	start += text.length;
 	ta.setSelectionRange(start, start);
 }
@@ -109,10 +110,10 @@ window.insert_to_textarea = function(ta, text) {
 //############################################################################
 // ■その他jsファイル用サブルーチン
 //############################################################################
-//----------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////////
 // ●ファイルサイズ等の書式を整える
-//----------------------------------------------------------------------------
-window.size_format = function(s) {
+//////////////////////////////////////////////////////////////////////////////
+adiary.size_format = function(s) {
 	function sprintf_3f(n){
 		n = n.toString();
 		var idx = n.indexOf('.');
@@ -130,13 +131,12 @@ window.size_format = function(s) {
 	return s + ' Byte';
 }
 
-//----------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////////
 // ●さつきタグ記号のエスケープ
-//----------------------------------------------------------------------------
-window.esc_satsuki_tag = function(str) {
+//////////////////////////////////////////////////////////////////////////////
+adiary.esc_satsuki_tag = function(str) {
 	return str.replace(/([:\[\]])/g, function(w,m){ return "\\" + m; });
 }
-window.unesc_satsuki_tag = function(str) {
+adiary.unesc_satsuki_tag = function(str) {
 	return str.replace(/\\([:\[\]])/g, "$1");
 }
-

@@ -856,6 +856,7 @@ sub update_taglist {
 	# JSONの生成
 	my $json = $self->generate_json($tree->{children}, ['sname', 'pkey', 'qt', 'children'], {sname=>'title', pkey=>'key'});
 	$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'taglist.json', $json);
+	$self->update_cur_blogset('json_tm', $ROBJ->{TM});
 
 	# イベント処理
 	$self->call_event('TAG_STATE_CHANGE', $tree);
@@ -954,6 +955,7 @@ sub update_contents_list {
 		my $all = $tree->{_all};
 		my $json= $self->generate_json($tree->{children}, ['title', 'pkey', 'upnode', 'link_key', 'children'], {pkey=>'key'});
 		$ROBJ->fwrite_lines( $self->{blogpub_dir} . 'contents.json', $json);
+		$self->update_cur_blogset('json_tm', $ROBJ->{TM});
 
 		# upnode, children, titleのキャッシュ
 		my @ary;

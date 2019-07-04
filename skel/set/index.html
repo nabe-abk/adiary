@@ -110,7 +110,7 @@
 
 <script-defer><!--
 $('#gaid-setting').click(function(evt){
-	textarea_dialog(evt.target, function(data){
+	adiary.textarea_dialog(evt.target, function(data){
 		var x;
 		if (x = data.match(/['"](UA-\d+-\d+)/)) {
 			$('#gaid').val( x[1] );
@@ -118,7 +118,7 @@ $('#gaid-setting').click(function(evt){
 	});
 });
 $('#asid-setting').click(function(evt){
-	textarea_dialog(evt.target, function(data){
+	adiary.textarea_dialog(evt.target, function(data){
 		var x;
 		if ((x = data.match(/&t=([\w\.-]+)/)) 
 		 || (x = data.match(/tag\s*=\s*['"]([\w\.-]+)/) )

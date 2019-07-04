@@ -91,11 +91,11 @@ Import file size: 2.000000 KB
 
 <script-defer><!--
 $('#btn1').click(function(evt){
-	textarea_dialog(evt.target, function(){});
+	adiary.textarea_dialog(evt.target, function(){});
 });
 $('#link').click(function(evt){
 	var obj = $(evt.target);
-	form_dialog({
+	adiary.form_dialog({
 		title: obj.data('msg'),
 		elements: [
 			obj.data('msg1'),
@@ -107,10 +107,10 @@ $('#link').click(function(evt){
 	});
 });
 $('#trashbox').click(function(evt){
-	my_confirm('#msg-confirm-trash', function(){});
+	adiary.confirm('#msg-confirm-trash', function(){});
 });
 $('#error').click(function(evt){
-	show_error('#msg-error');
+	adiary.show_error('#msg-error');
 });
 
 $("#tree").dynatree({
@@ -164,11 +164,11 @@ function plugin_setting(evt) {
 	errdiv.append(errmsg, erradd);
 
 	var buttons = {};
-	buttons[ $('#ajs-ok').text() ] = function(){
+	buttons[ adiary.msg('ok') ] = function(){
 		errmsg.html( $('#plgset-err-title').html() );
 		erradd.html( $('#plgset-err-msg')  .html() );
 	};
-	buttons[ $('#ajs-cancel').text() ] = function(){
+	buttons[ adiary.msg('cancel') ] = function(){
 		formdiv.dialog( 'close' );
 	};
 
@@ -179,7 +179,7 @@ function plugin_setting(evt) {
 	formdiv.dialog({
 		autoOpen: false,
 		modal: true,
-		width:  DialogWidth,
+		width:  adiary.DialogWidth,
 		minHeight: 100,
 		maxHeight: $(window).height(),
 		title:   $('#plgset-title').text(),

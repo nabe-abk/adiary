@@ -24,7 +24,7 @@ $(function(){
 			exp.setTime(0);
 		}
 
-		document.cookie = 'serikamemo='+encodeURIComponent(d)+'; expires=' + exp.toUTCString()+'; path='+Vmyself;
+		document.cookie = 'serikamemo='+encodeURIComponent(d)+'; expires=' + exp.toUTCString()+'; path='+adiary.Basepath;
 	}
 
 	function init(){

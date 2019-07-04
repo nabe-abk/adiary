@@ -2,28 +2,34 @@
 # Makefile for adiary.min.js
 #
 
-# You can set these variables from the command line.
 COMPRESSOR = uglifyjs
-OPTIONS    = -c -m --comments '/^!/' --source-map includeSources
+OPTIONS    = -c -m --comments '/^!/' --source-map includeSources,filename
 
 OUTPUT	   = ../adiary.min.js
 MAP_FILE   = ../adiary.min.map
 HTML       = ../adiary-js-load.html
 
 FILES = \
+	00_comment.js		\
 	jquery-3.4.1.js		\
 	01_global-variables.js	\
+	02_global-functions.js	\
+	09_ie.js		\
 	10_jquery-ext.js	\
 	20_init.js		\
 	30_css.js		\
-	40_dom-class.js		\
+	35_article.js		\
+	40_dom.js		\
+	45_dom-special.js	\
 	50_skeleton.js		\
 	60_design-module.js	\
 	80_subroutines.js	\
 	81_dialog.js		\
 	82_ajax.js		\
+	83_popup.js		\
 	90_PrefixStorage.js	\
 	91_jquery-storage.js	\
+	99_run_init.js		\
 	lightbox.js
 
 all:  $(OUTPUT)

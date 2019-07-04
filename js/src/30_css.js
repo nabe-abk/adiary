@@ -1,13 +1,23 @@
 //############################################################################
 // ■CSSへの機能提供ライブラリ
 //############################################################################
-var css_initial_functions = [];
+adiary.css_funcs = [];
+adiary.css_init  = function(func) {
+	if (func)
+		return this.css_funcs.push(func);
+
+	const funcs = this.css_funcs;
+	for(var i=0; i<funcs.length; i++)
+		funcs[i].call(this);
+}
+adiary.init(adiary.css_init);
+
 //////////////////////////////////////////////////////////////////////////////
 // ●CSSから値を取得する
 //////////////////////////////////////////////////////////////////////////////
-function get_value_from_css(id, attr) {
+adiary.get_value_from_css = function(id, attr) {
 	var span = $('<span>').attr('id', id).css('display', 'none');
-	$('#body').append(span);
+	this.$body.append(span);
 	if (attr) {
 		attr = span.css(attr);
 		span.remove();
@@ -24,8 +34,8 @@ function get_value_from_css(id, attr) {
 //////////////////////////////////////////////////////////////////////////////
 //●sidebarのHTML位置変更
 //////////////////////////////////////////////////////////////////////////////
-css_initial_functions.push(function(){
-	var flag = get_value_from_css('sidebar-move-to-before-main');
+adiary.css_init(function(){
+	var flag = this.get_value_from_css('sidebar-move-to-before-main');
 	if (SP || !flag) return;
 
 	// 入れ替え
@@ -33,9 +43,8 @@ css_initial_functions.push(function(){
 	sidebar.insertBefore( 'div.main:first-child' );
 });
 
-
-css_initial_functions.push(function(){
-	var flag = get_value_from_css('side-b-move-to-footer');
+adiary.css_init(function(){
+	var flag = this.get_value_from_css('side-b-move-to-footer');
 	if (SP || !flag) return;
 
 	// 入れ替え
@@ -45,8 +54,8 @@ css_initial_functions.push(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●dropdown-menuの位置変更
 //////////////////////////////////////////////////////////////////////////////
-css_initial_functions.push(function(){
-	var flag = get_value_from_css('dropdown-menu-move-to-after-header-div');
+adiary.css_init(function(){
+	var flag = this.get_value_from_css('dropdown-menu-move-to-after-header-div');
 	if (SP || !flag) return;
 
 	// 入れ替え
@@ -55,14 +64,12 @@ css_initial_functions.push(function(){
 	header.append( ddmenu );
 });
 
-
-
 //////////////////////////////////////////////////////////////////////////////
 //●ui-iconの自動ロード		※ここを変更したら amp プラグインも変更する
 //////////////////////////////////////////////////////////////////////////////
-css_initial_functions.push(function(){
+adiary.css_init(function(){
 	var vals = [0, 0x40, 0x80, 0xC0, 0xff];
-	var color = get_value_from_css('ui-icon-autoload', 'background-color');
+	var color = this.get_value_from_css('ui-icon-autoload', 'background-color');
 	if (!color || color == 'transparent') return;
 	if (color.match(/\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0/)) return;
 
@@ -96,26 +103,41 @@ css_initial_functions.push(function(){
 	}
 	// アイコンのロード
 	var css = '.ui-icon, .art-nav a:before, .art-nav a:after { background-image: '
-		+ 'url("' + PubdistDir + 'ui-icon/' + file + '.png") }';
+		+ 'url("' + this.PubdistDir + 'ui-icon/' + file + '.png") }';
 	var style = $('<style>').attr('type','text/css');
-	$('head').append(style);
+	this.$head.append(style);
 	style.html(css);
 
 });
 
 //////////////////////////////////////////////////////////////////////////////
+//●viewport の上書き
+//////////////////////////////////////////////////////////////////////////////
+adiary.css_init(function(){
+	var val = this.get_value_from_css('viewport-setting');
+	if (!val) return;
+	$('#viewport').attr('content', val);
+});
+
+//////////////////////////////////////////////////////////////////////////////
 //●syntax highlight機能の自動ロード
 //////////////////////////////////////////////////////////////////////////////
-var alt_SyntaxHighlight = false;
-var syntax_highlight_css = 'adiary';
-function load_SyntaxHighlight() {}	// 互換性のためのダミー
-
-$(function(){
-	var $codes = $('pre.syntax-highlight');
+adiary.css_init(function(){
+	const $codes = $('pre.syntax-highlight');
 	if (!$codes.length) return;
-	if (alt_SyntaxHighlight) return alt_SyntaxHighlight();
+	if (window.alt_SyntaxHighlight) return window.alt_SyntaxHighlight();
 
-	load_script(ScriptDir + 'highlight.pack.js', function(){
+	let css = this.get_value_from_css('syntax-highlight-theme') || this.SyntaxHighlightTheme;
+	css = css.replace(/\.css$/, '').replace(/[^\w\-]/g, '');
+	const css_file = this.PubdistDir + 'highlight-js/'+ css +'.css';
+
+	const $style = $('#syntaxhighlight-theme');
+	if ($style.length)
+		return $('#syntaxhighlight-theme').attr('href', css_file);
+
+	this.prepend_css(css_file, 'syntaxhighlight-theme');
+
+	this.load_script(this.ScriptDir + 'highlight.pack.js', function(){
 		$codes.each(function(i, block) {
 			hljs.highlightBlock(block);
 
@@ -135,55 +157,4 @@ $(function(){
 			$obj.prepend( $div );
 		});
 	});
-	var style = $('<link>').attr({
-		rel: "stylesheet",
-		id: 'syntaxhighlight-theme'
-	});
-	$("head").prepend(style);
 });
-
-css_initial_functions.push(function(){
-	var css = get_value_from_css('syntax-highlight-theme') || syntax_highlight_css;
-	css = css.replace(/\.css$/, '').replace(/[^\w\-]/g, '');
-	$('#syntaxhighlight-theme').attr('href', PubdistDir + 'highlight-js/'+ css +'.css');
-});
-
-//////////////////////////////////////////////////////////////////////////////
-//●MathJaxの自動ロード
-//////////////////////////////////////////////////////////////////////////////
-var MathJaxURL = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML';
-$(function(){
-	var mj_span = $('span.math');
-	var mj_div  = $('div.math');
-	if (!mj_span.length && !mj_div.length) return;
-
-	window.MathJax = {
-		TeX: { equationNumbers: {autoNumber: "AMS"} },
-		tex2jax: {
-			inlineMath: [],
-			displayMath: [],
-			processEnvironments: false,
-			processRefs: false
-		},
-		extensions: ['jsMath2jax.js']
-	};
-	load_script( MathJaxURL );
-});
-
-//////////////////////////////////////////////////////////////////////////////
-//●viewport の上書き
-//////////////////////////////////////////////////////////////////////////////
-css_initial_functions.push(function(){
-	var val = get_value_from_css('viewport-setting');
-	if (!val) return;
-	$('#viewport').attr('content', val);
-});
-
-//////////////////////////////////////////////////////////////////////////////
-//●CSSによる設定を反映
-//////////////////////////////////////////////////////////////////////////////
-function css_inital() {
-	for(var i=0; i<css_initial_functions.length; i++)
-		(css_initial_functions[i])();
-}
-$(function(){ css_inital() });

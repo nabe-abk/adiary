@@ -25,10 +25,3 @@
 		ls.removeItem(key);
 	}
 }));
-
-$(function(){	// Emulate jquery.cookie for dynatree
-	$.storage_init( Storage );
-	$.cookie = $.storage;
-	$.removeCookie = $.removeStorage;
-});
-

@@ -6,7 +6,7 @@
 	<tr>
 		<th>表示開始ノード<span class="help" data-help="指定したノードから下をリスト表示します。">?</span></th>
 		<td>
-			<select name="node" id="node-select" data-default="<@ps.node>" data-url="<@Basepath><@v.blogpub_dir>contents.json">
+			<select name="node" id="node-select" data-default="<@ps.node>" data-url="<@Basepath><@v.blogpub_dir>contents.json?<@v.blog.json_tm>">
 				<option value="0">*トップ(root)</option>
 			</select>
 		</td>
@@ -14,7 +14,7 @@
 	<tr>
 		<th>タグを表示<span class="help" data-help="コンテンツではなく指定したタグから下をリスト表示します。">?</span></th>
 		<td>
-			<select name="tag" id="tag-select" class="js-disable" data-target="#node-select" data-default="<@tag_escape_amp(x = ps.tag)>" data-url="<@Basepath><@v.blogpub_dir>taglist.json">
+			<select name="tag" id="tag-select" class="js-disable" data-target="#node-select" data-default="<@tag_escape_amp(x = ps.tag)>" data-url="<@Basepath><@v.blogpub_dir>taglist.json?<@v.blog.json_tm>">
 				<option value="">【コンテンツを表示】</option>
 				<option value=",">*トップ(root)</option>
 			</select>
@@ -51,6 +51,6 @@
 
 <!-- JavaScript ==========================================================-->
 <script>
-load_contents_list('#node-select');
-load_tags_list('#tag-select');
+adiary.load_contents_list('#node-select');
+adiary.load_tags_list('#tag-select');
 </script>

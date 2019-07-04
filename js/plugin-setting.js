@@ -63,7 +63,7 @@ function module_setting(obj) {
 			}
 		});
 	};
-	buttons[ $('#ajs-cancel').text() ] = function(){
+	buttons[ adiary.msg('cancel') ] = function(){
 		formdiv.dialog( 'close' );
 	};
 
@@ -71,7 +71,7 @@ function module_setting(obj) {
 	formdiv.dialog({
 		autoOpen: false,
 		modal: true,
-		width:  DialogWidth,
+		width:  adiary.DialogWidth,
 		minHeight: 100,
 		maxHeight: $(window).height(),
 		title:   obj.data('title').replace('%n', obj.data('title')),
@@ -80,9 +80,9 @@ function module_setting(obj) {
 
 	// フォーム本体をロード
 	formbody.load(url, function(){
+		adiary.dom_init( formdiv );
 		formbody.append( errdiv );
 		formdiv.dialog( "open" );
-		// adiary_init( formbody );
 
 		formbody.append( $('<input>').attr({
 			type: 'hidden',

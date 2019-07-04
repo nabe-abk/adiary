@@ -73,7 +73,7 @@ $('#input-ajax').val( ajax ? 1 : 0 );
 if (!ajax) {	// IE9用
 	$('#no-ajax-link').remove();
 	//$('button,input').prop('disabled', true);
-	//show_error('#js-no-FormData');
+	//adiary.show_error('#js-no-FormData');
 
 	// 押したボタンに応じてフォームを設定
 	var type = $('<input>').attr({type: 'hidden', name: 'type'});
@@ -87,7 +87,7 @@ if (!ajax) {	// IE9用
 	// ファイルが選択されていればsubmit
 	form.submit(function(){
 		if(! file.val() ) {	// ファイルが選択されてない
-			show_error('#js-no-file');
+			adiary.show_error('#js-no-file');
 			return false;
 		}
 	});
@@ -97,8 +97,8 @@ if (!ajax) {	// IE9用
 //////////////////////////////////////////////////////////////////////////////
 // ●インポートボタン処理
 //////////////////////////////////////////////////////////////////////////////
-adiary_session($('button.import'), {
-	myself: Vmyself,
+adiary.adiary_session($('button.import'), {
+	myself: adiary.myself,
 
 	load_formdata: function(btn){
 		var fd = new FormData( form[0] );

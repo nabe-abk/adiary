@@ -1,13 +1,13 @@
 ######################################################################
 title=タグ
-version=1.11
+version=1.12
 #					(C)2018 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=3.21
+adiary_version=3.31
 module_type=sidebar
 load_module_html_in_edit=1
 

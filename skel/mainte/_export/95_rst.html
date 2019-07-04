@@ -37,9 +37,8 @@
 <@ifexec(v.special_export && Auth.isadmin, begin, begin)>
 <@>
 		<li><label><input type="checkbox" name="rst:sphinx" value="1" class="js-save js-enable" data-target=".sphinx">出力後にSphinxで処理する</label><span class="help" data-help="サーバにSphinxがインストールされている必要があります。コマンドが見つからない場合はエラーになります。">?</span></li>
-		<li><label>出力形式 <input class="js-save sphinx w80" type="text" name="rst:builder" value="html" id="sphinx-builder">
-			<select class="sphinx" id="sphinx-builder-select">
-			<option value="">（選択）</option>
+		<li><label>出力形式
+		<select class="sphinx js-save js-combo" name="rst:builder" data-target="#rst-builder-other">
 			<option value="html">HTML</option>
 			<option value="singlehtml">単一のHTML</option>
 			<option value="epub">epub</option>
@@ -60,8 +59,14 @@
 </div>
 
 <div style="display:none">
+	<@> その他の形式
+	<div id="rst-builder-other" data-title="出力形式を入力してください">
+	<input type="text" class="w200">
+	</div>
+</div>
+
 <script-defer><!--
-adiary_session($('#rst-export, #rst-export-format'), {
+adiary.adiary_session($('#rst-export, #rst-export-format'), {
 	myself: $('#rst-session-log').data('myself'),
 	load_formdata: function(btn) {
 		var fd = $('#export-form').serialize();
@@ -89,7 +94,6 @@ $(function(){
 	});
 });
 --></script-defer>
-</div>
 
 <$break()>
 <$end.html>

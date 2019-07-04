@@ -10,7 +10,7 @@
 	<tr>
 		<th>表示開始ノード<span class="help" data-help="指定したノードから下をリスト表示します。">?</span></th>
 		<td>
-			<select name="node" id="node-select" data-default="<@ps.node>" data-url="<@Basepath><@v.blogpub_dir>contents.json">
+			<select name="node" id="node-select" data-default="<@ps.node>" data-url="<@Basepath><@v.blogpub_dir>contents.json?<@v.blog.json_tm>">
 				<option value="0">*すべて(root)</option>
 			</select>
 		</td>
@@ -46,5 +46,5 @@
 
 
 <script>
-load_contents_list('#node-select');
+adiary.load_contents_list('#node-select');
 </script>

@@ -181,7 +181,7 @@ function append_element(name, val) {
 			if (val == obj.attr('value')) { obj.prop('checked', true); }
 		}
 		if (val && val != '' && obj.attr('type') == 'text') {
-			obj.val( tag_decode(val) );
+			obj.val( adiary.tag_decode(val) );
 		}
 		if (val && val != '' && (name == 'free_txt' || name == 'freebr_txt')
 		 && obj[0].tagName == 'TEXTAREA') {

@@ -5,7 +5,6 @@
 //[TAB=8]  require jQuery
 //
 'use strict';
-var Vmyself;
 var Storage;
 
 $(function() {
@@ -19,7 +18,7 @@ var rePostDays = 30;
 ///////////////////////////////////////////////////////////////////////////////
 var $span = $('#webpush-data');
 var $btn  = $('button.regist-webpush');
-var script  = Vmyself + '?sworker';
+var script  = adiary.myself + '?sworker';
 var timer;
 var log = debug ? console.log : function(){ return; };
 var tm  = Math.floor((new Date()).getTime() / 1000);	// msec to sec
@@ -30,7 +29,7 @@ var tm  = Math.floor((new Date()).getTime() / 1000);	// msec to sec
 // 通知処理による遅延防止のため、クライアントに送信処理を呼び出してもらう
 if ($span.data('send')) {
 	log('call send process');
-	$.post( Vmyself, { action: 'webpush/send' });
+	$.post( adiary.myself, { action: 'webpush/send' });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,8 +82,8 @@ function regist_confirm() {
 	var $div = $('<div>').addClass('foot-message-transion');
 	msg = msg.replace(/\n/g, "<br>");
 	var $buttons = $('<div>');
-	var $yes = $('<span>').text( $('#ajs-ok')    .text() ).data('flag', 1);
-	var $no  = $('<span>').text( $('#ajs-cancel').text() ).data('flag', 0);
+	var $yes = $('<span>').text( adiary.msg('ok')     ).data('flag', 1);
+	var $no  = $('<span>').text( adiary.msg('cancel') ).data('flag', 0);
 	$buttons.append($yes, $no);
 
 	var click = function(evt) {
@@ -218,7 +217,7 @@ function postSubscription(subscription) {
 		auth_txt: base64(auth)
 	};
 
-	fetch(Vmyself, {
+	fetch(adiary.myself, {
 		credentials: 'include',		// cookie
 		method: 'POST',
 		body: $.param(form)

@@ -39,9 +39,9 @@ $(function(){
 		var obj = detail;
 		var tar = $(obj.data('target'));
 		if (obj.prop('checked'))
-			tar.show(DefaultShowSpeed, iframe_resize);
+			tar.showDelay(iframe_resize);
 		else
-			tar.hide(DefaultShowSpeed, iframe_resize);
+			tar.hideDelay(iframe_resize);
 	}
 	detail.click( detail_click );
 	detail_click( );
@@ -58,10 +58,10 @@ sel.change(function(evt){
 	current_theme = theme;
 
 	theme_query = '&_theme=' + theme;
-	iframe.attr('src', Vmyself + '?' + theme_query ); 
+	iframe.attr('src', adiary.myself + '?' + theme_query ); 
 	var opt = sel.children(':selected');
 	if (opt.data('readme')) {
-		readme.data('url', Vmyself + '?design/theme_readme&name=' + theme);
+		readme.data('url', adiary.myself + '?design/theme_readme&name=' + theme);
 		readme.removeAttr('disabled');
 	} else {
 		readme.data('url', '');
@@ -126,7 +126,7 @@ sysmode_no.change(function(){
 	if (sysmode_no.prop('checked')) return;
 	if (!sysmode_no_flag) return;
 
-	my_confirm('#sysmode-no-warning', function(flag){
+	adiary.confirm('#sysmode-no-warning', function(flag){
 		if (!flag)
 			sysmode_no.prop('checked', true);
 	});
@@ -151,7 +151,7 @@ iframe.on('load', function(){
 		var obj = $(dom);
 		var url = obj.attr('href');
 		if (! url) return;
-		if (url.indexOf(Vmyself)!=0) return;
+		if (url.indexOf(adiary.myself)!=0) return;
 		if (url.match(/\?(.+&)?_\w+=/)) return;	// すでに特殊Queryがある
 
 		// デザイン画面では解除
@@ -201,7 +201,7 @@ function init_custmize(name) {
   css_text = '';
   submit_btn.prop('disabled', true);
   $.ajax({
-	url: Vmyself + '?design/theme_colors&name=' + name,
+	url: adiary.myself + '?design/theme_colors&name=' + name,
 	dataType: 'json',
 	success: function(data){
 		if (data.error || !data._css_text)
@@ -266,7 +266,7 @@ function init_custom_form(data, data2) {
 		if (k.substr(-4) == '-rel') continue;
 		cols.push({name: k, val: data[k], priority: get_priority(k) });
 	}
-	if (err.length) show_error({html: err});
+	if (err.length) adiary.show_error({html: err});
 	cols = cols.sort(function(a, b) {
 		if (a.priority < b.priority) return -1;
 		if (a.priority > b.priority) return  1;
@@ -325,6 +325,9 @@ function init_custom_form(data, data2) {
 		div.append(span);
 	}
 	input_cols = $(input_cols);
+
+	// color picker init
+	adiary.dom_init( custom_form );
 
 	// オプション選択生成
 	opts = [];
@@ -401,7 +404,7 @@ function relation_colors(name, test) {
 		}
 		// console.log(k + ' = ' + v + ' = ' + col );
 		if (!v) {
-			show_error('#css-exp-error', {s: rel_col[k]});
+			adiary.show_error('#css-exp-error', {s: rel_col[k]});
 			continue;
 		}
 		var obj = $('#inp-' + k);
@@ -416,7 +419,7 @@ var CSS_ReInit;
 setInterval(function(){
 	if (!CSS_ReInit) return;
 	CSS_ReInit = false;
-	iframe[0].contentWindow.css_inital();
+	iframe[0].contentWindow.adiary.css_init();
 },500);
 
 function update_css() {
@@ -475,7 +478,7 @@ function update_css() {
 	if_css.html( new_css );
 
 	// CSSによる設定反映
-	// iframe[0].contentWindow.css_inital();
+	// iframe[0].contentWindow.adiary.css_init();
 	CSS_ReInit = true;
 }
 
@@ -686,7 +689,7 @@ function automatic(des_name, src_name) {
 	hsv.h = hsv.h + diff.h;
 	hsv.s = hsv.s + diff.s;
 	hsv.v = hsv.v + diff.v;
-	console.log(des_name,"-->",hsv.h, hsv.s, hsv.v);
+	// console.log(des_name,"-->",hsv.h, hsv.s, hsv.v);
 
 	return HSVtoRGB( hsv );
 }

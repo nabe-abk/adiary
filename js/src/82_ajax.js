@@ -4,10 +4,10 @@
 //////////////////////////////////////////////////////////////////////////////
 // ●セッションを保持して随時データをロードする
 //////////////////////////////////////////////////////////////////////////////
-window.adiary_session = function(_btn, opt){
+adiary.adiary_session = function(_btn, opt){
   $(_btn).click( function(evt){
 	var btn = $(evt.target);
-	var myself = opt.myself || Vmyself;
+	var myself = opt.myself || this.myself;
 	var log = btn.rootfind(opt.log || btn.data('log-target') || '#session-log');
 
 	var load_session = myself + '?etc/load_session';

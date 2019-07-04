@@ -17,7 +17,6 @@
 //	isImg	画像ファイルか？ true/false
 //
 'use strict';
-var DialogWidth;	// adiary.jsの参照
 var IE11;
 
 $( function(){
@@ -65,7 +64,7 @@ $( function(){
 var set = {
 	autoFocus: false,
 	persist: true,
-	cookieId: 'album:' + Vmyself,
+	cookieId: 'album:' + adiary.myself,
 	minExpandLevel: 2,
 	imagePath: $('#icon-path').text(),
 	debugLevel: 0,
@@ -81,8 +80,8 @@ var set = {
 		var rootNode = tree.dynatree("getRoot");
 		rootNode.visit(function(node){
 			var data = node.data;
-			data.name     = tag_decode(data.name || '');
-			data.key      = tag_decode(data.key);
+			data.name     = adiary.tag_decode(data.name || '');
+			data.key      = adiary.tag_decode(data.key);
 			data.title    = get_title(data);
 			data.expand   = true;
 			data.isFolder = true;
@@ -174,8 +173,7 @@ if(! allow_edit) {	// 編集権限なし
 tree.dynatree(set);
 
 function get_title(data) {
-	// tag_esc in adiary.js
-	return tag_esc(data.name) + (data.count==0 ? '' : ' (' + data.count + ')');
+	return adiary.tag_esc(data.name) + (data.count==0 ? '' : ' (' + data.count + ')');
 }
 
 //############################################################################
@@ -454,7 +452,7 @@ $('#album-new-folder').click( function(){
 //////////////////////////////////////////////////////////////////////////////
 function clear_trash() {
 	// 確認メッセージ
-	my_confirm('#msg-confirm-trash', function(flag) {
+	adiary.confirm('#msg-confirm-trash', function(flag) {
 		if (!flag) return;
 		delete_folder('.trashbox/');
 	});
@@ -703,7 +701,7 @@ function rename_file(obj, li, new_name) {
 function error_msg(id, h) {
 	if (h && h.files)
 		h.f = '<ul class="small"><li>' + h.files.join("</li><li>") + '</li></ul>';
-	show_error({id:id, hash:h});
+	adiary.show_error({id:id, hash:h});
 }
 
 // 末尾の / を除去
@@ -814,7 +812,7 @@ function ajax_submit(opt) {
 	data.csrf_check_key = $('#csrf-key').val();
 
 	folder_icon.attr('class', 'dynatree-statusnode-wait');	// Loding.gif
-	$.ajax(Vmyself + '?etc/ajax_dummy', {
+	$.ajax(adiary.myself + '?etc/ajax_dummy', {
 		method: 'POST',
 		data: data,
 		dataType: opt.type || 'json',
@@ -961,7 +959,7 @@ function update_view(flag, selected) {
 		var tms  = date.toLocaleString().replace(/\b(\d[\/: ])/g, "0$1");
 		span.append( $('<span>').addClass('filedate').text( tms ) );
 		// サイズ
-		span.append( $('<span>').addClass('filesize').text( size_format(file.size) ) );
+		span.append( $('<span>').addClass('filesize').text( adiary.size_format(file.size) ) );
 
 		// 追加
 		if (allow_edit) {
@@ -1228,7 +1226,7 @@ function select_exifjpeg(){
 		data: { folder: cur_folder },
 		success: function(data) {
 			if (!data in Array)   return error_msg('#msg-load-exif-error');
-			if (data.length == 0) return show_dialog('#msg-exif-notfound');
+			if (data.length == 0) return adiary.show_dialog('#msg-exif-notfound');
 
 			// exifファイルを選択
 			var files = {};
@@ -1299,7 +1297,7 @@ function album_delete_files() {
 	var trash = (cur_folder.substr(0,10) == '.trashbox/');
 	var mode  = trash ? 'delete' : 'trash';
 
-	my_confirm('#msg-confirm-'+mode+'-files', function(flag) {
+	adiary.confirm('#msg-confirm-'+mode+'-files', function(flag) {
 		if (!flag) return;
 		if (trash) {
 			delete_files();
@@ -1326,7 +1324,7 @@ $(document).on('keydown', function(evt) {
 	if (cur_folder == '.trashbox/') return clear_trash();
 
 	// フォルダの削除
-	if (cur_folder != '/') my_confirm('#msg-confirm-'+mode+'-folder', function(flag) {
+	if (cur_folder != '/') adiary.confirm('#msg-confirm-'+mode+'-folder', function(flag) {
 		if (!flag) return;
 		if (trash) {
 			delete_folder(cur_folder);
@@ -1377,7 +1375,7 @@ function update_files_view(files) {
 	$div.empty();
 	for(var i=0; i<files.length; i++) {
 		if (!files[i]) continue;
-		var fs  = size_format(files[i].size);
+		var fs  = adiary.size_format(files[i].size);
 		var div = $('<div>').text(
 			files[i].name + ' (' + fs + ')'
 		);
@@ -1415,7 +1413,7 @@ function upload_post_process(text) {
 		ret = reg[0];
 		message.html( ary.join("\n") );
 	} else {
-		message.html( '<div class="message error">upload error : ' + tag_esc(ret) + '</div>' );
+		message.html( '<div class="message error">upload error : ' + adiary.tag_esc(ret) + '</div>' );
 	}
 	message.showDelay();
 

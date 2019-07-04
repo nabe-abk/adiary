@@ -6,7 +6,6 @@
 'use strict';
 //### global variables #######################################################
 var insert_image;	// global function for album.js
-var DialogWidth;
 var IE11;
 
 $(function(){
@@ -16,8 +15,8 @@ const $upsel  = $secure('#upnode-select');
 const $edit   = $('#editarea');
 const CSRF_key = $('#csrf-key').val();
 
-load_tags_list($tagsel);
-load_contents_list($upsel);
+adiary.load_tags_list($tagsel);
+adiary.load_contents_list($upsel);
 
 //############################################################################
 // ■下書きを開く
@@ -60,7 +59,7 @@ load_contents_list($upsel);
 			if ($(ch[i]).text() == text) return;
 		}
 		// append
-		var $tag = $('<span>').addClass('tag').html( tag_esc_amp(text) );
+		var $tag = $('<span>').addClass('tag').html( adiary.tag_esc_amp(text) );
 		var $inp = $('<input>').attr({
 			type: 'hidden',
 			name: 'tag_ary',
@@ -98,7 +97,7 @@ load_contents_list($upsel);
 		// ボタンの設定
 		var buttons = {};
 		var ok_func = buttons[$('#new-tag-append').text()] = tag_append_func;
-		buttons[ $('#ajs-cancel').text() ] = function(){
+		buttons[ adiary.msg('cancel') ] = function(){
 			$div.dialog( 'close' );
 		};
 		$div.dialog({
@@ -280,7 +279,7 @@ edit.prototype.open_dialog = function(data) {
 		html += '<li>' + data[i].id + ' (' + data[i].sid + ')' + '</li>';
 	}
 	html+='</ul>';
-	my_confirm({
+	adiary.confirm({
 		id: '#edit-confirm',
 		hash: { u: html }
 	}, function(flag){
@@ -304,7 +303,7 @@ edit.prototype.enable = function() {
 
 	$('#edit').find('form, button:not(.no-disable), input, select').prop('disabled', false);
 	$('#edit').find('textarea').prop('readonly', false);
-	$('#edit').find('.js-fileup').prop('disabled', false);
+	$('#edit').find('.fileup').prop('disabled', false);
 
 	// ページを離れるときにunlock
 	if (this.interval) {
@@ -323,7 +322,7 @@ edit.prototype.disable = function() {
 
 	$('#edit').find('form, button:not(.no-disable), input, select').prop('disabled', true);
 	$('#edit').find('textarea').prop('readonly', true);
-	$('#edit').find('.js-fileup').prop('disabled', true);
+	$('#edit').find('.fileup').prop('disabled', true);
 }
 
 //----------------------------------------------------------------------------
@@ -366,7 +365,7 @@ edit.prototype.ajax_lock = function(opt) {
 
 	var param = {
 		type: 'POST',
-		url: Vmyself + '?etc/ajax_dummy',
+		url: adiary.myself + '?etc/ajax_dummy',
 		dataType: 'json',
 		data: {
 			action: opt.action,
@@ -444,14 +443,14 @@ function open_upload_dialog(files) {
 
 		$file_btn.val('');
 	};
-	buttons[ $('#ajs-cancel').text() ] = function(){
+	buttons[ adiary.msg('cancel') ] = function(){
 		div.dialog( 'close' );
 		$upform.detach();
 		div.remove();
 	};
 	div.dialog({
 		modal: true,
-		width:  DialogWidth,
+		width:  adiary.DialogWidth,
 		// minHeight: 200,
 		title:   $fileup.data('title'),
 		buttons: buttons
@@ -465,7 +464,7 @@ function update_files_view(files) {
 	$div.empty();
 	for(var i=0; i<files.length; i++) {
 		if (!files[i]) continue;
-		var fs  = size_format(files[i].size);
+		var fs  = adiary.size_format(files[i].size);
 		var div = $('<div>').text(
 			files[i].name + ' (' + fs + ')'
 		);
@@ -490,14 +489,14 @@ function upload_files_insert(data, opt) {
 	}
 
 	if (data['fail']) {
-		show_error('#msg-upload-fail', {
+		adiary.show_error('#msg-upload-fail', {
 			n: data['fail'] + data['success'],
 			f: data['fail'],
 			s: data['success']
 		});
 		return;
 	} else if (data['ret']) {
-		show_error('#msg-upload-error');
+		adiary.show_error('#msg-upload-error');
 		return;
 	}
 
@@ -576,7 +575,7 @@ function ajax_upload( form_dom, files, option ) {
 	});
 
 	// submit処理
-	$.ajax(Vmyself + '?etc/ajax_dummy', {
+	$.ajax(adiary.myself + '?etc/ajax_dummy', {
 		method: 'POST',
 		contentType: false,
 		processData: false,
@@ -584,7 +583,7 @@ function ajax_upload( form_dom, files, option ) {
 		dataType: 'json',
 		error: function(xhr) {
 			console.log('[ajax_upload()] http post fail');
-			show_error('#msg-upload-error');
+			adiary.show_error('#msg-upload-error');
 		},
 		success: function(data) {
 			console.log('[ajax_upload()] http post success');

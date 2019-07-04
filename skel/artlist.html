@@ -158,7 +158,7 @@
 	<h3>タグ設定</h3>
 	
 		<input type="text" id="tag-input" name="tags" value="" class="w80p"><br>
-		<select name="taglist" id="tag-select" data-url="<@Basepath><@add_lastmodified(v.blogpub_dir . 'taglist.json')>">
+		<select name="taglist" id="tag-select" data-url="<@Basepath><@v.blogpub_dir>taglist.json?<@v.blog.json_tm>">
 			<option value="" class="special">【タグを選択】</option>
 		</select>
 		<select name="tag_append">
@@ -168,9 +168,9 @@
 		<button type="submit" name="mode" value="tagset">タグの一括設定</button>
 	</div>
 	<div>
-	<button type="submit" name="mode" value="enable"  class="js-form-check" data-confirm="">公開に設定</button> <@\>
+	<button type="submit" name="mode" value="enable"  class="js-form-check" data-confirm="">表示に設定</button> <@\>
 	<@if(s.edit_by_author_only && !v.blog_admin, '<span class="help" data-help="他人の記事の状態は変更できません。">?</span>')>
-	<button type="submit" name="mode" value="disable" class="js-form-check" data-confirm="">非公開に設定</button>
+	<button type="submit" name="mode" value="disable" class="js-form-check" data-confirm="">非表示に設定</button>
 	<button type="button" data-target="#tag-form" class="js-switch">タグ設定</button>
 	<button type="submit" name="mode" value="delete"  class="js-form-check" id="del-submit" data-confirm="%c件の記事を削除しますか？" data-focus="cancel">削除</button>
 	</div>
@@ -191,7 +191,7 @@
 <@ifexec(v.allow_edit, begin)>
 	var taginp = $('#tag-input');
 	var tagsel = $('#tag-select');
-	load_tags_list(tagsel);
+	adiary.load_tags_list(tagsel);
 	tagsel.change(function(evt){
 		var newtag = tagsel.val();
 		tagsel.val('');
