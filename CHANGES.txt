@@ -5,6 +5,8 @@
 -adiary.jsをリファクタリングしました。
 --jQuery等のjsライブラリとまとめて、adiary.min.js に minify しました。
 --テキストボックスのリサイズ等いくつか機能を削除しました。
+-テーマ、CSS関連
+--ui-iconをJavaScriptで生成するよう変更（pub-dist/ui-icon/ 画像ファイルを削除）
 -【Fix】HTTP.pmのtypoを修正（[https://adiary.adiary.jp/0410#c1:Thanks to t-hide]）
 
 *Ver3.30a : 2019/06/30

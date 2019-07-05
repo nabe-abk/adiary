@@ -65,49 +65,67 @@ adiary.css_init(function(){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●ui-iconの自動ロード		※ここを変更したら amp プラグインも変更する
+//●ui-iconの生成
 //////////////////////////////////////////////////////////////////////////////
 adiary.css_init(function(){
-	var vals = [0, 0x40, 0x80, 0xC0, 0xff];
-	var color = this.get_value_from_css('ui-icon-autoload', 'background-color');
-	if (!color || color == 'transparent') return;
-	if (color.match(/\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0/)) return;
-
-	var ma = color.match(/#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})/);
-	var cols = [];
-	if (ma) {
-		cols[0] = parseInt('0x' + ma[1]);
-		cols[1] = parseInt('0x' + ma[2]);
-		cols[2] = parseInt('0x' + ma[3]);
-	} else {
-		// rgb( 0, 0, 255 )
-		var ma = color.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
-		if (!ma) return;
-		cols[0] = ma[1];
-		cols[1] = ma[2];
-		cols[2] = ma[3];
-	}
-	// 用意されているアイコンからもっとも近い色を選択
-	var file='';
-	for(var i=0; i<3; i++) {
-		var c = cols[i];
-		var diff=255;
-		var near;
-		for(var j=0; j<vals.length; j++) {
-			var d = Math.abs(vals[j] - c);
-			if (d>diff) continue;
-			near = vals[j];
-			diff = d;
+	let color_bin;
+	{
+		const css = this.get_value_from_css('ui-icon-autoload', 'background-color');
+		if (!css) return;
+		const col = css.match(/#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})/);
+		if (col) {
+			color_bin = String.fromCharCode(
+				parseInt('0x'+col[1]), parseInt('0x'+col[2]), parseInt('0x'+col[3])
+			);
+		} else {
+			const rgb = css.match(/\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\)/);
+			if (!rgb) return;
+			color_bin = String.fromCharCode(rgb[1], rgb[2], rgb[3]);
 		}
-		file += (near<16 ? '0' : '') + near.toString(16);
 	}
-	// アイコンのロード
-	var css = '.ui-icon, .art-nav a:before, .art-nav a:after { background-image: '
-		+ 'url("' + this.PubdistDir + 'ui-icon/' + file + '.png") }';
-	var style = $('<style>').attr('type','text/css');
-	this.$head.append(style);
-	style.html(css);
+	// console.log(color_bin.charCodeAt(0), color_bin.charCodeAt(1), color_bin.charCodeAt(2));
 
+	// generate ui-icon.png
+	let png = atob( 'iVBORw0KGgoAAAANSUhEUgAAAFAAAAAgAQMAAAC//W0vAAAABlBMVEUAAP/8/PzLviUMAAAAAnRSTlP/AOW3MEoAAADJSURBVBjTdc4xjgIxDEDRjChSUOQIPkoOskehMBIH4EoZUUy509GgTaQtpiSIJiiRjR0BooBUr3D8bfj1zBvJMSiWxbSFMFnmw8Hcrg1jvf6OO1Nr2/zVyz7ZBwtkp1ydavMFdNbOP515KW5e94HkLjyv+7eJ/4V92Z6PHGtPRD6z1iT8+bLPDDYyIyGxJCYmbJ5QOHLDAuRNhoAFsyNQQh6S3TpTfHBpCKutVUIamhc2DJiVTjhy0WVgiCdZJvQSjs9Ezyu/XHYH55/2IroZ0KMAAAAASUVORK5CYII=')
+
+	// exchange png color
+	{
+		const PALATTE_OFFSET = 0x29;
+		png = png.substr(0, PALATTE_OFFSET) + color_bin + png.substr(PALATTE_OFFSET+3);
+	}
+
+	// calc CRC32
+	const GEN    = 0xEDB88320;
+	const offset = 0x25;
+	const length = 10;
+
+	let data = png.substr(offset, length);
+	let crc  = 0xffffffff;
+	{
+		let d;
+		let bits = length<<3;
+		for(let i=0,j=0; i<bits; i++) {
+			if ((i & 7)== 0) d = data.charCodeAt(j++);
+			crc ^= (d & 1);
+			let x = crc & 1;
+			crc = crc>>>1;
+			d   >>>=1;
+			if (x) crc ^= GEN;
+		}
+		crc = ~crc;
+		crc = String.fromCharCode( (crc>>>24) & 0xff, (crc>>>16) & 0xff, (crc>>>8) & 0xff, crc & 0xff);
+	}
+	{
+		const p = offset + length;
+		png = png.substr(0, p) + crc + png.substr(p+4);
+	}
+	const $style = $('<style>').attr('type','text/css');
+	this.$head.append($style);
+	const css = '.ui-icon, .art-nav a:before, .art-nav a:after {'
+			+ 'background-image: '
+			+ 	'url("data:image/png;base64,' + btoa(png) + '")'
+			+ '}'
+	$style.html(css);
 });
 
 //////////////////////////////////////////////////////////////////////////////
