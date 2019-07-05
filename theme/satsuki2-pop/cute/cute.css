@@ -471,26 +471,6 @@ nav.page-foot {
     text-align:             right;
 }
 
-a.prev-page:before,
-a.upnode-page:before,
-a.next-page:after {
-	display:		inline-block;
-	width:			16px;
-	height:			16px;
-/*	background-image:	url(ui-icons.png);	*/
-	content:		' ';
-	vertical-align:		bottom;
-}
-a.prev-page:before {
-	background-position: -208px -16px;
-}
-a.upnode-page:before {
-	background-position: -224px -16px;
-}
-a.next-page:after {
-	background-position: -240px -16px;
-}
-
 /*--------------------------------------------------------------------
 ■ 記事部 (本文)
 ---------------------------------------------------------------------*/

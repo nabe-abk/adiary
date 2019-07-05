@@ -356,26 +356,13 @@ nav.page-foot {
 }
 
 /* アイコン */
-a.prev-page:before,
-a.upnode-page:before,
-a.next-page:after {
-    display:                inline-block;
-    width:                  16px;
-    height:                 16px;
-    content:                "";
-    vertical-align:         bottom;
-}
-
 a.prev-page:before {
-    background-position:    -208px -16px;
     margin-right:           0.4em;
 }
 a.upnode-page:before {
-    background-position:    -224px -16px;
     margin-right:           0.4em;
 }
 a.next-page:after {
-    background-position:    -240px -16px;
     margin-left:            0.4em;
 }
 
