@@ -144,35 +144,40 @@ adiaryUIRemove: function($obj) {
 // draggable
 //////////////////////////////////////////////////////////////////////////////
 adiaryDraggable: function(opt) {
-	const self=this;
 	let sx;
 	let sy;
+	let $obj;
+	this.addClass('aui-draggable');
 
 	this.on('mousedown', function(evt){
+		$('iframe').css('pointer-events', 'none');
+		$obj = $(evt.target);
+		if (!$obj.hasClass('aui-draggable'))
+			$obj = $obj.parents('.aui-draggable');
+
 		if (opt && opt.cancel) {
-			const $obj = $(evt.target);
-			if ($obj.filter(opt.cancel).length ) return;
-			if ($obj.parents(opt.cancel).length) return;
+			const $o = $(evt.target);
+			if ($o.filter(opt.cancel).length ) return;
+			if ($o.parents(opt.cancel).length) return;
 		}
-		self.addClass('drag');
-		const p = self.offset();
+		const p = $obj.offset();
 		sx = p.left - evt.pageX;
 		sy = p.top  - evt.pageY;
-		$(document).on('mousemove', move);
+		document.addEventListener('mousemove', move);
 		evt.preventDefault();
 		return;
 	});
 
 	this.on('mouseup', function(evt){
-		$(document).off('mousemove', move);
+		$('iframe').css('pointer-events', 'auto');
+		document.removeEventListener('mousemove', move);
 		evt.preventDefault();
 	});
 
 	function move(evt) {
 		const x = sx + evt.pageX;
 		const y = sy + evt.pageY;
-
-		self.css({
+		$obj.css({
 			position:	'absolute',
 			left:		x + 'px',
 			top:		y + 'px'
