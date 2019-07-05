@@ -345,7 +345,7 @@ sub do_request {
 		$v =~ s/[\s\r\n]*$//;
 		$header .= "$_: $v\r\n";
 	}
-	$header .= "Connction: close\r\n";
+	$header .= "Connection: close\r\n";
 	$header .= $http_cookie;
 
 	#----------------------------------------------------------------------
