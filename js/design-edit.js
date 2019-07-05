@@ -437,7 +437,7 @@ function module_setting(obj, mode) {
 				errmsg.html( $('#msg-save-error').html() +'(ret='+ RegExp.$1 +')');
 			} else {
 				//成功
-				formdiv.dialog( 'close' );
+				formdiv.adiaryDialog( 'close' );
 				// モジュールHTMLをサーバからロード？
 				if (mode == 'css')
 					load_module_css ( obj, load_module_html );
@@ -474,7 +474,7 @@ function module_setting(obj, mode) {
 		$.ajax( ajax );
 	};
 	buttons[ adiary.msg('cancel') ] = function(){
-		formdiv.dialog( 'close' );
+		formdiv.adiaryDialog( 'close' );
 	};
 
 	// Enterキーで設定ウィンドウを閉じる
@@ -487,7 +487,7 @@ function module_setting(obj, mode) {
 	$('#body').append( formdiv );
 
 	// ダイアログの設定
-	formdiv.dialog({
+	formdiv.adiaryDialog({
 		autoOpen: false,
 		modal: true,
 		width:  adiary.DialogWidth,
@@ -515,7 +515,7 @@ function module_setting(obj, mode) {
 		}
 		body.append( errdiv );
 		adiary.dom_init( formdiv );
-		formdiv.dialog( "open" );
+		formdiv.adiaryDialog( "open" );
 	});
 }
 
@@ -728,7 +728,7 @@ function view_html_source(_obj) {
 	div.attr('title', $('#msg-html-source').text() );
 	div.addClass( 'pre' );
 	div.text( obj[0].outerHTML );
-	div.dialog({ width: adiary.DialogWidth, maxHeight: $(window).height() });
+	div.adiaryDialog({ width: adiary.DialogWidth, maxHeight: $(window).height() });
 }
 
 //############################################################################

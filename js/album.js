@@ -1537,7 +1537,7 @@ function folder_select_dialog(callback) {
 			error_msg('#msg-illegal-folder');
 			return;
 		}
-		div.dialog('close');
+		div.adiaryDialog('close');
 	};
 	album_dialog(div, ok_func);
 }
@@ -1549,12 +1549,12 @@ function album_dialog(div, ok_func) {
 	var buttons = {};
 	buttons[ div.data('ok') ] = function(){
 		ok_func();
-		div.dialog('close');
+		div.adiaryDialog('close');
 	}
 	buttons[ div.data('cancel') ] = function(){
-		div.dialog('close');
+		div.adiaryDialog('close');
 	};
-	div.dialog({
+	div.adiaryDialog({
 		modal: true,
 		minWidth:  240,
 		minHeight: 100,

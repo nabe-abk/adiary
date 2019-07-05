@@ -20,10 +20,10 @@ adiary.show_dialog = function(h, _arg) {
 	var div = $('<div>');
 	div.html( html );
 	div.attr('title', h.title || obj.data('title') || h.default_title || 'Dialog');
-	div.dialog({
+	div.adiaryDialog({
 		modal: true,
 		dialogClass: h.dclass,
-		buttons: { OK: function(){ div.dialog('close'); } }
+		buttons: { OK: function(){ div.adiaryDialog('close'); } }
 	});
 	return false;
 }
@@ -44,14 +44,14 @@ adiary.confirm = function(h, callback) {
 	$div.attr('title', h.title || $obj.data('title') || this.msg('confirm'));
 	let btn = {};
 	btn[ h.btn_ok || this.msg('ok') ] = function(){
-		$div.dialog('close');
+		$div.adiaryDialog('close');
 		callback(true);
 	};
 	btn[ h.btn_cancel || this.msg('cancel') ] = function(){
-		$div.dialog('close');
+		$div.adiaryDialog('close');
 		callback(false);
 	};
-	$div.dialog({
+	$div.adiaryDialog({
 		modal: true,
 		dialogClass: h.class,
 		buttons: btn,
@@ -131,7 +131,7 @@ adiary.form_dialog = function(h) {
 			var obj = inputs[i];
 			if (obj.validity && !obj.validity.valid) return; // validation error
 		}
-		div.dialog( 'close' );
+		div.adiaryDialog( 'close' );
 		var ret = {};
 		var ary = form.serializeArray();
 		for(var i=0; i<ary.length; i++){
@@ -140,7 +140,7 @@ adiary.form_dialog = function(h) {
 		h.callback( ret );	// callback
 	};
 	buttons[ this.msg('cancel') ] = function(){
-		div.dialog( 'close' );
+		div.adiaryDialog( 'close' );
 		if (h.cancel) h.cancel();
 	};
 	// Enterキーによる送信防止
@@ -150,7 +150,7 @@ adiary.form_dialog = function(h) {
 	});
 
 	// ダイアログの表示
-	div.dialog({
+	div.adiaryDialog({
 		modal: true,
 		width:  this.DialogWidth,
 		minHeight: 100,

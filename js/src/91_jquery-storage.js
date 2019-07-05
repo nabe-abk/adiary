@@ -2,7 +2,6 @@
 // jQuery.storage
 //							(C)2019 nabe@abk
 //############################################################################
-// Under source is MIT License
 //
 (function (root, factory) {
 	if (typeof define === 'function' && define.amd) {

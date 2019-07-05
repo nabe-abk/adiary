@@ -558,19 +558,6 @@ div.adiary-popup {
 }
 
 /*--------------------------------------------------------------------
-●リサイズ用の部品
----------------------------------------------------------------------*/
-span.resize-parts {
-	width:		12px;		/* つかめる幅 */
-	position:	absolute;
-
-	cursor:		col-resize;
-	z-index:	9990050;	/* 下3桁がinput type="text"の最小サイズ */
-
-	/* display:	none;	*/	/* リサイズ機能を無効にする */
-}
-
-/*--------------------------------------------------------------------
 ●フォームサイズ指定部品
 ---------------------------------------------------------------------*/
 .w20 { width: 20px; }
@@ -671,86 +658,8 @@ span.highlight4	{ background-color: #f6f; }
 	margin-top:	4px;
 }
 
-/* slider */
-.ui-slider {
-	border: 1px solid #aaaaaa;
-	background-color: #ffffff;
-}
-.ui-slider-range {
-	border: 1px solid #aaaaaa;
-	background-color: #cccccc;
-}
-
 /*--------------------------------------------------------------------
-●jQuery UI カスタマイズ
----------------------------------------------------------------------*/
-.ui-icon {
-	width:			16px;
-	height:			16px;
-	display:		inline-block;
-	background-position:	99px 99px;
-	background-repeat:	no-repeat;
-}
-.ui-icon.ui-button {
-	padding:		0;
-}
-.ui-button-icon-only {
-	box-sizing:		content-box;
-}
-.ui-dialog-buttonpane button {
-	font-weight:	normal;
-}
-.ui-dialog .ui-dialog-buttonpane {
-	margin-top:	0;
-	padding-top:	0;
-}
-.ui-dialog ul {
-	padding-left:	1em;
-}
-
-/* jQuery UI icons */
-.ui-icon-search	{ background-position:   0px 0px; }
-.ui-icon-wrench	{ background-position: -16px 0px; }
-.ui-icon-image	{ background-position: -32px 0px; }
-.ui-icon-close	{ background-position: -48px 0px; }
-.ui-icon-closethick { background-position: -64px 0px; }
-
-/* adiary original */
-.prev-page:before,
-.upnode-page:before,
-.next-page:after {
-	display:		inline-block;
-	height:			14px;
-	width:			16px;
-	content:		' ';
-	vertical-align:		bottom;
-}
-.prev-page:before 	{ background-position: -32px -16px; }
-.upnode-page:before	{ background-position: -48px -16px; }
-.next-page:after	{ background-position: -64px -16px; }
-
-.sw-show .ui-icon.switch-icon {
-	background-position:	-0px -16px;
-	width:			14px;
-	height:			13px;
-}
-.sw-hide .ui-icon.switch-icon {
-	background-position:	-16px -16px;
-	width:			14px;
-	height:			13px;
-}
-
-/* 検索条件、記事編集時のタグ「☓」アイコン */
-span.tag span.ui-icon-close,
-.yyyymm  span.ui-icon-close {
-	background-position:	-50px 0px;
-	width:			12px;
-	display:		inline-block;
-	vertical-align:		middle;
-}
-
-/*--------------------------------------------------------------------
-●UIアイコン, RSSアイコン
+●スイッチアイコン, RSSアイコン
 ---------------------------------------------------------------------*/
 .ui-corner-all,
 .ui-button.ui-corner-all:hover {
@@ -758,7 +667,7 @@ span.tag span.ui-icon-close,
 }
 .ui-icon.ui-icon-close,
 .js-switch {
-	cursor:		pointer;
+	cursor:			pointer;
 }
 
 .rss-icon img {
@@ -1045,6 +954,67 @@ figure.center, figure.c {
 	margin-top:		0.5em;
 	margin-bottom:		0.5em;
 }
+/*####################################################################
+■ UI関連
+####################################################################*/
+/*--------------------------------------------------------------------
+●UIアイコン
+---------------------------------------------------------------------*/
+.ui-icon {
+	width:			16px;
+	height:			16px;
+	display:		inline-block;
+	background-position:	99px 99px;
+	background-repeat:	no-repeat;
+}
+.ui-icon.ui-button {
+	padding:		0;
+}
+.ui-button-icon-only {
+	box-sizing:		content-box;
+	cursor:			pointer;
+}
+
+/* jQuery UI icons */
+.ui-icon-search	{ background-position:   0px 0px; }
+.ui-icon-wrench	{ background-position: -16px 0px; }
+.ui-icon-image	{ background-position: -32px 0px; }
+.ui-icon-close	{ background-position: -48px 0px; }
+.ui-icon-closethick { background-position: -64px 0px; }
+
+/* adiary original */
+.prev-page:before,
+.upnode-page:before,
+.next-page:after {
+	display:		inline-block;
+	height:			14px;
+	width:			16px;
+	content:		' ';
+	vertical-align:		bottom;
+}
+.prev-page:before 	{ background-position: -32px -16px; }
+.upnode-page:before	{ background-position: -48px -16px; }
+.next-page:after	{ background-position: -64px -16px; }
+
+.sw-show .ui-icon.switch-icon {
+	background-position:	-0px -16px;
+	width:			14px;
+	height:			13px;
+}
+.sw-hide .ui-icon.switch-icon {
+	background-position:	-16px -16px;
+	width:			14px;
+	height:			13px;
+}
+
+/* 検索条件、記事編集時のタグ「☓」アイコン */
+span.tag span.ui-icon-close,
+.yyyymm  span.ui-icon-close {
+	background-position:	-50px 0px;
+	width:			12px;
+	display:		inline-block;
+	vertical-align:		middle;
+}
 
 /*--------------------------------------------------------------------
 ●システム画面UI
@@ -1054,40 +1024,67 @@ figure.center, figure.c {
 	cursor:			pointer;
 }
 
-/*--------------------------------------------------------------------
-●jQuery UI, dialog
----------------------------------------------------------------------*/
-.ui-dialog {
-	background-color:	#f8f8ff;
-	padding:		0;
-}
-.ui-dialog div.pre {
-	white-space:		pre;
-	white-space:		pre-wrap;	/* CSS3 */
-	font-family:		monospace;
-}
-.ui-dialog .ui-widget-header {
-	background-color:	#93b3ff;
-}
-.ui-dialog ul {
-	margin:			1em 0em 1em 2em;
-}
+/* dynatree */
 ul.dynatree-container {
 	min-height:		20px;
 }
 
-/* sortable */
-.dynatree-title,
-.ui-sortable-handle {
-	cursor:			-webkit-grab;
-	cursor:			grab;
+/* slider */
+.ui-slider {
+	border: 1px solid #aaaaaa;
+	background-color: #ffffff;
 }
-.ui-sortable-handle.ui-sortable-helper {
-	cursor:			-webkit-grabbing;
-	cursor:			grabbing;
+.ui-slider-range {
+	border: 1px solid #aaaaaa;
+	background-color: #cccccc;
 }
-.ui-sortable-handle .no-drag {
-	cursor:			auto;
+
+/*--------------------------------------------------------------------
+●adiary UI, dialog
+---------------------------------------------------------------------*/
+.aui-overlay {
+	z-index:		100;
+	background-color:	rgba(0,0,0,0.2);
+	position:		fixed;
+	top:			0;
+	left:			0;
+	width:			100%;
+	height:			100%;
+}
+.ui-dialog {
+	position:		absolute;
+	z-index:		101;
+	padding:		0;
+	overflow:		auto;
+}
+.ui-dialog-titlebar {
+	font-size:		12pt;
+	font-weight:		bold;
+	padding:		0.4em 1em;
+	position:		relative;
+	cursor:			move;
+}
+.ui-dialog-titlebar button.ui-button {
+	position:		absolute;
+	right:			0.5em;
+	top:			0.4em;
+	padding:		0;
+	line-height:		0;
+}
+.ui-dialog-content {
+	padding:		0.5em 1em;
+	height:			100%;
+}
+.ui-dialog-buttonpane {
+	text-align:		right;
+	padding:		0.3em 1em 0.5em 0;
+}
+.ui-dialog-buttonpane button {
+	font-weight:		normal;
+	text-align:		left;
+	margin:			0.5em 0.2em;
+	padding:		0.4em 1em;
+	line-height:		1.5;
 }
 
 /* エラーダイアログ */
@@ -1101,17 +1098,53 @@ ul.dynatree-container {
 	background-color:	#f69;
 	background-image:	none;
 }
-/* OKボタン */
 .ui-dialog.error-dialog button.ui-button {
 	color:			#444;
 	border-color:		#d99;
 	background-image:	linear-gradient(to bottom, #fdd, #faa);
 }
+
 /* エラーダイアログの閉じるボタン（常に赤アイコン） */
 .ui-dialog.error-dialog .ui-icon-closethick {
 	border-color:		#900;
 	background-image:	url('data:image/gif;base64,R0lGODlhEAAQAIAAAPwAAAAAACH5BAEAAAEALAAAAAAQABAAAAIkjI+puwDqkotnvmqNvXjP5nHQxmgkE4pdKGXBaVKxKmPljScFADs=');
 	background-position:	0px 0px;	/* This gif file in "js/src/img-src/" */
+}
+
+/*--------------------------------------------------------------------
+ダイアログのカスタマイズ
+---------------------------------------------------------------------*/
+.ui-dialog {
+	background-color:	#f8f8ff;
+}
+.ui-dialog .ui-widget-header {
+	background-color:	#93b3ff;
+}
+.ui-dialog div.pre {
+	white-space:		pre;
+	white-space:		pre-wrap;	/* CSS3 */
+	font-family:		monospace;
+}
+.ui-dialog ul {
+	margin:			1em 0em 1em 2em;
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI
+---------------------------------------------------------------------*/
+
+/* sortable */
+.dynatree-title,
+.ui-sortable-handle {
+	cursor:			-webkit-grab;
+	cursor:			grab;
+}
+.ui-sortable-handle.ui-sortable-helper {
+	cursor:			-webkit-grabbing;
+	cursor:			grabbing;
+}
+.ui-sortable-handle .no-drag {
+	cursor:			auto;
 }
 
 /*--------------------------------------------------------------------
@@ -1161,13 +1194,12 @@ ul.menu {
 	width:			98%;
 }
 
-
-/*--------------------------------------------------------------------
+/*####################################################################
 ●ドロップダウンメニュー（コンテンツリスト）
----------------------------------------------------------------------*/
-/**************************************************/
+####################################################################*/
+/*------------------------------------------------*/
 /* プルダウンメニュー、ギミック部（通常変更不要） */
-/**************************************************/
+/*------------------------------------------------*/
 .dropdown-menu {
 	position:		relative;
 	width:			100%;
@@ -1267,9 +1299,9 @@ ul.menu {
 	margin-left:	 2px;
 }
 
-/**************************************************/
+/*------------------------------------------------*/
 /* プルダウンメニュー、カスタマイズ領域（サイズ） */
-/**************************************************/
+/*------------------------------------------------*/
 .main .dropdown-menu {
 	margin-bottom:	1em;
 }
@@ -1634,9 +1666,9 @@ ul.menu {
 	transition-duration:	0s;
 }
 
-/*--------------------------------------------------------------------
+/*####################################################################
 ●デバッグ
----------------------------------------------------------------------*/
+####################################################################*/
 div.debug {
 	margin:		0 0 1em 0;
 	font-weight:	bold;

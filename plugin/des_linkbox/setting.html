@@ -53,18 +53,18 @@ btn.click(function(){
 	var buttons = {};
 	buttons['OK'] = function(){
 		append_element(inp_text.val(), inp_url.val());
-		div.dialog( 'close' );
+		div.adiaryDialog( 'close' );
 		div.remove();
 	};
 	buttons[ 'CANCEL' ] = function(){
-		div.dialog( 'close' );
+		div.adiaryDialog( 'close' );
 		div.remove();
 	};
 	inp_url.val('');
 	inp_text.val('');
 
 	// ダイアログの表示
-	div.dialog({
+	div.adiaryDialog({
 		modal: true,
 		minWidth:  adiary.DialogWidth,
 		title:   btn.text(),

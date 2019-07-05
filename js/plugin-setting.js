@@ -49,7 +49,7 @@ function module_setting(obj) {
 					errmsg.html( $('#msg-save-error').html() +'(ret='+ code +')');
 				} else {
 					//成功
-					formdiv.dialog( 'close' );
+					formdiv.adiaryDialog( 'close' );
 					// モジュールHTMLをサーバからロード？
 					if (obj.data('load-module-html')) load_module_html( obj );
 					return ;
@@ -64,11 +64,11 @@ function module_setting(obj) {
 		});
 	};
 	buttons[ adiary.msg('cancel') ] = function(){
-		formdiv.dialog( 'close' );
+		formdiv.adiaryDialog( 'close' );
 	};
 
 	// ダイアログの設定
-	formdiv.dialog({
+	formdiv.adiaryDialog({
 		autoOpen: false,
 		modal: true,
 		width:  adiary.DialogWidth,
@@ -82,7 +82,7 @@ function module_setting(obj) {
 	formbody.load(url, function(){
 		adiary.dom_init( formdiv );
 		formbody.append( errdiv );
-		formdiv.dialog( "open" );
+		formdiv.adiaryDialog( "open" );
 
 		formbody.append( $('<input>').attr({
 			type: 'hidden',

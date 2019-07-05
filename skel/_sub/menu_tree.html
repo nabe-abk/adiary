@@ -36,13 +36,13 @@
 <@ifexec(dir ne v.skel_dir, begin)>
  <span class="splitter">&gt;</span>
 <select class="dir" onchange="location.href = $(this).val()">
-<@forexec_hash(t, call("<@dir>/_items"), begin.for)>
+<@forexec_hash(t, call("<@dir>/_items") || {}, begin.for)>
 	<option value="<@v.myself>?<@dir><@t.key>"<@if(v.skel_dir eq "<@dir><@t.key>", ' selected')>><@t.val></option>
 <$end.for>
 </select>
 <$end>
 <@>----------------------------------------------------------------------------
-<$items = call("<@v.skel_dir>_items")>
+<$items = call("<@v.skel_dir>_items") || {}>
 <@ifexec(!items._order || @items._order, begin.items)>
  <span class="splitter">&gt;</span>
  <span class="items">

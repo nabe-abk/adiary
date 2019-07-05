@@ -2,7 +2,7 @@
 // Prefix付DOM Storageライブラリ
 //							(C)2019 nabe@abk
 //############################################################################
-// Under source is MIT License
+// PrefixStorage's source is MIT License
 //
 // ・pathを適切に設定することで、同一ドメイン内で住み分けることができる。
 // ・ただし紳士協定に過ぎないので過剰な期待は禁物

@@ -34,7 +34,7 @@
 	<@ifexec(v.theme eq v.default_theme, begin)>
 	<p>
 		<button type="button" id="setting1" data-url="<@v.myself>?plugin/plugin_setting&amp;name=des_searchbox">プラグイン設定１</button>
-		<button type="button" id="setting2" data-url="<@v.myself>?plugin/plugin_setting&amp;name=dem_freetext&amp;mode=css">プラグイン設定２</button>
+		<button type="button" id="setting2" data-url="<@v.myself>?plugin/plugin_setting&amp;name=dem_freetext,1&amp;mode=css">プラグイン設定２</button>
 		※ok押すとエラー表示
 	</p>
 	<$end>
@@ -150,6 +150,7 @@ $("#tree").dynatree({
 	]
 });
 
+window.$f = $;	// プラグイン設定画面のエラー防止
 function plugin_setting(evt) {
 	var formdiv = $('<div>').attr('id', 'popup-dialog');
 	var form = $('<form>');
@@ -169,14 +170,14 @@ function plugin_setting(evt) {
 		erradd.html( $('#plgset-err-msg')  .html() );
 	};
 	buttons[ adiary.msg('cancel') ] = function(){
-		formdiv.dialog( 'close' );
+		formdiv.adiaryDialog( 'close' );
 	};
 
 	// こうしておこないとロードしたJavaScriptが実行されない
 	$('#body').append( formdiv );
 
 	// ダイアログの設定
-	formdiv.dialog({
+	formdiv.adiaryDialog({
 		autoOpen: false,
 		modal: true,
 		width:  adiary.DialogWidth,
@@ -197,7 +198,7 @@ function plugin_setting(evt) {
 			body.prepend( vbtn );
 		}
 		body.append( errdiv );
-		formdiv.dialog( "open" );
+		formdiv.adiaryDialog( "open" );
 	});
 }
 $('#setting1').click( plugin_setting );

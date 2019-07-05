@@ -86,7 +86,7 @@ adiary.load_contents_list($upsel);
 			var tag = $inp.val();
 			if (tag.match(',')) return false;
 			tag_append( tag );
-			$div.dialog('close');
+			$div.adiaryDialog('close');
 			return false;
 		}
 		$inp.keydown(function(evt){
@@ -98,11 +98,10 @@ adiary.load_contents_list($upsel);
 		var buttons = {};
 		var ok_func = buttons[$('#new-tag-append').text()] = tag_append_func;
 		buttons[ adiary.msg('cancel') ] = function(){
-			$div.dialog( 'close' );
+			$div.adiaryDialog( 'close' );
 		};
-		$div.dialog({
-			modal: true,
-			minWidth:  240,
+		$div.adiaryDialog({
+			modal:	true,
 			minHeight: 200,
 			title:   $addtag.data('title'),
 			buttons: buttons,
@@ -119,7 +118,7 @@ adiary.load_contents_list($upsel);
 	$tagsel.change(function(){
 		if ($(':selected', $tagsel).data('new')) return;
 		tag_append( $tagsel.val() );
-		$div.dialog( 'close' );
+		$div.adiaryDialog( 'close' );
 	});
 }
 
@@ -435,7 +434,7 @@ function open_upload_dialog(files) {
 				});
 			},
 			complete: function(){
-				div.dialog( 'close' );
+				div.adiaryDialog( 'close' );
 				$upform.detach();
 				div.remove();
 			}
@@ -444,11 +443,11 @@ function open_upload_dialog(files) {
 		$file_btn.val('');
 	};
 	buttons[ adiary.msg('cancel') ] = function(){
-		div.dialog( 'close' );
+		div.adiaryDialog( 'close' );
 		$upform.detach();
 		div.remove();
 	};
-	div.dialog({
+	div.adiaryDialog({
 		modal: true,
 		width:  adiary.DialogWidth,
 		// minHeight: 200,

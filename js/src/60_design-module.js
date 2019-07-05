@@ -77,7 +77,6 @@ adiary.twitter_css_fix = function(css_text){
 	setTimeout(callfunc, try_msec);
 
 	function css_fix(css_text) {
-		console.log(css_text);
 		var iframes = $('iframe');
 		var iframe;
 		var $doc;
@@ -94,8 +93,6 @@ adiary.twitter_css_fix = function(css_text){
 		// wait load tweets
 		var tweet = $doc.find('.timeline-Tweet');
 		if (tweet.length < 1) return -2;
-
-		console.log( css_text );
 
 		$(iframe).css('min-width', 0);
 		var css = $('<style>').attr({

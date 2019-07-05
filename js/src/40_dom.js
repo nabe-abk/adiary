@@ -66,15 +66,15 @@ adiary.init( function(){
 		$div.empty();
 		$div.append($div2);
 		if ($obj.data('info')) {
-			const text = this.tag_esc_br( $obj.data("info") );
+			const text = self.tag_esc_br( $obj.data("info") );
 			$div2.html( text );
-			$div.dialog({ width: self.DialogWidth, close: close_func });
+			$div.adiaryDialog({ width: self.DialogWidth, close: close_func });
 			return;
 		}
 		var url = $obj.data("url");
 		$div2.load( url, function(){
 			$div2.text( $div2.text().replace(/\n*$/, "\n\n") );
-			$div.dialog({ width: self.DialogWidth, height: 320, close: close_func });
+			$div.adiaryDialog({ width: self.DialogWidth, height: 320, close: close_func });
 		});
 	});
 	function close_func() {

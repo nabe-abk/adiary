@@ -99,7 +99,7 @@ adiary.css_init(function(){
 	const offset = 0x25;
 	const length = 10;
 
-	let data = png.substr(offset, length);
+	const data = png.substr(offset, length);
 	let crc  = 0xffffffff;
 	{
 		let d;

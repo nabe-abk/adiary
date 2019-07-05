@@ -257,11 +257,9 @@ adiary.dom_init( function($R){
 		});
 
 		// if loaded jQuery UI, color picker draggable
-		if ($cp.draggable) {
-			$R.find('.colorpicker').draggable({
-				cancel: ".colorpicker_color, .colorpicker_hue, .colorpicker_submit, input, span"
-			})
-		}
+		$R.find('.colorpicker').adiaryDraggable({
+			cancel: ".colorpicker_color, .colorpicker_hue, .colorpicker_submit, input, span"
+		})
 	});
 });
 //////////////////////////////////////////////////////////////////////////////
