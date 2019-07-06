@@ -259,7 +259,7 @@ function init_custom_form(data, data2) {
 			for(var i=1; i<4; i++)
 				val += ('0' + (parseInt(ma[i])).toString(16)).substr(-2);
 			data[k] = val;
-			console.log(val);
+			// console.log(val);
 		}
 
 		if (k.substr(-4) == '-cst') continue;
@@ -420,7 +420,7 @@ setInterval(function(){
 	if (!CSS_ReInit) return;
 	CSS_ReInit = false;
 	iframe[0].contentWindow.adiary.css_init();
-},500);
+},300);
 
 function update_css() {
 	var col = {};
@@ -685,7 +685,7 @@ function automatic(des_name, src_name) {
 
 	// 今の色に変化を適用
 	var hsv = RGBtoHSV( c_cur );
-	console.log(hsv.h, hsv.s, hsv.v);
+	// console.log(hsv.h, hsv.s, hsv.v);
 	hsv.h = hsv.h + diff.h;
 	hsv.s = hsv.s + diff.s;
 	hsv.v = hsv.v + diff.v;

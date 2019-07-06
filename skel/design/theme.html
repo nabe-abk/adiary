@@ -10,6 +10,7 @@
 <@> システムモード
 <$v.special_system_mode("テーマ選択")>
 
+<$v.regist_jslib("<@v.script_dir>jquery-ui.min.js")>
 <$v.regist_js("<@v.script_dir>theme-custom.js")>
 
 <$v.add_header(exec(begin))>
@@ -73,10 +74,29 @@ select {
 	font-family:		monospace;
 }
 .ui-slider {
+	position:		relative;
 	display:		inline-block;
 	height:			6px;
+	border:			1px solid #aaaaaa;
+	background-color:	#ffffff;
+}
+.ui-slider-range {
+	position:		absolute;
+	z-index:		1;
+
+	top:			0;
+	left:			0;
+	height:			100%;
+	display:		block;
+
+	background-color:	#cccccc;
 }
 .ui-slider .ui-slider-handle {
+	position:		absolute;
+	top:			-4px;
+	z-index:		2;
+	touch-action:		none;
+
 	height:			16px;
 	width:			8px;
 	margin-top:		-2px;

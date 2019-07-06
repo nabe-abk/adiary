@@ -638,7 +638,6 @@ sub system_mode {
 	my $ROBJ = $self->{ROBJ};
 	$self->{system_mode}    = 1;
 	$ROBJ->{no_robots}      = 1;
-	$ROBJ->{load_jquery_ui} = 1;
 	if ($title ne '') { $self->{title} = $title; }
 
 	if ($self->{blog}->{sysmode_notheme}){

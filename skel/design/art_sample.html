@@ -4,8 +4,8 @@
 <$ifredirect(!v.blog_admin, v.myself)>
 
 <@> no robot
-<$no_robots      = 1>
-<$load_jquery_ui = 1>
+<$no_robots = 1>
+<$v.regist_jslib("<@v.script_dir>jquery-ui.min.js")>
 
 <$art_dummy = v.post_process_article(begin_hash)>
 pkey  = 1

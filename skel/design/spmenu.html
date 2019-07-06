@@ -9,6 +9,8 @@
 <@> 階層ツリー、権限確認、エラー表示
 <@call("_sub/menu_tree")>
 
+<$v.regist_jslib("<@v.script_dir>jquery-ui.min.js")>
+
 <$items = v.load_spmenu_items()>
 <$ifjump(!items, '_sub/error_message', '利用可能なデザインモジュール（コンテンツリスト等）がインストールされていません。','デザイン編集からサイドバー等にモジュールをインストールしてください。')>
 

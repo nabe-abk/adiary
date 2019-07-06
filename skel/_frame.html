@@ -54,7 +54,6 @@
 <$else>
 <script defer src="<@Basepath><@v.script_dir>adiary.min.js?<@get_lastmodified(v.script_dir . 'adiary.min.js')>"></script>
 <$end>
-<@if(load_jquery_ui, #'<script defer src="<@Basepath><@v.script_dir>jquery-ui.min.js"></script>\n')>
 <@forexec(t, v.load_jscss(Basepath, 'jslib'), begin)>
 <script defer src="<@t>"></script>
 <$end>

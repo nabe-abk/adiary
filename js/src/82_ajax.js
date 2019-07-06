@@ -28,15 +28,13 @@ adiary.adiary_session = function(_btn, opt){
 				ajax_session();
 				return;
 			}
-			console.log(error);
-			
+			console.warn(error);
 		}, 'text'
 	);
 
 	// Ajaxセッション開始
 	function ajax_session(){
 		log_start();
-		console.log('[adiary_session()] session start');
 		var fd;
 		if (opt.load_formdata) fd = opt.load_formdata(btn);
 				else   fd = new FormData( opt.form );
@@ -53,13 +51,13 @@ adiary.adiary_session = function(_btn, opt){
 			data: fd,
 			dataType: opt.dataType || 'text',
 			error: function(data) {
-				console.log('[adiary_session()] http post fail');
+				console.warn('[adiary_session()] http post fail');
 				log_stop(function(){
 					if (opt.error) opt.error(data);
 				});
 			},
 			success: function(data) {
-				console.log('[adiary_session()] http post success');
+				// console.log('[adiary_session()] http post success');
 				log_stop(function(){
 					if (opt.success) opt.success(data);
 				});

@@ -257,7 +257,7 @@ adiary.dom_init( function($R){
 		});
 
 		// if loaded jQuery UI, color picker draggable
-		$R.find('.colorpicker').adiaryDraggable({
+		$R.rootfind('.colorpicker').adiaryDraggable({
 			cancel: ".colorpicker_color, .colorpicker_hue, .colorpicker_submit, input, span"
 		})
 	});
@@ -331,7 +331,7 @@ adiary.dom_init( function($R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●スマホ用のDnDエミュレーション登録
+//●【スマホ】DnDエミュレーション登録
 //////////////////////////////////////////////////////////////////////////////
 adiary.dom_init( function($R){
 	$R.findx('.treebox').dndEmulation();

@@ -543,7 +543,7 @@ div.adiary-popup {
 	margin-top:		1em;
 }
 #popup-dialog textarea {
-	font-size:	9pt;
+	font-size:	10pt;
 	line-height:	120%;
 }
 
@@ -1029,15 +1029,6 @@ ul.dynatree-container {
 	min-height:		20px;
 }
 
-/* slider */
-.ui-slider {
-	border: 1px solid #aaaaaa;
-	background-color: #ffffff;
-}
-.ui-slider-range {
-	border: 1px solid #aaaaaa;
-	background-color: #cccccc;
-}
 
 /*--------------------------------------------------------------------
 ●adiary UI, dialog
@@ -1130,29 +1121,14 @@ ul.dynatree-container {
 }
 
 /*--------------------------------------------------------------------
-●jQuery UI
----------------------------------------------------------------------*/
-
-/* sortable */
-.dynatree-title,
-.ui-sortable-handle {
-	cursor:			-webkit-grab;
-	cursor:			grab;
-}
-.ui-sortable-handle.ui-sortable-helper {
-	cursor:			-webkit-grabbing;
-	cursor:			grabbing;
-}
-.ui-sortable-handle .no-drag {
-	cursor:			auto;
-}
-
-/*--------------------------------------------------------------------
 ●jQuery UI, プログレスバー
 ---------------------------------------------------------------------*/
 .ui-progressbar {
 	position:		relative;
+	overflow:		hidden;
+
 	border:			1px solid #aaa;
+	border-radius:		4px;
 	max-width:		400px;
 	background-color:	#fff;
 }
@@ -1179,6 +1155,28 @@ ul.dynatree-container {
 	padding:		1px 0 0 1px;	/* 外枠の幅と合わせること */
 	background-color:	#bbb;
 	border-radius:		0;
+
+	margin:			-1px;
+	height:			100%;
+	display:		block;
+}
+
+/*--------------------------------------------------------------------
+●jQuery UI
+---------------------------------------------------------------------*/
+
+/* sortable */
+.dynatree-title,
+.ui-sortable-handle {
+	cursor:			-webkit-grab;
+	cursor:			grab;
+}
+.ui-sortable-handle.ui-sortable-helper {
+	cursor:			-webkit-grabbing;
+	cursor:			grabbing;
+}
+.ui-sortable-handle .no-drag {
+	cursor:			auto;
 }
 
 /*--------------------------------------------------------------------

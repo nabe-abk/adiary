@@ -106,7 +106,7 @@ function import_img_rec(arts, i) {
 			log(title);
 			if (text != '') log(text + "\n");
 			var par = Math.floor(num*100/arts.length + 0.5);
-			$prog.progressbar({ value: par });
+			$prog.adiaryProgressbar({ value: par });
 
 			if (num == arts.length) {
 				log('*** Finish ***');
@@ -136,7 +136,6 @@ function import_img_start(arts) {
 	$('#action').val(act);
 	stop = false;
 	init_progressbar();
-	$prog.progressbar({ value: 0 });
 	import_img_rec(arts, 0);
 }
 
@@ -179,10 +178,10 @@ function http_error(jqXHR, err, errTh){
 //=============================================================================
 function init_progressbar() {
 	var label = $prog.find('.label');
-	$prog.progressbar({
+	$prog.adiaryProgressbar({
 		value: 0,
-		change: function() {
-			label.text( $prog.progressbar( "value" ) + "%" );
+		change: function(value) {
+			label.text( value + "%" );
 		},
 		complete: function() {
 			label.text( "complite!" );

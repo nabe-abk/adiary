@@ -818,11 +818,11 @@ function ajax_submit(opt) {
 		dataType: opt.type || 'json',
 		error: function(data) {
 			if (opt.error) opt.error(data);
-			console.log('[ajax_submit()] http post fail');
+			// console.log('[ajax_submit()] http post fail');
 		},
 		success: function(data) {
 			if (opt.success) opt.success(data);
-			console.log('[ajax_submit()] http post success');
+			// console.log('[ajax_submit()] http post success');
 		},
 		complete : function() {
 			folder_icon.attr('class', 'dynatree-ico-ef');
@@ -1438,10 +1438,10 @@ function ajax_upload(files) {
 	// progress message
 	var $label = $('<span>').addClass( 'label' );
 	var $prog  = $('<div>').append( $label );
-	$prog.progressbar({
+	$prog.adiaryProgressbar({
 		value: 0,
-		change: function() {
-			$label.text( "Uploading " + $prog.progressbar( "value" ) + "%" );
+		change: function(value) {
+			$label.text( "Uploading " + value + "%" );
 		},
 		complete: function() {
 			$label.text( "Upload complite!" );
@@ -1456,11 +1456,11 @@ function ajax_upload(files) {
 		data: fd,
 		dataType: 'text',
 		error: function(xhr) {
-			console.log('[ajax_upload()] http post fail');
+			// console.log('[ajax_upload()] http post fail');
 			upload_post_process( xhr.responseText || '' );
 		},
 		success: function(data) {
-			console.log('[ajax_upload()] http post success');
+			// console.log('[ajax_upload()] http post success');
 			upload_post_process(data);
 		},
 		complete: function(){
@@ -1470,7 +1470,7 @@ function ajax_upload(files) {
 			var XHR = $.ajaxSettings.xhr();
 			XHR.upload.addEventListener('progress', function(e){
 		                var par = Math.floor(e.loaded*100/e.total + 0.5);
-		                $prog.progressbar({ value: par });
+		                $prog.adiaryProgressbar({ value: par });
 			});
 			return XHR;
 		}

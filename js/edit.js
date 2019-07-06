@@ -421,7 +421,7 @@ function open_upload_dialog(files) {
 	var ok_func = buttons['Upload'] = function(){
 		if (!files && !$file_btn.val()) return;	// no selected
 
-		div.parent().find('.ui-button').button("option", "disabled", true);
+		div.parent().find('.ui-button').prop("disabled", true);
 
 		ajax_upload( $upform[0], files, {
 			callback: function(data, folder){
@@ -563,10 +563,10 @@ function ajax_upload( form_dom, files, option ) {
 	var $prog  = $('#progress');
 	var $label = $prog.find('.label').text('');
 	$prog.show();
-	$prog.progressbar({
+	$prog.adiaryProgressbar({
 		value: 0,
-		change: function() {
-			$label.text( $prog.progressbar( "value" ) + "%" );
+		change: function(value) {
+			$label.text( value + "%" );
 		},
 		complete: function() {
 			$label.text( "Upload complite!" );
@@ -596,7 +596,7 @@ function ajax_upload( form_dom, files, option ) {
 			var XHR = $.ajaxSettings.xhr();
 			XHR.upload.addEventListener('progress', function(e){
 				var par = Math.floor(e.loaded*100/e.total + 0.5);
-				$prog.progressbar({ value: par });
+				$prog.adiaryProgressbar({ value: par });
 			});
 			return XHR;
 		}

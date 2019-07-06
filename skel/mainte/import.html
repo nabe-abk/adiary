@@ -111,14 +111,17 @@ adiary.adiary_session($('button.import'), {
 		init_progressbar()
 	},
 	error: function(){
-		prog.progressbar({ value: 100 });
+		prog.adiaryProgressbar({ value: 100 });
 	},
 	success: function(){
-		prog.progressbar({ value: 100 });
+		prog.adiaryProgressbar({ value: 100 });
 	},
 	xhr: function(){
 		var XHR = $.ajaxSettings.xhr();
-		XHR.upload.addEventListener('progress', xhr_progress);
+		XHR.upload.addEventListener('progress', function(e){
+			var par = Math.floor(e.loaded*100/e.total + 0.5);
+			prog.adiaryProgressbar({ value: par });
+		});
 		return XHR;
 	}
 });
@@ -129,22 +132,15 @@ adiary.adiary_session($('button.import'), {
 //////////////////////////////////////////////////////////////////////////////
 function init_progressbar() {
 	var label = prog.find('.label');
-	prog.progressbar({
+	prog.adiaryProgressbar({
 		value: 0,
-		change: function() {
-			label.text( prog.progressbar( "value" ) + "%" );
+		change: function(value) {
+			label.text( "Uploading " + value + "%" );
 		},
 		complete: function() {
 			label.text( "Upload complite!" );
 		}
 	})
-}
-//////////////////////////////////////////////////////////////////////////////
-// ●プログレス表示
-//////////////////////////////////////////////////////////////////////////////
-function xhr_progress(e) {
-	var par = Math.floor(e.loaded*100/e.total + 0.5);
-	prog.progressbar({ value: par });
 }
 
 //############################################################################

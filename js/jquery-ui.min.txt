@@ -4,9 +4,13 @@ jQuery UI Version 1.12.1 custom
 
 Include bellow
 
-	- Draggable
-	- Droppable
-	- Sortable
+	- Core
+		- Position (used by dynatree.js)
 
-	- Progressbar
-	- Slider
+	- Interactions
+		- Draggable
+		- Droppable
+		- Sortable
+
+	- Widgets
+		- Slider

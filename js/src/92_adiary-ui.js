@@ -80,10 +80,9 @@ adiaryDialog: function(opt) {
 	//////////////////////////////////////////////////////////////////////
 	const $overlay = $('<div>').addClass('aui-overlay');
 
-	const data = this.adiaryUIData();
-	const objs = data.dialog_objs = data.dialog_objs || [];
-	objs.push($overlay);
-	objs.push($dialog);
+	const data = this.adiaryUIData('dialog');
+	data.$overlay = $overlay;
+	data.$dialog  = $dialog;
 	data.min_h = min_h;
 	data.beforeClose = opt.beforeClose;
 
@@ -92,16 +91,15 @@ adiaryDialog: function(opt) {
 	return this.adiaryDialogOpen();
 },
 adiaryDialogOpen: function() {
-	const data = this.adiaryUIData();
-	const objs = data.dialog_objs;
-	if (!objs || !objs.length) throw("Do not open dialog!");
+	const data    = this.adiaryUIData('dialog');
+	const $dialog = data.$dialog;
+	if (!$dialog) throw("Do not open dialog!");
 
-	for(let i=0; i<objs.length; i++)
-		this.adiaryUIAppend( objs[i] );
+	this.adiaryUIAppend( data.$overlay );
+	this.adiaryUIAppend( data.$dialog  );
 
 	// set css
 	const $win = $(window);
-	const $dialog = objs[ objs.length-1 ];
 	this.css('min-height', data.min_h + this.height() - $dialog.height());
 
 	const y = $win.scrollTop()  + ($win.height() - $dialog.height())/2;
@@ -112,13 +110,11 @@ adiaryDialogOpen: function() {
 	return this;
 },
 adiaryDialogClose: function() {
-	const data = this.adiaryUIData();
+	const data = this.adiaryUIData('dialog');
 	if (data.beforeClose) data.beforeClose();
 
-	const objs = data.dialog_objs;
-	for(let i=0; i<objs.length; i++)
-		this.adiaryUIRemove( objs[i] );
-	data.dialog_objs = [];
+	this.adiaryUIRemove( data.$overlay );
+	this.adiaryUIRemove( data.$dialog  );
 	return this;
 },
 //////////////////////////////////////////////////////////////////////////////
@@ -138,6 +134,37 @@ adiaryUIAppend: function($obj) {
 adiaryUIRemove: function($obj) {
 	$.adiary_ui_zindex--;
 	$obj.remove();
+},
+
+//////////////////////////////////////////////////////////////////////////////
+// draggable
+//////////////////////////////////////////////////////////////////////////////
+adiaryProgressbar: function(opt) {
+	const data  = this.adiaryUIData('progress');
+	if (opt === 'value') return data.value;
+
+	if (opt.change)   data.change   = opt.change;
+	if (opt.complete) data.complete = opt.complete;
+
+	let init;
+	if (!('$value' in data)) {
+		this.find('.ui-progressbar-value').remove();
+		// initalize
+		data.$value = $('<div>').addClass('ui-progressbar-value');
+		this.addClass('ui-progressbar');
+		this.append( data.$value );
+		init = true;
+	}
+
+	// value set
+	const old   = data.value;
+	const value = opt.value;
+	data.value  = value;
+	data.$value.css('width', value + '%');
+
+	if (init || data.change && old != value) data.change  (data.value);
+	if (      data.complete && 100 <= value) data.complete(data.value);
+	return this;
 },
 
 //////////////////////////////////////////////////////////////////////////////
@@ -184,6 +211,16 @@ adiaryDraggable: function(opt) {
 		});
 		evt.preventDefault();
 	}
+},
+//////////////////////////////////////////////////////////////////////////////
+// data function
+//////////////////////////////////////////////////////////////////////////////
+adiaryUIData: function(name, key, val) {
+	name = 'aui_' + name;
+	const data = this[name] = this[name] || {};
+	if (arguments.length==2) return data[key];
+	if (arguments.length==3) data[key] = val;
+	return data;
 }
 //////////////////////////////////////////////////////////////////////////////
 });
