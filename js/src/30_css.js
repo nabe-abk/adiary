@@ -176,3 +176,23 @@ adiary.css_init(function(){
 		});
 	});
 });
+
+//////////////////////////////////////////////////////////////////////////////
+//●MathJaxの自動ロード
+//////////////////////////////////////////////////////////////////////////////
+adiary.init(function(){
+	const MathJaxURL = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML';
+	if (! $('span.math, div.math').length ) return;
+
+	window.MathJax = {
+		TeX: { equationNumbers: {autoNumber: "AMS"} },
+		tex2jax: {
+			inlineMath: [],
+			displayMath: [],
+			processEnvironments: false,
+			processRefs: false
+		},
+		extensions: ['jsMath2jax.js']
+	};
+	this.load_script( MathJaxURL );
+});

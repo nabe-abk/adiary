@@ -10,7 +10,6 @@ MAP_FILE   = ../adiary.min.map
 HTML       = ../adiary-js-load.html
 
 FILES = \
-	00_comment.js		\
 	jquery-3.4.1.js		\
 	01_global-variables.js	\
 	02_global-functions.js	\
@@ -18,7 +17,6 @@ FILES = \
 	10_jquery-ext.js	\
 	20_init.js		\
 	30_css.js		\
-	35_article.js		\
 	40_dom.js		\
 	45_dom-special.js	\
 	50_skeleton.js		\
@@ -37,7 +35,7 @@ all:  $(OUTPUT)
 html: $(HTML)
 
 $(OUTPUT): $(FILES) Makefile
-	$(COMPRESSOR) $(OPTIONS) $(FILES) -o $(OUTPUT)
+	$(COMPRESSOR) $(OPTIONS) 00_comment.js $(FILES) -o $(OUTPUT)
 	mv $(OUTPUT).map $(MAP_FILE)
 
 $(HTML): $(FILES) Makefile
