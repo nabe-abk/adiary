@@ -80,6 +80,7 @@ adiary.init(function() {
 //////////////////////////////////////////////////////////////////////////////
 // defer tags
 //////////////////////////////////////////////////////////////////////////////
+adiary.script_defer_doms=[];
 adiary.init(function(){
 	const self=this;
 
@@ -92,44 +93,59 @@ adiary.init(function(){
 	});
 
 	// script-defer
-	$('script-defer').each(function(idx, dom) {
-		function get_script_line_number(d) {
-			var line = 2;	// before <head> lines
-			domloop: while(1) {
-				while(!d.previousSibling) {
-					if (!d.parentElement) break domloop;
-					d = d.parentElement;
-				}
-				d = d.previousSibling;
-				line += (d.outerHTML || d.nodeValue || "").split("\n").length -1;
-			}
-			return line;
-		}
+	const $scripts = $('script-defer');
+	$scripts.each(function(idx, dom) {
+		const num = self.script_defer_doms.length;
+		self.script_defer_doms.push(dom);
 
-		try {
-			if (IE11) return eval( dom.innerHTML.replace(/^\s*<!--([\s\S]*)-->\s*$/, "$1") );
-			eval( dom.innerHTML );
-		} catch(e) {
-			// analyze error info
-			var line = 0;
-			var col  = 0;
-			var text = e.stack.replace(/^[\s\S]*?([^\n]*:\d+:\d+)/, "$1");
-			var ma   = text.match(/^[^\n]*eval[^\n]*:(\d+):(\d+)\s*/);
-			if (ma) {
-				line = parseInt(ma[1]);
-				col  = parseInt(ma[2]);
-			} else {
-				throw(e);
-			}
-			line += get_script_line_number(dom);
-
-			var path = location.href.replace(/#.*/,"");
-			if (e.lineNumber)
-				 throw new Error(e.message, path, line);
-			console.error("<script-defer> error!!\n", e.message + ' at ' + path + ':' + line + ':' + col);
-		}
+		let script = dom.innerHTML.replace(/^\s*<!--([\s\S]*?)-->\s*$/, "$1");
+		eval(
+			'try{' + script + "\n}catch(e){ adiary.script_defer_error(e,"+ num + ") }"
+		);
 	});
+	if (!$scripts.length) return;
+
+	// script-defer error trap
+	const dom = $scripts[0];
+	$(window).on('error', function(evt) {
+		const err  = evt.originalEvent;
+		const file = err.filename;
+		if (file != "" && !file.match(/eval/)) return;
+
+		//evt.preventDefault();
+		self.script_defer_error_throw(err.error, err.lineno, err.colno, dom);
+	});
+	
 });
+adiary.script_defer_error = function(err, idx) {
+	var line = 0;
+	var col  = 0;
+	var text = err.stack.replace(/^[\s\S]*?([^\n]*:\d+:\d+)/, "$1");
+	var ma   = err.stack.match(/^[\s\S]*?:(\d+):(\d+)[^:]*\n/);
+	if (ma) {
+		line = parseInt(ma[1]);
+		col  = parseInt(ma[2]);
+	} else {
+		throw(err);
+	}
+	this.script_defer_error_throw(err, line, col, this.script_defer_doms[idx]);
+}
+adiary.script_defer_error_throw = function(err, line, col, dom) {
+	line += 2;	// before <head> lines
+	domloop: while(1) {
+		while(!dom.previousSibling) {
+			if (!dom.parentElement) break domloop;
+			dom = dom.parentElement;
+		}
+		dom = dom.previousSibling;
+		line += (dom.outerHTML || dom.nodeValue || "").split("\n").length -1;
+	}
+
+	var path = location.href.replace(/#.*/,"");
+	if (err.lineNumber)
+		 throw new Error(err.message, path, line);
+	console.error("<script-defer> error!!\n", err.message + ' at ' + path + ':' + line + ':' + col);
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //●特殊Queryの処理
