@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // ●セッションを保持して随時データをロードする
 //////////////////////////////////////////////////////////////////////////////
-adiary.adiary_session = function(_btn, opt){
+adiary.session = function(_btn, opt){
   $(_btn).click( function(evt){
 	var btn = $(evt.target);
 	var myself = opt.myself || this.myself;
@@ -52,13 +52,13 @@ adiary.adiary_session = function(_btn, opt){
 			data: fd,
 			dataType: opt.dataType || 'text',
 			error: function(data) {
-				console.warn('[adiary_session()] http post fail');
+				console.warn('[adiary.session()] http post fail');
 				log_stop(function(){
 					if (opt.error) opt.error(data);
 				});
 			},
 			success: function(data) {
-				// console.log('[adiary_session()] http post success');
+				// console.log('[adiary.session()] http post success');
 				log_stop(function(){
 					if (opt.success) opt.success(data);
 				});

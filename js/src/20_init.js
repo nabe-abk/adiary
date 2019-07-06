@@ -28,7 +28,7 @@ adiary.init = function(func) {
 
 	// PrefixStorage
 	if (this.Basepath)
-		window.Storage = new PrefixStorage( this.Basepath );
+		window.Storage = new PrefixStorage( this.myself );
 
 	// DB time, Total time
 	if (data.DBTime)    $('#system-info-db-time')   .text( data.DBTime    );

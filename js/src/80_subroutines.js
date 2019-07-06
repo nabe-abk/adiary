@@ -4,15 +4,14 @@
 //////////////////////////////////////////////////////////////////////////////
 // CSSファイルの追加
 //////////////////////////////////////////////////////////////////////////////
-adiary.prepend_css = function(file, id) {
-	var css = $("<link>")
-	css.attr({
+adiary.prepend_css = function(file) {
+	const $link = $("<link>")
+	$link.attr({
 		rel: "stylesheet",
 		href: file
 	});
-	if (id) css.attr('id', id);
-	this.$head.prepend(css);
-	return css;
+	this.$head.prepend($link);
+	return $link;
 }
 
 //////////////////////////////////////////////////////////////////////////////

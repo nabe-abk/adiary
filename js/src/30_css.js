@@ -152,7 +152,7 @@ adiary.css_init(function(){
 	if ($style.length)
 		return $('#syntaxhighlight-theme').attr('href', css_file);
 
-	this.prepend_css(css_file, 'syntaxhighlight-theme');
+	this.prepend_css(css_file).attr('id', 'syntaxhighlight-theme');
 
 	this.load_script(this.ScriptDir + 'highlight.pack.js', function(){
 		$codes.each(function(i, block) {
