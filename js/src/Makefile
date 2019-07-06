@@ -11,9 +11,7 @@ HTML       = ../adiary-js-load.html
 
 FILES = \
 	jquery-3.4.1.js		\
-	01_global-variables.js	\
-	02_global-functions.js	\
-	09_ie.js		\
+	01_global.js		\
 	10_jquery-ext.js	\
 	20_init.js		\
 	30_css.js		\
@@ -26,9 +24,7 @@ FILES = \
 	82_ajax.js		\
 	83_popup.js		\
 	90_PrefixStorage.js	\
-	91_jquery-storage.js	\
 	92_adiary-ui.js		\
-	99_run_init.js		\
 	lightbox.js
 
 all:  $(OUTPUT)

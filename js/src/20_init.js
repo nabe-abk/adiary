@@ -47,6 +47,18 @@ adiary.init = function(func) {
 	for(var i=0; i<funcs.length; i++)
 		funcs[i].call(this);
 };
+//////////////////////////////////////////////////////////////////////////////
+// run init
+//////////////////////////////////////////////////////////////////////////////
+$(function(){
+	adiary.init();
+
+	// Emulate jquery.cookie for dynatree
+	// "jquery-storage" in "PrefixStorage.js"
+	$.storage_init( Storage );
+	$.cookie = $.storage;
+	$.removeCookie = $.removeStorage;
+});
 
 //////////////////////////////////////////////////////////////////////////////
 //●<body>にCSSのためのブラウザクラスを設定
