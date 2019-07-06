@@ -8,13 +8,14 @@ adiary.adiary_session = function(_btn, opt){
   $(_btn).click( function(evt){
 	var btn = $(evt.target);
 	var myself = opt.myself || this.myself;
-	var log = btn.rootfind(opt.log || btn.data('log-target') || '#session-log');
+	var $log   = opt.$log   || btn.rootfind(btn.data('log-target') || '#session-log');
 
 	var load_session = myself + '?etc/load_session';
-	var interval = opt.interval || log.data('interval') || 300;
+	var interval = opt.interval || $log.data('interval') || 300;
 	var snum;
-	log.showDelay();
 
+	if (opt.load_log) $log = opt.load_log(evt);
+	$log.showDelay();
 	if (opt.init) opt.init(evt);
 
 	// セッション初期化
@@ -70,7 +71,7 @@ adiary.adiary_session = function(_btn, opt){
 	var log_timer;
 	function log_start( snum ) {
 		btn.prop('disabled', true);
-		log.data('snum', snum);
+		$log.data('snum', snum);
 		log_timer = setInterval(log_load, interval);
 	}
 	function log_stop(func) {
@@ -81,8 +82,8 @@ adiary.adiary_session = function(_btn, opt){
 	}
 	function log_load(func) {
 		var url = load_session + '&snum=' + snum;
-		log.load(url, function(data){
-			log.scrollTop( log.prop('scrollHeight') );
+		$log.load(url, function(data){
+			$log.scrollTop( $log.prop('scrollHeight') );
 			if (func) func();
 		});
 	}

@@ -316,18 +316,7 @@ adiary.dom_init( function($R){
 adiary.dom_init( function($R){
 	const $accordion = $R.findx('.js-accordion');
 	if (!$accordion.length) return;
-
-	var self = this;
-	$accordion.find("h3").each(function(idx,dom) {
-		var $obj = $(dom);
-		var $div = $(dom).next();
-		if ($div[0].tagName != "DIV") return;
-		$div.hide();
-		$obj.click(function(evt){
-			$accordion.find("h3 + div:visible").hideDelay();
-			$div.toggleDelay();
-		});
-	});
+	$accordion.adiaryAccordion();
 });
 
 //////////////////////////////////////////////////////////////////////////////

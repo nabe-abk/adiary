@@ -137,7 +137,7 @@ adiaryUIRemove: function($obj) {
 },
 
 //////////////////////////////////////////////////////////////////////////////
-// draggable
+// Progressbar
 //////////////////////////////////////////////////////////////////////////////
 adiaryProgressbar: function(opt) {
 	const data  = this.adiaryUIData('progress');
@@ -165,6 +165,20 @@ adiaryProgressbar: function(opt) {
 	if (init || data.change && old != value) data.change  (data.value);
 	if (      data.complete && 100 <= value) data.complete(data.value);
 	return this;
+},
+
+//////////////////////////////////////////////////////////////////////////////
+// accordion
+//////////////////////////////////////////////////////////////////////////////
+adiaryAccordion: function(opt) {
+	const $objs = this.children("h1,h2,h3,h4,h5,h6");
+	$objs.click(function(evt){
+		const $obj = $(evt.target);
+		const $div = $obj.next('div');
+		if (!$div.length) return;
+		$div.toggleDelay();
+	});
+	$objs.next('div').hide();
 },
 
 //////////////////////////////////////////////////////////////////////////////

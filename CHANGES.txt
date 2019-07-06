@@ -9,6 +9,7 @@
 -テーマ、CSS関連
 --ui-iconをJavaScriptで生成するよう変更（pub-dist/ui-icon/ 画像ファイルを削除）
 --Ver2以前との互換のための画像アイコンを削除。((記法のほうは残してあるので、画像ファイルだけ展開すれば使えます。))
+-インポートログをボタンの近くに表示するようにしました。
 -【Fix】HTTP.pmのtypoを修正（[https://adiary.adiary.jp/0410#c1:Thanks to t-hide]）
 
 *Ver3.30a : 2019/06/30

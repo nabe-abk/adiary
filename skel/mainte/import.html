@@ -40,10 +40,7 @@
 	</ul>
 	</div>
 
-	<div id="progress"><span class="label"></span></div>
-	<textarea id="session-log" rows="10" class="w98p" style="display: none" data-interval="300" readonly></textarea>
-
-	<div class="js-accordion">
+	<div id="accordion" class="js-accordion">
 	<@call_dir("<@v.skel_dir>_import/")>
 	</div>
 	</form>
@@ -51,47 +48,30 @@
 </div>
 </article>
 
+
 <div style="display: none">
 <span id="js-no-file">ファイルが選択されていません。</span>
+
+	<div id="progress" class="progress"><span class="label"></span></div>
+	<textarea id="log" rows="10" class="session-log w98p" style="display: none" data-interval="300" readonly></textarea>
+</div>
 </div>
 
 <script-defer><!--
-$(function(){
 //////////////////////////////////////////////////////////////////////////////
 // ●初期化処理
 //////////////////////////////////////////////////////////////////////////////
-	var form = $secure('#import-form');
-	var file = $('#file');
-	var prog = $('#progress');
+const form = $secure('#import-form');
+const file = $('#file');
+let $prog;
 
-//////////////////////////////////////////////////////////////////////////////
-// ●FormDataが使えない場合の処理
-//////////////////////////////////////////////////////////////////////////////
-var ajax = window.FormData;
-if (location.search.indexOf('&ajax=0') > 0) ajax=0; // for debug
-$('#input-ajax').val( ajax ? 1 : 0 );
-if (!ajax) {	// IE9用
-	$('#no-ajax-link').remove();
-	//$('button,input').prop('disabled', true);
-	//adiary.show_error('#js-no-FormData');
-
-	// 押したボタンに応じてフォームを設定
-	var type = $('<input>').attr({type: 'hidden', name: 'type'});
-	var cls  = $('<input>').attr({type: 'hidden', name: 'class'});
-	form.append(type,cls);
-	$('button,input[type="button"]').attr('type', 'submit').click( function(evt){
-		var btn = $(evt.target);
-		type.val( btn.attr('name') );
-		if (btn.data('class')) cls.val( btn.data('class') );
-	});
-	// ファイルが選択されていればsubmit
-	form.submit(function(){
-		if(! file.val() ) {	// ファイルが選択されてない
-			adiary.show_error('#js-no-file');
-			return false;
-		}
-	});
-	return;
+// add log view
+{
+	const $prog = $('#progress').removeAttr('id');
+	const $log  = $('#log')     .removeAttr('id');
+	let   $divs = $('#accordion > h3 + div');
+	$divs.append($prog);
+	$divs.append($log);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -107,32 +87,36 @@ adiary.adiary_session($('button.import'), {
 		return fd;
 	},
 
+	load_log: function(evt) {
+		const $div = $(evt.target).parents('div').first();
+		$prog = $div.find(".progress");
+		return  $div.find(".session-log");
+	},
 	init: function(){
 		init_progressbar()
 	},
 	error: function(){
-		prog.adiaryProgressbar({ value: 100 });
+		$prog.adiaryProgressbar({ value: 100 });
 	},
 	success: function(){
-		prog.adiaryProgressbar({ value: 100 });
+		$prog.adiaryProgressbar({ value: 100 });
 	},
 	xhr: function(){
 		var XHR = $.ajaxSettings.xhr();
 		XHR.upload.addEventListener('progress', function(e){
 			var par = Math.floor(e.loaded*100/e.total + 0.5);
-			prog.adiaryProgressbar({ value: par });
+			$prog.adiaryProgressbar({ value: par });
 		});
 		return XHR;
 	}
 });
 
-
 //////////////////////////////////////////////////////////////////////////////
 // ●プログレスバー初期化
 //////////////////////////////////////////////////////////////////////////////
 function init_progressbar() {
-	var label = prog.find('.label');
-	prog.adiaryProgressbar({
+	var label = $prog.find('.label');
+	$prog.adiaryProgressbar({
 		value: 0,
 		change: function(value) {
 			label.text( "Uploading " + value + "%" );
@@ -142,7 +126,5 @@ function init_progressbar() {
 		}
 	})
 }
-
 //############################################################################
-});
 --></script-defer>
