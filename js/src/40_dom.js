@@ -205,3 +205,32 @@ adiary.val_for_select = function($sel, val) {
 	$sel.change();
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//【スマホ】ドロップダウンメニューでの hover の代わり
+//////////////////////////////////////////////////////////////////////////////
+adiary.init( function(){
+	function open_link(evt) {
+		location.href = $(evt.target).attr('href');
+	}
+
+	this.$body.on('click', '.js-alt-hover li > a', function(evt) {
+		const $obj = $(evt.target).parent();
+		if (!$obj.children('ul').length) return true;
+
+		if ($obj.hasClass('open')) {
+			$obj.removeClass('open');
+			$obj.find('.open').removeClass('open')
+		} else {
+			$obj.addClass('open');
+		}
+		// リンクをキャンセル。"return false" ではダブルクリックイベントが発生しない
+		evt.preventDefault();
+
+		// dbltapイベントを登録
+		if ($obj.data('_reg_dbltap')) return;
+		$obj.data('_reg_dbltap', true);
+		$obj.on('dblclick', open_link);
+		$obj.on('mydbltap', open_link);
+	});
+});
+

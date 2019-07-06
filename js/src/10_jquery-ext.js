@@ -176,13 +176,13 @@ $.event.special.mydbltap = {
 	setup: function(){
 		var flag;
 		var mouse;
-		$(this).on('click', function(){
+		$(this).on('click', function(evt){
 			if (flag) {
 				flag = false;
 				// タッチイベントが起きてない時は
 				// マウスダブルクリックの可能性があるので発火しない
 				if (mouse) return;
-				return $(this).trigger('mydbltap');
+				return $(evt.target).trigger('mydbltap');
 			}
 			flag  = true;
 			mouse = true;
