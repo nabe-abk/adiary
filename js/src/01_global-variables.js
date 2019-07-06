@@ -24,7 +24,7 @@ var adiary = {
  *	adiary.myself
  *	adiary.myself2
  *	adiary.Basepath
-  *	adiary.ScriptDir
+ *	adiary.ScriptDir
  *	adiary.PubdistDir
  *	adiary.SpecialQuery
  */

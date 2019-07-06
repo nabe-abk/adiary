@@ -119,12 +119,11 @@ adiary.css_init(function(){
 		const p = offset + length;
 		png = png.substr(0, p) + crc + png.substr(p+4);
 	}
-	const $style = $('<style>').attr('type','text/css');
-	this.$head.append($style);
+	const $style = this.ui_icon_style = this.ui_icon_style || this.append_style();
 	const css = '.ui-icon, .art-nav a:before, .art-nav a:after {'
 			+ 'background-image: '
 			+ 	'url("data:image/png;base64,' + btoa(png) + '")'
-			+ '}'
+			+ '}';
 	$style.html(css);
 });
 
@@ -196,3 +195,14 @@ adiary.init(function(){
 	};
 	this.load_script( MathJaxURL );
 });
+
+//////////////////////////////////////////////////////////////////////////////
+//●Lightbox Loadingアイコンの動的ロード
+//////////////////////////////////////////////////////////////////////////////
+adiary.load_LightboxLoaderIcon = function(sel){
+	if (this.load_lbicon) return;
+	this.load_lbicon = true;
+	this.append_style( sel
+		+ "{ background-image: url('" + adiary.PubdistDir + "lb_loading.gif') }"
+	);
+}

@@ -8,6 +8,7 @@
 --dailogを自作して、jQuery UIへの依存度を下げました。
 -テーマ、CSS関連
 --ui-iconをJavaScriptで生成するよう変更（pub-dist/ui-icon/ 画像ファイルを削除）
+--別で読み込んでいた Lightbox.css を削除し、関連画像のロードも減らしました。
 --Ver2以前との互換のための画像アイコンを削除。((記法のほうは残してあるので、画像ファイルだけ展開すれば使えます。))
 -インポートログをボタンの近くに表示するようにしました。
 -【Fix】HTTP.pmのtypoを修正（[https://adiary.adiary.jp/0410#c1:Thanks to t-hide]）

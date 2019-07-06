@@ -63,7 +63,7 @@ MITライセンスやPerlライセンスだと大変助かります。
     * jQuery UI (MIT / GPLv2)
     * dynatree  (MIT)
     * Color Picker (MIT / GPL)
-  * Lightbox2 (Creative Commons Attribution 2.5)
+  * Lightbox2 (MIT)
   * highlight.js (BSD)
 
 ## Perl
