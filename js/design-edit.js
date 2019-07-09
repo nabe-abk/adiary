@@ -51,7 +51,8 @@ $(function(){
 //////////////////////////////////////////////////////////////////////////////
 var iframe_onload;
 iframe.on('load', function(){
-	iframe_onload = 1;
+	if (iframe_onload) return;
+	iframe_onload = true;
 	var if_cw = iframe[0].contentWindow;
 	    $f    = iframe[0].contentWindow.$;		// global
 	    $fsec = iframe[0].contentWindow.$secure;	// global
