@@ -1511,19 +1511,15 @@ sub get_cookie {
 # ○cookie を分解（array cookie, hash cookie の復元）
 #==============================================================================
 sub split_cookie {
-	my $self = shift;
-	my @array = split(/\0/, $_[0]);
+	my $self  = shift;
+	my @array = split(/\0/, shift);
 	shift(@array);	# 読み捨て
 
 	my $flag = ord(shift(@array));
 	if ($flag == 1) {		# array
 		return \@array;
 	} elsif ($flag == 2) {		# hash
-		my ($k, %h);
-		while($#array >= 0) {
-			$k     = shift(@array);
-			$h{$k} = shift(@array);
-		}
+		my %h = @array;
 		return \%h;
 	}
 }

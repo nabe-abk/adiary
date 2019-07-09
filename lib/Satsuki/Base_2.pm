@@ -1220,18 +1220,10 @@ sub set_cookie {
 		$expires = '';
 	}
 
-	if (ref $val eq 'ARRAY') {
-		# 配列の保存
-		my $ary = $val;
-		$val = "\0\1";	# 0x00 0x01
-		foreach (@$ary) { $val .= "\0" . $_; }
-	} elsif (ref $val eq 'HASH') {
-		# HASHの保存
-		my $h = $val;
-		$val = "\0\2";	# 0x00 0x02
-		while(my ($k, $v) = each(%$h) ) {
-			$val .= "\0" . $k . "\0" . $v;
-		}
+	if (ref($val) eq 'ARRAY') {
+		$val = "\0\1\0" . join("\0", @$val);	# 0x00 0x01
+	} elsif (ref($val) eq 'HASH') {
+		$val = "\0\2\0" . join("\0", %$val);	# 0x00 0x02
 	}
 
 	$val =~ s/([^\w\-\/\.\@\~\*])/ '%' . unpack('H2', $1)/eg;
