@@ -115,7 +115,7 @@ adiary.init( function(){
 		if(!obj.data('url')) return;	// for security
 		var val = obj.val(); 
 		if (val=='') return;
-		window.location = self.myself2 + val;
+		window.location = self.myself + '?d=' + val;
 	});
 	var cur = $('#yyyymm-cond').data('yyyymm');
 	if (!cur || typeof(cur) != 'number') return;
