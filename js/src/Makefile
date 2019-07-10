@@ -25,6 +25,7 @@ FILES = \
 	83_popup.js		\
 	90_PrefixStorage.js	\
 	92_adiary-ui.js		\
+	99_run_init.js		\
 	lightbox.js
 
 all:  $(OUTPUT)
