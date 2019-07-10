@@ -659,17 +659,8 @@ span.highlight4	{ background-color: #f6f; }
 }
 
 /*--------------------------------------------------------------------
-●スイッチアイコン, RSSアイコン
+●RSSアイコン
 ---------------------------------------------------------------------*/
-.ui-corner-all,
-.ui-button.ui-corner-all:hover {
-	border-radius:		4px;
-}
-.ui-icon.ui-icon-close,
-.js-switch {
-	cursor:			pointer;
-}
-
 .rss-icon img {
 	vertical-align:		middle;
 }
@@ -969,12 +960,18 @@ figure.center, figure.c {
 }
 .ui-icon.ui-button {
 	padding:		0;
-}
-.ui-button-icon-only {
-	box-sizing:		content-box;
 	cursor:			pointer;
 }
-
+.ui-button.ui-button-icon-only:not(.ui-icon) {
+	margin:			0;
+	padding:		0;
+	width:			24px;
+	height:			24px;
+	content-box:		border-box;
+}
+.ui-button.ui-button-icon-only:not(.ui-icon) .ui-icon {
+	vertical-align:		middle;
+}
 /* jQuery UI icons */
 .ui-icon-search	{ background-position:   0px 0px; }
 .ui-icon-wrench	{ background-position: -16px 0px; }
@@ -1014,6 +1011,14 @@ span.tag span.ui-icon-close,
 	width:			12px;
 	display:		inline-block;
 	vertical-align:		middle;
+}
+/* クリックできるアイコン */
+.ui-icon-close,
+.ui-icon-search,
+.ui-icon-close,
+.ui-icon-closethick,
+.js-switch {
+	cursor:			pointer;
 }
 
 /*--------------------------------------------------------------------
@@ -1055,7 +1060,7 @@ ul.dynatree-container {
 	position:		relative;
 	cursor:			move;
 }
-.ui-dialog-titlebar button.ui-button {
+.ui-dialog-titlebar .ui-button {
 	position:		absolute;
 	right:			0.5em;
 	top:			0.4em;
@@ -1089,7 +1094,7 @@ ul.dynatree-container {
 	background-color:	#f69;
 	background-image:	none;
 }
-.ui-dialog.error-dialog button.ui-button {
+.ui-dialog.error-dialog .ui-button {
 	color:			#444;
 	border-color:		#d99;
 	background-image:	linear-gradient(to bottom, #fdd, #faa);

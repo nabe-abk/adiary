@@ -121,7 +121,7 @@ textarea:focus {
 ●ボタンデザイン
 ---------------------------------------------------------------------*/
 button,
-#body button.ui-state-default {
+#body button.ui-button {
 	background-color:		rgba(252,109,207,0.6);
 	border:					none;
 	color:					white;
@@ -139,7 +139,7 @@ button span {
 			-1px  1px 2px #FF84CE,
 			1px  1px 2px #FF84CE;
 }
-button:hover, #body button.ui-state-default:hover
+button:hover, #body button.ui-button:hover
 {
 	cursor:				pointer;
 	background-color:	rgba(255,169,200,0.7);

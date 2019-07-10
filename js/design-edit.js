@@ -316,7 +316,7 @@ function init_module(obj) {
 	//  data-url="/adiary/?plugin/plugin_readme&amp;name=(plugin_name)">README</button>
 	if (obj.data('readme')) {
 		var info = $('<span>');
-		info.addClass('ui-icon ui-icon-help ui-button ui-button-icon-only ui-corner-all ui-state-default js-info');
+		info.addClass('ui-icon ui-icon-help ui-button ui-button-icon-only js-info');
 		info.attr({
 			onclick: '',
 			'data-url': obj.data("readme-url")
@@ -328,7 +328,7 @@ function init_module(obj) {
 
 	if (obj.data('setting')) {
 		var set = $('<span>');
-		set.addClass('ui-icon ui-icon-wrench ui-button ui-button-icon-only ui-corner-all ui-state-default');
+		set.addClass('ui-icon ui-icon-wrench ui-button ui-button-icon-only');
 		set.attr('title', btn_setting_title);
 		set.click(function(){
 			module_setting(obj);
@@ -338,7 +338,7 @@ function init_module(obj) {
 
 	if (obj.data('css-setting')) {
 		var set = $('<span>');
-		set.addClass('ui-icon ui-icon-image ui-button ui-button-icon-only ui-state-default');
+		set.addClass('ui-icon ui-icon-image ui-button ui-button-icon-only');
 		set.attr('title', btn_cssset_title);
 		set.click(function(){
 			module_setting(obj, 'css');
@@ -348,7 +348,7 @@ function init_module(obj) {
 
 	if (!obj.data('fix')) {
 		var close = $('<span>');
-		close.addClass('ui-icon ui-icon-close ui-button ui-button-icon-only ui-state-default');
+		close.addClass('ui-icon ui-icon-close ui-button ui-button-icon-only');
 		close.attr('title', btn_close_title);
 		close.click(function(){
 			adiary.confirm({
