@@ -12,7 +12,7 @@ adiaryDialog: function(opt) {
 	if ( opt === 'open' )	return this.adiaryDialogOpen();
 	if ( opt === 'close' )	return this.adiaryDialogClose();
 	if (!$.adiary_ui_zindex)
-		$.adiary_ui_zindex = 100;
+		$.adiary_ui_zindex = 1100;
 
 	const self = this;
 	//////////////////////////////////////////////////////////////////////
