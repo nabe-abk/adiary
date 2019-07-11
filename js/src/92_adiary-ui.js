@@ -12,7 +12,7 @@ adiaryDialog: function(opt) {
 	if ( opt === 'open' )	return this.adiaryDialogOpen();
 	if ( opt === 'close' )	return this.adiaryDialogClose();
 	if (!$.adiary_ui_zindex)
-		$.adiary_ui_zindex = 1100;
+		$.adiary_ui_zindex = 1000;
 
 	const self = this;
 	//////////////////////////////////////////////////////////////////////
@@ -31,6 +31,7 @@ adiaryDialog: function(opt) {
 	if (opt.dialogClass)
 		$dialog.addClass( opt.dialogClass );
 
+	const data = this.adiaryUIData('dialog');
 	//////////////////////////////////////////////////////////////////////
 	// header
 	//////////////////////////////////////////////////////////////////////
@@ -47,6 +48,7 @@ adiaryDialog: function(opt) {
 		$close.on('click', function(){
 			self.adiaryDialogClose();
 		})
+		data.$header = $title;
 	}
 
 	//////////////////////////////////////////////////////////////////////
@@ -59,7 +61,7 @@ adiaryDialog: function(opt) {
 	// button
 	//////////////////////////////////////////////////////////////////////
 	{
-		const $footer = $('<div>').addClass('ui-dialog-buttonpane ui-dialog-content');
+		const $footer = $('<div>').addClass('ui-dialog-buttonpane');
 		const $btnset = $('<div>').addClass('ui-dialog-buttonset');
 		const btns = opt.buttons;
 		
@@ -73,17 +75,16 @@ adiaryDialog: function(opt) {
 		}
 		$footer.append( $btnset );
 		$dialog.append( $footer );
+		data.$footer = $footer;
 	}
 
 	//////////////////////////////////////////////////////////////////////
 	// append dialog obj
 	//////////////////////////////////////////////////////////////////////
-	const $overlay = $('<div>').addClass('aui-overlay');
-
-	const data = this.adiaryUIData('dialog');
-	data.$overlay = $overlay;
+	data.$overlay = $('<div>').addClass('aui-overlay');
 	data.$dialog  = $dialog;
 	data.min_h = min_h;
+	data.max_h = opt.maxHeight;
 	data.beforeClose = opt.beforeClose;
 
 	if (opt && !opt.autoOpen && 'autoOpen' in opt) return this;
@@ -99,10 +100,15 @@ adiaryDialogOpen: function() {
 	this.adiaryUIAppend( data.$dialog  );
 
 	// set css
-	const $win = $(window);
-	this.css('min-height', data.min_h + this.height() - $dialog.height());
+	const h  = this.height();
+	const hf = data.$header.outerHeight() + data.$footer.outerHeight();
+	if (data.max_h)
+		this.css('max-height', data.max_h - hf);
+	if (h < data.min_h)
+		this.css('min-height', data.min_h - hf);
 
-	const y = $win.scrollTop()  + ($win.height() - $dialog.height())/2;
+	const $win  = $(window);
+	const y = $win.scrollTop()  + ($win.height() - $dialog.outerHeight())/2;
 	$dialog.css('top', y);
 	$dialog.adiaryDraggable({
 		cancel:	".ui-dialog-content, .ui-button"
