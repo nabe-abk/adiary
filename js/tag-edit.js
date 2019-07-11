@@ -11,8 +11,7 @@ $( function(){
 	var del  = $('#delete');
 	var submit = $('#submit');
 	var reset  = $('#reset');
-
-	var base_url = tree.data('base-url');
+	var base_url = adiary.myself + '?&amp;t=';
 
 	var select_node;
 	var dels = [];

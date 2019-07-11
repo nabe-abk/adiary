@@ -10,8 +10,6 @@ $( function(){
 	var submit = $('#submit');
 	var reset  = $('#reset');
 
-	var base_url = tree.data('base-url');
-
 	var select_node;
 	var dels = [];
 	var contents_priority_step = 10;
@@ -54,7 +52,7 @@ tree.dynatree({
 		rootNode.visit(function(node){
 			var data  = node.data;
 			var elink_key = link_key_encode( data.link_key );
-			data.href = base_url + elink_key;
+			data.href = adiary.myself2 + elink_key;
 			node.setTitle( data.title );
 
 			// ダブルタップで編集

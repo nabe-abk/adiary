@@ -25,11 +25,11 @@ adiary.load_contents_list($upsel);
 	var $draft = $('#select-draft');
 	$('#open-draft').click(function(){
 		var pkey = $draft.val();
-		window.location = $draft.data('base-url') + '0' + pkey + '?edit';
+		window.location = adiary.myself2 + '0' + pkey + '?edit';
 	});
 	$('#open-template').click(function(){
 		var pkey = $draft.val();
-		window.location = $draft.data('base-url') + '0' + pkey + '?edit&template=1';
+		window.location = adiary.myself2 + '0' + pkey + '?edit&template=1';
 	});
 }
 

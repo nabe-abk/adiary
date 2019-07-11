@@ -81,7 +81,7 @@
 <article class="system notice" id="draft-notice">
 <h2>下書きを開く</h2>
 <div class="body">
-	<select name="open_draft" id="select-draft" data-base-url="<@v.myself2>">
+	<select name="open_draft" id="select-draft">
 	<@forexec(t, logs, begin)>
 		<option value="<@t.pkey>"<@if(edit_pkey == t.pkey,' selected')>><@v.format_ymd(t.yyyymmdd)> <@t.title><@if(t.id ne Auth.id, " by <@t.name>")></option>
 	<$end>
