@@ -799,11 +799,12 @@ ul.hatena-section ul {
 }
 #footer #side-b {
 	color:			#fff;		/* $c=footerfont */
-	margin:			40px auto 20px auto;
+	margin:			30px auto 20px auto;
 	text-align:		left;
 }
 #footer #side-b .hatena-module {
-	width:			240px;
+	width:			auto;
+	margin:			0 24px 0 0;
 	float:			left;
 }
 #footer #side-b .hatena-module:last-child {
