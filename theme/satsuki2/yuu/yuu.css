@@ -213,13 +213,13 @@ h1 {
 /*--------------------------------------------------------------------
 ●ドロップダウンメニュー
 ---------------------------------------------------------------------*/
-.dropdown-menu {
+.ddmenu {
 	margin-bottom:		1em;
 	border-bottom:		1px solid #3a2faf;	/* $c=border */
 }
 /* 背景色（非選択色） */
-.dropdown-menu,
-.dropdown-menu>ul li {
+.ddmenu,
+.ddmenu>ul li {
 	background-color:	#005;		/* $c=ddbg1 */
 	background-image:	linear-gradient(to bottom,
 				#3a2f88,	/* $c=ddbg0 = auto:border */
@@ -227,43 +227,34 @@ h1 {
 				#3a2f88);	/* $c=ddbg0 */
 }
 /* 選択色 */
-.dropdown-menu>ul li:hover,
-.dropdown-menu>ul li.hover {
+.ddmenu>ul li:hover,
+.ddmenu>ul li.hover {
 	background-color:	#43c;		/* $c=ddhover = auto:border */
 	background-image:	none;
 }
 /* 枠線 */
-.dropdown-menu>ul li {
+.ddmenu>ul li a,
+.ddmenu>ul ul {
 	border-color:		#3a2faf;	/* $c=border */
 }
 /* 文字 */
-.dropdown-menu a:link,
-.dropdown-menu a:visited
+.ddmenu a:link,
+.ddmenu a:visited
 {
 	color:			#e86b4f;	/* $c=ddfont = link */
 }
 /* 矢印の色 */
-.dropdown-menu li ul li ul:before,
-.dropdown-menu.sp li ul:before {
+.ddmenu li ul li ul:before,
+.ddmenu.sp li ul:before {
 	border-left-color:	#e86b4f;	/* $c=ddarrow = link */
 }
-.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
+.ddmenu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
 	border-right-color:	#e86b4f;	/* $c=ddarrow */
 }
 /* 設定画面に矢印の色を自動取得させるための指定 */
-.dropdown-menu {
+.ddmenu {
 	color:			#e86b4f;	/* $c=ddarrow */
-}
-/* 初段の下線を消す */
-.dropdown-menu:not(.sp)>ul>li a {
-	height:			100%;
-}
-
-/* 影をつける */
-.dropdown-menu>ul li:hover ul,
-.dropdown-menu.sp>ul>li>ul {
-	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
 }
 
 /****************************************************************************

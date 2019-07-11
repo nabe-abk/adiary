@@ -15,7 +15,7 @@ load_module_html_in_edit=1
 sphone_menu=1
 
 *sample_html=<<HTML
-<div class="dropdown-menu">
+<div class="ddmenu">
 <ul class="js-auto-width">
 	<li><a href="#">はじめに</a>
 	<ul>
@@ -64,8 +64,9 @@ HTML
 
 *module_html=<<HTML
 <!--ドロップダウンメニュー=====================================-->
-<div class="dropdown-menu<@if(v.load_plgset('<@this>', 'width1_free'), ' js-ddmenu-free-item-width')>" data-module-name="<@this>" id="<@id>">
-<@v.load_plgset('<@this>', 'html')>
+<$ps = v.load_plgset('<@this>')>
+<div class="ddmenu<@if(!ps.no_centering, ' dd-centering')>" data-module-name="<@this>" id="<@id>">
+<@ps.html)>
 </div>
 HTML
 

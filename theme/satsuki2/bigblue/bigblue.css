@@ -323,99 +323,69 @@ h1 img, h1 a img {
 /* プルダウンメニュー、サイズカスタマイズ         */
 /**************************************************/
 /* フォントの設定（色を除く） */
-.dropdown-menu {
+.ddmenu {
 	font-size:	10pt;
 }
 /* 高さの設定 */
-.dropdown-menu,
-.dropdown-menu>ul>li {
+.ddmenu,
+.ddmenu>ul>li,
+.ddmenu>ul li:hover>ul>li {
 	height:		24px;	/* Y */
 }
-.dropdown-menu:not(.sp)>ul>li>a,
-.dropdown-menu:not(.sp)>ul li:hover>ul>li {
-	height:		22px;	/* = Y-2 */
-	line-height:	22px;
-}
-.dropdown-menu:not(.sp)>ul ul ul {
-	top:		-21px;	/* = 3-Y */
-}
-.dropdown-menu li ul li ul:before {
+.ddmenu li ul li ul:before {
 	top:		 7px;	/* = (Y-10)/2 */
 }
 
 /* 項目の幅の設定 */
-.dropdown-menu:not(.sp)>ul>li {
+.ddmenu:not(.sp)>ul>li {
 	width:		150px;	/* １段目の幅 = X1 */
 }
-.dropdown-menu:not(.sp)>ul>li>ul,
-.dropdown-menu:not(.sp)>ul>li>ul li {
+.ddmenu:not(.sp)>ul>li>ul,
+.ddmenu:not(.sp)>ul>li>ul li {
 	width:		240px;	/* ２段目の幅 = X2 */
-}
-.dropdown-menu:not(.sp)>ul>li:last-child:not(:first-child)>ul {
-	left:		-90px;	/* = X1-X2 */
-}
-.dropdown-menu:not(.sp)>ul>li:last-child:not(:first-child)>ul ul {
-	left:		-240px;	/* = -X2 */
-}
-.dropdown-menu:not(.sp)>ul>li:last-child:not(:first-child) ul li ul:before {
-	left:		240px;	/* = X2 */
-}
-
-.main .dropdown-menu {
-	margin-bottom:	1em;
 }
 
 /**************************************************/
 /* プルダウンメニュー、色カスタマイズ             */
 /**************************************************/
 /* 背景色（非選択色） */
-.dropdown-menu,
-.dropdown-menu>ul li {
+.ddmenu,
+.ddmenu>ul li {
 	background-color:	#c8d5e2;			/* $c=ddbg = auto:modulebg */
 	background-image:	linear-gradient(to bottom,
 						 #c8d5e2,	/* $c=ddbg */
 						 #889eb6);	/* $c=ddbg2 = auto:modulebg */
 }
 /* 選択色 */
-.dropdown-menu>ul li:hover,
-.dropdown-menu>ul li.hover {
+.ddmenu>ul li:hover,
+.ddmenu>ul li.hover {
 	background-image:	none;
 	background-color:	#e0eaf9;			/* $c=ddhover = auto:prebg */
 }
 /* 枠線 */
-.dropdown-menu>ul li {
+.ddmenu>ul li a,
+.ddmenu>ul ul {
 	border-color:		#ddd;
 }
 /* 文字 */
-.dropdown-menu a:link,
-.dropdown-menu a:visited
+.ddmenu a:link,
+.ddmenu a:visited
 {
 	color:			#293d5b;			/* $c=ddfont = auto:modulebg  */
 }
 /* 矢印の色 */
-.dropdown-menu li ul li ul:before,
-.dropdown-menu.sp li ul:before {
+.ddmenu li ul li ul:before,
+.ddmenu.sp li ul:before {
 	border-left-color:	#293d5b;			/* $c=ddfont */
 }
-.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
+.ddmenu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
 	border-right-color:	#293d5b;			/* $c=ddfont */
 }
 /* 設定画面に矢印の色を自動取得させるための指定 */
-.dropdown-menu {
+.ddmenu {
 	color:			#293d5b;			/* $c=ddfont */
 }
-.dropdown-menu:not(.sp)>ul>li a {
-	height:			100%;
-}
-
-/* 影をつける */
-.dropdown-menu>ul li:hover ul,
-.dropdown-menu.sp>ul>li>ul {
-	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
-}
-
-
 
 /****************************************************************************
 ■メイン

@@ -210,61 +210,48 @@ h1 img, h1 a img {
 /*--------------------------------------------------------------------
 ●ドロップダウンメニュー
 ---------------------------------------------------------------------*/
-.dropdown-menu {
+.ddmenu {
 	margin-bottom:		1em;
 }
 /* 背景色（非選択色） */
-.dropdown-menu,
-.dropdown-menu>ul li {
+.ddmenu,
+.ddmenu>ul li {
 	background-color:	#f2fffa;	/* $c=ddbg = artbg */
 }
 /* 選択色 */
-.dropdown-menu>ul li:hover,
-.dropdown-menu>ul li.hover {
+.ddmenu>ul li:hover,
+.ddmenu>ul li.hover {
 	background-color:	#adffde;	/* $c=ddhover = auto:artbg */
 }
 /* 枠線 */
-.dropdown-menu>ul li {
+.ddmenu>ul li a,
+.ddmenu>ul ul {
 	border-color:		#bbb;		/* $c=border */
 }
 /* 文字 */
-.dropdown-menu a:link,
-.dropdown-menu a:visited
+.ddmenu a:link,
+.ddmenu a:visited
 {
 	color:			#007D81;	/* $c=ddfont = link */
 }
 /* 矢印の色 */
-.dropdown-menu li ul li ul:before,
-.dropdown-menu.sp li ul:before {
+.ddmenu li ul li ul:before,
+.ddmenu.sp li ul:before {
 	border-left-color:	#007D81;	/* $c=ddarrow = link */
 }
-.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
+.ddmenu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
 	border-right-color:	#007D81;	/* $c=ddarrow */
 }
 /* 設定画面に矢印の色を自動取得させるための指定 */
-.dropdown-menu {
+.ddmenu {
 	color:			#007D81;	/* $c=ddarrow */
 }
-/* 枠線を消す */
-.dropdown-menu>ul li {
+/* 上下枠線を消す */
+.ddmenu>ul li a,
+.ddmenu>ul ul {
 	border-top:		none;
 	border-bottom:		none;
-}
-.dropdown-menu:not(.sp)>ul>li li {
-	margin-top:	0px;
-}
-.dropdown-menu:not(.sp)>ul ul ul {
-	margin-top:	-1px;
-}
-.dropdown-menu:not(.sp)>ul>li a {
-	height:			100%;
-}
-
-/* 影をつける */
-.dropdown-menu>ul li:hover ul,
-.dropdown-menu.sp>ul>li>ul {
-	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
 }
 
 /****************************************************************************

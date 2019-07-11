@@ -393,54 +393,47 @@ h1 a:link, h1 a:hover, h1 a:visited {
 ●ドロップダウンメニュー（配色カスタマイズ） by nabe
 ---------------------------------------------------------------------*/
 /* 背景色（非選択色） */
-.dropdown-menu,
-.dropdown-menu>ul li {
+.ddmenu,
+.ddmenu>ul li {
 	background-color:	#f08daa;
 }
 
 /* 選択色 */
-.dropdown-menu>ul li:hover,
-.dropdown-menu>ul li.hover {
+.ddmenu>ul li:hover,
+.ddmenu>ul li.hover {
 	background-color:	#d68;
 }
 /* 枠線 */
-.dropdown-menu>ul li {
+.ddmenu>ul li a,
+.ddmenu>ul ul {
 	border-color:		#e69;
 }
-.dropdown-menu>ul>li {
+.ddmenu>ul>li {
 	border:			none;
-	border-bottom:		2px solid #edc;
 }
-.dropdown-menu:not(.sp)>ul>li>a {
+.ddmenu:not(.sp)>ul>li>a {
 	height:			100%;
 }
 /* 文字 */
-.dropdown-menu a:link,
-.dropdown-menu a:visited
+.ddmenu a:link,
+.ddmenu a:visited
 {
 	color:			#fff;
 }
 /* 矢印の色 */
-.dropdown-menu li ul li ul:before,
-.dropdown-menu.sp li ul:before {
+.ddmenu li ul li ul:before,
+.ddmenu.sp li ul:before {
 	border-left-color:	#d12;
 }
-.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
+.ddmenu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
 	border-right-color:	#d12;
 }
 
 /* 設定画面に矢印の色を自動取得させるための指定 */
-.dropdown-menu {
+.ddmenu {
 	color:			#d12;
 }
-/* 影をつける */
-/*
-.dropdown-menu>ul li:hover ul,
-.dropdown-menu.sp>ul>li>ul {
-	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
-}
-*/
 
 /*--------------------------------------------------------------------
 ■ ナビゲーション (前のページ/次のページ)

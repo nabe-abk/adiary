@@ -1206,18 +1206,14 @@ article.edit span.tag {
 }
 
 /* ドロップダウンメニュー */
-.dropdown-menu {
+.ddmenu {
 	background-color:		rgba(255,162,216,0.7);
-	margin:					0;
-	padding:				0;
-	width:					calc(90% - 10pt);
-	width:					-webkit-calc(90% - 10pt);
+	margin:				0;
+	padding:			0;
+	width:				calc(90% - 10pt);
 	padding-right:			calc(5% + 5pt);
-	padding-right:			-webkit-calc(5% + 5pt);
 	padding-left:			calc(5% + 5pt);
-	padding-left:			-webkit-calc(5% + 5pt);
-	line-height:			1.0;
-	color:					white;
+	color:				white;
 	text-shadow:			1px -1px 2px #FF84CE,
 			1px -1px 2px #FF84CE,
 			-1px  1px 2px #FF84CE,
@@ -1225,33 +1221,29 @@ article.edit span.tag {
 }
 
 
-.dropdown-menu > ul li {
+.ddmenu > ul li {
 	background-color:		transparent;
 	border:					none;
 }
 
-.dropdown-menu > ul li li {
+.ddmenu > ul li li {
 	background-color:		rgba(255,132,206,0.8);
 	border:					none;
 }
 
-.dropdown-menu>ul li:hover,
-.dropdown-menu>ul li.hover {
+.ddmenu>ul li.hover {
 	background-color:		rgba(249,81,144,0.75);
-}	
-
-.dropdown-menu > ul li a {
-	color:					white;
 }
-.dropdown-menu:not(.sp)>ul ul ul {
-	margin-top:	-1px;
+
+.ddmenu > ul li a {
+	color:					white;
 }
 
 /* $option2=alpha-original
-.dropdown-menu {
+.ddmenu {
 	background-color:		rgba(255,132,206,0.5);
 }
-.dropdown-menu > ul li li {
+.ddmenu > ul li li {
 	background-color:		rgba(255,132,206,0.7);
 }
 -------------------- */

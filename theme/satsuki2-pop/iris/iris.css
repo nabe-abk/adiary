@@ -65,7 +65,7 @@ input[type="radio"] + label, input[type="checkbox"] + label {
 
 /* ボタン類 */
 button {
-    padding:                0px 3px;
+    padding:                2px 3px;
     font-size:              13px;
     min-height:             16px;
     line-height:            18px;
@@ -73,7 +73,6 @@ button {
 
     border:		            none;
     background-color:       rgba(195,218,248,0.6);
-    vertical-align:         top;
 }
 button:hover {
     background-color:       rgba(251,206,216,0.6);
@@ -900,43 +899,38 @@ div[data-module-name="dem_searchbox,1"] {
 }
 
 #head-search span.title , 
-div[data-module-name="dem_searchbox,1"] span.title {
+div.searchbox span.title {
     display:                none;
 }
 
 #head-search .search-box , 
-div[data-module-name="dem_searchbox,1"] .search-box {
+div.searchbox .search-box {
     width:                  160px;
 }
 
 /* ドロップダウンメニュー */
-.dropdown-menu {
+.ddmenu {
     background-color:       rgba(255,255,255,0.65);
 }
 
-.dropdown-menu a {
-    color:                  #0343c1;
+.ddmenu a, .ddmenu a:visited {
+    color:                  #0343c1;	/* $c=link */
 }
 
-.dropdown-menu > ul li {
+.ddmenu > ul li {
     border:                 none;
     background-color:       rgba(255,255,255,0);
 }
-.dropdown-menu:not(.sp)>ul ul ul {
-	margin-top:	-1px;
-}
-.dropdown-menu:not(.sp)>ul>li a {
-	height:			100%;
-}
-.dropdown-menu > ul ul {
+
+.ddmenu > ul ul {
     background-color:       rgba(255,255,255,0.75);
 }
 
-.dropdown-menu > ul li:hover {
+.ddmenu > ul li:hover {
     background-color:       rgba(195,218,248,0.8);	/* $c=ddhover */
 }
 
-div.main .dropdown-menu {
+div.main .ddmenu {
     margin-bottom:          30px;
 }
 

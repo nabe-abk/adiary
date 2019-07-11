@@ -4,8 +4,21 @@
 <$name=argv#1>
 <$id  = v.plugin_name_id( name )>
 
+	<div>
+		<label><input class="js-switch" type="radio" name="view" data-target="#set-size"  checked>位置・サイズ</label>
+		<label><input class="js-switch" type="radio" name="view" data-target="#set-color">色</label>
+	</div>
+<div id="set-size">
 	<table class="blog-setting">
 	<tbody>
+	<tr>
+		<th>表示位置<span class="help" data-help="メニューアイテム全体を左寄せで表示するか設定します。">?</span></th>
+		<td>
+			<label><input type="checkbox" name="no_centering" value="1"<@if(ps.no_centering,' checked')>>センタリングしない（左寄せで表示）</label><br>
+			<label><input type="checkbox" name="item_left" value="1"<@if(ps.item_left,' checked')>>各項目を左寄せで表示する</label>
+		</td>
+	</tr>
+
 	<tr>
 		<th>項目幅</th>
 		<td>
@@ -23,7 +36,7 @@
 		</td>
 	</tr>
 	<tr>
-		<th>区切り線の非表示</th>
+		<th>枠線の非表示</th>
 		<td>
 			<label><input type="checkbox" name="nob_left"  value="1"<@if(ps.nob_left, ' checked')>>一番左</label> 
 			<label><input type="checkbox" name="nob_right" value="1"<@if(ps.nob_right,' checked')>>一番右</label> 
@@ -34,25 +47,21 @@
 	<tr>
 		<th>トップの表示</th>
 		<td>
-			<label><input type="checkbox" name="no_underl" id="no-underl" value="1"<@if(ps.no_underl,' checked')>>下線を消す<span class="help" data-help="2段目がありかつ上下の区切り線を表示しているとき、トップ項目の下に線が見えます。この表示を消します。">?</span></label>
 			<label><input type="checkbox" name="vbottom" value="1"<@if(ps.vbottom,' checked')>>文字位置を下にする</label>
 		</td>
 	</tr>
 	<tr>
-		<th>表示位置<span class="help" data-help="メニューアイテム全体を左寄せで表示するか設定します。">?</span></th>
+		<th>全体の左右余白</th>
 		<td>
-			<label><input type="checkbox" name="no_centering" value="1"<@if(ps.no_centering,' checked')>>全体を左寄せで表示する</label> &ensp;
-			<label><input type="checkbox" name="item_left" value="1"<@if(ps.item_left,' checked')>>各項目を左寄せで表示する</label>
+			<input type="number" class="int w60" name="padding" value="<@ps.padding || 0>" min="0" max="999" id="padding">px &ensp;
+			<label><input type="checkbox" class="js-disable" data-target="#padding"<@if(ps.padding eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
-		<th>左右padding</th>
+		<th>項目の左右余白</th>
 		<td>
-			全体<input type="number" class="int w60" name="padding" value="<@ps.padding || 0>" min="0" max="999" id="padding">px &ensp;
-			<label><input type="checkbox" class="js-disable" data-target="#padding"<@if(ps.padding eq '',' checked')>>変更しない</label><br>
-			各項目：トップ<input type="number" class="int w60" name="item_padding" value="<@ps.item_padding || 0>" min="0" max="999" id="item-padding">px 
-			以降<input type="number" class="int w60" name="item_padding2" value="<@ps.item_padding2 || 0>" min="0" max="999" id="item-padding2">px &ensp;
-			<label><input type="checkbox" class="js-disable" data-target="#item-padding,#item-padding2"<@if(ps.item_padding eq '',' checked')>>変更しない</label>
+			<input type="number" class="int w60" name="item_padding" value="<@ps.item_padding || 0>" min="0" max="999" id="item-padding">px &ensp;
+			<label><input type="checkbox" class="js-disable" data-target="#item-padding"<@if(ps.item_padding eq '',' checked')>>変更しない</label>
 		</td>
 	</tr>
 	<tr>
@@ -74,7 +83,9 @@
 	</tr>
 	</tbody>
 	</table>
+</div>
 
+<div id="set-color">
 	<table class="blog-setting">
 	<tbody>
 	<tr>
@@ -101,7 +112,7 @@
 		</td>
 	</tr>
 	<tr>
-		<th>区切り線の色</th><td>
+		<th>枠線の色</th><td>
 			<input type="text" id="border" name="border" value="<@ps.border || '#aaaadd'>" class="color-picker">
 
 			<label><input type="checkbox" class="js-disable" data-target="#border"<@if(ps.border eq '',' checked')>>変更しない</label>
@@ -128,9 +139,7 @@
 	</tr>
 	</tbody>
 	</table>
-
-	<p>※さらに凝った表示設定は<a href="<@v.myself>?design/usercss" target="_blank">ユーザーCSS</a>より、各自記述してください。</p>
-
+</div>
 
 <!-- JavaScript ==========================================================-->
 <script>
@@ -173,8 +182,12 @@ if ('<@ps.margin3>' == '')
 	$('#margin3').val( parse_px( obj.css('margin-left') ) );
 
 if ('<@ps.padding>' == '') {
-	var ul = obj.find('>ul');
+	var ul = obj.find('>ul').first();
 	$('#padding').val( parse_px( ul.css('padding-left') ) );
+}
+if ('<@ps.item_padding>' == '') {
+	var a = obj.find('>ul>li>a').first();
+	$('#item-padding').val( parse_px( a.css('padding-left') ) );
 }
 
 

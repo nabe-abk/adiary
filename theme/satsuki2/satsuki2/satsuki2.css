@@ -158,49 +158,44 @@ a.welcome-name { margin: 0px 4px 0px 4px; }
 /*--------------------------------------------------------------------
 ■ドロップダウンメニュー
 ---------------------------------------------------------------------*/
-.dropdown-menu {
+.ddmenu {
 	margin-bottom:		1em;
 }
 
 /* 背景色（非選択色） */
-.dropdown-menu,
-.dropdown-menu>ul li {
+.ddmenu,
+.ddmenu>ul li {
 	background-color:	#ccccff;	/* $c=ddbg = main */
 }
 /* 選択色 */
-.dropdown-menu>ul li:hover,
-.dropdown-menu>ul li.hover {
+.ddmenu>ul li:hover,
+.ddmenu>ul li.hover {
 	background-color:	#f0f0ff;	/* $c=ddhover = auto:main  */
 }
 /* 枠線 */
-.dropdown-menu>ul li {
+.ddmenu>ul li a,
+.ddmenu>ul ul {
 	border-color:		#aac;		/* $c=ddborder = auto:main */
 }
 /* 文字 */
-.dropdown-menu a:link,
-.dropdown-menu a:visited
+.ddmenu a:link,
+.ddmenu a:visited
 {
 	color:			#33f;	/* $c=ddfont=link */
 }
 /* 矢印の色 */
-.dropdown-menu li ul li ul:before,
-.dropdown-menu.sp li ul:before {
+.ddmenu li ul li ul:before,
+.ddmenu.sp li ul:before {
 	border-left-color:	#338;	/* $c=ddarrow = auto:link */
 }
-.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
+.ddmenu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
 	border-right-color:	#338;	/* $c=ddarrow */
 }
 /* 設定画面に矢印の色を自動取得させるための指定 */
-.dropdown-menu {
+.ddmenu {
 	color:			#338;	/* $c=ddarrow */
 }
-/* 影をつける */
-.dropdown-menu>ul li:hover ul,
-.dropdown-menu.sp>ul>li>ul {
-	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
-}
-
 
 /*--------------------------------------------------------------------
 ■ページ送り

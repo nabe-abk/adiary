@@ -189,63 +189,50 @@ h1 img, h1 a img {
 /*--------------------------------------------------------------------
 ■ドロップダウンメニュー
 ---------------------------------------------------------------------*/
-.dropdown-menu,
-.dropdown-menu>ul>li {
+.ddmenu,
+.ddmenu>ul>li {
 	background-color:	transparent;
 }
 /* 背景色（非選択色） */
-.dropdown-menu.sp, 
-.dropdown-menu>ul>li>ul li {
+.ddmenu.sp, 
+.ddmenu>ul>li>ul li {
 	background-color:	#311;		/* $c=ddbg = headerbg */
 }
 /* 選択色 */
-.dropdown-menu>ul li:hover,
-.dropdown-menu>ul li.hover {
+.ddmenu>ul li:hover,
+.ddmenu>ul li.hover {
 	background-color:	#666;		/* $c=ddhover = auto:border */
 }
 /* 枠線 */
-.dropdown-menu>ul li {
+.ddmenu>ul li a,
+.ddmenu>ul ul {
 	border-color:		#666;		/* $c=ddborder = auto:border */
 }
 /* 文字 */
-.dropdown-menu a:link,
-.dropdown-menu a:visited
+.ddmenu a:link,
+.ddmenu a:visited
 {
 	font-weight:		normal;
 	color:			#fee;		/* $c=ddfont = link */
 }
 /* 矢印の色 */
-.dropdown-menu li ul li ul:before,
-.dropdown-menu.sp li ul:before {
+.ddmenu li ul li ul:before,
+.ddmenu.sp li ul:before {
 	border-left-color:	#fee;		/* $c=ddarrow = link */
 }
-.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
+.ddmenu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
 	border-right-color:	#fee;		/* $c=ddarrow */
 }
 /* 設定画面に矢印の色を自動取得させるための指定 */
-.dropdown-menu {
+.ddmenu {
 	color:			#fee;		/* $c=ddarrow */
 }
-/* 枠線を消す */
-.dropdown-menu:not(.sp)>ul>li a {
-	height:			100%;
-}
-.dropdown-menu:not(.sp)>ul>li:first-child {
-	border-left:		none;
-}
-.dropdown-menu:not(.sp)>ul>li:last-child {
-	border-right:		none;
-}
-
-/* 影をつける */
-.dropdown-menu>ul li:hover ul,
-.dropdown-menu.sp>ul>li>ul {
-	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
-}
-
-.main .dropdown-menu {
-	margin:			0 0 1em 0;
+/* 上下枠線を消す */
+.ddmenu>ul li a,
+.ddmenu>ul ul {
+	border-top:		none;
+	border-bottom:		none;
 }
 
 /*--------------------------------------------------------------------

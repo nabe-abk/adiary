@@ -48,7 +48,7 @@ adiary.css_init(function(){
 	if (SP || !flag) return;
 
 	// 入れ替え
-	$('#footer').prepend( $('#side-b').addClass('js-auto-width') );
+	$('#footer').prepend( $('#side-b') );
 });
 
 //////////////////////////////////////////////////////////////////////////////

@@ -134,73 +134,65 @@ h1 img, h1 a img {
 /*--------------------------------------------------------------------
 ■ドロップダウンメニュー
 ---------------------------------------------------------------------*/
-.dropdown-menu {
+.ddmenu {
 	font-weight:		normal;
 }
 /* 背景色（非選択色） */
-.dropdown-menu,
-.dropdown-menu>ul li {
+.ddmenu,
+.ddmenu>ul li {
 	background-color:	transparent;
 }
-header .dropdown-menu>ul>li li {
+header .ddmenu>ul>li li {
 	background-color:	#343;		/* $c=ddbg = titlebg */
 	background-image:	url("slant-tile.gif");
 }
 /* 選択色 */
-.dropdown-menu>ul li:hover,
-.dropdown-menu>ul li.hover {
+.ddmenu>ul li:hover,
+.ddmenu>ul li.hover {
 	background-color:	#228800;	/* $c=ddhover = link */
 }
 /* 枠線 */
-.dropdown-menu>ul li {
+.ddmenu>ul li a,
+.ddmenu>ul ul {
 	border-color:		#aaa;		/* $c=fixddborder */
 }
 /* 文字 */
-.dropdown-menu a:link,
-.dropdown-menu a:visited
+.ddmenu a:link,
+.ddmenu a:visited
 {
 	color:			#fff;		/* $c=fixddfont */
 }
 /* 矢印の色 */
-.dropdown-menu li ul li ul:before,
-.dropdown-menu.sp li ul:before {
+.ddmenu li ul li ul:before,
+.ddmenu.sp li ul:before {
 	border-left-color:	#393;		/* $c=ddarrow = auto:link */
 }
-.dropdown-menu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
+.ddmenu:not(.sp) li:last-child:not(:first-child) ul li ul:before {
 	border-left-color:	transparent;
 	border-right-color:	#393;		/* $c=ddarrow */
 }
 /* 設定画面に矢印の色を自動取得させるための指定 */
-.dropdown-menu {
+.ddmenu {
 	color:			#393;		/* $c=ddarrow */
-}
-/* 影をつける */
-.dropdown-menu>ul li:hover ul,
-.dropdown-menu.sp>ul>li>ul {
-	box-shadow:		8px 8px 8px rgba(0,0,0, 0.3);
-}
-/* 下線を消す */
-.dropdown-menu>ul>li a {
-	height:		100%;
 }
 
 /* main部に置いた場合 */
-.main .dropdown-menu {
+.main .ddmenu {
 	margin:			1em 0;
 	font-size:		10pt;
-	background-color:	transparent;
 }
-.main .dropdown-menu>ul li {
+.main .ddmenu,
+.main .ddmenu>ul li {
 	background-color:	#fff;
 }
 
-.main .dropdown-menu a:link,
-.main .dropdown-menu a:visited
+.main .ddmenu a:link,
+.main .ddmenu a:visited
 {
 	color:			inherit;
 }
-.main .dropdown-menu>ul li:hover,
-.main .dropdown-menu>ul li.hover {
+.main .ddmenu>ul li:hover,
+.main .ddmenu>ul li.hover {
 	background-color:	#e9eff8;	/* $c=ddhoverbginmain */
 }
 

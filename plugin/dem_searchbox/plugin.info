@@ -12,11 +12,10 @@ module_type=main
 load_module_html_in_edit=1
 
 *sample_html=<<HTML
-<div data-module-name="<@this>">
+<div class="searchbox" data-module-name="<@this>">
 <form method="GET" action="./" onsubmit="return false;">
 <span class="title">検索</span>
-<input type="search" class="search-box w100" name="q" value="" required>
-<button type="submit" class="search-btn">検索</button>
+<input type="search" class="search-box w100" name="q" value="" required><button type="submit" class="search-btn">検索</button>
 <span class="search-radio">
 <label><input class="search-title" type="radio" name="all" value="0">タイトル</label>
 <label><input class="search-text"  type="radio" name="all" value="1" checked>全文</label>
@@ -27,10 +26,10 @@ HTML
 
 *module_html=<<HTML
 <$ps = v.load_plgset('<@this>')>
-<div data-module-name="<@this>">
+<div class="searchbox" data-module-name="<@this>">
 <form method="GET" action="<@v.myself>">
 <@if(!ps.title_none, '<span class="title">検索</span>')>
-<input type="search" class="search-box w100" name="q" value="<@tag_escape(x = Query.q)>" required>
+<input type="search" class="search-box w100" name="q" value="<@tag_escape(x = Query.q)>" required> <@\>
 <button type="submit" class="search-btn">検索</button><@if(ps.br, '<br>')>
 <$ifset(exists(Query.all), all, Query.all, ps.all)>
 <span class="search-radio">

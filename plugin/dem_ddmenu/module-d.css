@@ -12,16 +12,9 @@
 <@ifexec(ps.height ne '', begin)>
 /* 高さの設定 */
 <@id>,
-<@id>>ul>li {
-	height:		<@ps.height>px;	/* Y */
-}
-<@id>>ul>li a,
+<@id>>ul>li,
 <@id>>ul li:hover>ul>li {
-	height:		<@ps.height-2>px;	/* = Y-2 */
-	line-height:	<@ps.height-2>px;	/* = Y-2 */
-}
-<@id>>ul ul ul {
-	top:		<@3 - ps.height>px;	/* = 3-Y */
+	height:		<@ps.height>px;
 }
 <@id> li ul li ul:before {
 	top:		<@int((ps.height - 10)/2)>px;	/* = (Y-10)/2 */
@@ -30,82 +23,49 @@
 <@>
 /* 項目の幅の設定 */
 <@ifexec(ps.width1 ne '', begin)>
-<@id>>ul>li {
+<@id>:not(.sp)>ul>li {
 	width:		<@x1=ps.width1>px;	/* １段目の幅 = X1 */
 }
 <$end>
 <@ifexec(ps.width1_free, begin)>
-<@id>>ul>li, <@id>>ul>li>a {
+<@id>:not(.sp)>ul>li {
 	width:		auto;
 }
 <$end>
 <@ifexec(ps.width2 ne '', begin)>
-<@id>>ul>li>ul,
-<@id>>ul>li>ul li {
+<@id>:not(.sp)>ul>li>ul,
+<@id>:not(.sp)>ul>li>ul li {
 	width:		<@x2=ps.width2>px;	/* ２段目の幅 = X2 */
-}
-<$end>
-<@ifexec(ps.width1 ne '' && ps.width2 ne '', begin, begin)>
-body <@id>>ul>li:last-child:not(:first-child)>ul {
-	left:		<@x1-x2>px;	/* = X1-X2 */
-}
-body <@id>>ul>li:last-child:not(:first-child)>ul ul {
-	left:		<@-x2>px;	/* = -X2 */
-}
-body <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
-	left:		<@x2>px;	/* = X2 */
-}
-<$else>
-body <@id>>ul>li:last-child:not(:first-child)>ul {
-	left:		0px;
-}
-body <@id>>ul>li:last-child:not(:first-child)>ul ul {
-	left:		<@-x2>px;	/* = -X2 */
-}
-body <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
-	left:		<@x2>px;	/* = X2 */
 }
 <$end>
 
 <@>
 <@ifexec(ps.nob_left, begin)>
-<@id>>ul>li:first-child {
+<@id>>ul>li:first-child>a {
 	border-left:	none;
 }
 <$end>
 <@ifexec(ps.nob_right, begin)>
-<@id>>ul>li:last-child {
+<@id>>ul>li:last-child>a {
 	border-right:	none;
 }
 <$end>
 <@ifexec(ps.nob_lr, begin)>
-<@id>>ul>li {
+<@id>>ul>li>a {
 	border-left:	none;
 	border-right:	none;
 }
 <$end>
 <@ifexec(ps.nob_tb, begin)>
-<@id>>ul>li li {
-	border-top:	none;
-	border-bottom:	none;
-}
-.dropdown-menu>ul ul ul {
-	margin-top:	-1px;
-}
-<$end>
-<@>
-<@ifexec(ps.no_underl, begin)>
-<@id>>ul>li a {
-	height:		100%;
+<@if>>ul li:hover>ul>li a,
+<@if>>ul li:hover>ul {
+	border:		none;
 }
 <$end>
 <@>
 <@ifexec(ps.item_left, begin)>
 <@id> li a {
 	text-align:	left;
-}
-body <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
-	left:		<@(ps.width2 || 200)*2 - 20>px;
 }
 <$end>
 <@>
@@ -133,11 +93,8 @@ body <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
 }
 <$end>
 <@ifexec(ps.item_padding ne '', begin)>
-<@id>>ul>li>a {
+<@id> li a {
 	padding:	0 <@ps.item_padding>px;
-}
-<@id>>ul>li>ul li a {
-	padding:	0 <@ps.item_padding2>px;
 }
 <$end>
 <@>----------------------------------------------------------------
@@ -181,7 +138,8 @@ body <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
 <@>
 <@ifexec(ps.border, begin)>
 /* 枠線 */
-<@id>>ul li {
+<@id>>ul li a,
+<@id>>ul ul {
 	border-color:		<@ps.border>;
 }
 <$end>
@@ -208,7 +166,7 @@ body <@id>>ul>li:last-child:not(:first-child) ul li ul:before {
 }
 <$end>
 <@ifexec(ps.no_shadow, begin)>
-<@id> * {
+<@id> ul {
 	box-shadow:		none;
 }
 <$end>

@@ -18,7 +18,7 @@
 <$tree  = node.children || array()>
 <$depth = argv#1><@>prefix
 <$p = "\t" %x depth>
-<@p><ul<@if(!depth && !ps.no_centering, ' class="js-auto-width"')>>
+<@p><ul>
 <@forexec(t, tree, begin.forexec)>
 <$ifexec(tagmode, begin, begin)>
 	<$link = encode_uricom(link = t.name)>
