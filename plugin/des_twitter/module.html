@@ -5,6 +5,7 @@
 <div class="hatena-moduletitle"><@if(ps.title ne '',ps.title ,'Twitter')></div>
 <$end>
 <div class="hatena-modulebody">
+<@ifexec(!v.system_mode || ps.view_system, begin, begin)>
 <@ifexec(ps.id ne '', begin, begin)>
 <@>
 <a class="twitter-timeline"
@@ -50,6 +51,9 @@ div.timeline-Body {
 <@>
 <$else>
 	<p class="ni">「twitter-id」が指定されていません。</p>
+<$end>
+<$else>
+管理画面では非表示です。
 <$end>
 </div> <!-- hatena-modulebody -->
 </div> <!-- hatena-module -->

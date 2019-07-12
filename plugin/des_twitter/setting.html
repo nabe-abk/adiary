@@ -8,13 +8,14 @@
 		<td><input type="text" class="w160" name="title" value="<@ps.title || 'Twitter'>" maxlength="64"></td>
 	</tr>
 	<tr>
-		<th>タイトル表示</th>
-		<td>
-			<label><input type="checkbox" name="title_none" value="1"<@if(ps.title_none,' checked')>>非表示にする</label>
-		</td>
+		<th>Twitterのid</th><td><input type="text" class="w200" name="id" value="<@ps.id>" id="tw-id"></td>
 	</tr>
 	<tr>
-		<th>Twitterのid</th><td><input type="text" class="w200" name="id" value="<@ps.id>" id="tw-id"></td>
+		<th>表示設定</th>
+		<td>
+			<label><input type="checkbox" name="title_none" value="1"<@if(ps.title_none,' checked')>>タイトルを非表示</label><br>
+			<label><input type="checkbox" name="view_system" value="1"<@if(ps.view_system,' checked')>>管理画面でも表示する</label><br>
+		</td>
 	</tr>
 	</tbody>
 	</table>
