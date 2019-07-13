@@ -1,0 +1,14 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.blog_admin)>
+
+<$(action_return,c) = v.reset_plugins( Form.name_ary )>
+
+POST成功時の処理
+<$ifexec(action_return eq '0', begin)>
+	<$message("<@c>件のプラグイン設定を初期化しました")>
+	<$url = v.myself .'?'. v.query0>
+	<$jump('_sub/reload_message', url)>
+<$end>
+
+<$message("プラグイン設定の初期化に失敗しました")>

@@ -288,7 +288,7 @@ sub load_plugin_info {
 	if (!$n) { return; }		# プラグイン名, $name=プラグインのインストール名
 
 	my $h = $ROBJ->fread_hash_no_error( "$dir$n/plugin.info" );
-	if (!$h || !%$h) { next; }
+	if (!$h || !%$h) { return; }
 	$h->{readme} = -r "$dir$n/README.txt" ? 'README.txt' : undef;
 	$h->{name} = $name;
 
@@ -881,6 +881,7 @@ sub upload_image_for_plugin {
 	$file->{overwrite} = 1;
 	return $self->do_upload( $dir, $file );
 }
+
 #------------------------------------------------------------------------------
 # ●プラグインのための画像ファイル名取得
 #------------------------------------------------------------------------------

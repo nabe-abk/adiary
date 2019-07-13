@@ -355,6 +355,55 @@ sub reinstall_design_plugins {
 }
 
 #------------------------------------------------------------------------------
+# ●設定の存在するプラグイン一覧
+#------------------------------------------------------------------------------
+sub get_plugins_setting {
+	my $self = shift;
+	my $set  = $self->{blog};
+	my %p;
+	foreach(keys(%$set)) {
+		if ($_ !~ /^p:([\w\-]+(?:,\d+)?)/) { next; }
+		$p{$1}=1;
+	}
+	return [ sort(keys(%p)) ];
+}
+
+#------------------------------------------------------------------------------
+# ●設定の存在するプラグイン一覧
+#------------------------------------------------------------------------------
+sub reset_plugins {
+	my $self = shift;
+	my $ary  = shift || [];
+	my $pd   = $self->load_plugins_dat();
+
+	# uninstall
+	my @reinstall;
+	foreach(@$ary) {
+		if (!$pd->{$_}) { next; }
+		$self->call_event("UNINSTALL:$_");
+	}
+
+	# delete setting
+	my $set = $self->{blog};
+	my %n   = map {$_ => 1} @$ary;
+	my %del;
+	foreach(keys(%$set)) {
+		if ($_ !~ /^p:([\w\-]+(?:,\d+)?)/) { next; }
+		if (!$n{$1}) { next; }
+		$del{$1}=1;
+		$self->update_blogset($set, $_, undef);
+	}
+
+	# reinstall
+	foreach(@$ary) {
+		if (!$pd->{$_}) { next; }
+		$self->call_event("INSTALL:$_");
+	}
+
+	return wantarray ? (0, scalar(keys(%del))) : 0;
+}
+
+#------------------------------------------------------------------------------
 # ●design.datの解析
 #------------------------------------------------------------------------------
 sub parse_design_dat {

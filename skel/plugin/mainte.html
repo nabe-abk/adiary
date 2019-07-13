@@ -1,6 +1,5 @@
 <@6>
-<@local(t,pd,err)>
-<$err=FormError>
+<@local(t,ary,x,id)>
 <$ifbreak(!v.blog_admin)>
 
 <@> システムモード
@@ -12,14 +11,53 @@
 
 <!--========================================================================-->
 <article class="system setting">
-<h2><@v.title></h2>
+<h2>再インストール</h2>
 <div class="body">
 	<p>デザインモジュールを含めた、すべてのプラグインを再インストールします。プラグインを手動で更新した時などに必要です。</p>
 
 	<form action="<@v.myself>?<@v.skeleton>" method="POST">
 	<input type="hidden" name="action" value="<@v.skel_dir>reinstall_plugins">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
-	<button type="submit">使用中のプラグインを再インストール</button>
+	<button type="submit">再インストール</button>
+	</form>
+
+</div>
+</article>
+
+<article class="system setting">
+<h2 id="reset">設定リセット</h2>
+<div class="body">
+	<p>使用中または過去使用していたプラグインの設定をリセットします。選択モジュールのデザイン設定も初期化されます。</p>
+
+	<form action="<@v.myself>?<@v.skeleton>" method="POST" class="js-form-check" data-target=".plugin-name">
+	<input type="hidden" name="action" value="<@v.skel_dir>reset_plugins">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+
+	<$ary = v.get_plugins_setting()>
+	<table>
+	<thead>
+	<tr>
+		<th><input type="checkbox" class="js-checked" data-target=".plugin-name"></th>
+		<th>ID</td>
+		<th>使用中</th>
+		<th>プラグイン名</th>
+		<th>形式</td>
+	</tr>
+	</thead>
+	<tbody>
+	<@forexec(t, ary, begin)><$x = v.load_plugin_info(t) || {}><$id=t><$id=replace(id,',','')>
+	<tr>
+		<td><input type="checkbox" class="plugin-name" name="name_ary" value="<@t>" id="<@id>"></td>
+		<td><label for="<@id>"><@t></label></td>
+		<td class="c"><@if(v.check_installed_plugin(t), '使用中', '-')></td>
+		<td><label for="<@id>"><@x.title></label></td>
+		<td><@if(x.module_type, replace(x.module_type, ',', ', '), '-')></td>
+	</tr>
+	<$end>
+	</tbody>
+	</table>
+
+	<button type="submit">リセット</button>
 	</form>
 
 </div>
