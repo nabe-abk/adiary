@@ -1,0 +1,13 @@
+<@20>
+<$ifbreak(csrf_check())>
+<$ifbreak(!v.blog_admin)>
+
+<$v.frame_skeleton=''>
+<$v.action_is_main=1>
+<$set_content_type('text/plain')>
+
+<$action_return = v.reset_plugin_setting( Form.name )>
+<@"ret=<@action_return>">
+
+<$ifbreak(! @Message)>
+<@"\nmsg=" . join("\n", Message)>

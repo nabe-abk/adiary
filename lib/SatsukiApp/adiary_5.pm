@@ -374,14 +374,6 @@ sub get_plugins_setting {
 sub reset_plugins {
 	my $self = shift;
 	my $ary  = shift || [];
-	my $pd   = $self->load_plugins_dat();
-
-	# uninstall
-	my @reinstall;
-	foreach(@$ary) {
-		if (!$pd->{$_}) { next; }
-		$self->call_event("UNINSTALL:$_");
-	}
 
 	# delete setting
 	my $set = $self->{blog};
@@ -394,13 +386,13 @@ sub reset_plugins {
 		$self->update_blogset($set, $_, undef);
 	}
 
-	# reinstall
-	foreach(@$ary) {
-		if (!$pd->{$_}) { next; }
-		$self->call_event("INSTALL:$_");
+	my $cnt=0;
+	foreach(keys(%del)) {
+		$self->reset_plugin_setting($_);
+		$cnt++;
 	}
 
-	return wantarray ? (0, scalar(keys(%del))) : 0;
+	return wantarray ? (0, $cnt) : 0;
 }
 
 #------------------------------------------------------------------------------

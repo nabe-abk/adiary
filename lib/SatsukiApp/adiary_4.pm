@@ -793,6 +793,33 @@ sub save_plugin_setting {
 }
 
 #------------------------------------------------------------------------------
+# ●プラグイン設定のリセット
+#------------------------------------------------------------------------------
+sub reset_plugin_setting {
+	my $self = shift;
+	my $name = shift;
+	my $pd   = $self->load_plugins_dat();
+
+	# uninstall
+	if ($pd->{$name}) {
+		$self->call_event("UNINSTALL:$name");
+	}
+
+	# delete setting
+	my $set = $self->{blog};
+	foreach(keys(%$set)) {
+		if ($_ !~ /^p:([\w\-]+(?:,\d+)?)/ || $1 ne $name) { next; }
+		$self->update_blogset($set, $_, undef);
+	}
+
+	# reinstall
+	if ($pd->{$name}) {
+		$self->call_event("INSTALL:$name");
+	}
+	return 0;
+}
+
+#------------------------------------------------------------------------------
 # ●プラグイン名のチェックとalias番号の分離
 #------------------------------------------------------------------------------
 # plugin_num in adiary_2.pm

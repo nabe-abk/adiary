@@ -405,7 +405,7 @@ function module_setting(obj, mode) {
 
 	var formdiv = $('<div>').attr('id', 'popup-dialog');
 	var form = $secure('#setting-form').clone();
-	var url  = form.data('setting-url') + name;
+	var url  = form.data('url') + name;
 	if (mode) url += '&mode=' + mode;
 	form.removeAttr('id');
 	form.append($('<input>').attr({
@@ -428,23 +428,23 @@ function module_setting(obj, mode) {
 	var erradd = $('<div>');
 	errdiv.append(errmsg, erradd);
 
+	var error_msg = $secure('#msg-save-error').text();
 	var ajax = {
 		url: form.attr('action'),
 		type: 'POST',
 		success: function(data){
 			if (! data.match(/ret=(-?\d+)(?:\n|$)/) ) {
-				errmsg.html( $('#msg-save-error').html() );
+				errmsg.html( error_msg );
 			} else if (RegExp.$1 != '0') {
-				errmsg.html( $('#msg-save-error').html() +'(ret='+ RegExp.$1 +')');
+				errmsg.html( error_msg +'(ret='+ RegExp.$1 +')');
 			} else {
 				//成功
 				formdiv.adiaryDialog( 'close' );
-				// モジュールHTMLをサーバからロード？
 				if (mode == 'css')
 					load_module_css ( obj, load_module_html );
 				else
 					load_module_html( obj );
-				return ;
+				return;
 			}
 			errmsg.attr('title', data);
 			if (data.match(/\nmsg=([\s\S]*)$/) ) erradd.html( RegExp.$1 );
@@ -473,6 +473,18 @@ function module_setting(obj, mode) {
 		}
 		// 今すぐ保存
 		$.ajax( ajax );
+	};
+	buttons[ $('#btn-reset-setting').text() ] = function(){
+		adiary.confirm('#msg-reset-confirm', function(flag){
+			if (!flag) return;
+
+			const rst   = $secure('#reset-form').clone();
+			const ajax2 = Object.create( ajax );
+			ajax2.url   = rst.attr('action');
+			ajax2.data  = rst.serialize() + '&name=' + name;
+			error_msg   = $('#msg-reset-error').text();
+			$.ajax( ajax2 );
+		});
 	};
 	buttons[ adiary.msg('cancel') ] = function(){
 		formdiv.adiaryDialog( 'close' );

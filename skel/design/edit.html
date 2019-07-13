@@ -123,7 +123,7 @@ input[type="checkbox"] {
 
 <!-- モジュール設定画面用フォーム -->
 <form method="POST" id="setting-form"
- data-setting-url="<@v.myself>?plugin/plugin_setting&amp;name=">
+ data-url="<@v.myself>?plugin/plugin_setting&amp;name=">
 <input type="hidden" name="action" value="plugin/plugin_setting">
 <input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 </form>
@@ -135,6 +135,12 @@ input[type="checkbox"] {
 <input type="hidden" name="module_name" id="js-load-module-name">
 </form>
 
+<!-- モジュールリセット -->
+<form method="POST" id="reset-form">
+<input type="hidden" name="action" value="plugin/reset_plugin">
+<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+</form>
+
 
 <@call('_sub/ajax_messages')>
 <div style="display:none">
@@ -144,5 +150,7 @@ input[type="checkbox"] {
 <span id="btn-css-setting">デザイン設定</span>
 <span id="btn-view-html">HTML表示</span>
 <span id="msg-html-source">HTMLソース</span>
+<span id="msg-reset-confirm">このモジュールに関するすべての設定がリセットされます。よろしいですか？</span>
+<span id="msg-reset-error">リセットに失敗しました</span>
 <span id="user-css-url" data-url="<@Basepath><@v.blogpub_dir>dynamic.css"></span>
 </div>
