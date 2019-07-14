@@ -65,16 +65,16 @@ $mop->{get_main_image} = sub {
 # ●AMP用のCSSで不要なセレクタリスト
 #------------------------------------------------------------------------------
 	my @ignore_selector = qw(
-.dropdown
+.ddmenu
 button form input select option textarea #edit
 .checkbox .button .colorbox .color-picker .colorpicker
 #sidebar .hatena-module #com
 article.setting	.help .highlight .search .ui-icon- .social-button
 #album ul.dynatree #file #iframe #selected
-.design .module-edit .ui-dialog .ui-progressbar .ui-tabs .jqueryui-tabs
+.design .module-edit .ui-dialog .ui-progressbar
 .system table.calendar ul.hatena-section
 #popup resize-parts #ui-icon-autoload
-#dem-ddmenu
+.lb-
 );
 
 #------------------------------------------------------------------------------
@@ -87,9 +87,9 @@ $mop->{amp_css} = sub {
 	my $aobj = $self->{aobj};
 
 	my $amp_css_file = $aobj->{blogpub_dir} . 'amp.css';
+	my $uiicon_file  = $aobj->{pubdist_dir} . 'ui-icon/ui-icon.png';
 
 	# ファイル更新チェック
-	my $update;
 	my $amp_css = $self->{this_tm} . "\n";
 	foreach(@$files) {
 		my $tm = $_ ? $ROBJ->get_lastmodified($_) : 0;
@@ -169,7 +169,7 @@ $mop->{amp_css} = sub {
 		'';
 	!seg;
 	if ($uiicon) {
-		push(@out, $self->load_uiicon_css($uiicon));
+		push(@out, $self->load_uiicon_css($uiicon, $uiicon_file));
 	}
 	$css = join("\n", @out);
 
@@ -188,27 +188,54 @@ $mop->{amp_css} = sub {
 $mop->{load_uiicon_css} = sub {
 	my $self = shift;
 	my $col  = shift;
+	my $file = shift;
 
-	$col =~ s/^([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])$/$1$1$2$2$3$3/;
-	my @cols = (hex(substr($col,0,2)), hex(substr($col,2,2)), hex(substr($col,4,2)));
-	my @vals = (0, 0x40, 0x80, 0xC0, 0xff);
-
-	my $file='';
-	foreach my $c (@cols) {
-		my $diff=255;
-		my $near;
-		foreach(@vals) {
-			my $d = $c - $_;
-			$d = $d>0 ? $d : -$d;
-			if ($d > $diff) { next; }
-			$near = $_;
-			$diff = $d;
-		}
-		$file .= unpack('H2', chr($near));
+	my $png;
+	{
+		require Fcntl;
+		sysopen(my $fh, $file, Fcntl::O_RDONLY());
+		binmode($fh);
+		sysread($fh, $png, 0x1000);	# Max 16KB
+		close($fh);
 	}
-	$file = $self->{ROBJ}->{Basepath} . $self->{aobj}->{pubdist_dir}
-		. 'ui-icon/' . $file . '.png';
-	return ".ui-icon,.art-nav a:before,.art-nav a:after{background-image:url(\"$file\")}";
+	my $PLTE_OFFSET  = 0x25;
+	my $COLOR_OFFSET = 0x29;
+	if (substr($png, $PLTE_OFFSET, 4) ne 'PLTE') { return ''; }
+
+	# replace color
+	substr($png, $COLOR_OFFSET, 3) = chr(hex(substr($col,0,2))) . chr(hex(substr($col,2,2))) . chr(hex(substr($col,4,2)));
+
+	# calc CRC32 for PNG
+	my $GEN  = 0xEDB88320;
+	my $len  = unpack('N', substr($png, $PLTE_OFFSET-4, 4)) + 4;
+	my $data = substr($png, $PLTE_OFFSET, $len);
+	my $crc  = 0xffffffff;
+	{
+		my $d;
+		my $bits = $len<<3;
+		my $j=0;
+		for(my $i=0; $i<$bits; $i++) {
+			if (($i & 7)==0) {
+				$d = ord(substr($data,$j++,1));
+			}
+			$crc ^= ($d & 1);
+			my $x = $crc & 1;
+			$crc>>=1;
+			$d  >>=1;
+			if ($x) {
+				$crc ^= $GEN;
+			}
+		}
+		$crc = ~$crc;
+		$crc = pack('C4', ($crc>>24) & 0xff, ($crc>>16) & 0xff, ($crc>>8) & 0xff, $crc & 0xff);
+
+		my $p = $PLTE_OFFSET + $len;
+		substr($png,$p,4) = $crc;
+	}
+	return '.ui-icon, .art-nav a:before, .art-nav a:after {'
+			. 'background-image: '
+			. 	'url("data:image/png;base64,' . $self->base64encode($png) . '")'
+			. '}';
 };
 
 #------------------------------------------------------------------------------
@@ -540,6 +567,36 @@ $mop->{get_image_size} = sub {
 	my ($x, $y) = $img->Get('width', 'height');
 	return ($x, $y);
 };
+
+#------------------------------------------------------------------------------
+# ●指定URLから画像サイズ取得
+#------------------------------------------------------------------------------
+my $base64table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+$mop->{base64encode} = sub {
+	my $self = shift;
+	my $str  = shift;
+	my $ret;
+
+	# 2 : 0000_0000 1111_1100
+	# 4 : 0000_0011 1111_0000
+	# 6 : 0000_1111 1100_0000
+	my ($i, $j, $x);
+	for($i=$x=0, $j=2; $i<length($str); $i++) {
+		$x    = ($x<<8) + ord(substr($str,$i,1));
+		$ret .= substr($base64table, ($x>>$j) & 0x3f, 1);
+
+		if ($j != 6) { $j+=2; next; }
+		# j==6
+		$ret .= substr($base64table, $x & 0x3f, 1);
+		$j    = 2;
+	}
+	if ($j != 2)    { $ret .= substr($base64table, ($x<<(8-$j)) & 0x3f, 1); }
+	if ($j == 4)    { $ret .= '=='; }
+	elsif ($j == 6) { $ret .= '=';  }
+
+	return $ret;
+};
+
 ###############################################################################
 ###############################################################################
 	return $mop;

@@ -7,6 +7,8 @@
 <@local(ret,t)>
 <$s = v.blog>
 <$amp = v.call_plugin_function('amp.pm', 'amp')>
+<$v.blog_admin = false>
+<$v.allow_edit = false>
 
 <$(t,ret) = v.load_article_current_blog(if(v.pinfo ne '', v.pinfo, s.frontpage))>
 <$ifset(v.pinfo eq '', frontpage, 1)>

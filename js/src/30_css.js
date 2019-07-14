@@ -114,10 +114,10 @@ adiary.css_init(function(){
 		let d;
 		let bits = length<<3;
 		for(let i=0,j=0; i<bits; i++) {
-			if ((i & 7)== 0) d = data.charCodeAt(j++);
+			if ((i & 7) == 0) d = data.charCodeAt(j++);
 			crc ^= (d & 1);
 			let x = crc & 1;
-			crc = crc>>>1;
+			crc >>>=1;
 			d   >>>=1;
 			if (x) crc ^= GEN;
 		}
