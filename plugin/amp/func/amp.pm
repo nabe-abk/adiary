@@ -193,7 +193,7 @@ $mop->{load_uiicon_css} = sub {
 	my $png;
 	{
 		require Fcntl;
-		sysopen(my $fh, $file, Fcntl::O_RDONLY());
+		sysopen(my $fh, $file, &Fcntl::O_RDONLY);
 		binmode($fh);
 		sysread($fh, $png, 0x1000);	# Max 16KB
 		close($fh);

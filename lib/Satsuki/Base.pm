@@ -1112,15 +1112,15 @@ sub parse_hash {
 #------------------------------------------------------------------------------
 sub read_lock {
 	my ($self, $fh) = @_;
-	$self->flock($fh, $self->{IsWindows} ? Fcntl::LOCK_EX() : Fcntl::LOCK_SH() );
+	$self->flock($fh, $self->{IsWindows} ? &Fcntl::LOCK_EX : &Fcntl::LOCK_SH );
 }
 sub write_lock {
 	my ($self, $fh) = @_;
-	$self->flock($fh, Fcntl::LOCK_EX() );
+	$self->flock($fh, &Fcntl::LOCK_EX );
 }
 sub write_lock_nb {
 	my ($self, $fh) = @_;
-	$self->flock($fh, Fcntl::LOCK_EX() | Fcntl::LOCK_NB() );
+	$self->flock($fh, &Fcntl::LOCK_EX | &Fcntl::LOCK_NB );
 }
 sub flock {
 	my ($self, $fh, $mode) = @_;
