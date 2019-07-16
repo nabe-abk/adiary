@@ -7,7 +7,7 @@
 	blogs_sys = ブログ一覧
 <$end>
 <$order = array()>
-<$ifpush(v.allow_edit, order, 'album/index')>
+<$ifpush(v.blog.album_open_access || v.allow_edit, order, 'album/index')>
 <$ifpush(v.blogid, order, 'artlist')>
 <$ifpush(v.blogid, order, 'comlist')>
 <$ifpush(v.allow_blogs(), order, 'blogs_sys')>

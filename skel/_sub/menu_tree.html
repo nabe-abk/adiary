@@ -5,7 +5,11 @@
 <$query = argv#0>
 <@>
 <nav class="tree">
+<@ifexec(Auth.ok, begin, begin)>
 <a href="<@v.myself>?menu" class="dir">メニュー</a>
+<$else>
+<a href="<@v.myself>" class="dir">戻る</a>
+<$end>
 <@>----------------------------------------------------------------------------
 <@ifexec(dir, begin)>
  <span class="splitter">&gt;</span>

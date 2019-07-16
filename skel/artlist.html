@@ -134,7 +134,7 @@
 		<@ifexec(date, begin, begin)>
 		<td class="c"><label for="art-<@t.pkey>"><@tm_printf('%Y/%m/%d %K:%M', t.(ret.sort))></label></td>
 		<$else>
-		<td class="c"><label for="art-<@t.pkey>"><@v.format_ymd(t.yyyymmdd)></label></td>
+		<td class="c" nowrap><label for="art-<@t.pkey>"><@v.format_ymd(t.yyyymmdd)></label></td>
 		<$end>
 		<td class="c"><label for="art-<@t.pkey>"><@t.ctype)></label></td>
 		<td><a href="<@v.myself2><@t.elink_key>"<@if(v.allow_edit, #' title="<@t.pkey>"')>><@t.title></a></td>
