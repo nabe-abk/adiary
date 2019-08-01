@@ -2005,21 +2005,25 @@ sub make_attr {
 	# target/class/rel 設定, type未定義のとき初期値なし(mailto:等)
 	my $class;
 	my $title = $tag->{title} || $tag->{name};
+	my $target='';
 	while(1) {
 		my $x = $ary->[0];
-		if ($x =~ /^title=\s*(.*?)\s*$/) { shift(@$ary); $title = $1; next; }
-		if ($x =~ /^class=\s*(.*?)\s*$/) { shift(@$ary); $class = $1; next; }
+		if ($x =~ /^title=\s*(.*?)\s*$/)  { shift(@$ary); $title = $1; next; }
+		if ($x =~ /^class=\s*(.*?)\s*$/)  { shift(@$ary); $class = $1; next; }
+		if ($x =~ /^target=\s*(.*?)\s*$/) { shift(@$ary); $target= $1; next; }
 		last;
 	}
 	$class =~ s/[^\w\s:\-]//g;
 	$self->tag_escape($title);
+	$target =~ s/[^\w\-]//g;
 
 	my $attr='';
 	if ($class ne '' || $tag->{class} ne '') {
 		my $sp = ($class ne '' && $tag->{class} ne '') ? ' ' : '';
 		$attr  =" class=\"$tag->{class}$sp$class\"";
 	}
-	if ($title  ne '')    { $attr .= " title=\"$title\""; }
+	if ($title  ne '') { $attr .= " title=\"$title\""; }
+	if ($target ne '') { $attr .=" target=\"$target\""; }
 	if ($type eq 'image' && $self->{image_attr} ne '') {
 		my $at = $self->{image_attr};
 		$at =~ s/%k/$self->{thispkey}/g;

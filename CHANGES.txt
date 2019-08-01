@@ -15,6 +15,7 @@
 --JavaScriptを使わず中央等の位置調整するように変更。
 --いくつかのテーマで表示が崩れていた問題を修正。
 -インポートログをボタンの近くに表示するようにしました。
+-【記法】Ver3.30で削除していたインラインでtargetを指定する記法を再び使用可能にしました。
 -【Plugin】設定リセット機能をつけました。
 -【Plugin/des_twitter】管理画面で非表示にしました。
 -【Fix】HTTP.pmのtypoを修正（[https://adiary.adiary.jp/0410#c1:Thanks to t-hide]）
