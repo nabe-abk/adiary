@@ -13,3 +13,4 @@ System-mode: yes
 ChangeLog
 2006/09/11 Rev0.90、とりあえず完成。 (by かえで)
 2015/06/18 adiary Ver3に移植 (by nabe)
+2019/08/08 画像をbase64で埋め込み

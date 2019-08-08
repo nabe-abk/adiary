@@ -10,7 +10,7 @@
 ---------------------------------------------------------------------*/
 body
 {
-	background-image:	url("background.png");
+	background-image:	url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAADCAYAAABS3WWCAAAAE0lEQVQI12P4////LgYgEckAAgBI5AcOC29ONwAAAABJRU5ErkJggg==);
 	background-repeat:	repeat;
 	background-color:	#f798a8;	/* $c=bg */
 	padding:		0;
@@ -294,7 +294,7 @@ article h2:before {
 	display:		inline-block;
 	content:		"";
 
-	background-image:	url("sakura-small.png");
+	background-image:	url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAYBAMAAAD5bpvIAAAAMFBMVEX///////////////////////////////////////////////////////////////9Or7hAAAAAEHRSTlMAVLTkBoMj0GzM+x2ZOFi4woIMigAAANFJREFUeNpjYAAB1pStDEiAq3BWAhL31qpVD5C4XatWBaByDyBxo3By1ef0gvXy9kyfAOS+WrVKcfOqVXd/QYwDWrIqZtUaoIJVAgwMHFZAemlVBZBctZqBgQdELxYSBlHrgYrlQYwGKSCxUgBktIzV4h8bdqivshGAWMUmqmlYrtMGd8WvVSusVhnCeMyrQNxVULUMs1atWgvEZhAeK9DQglNAgyHcLJBFySACzAVKrGHgAHINwNwzv1Z9APlxzlmo6kVAggOqloEhGez1ZpBFADUJYzXWAHrGAAAAAElFTkSuQmCC);
 	background-repeat:	no-repeat;
 	background-position:	bottom left;
 

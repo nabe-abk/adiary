@@ -41,7 +41,7 @@ article {
 }
 #viewport-setting {
 	min-width:		1px;
-	font-family:		"width=626px";
+	font-family:		"width=626";
 }
 
 /*--------------------------------------------------------------------
@@ -64,7 +64,7 @@ article.article div.body:before {
 }
 #viewport-setting {
 	min-width:		1px;
-	font-family:		"width=480px";
+	font-family:		"width=480";
 }
 }
 /*--------------------------------------------------------------------
@@ -87,7 +87,7 @@ article.article div.body:before {
 }
 #viewport-setting {
 	min-width:		1px;
-	font-family:		"width=360px";
+	font-family:		"width=360";
 }
 }
 /*--------------------------------------------------------------------

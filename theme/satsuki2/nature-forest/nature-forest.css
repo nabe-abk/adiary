@@ -18,7 +18,7 @@ body
 }
 #sp-header, #header, #footer {
 	background-color:	#343;		/* $c=titlebg */
-	background-image:	url("slant-tile.gif");
+	background-image:	url(data:image/gif;base64,R0lGODlhBQAFAJEAAGZmZv///////wAAACH5BAEHAAIALAAAAAAFAAUAAAIHlGGCl5tdAAA7);
 }
 #hatena-body {
 	margin:			0 auto;
