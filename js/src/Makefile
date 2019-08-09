@@ -3,13 +3,13 @@
 #
 
 COMPRESSOR = uglifyjs
-OPTIONS    = -c -m --comments '/^!/' --source-map includeSources,filename
+OPTIONS    = -c -m --comments '/^!!/' --source-map includeSources,filename
 
 OUTPUT	   = ../adiary.min.js
 MAP_FILE   = ../adiary.min.map
 HTML       = ../adiary-js-load.html
 
-FILES = \
+FILES = 00_comment.js		\
 	jquery-3.4.1.js		\
 	01_global.js		\
 	10_jquery-ext.js	\
@@ -32,7 +32,7 @@ all:  $(OUTPUT)
 html: $(HTML)
 
 $(OUTPUT): $(FILES) Makefile
-	$(COMPRESSOR) $(OPTIONS) 00_comment.js $(FILES) -o $(OUTPUT)
+	$(COMPRESSOR) $(OPTIONS) $(FILES) -o $(OUTPUT)
 	mv $(OUTPUT).map $(MAP_FILE)
 
 $(HTML): $(FILES) Makefile
