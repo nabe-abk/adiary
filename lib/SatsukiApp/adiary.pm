@@ -498,8 +498,9 @@ sub set_and_select_blog {
 	if (!$force && $blogid ne '' && $self->{blogid} eq $blogid) { return $self->{blog}; }
 
 	# myself設定
-	$self->{myself}  = $ROBJ->{Myself};
-	$self->{myself2} = $ROBJ->{Myself2};
+	$self->{server_url} = $ROBJ->{Server_url};
+	$self->{myself}     = $ROBJ->{Myself};
+	$self->{myself2}    = $ROBJ->{Myself2};
 
 	# 内部変数初期化
 	$self->{blogid} = undef;
@@ -539,7 +540,6 @@ sub set_and_select_blog {
 		$self->{myself}  = '/';
 		$self->{myself2} = '/';	
 	} elsif ($blogid ne $self->{sys}->{default_blogid}) {
-		$self->{server_url} = $ROBJ->{Server_url};
 		$self->{myself}  = $ROBJ->{Myself2} . "$blogid/";
 		$self->{myself2} = $ROBJ->{Myself2} . "$blogid/";
 	}
