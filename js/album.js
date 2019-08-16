@@ -1444,7 +1444,7 @@ function ajax_upload(files) {
 			$label.text( "Uploading " + value + "%" );
 		},
 		complete: function() {
-			$label.text( "Upload complite!" );
+			$label.text( "Upload complete!" );
 		}
 	});
 

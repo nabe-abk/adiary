@@ -569,7 +569,7 @@ function ajax_upload( form_dom, files, option ) {
 			$label.text( value + "%" );
 		},
 		complete: function() {
-			$label.text( "Upload complite!" );
+			$label.text( "Upload complete!" );
 		}
 	});
 
