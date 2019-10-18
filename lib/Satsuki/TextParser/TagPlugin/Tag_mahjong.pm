@@ -47,7 +47,7 @@ my %jihai=(
 'ura'=>1,'sp'=>1,
 # alias
 'hatsu'=>'hatu','tyun'=>'chun');
-my %suji=('m'=>'man', 'p'=>'pin', 's'=>'sou');
+my %suhai=('m'=>'man', 'p'=>'pin', 's'=>'sou');
 
 #------------------------------------------------------------------------------
 # ●mj記法
@@ -66,47 +66,50 @@ sub mahjong {
 		$mode = undef;
 	}
 
-	# decode
-	my @pi;
+	# 5r --> r
 	my $line=shift(@$ary);
-	my $jihai='';
-	my $s=0;
-	while($s<length($line)) {
-		my $x = substr($line, $s++, 1);
-		if (0x30 <= ord($x) && ord($x) < 0x3a) {
-			my $r='';
-			my $yoko='';
-			my $y = substr($line, $s++, 1);
-			if ($y eq 'r') {	# 赤ドラ
-				$r='r'; $y=substr($line, $s++, 1);
-			}
-			if ($suji{$y}) {
-				if (substr($line, $s, 1) eq 'y') {	# 横
-					$yoko='y'; $s++;
-				}
-				push(@pi, "$yoko$suji{$y}$x$r");
-			}
-			$jihai='';
+	$line =~ s/5r/r/g;
+	$line .= ' ';
+
+	my @pi;
+	my $err;
+	while($line ne '') {
+		if ($line =~ /^ +(.*)/) {	# space
+			$line = $^N;
 			next;
 		}
-		# spaceが出たら区切りと見なす
-		if ($x eq ' ') { $jihai=''; next; }
-		$jihai .= $x;
-		if (!$jihai{$jihai}) { next; }
+		if ($line =~ /^((?:[0-9r]y?)+)([spm])(y?)(.*)/) {	# 数牌
+			$line = $^N;
+			my $num = $1;
+			my $s  = $suhai{$2};
+			my $yy = $3;
+			$num =~ s/([0-9r])(y?)/
+				my $y = $2 || $yy;
+				push(@pi, "$y$s$1");
+			/eg;
+			next;
+		}
 
 		# 字牌
-		my $yoko='';
-		if (substr($line, $s, 1) eq 'y') {	# 横
-			$yoko='y'; $s++;
+		if ($line =~ /^(\w+?)(y?) (.*)/ && $jihai{$1}) {	# 字牌
+			$line = $^N;
+			push(@pi, "$2$1");
+			next;
 		}
-		if ($jihai{$jihai} != 1) { $jihai=$jihai{$jihai}; }
-		push(@pi, "$yoko$jihai");
-		$jihai='';
+
+		# error
+		$line =~ s/ +$//;
+		$err = "\"$line\"";
+		last;
 	}
 
 	# タグ構成
 	my $dir  = $pobj->replace_vars( $tags->{'mj:img'}->{data} );
 	my $name = $pobj->make_name($ary, 'mahjong');
+
+	if ($err) {
+		return "<div class=\"mahjong\">syntax error!! : $err</div>";
+	}
 
 	my $img = join('', map {"<img class=\"mahjong\" alt=\"$_\" src=\"$dir$_.png\">"} @pi);
 	return "<div class=\"mahjong\">$img</div>";

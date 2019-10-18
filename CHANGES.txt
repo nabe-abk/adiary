@@ -17,6 +17,7 @@
 -インポートログをボタンの近くに表示するようにしました。
 -【テーマ】いくつかのテーマで画像を埋め込み等最適化しました。
 -【記法】Ver3.30で削除していたインラインでtargetを指定する記法を再び使用可能にしました。
+-【記法】[https://adiary.org/v3man/Satsuki-detail/mahjong:麻雀記法]をより使いやすく拡張しました。
 -【Plugin】設定リセット機能をつけました。
 -【Plugin/des_twitter】管理画面で非表示にしました。
 -【Fix】HTTP.pmのtypoを修正（[https://adiary.adiary.jp/0410#c1:Thanks to t-hide]）
