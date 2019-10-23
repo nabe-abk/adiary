@@ -831,8 +831,6 @@ sub regist_tags {
 #------------------------------------------------------------------------------
 sub update_taglist {
 	my $self = shift;
-	my $akeys= shift;
-	## my $no_change= shift && return 0;	# タグの状態が変化してない
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
 	my $blog = $self->{blog};

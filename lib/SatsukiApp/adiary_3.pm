@@ -1093,6 +1093,10 @@ sub edit_articles {
 			'-tm', '',	# 下書き記事は対象外
 			'pkey', $keylist
 		);
+		$DB->update_match("${blogid}_tagart", {
+			'a_enable' => 1
+		}, 'a_pkey', $keylist);
+
 	} else {
 		# 非表示に設定
 		$event_name  = 'ARTICLES_EDIT';
@@ -1103,6 +1107,10 @@ sub edit_articles {
 			'-tm', '',	# 下書き記事は対象外
 			'pkey', $keylist
 		);
+		$DB->update_match("${blogid}_tagart", {
+			'a_enable' => 0
+		}, 'a_pkey', $keylist);
+
 		# 非公開にした記事にコメントがあれば
 		my $ary = $DB->select_match("${blogid}_art",
 			'enable', 0,
