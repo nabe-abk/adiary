@@ -171,6 +171,9 @@
 	<div class="messages"><@join("\n", Message)></div>
 
 	<@if(Auth.ok && !v.blogid && v.path_blogid eq Auth.id && (!v.root_only_blog_create || Auth.isadmin), #'<p><a href="<@v.myself>?etc/myblog_create">このブログを作成する</a></p>')>
+
+	<@if(Auth.ok && !v.blogid, #'<p><a href="<@v.myself>?menu">管理メニューに移動</a></p>')>
+	
 </div>
 </article>
 <$end>
