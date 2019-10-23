@@ -5,6 +5,7 @@
 <$ifexec(Auth.ok, begin)>
 	<$ifredirect(Auth.auto && v.v2conf, Myself . '?system/v2conv')>
 	<$ifredirect(Auth.auto            , Myself . '?user/add')>
+	<$ifredirect(Auth.isadmin && v.require_update, Myself . '?menu')>
 
 	<$url = if( v.path_blogid, v.thisurl, v.myself3 )>
 	<$redirect( url )>
