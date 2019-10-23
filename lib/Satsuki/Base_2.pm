@@ -1240,7 +1240,7 @@ sub put_cookie {
 	if ($path  ) { $path   = " path=$path;";      }
 	if ($domain) { $domain = " domain=$domain;";  }
 
-	$self->set_header('Set-Cookie', "$str$path$domain");
+	$self->set_header('Set-Cookie', "$str$path$domain; HttpOnly; SameSite=Lax");
 }
 
 ###############################################################################
