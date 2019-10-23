@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.31 : 2019/xx/xx
+*Ver3.31 : 2019/10/23
 
 -adiary.jsをリファクタリングしました。
 --jQuery等のjsライブラリとまとめて、adiary.min.js に minify しました。
