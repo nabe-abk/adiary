@@ -775,22 +775,29 @@ sub convert_reversed_poland {
 		$cmd =~ s|\[([^\]\x00-\x04]*)\]|array($1)|g;
 
 		# {aaa => x, bbb=>y} → hash(aaa , x, bbb,y)
+		# {aaa  : x, bbb: y} → hash(aaa , x, bbb,y)
 		$cmd =~ s!\{([^\{\}]*)\}!
 			my $x=$1;
-			$x =~ s/=>/,/g;
+			$x =~ s/=>|:/,/g;
 			"hash($x)";
 		!eg;
 
-		# flag(a b c) → flag(a,b,c)
-		$cmd =~ s!(^|\W)(array|hash|flag)\(\s*([^\(\)]*?)\s*\)!
+		# flag(a b    c d) → flag(a,b,c,d)
+		# hash(a => b c:d) → hash(a,b,c,d)
+		$cmd =~ s!(^|\W)(arrayq?|hashq?|flagq?)\(\s*([^\(\)]*?)\s*\)!
 			my $c="$1$2";
 			my $x=$3;
-			$x =~ s/\s*,\s*|\s+/,/g;
+			if ($2 eq 'hash' || $2 eq 'hashq') {
+				$x =~ s/\s*(?:,|:|=>)\s*|\s+/,/g;
+			} else {
+				$x =~ s/\s*,\s*|\s+/,/g;
+			}
 			"$c($x)";
 		!eg;
+
 		# hash(aaa,x,'bbb',y,ccc,'z') → hash('aaa','x','bbb',y,'ccc','z')
 		$cmd =~ s#(^|\W)hash\(\s*([^\(\)]*?)\s*\)#
-			my $z=$1;
+			my $c=$1;
 			my @a=split(/,/, $2);
 			my $f=1;
 			foreach(@a) {
@@ -799,13 +806,13 @@ sub convert_reversed_poland {
 				}
 				$f = !$f;
 			}
-			"${z}hash(" . join(',',@a) . ")";
+			"${c}hash(" . join(',',@a) . ")";
 		#eg;
 
-		# flagq(a b-c dd,ee) → flag('a','b-c','dd','ee')
+		# flagq(a,b-c,dd,ee) → flag('a','b-c','dd','ee')
 		$cmd =~ s!(arrayq|hashq|flagq)\(\s*([^\(\)]*?)\s*\)!
 			my $c=$1;
-			my @a=&array2quote_string(split(/\s*,\s*|\s+/,$2));
+			my @a=&array2quote_string(split(/,/,$2));
 			foreach(@a) {
 				push(@$strbuf, $_);
 				$_ = "\x01[\x01$#$strbuf]";

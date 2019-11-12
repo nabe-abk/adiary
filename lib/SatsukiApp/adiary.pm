@@ -435,7 +435,7 @@ sub output_html {
 	}
 
 	if (!$self->{output_stop}) {
-		$ROBJ->output($out);		# HTML出力
+		$ROBJ->output($out);
 	}
 }
 

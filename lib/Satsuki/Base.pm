@@ -180,7 +180,7 @@ sub init_tm {
 #------------------------------------------------------------------------------
 sub init_path {
 	my $self = shift;
-	if ($self->{Initialized_path}) { return; }
+	if ($self->{Initialized_path} || !$ENV{REQUEST_URI}) { return; }
 
 	# ModRewrite flag
 	my $rewrite = $self->{Mod_rewrite} ||= $ENV{Mod_rewrite};
@@ -1648,7 +1648,7 @@ sub clear_form_error {
 sub form_error {
 	my $self = shift;
 	my $name = shift;
-	if ($name eq '') { return $self->{FormError}; }
+	if ($name eq '' && !@_) { return $self->{FormError}; }
 	$self->{FormError} ||= {};
 	$self->{FormError}->{$name}=$_[0] || 1;
 	$self->{FormError}->{"c_$name"}=' class="error"';

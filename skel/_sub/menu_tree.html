@@ -52,7 +52,7 @@
  <span class="items">
  <span class="item-start">[</span>
 <$sep=''>
-<@forexec_hash(t, call("<@v.skel_dir>_items"), begin)>
+<@forexec_hash(t, items, begin)>
   <@sep>
   <@ifexec(v.skel_name eq t.key || v.skeleton eq t.key, begin, begin)>
 	<span class="select"><@t.val></span> <@\>

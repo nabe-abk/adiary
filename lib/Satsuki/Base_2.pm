@@ -1431,7 +1431,7 @@ sub generate_json {
 sub json_encode {
 	my $self = shift;
 	my $v = shift;
-	if ($v =~ /^[1-9]\d*$/) { return $v; }
+	if ($v ne '-0' && $v =~ /^-?(?:[1-9]\d*|0)(?:\.\d+)?$/) { return $v; }
 	if (ref($v) eq 'SCALAR') { return $$v; }	# true/false/null
 	# 文字列
 	$v =~ s/\\/&#92;/g;

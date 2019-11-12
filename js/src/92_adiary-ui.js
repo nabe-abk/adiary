@@ -126,12 +126,6 @@ adiaryDialogClose: function() {
 //////////////////////////////////////////////////////////////////////////////
 // dialog sub functions
 //////////////////////////////////////////////////////////////////////////////
-adiaryUIData: function(key, val) {
-	const data = this.aui_data = this.aui_data || {};
-	if (arguments.length==1) return data[key];
-	if (arguments.length==2) data[key] = val;
-	return data;
-},
 adiaryUIAppend: function($obj) {
 	const data = this.adiaryUIData();
 	$obj.css('z-index', $.adiary_ui_zindex++);
