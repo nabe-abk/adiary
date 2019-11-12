@@ -99,7 +99,8 @@ table.plugins button {
 	margin-left:		2em;
 }
 #com div.comment-text {
-	white-space:		pre;
+	white-space:		pre-wrap;
+/*	font-family:		monospace;	*/
 }
 
 /* 投稿者情報 */
