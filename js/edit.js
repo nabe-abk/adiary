@@ -108,6 +108,7 @@ adiary.load_contents_list($upsel);
 			beforeClose: function(){
 				$tagsel.val('');
 				$inp.val('');
+				$tagform.detach();
 			}
 		});
 	});
