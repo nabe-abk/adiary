@@ -48,6 +48,7 @@
 #--------------------------------------
 # ignore files
 #--------------------------------------
+info/textparser_site_tags.txt
 plugin/@3rd-party/
 lib/SatsukiApp/form.pm
 lib/SatsukiApp/form_2.pm
