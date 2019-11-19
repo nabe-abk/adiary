@@ -230,11 +230,13 @@ button:disabled
 #sp-nav-header a, #sp-nav-header a:link, #sp-nav-header a:visited,
 #nav-header a, #nav-header a:link, #nav-header a:visited {
 	color:			#fff;
-	text-decoration:	none;
 }
+#sp-nav-header a:hover,
 #nav-header a:hover {
+	color:			#fff;
 	text-decoration:	underline;
 }
+
 span.welcome,
 .admin-links a:not(:last-child) {
 	border-right:		1px solid #b0c4de;

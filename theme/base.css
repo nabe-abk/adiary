@@ -45,6 +45,11 @@ header {
 	position:		relative;
 }
 
+/* ヘッダ/フッタ中のリンクは下線を引かない */
+#header a, #sp-header a, #footer a {
+	text-decoration:	none;
+}
+
 /* 「ようこそ」のリンクで文字色を変えない */
 #nav-header a.welcome-prefix,
 #nav-header a.welcome-prefix:link,
@@ -54,7 +59,6 @@ header {
 #sp-nav-header a.welcome-prefix:visited {
 	color:			inherit;
 	font-weight:		inherit;
-	text-decoration:	none;
 }
 
 /* 英単語の途中改行 */

@@ -101,7 +101,6 @@ a img		{ border: none; }
 
 #header a, #header a:link, #header a:visited {
 	color:			#fff;		/* $c=fixheaderfont */
-	text-decoration:	none;
 }
 /* ○○さん */
 a.welcome-name { margin: 0px 4px 0px 4px; }

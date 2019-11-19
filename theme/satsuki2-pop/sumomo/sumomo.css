@@ -180,7 +180,6 @@ button:disabled
 }
 #nav-header, #nav-header a, #nav-header a:link, #nav-header a:visited {
 	color:			#fff;
-	text-decoration:	none;
 }
 /* ○○さん */
 a.welcome-name { margin: 0px 4px 0px 4px; }

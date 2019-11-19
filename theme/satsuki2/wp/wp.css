@@ -161,9 +161,6 @@ button:disabled
 	display:		block;
 }
 
-#nav-header a, #nav-header a:link, #nav-header a:visited {
-	text-decoration:	none;
-}
 /* ○○さん */
 a.welcome-name { margin: 0px 4px 0px 4px; }
 

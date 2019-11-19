@@ -150,7 +150,6 @@ $option=multi-sidebar
 
 #nav-header a, #nav-header a:link, #nav-header a:visited {
 	color:			#33f;	/* $c=link */
-	text-decoration:	none;
 }
 /* ○○さん */
 a.welcome-name { margin: 0px 4px 0px 4px; }
