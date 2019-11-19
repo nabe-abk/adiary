@@ -1425,7 +1425,8 @@ ul.menu {
 	height:		0;
 	transition:	0.4s;
 }
-.ddmenu>ul li:hover>ul>li>a {
+.ddmenu   >ul li:hover>ul>li>a,
+.ddmenu.sp>ul li      >ul>li>a {
 	height:		100%;
 }
 /* view arrow */
@@ -1437,7 +1438,7 @@ ul.menu {
 	left:		-12px;
 	border:		5px solid transparent;
 }
-.ddmenu li:not(:hover)>ul>li>ul:before {
+.ddmenu:not(.sp) li:not(:hover)>ul>li>ul:before {
 	border-color:	transparent;
 }
 
@@ -1457,12 +1458,15 @@ ul.menu {
 .ddmenu>ul>li:last-child>a {
 	border-right-width:	1px;
 }
-.ddmenu>ul li:hover>ul>li a {
+.ddmenu   >ul li:hover>ul>li a,
+.ddmenu.sp>ul li      >ul>li a {
 	border-top-width:	1px;
 }
-.ddmenu>ul li:hover>ul {
+.ddmenu   >ul li:hover>ul,
+.ddmenu.sp>ul li      >ul {
 	border-bottom-width:	1px;
 }
+
 
 /*------------------------------------------------
  *  dropdown-menu size setting
@@ -1756,6 +1760,9 @@ ul.menu {
 .ddmenu.sp>ul li.open>ul>li {
 	height:		30px;	/* Y */
 	line-height:	30px;
+}
+.ddmenu.sp>ul li:not(.open)>ul>li {
+	height:		0px;
 }
 .ddmenu.sp li ul:before {
 	top:		10px;	/* = (Y-10)/2 */
