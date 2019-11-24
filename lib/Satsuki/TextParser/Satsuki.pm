@@ -163,7 +163,8 @@ push(@Blocks, {
 	tag    => 'script',
 	before => '<!--',
 	after  => '-->',
-	pre    => 1
+	pre    => 1,
+	htag   => 1
 });
 push(@Blocks, {
 	start  => '>||comment',
@@ -1550,7 +1551,7 @@ sub post_process {
 	my $rtxt = shift;
 
 	# エスケープした文字を復元
-	$self->un_escape( $rtxt );
+	$self->un_escape( $$rtxt );
 
 	# 目次の処理
 	$$rtxt =~ s|<toc>(.*?)</toc>|$self->post_toc($1)|eg;

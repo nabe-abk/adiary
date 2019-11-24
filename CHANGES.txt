@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.31c : 2019/11/18
+*Ver3.31d : 2019/11/24
 
 -adiary.jsをリファクタリングしました。
 --jQuery等のjsライブラリとまとめて、adiary.min.js に minify しました。
@@ -33,6 +33,7 @@
 -【Ver3.31a/Fix】コメント欄があふれることがある。
 -【Ver3.31b/Fix】記事編集画面で、タグを連続で追加できない。
 -【Ver3.31c/Fix】スマホ画面のドロップダウンメニュー動作がおかしい。
+-【Ver3.31d/Fix】【標準記法】（Ver3.30～）エスケープ文字の復元ミスを修正。script環境を修正。（[https://adiary.adiary.jp/0414#c1:Thanks to 荻拓]）
 -他
 
 *Ver3.30a : 2019/06/30
