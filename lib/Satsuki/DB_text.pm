@@ -591,15 +591,21 @@ sub generate_sort_func {
 	my ($self, $table, $h) = @_;
 	my $sort = ref($h->{sort}    ) ? $h->{sort}     : ($h->{sort}     eq '' ? [] : [ $h->{sort}     ]);
 	my $rev  = ref($h->{sort_rev}) ? $h->{sort_rev} : ($h->{sort_rev} eq '' ? [] : [ $h->{sort_rev} ]);
+	my $cols   = $self->{"$table.cols"};
 	my $is_str = $self->{"$table.str"};
 	my @cond;
 	foreach(0..$#$sort) {
 		my $col = $sort->[$_];
+		my $rev = $rev->[$_];
+		if (ord($col) == 0x2d) {	# '-colname'
+			$col = $sort->[$_] = substr($col, 1);
+			$rev = 1;
+		}
 		$col =~ s/\W//g;
 		if ($col eq '') { next; }
 
 		my $op = $is_str->{$col} ? 'cmp' : '<=>';
-		push(@cond, $rev->[$_] ? "\$b->{$col}$op\$a->{$col}" : "\$a->{$col}$op\$b->{$col}");
+		push(@cond, $rev ? "\$b->{$col}$op\$a->{$col}" : "\$a->{$col}$op\$b->{$col}");
 	}
 	my $func = sub { 1; };
 	if (@cond) {

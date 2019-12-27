@@ -317,13 +317,14 @@ sub generate_order_by {
 	my $sql='';
 	foreach(0..$#$sort) {
 		my $col = $sort->[$_];
+		my $rev = $rev->[$_] || ord($col) == 0x2d;	# '-colname'
 		$col =~ s/\W//g;
 		if ($col eq '') { next; }
-		$sql .= $col . ($rev->[$_]?' DESC':'') . ',';
+		$sql .= ' ' . $col . ($rev ? ' DESC,' : ',');
 	}
 	chop($sql);
 	if ($sql) {
-		$sql = ' ORDER BY ' . $sql;
+		$sql = ' ORDER BY' . $sql;
 	}
 	return $sql
 }
