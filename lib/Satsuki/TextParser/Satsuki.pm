@@ -158,6 +158,15 @@ sub block_parser {
 
 my @Blocks;
 push(@Blocks, {
+	start  => '>||script-defer',
+	end    => '||<',
+	tag    => 'script-defer',
+	before => '<!--',
+	after  => '-->',
+	pre    => 1,
+	htag   => 1
+});
+push(@Blocks, {
 	start  => '>||script',
 	end    => '||<',
 	tag    => 'script',
