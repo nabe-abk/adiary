@@ -99,8 +99,9 @@ dndEmulation: function(opt){
 	var orig_touch;
 
 	// mousedownエミュレーション
-	this.on('touchstart', function(_evt){
-		var evt = _evt.originalEvent;
+//	this.on('touchstart', function(_evt){
+	self.addEventListener('touchstart', function(evt) {
+	//	var evt = _evt.originalEvent;
 		prev = evt.target;
 		orig_touch = evt.touches[0];
 		var e = make_mouse_event('mousedown', evt, evt.touches[0]);
@@ -112,7 +113,7 @@ dndEmulation: function(opt){
 			timer = false;
 			flag  = true;
 		}, adiary.TouchDnDTime)
-	});
+	}, { passive: true });
 
 	// mouseupエミュレーション
 	this.on('touchend', function(_evt){
@@ -124,11 +125,16 @@ dndEmulation: function(opt){
 	});
 
 	// ドラッグエミュレーション
-	this.on('touchmove', function(_evt){
-		var evt = _evt.originalEvent;
+//	this.on('touchmove', function(_evt){
+	self.addEventListener('touchmove', function(evt) {
+	//	var evt = _evt.originalEvent;
 
 		// 一定時間立たなければ、処理を開始しない
-		if (!flag) return;
+		if (!flag) {
+			if (timer) clearTimeout(timer);
+			timer = false;
+			return;
+		}
 
 		var touch = evt.changedTouches[0];
 		var dom   = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -140,7 +146,7 @@ dndEmulation: function(opt){
 
 		// opt.leave が指定されてないか
 		// 要素移動がなければこれで終了
-		evt.preventDefault();
+		if (evt.cancelable) evt.preventDefault();
 		if (!opt.leave || dom == prev) return;
 
 		// 要素移動があれば leave と enter イベント生成
@@ -165,7 +171,7 @@ dndEmulation: function(opt){
 
 		// 新しい要素を保存
 		prev=dom;
-	});
+	}, {passive: false});
 }
 //////////////////////////////////////////////////////////////////////////////
 });
@@ -188,9 +194,9 @@ $.event.special.mydbltap = {
 			mouse = true;
 			setTimeout( function(){ flag = false; }, adiary.DoubleTapTime);
 		});
-		$(this).on('touchstart', function(){
+		this.addEventListener('touchstart', function(){
 			mouse = false;
-		});
+		}, { passive: true });
 	}
 };
 

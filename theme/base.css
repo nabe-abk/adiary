@@ -18,6 +18,13 @@ html {
 	display:	none;
 }
 
+/* 選択不可 */
+.noselect {
+	user-select:	none;
+}
+.sp .sp-noselect {
+	user-select:	none;
+}
 /* 新着表示マーク */
 #nav-header a.newcom:after {
 	content:		'!';

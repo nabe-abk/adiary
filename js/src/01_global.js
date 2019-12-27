@@ -9,7 +9,7 @@ var Storage;	// Storage object
 var adiary = {
 	DialogWidth:		640,
 	DefaultShowSpeed:	300,	// msec
-	TouchDnDTime:		300,	// msec
+	TouchDnDTime:		100,	// msec
 	DoubleTapTime:		400,	// msec
 	PopupDelayTime:		300,	// msec
 	PopupOffsetX:		15,
