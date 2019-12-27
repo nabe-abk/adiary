@@ -180,6 +180,34 @@ print "---adiary Release checker-------------------------------------------\n";
 }
 
 #------------------------------------------------------------------------------
+# adiary.min.js check
+#------------------------------------------------------------------------------
+{
+	my $file = 'js/adiary.min.js';
+	my $dir  = "js/src/";
+	my $min  = &get_lastmodified($file);
+
+	opendir(my $fh, $dir);
+	my @files = readdir($fh);
+	closedir($fh);
+
+	my $err;
+	foreach(@files) {
+		if ($_ eq '.' || $_ eq '..') { next; }
+		my $mod = &get_lastmodified("$dir$_");
+
+		if ($mod <= $min) { next; }
+		$err=1;
+		print "## $file - ",&get_date($min)," < ", &get_date($mod), " - $_\n";
+	}
+	if ($err) {
+		$errors++;
+		print "## Should run 'make' on $dir\n\n";
+	}
+
+}
+
+#------------------------------------------------------------------------------
 # CHANGES.txt check
 #------------------------------------------------------------------------------
 {
@@ -205,4 +233,18 @@ print "---adiary Release checker-------------------------------------------\n";
 	} else {
 		print "## error not found.\n";
 	}
+}
+
+#------------------------------------------------------------------------------
+# sub routine
+#------------------------------------------------------------------------------
+sub get_lastmodified {
+	my $st = [ stat(shift) ];
+	return $st->[9];
+}
+sub get_date {
+	my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime(shift);
+	$year+=1900;
+	$mon++;
+	return sprintf("$year/%02d/%02d %02d:%02d:%02d", $mon, $mday, $hour, $min, $sec);
 }
