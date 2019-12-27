@@ -21,18 +21,29 @@ adiary.dom_init( function($R) {
 
 	$R.findx('input.js-save, select.js-save').each( function(idx, dom) {
 		const $obj = $(dom);
-		let   id   = $obj.attr("id");
+		const type = $obj.get_type();
+		let   id   = type != 'radio' && $obj.attr("id");
 		if (!id) id = 'name=' + $obj.attr("name");
 		if (!id) return;
 
-		const type = $obj.attr('type');
-		if (type && (type.toLowerCase() == 'checkbox' ||  type.toLowerCase() == 'radio')) {
+		if (type == 'checkbox') {
 			$obj.change( function(evt){
 				const $o = $(evt.target);
 				Storage.set(id, $o.prop('checked') ? 1 : 0);
 			});
 			if ( Storage.defined(id) )
 				$obj.prop('checked', Storage.get(id) != 0 );
+			return;
+		}
+		if (type == 'radio') {
+			const val = $obj.attr('value');
+			$obj.change( function(evt){
+				const $o = $(evt.target);
+				Storage.set(id, val);
+			});
+			if ( Storage.defined(id) && val == Storage.get(id)) {
+				$obj.prop('checked', 1);
+			}
 			return;
 		}
 		$obj.change( function(evt){
@@ -61,8 +72,7 @@ adiary.dom_init( function($R){
 
 		var id;
 		var flag;
-		var type=$btn.attr('type');
-		if (type) type = type.toLowerCase();
+		var type = $btn.get_type();
 		if (type == 'checkbox') {
 			flag = $btn.prop("checked");
 		} else if (type == 'radio') {
@@ -123,7 +133,7 @@ adiary._toggle = function(init, $obj) {
 	if ($obj[0].tagName == 'A')
 		return true;	// リンククリックそのまま（falseにするとリンクが飛べない）
 
-	const type = $obj[0].tagName == 'INPUT' && $obj.attr('type').toLowerCase();
+	const type = $obj[0].tagName == 'INPUT' && $obj.get_type();
 	let     id = $obj.data('target');
 	if (!id) {
 		// 子要素のクリックを拾う
@@ -187,7 +197,7 @@ adiary.dom_init( function($R){
 
 	const func = function(evt){
 		const $obj = $(evt.target);
-		if ($obj.attr('type') != "radio")
+		if ($obj.get_type() != "radio")
 			return self.toggle($obj);
 
 		const name = $obj.attr('name');
