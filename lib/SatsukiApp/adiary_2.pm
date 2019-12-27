@@ -142,7 +142,7 @@ sub load_coms_list {
 # ●ブログリストのロード
 #------------------------------------------------------------------------------
 sub load_blog_list {
-	my ($self, $sort) = @_;
+	my ($self, $sort, $rev) = @_;
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
 
@@ -157,7 +157,10 @@ sub load_blog_list {
 	$h{sort_rev} = [0];
 	$h{no_error} = 1;
 	if ($sort ne 'id')     { $h{sort_rev}->[0] = 1; }
-	if ($sort ne 'art_tm') { $h{sort}->[1] = 'art_tm'; $h{sort_rev}->[1] = 1;}
+	if ($sort ne 'art_tm') { $h{sort}->[1] = 'art_tm'; $h{sort_rev}->[1] = $rev;}
+	if ($rev) {
+		$h{sort_rev} = [ map { !$_ } @{$h{sort_rev}} ];
+	}
 	if (! $ROBJ->{Auth}->{isadmin}) { $h{flag} = {private => 0}; }
 
 	my $blogs = $DB->select($self->{bloglist_table}, \%h);

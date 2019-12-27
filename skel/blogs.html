@@ -1,5 +1,5 @@
 <@6>
-<@local(t,isadmin,url)>
+<@local(t,isadmin,url,s)>
 
 <@>権限チェック
 <$ifsuperbreak(! v.allow_blogs() )>
@@ -8,16 +8,17 @@
 <$v.system_mode("ブログの一覧")>
 
 <$isadmin = Auth.isadmin>
-<$url = v.myself . '?' . v.skeleton>
-<$list = v.load_blog_list(Query.sort)>
+<$url  = v.myself . '?' . v.query0>
+<$s    = Query.sort>
+<$list = v.load_blog_list(Query.sort, int(Query.rev))>
 
 <!--========================================================================-->
 <article class="system">
 <h2><@v.title></h2>
 <div class="body">
 	<div>
-	<label><input class="js-switch" type="radio" name="view" data-target="#list-view" checked>新着</label>
-	<label><input class="js-switch" type="radio" name="view" data-target="#table-view" >テーブル表示</label>
+	<label><input class="js-switch js-save" type="radio" name="view" data-target="#list-view" checked>新着</label>
+	<label><input class="js-switch js-save" type="radio" name="view" data-target="#table-view" >テーブル表示</label>
 	</div>
 <div id="list-view">
 	<ul>
@@ -32,16 +33,13 @@
 <div id="table-view">
 	<table>
 	<tr>
-		<th><a href="<@url>&amp;sort=id#table-view">ID</a></th>
-		<th><a href="<@url>&amp;sort=arts#table-view">記事数</a></th>
-		<th><a href="<@url>&amp;sort=art_tm#table-view">最新記事</a></th>
-		<th><a href="<@url>&amp;sort=coms#table-view">コメント数</a></th>
-		<th><a href="<@url>&amp;sort=com_tm#table-view">最新コメント</a></th>
+		<th><a href="<@url>&amp;sort=id<@if(s eq 'id', '&amp;rev=1')>">ID</a></th>
+		<th><a href="<@url>&amp;sort=arts<@if(s eq 'arts', '&amp;rev=1')>">記事数</a></th>
+		<th><a href="<@url>&amp;sort=art_tm<@if(s eq 'art_tm', '&amp;rev=1')>">最新記事</a></th>
+		<th><a href="<@url>&amp;sort=coms<@if(s eq 'coms', '&amp;rev=1')>">コメント数</a></th>
+		<th><a href="<@url>&amp;sort=com_tm<@if(s eq 'com_tm', '&amp;rev=1')>">最新コメント</a></th>
 		<@if(isadmin, "<th>設定</th>")>
 	</tr>
-<@ifexec(Query.sort eq '', begin)>
-<$list = sort_str(list, 'id')>
-<$end>
 	<@forexec(t, list, begin)>
 	<tr>
 		<td><a href="<@t.url>"><@t.id></a><@if(t.private, "【非公開】")></td>

@@ -26,7 +26,7 @@ adiary.dom_init( function($R) {
 		if (!id) return;
 
 		const type = $obj.attr('type');
-		if (type && type.toLowerCase() == 'checkbox') {
+		if (type && (type.toLowerCase() == 'checkbox' ||  type.toLowerCase() == 'radio')) {
 			$obj.change( function(evt){
 				const $o = $(evt.target);
 				Storage.set(id, $o.prop('checked') ? 1 : 0);
