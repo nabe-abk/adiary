@@ -64,11 +64,12 @@ qt = >title
 #------------------------------------------------------------------------------
 # Google
 #------------------------------------------------------------------------------
-google       = Google検索,         UTF-8, https://www.google.co.jp/search?ie=utf-8&oe=utf-8&nfpr=1&q=
-google:ja    = Google検索(ja),     UTF-8, https://www.google.co.jp/search?lr=lang_ja&ie=utf-8&oe=utf-8&nfpr=1&q=
-google:image = Googleイメージ検索, UTF-8, https://images.google.co.jp/images?lr=lang_ja&ie=utf-8&oe=utf-8&q=
-google:news  = Googleニュース検索, UTF-8, https://news.google.co.jp/news?lr=lang_ja&ie=utf-8&oe=utf-8&q=
-google:transit = Googleトランジット, UTF-8, 2, https://www.google.co.jp/transit?saddr=$1&daddr=$2
+google       = Google検索,         UTF-8, https://www.google.co.jp/search?q=
+google:ja    = Google検索(ja),     UTF-8, https://www.google.co.jp/search?lr=lang_ja&q=
+google:image = Googleイメージ検索, UTF-8, https://www.google.co.jp/search?tbm=vid&q=
+google:video = Google動画検索,     UTF-8, https://www.google.co.jp/search?tbm=isch&q=
+google:news  = Googleニュース検索, UTF-8, https://www.google.co.jp/search?tbm=nws&q=
+google:transit = Googleトランジット, UTF-8, 2, https://www.google.com/maps?saddr=$1&daddr=$2
 google:qr      = QRコード生成, image, 999, https://chart.googleapis.com/chart?cht=qr&chs=92x92&chl=$0
 google:qr#link = QRコード生成, image, 999, $0
 google:qr#ext  = 1
@@ -76,6 +77,7 @@ google:qr#ext  = 1
 g   = >google
 g:ja= >google:ja
 gi  = >google:image
+gv  = >google:video
 gn  = >google:news
 tr  = >google:transit
 qr  = >google:qr
