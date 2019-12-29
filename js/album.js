@@ -43,7 +43,6 @@ $( function(){
 
 	// ファイルアップロード関連
 	var upform   = $secure('#upload-form');
-	var iframe   = $('#form-response');
 	var message  = $('#upload-messages');
 	var upfolder = $('#upload-folder');
 	var file_btn = $('#file-btn');
