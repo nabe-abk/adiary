@@ -1692,6 +1692,9 @@ ul.menu {
 	border-right:	none;
 }
 /* on/offギミック */
+.ddmenu.sp>ul li {
+	overflow:	hidden;
+}
 .ddmenu.sp>ul li.open {
 	overflow:	visible;
 }
