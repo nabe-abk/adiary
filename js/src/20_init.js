@@ -15,7 +15,7 @@ adiary.init = function(func) {
 	if ($obj && $obj.myhasData('secure')) {
 		const json = $obj.html().replace(/^[\s\S]*?{/, '{').replace(/}[\s\S]*?$/, '}');
 		      data = JSON.parse(json);
-		const ary  = ['myself', 'myself2', 'Basepath', 'ScriptDir', 'PubdistDir', 'SpecialQuery'];
+		const ary  = ['myself', 'myself2', 'Basepath', 'ScriptDir', 'PubdistDir', 'SpecialQuery', 'Static'];
 		for(var i in ary) {
 			this[ary[i]] = data[ary[i]];
 		}

@@ -14,8 +14,12 @@
 	<p>記事を <a href="<@Basepath><@export_dir>index.html"><@export_dir></a> に<strong>HTML化して</strong>出力します。非公開記事は出力しません。</p>
 
 	<ul class="none">
-		<li><label><input type="checkbox" name="static:format" value="1">出力ディレクトリ内を初期化する</label></li>
-		<li><label><input type="checkbox" name="static:nocom" value="1" checked>コメント欄を表示しない</label></li>
+		<li><label><input type="checkbox" name="static:format"  value="1">出力ディレクトリ内を初期化する</label></li>
+		<li><label><input type="checkbox" name="static:nocom"   value="1" checked>コメント欄を表示しない</label></li>
+		<li><label><input type="checkbox" name="static:artlist" value="1">記事一覧を出力する（年月別を含む）</label></li>
+		<@ifexec(Mod_rewrite, begin)>
+		<li><label><input type="checkbox" name="static:htaccess" value="1">.htaccessを生成する</label><span class="help" data-help="mod_rewrite を無効化する .htaccess を生成します。サーバの設定によってエラーになることがあります。">?</span></li>
+		<$end>
 		<@ifexec(!s.theme_custom, begin)>
 		<li><label><input type="checkbox" name="static:custom_css" value="1" checked>テーマカスタムCSSを使用する</label></li>
 		<$end>
@@ -78,7 +82,7 @@ adiary.session($('#static-export, #static-export-format'), {
 <@>////////////////////////////////////////////////////////////////////////////
 <@> 初期化処理（必要なファイルをコピー）
 <@>////////////////////////////////////////////////////////////////////////////
-<$opt.init = begin>
+<$opt.init = begin.init>
 <@local(dir, s, t, files, dirs, session, option, theme_dir, files_dir)>
 <$s = v.blog>
 <$session = argv#0>
@@ -92,7 +96,7 @@ adiary.session($('#static-export, #static-export-format'), {
 <@> JavaScript to theme/
 <@>////////////////////////////////////////////////////////////////////////////
 <$dir = export_dir . theme_dir>
-<$session.msg("Javascript files copy to '<@dir>'")>
+<$session.msg("JavaScript files copy to '<@dir>'")>
 <$mkdir(dir)>
 
 	<$files = begin_array>
@@ -146,7 +150,7 @@ adiary.session($('#static-export, #static-export-format'), {
 <@> pub-dist/ to pub-dist/
 <@>////////////////////////////////////////////////////////////////////////////
 <$dir = export_dir . v.pubdist_dir>
-<$session.msg("public files copy to '<@dir>'")>
+<$session.msg("Public files copy to '<@dir>'")>
 <$mkdir(dir)>
 
 	<$files = begin_array>
@@ -188,36 +192,53 @@ adiary.session($('#static-export, #static-export-format'), {
 
 <$dir_delete("<@dir>.trashbox/")>
 
+<@>////////////////////////////////////////////////////////////////////////////
+<@> .htaccessの生成
+<@>////////////////////////////////////////////////////////////////////////////
+<$ifexec(option.htaccess, begin)>
+
+<$t = "<@export_dir>.htaccess">
+<$session.msg("Generate '<@t>'")>
+<$fwrite_lines(t, begin_string)>
+RewriteEngine off
+<$end_string>
+
 <$end>
+<@>////////////////////////////////////////////////////////////////////////////
+<$end.init>
 <@>////////////////////////////////////////////////////////////////////////////
 <@> index.htmlを生成する場合の雛形
 <@>////////////////////////////////////////////////////////////////////////////
-<$opt.index_skel = begin>
-<@local(t, logs)>
+<$opt.artlist_skel = begin>
+<@local(t, logs, h)>
 <$logs = argv#0>
-<!DOCTYPE html> 
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-	<title>static export logs</title>
-</head>
-<body>
-<h1>static export logs</h1>
+<$h    = argv#1>
+<$v.subtitle = if(!h.year, 'すべて', if(h.mon, "<@opt.year>年<@h.mon>月", "<@h.year>年")) . "の記事">
+<article class="system setting">
+<h2><@v.subtitle></h2>
+<div class="body">
 
-<table><tbody>
-<@forexec(t, logs, begin)>
-<tr>
-	<td><@t.year>-<@t.mon>-<@t.day></td>
-	<td><a href="<@t.file>"><@t.file></a></td>
-	<td><@t.title></td>
-</tr>
-<$end>
-</tbody></table>
+	<table id="artlist-table" class="list-table">
+	<thead><tr>
+		<th>日付</th>
+		<th>タイトル</th>
+		<th>タグ</th>
+	</tr></thead>
+	<tbody class="small">
+	<@forexec(t, logs, begin)>
+	<tr>
+		<td class="c" nowrap><@v.format_ymd(t.yyyymmdd)></td>
+		<td><a href="<@v.myself2><@t.elink_key>"><@t.title></a></td>
+		<td class="c"><@replace(t.tags, ',', ', ')></td>
+	</tr>
+	<$end>
+	</tbody>
+	</table>
 
-<p>export date: <@Timestamp></p>
+	<p>Total <@##logs+1> articles.</p>
 
-</body>
-</html>
+</div>
+</article>
 <$end>
 <@>////////////////////////////////////////////////////////////////////////////
 <$ajax_return = exporter.export( logs, opt )>

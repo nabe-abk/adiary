@@ -579,6 +579,16 @@ sub new {
 sub type { return $_[0]->{type} || 'tag'; }
 sub tag  { return $_[0]->{tag};  }
 sub attr { return $_[0]->{attr}; }
+sub val  {
+	my $self = shift;
+	my $val  = shift;
+	my $type = $self->{type};
+	if (defined $val) {
+		$self->{ $type } = $val;
+		return $self;
+	}
+	return $type && $self->{ $type };
+}
 sub setTag {
 	my $self = shift;
 	$self->{tag} = shift;
@@ -628,7 +638,20 @@ sub remove {
 	delete $self->{next};
 	$prev->{next} = $next;
 	$next->{prev} = $prev;
-	return $self;
+	return;
+}
+sub removeBlock {
+	my $self = shift;
+	my $tag  = $self->{tag};
+	if (!$tag || $self->{close}) { return $self->remove(); }
+
+	while($self->{next}) {
+		my $n = $self->{next};
+		my $f = $n->{tag} eq $tag && $n->{close};
+		$n->remove();
+		if ($f) { last; }
+	}
+	return $self->remove();
 }
 sub replace {
 	my $self = shift;
@@ -644,7 +667,7 @@ sub replace {
 	$obj ->{prev} = $prev;
 	$obj ->{next} = $next;
 	$next->{prev} = $obj;
-	return $self;
+	return $obj;
 }
 sub before {
 	my $self = shift;
