@@ -509,6 +509,7 @@ ul#edit-lockers {
 /* 記事タグ */
 article.edit span.tag {
 	font-size:		9pt;
+	display:		inline-block;
 	background-color:	#ccc;
 	border-radius:		6px;
 	padding:		0px 4px;

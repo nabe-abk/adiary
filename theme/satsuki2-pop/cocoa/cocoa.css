@@ -40,14 +40,11 @@ div.art-info span.tags:before {
 div.art-info span.tags:after {
 	content:		']';
 }
-span.tag:not(:last-child) {
-	margin-right:		0.4em;
-}
-span.tag:not(:last-child):after {
+div.art-info span.tag:not(:last-child):after {
 	content:		',';
 }
-article.edit span.tag:not(:last-child):after {
-	display:	none;
+span.tag:not(:last-child) {
+	margin-right:		0.4em;
 }
 
 /* 非公開コメント */

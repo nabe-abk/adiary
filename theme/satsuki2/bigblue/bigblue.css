@@ -926,9 +926,6 @@ article.edit span.tag {
 	background-color:	#c8d7e3;	/* $c=tagbg = modulebg */
 	border-radius:		6px;
 }
-article.edit span.tag:after {
-	content:		'';
-}
 
 /*--------------------------------------------------------------------
 ●ポップアップヘルプ, info

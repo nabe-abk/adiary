@@ -199,8 +199,8 @@ div.main {
     color:                  white;
 }
 /*
-$option2:title=footer
-$option2=no-footer
+$option:title=footer
+$option=no-footer
 #footer:after {
     display:                none;
 }

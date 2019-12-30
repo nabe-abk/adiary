@@ -369,12 +369,13 @@ div.art-info span.tags:before {
 div.art-info span.tags:after {
 	content:		']';
 }
+div.art-info span.tag:not(:last-child):after {
+	content:		',';
+}
 span.tag:not(:last-child) {
 	margin-right:		0.5em;
 }
-span.tag:not(:last-child):after {
-	content:		',';
-}
+
 
 /*--------------------------------------------------------------------
 ■記事見出し
@@ -757,9 +758,6 @@ article.edit span.tag {
 	border-radius:		6px;
 	padding:		0px 4px;
 	margin-right:		0.5em;
-}
-article.edit span.tag:after {
-	content:		'';
 }
 
 /*--------------------------------------------------------------------
