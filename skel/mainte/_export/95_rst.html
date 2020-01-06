@@ -66,6 +66,7 @@
 </div>
 
 <script-defer><!--
+let $buttons;
 adiary.session($('#rst-export, #rst-export-format'), {
 	myself: $('#rst-session-log').data('myself'),
 	load_formdata: function(btn) {
@@ -82,6 +83,14 @@ adiary.session($('#rst-export, #rst-export-format'), {
 
 		text = data.replace(/^ret=[^\n]/, "Error code: " + ma[1]);
 		$('#rst-session-log').text( text );
+	},
+	init:	function(){
+		$buttons = $("#export-form button:enabled");
+		$buttons.prop('disabled', true);
+	},
+	complete: function(){
+		$buttons.prop('disabled', false);
+		$buttons = undefined;
 	}
 });
 $(function(){

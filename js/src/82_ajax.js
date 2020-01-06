@@ -4,11 +4,11 @@
 //////////////////////////////////////////////////////////////////////////////
 // ●セッションを保持して随時データをロードする
 //////////////////////////////////////////////////////////////////////////////
-adiary.session = function(_btn, opt){
-  $(_btn).click( function(evt){
-	var btn = $(evt.target);
+adiary.session = function(btn, opt){
+  $(btn).click( function(evt){
+	var $btn = $(evt.target);
 	var myself = opt.myself || this.myself;
-	var $log   = opt.$log   || btn.rootfind(btn.data('log-target') || '#session-log');
+	var $log   = opt.$log   || $btn.rootfind($btn.data('log-target') || '#session-log');
 
 	var load_session = myself + '?etc/load_session';
 	var interval = opt.interval || $log.data('interval') || 300;
@@ -37,7 +37,7 @@ adiary.session = function(_btn, opt){
 	function ajax_session(){
 		log_start();
 		var fd;
-		if (opt.load_formdata) fd = opt.load_formdata(btn);
+		if (opt.load_formdata) fd = opt.load_formdata($btn);
 				else   fd = new FormData( opt.form );
 		var ctype;
 		if (typeof(fd) == 'string') fd += '&snum=' + snum;
@@ -51,10 +51,13 @@ adiary.session = function(_btn, opt){
 			processData: false,
 			data: fd,
 			dataType: opt.dataType || 'text',
-			error: function(data) {
-				console.warn('[adiary.session()] http post fail');
+			error: function(jqXHR, status, msg) {
+				const e_msg = '[adiary.session()] Ajax fail: ' + msg;
+				console.warn(e_msg);
 				log_stop(function(){
-					if (opt.error) opt.error(data);
+					$log.text($log.text() + "\n" + e_msg + "\n");
+					$log.scrollTop( $log.prop('scrollHeight') );
+					if (opt.error) opt.error(jqXHR, status, msg);
 				});
 			},
 			success: function(data) {
@@ -63,14 +66,15 @@ adiary.session = function(_btn, opt){
 					if (opt.success) opt.success(data);
 				});
 			},
-			xhr: opt.xhr
+			complete:	opt.complete,
+			xhr:		opt.xhr
 		});
 	}
-	
+
 	/// ログ表示タイマー
 	var log_timer;
 	function log_start( snum ) {
-		btn.prop('disabled', true);
+		$btn.prop('disabled', true);
 		$log.data('snum', snum);
 		log_timer = setInterval(log_load, interval);
 	}
@@ -78,7 +82,7 @@ adiary.session = function(_btn, opt){
 		if (log_timer) clearInterval(log_timer);
 		log_timer = 0;
 		log_load(func);
-		btn.prop('disabled', false);
+		$btn.prop('disabled', false);
 	}
 	function log_load(func) {
 		var url = load_session + '&snum=' + snum;
