@@ -1,5 +1,5 @@
 Title: iris
-Template: satsuki2-pop
+Template: satsuki2
 Author: かえで
 Access: https://twitter.com/__Kaede
 License: GPL
