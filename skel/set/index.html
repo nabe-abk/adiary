@@ -59,7 +59,7 @@
 		<label><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>>更新通知Pingを送信する</label>
 		</td>
 	</tr>
-	<tr><th>記事の入力方法<span class="help" data-help="reStructuredTextなど、詳細は「編集画面の設定」から行ってください。">?</span></th>
+	<tr><th>記事の入力方法<span class="help" data-help="詳細は「編集画面の設定」から行ってください。">?</span></th>
 		<td>
 		<label><input type="checkbox" id="markdown" class="js-disable" data-target="#rst" name="markdown" value="1"<@if(s.parser eq 'markdown' || s.markdown, ' checked')>>Markdownで入力する</label><br>
 		<label><input type="checkbox" id="rst"      class="js-disable" data-target="#markdown" name="rst" value="1"<@if(s.parser eq 'rst' || s.rst, ' checked')>>reStructuredTextで入力する</label>
