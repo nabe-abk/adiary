@@ -1171,20 +1171,19 @@ $('#album-actions').change( function(evt){
 // ●サムネイルの再生成
 //////////////////////////////////////////////////////////////////////////////
 function remake_thumbnail(){
-	var div = $('#remake-thumbnail-dialog');
+	var $div = $('#remake-thumbnail-dialog');
 	var buttons = {};
-	var sel = $('#dialog-thumbnail-size');
-	var val = $('#thumbnail-size').val();
-	sel.val( val );
-	if (sel.val() != val) {
-		var opt = $('<option>').attr('value', val);
-		opt.text( sel.data('format').replace('%v', val) );
-		sel.append(opt);
-		sel.val( val );
-	}
+	var $sel = $('#dialog-thumbnail-size');
+	var val  = $('#thumbnail-size').val();
+	$sel.val( val );
 
-	var ok_func = do_remake_thumbnail;
-	album_dialog(div, ok_func);
+	if ($sel.val() != val) {
+		var $opt = $('<option>').attr('value', val);
+		$opt.text( $sel.data('format').replace('%v', val) );
+		$sel.append( $opt );
+		$sel.val( val );
+	}
+	album_dialog($div, do_remake_thumbnail);
 }
 
 function do_remake_thumbnail(){
@@ -1544,21 +1543,25 @@ function folder_select_dialog(callback) {
 //############################################################################
 // ●アルバム用ダイアログの表示ルーチン
 //############################################################################
-function album_dialog(div, ok_func) {
+function album_dialog($div, ok_func) {
 	var buttons = {};
-	buttons[ div.data('ok') ] = function(){
+	buttons[ $div.data('ok') ] = function(){
 		ok_func();
-		div.adiaryDialog('close');
+		$div.adiaryDialog('close');
 	}
-	buttons[ div.data('cancel') ] = function(){
-		div.adiaryDialog('close');
+	buttons[ $div.data('cancel') ] = function(){
+		$div.adiaryDialog('close');
 	};
-	div.adiaryDialog({
+	$div.adiaryDialog({
 		modal: true,
 		minWidth:  240,
 		minHeight: 100,
-		title: div.data('title'),
-		buttons: buttons
+		title: $div.data('title'),
+		buttons: buttons,
+
+		beforeClose: function() {
+			$('#element-box').append($div);
+		}
 	});
 }
 
