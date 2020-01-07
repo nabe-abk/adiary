@@ -798,7 +798,7 @@ hr#com-form-separator {
 }
 
 /* コンテンツの子要素 */
-.hatena-modulebody > ul:not(.dynatree-container) ul {
+.hatena-modulebody ul ul {
     margin-bottom:          0px;
     margin-left:            8px;
 }

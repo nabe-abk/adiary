@@ -47,7 +47,7 @@
 <h2>ツリー</h2>
 <div class="body">
 
-	<p>コンテンツ一覧もどきツリー。</p>
+	<p><strong class="warning">線が正しい位置</strong>にありますか？</p>
 
 	<div class="treebox" id="tree"></div>
 </div>
@@ -136,18 +136,18 @@ $("#tree").dynatree({
 	},
 	children: [
 		{title: "コンテンツ１"},
-		{title: "adiaryとは", expand: true,
-			children: [
-				{title: "とっても使いやすい"},
-				{title: "とっても速い"},
-				{title: "とっても機能的"}
-			]
-		},
-		{title: "Version3になって", expand: true,
-			children: [
-				{title: "CSS3で見た目が少しよくなった"}
-			]
-		}
+		{title: "adiaryとは", expand: true, children: [
+			{title: "とっても使いやすい"},
+			{title: "とっても速い"},
+			{title: "とっても機能的", expand:true, children: [
+				{title: "aaa"},
+				{title: "bbb"},
+				{title: "ccc"}
+			]}
+		]},
+		{title: "Version3になって", expand: true, children: [
+			{title: "CSS3で見た目が少しよくなった"}
+		]}
 	]
 });
 

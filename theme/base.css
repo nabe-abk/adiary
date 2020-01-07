@@ -767,9 +767,6 @@ span.highlight4	{ background-color: #f6f; }
 ul.dynatree-container a {
 	font-weight:		normal;
 }
-ul.dynatree-container > li > ul {
-	padding-left:		8px;
-}
 .side-folder-tree ul.dynatree-container {
 	min-height:		300px;
 	margin-bottom:		2px;
@@ -840,13 +837,6 @@ ul.dynatree-container > li > ul {
 }
 #album-dnd-name-view span {
 	display:		block;
-}
-/* サイドバーフォルダーツリー */
-.side-folder-tree ul {
-	line-height:		110%;
-}
-.side-folder-tree li * {
-	vertical-align:		middle;
 }
 /* ファイルなし */
 #album-folder-view div.file-not-found {
@@ -1043,7 +1033,27 @@ span.tag span.ui-icon-close,
 ul.dynatree-container {
 	min-height:		20px;
 }
+#body ul.dynatree-container ul
+{
+	padding: 0 0 0 16px;
+	margin: 0;
+}
+#body ul.dynatree-container li
+{
+	margin: 0;
+	padding: 1px 0 0 0;
+}
+#body ul.dynatree-container > li > ul {
+	padding-left: 6px;
+}
 
+/* サイドバーフォルダーツリー */
+.side-folder-tree ul {
+	line-height:		110%;
+}
+.side-folder-tree li * {
+	vertical-align:		middle;
+}
 
 /*--------------------------------------------------------------------
 ●adiary UI, dialog, z-index:1000-1099
