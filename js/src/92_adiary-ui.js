@@ -55,6 +55,7 @@ adiaryDialog: function(opt) {
 	// main
 	//////////////////////////////////////////////////////////////////////
 	this.addClass('ui-dialog-content');
+	data.$restore = this.parent();
 	$dialog.append( this );
 
 	//////////////////////////////////////////////////////////////////////
@@ -121,6 +122,8 @@ adiaryDialogClose: function() {
 
 	this.adiaryUIRemove( data.$overlay );
 	this.adiaryUIRemove( data.$dialog  );
+	if (data.$restore && data.$restore.length) data.$restore.append( this );
+
 	return this;
 },
 //////////////////////////////////////////////////////////////////////////////

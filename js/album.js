@@ -1558,10 +1558,6 @@ function album_dialog($div, ok_func) {
 		minHeight: 100,
 		title: $div.data('title'),
 		buttons: buttons,
-
-		beforeClose: function() {
-			$('#element-box').append($div);
-		}
 	});
 }
 
