@@ -1532,7 +1532,7 @@ function folder_select_dialog(callback) {
 
 		// callback
 		if (!callback(folder)) {
-			error_msg('#msg-illegal-folder');
+			error_msg(folder == cur_folder ? '#msg-same-folder' : '#msg-illegal-folder');
 			return;
 		}
 		div.adiaryDialog('close');
