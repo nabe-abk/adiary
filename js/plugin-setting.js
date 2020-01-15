@@ -19,7 +19,6 @@ var formbody = $('<div>').addClass('body');
 	form.detach();
 	form.append( formbody );
 	formdiv.append( form );
-	$('#body').append( formdiv );
 }
 
 function module_setting(obj) {

@@ -496,9 +496,6 @@ function module_setting(obj, mode) {
 		return true;
 	});
 
-	// こうしておこないとロードしたJavaScriptが実行されない
-	$('#body').append( formdiv );
-
 	// ダイアログの設定
 	formdiv.adiaryDialog({
 		autoOpen: false,
