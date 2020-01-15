@@ -26,8 +26,9 @@
 <$h.subject = if(ps.subject ne '', ps.subject, '%n notify')>
 <$h.subject = replace(h.subject, '%n', "『<@v.blog.blog_name>』")>
 <$h.text = begin_string>
-『<@unesc(v.blog.blog_name)>』に新着のコメントがあります。
+『<@unesc(if(art.title ne '', art.title, v.blog.blog_name))>』にコメントされました。
 from <@form.name>
+
 <@form.comment_txt>
 
 <@Server_url><@v.myself2><@v.link_key_encode(x = art.link_key)>#com
