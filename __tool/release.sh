@@ -46,8 +46,10 @@ BASE="
 	index.html
 	dot.htaccess
 "
-EXE=adiary.exe
-
+EXE="
+	adiary.exe
+	adiary_service.exe
+"
 #-----------------------------------------------------------
 # make release directory
 #-----------------------------------------------------------
