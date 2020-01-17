@@ -77,7 +77,7 @@ Helpers.push({
 	url:	'https://adiary.org/v3man/Markdown/syntax',
 	head:	{ func: 'block',	tag:  '#$0',	form_type: 'text' },
 	strong:	{ func: 'inline',	tag: '**$0**' },
-	link:	{ func: 'inline',	tag: '[$0$1]',   arg_format: ':$1' },
+	link:	{ func: 'inline',	tag: '[$1]($0)' },
 	anno:	{ func: 'inline',	tag: '(($0))'	},
 	list:	{ func: 'block',	tag: '- $0'	},
 	quote:	{ func: 'block',	tag: '> $0'	},
