@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.34 : 2020/01/xx
+*Ver3.34 : 2020/01/18
 
 -【Windows】サービス起動用ラッパーを開発しました。
 -【Markdown】記法ヘルパーのリンク挿入をmarkdown形式に変更。
