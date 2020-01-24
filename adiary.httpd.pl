@@ -1,11 +1,11 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.12';
+our $VERSION  = '1.20';
 our $SPEC_VER = '1.12';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
-#						Copyright (C)2019 nabe@abk
+#					Copyright (C)2019-2020 nabe@abk
 ###############################################################################
 # Last Update : 2019/06/28
 #
@@ -45,6 +45,7 @@ my $SILENT_OTHER = 0;
 my $OPEN_BROWSER = $IsWindows;
 my $GENERATE_CONF= 1;
 
+my $PATH      = '/';
 my $PORT      = $IsWindows ? 80 : 8888;
 my $ITHREADS  = $IsWindows;
 my $TIMEOUT   =  3;
@@ -61,6 +62,8 @@ my $MAX_CGI_REQUESTS = 10000;
 
 my $SYS_CODE;
 my $FS_CODE;
+my $PATH0;	# Remove last '/' from PATH
+my $PATH0_len;	# $PATH0's length
 #------------------------------------------------------------------------------
 if ($IsWindows) {
 	require Encode::Locale;
@@ -102,10 +105,16 @@ my %JanFeb2Mon = (
 my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 {
 	my @ary = @ARGV;
+	my $path_arg;
 	my $help;
 	while(@ary) {
 		my $key = shift(@ary);
-		if (substr($key, 0, 1) ne '-') { $help=1; last; }
+		if (substr($key, 0, 1) ne '-') {
+			if ($path_arg) { $help=1; last; }
+			$PATH = $key;
+			$path_arg = 1;
+			next;
+		}
 		$key = substr($key, 1);
 		while($key ne '') {
 			my $k = substr($key,0,1);
@@ -190,8 +199,9 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 	if ($help) {
 		my $n = $IsWindows ? "  -n\t\tdo not open web browser\n" : '';
 		print <<HELP;
-Usage: $0 [options]
+Usage: $0 [options] [path]
 Available options are:
+  path		working web path (default:/)
   -p port	bind port (default:8888, windows:80)
   -t timeout	connection timeout second (default:3, min:0.001)
   -d daemons	start daemons (default:10, min:1)
@@ -258,15 +268,7 @@ $ENV{SERVER_PROTOCOL} = 'HTTP/1.1';
 $ENV{SERVER_SOFTWARE} = 'Satsuki';
 $ENV{REQUEST_SCHEME}  = 'http';
 $ENV{DOCUMENT_ROOT}   = Cwd::getcwd();
-{
-	my $scr = $0;
-	if ($IsWindows) {
-		$scr =~ s|^\w+:||;
-		$scr =~ s|\\|/|g;
-	}
-	$scr = ($scr =~ m|([^/]*)$|) ? "/$1" : $scr;
-	$ENV{SCRIPT_NAME} = $scr;
-}
+
 #------------------------------------------------------------------------------
 # windows port check
 #------------------------------------------------------------------------------
@@ -338,15 +340,33 @@ if ($MIME_FILE && -e $MIME_FILE) {
 }
 
 #------------------------------------------------------------------------------
-# File system encode and directory index
+# File system encode
 #------------------------------------------------------------------------------
 if ($FS_CODE) {
 	if ($FS_CODE =~ /utf-?8/i) { $FS_CODE='UTF-8'; }
 	require Encode;
 	print "\tFile system coding: $FS_CODE\n";
 }
-if (0 && $INDEX) {
-	print "\tDirectory index: $INDEX\n";
+
+#------------------------------------------------------------------------------
+# PATH and SCRIPT_NAME
+#------------------------------------------------------------------------------
+{
+	$PATH .= '/';
+	$PATH  =~ s|//|/|g;
+	$PATH0 = $PATH;
+	$PATH0 =~ s|/$||;
+	$PATH0_len = length($PATH0);
+	print "\tWeb working path: $PATH\n";
+
+	## SCRIPT_NAME
+	my $scr = $0;
+	if ($IsWindows) {
+		$scr =~ s|^\w+:||;
+		$scr =~ s|\\|/|g;
+	}
+	$scr = ($scr =~ m|([^/]*)$|) ? "$PATH$1" : $scr;
+	$ENV{SCRIPT_NAME} = $scr;
 }
 
 #------------------------------------------------------------------------------
@@ -596,12 +616,23 @@ sub parse_request {
 	# file read
 	#--------------------------------------------------
 	my $path = $state->{path};
-	$state->{file} = $path;
-	$state->{file} =~ s/\?.*//;	# cut query
-	$state->{file} =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
-	my $r = &try_file_read($state);
-	if ($r) {
-		return $state;
+	{
+		my $file = $path;
+		$file =~ s/\?.*//;	# cut query
+		$file =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
+
+		if ($PATH0_len) {
+			if (substr($file, 0, $PATH0_len) ne $PATH0) {
+				&_404_not_found($state);
+				return $state;
+			}
+			$file = substr($file, $PATH0_len);
+		}
+
+		my $r = &try_file_read($state, $file);
+		if ($r) {
+			return $state;
+		}
 	}
 
 	#--------------------------------------------------
@@ -610,7 +641,7 @@ sub parse_request {
 	$ENV{SERVER_NAME}    = $ENV{HTTP_HOST};
 	$ENV{SERVER_NAME}    =~ s/:\d+$//;
 	$ENV{REQUEST_METHOD} = $state->{method};
-	$ENV{REQUEST_URI}    = $path;
+	$ENV{REQUEST_URI}    = $state->{path};
 	{
 		my $x = index($path, '?');
 		if ($x>0) {
@@ -619,7 +650,7 @@ sub parse_request {
 		}
 	}
 	$path =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
-	$ENV{PATH_INFO} = $path;
+	$ENV{PATH_INFO} = $PATH0_len ? substr($path, $PATH0_len) : $path;
 
 	$state->{type} = 'cgi ';
 	$CGI_REQUESTS++;
@@ -657,7 +688,7 @@ sub analyze_request {
 #------------------------------------------------------------------------------
 sub try_file_read {
 	my $state = shift;
-	my $file  = $state->{file};
+	my $file  = shift;
 
 	$file =~ s|/+|/|g;
 	$file =~ s|\?.*||;
@@ -794,9 +825,9 @@ sub exec_cgi {
 		$ROBJ = Satsuki::Base->new();	# root object
 		$ROBJ->{Timer} = $timer;
 		$ROBJ->{AutoReload} = $flag;
-		$ROBJ->{STDIN} = $sock;
+		$ROBJ->{STDIN}      = $sock;
 
-		$ROBJ->init_for_httpd($state);
+		$ROBJ->init_for_httpd($state, $PATH);
 
 		if ($FS_CODE) {
 			# file system's locale setting
