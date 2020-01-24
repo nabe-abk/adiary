@@ -466,9 +466,9 @@ sub load_blogset {
 	if ($self->{'_loaded_bset'}->{$blogid}) { return $self->{'_loaded_bset'}->{$blogid}; }
 	if ($blogid ne '*' && !$self->find_blog($blogid)) { return undef; }
 
-	my $file = $ROBJ->get_filepath( $self->blog_dir($blogid) . 'setting.dat' );
+	my $file = $self->blog_dir($blogid) . 'setting.dat';
 	if ($blogid eq '*' || !-e $file) {
-		$file = $ROBJ->get_filepath($self->{my_default_setting_file});
+		$file = $self->{my_default_setting_file};
 		if (!-e $file) {
 			$file = $self->{default_setting_file};
 		}
@@ -1298,7 +1298,7 @@ sub call_plugin_function {
 	my $name = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $file = $ROBJ->get_filepath($self->{blog_dir} . "func/$name");
+	my $file = $self->{blog_dir} . "func/$name";
 	my $func = $self->load_plugin_function($name, $file);
 	if (!ref($func)) {
 		$ROBJ->error("[plugin=%s] Load error", $name);
@@ -1631,7 +1631,7 @@ sub load_theme {
 
 	if ($theme !~ m|^([\w-]+)/([\w-]+)/?$| ) { return -1; }	# error
 	my $name = $2;
-	my $dir = $ROBJ->get_filepath( $self->{theme_dir} . "$1/" );
+	my $dir = $self->{theme_dir} . "$1/";
 	if (! -r "$dir$name/$name.css") { return 1; }		# not found
 
 	# 内部変数に記録

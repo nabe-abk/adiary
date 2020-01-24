@@ -42,11 +42,10 @@ sub export {
 	#-------------------------------------------------------------
 	# ディレクトリ作成
 	#-------------------------------------------------------------
-	my $dir  = $option->{export_dir};
-	my $dir_ = $ROBJ->get_filepath($dir);
+	my $dir = $option->{export_dir};
 
 	$ROBJ->mkdir($dir);
-	if (!-w $dir_) {
+	if (!-w $dir) {
 		$session->msg("Can not create '$dir' or not writeble!");
 		return;
 	}
@@ -56,7 +55,7 @@ sub export {
 		$session->msg("'$dir' clear!");
 		my $files = $ROBJ->search_files($dir, {dir=>1, all=>1});
 		foreach(@$files) {
-			my $f_   = "$dir_$_";
+			my $f_   = "$dir$_";
 			my $file = $ROBJ->fs_decode( $_ );
 			if (-d $f_) {
 				$session->msg("\tdelete dir: $file");

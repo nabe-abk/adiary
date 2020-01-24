@@ -15,7 +15,7 @@ sub compile {
 	#------------------------------------------------------------
 	# コンパイルログを残すか？
 	#------------------------------------------------------------
-	my $compile_log = $self->get_filepath( $self->{Compile_log_dir} );
+	my $compile_log = $self->{Compile_log_dir};
 	if ($compile_log ne '' && (-d $compile_log || $self->mkdir($compile_log)) ) {
 		my $file = $src_file;
 		$file =~ s|/|_-_|g;
@@ -169,8 +169,7 @@ sub check_url_xss {
 # Ret:	0	成功
 # 	1	失敗
 sub fwrite_lines {
-	my ($self, $_file, $lines, $flags) = @_;
-	my $file = $self->get_filepath($_file);
+	my ($self, $file, $lines, $flags) = @_;
 	if (ref $lines ne 'ARRAY') { $lines = [$lines]; }
 
 	my $fail_flag=0;
@@ -244,8 +243,7 @@ sub fappend_hash {
 #------------------------------------------------------------------------------
 # 編集用。ロック処理付き。ファイルがなければ作る。
 sub fedit_readlines {
-	my ($self, $_file, $flags) = @_;
-	my $file = $self->get_filepath($_file);
+	my ($self, $file, $flags) = @_;
 
 	my $fh;
 	if ( !sysopen($fh, $file, O_CREAT | O_RDWR | ($flags->{append} ? O_APPEND : 0)) ) {
@@ -270,7 +268,7 @@ sub fedit_readlines {
 
 	# モード変更
 	if (defined $flags->{FileMode}) {
-		chmod($flags->{FileMode}, $self->get_filepath($file));
+		chmod($flags->{FileMode}, $file);
 	}
 	return ($fh, \@lines);
 }
@@ -326,7 +324,6 @@ sub fread_skeleton {
 #------------------------------------------------------------------------------
 sub mkdir {
 	my ($self, $dir, $mode) = @_;
-	$dir = $self->get_filepath($dir);
 	if (-e $dir) { return -1; }
 	my $r = mkdir( $dir );	# 0:fail 1:Success
 	if ($r) {
@@ -341,14 +338,13 @@ sub mkdir {
 #------------------------------------------------------------------------------
 sub file_delete {
 	my $self = shift;
-	return unlink( $self->get_filepath($_[0]) );
+	return unlink( $_[0] );
 }
 
 # rm -rf 
 sub dir_delete {	# 再起関数
 	my ($self, $dir) = @_;
 	if ($dir eq '') { return; }
-	$dir = $self->get_filepath($dir);
 	if (substr($dir, -1) eq '/') { chop($dir); }
 	if (-l $dir) {	# is symbolic link
 		return unlink($dir);
@@ -367,9 +363,7 @@ sub dir_delete {	# 再起関数
 # ●ファイルのシンボリックリンク作成
 #------------------------------------------------------------------------------
 sub file_symlink {
-	my ($self, $_src, $_des) = @_;
-	my $src = $self->get_filepath($_src);
-	my $des = $self->get_filepath($_des);
+	my ($self, $src, $des) = @_;
 	my $d2  = $des;
 	while((my $x = index($src,'/')+1) > 0) {
 		if(substr($src, 0, $x) ne substr($d2, 0, $x)) { last; }
@@ -381,7 +375,7 @@ sub file_symlink {
 	}
 	my $r = symlink($src, $des);
 	if (!$r) {
-		$self->error("Create symlink error '%s' $_src $_des", $!);
+		$self->error("Create symlink error '%s' $src $des", $!);
 		return 1;
 	}
 	return 0;
@@ -392,15 +386,13 @@ sub file_symlink {
 #------------------------------------------------------------------------------
 sub file_move {
 	my ($self, $src, $des) = @_;
-	$src = $self->get_filepath($src);
-	$des = $self->get_filepath($des);
 	if (!-f $src || -f $des) { return 1; }
 	{
 		my $r = rename($src, $des);
 		if ($r) { return 0; }	# success
 	}
 	# copy and delete
-	my $r = $self->_file_copy($src, $des);
+	my $r = $self->file_copy($src, $des);
 	if (!$r) {
 		$self->file_delete($src);
 	}
@@ -412,12 +404,6 @@ sub file_move {
 # ●ファイルのコピー
 #------------------------------------------------------------------------------
 sub file_copy {
-	my ($self, $src, $des) = @_;
-	$src = $self->get_filepath($src);
-	$des = $self->get_filepath($des);
-	return $self->_file_copy($src, $des)
-}
-sub _file_copy {
 	my ($self, $src, $des) = @_;
 	my $data;
 	my $fh;
@@ -443,8 +429,6 @@ sub _file_copy {
 # cp -r src_dir/* new_dir
 sub dir_copy {
 	my ($self, $src, $des, $mode) = @_;
-	$src = $self->get_filepath($src);
-	$des = $self->get_filepath($des);
 	if (substr($src, -1) ne '/') { $src .= '/'; }
 	if (substr($des, -1) ne '/') { $des .= '/'; }
 	return $self->_dir_copy($src, $des)
@@ -460,7 +444,7 @@ sub _dir_copy {
 		if (-d $file) {
 			$error += $self->_dir_copy( "$file", "$des$_" );
 		} else {
-			$error += $self->_file_copy($file, "$des$_") && 1;
+			$error += $self->file_copy($file, "$des$_") && 1;
 		}
 	}
 	return $error;
@@ -477,8 +461,6 @@ sub get_tmpdir {
 		$dir =~ tr|\\|/|;		# for windows
 		if ($dir eq '') { return ; }	# 失敗
 		$dir .= '/satsuki-system/';
-	} else {
-		$dir = $self->get_filepath( $dir );
 	}
 	if (!-d $dir) {
 		$self->mkdir($dir);
@@ -522,7 +504,7 @@ sub open_tmpfile {
 sub tmpwatch {
 	my $self = shift;
 	my ($dir, $time) = @_;
-	$dir = $dir ? $self->get_filepath( $dir ) : $self->get_tmpdir();
+	$dir = $dir ? $dir : $self->get_tmpdir();
 	if ($time < $self->{Temp_timeout}) { $time=$self->{Temp_timeout}; }
 	if ($time < 10) { $time = 10; }
 
@@ -545,7 +527,6 @@ sub tmpwatch {
 #------------------------------------------------------------------------------
 sub file_lock {
 	my ($self, $file, $type) = @_;
-	my $file = $self->get_filepath($file);
 
 	my $fh;	# READ
 	if ( !sysopen($fh, $file, O_RDONLY) ) {

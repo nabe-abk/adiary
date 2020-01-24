@@ -40,7 +40,7 @@ $mop->{get_logo} = sub {
 	my $img = $aobj->load_image_magick();
 	if (!$img) { return; }
 
-	$img->Read( $ROBJ->get_filepath( $file ) );
+	$img->Read( $file );
 	my ($x, $y) = $img->Get('width', 'height');
 
 	$aobj->update_plgset('amp', 'logo_tm',    $tm);
@@ -561,7 +561,7 @@ $mop->{get_image_size} = sub {
 		$file =~ s/%([0-9A-Fa-f][0-9A-Fa-f])/chr(hex($1))/eg;
 		$file =~ s|^/+||g;
 		$file =~ s|\.+/||g;
-		$img->Read( $ROBJ->get_filepath( $file ) );
+		$img->Read( $file );
 	}
 
 	my ($x, $y) = $img->Get('width', 'height');

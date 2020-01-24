@@ -25,8 +25,7 @@ sub new {
 #------------------------------------------------------------------------------
 sub check_exif {
 	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $file = $ROBJ->get_filepath(shift);
+	my $file = shift;
 	# if ($file =~ /\.jpe?g$/i) { return; }
 
 	my $fh;
@@ -61,8 +60,7 @@ my @ifd_types = (
 
 sub get_exif_info {
 	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $file = $ROBJ->get_filepath(shift);
+	my $file = shift;
 
 	my $fh;
 	my $data;
@@ -175,8 +173,8 @@ my %strip_markers = map { $_ => 1 } split('',
 );	# APP1 - 15と、コメントセグメント(0xFE)は無視
 sub strip {
 	my $self = shift;
+	my $file = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $file = $ROBJ->get_filepath(shift);
 
 	my $fh;
 	my $data;

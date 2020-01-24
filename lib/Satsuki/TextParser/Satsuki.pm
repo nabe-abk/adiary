@@ -1719,9 +1719,8 @@ sub load_tagdata {
 	my $file;
 	if (!ref($data)) {
 		$file = $data;
-		$data = $ROBJ->get_filepath( $data );
-		if (!-r $data) { return ; }
-		$data = $ROBJ->fread_lines_cached( $data, {DelCR => 1} );
+		if (!-r $file) { return; }
+		$data = $ROBJ->fread_lines_cached( $file, {DelCR => 1} );
 	}
 
 	# 現在の設定ロード

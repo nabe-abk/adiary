@@ -28,7 +28,6 @@ sub new {
 	$self ||= {};
 	bless($self, $class);	# $self をこのクラスと関連付ける
 
-	$dir = $ROBJ->get_filepath($dir);
 	if (!-e $dir) { $ROBJ->mkdir($dir); }
 	$self->{ROBJ} = $ROBJ;
 	$self->{dir}  = $dir;
@@ -55,7 +54,7 @@ sub find_table {
 	my $table = shift;
 	if ($table =~ /\W/) { return 0; }	# Not Found(error)
 
-	my $dir   = $ROBJ->get_filepath($self->{dir}) . $table . '/';
+	my $dir   = $self->{dir} . $table . '/';
 	my $index = $dir . $self->{index_file};
 	if (!-e $index) {
 		if (-e "$dir$self->{index_backup_file}") { return 1; }	# Found
@@ -417,7 +416,7 @@ sub load_index {
 	$self->debug("load index on '$table' table".($edit_flag ? ' (edit)':''));	# debug-safe
 
 	# ロード準備
-	my $dir   = $ROBJ->get_filepath( $self->{dir} . $table . '/' );
+	my $dir   = $self->{dir} . $table . '/';
 	my $index = $dir . $self->{index_file};
 	if (!-e $index) {
 		if (-e $dir) { $self->index_rebuild( $table ); }

@@ -651,7 +651,7 @@ sub generate_pkey {
 	}
 
 	# 編集準備
-	my $dir   = $ROBJ->get_filepath( $self->{dir} . $table . '/' );
+	my $dir   = $self->{dir} . $table . '/';
 	my $index = $dir . $self->{index_file};
 	if (!-e $index && -e $dir) { $self->index_rebuild( $table ); }
 

@@ -938,7 +938,7 @@ sub image_directive {
 
 sub get_image_size {
 	my $self = shift;
-	my $file = $self->{ROBJ}->get_filepath( shift );
+	my $file = shift;
 
 	my $cache = $self->{_image_size_cache} ||= {};
 	if (! $cache->{$file}) {
@@ -1797,21 +1797,11 @@ sub check_and_load_file_path {
 	if ($self->{ROBJ}) {
 		$self->{ROBJ}->fs_encode(\$file);
 	}
-	my $_file = $self->get_filepath($file);
-	if (!-r $_file) {
+	if (!-r $file) {
 		$self->parse_error('"%s" directive file not found: %s', $self->{directive}, $orig);
 		return;
 	}
 	return $file;
-}
-
-#------------------------------------------------------------------------------
-# get_filepath
-#------------------------------------------------------------------------------
-sub get_filepath {
-	my $self = shift;
-	my $file = shift;
-	return $self->{ROBJ} ? $self->{ROBJ}->get_filepath( $file ) : $file;
 }
 
 #------------------------------------------------------------------------------

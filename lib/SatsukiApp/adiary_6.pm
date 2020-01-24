@@ -147,8 +147,7 @@ sub sys_update_294 {
 	foreach(@$blogs) {
 		$self->set_and_select_blog( $_ );
 		#
-		my $dir  = $ROBJ->get_filepath( $self->{blogpub_dir} );
-		my $file = $dir . 'usercss.css';
+		my $file = $self->{blogpub_dir} . 'usercss.css';
 		if (-r $file) {
 			my $lines = $ROBJ->fread_lines( $file );
 			my $css = join('', @$lines);
@@ -588,8 +587,8 @@ sub v2convert {
 		}
 
 		# 画像アルバムの移行
-		my $src_dir = $ROBJ->get_filepath( $h->{image_dir} . $id . '/' );
-		my $des_dir = $ROBJ->get_filepath( $self->blogimg_dir() );
+		my $src_dir = $h->{image_dir} . $id . '/';
+		my $des_dir = $self->blogimg_dir();
 		my $thumb   = $h->{thumbnail_dir} || '.thumbnail/';
 
 		sub copy_dir {

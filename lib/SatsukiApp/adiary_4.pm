@@ -20,7 +20,7 @@ sub load_usertag {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $file = $ROBJ->get_filepath( $self->{blog_dir} . 'usertag.txt' );
+	my $file = $self->{blog_dir} . 'usertag.txt';
 	if (!-e $file) { $file = $self->{default_usertag_file}; }
 	return join('', @{ $ROBJ->fread_lines($file) });
 }
@@ -49,7 +49,7 @@ sub load_usercss {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $file = $ROBJ->get_filepath( $self->dynamic_css_file('_usercss') );
+	my $file = $self->dynamic_css_file('_usercss');
 	if (!-r $file) { $file = $self->{default_usercss_file}; }
 	return join('', @{ $ROBJ->fread_lines($file) });
 }
@@ -163,7 +163,7 @@ sub check_dynamic_css {
 	my $name = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $file = $self->dynamic_css_file( $name );
-	return (-r $ROBJ->get_filepath( $file )) ? 1 : 0;
+	return (-r $file) ? 1 : 0;
 }
 
 #------------------------------------------------------------------------------
@@ -214,7 +214,7 @@ sub load_plugins_info {
 	my $modf = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $dir = $ROBJ->get_filepath( $self->{plugin_dir} );
+	my $dir   = $self->{plugin_dir};
 	my $files = $ROBJ->search_files($dir, {dir_only => 1});
 	my @ary;
 	foreach( sort @$files ) {
@@ -277,7 +277,7 @@ sub load_plugin_info {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $name = shift;
-	my $dir  = shift || $ROBJ->get_filepath( $self->{plugin_dir} );
+	my $dir  = shift || $self->{plugin_dir};
 
 	# キャッシュ
 	my $cache = $self->{"_plugin_info_cache"} ||= {};
@@ -551,7 +551,7 @@ sub plugin_install {
 			$err++;
 			next;
 		}
-		if (! -r $ROBJ->get_filepath("$plg_dir$_")) {
+		if (! -r "$plg_dir$_") {
 			$ROBJ->error("[plugin:%s] Original file not exists : %s", $name, $_);
 			$err++;
 			next;
@@ -559,7 +559,6 @@ sub plugin_install {
 
 		# 既にファイルが存在している場合はエラー
 		$des .= $_;
-		$des  = $ROBJ->get_filepath($des);
 		if (-e $des) {
 			$ROBJ->error("[plugin:%s] File already exists : %s", $name, $des);
 			$err++;
@@ -625,7 +624,7 @@ sub plugin_uninstall {
 		my $file = $self->get_plugin_install_dir($_) . $_;
 		my $r = $ROBJ->file_delete( $file );
 		if (!$r) {	# 削除失敗でもファイルがなければ良しとする
-			$r = !(-x $ROBJ->get_filepath( $file ) );
+			$r = !-x $file;
 		}
 		if ($r) {	# 成功
 			if ($_ =~ m|/css\.d/|) { $cssd=1; }
@@ -775,7 +774,7 @@ sub save_plugin_setting {
 	my $n = $self->plugin_name_check($name);	# $n = プラグイン名
 	if (!$n) { return 1; }
 
-	my $dir = $ROBJ->get_filepath($self->{plugin_dir} . $n);
+	my $dir = $self->{plugin_dir} . $n;
 	my $ret;
 	my $pm = "$dir/${mode}validator.pm";
 	if (-r $pm) {
@@ -856,7 +855,7 @@ sub plugin_upload_images {
 	my $ary  = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $dir = $ROBJ->get_filepath( $self->plugin_image_dir() );
+	my $dir = $self->plugin_image_dir();
 	foreach(@$ary) {
 		if (!ref($form->{$_})) { next; }
 		if (! $form->{$_}->{file_size}) { next; }	# サイズ0は無視
@@ -1200,7 +1199,7 @@ sub load_module_html {
 
 	# generatorの有無はファイルの存在で確認
 	my $dir = $self->plugin_name_dir( $name );
-	my $pm  = $ROBJ->get_filepath( $dir . 'html_generator.pm' );
+	my $pm  = $dir . 'html_generator.pm';
 	if (! -r $pm) {
 		return $info->{"module${target}_html"} || $info->{"module_html"};
 	}
@@ -1340,7 +1339,7 @@ sub generate_module_css {
 	my $ROBJ = $self->{ROBJ};
 
 	my $dir = $self->plugin_name_dir( $name );
-	my $css = $ROBJ->get_filepath( $dir . "module-d.css" );
+	my $css = $dir . "module-d.css";
 	if (! -r $css) { return; }
 
 	# 動的生成CSSがある？
@@ -1395,7 +1394,7 @@ sub load_themes {
 	# テンプレートdir選択
 	$template =~ s/[^\w\-]//g;
 	if ($template eq '') { return; }
-	my $dir = $ROBJ->get_filepath( "$self->{theme_dir}$template/" );
+	my $dir = "$self->{theme_dir}$template/";
 
 	# テーマリストの取得
 	my @files = sort map { chop($_);$_ } @{ $ROBJ->search_files($dir, { dir_only => 1 }) };
@@ -1543,7 +1542,7 @@ sub load_theme_info {
 	if (!$css) { return ($col, $opt); }
 
 	# カスタマイズ情報のロード
-	my $file = $ROBJ->get_filepath( $self->get_theme_custom_css($theme) );
+	my $file = $self->get_theme_custom_css($theme);
 	if (-r $file) {
 		my $lines = $ROBJ->fread_lines( $file );
 		foreach(@$lines) {
@@ -1734,7 +1733,7 @@ sub load_print_themes {
 	# テンプレートdir選択
 	$template =~ s/[^\w\-]//g;
 	if ($template eq '') { return []; }
-	my $dir = $ROBJ->get_filepath( "$self->{theme_dir}$template/" );
+	my $dir = "$self->{theme_dir}$template/";
 
 	# テーマリストの取得
 	my @files = sort map { chop($_);$_ } @{ $ROBJ->search_files($dir, { dir_only => 1 }) };

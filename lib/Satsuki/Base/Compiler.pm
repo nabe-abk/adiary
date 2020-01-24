@@ -449,7 +449,7 @@ $Builtin_func{'file_exists.arg'} = '$R,';
 $Builtin_func{file_exists} = <<'FUNC';
 sub {
 	my ($self, $file) = @_;
-	if (-e $self->get_filepath($file)) { return 1; }
+	if (-e $file) { return 1; }
 	return 0;
 }
 FUNC
@@ -458,7 +458,7 @@ $Builtin_func{'file_readable.arg'} = '$R,';
 $Builtin_func{file_readable} = <<'FUNC';
 sub {
 	my ($self, $file) = @_;
-	if (-r $self->get_filepath($file)) { return 1; }
+	if (-r $file) { return 1; }
 	return 0;
 }
 FUNC
@@ -467,7 +467,7 @@ $Builtin_func{'file_writable.arg'} = '$R,';
 $Builtin_func{file_writable} = <<'FUNC';
 sub {
 	my ($self, $file) = @_;
-	if (-w $self->get_filepath($file)) { return 1; }
+	if (-w $file) { return 1; }
 	return 0;
 }
 FUNC
@@ -476,8 +476,7 @@ $Builtin_func{'file_size.arg'} = '$R,';
 $Builtin_func{file_size} = <<'FUNC';
 sub {
 	my ($self, $file) = @_;
-	if (-s $self->get_filepath($file)) { return 1; }
-	return 0;
+	return -s $file;
 }
 FUNC
 

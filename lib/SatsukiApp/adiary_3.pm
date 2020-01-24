@@ -55,9 +55,9 @@ sub genarete_imgae_dirtree {
 #------------------------------------------------------------------------------
 sub get_dir_tree {
 	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $dir  = $ROBJ->get_filepath(shift);
+	my $dir  = shift;
 	my $path = shift;
+	my $ROBJ = $self->{ROBJ};
 
 	my $list = $ROBJ->search_files($dir, {dir=>1});
 	@$list = sort {		# '@'(0x40)を最後に表示する仕組み
@@ -151,10 +151,10 @@ sub load_exif_files {
 #------------------------------------------------------------------------------
 sub make_thumbnail {
 	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $dir  = $ROBJ->get_filepath( shift );
+	my $dir  = shift;
 	my $files= shift || [];
 	my $opt  = shift || {};
+	my $ROBJ = $self->{ROBJ};
 
 	$ROBJ->mkdir("${dir}.thumbnail/");
 	foreach(@$files) {
@@ -195,8 +195,8 @@ sub make_thumbnail {
 #------------------------------------------------
 sub get_thumbnail_file {
 	my $self = shift;
+	my $dir  = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $dir  = $ROBJ->get_filepath( shift );
 	$ROBJ->mkdir("${dir}.thumbnail/");
 	return "${dir}.thumbnail/" . (shift) . ".jpg";
 }
@@ -293,7 +293,7 @@ sub make_thumbnail_for_notimage {
 
 	# 拡張子アイコンの読み込み
 	my $exts = $self->load_album_allow_ext();
-	my $icon_dir  = $ROBJ->get_filepath( $self->{album_icons} );
+	my $icon_dir  = $self->{album_icons};
 	my $icon_file = $exts->{'.'};
 	if ($self->is_image($file)) {
 		$icon_file = $exts->{'.img'};	# 画像読み込みエラー時
@@ -318,7 +318,7 @@ sub make_thumbnail_for_notimage {
 	};
 
 	# 画像情報の書き込み
-	my $album_file = $ROBJ->get_filepath( $self->{album_font} );
+	my $album_file = $self->{album_font};
 	if ($self->{album_font} && -r $album_file) {
 		my @st = stat("$dir$file");
 		my $tm = $ROBJ->tm_printf("%Y/%m/%d %H:%M", $st[9]);
@@ -478,9 +478,9 @@ sub do_ajax_image_upload {
 #----------------------------------------------------------------------
 sub do_upload {
 	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $dir  = $ROBJ->get_filepath( shift );
+	my $dir  = shift;
 	my $file_h = shift;
+	my $ROBJ = $self->{ROBJ};
 
 	# ハッシュデータ（フォームデータの確認）
 	my $file_name = $file_h->{file_name};
@@ -800,7 +800,7 @@ sub image_folder_to_dir {
 	$folder =~ s|^/||;
 	$folder =~ s|[\x00-\x1f]| |g;
 	$self->{ROBJ}->fs_encode(\$folder);
-	return $self->{ROBJ}->get_filepath( $self->blogimg_dir() . $folder );
+	return $self->blogimg_dir() . $folder;
 }
 
 sub image_folder_to_dir_and_create {
@@ -978,9 +978,9 @@ sub save_private_mode {
 #------------------------------------------------------------------------------
 sub change_blogpub_dir_postfix {
 	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
 	my $blogid = shift;
 	my $len = (defined $_[0]) ? shift : ($self->{sys}->{dir_postfix_len} || $self->{dir_postfix_len});
+	my $ROBJ = $self->{ROBJ};
 
 	my $postfix = '';
 	if ($len > 0) {
@@ -991,7 +991,7 @@ sub change_blogpub_dir_postfix {
 	}
 
 	# ディレクトリ名変更
-	my $cur_dir = $ROBJ->get_filepath( $self->blogpub_dir($blogid) );
+	my $cur_dir = $self->blogpub_dir($blogid);
 	chop($cur_dir);
 	my $new_dir = $cur_dir;
 	$new_dir =~ s|\.[^./]+$||;

@@ -90,7 +90,6 @@ sub file_digest {
 	
 	# パスを安全チェック
 	$ROBJ->clean_path( $file );
-	$file = $ROBJ->get_filepath( $file );
 
 	# digestの生成
 	my $digest;

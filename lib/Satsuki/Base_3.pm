@@ -6,25 +6,6 @@ use Satsuki::Base ();
 use Satsuki::Base_2 ();
 package Satsuki::Base;
 ###############################################################################
-# ■mod_perl用スタートアップ（new から呼ばれる）
-###############################################################################
-sub init_for_mod_perl {
-	my $self = shift;
-	my $ver  = $ENV{MOD_PERL_API_VERSION};
-	$self->{CGI_cache} = 1;
-	$self->{Mod_perl}  = $ver || 1;
-	$self->{CGI_mode}  = "mod_perl$ver";
-
-	# 擬似的なカレントディレクトリを抽出（設定）
-	# ・mod_perl2 + thread 環境では、カレントディレクトリが変更できないため必須
-	# ・ファイルキャッシュを絶対パスで管理するため、mod_perl環境では必須
-	$self->{WD} = substr($0, 0, rindex($0, '/')+1); # カレントdir
-
-	no strict 'refs';
-	*{ __PACKAGE__ . '::get_filepath'} = \&get_filepath_modperl;
-}
-
-###############################################################################
 # ■SpeedyCGI用のスタートアップ
 ###############################################################################
 sub init_for_speedycgi {
@@ -85,12 +66,12 @@ sub get_system_info {
 
 sub read_check {
 	my ($self, $file) = @_;
-	return (-r $self->get_filepath($file));
+	return -r $file;
 }
 
 sub write_check {
 	my ($self, $file) = @_;
-	return (-w $self->get_filepath($file));
+	return -w $file;
 }
 
 sub lib_check {

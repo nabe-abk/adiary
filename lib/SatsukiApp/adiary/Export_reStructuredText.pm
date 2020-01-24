@@ -35,11 +35,10 @@ sub export {
 	#-------------------------------------------------------------
 	# ディレクトリ作成
 	#-------------------------------------------------------------
-	my $dir  = $option->{export_dir};
-	my $dir_ = $ROBJ->get_filepath($dir);
+	my $dir = $option->{export_dir};
 
 	$ROBJ->mkdir($dir);
-	if (!-w $dir_) {
+	if (!-w $dir) {
 		$session->msg("Can not create '$dir' or not writeble!");
 		return;
 	}
@@ -56,7 +55,7 @@ sub export {
 				next;
 			}
 
-			my $f_   = "$dir_$_";
+			my $f_   = "$dir$_";
 			my $file = $ROBJ->fs_decode( $_ );
 			if (-d $f_) {
 				$session->msg("\tdelete dir: $file");
@@ -138,7 +137,7 @@ sub export {
 	$ROBJ->exec($option->{init}, $session, $option);
 
 	my $sphinx  = $ROBJ->{Auth}->{isadmin} && $aobj->{special_export} && $option->{sphinx};
-	my $conf_py = $ROBJ->get_filepath($dir . $option->{init_check});
+	my $conf_py = $dir . $option->{init_check};
 	if ($sphinx) {
 		if (!-r $conf_py) {
 			$session->msg("Not Found: conf.py");

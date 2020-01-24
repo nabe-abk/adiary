@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.42';
+our $VERSION = '2.50';
 our $RELOAD;
 my %StatCache;
 #------------------------------------------------------------------------------
@@ -78,15 +78,12 @@ sub new {
 	# STAT cache init
 	$self->init_stat_cache();
 
-	# mod_perl初期化, get_filepath() 有効化
-	if ($ENV{MOD_PERL}) { $self->init_for_mod_perl(); }
-
 	#-------------------------------------------------------------
 	# スケルトンキャッシュ関連
 	#-------------------------------------------------------------
 	$self->{Compiler_tm} = $self->get_lastmodified( 'lib/Satsuki/Base/Compiler.pm' );
 
-	my $cache_dir = $self->get_filepath( $ENV{SatsukiCacheDir} || $SYSTEM_CACHE_DIR );
+	my $cache_dir = $ENV{SatsukiCacheDir} || $SYSTEM_CACHE_DIR;
 	if (-d $cache_dir && -w $cache_dir) {
 		$self->{__cache_dir} = $cache_dir;
 	}
@@ -412,11 +409,10 @@ sub execute {
 #------------------------------------------------------------------------------
 my %SkelCache;
 sub __call {
-	my $self         = shift;
-	my $src_file_org = shift;
-	my $skel_name    = shift;
+	my $self      = shift;
+	my $src_file  = shift;
+	my $skel_name = shift;
 
-	my $src_file = $self->get_filepath($src_file_org);
 	my $cache_file;
 	if ($self->{__cache_dir}) {
 		my $f = $src_file;
@@ -458,7 +454,7 @@ sub __call {
 	#------------------------------------------------------------
 	if (! $skel) {
 		$skel = {
-			arybuf => $self->compile($cache_file, $src_file_org, $src_file, $src_tm),
+			arybuf => $self->compile($cache_file, $src_file, $src_file, $src_tm),
 			src_tm => $src_tm,
 			compiler_tm => $self->{Compiler_tm}
 		};
@@ -490,7 +486,7 @@ sub __call {
 	my $c = $self->{__cont_level};
 	local ($self->{argv}, $self->{__src_file}, $self->{__skeleton}, $self->{Nest_count_base});
 	$self->{argv}            = \@_;
-	$self->{__src_file}      = $src_file_org;
+	$self->{__src_file}      = $src_file;
 	$self->{__skeleton}      = $skel_name;
 	$self->{Nest_count_base} = $self->{Nest_count};
 	return $self->execute( $arybuf->[0] );
@@ -609,7 +605,7 @@ sub jump {
 	my $self = shift;
 	my $file = shift;
 	$file =~ s/[^\w\/]//g;
-	my ($jump_file, $dummy, $skel_level) = $self->check_skeleton($file);
+	my ($jump_file, $skel_level) = $self->check_skeleton($file);
 
 	$self->{Break} ||= 1;
 	if ($jump_file eq '') {	# not Found
@@ -640,7 +636,7 @@ sub continue {
 	my $file = $self->{__skeleton};
 	if ($self->{__cont_level}<0) { die "Can't continue($self->{__cont_level})."; }
 
-	my ($jump_file, $dummy, $skel_level) = $self->check_skeleton($file, $self->{__cont_level});
+	my ($jump_file, $skel_level) = $self->check_skeleton($file, $self->{__cont_level});
 	$self->{Jump_file}    = $jump_file;
 	$self->{Jump_skeleton}= $file;
 	$self->{Break}        = 1;
@@ -655,7 +651,7 @@ sub call {
 	my $self = shift;
 	my $name = shift;
 
-	my ($call_file, $dummy, $skel_level) = $self->check_skeleton($name);
+	my ($call_file, $skel_level) = $self->check_skeleton($name);
 	if (!$call_file) { return; }
 	local ($self->{FILE}) = $name;
 	local ($self->{__cont_level});
@@ -725,8 +721,8 @@ sub check_skeleton {
 	foreach(@{ $self->{Sekeleton_dir_levels} }) {
 		if ($_>$level) { next; }
 		my $file = $dirs->{$_} . $name;
-		if (-r (my $x = $self->get_filepath($file))) {
-			return wantarray ? ($file, $x, $_): $file;
+		if (-r $file) {
+			return wantarray ? ($file, $_): $file;
 		}
 	}
 	return;		# error
@@ -1004,15 +1000,10 @@ sub export_debug {
 # ■ファイル入力
 ###############################################################################
 #------------------------------------------------------------------------------
-# ●ファイルパスの取得
+# ●ファイルパスの取得（互換性のため）
 #------------------------------------------------------------------------------
 sub get_filepath {
 	return $_[1];
-}
-sub get_filepath_modperl {
-	my ($self, $file) = @_;
-	if ($file eq '' || substr($file, 0, 1) eq '/') { return $file; }
-	return $self->{WD} . $file;
 }
 
 #------------------------------------------------------------------------------
@@ -1024,11 +1015,10 @@ sub fread_lines_no_error {
 }
 sub fread_lines {
 	my ($self, $file, $flags) = @_;
-	my $_file = $self->get_filepath($file);
 
 	my $fh;
 	my @lines;
-	if ( !sysopen($fh, $_file, O_RDONLY) ) {
+	if ( !sysopen($fh, $file, O_RDONLY) ) {
 		if ($flags->{NoError}) {
 			$self->warning("File can't read '%s'", $file);
 		} else {
@@ -1139,7 +1129,7 @@ sub flock {
 #------------------------------------------------------------------------------
 sub get_lastmodified {
 	my $self = shift;
-	my $file = $self->get_filepath(shift);
+	my $file = shift;
 
 	if (!-r $file) { return ; }	# 読み込めない。存在しないファイル
 	my $st = $StatCache{$file} ||= [ stat($file) ];
@@ -1151,7 +1141,6 @@ sub get_lastmodified {
 #------------------------------------------------------------------------------
 sub get_lastmodified_in_dir {
 	my ($self, $dir) = @_;
-	$dir = $self->get_filepath($dir);
 
 	opendir(my $fh, $dir) || return ;
 	my $max = (stat("$dir")) [9];
@@ -1172,8 +1161,7 @@ my %FileCache;
 # ●キャッシュ付きファイルRead
 #------------------------------------------------------------------------------
 sub fread_lines_cached {
-	my ($self, $_file, $flags) = @_;
-	my $file = $self->get_filepath($_file);
+	my ($self, $file, $flags) = @_;
 
 	my $cache = $FileCache{$file} ||= {};
 	my $key   = join('//',$flags->{PostProcessor},$flags->{DelCR});
@@ -1212,7 +1200,7 @@ sub fread_hash_cached {
 #------------------------------------------------------------------------------
 sub delete_file_cache {
 	my $self = shift;
-	my $file = $self->get_filepath(shift);
+	my $file = shift;
 
 	delete $StatCache{$file};
 	$FileCache{$file} = {};
@@ -1226,7 +1214,7 @@ sub delete_file_cache {
 #------------------------------------------------------------------------------
 sub touch {
 	my $self = shift;
-	my $file = $self->get_filepath($_[0]);
+	my $file = shift;
 	if (!-e $file) { $self->fwrite_lines($file, []); return; }
 	my ($now) = $self->{TM};
 	utime($now, $now, $file);
@@ -1247,9 +1235,9 @@ sub touch {
 
 sub search_files {
 	my $self = shift;
-	my ($dir, $opt) = @_;
-	$dir = $self->get_filepath($dir);
-	
+	my $dir  = shift;
+	my $opt  = shift;
+
 	opendir(my $fh, $dir) || return [];
 	my $ext = $opt->{ext};
 	if (ref($ext) eq  'ARRAY') {
@@ -1274,7 +1262,7 @@ sub search_files {
 }
 
 #------------------------------------------------------------------------------
-# ●指定ディレクトリからの相対パスを得る
+# ●ファイルパスから相対パスを得る
 #------------------------------------------------------------------------------
 sub get_relative_path {
 	my ($self, $base, $file) = @_;

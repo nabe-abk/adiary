@@ -418,7 +418,7 @@ sub remake_theme_custom_css {
 	my $ROBJ  = $self->{ROBJ};
 	if (!$theme) { return 0; }
 
-	my $file = $ROBJ->get_filepath( $self->get_theme_custom_css($theme) );
+	my $file = $self->get_theme_custom_css($theme);
 	if (!-r $file) { return 0; }	# カスタムファイルが無い
 
 	# 再度書き換える

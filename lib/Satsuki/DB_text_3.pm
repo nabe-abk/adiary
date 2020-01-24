@@ -58,7 +58,7 @@ sub create_table {
 		}
 	}
 
-	my $dir = $ROBJ->get_filepath( $self->{dir} . $table . '/' );
+	my $dir = $self->{dir} . $table . '/';
 	if (!-e $dir) {
 		if ($ROBJ->mkdir($dir) ) { $self->error("mkdir '$dir' error : $!"); }
 	}
@@ -127,7 +127,7 @@ sub index_rebuild {
 	my $ROBJ = $self->{ROBJ};
 	$table =~ s/\W//g;
 
-	my $dir = $ROBJ->get_filepath( $self->{dir} . $table . '/' );
+	my $dir = $self->{dir} . $table . '/';
 	my $index_backup_file = $dir . $self->{index_backup_file};
 	if (!-r $index_backup_file) { return 1; }
 

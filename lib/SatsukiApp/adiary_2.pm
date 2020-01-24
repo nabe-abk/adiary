@@ -619,7 +619,7 @@ sub get_main_image_size {
 	$file =~ s|^/+||g;
 	$file =~ s|\.+/||g;
 
-	$im->Read( $ROBJ->get_filepath( $self->blogimg_dir() . $file ) );
+	$im->Read( $self->blogimg_dir() . $file );
 	my ($w, $h) = $im->Get('width', 'height');
 
 	$art->{main_image_w} = $w;
