@@ -41,7 +41,7 @@ sub init_for_httpd {
 
 	$self->{Initialized_path} = 1;
 	$self->{Basepath}     = $path;
-	$self->{Mod_rewrite}  = 1;
+	$self->{mod_rewrite}  = 1;
 
 	$self->{myself}  = $path;
 	$self->{myself2} = $path;

@@ -79,7 +79,7 @@
 </div>
 </article>
 
-<@ifexec(Auth.isadmin && !Mod_rewrite && ENV.SERVER_SOFTWARE eq 'Apache' && 0<index(myself2, '.cgi'), begin)>
+<@ifexec(Auth.isadmin && !mod_rewrite && ENV.SERVER_SOFTWARE eq 'Apache' && 0<index(myself2, '.cgi'), begin)>
 <article class="system adiary-hint">
 <h2>利用のヒント</h2>
 <div class="body">

@@ -180,9 +180,9 @@ sub init_path {
 	if ($self->{Initialized_path} || !$ENV{REQUEST_URI}) { return; }
 
 	# ModRewrite flag
-	my $rewrite = $self->{Mod_rewrite} ||= $ENV{Mod_rewrite};
+	my $rewrite = $self->{mod_rewrite} ||= $ENV{mod_rewrite};
 	if (!defined $rewrite && exists $ENV{REDIRECT_URL} && $ENV{REDIRECT_STATUS}==200) {
-		$self->{Mod_rewrite} = $rewrite = 1;
+		$self->{mod_rewrite} = $rewrite = 1;
 	}
 
 	# cgiファイル名、ディレクトリ設定

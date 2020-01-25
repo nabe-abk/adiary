@@ -17,7 +17,7 @@
 		<li><label><input type="checkbox" name="static:format"  value="1">出力ディレクトリ内を初期化する</label></li>
 		<li><label><input type="checkbox" name="static:nocom"   value="1" checked>コメント欄を表示しない</label></li>
 		<li><label><input type="checkbox" name="static:artlist" value="1">記事一覧を出力する（年月別を含む）</label></li>
-		<@ifexec(Mod_rewrite, begin)>
+		<@ifexec(mod_rewrite, begin)>
 		<li><label><input type="checkbox" name="static:htaccess" value="1">.htaccessを生成する</label><span class="help" data-help="mod_rewrite を無効化する .htaccess を生成します。サーバの設定によってエラーになることがあります。">?</span></li>
 		<$end>
 		<@ifexec(!s.theme_custom, begin)>
