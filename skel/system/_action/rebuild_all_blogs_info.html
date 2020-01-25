@@ -6,8 +6,8 @@
 
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
-	<$v.update_sysdat('myself',  Myself)>
-	<$v.update_sysdat('myself2', Myself2)>
+	<$v.update_sysdat('myself',  myself)>
+	<$v.update_sysdat('myself2', myself2)>
 
 	<$message('付加情報を再生成しました')>
 	<$url = v.myself .'?'. v.query0>

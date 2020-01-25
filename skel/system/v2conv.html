@@ -7,7 +7,7 @@
 <$v.system_mode("Version2からの移行")>
 
 <@> 管理者確認
-<$ifredirect(! Auth.isadmin, Myself)>
+<$ifredirect(! Auth.isadmin, myself)>
 <$ifjump_clear(! v.v2conf, '_sub/error_message', '<$v.v2conf> が設定されていません。')>
 
 <@> 設定ロード

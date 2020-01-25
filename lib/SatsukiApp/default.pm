@@ -63,7 +63,7 @@ sub output_html {
 	if ($skeleton ne '') {
 		my $file = $ROBJ->check_skeleton($skeleton);
 		if (! defined $file) {
-			$ROBJ->redirect( $ROBJ->{Myself} );
+			$ROBJ->redirect( $ROBJ->{myself} );
 		}
 	}
 

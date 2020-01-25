@@ -43,8 +43,8 @@ sub init_for_httpd {
 	$self->{Basepath}     = $path;
 	$self->{Mod_rewrite}  = 1;
 
-	$self->{Myself}  = $path;
-	$self->{Myself2} = $path;
+	$self->{myself}  = $path;
+	$self->{myself2} = $path;
 
 	my $port = int($ENV{SERVER_PORT});
 	my $protocol = ($port == 443) ? 'https://' : 'http://';

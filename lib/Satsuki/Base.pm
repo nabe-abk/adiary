@@ -214,15 +214,15 @@ sub init_path {
 	$ENV{PATH_INFO} = substr($request, ($rewrite ? length($basepath)-1 : length($script)) );
 
 	# 自分自身（スクリプト）にアクセスする URL/path
-	if (!exists $self->{Myself}) {
+	if (!exists $self->{myself}) {
 		if ($rewrite) {
-			$self->{Myself}  = $self->{Myself2} = $basepath;
+			$self->{myself}  = $self->{myself2} = $basepath;
 		} elsif (index($request, $script) == 0) {	# 通常のcgi
-			$self->{Myself}  = $script;
-			$self->{Myself2} = $script . '/';	# PATH_INFO用
+			$self->{myself}  = $script;
+			$self->{myself2} = $script . '/';	# PATH_INFO用
 		} else {	# cgi が DirectoryIndex
-			$self->{Myself}  = $basepath;
-			$self->{Myself2} = $script . '/';	# PATH_INFO用
+			$self->{myself}  = $basepath;
+			$self->{myself2} = $script . '/';	# PATH_INFO用
 		}
 	}
 

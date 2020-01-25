@@ -236,8 +236,8 @@ sub blogid_and_pinfo {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my $myself  = $ROBJ->{Myself};
-	my $myself2 = $ROBJ->{Myself2};
+	my $myself  = $ROBJ->{myself};
+	my $myself2 = $ROBJ->{myself2};
 	my @pinfo   = @{ $ROBJ->read_path_info() };	# PATH_INFO
 
 	# URLなど基本設定
@@ -499,8 +499,8 @@ sub set_and_select_blog {
 
 	# myself設定
 	$self->{server_url} = $ROBJ->{Server_url};
-	$self->{myself}     = $ROBJ->{Myself};
-	$self->{myself2}    = $ROBJ->{Myself2};
+	$self->{myself}     = $ROBJ->{myself};
+	$self->{myself2}    = $ROBJ->{myself2};
 
 	# 内部変数初期化
 	$self->{blogid} = undef;
@@ -540,8 +540,8 @@ sub set_and_select_blog {
 		$self->{myself}  = '/';
 		$self->{myself2} = '/';	
 	} elsif ($blogid ne $self->{sys}->{default_blogid}) {
-		$self->{myself}  = $ROBJ->{Myself2} . "$blogid/";
-		$self->{myself2} = $ROBJ->{Myself2} . "$blogid/";
+		$self->{myself}  = $ROBJ->{myself2} . "$blogid/";
+		$self->{myself2} = $ROBJ->{myself2} . "$blogid/";
 	}
 
 	# ブログ個別スケルトンの登録（プラグイン等で生成される）
@@ -1605,7 +1605,7 @@ sub get_blog_path {
 		my $url = $self->{subdomain_proto} . "$blogid\.$self->{subdomain_mode}";
 		return $ROBJ->{Server_url} eq $url ? '/' : "$url/";
 	}
-	my $myself2 = $ROBJ->{Myself2};
+	my $myself2 = $ROBJ->{myself2};
 	return ($blogid eq $self->{sys}->{default_blogid}) ? $myself2
 		: $myself2 . $blogid . '/';
 }

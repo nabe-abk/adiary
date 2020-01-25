@@ -13,7 +13,7 @@ POST成功時の処理
 	<$url = v.myself3 . '?set/'>
 	<$ifexec(Auth.isadmin && Form.default_blog, begin)>
 		<$call('_sub/set_default_blog', Auth.id)>
-		<$url = Myself . '?set/')>
+		<$url = myself . '?set/')>
 	<$end>
 	<$jump('_sub/reload_message', url)>
 <$end>

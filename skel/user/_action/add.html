@@ -19,5 +19,5 @@ POST成功時の処理
 	<$ifexec(Auth.auto, begin)>
 		<$message('今追加したアカウントでログインしてください')>
 	<$end>
-	<$jump('_sub/reload_message', if(Auth.auto, "<@Myself>?login&amp;id=<@id>", url))>
+	<$jump('_sub/reload_message', if(Auth.auto, "<@myself>?login&amp;id=<@id>", url))>
 <$end>

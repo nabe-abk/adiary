@@ -14,5 +14,5 @@
 POST成功時の処理
 <$ifexec(action_return eq '0', begin)>
 	<$message('ブログを削除しました')>
-	<$jump('_sub/reload_message', Myself)>
+	<$jump('_sub/reload_message', myself)>
 <$end>

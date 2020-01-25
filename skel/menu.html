@@ -6,12 +6,12 @@
 <$v.system_mode("管理メニュー")>
 
 <@ifexec(!v.sys.myself, begin)>
-	<$v.update_sysdat('myself',  Myself)>
-	<$v.update_sysdat('myself2', Myself2)>
+	<$v.update_sysdat('myself',  myself)>
+	<$v.update_sysdat('myself2', myself2)>
 <$end>
 
 <@> Version2からの移行処理
-<$ifredirect(Auth.isadmin && !Develop && v.v2conf,  Myself . '?system/v2conv')>
+<$ifredirect(Auth.isadmin && !Develop && v.v2conf,  myself . '?system/v2conv')>
 
 <@> 階層ツリー
 <@call("_sub/menu_tree")>
@@ -23,17 +23,17 @@
 <h2><@v.title></h2>
 <div class="body">
 	<@ifexec(v.v2conf, begin)>
-		<p><a href="<@Myself>?system/v2conv">Version2からの移行ツール</a></p>
+		<p><a href="<@myself>?system/v2conv">Version2からの移行ツール</a></p>
 	<$end>
 	<@ifexec(Auth.auto, begin)>
-		<p><a href="<@Myself>?user/add">最初のユーザーを追加してください</a></p>
+		<p><a href="<@myself>?user/add">最初のユーザーを追加してください</a></p>
 	<$end>
 
 <@ifexec(!v.v2conf && !Auth.auto, begin)>
 	<@ifexec(Auth.isadmin && v.require_update, begin)>
 		<p><strong class="warning">すぐに<a href="<@v.myself>?system/update">アップデート処理</a>を実行してください。</strong></p>
 	<$end>
-	<@ifexec(Auth.isadmin && (v.sys.myself ne Myself || v.sys.myself2 ne Myself2), begin)>
+	<@ifexec(Auth.isadmin && (v.sys.myself ne myself || v.sys.myself2 ne myself2), begin)>
 		<p><a href="<@v.myself>?system/update">付加情報の再生成</a>が必要です。</p>
 	<$end>
 
@@ -43,7 +43,7 @@
 
 	<@ifexec(!v.exists_my_blog && (!v.sys.create_blog_only_admin || Auth.isadmin), begin)>
 	<ul class="menu">
-		<li><a href="<@Myself>?etc/myblog_create">自分のブログを作成</a></li>
+		<li><a href="<@myself>?etc/myblog_create">自分のブログを作成</a></li>
 	</ul>
 	<$end>
 	<@ifexec(v.others_blog && v.exists_my_blog, begin)>
@@ -79,7 +79,7 @@
 </div>
 </article>
 
-<@ifexec(Auth.isadmin && !Mod_rewrite && ENV.SERVER_SOFTWARE eq 'Apache' && 0<index(Myself2, '.cgi'), begin)>
+<@ifexec(Auth.isadmin && !Mod_rewrite && ENV.SERVER_SOFTWARE eq 'Apache' && 0<index(myself2, '.cgi'), begin)>
 <article class="system adiary-hint">
 <h2>利用のヒント</h2>
 <div class="body">

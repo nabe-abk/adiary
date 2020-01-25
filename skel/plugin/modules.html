@@ -48,7 +48,7 @@
 		</div>
 		<div>
 			<@ifexec(t.readme, begin)>
-			<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@Myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>
+			<button type="button" class="js-info" data-class="pre" data-title="<@t.name>のREADME" data-url="<@myself>?<@v.skel_dir>plugin_readme&amp;name=<@t.name>">README</button>
 			<$end>
 			<@ifexec(t.files, begin)>
 			<a href="javascript:void(0)" class="js-info" data-class="pre" data-title="<@t.name>のファイル一覧" data-info="<@t.files>">ファイル一覧</a>
