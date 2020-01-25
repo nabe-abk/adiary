@@ -1269,7 +1269,7 @@ sub import_img {
 	$self->init_image_dir();
 	my $dir  = $self->image_folder_to_dir_and_create( $folder );
 
-	my $blogimg_url = $ROBJ->{Server_url} . $ROBJ->{Basepath} . $self->blogimg_dir();
+	my $blogimg_url = $ROBJ->{ServerURL} . $ROBJ->{Basepath} . $self->blogimg_dir();
 
 	my $msg = '';
 	my $http = $ROBJ->loadpm("Base::HTTP");

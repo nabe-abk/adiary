@@ -227,12 +227,12 @@ sub init_path {
 	}
 
 	# プロトコル判別
-	if (!$self->{Server_url}) {
+	if (!$self->{ServerURL}) {
 		my $port = int($ENV{SERVER_PORT});
 		my $protocol = ($port == 443) ? 'https://' : 'http://';
-		$self->{Server_url} = $protocol . $ENV{SERVER_NAME} . (($port != 80 && $port != 443) ? ":$port" : '');
+		$self->{ServerURL} = $protocol . $ENV{SERVER_NAME} . (($port != 80 && $port != 443) ? ":$port" : '');
 	} else {
-		substr($self->{Server_url},-1) eq '/' && chop($self->{Server_url});
+		substr($self->{ServerURL},-1) eq '/' && chop($self->{ServerURL});
 	}
 
 	# copyright

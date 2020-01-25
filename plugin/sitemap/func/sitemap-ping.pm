@@ -13,7 +13,7 @@ sub {
 
 	my $urls = $plg->{urls_txt} || 'http://google.com/ping?sitemap=';
 	my @url  = split(/\n/, $urls);
-	my $sitemap  = $ROBJ->{Server_url} . $self->{myself} . '?sitemap';
+	my $sitemap  = $ROBJ->{ServerURL} . $self->{myself} . '?sitemap';
 	$ROBJ->encode_uricom($sitemap);
 
 	my $http = $ROBJ->loadpm('Base::HTTP');

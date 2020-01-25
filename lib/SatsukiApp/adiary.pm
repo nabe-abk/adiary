@@ -7,8 +7,8 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION    = 3.34;
-our $OUTVERSION = '3.40';
+our $VERSION    = 3.50;
+our $OUTVERSION = '3.50';
 our $SUBVERSION = '-dev';	# ex) a, b, -beta, -dev
 our $DATA_VERSION = 3.34;
 ###############################################################################
@@ -137,7 +137,7 @@ sub main {
 	# Cookieログイン処理
 	$self->authorization();
 
-	# Server_urlのセキィリティを確保
+	# ServerURLのセキィリティを確保
 	$self->secure_http_host();
 
 	# pinfoとブログの選択。テーマ選択
@@ -218,13 +218,13 @@ sub secure_http_host {
 
 	if ($self->{subdomain_mode}) { return; }
 
-	my $srv  = $ROBJ->{Server_url};
+	my $srv  = $ROBJ->{ServerURL};
 	my $save = $self->{sys}->{ServerURL};
 
 	if (!$ROBJ->{Auth}->{isadmin}) {
-		$ROBJ->{Server_url} = $save || $srv;
+		$ROBJ->{ServerURL} = $save || $srv;
 	} elsif ($srv ne $save) {
-		# 管理者ログイン時の Server_url を保存しておく
+		# 管理者ログイン時の ServerURL を保存しておく
 		$self->update_sysdat('ServerURL', $srv);
 	}
 }
@@ -498,7 +498,6 @@ sub set_and_select_blog {
 	if (!$force && $blogid ne '' && $self->{blogid} eq $blogid) { return $self->{blog}; }
 
 	# myself設定
-	$self->{server_url} = $ROBJ->{Server_url};
 	$self->{myself}     = $ROBJ->{myself};
 	$self->{myself2}    = $ROBJ->{myself2};
 
@@ -533,10 +532,8 @@ sub set_and_select_blog {
 	$self->{blog}   = $blog;
 	$self->{blog_dir}    = $self->blog_dir();
 	$self->{blogpub_dir} = $self->blogpub_dir();
-
 	# myself(通常用,QUERY用)、myself2(PATH_INFO用) の設定
 	if ($self->{subdomain_mode}) {
-		$self->{server_url} = $self->{subdomain_proto} . $blogid . '.' . $self->{subdomain_mode};
 		$self->{myself}  = '/';
 		$self->{myself2} = '/';	
 	} elsif ($blogid ne $self->{sys}->{default_blogid}) {
@@ -1603,7 +1600,7 @@ sub get_blog_path {
 	$blogid =~ s/[^\w\-]//g;
 	if ($self->{subdomain_mode}) {
 		my $url = $self->{subdomain_proto} . "$blogid\.$self->{subdomain_mode}";
-		return $ROBJ->{Server_url} eq $url ? '/' : "$url/";
+		return $ROBJ->{ServerURL} eq $url ? '/' : "$url/";
 	}
 	my $myself2 = $ROBJ->{myself2};
 	return ($blogid eq $self->{sys}->{default_blogid}) ? $myself2

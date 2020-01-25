@@ -1,6 +1,6 @@
 ######################################################################
 title=WebPush
-version=1.10
+version=1.11
 #					(C)2017 nabe@abk
 ######################################################################
 description=登録した人にWebPushで更新を通知します
@@ -9,7 +9,7 @@ url=https://twitter.com/nabe_abk
 license=AGPLv3
 
 # 対応するadiary Version
-adiary_version=3.14
+adiary_version=3.50
 
 *require=<<LIBS
 CryptX

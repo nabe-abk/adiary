@@ -30,7 +30,7 @@
 		"dateModified": "<@w3c_date(art.update_tm)>",
 		"mainEntityOfPage": {
 			"@type": "WebPage",
-			"@id": "<@Server_url><@v.myself>"
+			"@id": "<@ServerURL><@v.myself>"
 		},
 		"publisher": {
 			"@type": "Organization",
@@ -42,7 +42,7 @@
 				"height": "<@v.load_plgset('amp', 'logo_height')>"
 			}
 		},
-		"image": {<$img=v.get_main_image_size(art)><$img = if(img, "<@Server_url><@Basepath>" . v.blogimg_dir() . img)>
+		"image": {<$img=v.get_main_image_size(art)><$img = if(img, "<@ServerURL><@Basepath>" . v.blogimg_dir() . img)>
 			"@type": "ImageObject",
 			"url": "<@img || logo>",
 			"width": "<@ art.main_image_w || v.load_plgset('amp', 'logo_width' )>",

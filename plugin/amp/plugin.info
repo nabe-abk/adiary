@@ -1,6 +1,6 @@
 ######################################################################
 title=AMP
-version=1.01
+version=1.02
 #					(C)2017-2019 nabe@abk
 ######################################################################
 description=サイトをGoogle AMP(Accelerated Mobile Pages)に対応させます
@@ -9,7 +9,7 @@ url=https://twitter.com/nabe_abk
 license=WTFPL
 
 # 対応するadiary Version
-adiary_version=3.09
+adiary_version=3.50
 
 *files=<<FILES
 func/<@this>.pm

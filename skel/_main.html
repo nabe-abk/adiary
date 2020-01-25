@@ -218,7 +218,7 @@
 <div id="articles">
 <@forexec(t, logs, begin)>
 <$permalink = if(t.link_key eq s.frontpage, v.myself, "<@v.myself2><@t.elink_key>")>
-<$url=v.server_url . permalink>
+<$url=ServerURL . permalink>
 <$encode_uricom(url)>
 <!--========================================================================-->
 <article id="art-<@t.pkey>" class="article<@if(t.priority, " wiki")><@if(t.ctype, " art-<@t.ctype>")>">

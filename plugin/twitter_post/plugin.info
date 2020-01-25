@@ -1,6 +1,6 @@
 ######################################################################
 title=Twitter通知
-version=1.10
+version=1.11
 #					(C)2015 nabe@abk
 ######################################################################
 description=記事投稿時にTwitterにお知らせツイートをします
@@ -9,7 +9,7 @@ url=https://twitter.com/nabe_abk
 license=WTFPL
 
 # 対応するadiary Version
-adiary_version=3.14
+adiary_version=3.50
 
 *files=<<FILES
 skel/twitter/_action/oauth.html

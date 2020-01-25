@@ -430,7 +430,7 @@ sub url_filter {
 	my $abs_uri  = (exists $allow->{_absolute_uri});
 	my $abs_path = (exists $allow->{_absolute_path}) || $abs_uri;
 	my $basepath = $ROBJ->{Basepath};
-	my $server   = $ROBJ->{Server_url};
+	my $server   = $ROBJ->{ServerURL};
 
 	# 書き換えの必要なし
 	if (!$wrapper && !$abs_uri && !$abs_path) { return; }

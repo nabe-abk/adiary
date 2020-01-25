@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.40 : 2020/xx/xx
+*Ver3.50 : 2020/xx/xx
 
 -SpeedyCGI用の起動スクリプトを削除しました。
 -mod_perl対応コードを削除しました。

@@ -310,7 +310,7 @@ $mop->{webpush} = sub {
 	if ($VAPID) {
 		my $info = '{"typ":"JWT", "alg":"ES256"}';
 		my $data = {
-			sub => $ROBJ->{Server_url} . $self->{aobj}->{myself},
+			sub => $ROBJ->{ServerURL} . $self->{aobj}->{myself},
 			exp => time() + (85800 < $TTL ? 85800 : $TTL)
 		};
 		if ($url =~ m|^(\w+://[^/]*)|) {

@@ -16,7 +16,7 @@ my $name;
 	$self->{aobj} = $aobj;
 	$self->{this_tm} = $ROBJ->get_lastmodified($aobj->{call_file});
 
-	$self->{trans_png} = $ROBJ->{Server_url} . $ROBJ->{Basepath} . $aobj->{pubdist_dir} . 'trans.png';
+	$self->{trans_png} = $ROBJ->{ServerURL} . $ROBJ->{Basepath} . $aobj->{pubdist_dir} . 'trans.png';
 	$mop = $self;
 }
 
@@ -30,7 +30,7 @@ $mop->{get_logo} = sub {
 	my $blog = $aobj->{blog};
 
 	my $file = $blog->{blog_image} || $aobj->{pubdist_dir} . 'default-logo.png';
-	my $url  = $ROBJ->{Server_url} . $ROBJ->{Basepath} . $file;
+	my $url  = $ROBJ->{ServerURL} . $ROBJ->{Basepath} . $file;
 
 	my $tm = $ROBJ->get_lastmodified( $file );
 	if ($tm == $aobj->load_plgset('amp', 'logo_tm')) {
@@ -422,7 +422,7 @@ $mop->{filter_source} = sub {
 	if ($url !~ m|^//|i) {
 		$url =~ s|^https?:||i;
 		if (substr($url,0,2) ne '//') {
-			$url = $ROBJ->{Server_url} . $url;
+			$url = $ROBJ->{ServerURL} . $url;
 			$url =~ s|^https?:||i;
 		}
 		$at->{src} = $url;
@@ -540,7 +540,7 @@ $mop->{get_image_size} = sub {
 	my $file = substr($url, $base_len);
 	if (substr($url, 0, $base_len) ne $basepath) {
 		if (substr($url,0,2) eq '//') { $url = 'http:' . $url; }
-		if (substr($url,0,1) eq '/')  { $url = $ROBJ->{Server_url} . $url; }
+		if (substr($url,0,1) eq '/')  { $url = $ROBJ->{ServerURL} . $url; }
 
 		if ($url !~ m|^https?://|i) { return; }
 

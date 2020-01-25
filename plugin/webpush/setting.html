@@ -2,7 +2,7 @@
 <@local(ps,x)>
 <$ps=argv#0>
 
-	<@ifexec(index(Server_url, 'https://') != 0, begin)>
+	<@ifexec(index(ServerURL, 'https://') != 0, begin)>
 	<p class="ni"><strong class="warning">※https接続以外では、ブラウザ側でWebPushが有効になりません。</strong></p>
 	<$end>
 	<table class="blog-setting">
@@ -55,7 +55,7 @@
 		<td>
 			<textarea name="ping_now_txt" id="ping-now-txt" class="w400" rows="2"></textarea>
 			URL<span class="help" data-help="通知をクリックした時に開くURLです。">?</span>
-			 <input name="url" id="url" type="url" class="w320" value="<@Server_url><@v.myself>">
+			 <input name="url" id="url" type="url" class="w320" value="<@ServerURL><@v.myself>">
 		</td>
 	</tr>
 	<$end>

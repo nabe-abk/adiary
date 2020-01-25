@@ -48,10 +48,10 @@ HTML
 	<li class="to-print"><a href="<\@v.myself2><\@esc(v.pinfo)>?<\@if(v.query0,  #'<\@v.query0>&amp;')><\@make_query_amp('_theme=satsuki2/$ptheme')>" rel="nofollow" target="_blank">印刷用の表示</a></li>
 HTML
 	$modules{bcounter} = <<'HTML';
-	<li class="bcounter icons"><a class="bcounter" href="https://b.hatena.ne.jp/entrylist?url=<@v.server_url><@v.myself>"><img alt="はてブカウンタ" src="//b.hatena.ne.jp/bc/<#val>/<@v.server_url><@v.myself>" class="bcounter"></a></li>
+	<li class="bcounter icons"><a class="bcounter" href="https://b.hatena.ne.jp/entrylist?url=<@ServerURL><@v.myself>"><img alt="はてブカウンタ" src="//b.hatena.ne.jp/bc/<#val>/<@ServerURL><@v.myself>" class="bcounter"></a></li>
 HTML
 	$modules{bicon} = <<'HTML';
-	<li class="http-bookmark icons"><a class="http-bookmark" href="https://b.hatena.ne.jp/entry/<@v.server_url><@v.myself>"><img src="//b.st-hatena.com/entry/image/<@v.server_url><@v.myself>" alt="はてブ数"></a></li>
+	<li class="http-bookmark icons"><a class="http-bookmark" href="https://b.hatena.ne.jp/entry/<@ServerURL><@v.myself>"><img src="//b.st-hatena.com/entry/image/<@ServerURL><@v.myself>" alt="はてブ数"></a></li>
 HTML
 	$modules{rssicon} = <<'HTML';
 	<li class="rss-icon icons">

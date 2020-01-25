@@ -234,7 +234,7 @@ sub edit_article {
 	# 後処理
 	#----------------------------------------------------------------------
 	$art->{elink_key} = $elink_key;
-	$art->{absolute_url}  = $self->{server_url} . $self->{myself2} . $elink_key;
+	$art->{absolute_url}  = $ROBJ->{ServerURL} . $self->{myself2} . $elink_key;
 	$art->{first_visible} = $opt{first_visible};
 
 	# イベント呼び出しと固定の後処理
@@ -648,8 +648,8 @@ sub send_update_ping {
 	# 更新通知情報
 	my %ping;
 	$ping{blog_name} = $blog->{blog_name};	# blogタイトル
-	$ping{url}       = $self->{server_url} . $self->{myself};
-	$ping{rssurl}    = $self->{server_url} . $ROBJ->{Basepath} . $self->{blogpub_dir} . $self->load_rss_files()->[0];
+	$ping{url}       = $ROBJ->{ServerURL} . $self->{myself};
+	$ping{rssurl}    = $ROBJ->{ServerURL} . $ROBJ->{Basepath} . $self->{blogpub_dir} . $self->load_rss_files()->[0];
 	$ping{art_title} = $art->{title};
 
 	# see http://www.xmlrpc.com/weblogsCom

@@ -14,7 +14,7 @@
 <$(logs, h) = v.load_arts_for_rss( opt )>
 <channel>
 	<title><@ifdef(opt.title, opt.title, s.blog_name)></title>
-	<link><@v.server_url><@v.myself></link>
+	<link><@ServerURL><@v.myself></link>
 	<language>ja</language>
 	<description><@esc_xml(s.description_txt)></description>
 	<copyright>Copyright <@Now.year></copyright>
@@ -23,7 +23,7 @@
 	<generator>https://adiary.org/#<@v.VERSION></generator>
 	<docs>http://blogs.law.harvard.edu/tech/rss</docs> 
 <@forexec(t, logs, begin)>
-	<$url = v.server_url . v.myself2 . t.elink_key>
+	<$url = ServerURL . v.myself2 . t.elink_key>
 	<item>
 		<title><@t.title></title>
 		<link><@url>#rss-tm<@t.update_tm></link>

@@ -1,13 +1,13 @@
 ######################################################################
 title=ブログの基本情報
-version=1.01
+version=1.02
 #					(C)2013 nabe@abk
 ######################################################################
 author=nabe@abk
 url=https://twitter.com/nabe_abk
 license=WTFPL
 
-adiary_version=3.30
+adiary_version=3.50
 module_type=sidebar
 load_module_html_in_edit=1
 

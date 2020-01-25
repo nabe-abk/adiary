@@ -8,7 +8,7 @@
 		<th>サイトマップURL</th>
 		<td>
 		<@ifexec(v.check_installed_plugin(name), begin, begin)>
-			<a href="<@Server_url><@v.myself>?sitemap"><@Server_url><@v.myself>?sitemap</a>
+			<a href="<@ServerURL><@v.myself>?sitemap"><@ServerURL><@v.myself>?sitemap</a>
 		<$else>
 			インストール後に表示されます
 		<$end>
