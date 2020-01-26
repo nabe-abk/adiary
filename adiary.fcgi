@@ -3,9 +3,9 @@ use 5.8.1;
 use strict;
 #-------------------------------------------------------------------------------
 # Satsuki system - Startup routine (for FastCGI)
-#						Copyright (C)2005-2018 nabe@abk
+#						Copyright (C)2005-2020 nabe@abk
 #-------------------------------------------------------------------------------
-# Last Update : 2018/10/04
+# Last Update : 2020/01/26
 BEGIN {
 	unshift(@INC, './lib');
 	$0 =~ m|^(.*?)[^/]*$|;
@@ -22,11 +22,18 @@ BEGIN {
 #--------------------------------------------------
 my $socket;
 my $request;
-if ($ARGV[0]) {
-	$socket  = FCGI::OpenSocket($ARGV[0], $ARGV[1] || 100);
-	$request = FCGI::Request( \*STDIN, \*STDOUT, \*STDERR, \%ENV, $socket );
-} else {
-	$request = FCGI::Request();
+{
+	my $path = $ARGV[0];
+	if ($path) {
+		$socket  = FCGI::OpenSocket($path, $ARGV[1] || 100);
+		$request = FCGI::Request( \*STDIN, \*STDOUT, \*STDERR, \%ENV, $socket );
+
+		if ($path =~ /\.sock$/ && -S $path) {	# UNIX domain socket?
+			chmod(0777, $path);
+		}
+	} else {
+		$request = FCGI::Request();
+	}
 }
 
 #--------------------------------------------------

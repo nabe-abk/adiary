@@ -4,6 +4,7 @@
 
 -SpeedyCGI用の起動スクリプトを削除しました。
 -mod_perl対応コードを削除しました。
+-adiary.fcgiにUNIX domain socketで利用時の調整をしました。関連して、[https://adiary.org/v3man/install2/nginx:Nginxで設定が一部変更]になっています。
 -【httpd】パス設定機能を付けました。これにより Reverse Proxy での運用が楽になります。
 
 *Ver3.34 : 2020/01/18

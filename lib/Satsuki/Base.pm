@@ -180,7 +180,7 @@ sub init_path {
 	if ($self->{Initialized_path} || !$ENV{REQUEST_URI}) { return; }
 
 	# ModRewrite flag
-	my $rewrite = $self->{mod_rewrite} ||= $ENV{mod_rewrite};
+	my $rewrite = $self->{mod_rewrite} ||= $ENV{ModRewrite};
 	if (!defined $rewrite && exists $ENV{REDIRECT_URL} && $ENV{REDIRECT_STATUS}==200) {
 		$self->{mod_rewrite} = $rewrite = 1;
 	}
