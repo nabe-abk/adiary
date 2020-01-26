@@ -7,7 +7,7 @@ our $SPEC_VER = '1.12';	# specification version for compatibility
 # Satsuki system - HTTP Server
 #					Copyright (C)2019-2020 nabe@abk
 ###############################################################################
-# Last Update : 2019/06/28
+# Last Update : 2020/01/27
 #
 BEGIN {
 	my $path = $0;
@@ -45,6 +45,7 @@ my $SILENT_OTHER = 0;
 my $OPEN_BROWSER = $IsWindows;
 my $GENERATE_CONF= 1;
 
+my $UNIX_SOCK;
 my $PATH      = '/';
 my $PORT      = $IsWindows ? 80 : 8888;
 my $ITHREADS  = $IsWindows;
@@ -119,72 +120,80 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 		while($key ne '') {
 			my $k = substr($key,0,1);
 			my $k2= substr($key,0,2);
-			$key  = substr($key,1);
-			my $kx= substr($key,2);
+			my $kx= substr($key,1);
+			my $ky= substr($key,2);
 
-			if ($k eq 'h') { $help =1; next; }
-			if ($k eq '?') { $help =1; next; }
-			if ($k eq 'n') { $OPEN_BROWSER=0; next; }
-			if ($k eq 'i')                { $ITHREADS=1; next; }
-			if ($k eq 'f' && $k2 ne 'fs') { $ITHREADS=0; next; }
+			if ($k eq 'h') { $key=$kx; $help=1; next; }
+			if ($k eq '?') { $key=$kx; $help=1; next; }
+			if ($k eq 'n') { $key=$kx; $OPEN_BROWSER=0; next; }
+			if ($k eq 'i') { $key=$kx; $ITHREADS=1; next; }
+			if ($k eq 'f') { $key=$kx; $ITHREADS=0; next; }
 
 			# keep-alive
-			if ($k2 eq 'k0') { $key=$kx; $KEEPALIVE=0; next; }
-			if ($k2 eq 'k1') { $key=$kx; $KEEPALIVE=1; next; }
+			if ($k2 eq 'k0') { $key=$ky; $KEEPALIVE=0; next; }
+			if ($k2 eq 'k1') { $key=$ky; $KEEPALIVE=1; next; }
 
 			# SatsukiTimer
-			if ($k2 eq 't0') { $key=$kx; $ENV{SatsukiTimer}=0; next; }
-			if ($k2 eq 't1') { $key=$kx; $ENV{SatsukiTimer}=1; next; }
+			if ($k2 eq 't0') { $key=$ky; $ENV{SatsukiTimer}=0; next; }
+			if ($k2 eq 't1') { $key=$ky; $ENV{SatsukiTimer}=1; next; }
 
 			# silent
-			if ($k2 eq 'sc') { $key=$kx; $SILENT_CGI  = $SILENT_OTHER = 1; next; }
-			if ($k2 eq 'sf') { $key=$kx; $SILENT_FILE = $SILENT_OTHER = 1; next; }
-			if ($k  eq 's')  { $SILENT_CGI = $SILENT_FILE = $SILENT_OTHER = 1; next; }
+			if ($k2 eq 'sc') { $key=$ky; $SILENT_CGI  = $SILENT_OTHER = 1; next; }
+			if ($k2 eq 'sf') { $key=$ky; $SILENT_FILE = $SILENT_OTHER = 1; next; }
+			if ($k  eq 's')  { $key=$kx; $SILENT_CGI  = $SILENT_FILE = $SILENT_OTHER = 1; next; }
 
-			# arg
-			if ($k2 eq 'fs' || $k2 eq 'mi') { $k=$k2; }
-			if (index('ptdmb',$k) < 0 && length($k)==1) {
-				print "Unknown option : -$k\n";
-				exit(-1);
-			}
+			#---------------------------------------------
+			# option with argument
+			#---------------------------------------------
 			my $val;
-			if ($key =~ /^\d/) {
-				$val=$key; $key='';
-			} else {
-				$val=shift(@ary);
-			}
-			if ($val eq '') {
-				print "needs argument: -$k option\n";
-				exit(-1);
-			}
-			# string argument
-			if ($k eq 'mi') { $MIME_FILE = $val; next; }
-			if ($k eq 'fs') { $FS_CODE   = $val; next; }
-
-			# size argument
-			if ($k eq 'b') {
-				if ($val =~ /^(\d+)(?:([GMK])B?)?$/) {
-					$BUFSIZE_u = $1 . ($2 ne '' ? $2 : 'K');
-					next;
-				}
-				print "Invalid argument: -$k option\n";
-				exit(-1);
-			}
-			# float argument
-			if ($k eq 't') {
-				if ($val !~ /^\d+(?:\.\d+)?$/) {
-					print "Invalid argument: -$k option\n";
+			if ($key =~ /^(?:[ptdmecbu])(.*)/) {
+				$key = '';
+				$val = $1 ne '' ? $1 : shift(@ary);
+				if ($val eq '') {
+					print "needs argument: -$k option\n";
 					exit(-1);
 				}
-			} elsif ($val !~ /^\d+$/) {
-				print "Invalid argument: -$k option\n";
+			}
+			# string argument
+			if ($k eq 'e') { $MIME_FILE = $val; next; }
+			if ($k eq 'c') { $FS_CODE   = $val; next; }
+			if ($k eq 'u') { $UNIX_SOCK = $val; next; }
+
+			#---------------------------------------------
+			# size argument
+			#---------------------------------------------
+			if ($k eq 'b' && $val !~ /^(\d+)(?:([GMK])B?)?$/) {
+				print "Invalid argument: -$k option >>$val\n";
+				exit(-1);
+			}
+			my $unit = $1 . ($2 ne '' ? $2 : 'K');
+			if ($k eq 'b') { $BUFSIZE_u = $unit; next; }
+
+			#---------------------------------------------
+			# float argument
+			#---------------------------------------------
+			if ($k eq 't' && $val !~ /^\d+(?:\.\d+)?$/) {
+				print "Invalid argument: -$k option >>$val\n";
+				exit(-1);
+			}
+			if ($k eq 't') { $TIMEOUT = $val; next; }
+
+			#---------------------------------------------
+			# integer argument
+			#---------------------------------------------
+			if ($k =~ /^[pdm]$/ && $val !~ /^\d+$/) {
+				print "Invalid argument: -$k option >>$val\n";
 				exit(-1);
 			}
 			if ($k eq 'p') { $PORT    = $val; next; }
-			if ($k eq 't') { $TIMEOUT = $val; next; }
 			if ($k eq 'd') { $DEAMONS = $val; next; }
 			if ($k eq 'm') { $MAX_CGI_REQUESTS = $val; next; }
-			die("program error");
+
+			#---------------------------------------------
+			# Unknown
+			#---------------------------------------------
+			print "Unknown option : -$k\n";
+			exit(-1);
 		}
 	}
 	if ($TIMEOUT < 0.001)	{ $TIMEOUT=0.001; }
@@ -206,9 +215,10 @@ Available options are:
   -t timeout	connection timeout second (default:3, min:0.001)
   -d daemons	start daemons (default:10, min:1)
   -m max_req	maximum cgi requests per daemon (default:10000, min:100)
-  -mi mime_file	load mime types file name (default: /etc/mime.types)
-  -fs fs_code	set file system's code (charset)
+  -e mime_file	load mime types file name (default: /etc/mime.types)
+  -c fs_code	set file system's code (charset)
   -b bufsize	buffer size [KB] (default:1024 = 1M, min:64)
+  -u filename	UNIX domain socket mode
   -f		use fork()
   -i		use threads (ithreads)
   -k1		connection keep-alive enable (default)
@@ -289,19 +299,34 @@ if ($IsWindows) {
 # bind port
 #------------------------------------------------------------------------------
 my $srv;
-{
+if ($UNIX_SOCK ne '') {
+	socket($srv, AF_UNIX, SOCK_STREAM, 0)		|| die "socket failed: $!";
+	if (-S $UNIX_SOCK) {
+		unlink($UNIX_SOCK);
+	}
+	bind($srv, pack_sockaddr_un($UNIX_SOCK))	|| die "bind port failed: $!";
+	listen($srv, SOMAXCONN)				|| die "listen failed: $!";
+
+	chmod(0777, $UNIX_SOCK);
+	$PORT=0;
+
+	print	"\tUNIX domain socket: $UNIX_SOCK\n"
+
+} else {
 	socket($srv, PF_INET, SOCK_STREAM, getprotobyname('tcp'))	|| die "socket failed: $!";
 	setsockopt($srv, SOL_SOCKET, SO_REUSEADDR, pack("l", 1))	|| die "setsockopt failed: $!";
 	bind($srv, sockaddr_in($PORT, INADDR_ANY))			|| die "bind port failed: $!";
 	listen($srv, SOMAXCONN)						|| die "listen failed: $!";
 }
-print	  "\tListen $PORT port,"
+
+print(
+	($PORT ? "\tListen $PORT port," : "\tNo Listen port,")
 		. " Timeout $TIMEOUT sec,"
 		. " Buffer ${BUFSIZE_u}B,"
 		. " Keep-Alive " . ($KEEPALIVE ? 'on' : 'off') . "\n"
 	. "\tStart up daemon: $DEAMONS " . ($ITHREADS ? 'threads' : 'process')
-	. ", Max cgi requests: $MAX_CGI_REQUESTS\n";
-
+	. ", Max cgi requests: $MAX_CGI_REQUESTS\n"
+);
 #------------------------------------------------------------------------------
 # load mime types
 #------------------------------------------------------------------------------
@@ -413,7 +438,7 @@ if ($GENERATE_CONF) {
 	}
 
 	# open Browser on windows
-	if ($IsWindows && $OPEN_BROWSER) {
+	if ($PORT && $IsWindows && $OPEN_BROWSER) {
 		&open_browser_on_windows();
 	}
 
@@ -488,13 +513,17 @@ sub accept_client {
 	my $sock = shift;
 	my $addr = shift;
 	my $bak  = shift;
-	my($port, $ip_bin) = sockaddr_in($addr);
-	my $ip   = inet_ntoa($ip_bin);
 	binmode($sock);
 
-	$ENV{REMOTE_ADDR} = $ip;
-	$ENV{REMOTE_PORT} = $port;
-	# print "[$PID] connection from $ip:$port\n";
+	if ($PORT) {
+		my ($port, $ip_bin) = sockaddr_in($addr);
+		$ENV{REMOTE_ADDR} = inet_ntoa($ip_bin);
+		$ENV{REMOTE_PORT} = $port;
+		# print "[$PID] connection from $ip:$port\n";
+	} else {
+		# $ENV{REMOTE_ADDR} = '0.0.0.0';
+		# $ENV{REMOTE_PORT} = 0;
+	}
 
 	# set bit alarm emulation( use by select )
 	$R_BITS='';
