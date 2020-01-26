@@ -4,7 +4,7 @@
 # 使用メモリ量の制限
 # RLimitMem 268435456
 
-# ModRewite設定。可能な限り使用してください。
+# mod_rewrite設定。可能な限り使用してください。
 # ※一部の細工されたレンタルサーバでは mod_rewrite が正しく動かないことがあります。
 
 # RewriteEngine	On
