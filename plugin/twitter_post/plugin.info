@@ -9,7 +9,7 @@ url=https://twitter.com/nabe_abk
 license=WTFPL
 
 # 対応するadiary Version
-adiary_version=3.50
+adiary_version=3.40
 
 *files=<<FILES
 skel/twitter/_action/oauth.html
