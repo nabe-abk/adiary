@@ -8,8 +8,7 @@ use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
 our $VERSION    = 3.40;
-our $OUTVERSION = '3.40';
-our $SUBVERSION = '-beta';	# ex) a, b, -beta, -dev
+our $OUTVERSION = "3.40-beta";
 our $DATA_VERSION = 3.34;
 ###############################################################################
 # ■システム内部イベント
@@ -50,7 +49,6 @@ sub new {
 	$self->{DB}      = $DB;
 	$self->{VERSION} = $VERSION;
 	$self->{OUTVERSION} = $OUTVERSION;
-	$self->{SUBVERSION} = $SUBVERSION;
 
 	# ディフォルト値の設定
 	$self->SetDefaultValue();

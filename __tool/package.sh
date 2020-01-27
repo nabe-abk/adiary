@@ -1,24 +1,20 @@
 #!/bin/sh
 
-# Version check
-if [ "$1" != '' ]
+#-----------------------------------------------------------
+# get Version
+#-----------------------------------------------------------
+VERSION=`head -20 lib/SatsukiApp/adiary.pm | grep "\\$OUTVERSION" | sed "s/[^=]*=[^\"']*\([\"']\)\([^\"']*\)\1.*/\2/"`
+
+if [ "$VERSION" = "" -o "`echo $VERSION | grep ' '`" ]
 then
-	VERSION=$1
-else
-	VERSION=`   head -20 lib/SatsukiApp/adiary.pm | grep "\\$VERSION"    | sed "s/.*\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/"`
-	OUTVERSION=`head -20 lib/SatsukiApp/adiary.pm | grep "\\$OUTVERSION" | sed "s/.*\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/"`
-	SUBVERISON=`head -20 lib/SatsukiApp/adiary.pm | grep "\\$SUBVERSION" | sed "s/.*'\([A-Za-z0-9\.-]*\)'.*/\1/"`
-	if [ "$OUTVERSION" != '' ]
-	then
-		VERSION=$OUTVERSION
-	fi
-	if [ "$SUBVERISON" != '' ]
-	then
-		VERSION=$VERSION$SUBVERISON
-	fi
+	echo "Version detection failed: $VERSION"
+	exit
 fi
 RELEASE=adiary-$VERSION
 
+#-----------------------------------------------------------
+# RELEASE files check
+#-----------------------------------------------------------
 # if not exist RELEASE dir, exit
 if [ ! -e $RELEASE/ ]
 then
