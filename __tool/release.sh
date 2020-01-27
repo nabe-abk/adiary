@@ -32,8 +32,6 @@ RELEASE=adiary-$VERSION
 BASE="
 	adiary.cgi
 	adiary.fcgi
-	adiary.mod.cgi
-	adiary.speedy.cgi
 	adiary.httpd.pl
 	adiary.env.cgi.sample
 	adiary.conf.cgi.sample
