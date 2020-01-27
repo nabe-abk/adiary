@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 # WebPush 通知モジュール
-#					Copyright(C)2017 nabe@abk / AGPLv3
+#				Copyright(C)2017-2020 nabe@abk / AGPLv3
 #-----------------------------------------------------------------------------
 sub {
 
@@ -340,7 +340,7 @@ $mop->{webpush} = sub {
 	my $r    = $http->post($url, $header, $body);
 	my $st   = $http->{status};
 
-	my $ret  = (200<=$st && $st<300) ? 0 : $http->{status};
+	my $ret  = ($st == 201) ? 0 : $http->{status};
 	return wantarray ? ($ret, $r) : $ret;
 };
 
