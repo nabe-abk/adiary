@@ -1387,6 +1387,10 @@ sub generate_json {
 			push(@ary, $self->json_encode($_));
 			next;
 		}
+		if (ref($_) eq 'ARRAY') {
+			push(@ary, $self->generate_json($_, $opt, "\t$tab"));
+			next;
+		}
 		my @a;
 		my @b;
 		my $_cols = $cols ? $cols : [ keys(%$_) ];
