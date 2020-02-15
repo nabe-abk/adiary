@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.20';
+our $VERSION  = '1.21';
 our $SPEC_VER = '1.12';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
@@ -358,6 +358,8 @@ if ($MIME_FILE && -e $MIME_FILE) {
 #------------------------------------------------------------------------------
 {
 	my @dirs = &search_dir_file('.htaccess');
+	if (-r '.git') { push(@dirs, '.git'); }
+
 	print "\tDeny dirs: " . join('/, ', @dirs) . "/\n";
 	foreach(@dirs) {
 		$DENY_DIRS{$_}=1;
