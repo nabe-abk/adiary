@@ -37,7 +37,6 @@
 !data/.htaccess
 !data/index.html
 
-!pub/*
 !pub/.gitkeep
 
 !skel.local/.htaccess
