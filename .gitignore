@@ -20,41 +20,41 @@
 #--------------------------------------
 # adiary files
 #--------------------------------------
-!info/
-!js/
-!lib/
-!plugin/
-!pub-dist/
-!skel/
-!theme/
+!/info/
+!/js/
+!/lib/
+!/plugin/
+!/pub-dist/
+!/skel/
+!/theme/
 
 #--------------------------------------
 # private directory
 #--------------------------------------
-!__cache/.htaccess
-!__cache/index.html
+!/__cache/.htaccess
+!/__cache/index.html
 
-!data/.htaccess
-!data/index.html
+!/data/.htaccess
+!/data/index.html
 
-!pub/.gitkeep
+!/pub/.gitkeep
 
-!skel.local/.htaccess
-!skel.local/README.txt
+!/skel.local/.htaccess
+!/skel.local/README.txt
 
 #--------------------------------------
 # ignore files
 #--------------------------------------
-info/textparser_site_tags.txt
-plugin/@3rd-party/
-lib/SatsukiApp/form.pm
-lib/SatsukiApp/form_2.pm
+/info/textparser_site_tags.txt
+/plugin/@3rd-party/
+/lib/SatsukiApp/form.pm
+/lib/SatsukiApp/form_2.pm
 
 #--------------------------------------
 # Special Edition files
 #--------------------------------------
-theme/satsuki2/mint/
-theme/satsuki2/chie/
-theme/satsuki2-pop/minato/
+/theme/satsuki2/mint/
+/theme/satsuki2/chie/
+/theme/satsuki2-pop/minato/
 
-plugin/sp_hide_sentence/
+/plugin/sp_hide_sentence/
