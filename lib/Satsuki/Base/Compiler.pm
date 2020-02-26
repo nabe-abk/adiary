@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2019 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.80';
+our $VERSION = '1.82';
 #(簡易履歴)
+# 2020/02 Ver1.82  foreach追加。ifexec/forexecのbegin省略可。x++/--yの追加。
 # 2019/06 Ver1.81  grep() を修正
 # 2019/01 Ver1.80  出力先を配列からスカラに変更
 # 2019/01 Ver1.76  match() の修正
@@ -124,7 +125,7 @@ my %operators;		# 優先度配列
 my %op_formalname;	# 演算子正式名（存在するもののみ）
 # bit 0 - 右から左
 # bit 1 - 単項演算子
-# bit 2 - reserved
+# bit 2 - 単項右結合（x++/x--用）
 # bit 3 - 連結時にspaceが必要
 # bit 4?12 - 演算子優先度（大きいほうが優先）
 $operators{'('}   =  0x00;
@@ -170,8 +171,10 @@ $operators{'*'}   =  0xd0;
 $operators{'/'}   =  0xd0;
 $operators{'%'}   =  0xd0;
 $operators{'%x'}  =  0xd8; $op_formalname{'%x'} = 'x';
-#$operators{'++'} =  0xe2;
-#$operators{'--'} =  0xe2;
+$operators{'++'}  =  0xe2;
+$operators{'--'}  =  0xe2;
+$operators{'++r'} =  0xe6; $op_formalname{'++r'} = '++'; # x++
+$operators{'--r'} =  0xe6; $op_formalname{'--r'} = '--'; # x++
 $operators{'!'}   =  0xf2;	# boolean not
 $operators{'~'}   =  0xf2;	# bit invert
 $operators{'**'}  = 0x100;
@@ -849,6 +852,9 @@ sub convert_reversed_poland {
 				$x = $3;		# 残り
 			}
 			if ($op eq '-' && $1 eq '' && !$right_arc) { $op = '%m'; }	# 数値の負数表現判別
+			if ($op eq '++' && $1 ne '') { $op='++r'; }	# "x++"を判定
+			if ($op eq '--' && $1 ne '') { $op='--r'; }	# "x--"を判定
+
 			# 演算子優先度を取り出す（bit 0 は右優先判別のときに使用）
 			my $opl = $operators{$op};
 			#
@@ -1041,18 +1047,13 @@ sub poland_to_eval {
 						last;	# エラー exit
 					}
 					#--------------------------------------
-					# local変数の確認
-					#--------------------------------------
-					if ($last_op && $y eq 'local') {	# 演算子 = 一番外側である
-					#	@stack      = ("Not use local", '*');
-					#	@stack_type = ('error_msg', '*');
-					#	last;	# エラー exit
-					}
-					#--------------------------------------
 					# ifexec の展開
 					#--------------------------------------
-					if ($last_op && $ifexec_inline_on && $y eq 'ifexec') {	# 最後の演算子 = 一番外側である
+					if ($ifexec_inline_on && $y eq 'ifexec') {
 						my @ary = &get_objects_array($x_orig, $xt, $local_vars);
+						if ($#ary == 0) {
+					  		$ary[1] = "\x01[begin]";	# 省略時
+						}
 						if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) { $ary[2] = "\x02[$1]"; }
 						if ($#ary <= 2 && $ary[1] =~ /^\x01\[(begin.*)\]$/) { $ary[1] = "\x02[$1]"; }
 						$ary[0] =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
@@ -1062,10 +1063,19 @@ sub poland_to_eval {
 						last;
 					}
 					#--------------------------------------
-					# forexec の展開
+					# foreachの置換
 					#--------------------------------------
-					if ($last_op && $forexec_inline_on && $y =~ /^forexec/) {
+					if ($y =~ /^foreach(.*)/) {
+						$y = 'forexec' . $1;
+					}
+					#--------------------------------------
+					# forexec (foreach) の展開
+					#--------------------------------------
+					if ($forexec_inline_on && $y =~ /^forexec/) {
 					  my @ary = &get_objects_array($x_orig, $xt, $local_vars);
+					  if ($#ary == 1) {
+					  	$ary[2] = "\x01[begin]";
+					  }
 					  if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) {
 						my $begin_type = $1;
 
@@ -1415,7 +1425,8 @@ sub poland_to_eval {
 					next;
 				}
 				# 単項演算子
-				my $a  = ($opl & 8) ? "($op $x)" : "($op$x)";
+				my $sp = ($opl & 8) ? ' ' : '';
+				my $a  = ($opl & 4) ? "($x$sp$op)" : "($op$sp$x)";	# 左結合か右結合か
 				my $at = '*';
 				if ($xt eq 'const') {
 					$a  = eval($a);
