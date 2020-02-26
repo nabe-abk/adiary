@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.21';
+our $VERSION  = '1.22';
 our $SPEC_VER = '1.12';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
 #					Copyright (C)2019-2020 nabe@abk
 ###############################################################################
-# Last Update : 2020/01/27
+# Last Update : 2020/02/26
 #
 BEGIN {
 	my $path = $0;
@@ -91,7 +91,6 @@ my %MIME_TYPE = (
 	gif  => 'image/gif',
 	ico  => 'image/vnd.microsoft.icon'
 );
-my $DENY_EXTS_Reg = qr/\.(?:cgi|pl|pm)(?:$|\.)/i;	# deny extensions regexp
 
 #------------------------------------------------------------------------------
 # for RFC date
@@ -727,20 +726,21 @@ sub try_file_read {
 	if ($INDEX && $file ne '/' && substr($file, -1) eq '/') {
 		$file .= $INDEX;
 	}
-	$file = substr($file,1);	# /index.html to index.html
 
 	#--------------------------------------------------
 	# file system encode
 	#--------------------------------------------------
-	my $_file = $file;
+	my $_file = substr($file,1);	# /index.html to index.html
+
 	if ($FS_CODE && $FS_CODE ne $SYS_CODE) {
 		Encode::from_to($_file, $SYS_CODE, $FS_CODE);
 	}
 	if (!-e $_file) {
-		if ($file eq 'favicon.ico') {
-			$state->{type} = 'file';
-			return &_404_not_found($state);
-		}
+		if ($file ne '/favicon.ico') { return; }
+		$state->{type} = 'file';
+		return &_404_not_found($state);
+	}
+	if ($file =~ m|^/[^/]*$|) {	# ignore current dir files
 		return;
 	}
 
@@ -749,10 +749,8 @@ sub try_file_read {
 	#--------------------------------------------------
 	$state->{type} = 'file';
 	if (!-r $_file
-	 || $file =~ m|^\.ht|
 	 || $file =~ m|/\.ht|
-	 || $file =~ m|^([^/]+)/| && $DENY_DIRS{$1}
-	 || $file =~ /$DENY_EXTS_Reg/) {
+	 || $file =~ m|^/([^/]+)/| && $DENY_DIRS{$1}) {
 		return &_403_forbidden($state);
 	}
 
