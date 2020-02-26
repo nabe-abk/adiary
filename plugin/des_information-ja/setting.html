@@ -10,7 +10,7 @@
 	<tr>
 		<th>タイトル表示<span class="help" data-help="タイトルを「display: none;」します。使用テーマによっては最初から非表示になっています。（テーマ側で強制的に表示されることもあります）">?</span></th>
 		<td>
-			<input type="hidden" name="checkbox.info" value="title_hidden">
+			<input type="hidden" name="title_hidden" value="0">
 			<label><input type="checkbox" name="title_hidden" value="1"<@if(ps.title_hidden,' checked')>>非表示にする</label>
 		</td>
 	</tr>
@@ -85,8 +85,7 @@ print-link
 <span class="to-print"><a href="<@v.myself2>?_theme=satsuki2/_print" target="_blank">印刷用の表示</a></span>
 </div>
 
-<div data-module-name="bcounter" title="はてなブックマークカウンタ" data-alt="はてな<br>ブックマーク<br>カウンタ">
-	<input type="hidden" name="bcounter.default" value="de">
+<div data-module-name="bcounter" title="はてなブックマークカウンタ" data-alt="はてな<br>ブックマーク<br>カウンタ" data-default="de">
 	<input type="radio" name="bcounter" value="de"><label style="color: #1841CD">■</label>
 	<input type="radio" name="bcounter" value="dg"><label style="color: #6B6D7B">■</label>
 	<input type="radio" name="bcounter" value="gr"><label style="color: #4296A5">■</label>
@@ -164,6 +163,7 @@ function append_element(name, val) {
 	var mod= modules[ name ];
 	if (!mod) return;
 
+	if (val == undefined) val = mod.data('default');
 	var alt= mod.data('alt');
 	var tr = $('<tr>');
 	var th = $('<th>').html( alt ? alt : mod.attr('title') );

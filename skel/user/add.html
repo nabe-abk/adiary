@@ -37,7 +37,6 @@
 		<td><input type="hidden" name="isadmin" value="1">最初のユーザーは自動的に管理者になります</td></tr>
 		<$else>
 		<td>
-			<input type="hidden" name="checkbox.info" value="isadmin">
 			<label><input type="checkbox" name="isadmin" value="1"<@if(Form.isadmin, ' checked')>>このユーザーを管理者にする</label>
 		</td>
 		<$end>

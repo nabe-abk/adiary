@@ -208,14 +208,6 @@
 	<$end>
 
 	<!--===============================================================-->
-	<input type="hidden" name="checkbox.info" value="enable">
-	<input type="hidden" name="checkbox.info" value="draft">
-	<input type="hidden" name="checkbox.info" value="allow_com">
-	<input type="hidden" name="checkbox.info" value="allow_hcom">
-	<input type="hidden" name="checkbox.info" value="ping">
-	<input type="hidden" name="checkbox.info" value="auto_tb">
-	<input type="hidden" name="checkbox.info" value="tw_ping">
-	<input type="hidden" name="checkbox.info" value="wiki">
 	<ul class="checkbox">
 		<li><label>
 		<@ifexec(!art.enable || art.draft || !edit_pkey, begin, begin)>
@@ -273,7 +265,7 @@
 <form method="POST" action="<@v.myself2>" class="delete js-form-check" data-confirm="本当にこの記事を削除しますか？" data-focus="cancel">
 	<input type="hidden" name="action" value="delete">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
-	<input type="hidden" name="delete_pkey_int_ary" value="<@edit_pkey>">
+	<input type="hidden" name="delete_pkey_ary" value="<@edit_pkey>">
 	<input type="hidden" name="title" value="<@art.title>">
 	<button type="submit" name="delete" id="del-submit" class="no-disable">この記事を削除する</button>
 </form>

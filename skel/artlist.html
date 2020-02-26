@@ -128,7 +128,7 @@
 	<@forexec(t, logs, begin)>
 	<tr>
 		<@ifexec(v.allow_edit, begin)>
-		<td class="c"><input type="checkbox" name="pkey_int_ary" value="<@t.pkey>" class="pkey-ary" id="art-<@t.pkey>"></td>
+		<td class="c"><input type="checkbox" name="pkey_ary" value="<@t.pkey>" class="pkey-ary" id="art-<@t.pkey>"></td>
 		<td class="c"><label for="art-<@t.pkey>"><@if(t.enable, '公')></label></td>
 		<$end>
 		<@ifexec(date, begin, begin)>

@@ -1017,9 +1017,10 @@ sub edit_articles {
 	my $auth = $ROBJ->{Auth};
 	if (! $self->{allow_edit}) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	if ($keylist !~ /^\d+$/ && $keylist->[0] !~ /^\d+$/) {
-		return wantarray ? (0,0) : 0;
+	if (ref($keylist) ne 'ARRAY' || !@$keylist) {
+		return (0,0);
 	}
+	$keylist = [ map { int($_) } @$keylist ];
 
 	# 初期状態設定
 	my $blogid = $self->{blogid};
@@ -1153,9 +1154,10 @@ sub edit_comment {
 	my $blogid = $self->{blogid};
 	if (! $self->{allow_edit}) { $ROBJ->message('Operation not permitted'); return 5; }
 
-	if ($keylist !~ /^\d+$/ && $keylist->[0] !~ /^\d+$/) {
+	if (ref($keylist) ne 'ARRAY' || !@$keylist) {
 		return (0,0);
 	}
+	$keylist = [ map { int($_) } @$keylist ];
 
 	# 該当する記事のリスト
 	my $ary = $DB->select_by_group("${blogid}_com",{

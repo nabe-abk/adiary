@@ -7,6 +7,7 @@
 --【Compiler】forexecをforeachと書けるようにしました。
 --【Compiler】forexec, ifexec（elseなし）の begin を省略できるようにしました。
 --【Compiler】"++x"や"y--"等の記述を可能にしました。
+--フォーム処理を更新しました。
 
 *Ver3.40 : 2020/02/03
 

@@ -110,7 +110,7 @@
 	<@forexec(t, logs, begin)>
 	<tr>
 		<@ifexec(v.allow_edit, begin)>
-		<td class="c"><input type="checkbox" name="pkey_int_ary" value="<@t.pkey>" class="pkey-ary" id="com-<@t.pkey>"></td>
+		<td class="c"><input type="checkbox" name="pkey_ary" value="<@t.pkey>" class="pkey-ary" id="com-<@t.pkey>"></td>
 		<td class="c"><label for="com-<@t.pkey>"><@if(t.enable, '公', if(t.hidden, '非'))></label></td>
 		<$end>
 		<td><a href="<@v.myself2><@t.a_elink_key>" title="<@v.format_ymd(t.a_yyyymmdd)> <@t.a_title>"><@v.string_clip(t.a_title,10)></a></td>

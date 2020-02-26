@@ -8,7 +8,7 @@
 <$ifset(mode eq 'delete' , msg , '%d件の記事を削除しました')>
 <$ifset(mode eq 'tagset' , msg , '%d件の記事のタグを編集しました')>
 
-<$(action_return,c) = v.edit_articles(mode, Form.pkey_int_ary, Form)>
+<$(action_return,c) = v.edit_articles(mode, Form.pkey_ary, Form)>
 
 <@>
 <@> POST成功時の処理

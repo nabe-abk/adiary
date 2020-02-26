@@ -9,7 +9,7 @@
 <$ifset(exists(Form.delete ), mode, 'delete'  )>
 <$ifset(exists(Form.delete ), msg , '%d件のコメントを削除しました')>
 
-<$(action_return,c) = v.edit_comment(mode, Form.pkey_int_ary)>
+<$(action_return,c) = v.edit_comment(mode, Form.pkey_ary)>
 
 <@>
 <@> POST成功時の処理

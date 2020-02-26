@@ -816,27 +816,10 @@ sub read_multipart_form {
 #-----------------------------------------------------------
 sub form_data_check_and_save {
 	my ($self, $form, $options, $name, $val) = @_;
-	if (!exists $options->{name_strict} || $options->{name_strict}) {
-		$name =~ s/[^\w\.\-,:]//g;
-	}
-	if (substr($name,0,1) eq '*') { return; }	# *で始まる要素は受け取らない
 
-	my $is_ary;
 	my $type = substr($name,-4);
-	if ($type eq '_ary') {	# _int_ary 等
-		$is_ary=1;
-		$type = substr($name, length($name)-8, 4);
-	}
 
-	if ($name eq 'checkbox.info') {
-		$val =~ s/[\x00-\x1f]//g;
-		if (!exists $form->{$val}) { $form->{$val}=0; }
-	} elsif (substr($name,-8) eq '.default') {
-		my $key = substr($name,0,length($name)-8);
-		if (!exists $form->{$key}) {
-			$form->{$key}=$val;
-		}
-	} elsif ($type ne '_bin' && !ref($val)) {	# バイナリデータではない
+	if ($type ne '_bin' && !ref($val)) {	# バイナリデータではない
 		# 文字コード変換（文字コードの完全性保証）
 		my $jcode = $self->load_codepm_if_needs( $val );
 		$jcode && $jcode->from_to( \$val, $self->{UA_code} || $self->{System_coding}, $self->{System_coding} );
@@ -870,10 +853,14 @@ sub form_data_check_and_save {
 		}
 	}
 
-	# 配列処理
-	if ($is_ary) {
-		if (!defined $form->{$name}) { $form->{$name} = []; }
-		push(@{ $form->{$name} }, $val);
+	if ($name =~ /^(.+)(?:_ary|\[\])$/) {			# 配列処理
+		my $a = $form->{"$1_ary"}  ||= [];
+		push(@$a, $val);
+
+	} elsif ($name =~ /^(.+)(?:_hash|\[([^\]]+)\])$/) {	# hash（1階層のみ対応）
+		my $h = $form->{"$1_hash"} ||= {};
+		$h->{$2} = $val;
+
 	} else {
 		$form->{$name} = $val;
 	}
