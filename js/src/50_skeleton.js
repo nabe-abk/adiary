@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //●コメント欄の加工
 //////////////////////////////////////////////////////////////////////////////
-adiary.init( function(){
+$$.init( function(){
 	const self=this;
 	$('#com div.comment-text').each(function(idx,dom) {
 		const $obj = $(dom);
@@ -39,7 +39,7 @@ adiary.init( function(){
 //////////////////////////////////////////////////////////////////////////////
 //●セキュリティコードの設定
 //////////////////////////////////////////////////////////////////////////////
-adiary.init( function(){
+$$.init( function(){
 	const $form = $('#comment-form');
 	if (!$form.length) return;
 	const $csrf = $form.find('[name="csrf_check_key"]');
@@ -88,7 +88,7 @@ adiary.init( function(){
 //////////////////////////////////////////////////////////////////////////////
 // ●検索条件の項目マーク
 //////////////////////////////////////////////////////////////////////////////
-adiary.init_top_search = function(id, flag) {
+$$.init_top_search = function(id, flag) {
 	var $form = $secure(id);
 	var tagdel = $('<span>').addClass('ui-icon ui-icon-close');
 	if (!flag) tagdel.click(function(evt){
@@ -102,7 +102,7 @@ adiary.init_top_search = function(id, flag) {
 //////////////////////////////////////////////////////////////////////////////
 // ●検索ハイライト表示
 //////////////////////////////////////////////////////////////////////////////
-adiary.word_highlight = function(id) {
+$$.word_highlight = function(id) {
 	var ch = $(id).children();
 	var words = [];
 	for(var i=0; i<ch.length; i++) {
@@ -179,7 +179,7 @@ adiary.word_highlight = function(id) {
 //////////////////////////////////////////////////////////////////////////////
 // ●タグ一覧のロード
 //////////////////////////////////////////////////////////////////////////////
-adiary.load_tags_list = function(id) {
+$$.load_tags_list = function(id) {
 	const $sel     = $(id);		// セレクトボックス
 	const _default = $sel.data('default') || '';
 
@@ -205,7 +205,7 @@ adiary.load_tags_list = function(id) {
 //////////////////////////////////////////////////////////////////////////////
 // ●コンテンツ一覧のロード
 //////////////////////////////////////////////////////////////////////////////
-adiary.load_contents_list = function(id) {
+$$.load_contents_list = function(id) {
 	var obj = $(id);
 	$.getJSON( obj.data('url'), function(data){
 		var _default  = obj.data('default');

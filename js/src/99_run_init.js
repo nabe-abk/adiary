@@ -2,7 +2,7 @@
 // run init
 //############################################################################
 $(function(){
-	adiary.init();
+	$$.init();
 
 	// Emulate jquery.cookie for dynatree
 	// "jquery-storage" in "PrefixStorage.js"

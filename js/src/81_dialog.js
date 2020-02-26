@@ -4,13 +4,13 @@
 //////////////////////////////////////////////////////////////////////////////
 // ●エラーの表示
 //////////////////////////////////////////////////////////////////////////////
-adiary.show_error = function(h, _arg) {
+$$.show_error = function(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
 	h.dclass = (h.dclass ? h.dclass : '') + ' error-dialog';
 	h.default_title = 'ERROR';
 	return this.show_dialog(h);
 }
-adiary.show_dialog = function(h, _arg) {
+$$.show_dialog = function(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
 	var obj  = h.id && h.id.substr(0,1) == '#' && $secure( h.id ) || $('<div>');
 	var html = obj.html() || h.html;
@@ -31,7 +31,7 @@ adiary.show_dialog = function(h, _arg) {
 //////////////////////////////////////////////////////////////////////////////
 // ●確認ダイアログ
 //////////////////////////////////////////////////////////////////////////////
-adiary.confirm = function(h, callback) {
+$$.confirm = function(h, callback) {
 	if (typeof(h) === 'string') h = {id: h, html:h };
 	let $obj = h.id && h.id.substr(0,1) == '#' && $secure( h.id ) || $('<div>');
 	let html = $obj.html() || h.html;
@@ -65,7 +65,7 @@ adiary.confirm = function(h, callback) {
 //////////////////////////////////////////////////////////////////////////////
 // ●テキストエリア入力のダイアログ
 //////////////////////////////////////////////////////////////////////////////
-adiary.textarea_dialog = function(dom, func) {
+$$.textarea_dialog = function(dom, func) {
 	var obj = $(dom);
 	this.form_dialog({
 		title: obj.data('title'),
@@ -80,7 +80,7 @@ adiary.textarea_dialog = function(dom, func) {
 //////////////////////////////////////////////////////////////////////////////
 // ●入力フォームのダイアログの表示
 //////////////////////////////////////////////////////////////////////////////
-adiary.form_dialog = function(h) {
+$$.form_dialog = function(h) {
 	var ele = h.elements || { type:'text', name:'str', dclass:'w80p' };
 	if (!Array.isArray(ele)) ele = [ ele ];
 	var div = $('<div>').attr('id','popup-dialog');

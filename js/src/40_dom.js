@@ -4,8 +4,8 @@
 //////////////////////////////////////////////////////////////////////////////
 //●画像・ヘルプ・コメントのポップアップ
 //////////////////////////////////////////////////////////////////////////////
-adiary.init( function(){
-	const $popup_div = $('<div>').addClass('adiary-popup');
+$$.init( function(){
+	const $popup_div = $('<div>').addClass('popup-block');
 	this.$popup_div  = $popup_div;
 	this.$body.append( $popup_div );
 	const self = this;
@@ -49,7 +49,7 @@ adiary.init( function(){
 //////////////////////////////////////////////////////////////////////////////
 //●詳細情報ダイアログの表示
 //////////////////////////////////////////////////////////////////////////////
-adiary.init( function(){
+$$.init( function(){
 	let prev;
 	const self=this;
 	this.$body.on('click', '.js-info[data-info], .js-info[data-url]', function(evt){
@@ -85,7 +85,7 @@ adiary.init( function(){
 //////////////////////////////////////////////////////////////////////////////
 //●input[type="text"]などで enter による submit 停止
 //////////////////////////////////////////////////////////////////////////////
-adiary.init( function(){
+$$.init( function(){
 	this.$body.on('keypress', 'input.no-enter-submit, form.no-enter-submit input', function(evt){
 		if (evt.which === 13) return false;
 		return true;
@@ -95,7 +95,7 @@ adiary.init( function(){
 //////////////////////////////////////////////////////////////////////////////
 //●textareaでのタブ入力
 //////////////////////////////////////////////////////////////////////////////
-adiary.init( function(){
+$$.init( function(){
 	const self=this;
 
 	this.$body.on('focus', 'textarea', function(evt){
@@ -125,7 +125,7 @@ adiary.init( function(){
 //////////////////////////////////////////////////////////////////////////////
 //●file upload button （input type="file"を間接クリックする）
 //////////////////////////////////////////////////////////////////////////////
-adiary.init( function(){
+$$.init( function(){
 	this.$body.on('click', 'button.js-file-btn', function(evt) {
 		const $obj = $(evt.target);
 		const $tar = $obj.rootfind( $obj.data('target') );
@@ -138,7 +138,7 @@ adiary.init( function(){
 //////////////////////////////////////////////////////////////////////////////
 //●フォーム要素の全チェック
 //////////////////////////////////////////////////////////////////////////////
-adiary.init( function(){
+$$.init( function(){
 	this.$body.on('click', 'input.js-checked', function(evt){
 		var $obj = $(evt.target);
 		var target = $obj.data( 'target' );
@@ -149,8 +149,8 @@ adiary.init( function(){
 //////////////////////////////////////////////////////////////////////////////
 //●コンボボックス / <select class="js-combo">
 //////////////////////////////////////////////////////////////////////////////
-adiary.select_dummy_value = "\e\f\e\f\b\n";
-adiary.init( function(){
+$$.select_dummy_value = "\e\f\e\f\b\n";
+$$.init( function(){
 	const self = this;
 	const dummy_val = this.select_dummy_value;
 
@@ -193,7 +193,7 @@ adiary.init( function(){
 	});
 })
 
-adiary.val_for_select = function($sel, val) {
+$$.val_for_select = function($sel, val) {
 	$sel.val( val );
 	if ($sel.val() == val) return;
 
@@ -208,7 +208,7 @@ adiary.val_for_select = function($sel, val) {
 //////////////////////////////////////////////////////////////////////////////
 //【スマホ】ドロップダウンメニューでの hover の代わり
 //////////////////////////////////////////////////////////////////////////////
-adiary.init( function(){
+$$.init( function(){
 	function open_link(evt) {
 		location.href = $(evt.target).attr('href');
 	}

@@ -309,7 +309,7 @@
     this.$overlay.fadeIn(this.options.fadeDuration);
 
     // patch by nabe@abk
-    if (window.adiary) window.adiary.load_LightboxLoaderIcon( '.lb-cancel' );
+    if ($$ && $$.load_LightboxLoaderIcon) $$.load_LightboxLoaderIcon( '.lb-cancel' );
 
     $('.lb-loader').fadeIn('slow');
     this.$lightbox.find('.lb-image, .lb-nav, .lb-prev, .lb-next, .lb-dataContainer, .lb-numbers, .lb-caption').hide();

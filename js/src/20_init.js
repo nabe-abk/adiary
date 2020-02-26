@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////////////
 //●初期化処理
 //////////////////////////////////////////////////////////////////////////////
-adiary.init_funcs  = [];
-adiary.init = function(func) {
+$$.init_funcs  = [];
+$$.init = function(func) {
 	if (func)
 		return this.init_funcs.push(func);
 
@@ -51,7 +51,7 @@ adiary.init = function(func) {
 //////////////////////////////////////////////////////////////////////////////
 //●<body>にCSSのためのブラウザクラスを設定
 //////////////////////////////////////////////////////////////////////////////
-adiary.init(function() {
+$$.init(function() {
 	var x = [];
 	var ua = navigator.userAgent;
 
@@ -80,8 +80,8 @@ adiary.init(function() {
 //////////////////////////////////////////////////////////////////////////////
 // defer tags
 //////////////////////////////////////////////////////////////////////////////
-adiary.script_defer_doms=[];
-adiary.init(function(){
+$$.script_defer_doms=[];
+$$.init(function(){
 	const self=this;
 
 	// css-defer
@@ -100,7 +100,7 @@ adiary.init(function(){
 
 		let script = dom.innerHTML.replace(/^\s*<!--([\s\S]*?)-->\s*$/, "$1");
 		eval(
-			'try{' + script + "\n}catch(e){ adiary.script_defer_error(e,"+ num + ") }"
+			'try{' + script + "\n}catch(e){ script_defer_error(e,"+ num + ") }"
 		);
 	});
 	if (!$scripts.length) return;
@@ -117,7 +117,7 @@ adiary.init(function(){
 	});
 	
 });
-adiary.script_defer_error = function(err, idx) {
+$$.script_defer_error = function(err, idx) {
 	var line = 0;
 	var col  = 0;
 	var text = err.stack.replace(/^[\s\S]*?([^\n]*:\d+:\d+)/, "$1");
@@ -130,7 +130,7 @@ adiary.script_defer_error = function(err, idx) {
 	}
 	this.script_defer_error_throw(err, line, col, this.script_defer_doms[idx]);
 }
-adiary.script_defer_error_throw = function(err, line, col, dom) {
+$$.script_defer_error_throw = function(err, line, col, dom) {
 	line += 2;	// before <head> lines
 	domloop: while(1) {
 		while(!dom.previousSibling) {
@@ -150,7 +150,7 @@ adiary.script_defer_error_throw = function(err, line, col, dom) {
 //////////////////////////////////////////////////////////////////////////////
 //●特殊Queryの処理
 //////////////////////////////////////////////////////////////////////////////
-adiary.init(function(){
+$$.init(function(){
  	if (!this.SpecialQuery) return;
  	const myself   = this.myself;
  	const sp_query = this.SpecialQuery;

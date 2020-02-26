@@ -1,8 +1,8 @@
 //############################################################################
 // ■CSSへの機能提供ライブラリ
 //############################################################################
-adiary.css_funcs = [];
-adiary.css_init  = function(func) {
+$$.css_funcs = [];
+$$.css_init  = function(func) {
 	if (func)
 		return this.css_funcs.push(func);
 
@@ -10,12 +10,12 @@ adiary.css_init  = function(func) {
 	for(var i=0; i<funcs.length; i++)
 		funcs[i].call(this);
 }
-adiary.init(adiary.css_init);
+$$.init($$.css_init);
 
 //////////////////////////////////////////////////////////////////////////////
 // ●CSSから値を取得する
 //////////////////////////////////////////////////////////////////////////////
-adiary.get_value_from_css = function(id, attr) {
+$$.get_value_from_css = function(id, attr) {
 	var span = $('<span>').attr('id', id).css('display', 'none');
 	this.$body.append(span);
 	if (attr) {
@@ -34,7 +34,7 @@ adiary.get_value_from_css = function(id, attr) {
 //////////////////////////////////////////////////////////////////////////////
 //●sidebarのHTML位置変更
 //////////////////////////////////////////////////////////////////////////////
-adiary.css_init(function(){
+$$.css_init(function(){
 	var flag = this.get_value_from_css('sidebar-move-to-before-main');
 	if (SP || !flag) return;
 
@@ -43,7 +43,7 @@ adiary.css_init(function(){
 	sidebar.insertBefore( 'div.main:first-child' );
 });
 
-adiary.css_init(function(){
+$$.css_init(function(){
 	var flag = this.get_value_from_css('side-b-move-to-footer');
 	if (SP || !flag) return;
 
@@ -54,7 +54,7 @@ adiary.css_init(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●viewport の上書き
 //////////////////////////////////////////////////////////////////////////////
-adiary.css_init(function(){
+$$.css_init(function(){
 	var val = this.get_value_from_css('viewport-setting');
 	if (!val) return;
 	$('#viewport').attr('content', val);
@@ -63,7 +63,7 @@ adiary.css_init(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●ui-iconの生成
 //////////////////////////////////////////////////////////////////////////////
-adiary.css_init(function(){
+$$.css_init(function(){
 	let color_bin;
 	{
 		const css = this.get_value_from_css('ui-icon-autoload', 'background-color');
@@ -126,7 +126,7 @@ adiary.css_init(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●syntax highlight機能の自動ロード
 //////////////////////////////////////////////////////////////////////////////
-adiary.css_init(function(){
+$$.css_init(function(){
 	const $codes = $('pre.syntax-highlight');
 	if (!$codes.length) return;
 	if (window.alt_SyntaxHighlight) return window.alt_SyntaxHighlight();
@@ -166,7 +166,7 @@ adiary.css_init(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●MathJaxの自動ロード
 //////////////////////////////////////////////////////////////////////////////
-adiary.init(function(){
+$$.init(function(){
 	const MathJaxURL = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML';
 	if (! $('span.math, div.math').length ) return;
 
@@ -186,10 +186,10 @@ adiary.init(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●Lightbox Loadingアイコンの動的ロード
 //////////////////////////////////////////////////////////////////////////////
-adiary.load_LightboxLoaderIcon = function(sel){
+$$.load_LightboxLoaderIcon = function(sel){
 	if (this.load_lbicon) return;
 	this.load_lbicon = true;
 	this.append_style( sel
-		+ "{ background-image: url('" + adiary.PubdistDir + "lb_loading.gif') }"
+		+ "{ background-image: url('" + $$.PubdistDir + "lb_loading.gif') }"
 	);
 }

@@ -1,8 +1,8 @@
 //############################################################################
 //■DOM要素への拡張機能の提供 / require initalize
 //############################################################################
-adiary.dom_funcs = [];
-adiary.dom_init  = function(arg) {
+$$.dom_funcs = [];
+$$.dom_init  = function(arg) {
 	if (typeof(arg) == 'function')
 		return this.dom_funcs.push(arg);
 
@@ -11,12 +11,12 @@ adiary.dom_init  = function(arg) {
 	for(var i=0; i<funcs.length; i++)
 		funcs[i].call(this, $obj);
 }
-adiary.init(adiary.dom_init);
+$$.init($$.dom_init);
 
 //////////////////////////////////////////////////////////////////////////////
 //●フォーム値の保存	※表示、非表示よりも前に処理すること
 //////////////////////////////////////////////////////////////////////////////
-adiary.dom_init( function($R) {
+$$.dom_init( function($R) {
 	const self = this;
 
 	$R.findx('input.js-save, select.js-save').each( function(idx, dom) {
@@ -63,7 +63,7 @@ adiary.dom_init( function($R) {
 //////////////////////////////////////////////////////////////////////////////
 //●フォーム操作による、enable/disableの自動変更 (js-saveより後)
 //////////////////////////////////////////////////////////////////////////////
-adiary.dom_init( function($R){
+$$.dom_init( function($R){
 	const $objs = $R.findx('input.js-enable, input.js-disable, select.js-enable, select.js-disable');
 
 	const func = function(evt) {
@@ -119,17 +119,17 @@ adiary.dom_init( function($R){
 // <input type="button" value="ボタン" class="js-switch"  data-target="xxx"
 //  data-hide-val="表示する" data-show-val="非表示にする" data-default="show/hide">
 //
-adiary.toggle = function() {
+$$.toggle = function() {
 	const arg = Array.from(arguments);
 	arg.unshift(false);
 	return this._toggle.apply(this, arg);
 }
-adiary.toggle_init = function() {
+$$.toggle_init = function() {
 	const arg = Array.from(arguments);
 	arg.unshift(true);
 	return this._toggle.apply(this, arg);
 }
-adiary._toggle = function(init, $obj) {
+$$._toggle = function(init, $obj) {
 	if ($obj[0].tagName == 'A')
 		return true;	// リンククリックそのまま（falseにするとリンクが飛べない）
 
@@ -192,7 +192,7 @@ adiary._toggle = function(init, $obj) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-adiary.dom_init( function($R){
+$$.dom_init( function($R){
 	const self = this;
 
 	const func = function(evt){
@@ -217,8 +217,8 @@ adiary.dom_init( function($R){
 //////////////////////////////////////////////////////////////////////////////
 //●色選択ボックスを表示。 ※input[type=text] のリサイズより先に行うこと
 //////////////////////////////////////////////////////////////////////////////
-adiary._load_picker = false;
-adiary.dom_init( function($R){
+$$._load_picker = false;
+$$.dom_init( function($R){
 	const $cp = $R.findx('input.color-picker');
 	if (!$cp.length) return;
 
@@ -275,7 +275,7 @@ adiary.dom_init( function($R){
 //////////////////////////////////////////////////////////////////////////////
 //●フォームsubmitチェック
 //////////////////////////////////////////////////////////////////////////////
-adiary.dom_init( function($R){
+$$.dom_init( function($R){
 	let confirmed;
 	const self=this;
 
@@ -323,7 +323,7 @@ adiary.dom_init( function($R){
 //////////////////////////////////////////////////////////////////////////////
 //●accordion機能
 //////////////////////////////////////////////////////////////////////////////
-adiary.dom_init( function($R){
+$$.dom_init( function($R){
 	const $accordion = $R.findx('.js-accordion');
 	if (!$accordion.length) return;
 	$accordion.adiaryAccordion();
@@ -332,7 +332,7 @@ adiary.dom_init( function($R){
 //////////////////////////////////////////////////////////////////////////////
 //●【スマホ】DnDエミュレーション登録
 //////////////////////////////////////////////////////////////////////////////
-adiary.dom_init( function($R){
+$$.dom_init( function($R){
 	$R.findx('.treebox').dndEmulation();
 });
 

@@ -6,7 +6,8 @@ var IE11=false;	// IE11
 var SP;		// smart phone mode
 var Storage;	// Storage object
 
-var adiary = {
+var $$ = {
+	name:			'adiary',	// export global name
 	DialogWidth:		640,
 	DefaultShowSpeed:	300,	// msec
 	TouchDnDTime:		100,	// msec
@@ -18,15 +19,17 @@ var adiary = {
 	CommentEnableKeys:	10,
 	SyntaxHighlightTheme:	'adiary'
 };
+window[$$.name] = $$;
+
 /*
  * other variables from _frame.html
  *
- *	adiary.myself
- *	adiary.myself2
- *	adiary.Basepath
- *	adiary.ScriptDir
- *	adiary.PubdistDir
- *	adiary.SpecialQuery
+ *	$$.myself
+ *	$$.myself2
+ *	$$.Basepath
+ *	$$.ScriptDir
+ *	$$.PubdistDir
+ *	$$.SpecialQuery
  */
 
 //////////////////////////////////////////////////////////////////////////////

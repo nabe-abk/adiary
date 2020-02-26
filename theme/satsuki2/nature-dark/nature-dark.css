@@ -89,7 +89,7 @@ article a:link,
 nav.tree a:link,
 #com a:link,
 .ui-dialog a:link,
-.adiary-popup a:link {
+.popup-block a:link {
 	color: #800;		/* $c=artlink */
 	text-decoration:	underline;
 }
@@ -97,14 +97,13 @@ article a:visited,
 nav.tree a:visited,
 .ui-dialog a:visited,
 #com a:visited,
-.adiary-popup a:visited {
+.popup-block a:visited {
 	color: #633;		/* $c=artlinkvisited = auto:artlink */
 }
 article a:hover,
 nav.tree a:hover,
 .ui-dialog a:hover,
-#com a:hover,
-.adiary-popup a:link {
+#com a:hover {
 	color: #888;		/* $c=artlinkhover   = auto:artlink */
 }
 

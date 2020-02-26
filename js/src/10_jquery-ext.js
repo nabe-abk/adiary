@@ -7,17 +7,17 @@ $.fn.extend({
 //////////////////////////////////////////////////////////////////////////////
 showDelay: function(){
 	let args = Array.from(arguments)
-	args.unshift(adiary.DefaultShowSpeed);
+	args.unshift($$.DefaultShowSpeed);
 	return $.fn.show.apply(this, args);
 },
 hideDelay: function(){
 	let args = Array.from(arguments);
-	args.unshift(adiary.DefaultShowSpeed);
+	args.unshift($$.DefaultShowSpeed);
 	return $.fn.hide.apply(this, args);
 },
 toggleDelay: function(){
 	let args = Array.from(arguments);
-	args.unshift(adiary.DefaultShowSpeed);
+	args.unshift($$.DefaultShowSpeed);
 	return $.fn.toggle.apply(this, args);
 },
 //////////////////////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ dndEmulation: function(opt){
 		timer = setTimeout(function(){
 			timer = false;
 			flag  = true;
-		}, adiary.TouchDnDTime)
+		}, $$.TouchDnDTime)
 	}, { passive: true });
 
 	// mouseupエミュレーション
@@ -206,7 +206,7 @@ $.event.special.mydbltap = {
 			}
 			flag  = true;
 			mouse = true;
-			setTimeout( function(){ flag = false; }, adiary.DoubleTapTime);
+			setTimeout( function(){ flag = false; }, $$.DoubleTapTime);
 		});
 		this.addEventListener('touchstart', function(){
 			mouse = false;
@@ -221,7 +221,7 @@ $.event.special.mydbltap = {
 	const init_orig = $.fn.init;
 	$.fn.init = function(sel,cont) {
 		if (typeof sel === "string" && sel.match(/<.*?[\W]on\w+\s*=/i))
-			throw 'Security error by adiary.js : ' + sel;
+			throw 'Security error by ' + $$.name + '.js : ' + sel;
 		return  new init_orig(sel,cont);
 	};
 }

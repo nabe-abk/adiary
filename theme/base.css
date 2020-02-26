@@ -535,7 +535,7 @@ body:not(.sp) .btn-help:after {
 	content:	'[?]';
 }
 
-div.adiary-popup {
+div.popup-block {
 	display:	none;
 	position:	absolute;
 	z-index:	1100;

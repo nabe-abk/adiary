@@ -2,7 +2,7 @@
 // popup for mouseenter
 //////////////////////////////////////////////////////////////////////////////
 // mouseover event
-adiary.popup = function(evt) {	// event function なので this は使わない!
+$$.popup = function(evt) {	// event function なので this は使わない!
 	const self  = this;
 	const $obj  = $(evt.target);
 	let   delay = $obj.data('delay') || this.PopupDelayTime;
@@ -15,7 +15,7 @@ adiary.popup = function(evt) {	// event function なので this は使わない!
 	$obj.data('timer', setTimeout(function()   { self.popup_show(evt) }, delay));
 }
 
-adiary.popup_show = function(evt) {
+$$.popup_show = function(evt) {
 	const $obj = $(evt.target);
 	const $div = evt.data.$div;
 	const func = evt.data.func;
@@ -27,7 +27,7 @@ adiary.popup_show = function(evt) {
 	$div.showDelay();
 }
 // mouseout event
-adiary.popup_hide = function(evt) {
+$$.popup_hide = function(evt) {
 	const $obj = $(evt.target);
 	const $div = evt.data.$div;
 	if ($obj.data('timer')) {
