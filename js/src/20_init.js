@@ -99,28 +99,19 @@ $$.init(function(){
 		self.script_defer_doms.push(dom);
 
 		let script = dom.innerHTML.replace(/^\s*<!--([\s\S]*?)-->\s*$/, "$1");
-		eval(
-			'try{' + script + "\n}catch(e){ script_defer_error(e,"+ num + ") }"
-		);
+		try {
+			eval(
+				'try{' + script + "\n}catch(e){ self.script_defer_error(e,"+ num + ") }"
+			)
+		} catch(e) {
+			self.script_defer_error_throw(e, 1, 0, self.script_defer_doms[num]);
+		};
 	});
 	if (!$scripts.length) return;
-
-	// script-defer error trap
-	const dom = $scripts[0];
-	$(window).on('error', function(evt) {
-		const err  = evt.originalEvent;
-		const file = err.filename;
-		if (file != "" && !file.match(/eval/)) return;
-
-		//evt.preventDefault();
-		self.script_defer_error_throw(err.error, err.lineno, err.colno, dom);
-	});
-	
 });
 $$.script_defer_error = function(err, idx) {
 	var line = 0;
 	var col  = 0;
-	var text = err.stack.replace(/^[\s\S]*?([^\n]*:\d+:\d+)/, "$1");
 	var ma   = err.stack.match(/^[\s\S]*?:(\d+):(\d+)[^:]*\n/);
 	if (ma) {
 		line = parseInt(ma[1]);
