@@ -67,7 +67,7 @@ $$.init(function() {
 		IE11 = true;
 	}
 
-	// adiaryのスマホモード検出
+	// スマホモード検出
 	if (this.$body.hasClass('sp')) {
 		SP = 1;
 		this.DialogWidth = 320;
