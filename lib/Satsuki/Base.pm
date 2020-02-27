@@ -1686,12 +1686,11 @@ sub load_codepm_if_needs {
 #------------------------------------------------------------------------------
 # ●メッセージの翻訳
 #------------------------------------------------------------------------------
-sub message_translate {
+sub translate {
 	my $self = shift;
 	my $msg  = shift;
-	my $msg_translate = $self->{Msg_translate};
-	if ($msg_translate->{$msg} ne '') { $msg = $msg_translate->{$msg}; }
-	if (@_) { return sprintf($msg, @_); }	# 整形
+	$msg = $self->{Msg_translate}->{$msg} || $msg;
+	if (@_) { return sprintf($msg, @_); }
 	return $msg;
 }
 
@@ -1715,7 +1714,7 @@ sub _message {
 	my $class= shift;
 	if ($self->{Message_stop}) { return []; }
 
-	my $msg = $self->message_translate(@_);
+	my $msg = $self->translate(@_);
 	my $ary = $self->{Message};
 	$self->tag_escape($class,$msg);
 	push(@$ary, "<div class=\"$class\">$msg</div>");
@@ -1735,7 +1734,7 @@ sub error {
 sub error_from {
 	my $self = shift;
 	my $from = shift;
-	my $msg  = $self->message_translate(@_);
+	my $msg  = $self->translate(@_);
 
 	# エラー元参照
 	if ($from eq '') {

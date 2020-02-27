@@ -1184,7 +1184,7 @@ sub import_error {
 	my $msg  = shift;
 	my $ROBJ = $self->{ROBJ};
 	if (ref $self->{import_error} ne 'ARRAY') { $self->{import_error}=[]; }
-	$msg = $ROBJ->message_translate($msg, @_);
+	$msg = $ROBJ->translate($msg, @_);
 	$ROBJ->tag_escape($msg);
 	$ROBJ->error("$head $msg");
 }

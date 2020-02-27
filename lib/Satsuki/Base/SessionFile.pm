@@ -85,7 +85,7 @@ sub open {
 sub msg {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $msg  = $ROBJ->message_translate(@_);
+	my $msg  = $ROBJ->translate(@_);
 	return $self->say($msg);
 }
 sub say {

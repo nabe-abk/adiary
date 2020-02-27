@@ -2123,7 +2123,7 @@ sub error {
 	my $ROBJ = $self->{ROBJ};
 	$self->{errors}++;
 	if ($line) { $line=" at line " . int($line); }
-	$ROBJ->error("[Compiler] $self->{src_file}$line : " . $ROBJ->message_translate(@_));
+	$ROBJ->error("[Compiler] $self->{src_file}$line : " . $ROBJ->translate(@_));
 }
 sub warning {
 	my $self = shift;
@@ -2131,13 +2131,13 @@ sub warning {
 	my $ROBJ = $self->{ROBJ};
 	$self->{warnings}++;
 	if ($line) { $line=" at line " . int($line); }
-	$ROBJ->warning("[Compiler] $self->{src_file}$line : " . $ROBJ->message_translate(@_));
+	$ROBJ->warning("[Compiler] $self->{src_file}$line : " . $ROBJ->translate(@_));
 }
 
 sub debug {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $msg  = "[Compiler] $self->{src_file} : " . $ROBJ->message_translate(@_);
+	my $msg  = "[Compiler] $self->{src_file} : " . $ROBJ->translate(@_);
 	return $ROBJ->debug($msg,1,@_); # debug-safe
 }
 

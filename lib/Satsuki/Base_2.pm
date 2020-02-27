@@ -1343,7 +1343,7 @@ sub debug {
 }
 sub warning {
 	my $self = shift;
-	my $msg  = $self->message_translate(@_);
+	my $msg  = $self->translate(@_);
 	my ($pack, $file, $line) = caller;
 	push(@{$self->{Warning}}, '' . $msg . "<!-- in $file line $line -->");
 }

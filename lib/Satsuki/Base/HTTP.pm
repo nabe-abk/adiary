@@ -450,7 +450,7 @@ sub error {
 	if (defined $sock) { close($sock); }
 	if (defined $ROBJ) {
 		if ($self->{error_to_root}) { return $ROBJ->error($error, @_); }
-		$error = $ROBJ->message_translate($error, @_);
+		$error = $ROBJ->translate($error, @_);
 	} elsif (@_) {
 		$error = sprintf($error, @_);
 	}
