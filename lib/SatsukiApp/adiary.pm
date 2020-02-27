@@ -266,7 +266,7 @@ sub blogid_and_pinfo {
 		$host_name =~ s/[^\w\.\-]//g;
 		my $domain = $self->{subdomain_mode};
 		if (! $self->{subdomain_secure}) {	# Cookieを全ドメインで共通化
-			$ROBJ->{Cookie_domain} = $domain;
+			$ROBJ->{CookieDomain} = $domain;
 		}
 		$self->{subdomain_proto} ||= 'http://';
 

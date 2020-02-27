@@ -1169,23 +1169,24 @@ sub generate_nonce {
 #==============================================================================
 sub clear_cookie {
 	my $self = shift;
-	my ($name, $path, $domain) = @_;
-	$self->put_cookie("$name=; expires=Thu, 1-Jan-1970 00:00:00 GMT;", $path, $domain);
+	my $name = shift;
+	$self->put_cookie("$name=; expires=Thu, 1-Jan-1970 00:00:00 GMT;", @_);
 }
-
 
 #==============================================================================
 # ●cookie に文字列、配列、ハッシュを１つのcookieに保存
 #==============================================================================
 sub set_cookie {
 	my $self = shift;
-	my ($name, $val, $expires, $path, $domain) = @_;
-	if ($expires > 0) {
-		$expires = ' expires='. $self->rfc_date($self->{TM} + $expires) . ';';
-	} elsif ($expires) {	# 負数（無期限）
-		$expires = ' expires=Tue, 19-Jan-2038 00:00:00 GMT;';7
+	my $name = shift;
+	my $val  = shift;
+	my $exp  = shift;
+	if ($exp > 0) {
+		$exp = ' expires='. $self->rfc_date($self->{TM} + $exp) . ';';
+	} elsif ($exp) {	# 負数（無期限）
+		$exp = ' expires=Tue, 19-Jan-2038 00:00:00 GMT;';
 	} else {		# 0 or 未定義（今セッションのみ）
-		$expires = '';
+		$exp = '';
 	}
 
 	if (ref($val) eq 'ARRAY') {
@@ -1195,20 +1196,22 @@ sub set_cookie {
 	}
 
 	$val =~ s/([^\w\-\/\.\@\~\*])/ '%' . unpack('H2', $1)/eg;
-	$self->put_cookie("$name=$val;$expires", $path, $domain);
+	$self->put_cookie("$name=$val;$exp", @_);
 }
 
 #==============================================================================
 # ●cookie を設定
 #==============================================================================
 sub put_cookie {
-	my ($self, $str, $path, $domain) = @_;
-	$path   ||= $self->{Cookie_path} || $self->{Basepath};
-	$domain ||= $self->{Cookie_domain};
-	if ($path  ) { $path   = " path=$path;";      }
-	if ($domain) { $domain = " domain=$domain;";  }
+	my ($self, $str, $path, $dom) = @_;
+	$path ||= $self->{CookiePath} || $self->{Basepath};
+	$dom  ||= $self->{CookieDomain};
+	if ($path) { $path = " path=$path;";      }
+	if ($dom ) { $dom  = " domain=$dom;";  }
+	my $opt = $self->{CookieOpt}      || 'HttpOnly;';
+	my $ss  = $self->{CookieSameSite} || 'Lax';
 
-	$self->set_header('Set-Cookie', "$str$path$domain; HttpOnly; SameSite=Lax");
+	$self->set_header('Set-Cookie', "$str$path$dom${opt}SameSite=$ss");
 }
 
 ###############################################################################
