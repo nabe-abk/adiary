@@ -26,6 +26,12 @@ $$.init = function(func) {
 		history.pushState("", document.title, location.pathname + location.search);
 	}
 
+	// Smartphone mode
+	if (this.$body.hasClass('sp')) {
+		SP = 1;
+		this.DialogWidth = 320;
+	}
+
 	// PrefixStorage
 	if (this.Basepath)
 		window.Storage = new PrefixStorage( this.myself );
@@ -47,35 +53,6 @@ $$.init = function(func) {
 	for(var i=0; i<funcs.length; i++)
 		funcs[i].call(this);
 };
-
-//////////////////////////////////////////////////////////////////////////////
-//●<body>にCSSのためのブラウザクラスを設定
-//////////////////////////////////////////////////////////////////////////////
-$$.init(function() {
-	var x = [];
-	var ua = navigator.userAgent;
-
-	     if (ua.indexOf('Edge/')   != -1) x.push('Edge');
-	else if (ua.indexOf('WebKit/') != -1) x.push('GC');
-	else if (ua.indexOf('Gecko/')  != -1) x.push('Fx');
-
-	var m = ua.match(/MSIE (\d+)/);
-	var n = ua.match(/Trident\/\d+.*rv:(\d+)/);
-	if (n) { x = []; m = n; }		// IE11
-	if (m) {
-		x.push('IE', 'IE' + m[1]);
-		IE11 = true;
-	}
-
-	// スマホモード検出
-	if (this.$body.hasClass('sp')) {
-		SP = 1;
-		this.DialogWidth = 320;
-	}
-
-	// bodyにクラス設定する
-	this.$body.addClass( x.join(' ') );
-});
 
 //////////////////////////////////////////////////////////////////////////////
 // defer tags

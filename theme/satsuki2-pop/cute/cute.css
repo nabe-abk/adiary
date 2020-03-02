@@ -381,9 +381,6 @@ h1 a:link, h1 a:hover, h1 a:visited {
                                 1px 1px 3px #f08daa, 1px -1px 3px #f08daa,
                                 0 0 20px white;
 }
-.IE9 h1 a:link, .IE9 h1 a:visited {
-	color:		#f08daa;
-}
 
 /*--------------------------------------------------------------------
 ●ドロップダウンメニュー（配色カスタマイズ） by nabe

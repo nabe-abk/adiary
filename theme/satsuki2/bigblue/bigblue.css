@@ -215,10 +215,6 @@ button:disabled
 	border-left-color:	#333;			/* $c=titlebg7 = auto:titlebg */
 	border-bottom-color:	#303030;		/* $c=titlebg8 = auto:titlebg */
 }
-.IE9 #nav-header:before {
-	border-left-color:	#000;			/* $c=titlebg9 = auto:titlebg */
-	border-bottom-color:	#000;			/* $c=titlebg9 */
-}
 #sp-nav-header:hover,
 #nav-header:hover {
 	background-color:	#8090a3;			/* $c=headerhoverbg */
