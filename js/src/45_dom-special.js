@@ -279,16 +279,16 @@ $$.dom_init( function($R){
 	let confirmed;
 	const self=this;
 
-	$R.findx('button.js-form-check').on('click', function(evt){
+	$R.findx('button.js-check').on('click', function(evt){
 		const $obj  = $(evt.target);
-		const $form = $obj.parents('form.js-form-check');
+		const $form = $obj.parents('form.js-check');
 		if (!$form.length) return;
 		$form.data('confirm', $obj.data('confirm') );
 		$form.data('focus',   $obj.data('focus')   );
 		$form.data('button',  $obj);
 	});
 
-	$R.findx('form.js-form-check').on('submit', function(evt){
+	$R.findx('form.js-check').on('submit', function(evt){
 		const $form  = $(evt.target);
 		const target = $form.data('target');
 		let count=0;
@@ -314,6 +314,10 @@ $$.dom_init( function($R){
 			if (!flag) return;
 			confirmed = true;
 			if ($form.data('button')) return $form.data('button').click();
+
+			const func = $form.data('submit-func');
+			if (typeof(func) == 'function')
+				return func($form);
 			$form.submit();
 		});
 		return false;
