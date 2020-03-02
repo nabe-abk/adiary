@@ -55,29 +55,6 @@ $$.load_script = function(url, func) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// load message
-//////////////////////////////////////////////////////////////////////////////
-$$.msg = function(key) {
-	if (!this.msgs) this.load_msg();
-	return this.msgs[key];
-}
-$$.load_msg = function(key) {
-	const msgs = {};
-
-	$('[data-secure].adiary-msgs').each(function(idx,dom) {
-		try {
-			const json = $(dom).html().replace(/^[\s\S]*?{/, '{').replace(/}[\s\S]*?$/, '}');
-			const data = JSON.parse(json);
-			for(var i in data)
-				msgs[i] = data[i];
-		} catch(e) {
-			console.error(e);
-		}
-	});
-	this.msgs = msgs;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 // タグ除去
 //////////////////////////////////////////////////////////////////////////////
 $$.tag_esc = function(text) {

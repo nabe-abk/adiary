@@ -10,7 +10,7 @@ $$.init = function(func) {
 	this.$body = $('#body');
 
 	// load adiary vars
-	let $obj = $secure('#adiary-vars');
+	let $obj = $secure('#' + this.name + '-vars');
 	let data;
 	if ($obj && $obj.myhasData('secure')) {
 		const json = $obj.html().replace(/^[\s\S]*?{/, '{').replace(/}[\s\S]*?$/, '}');
@@ -53,6 +53,30 @@ $$.init = function(func) {
 	for(var i=0; i<funcs.length; i++)
 		funcs[i].call(this);
 };
+
+//////////////////////////////////////////////////////////////////////////////
+// load message
+//////////////////////////////////////////////////////////////////////////////
+$$.msg = function(key) {
+	if (!this.msgs) this.load_msg();
+	const val = this.msgs[key];
+	return (val === undefined) ? key.toUpperCase() : val;
+}
+$$.load_msg = function(key) {
+	const msgs = {};
+
+	$('[data-secure].' + this.name + '-msgs').each(function(idx,dom) {
+		try {
+			const json = $(dom).html().replace(/^[\s\S]*?{/, '{').replace(/}[\s\S]*?$/, '}');
+			const data = JSON.parse(json);
+			for(var i in data)
+				msgs[i] = data[i];
+		} catch(e) {
+			console.error(e);
+		}
+	});
+	this.msgs = msgs;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // defer tags
