@@ -20,12 +20,13 @@ adiaryDialog: function(opt) {
 	//////////////////////////////////////////////////////////////////////
 	const $win = $(window);
 	const $dialog = $('<div>').addClass('ui-dialog aui-dialog');
-	const width = opt.width || 300;
+	const width = opt.width     || 300;
 	const min_h = opt.minHeight || 150;
 	const x = $win.scrollLeft() + ($win.width()  - width )/2;
 	$dialog.css({
-		width:  width,
-		left:   x
+		width:		width,
+		minHeight:	min_h,
+		left:		x
 	});
 	if (opt.maxHeight) $dialog.css('max-height', opt.maxHeight);
 	if (opt.dialogClass)
@@ -84,8 +85,6 @@ adiaryDialog: function(opt) {
 	//////////////////////////////////////////////////////////////////////
 	data.$overlay = $('<div>').addClass('aui-overlay');
 	data.$dialog  = $dialog;
-	data.min_h = min_h;
-	data.max_h = opt.maxHeight;
 	data.beforeClose = opt.beforeClose;
 
 	if (opt && !opt.autoOpen && 'autoOpen' in opt) return this;
@@ -103,16 +102,13 @@ adiaryDialogOpen: function() {
 	// set css
 	const h  = this.height();
 	const hf = data.$header.outerHeight() + data.$footer.outerHeight();
-	if (data.max_h)
-		this.css('max-height', data.max_h - hf);
-	if (h < data.min_h)
-		this.css('min-height', data.min_h - hf);
+	this.css('height', 'calc(100% - ' + hf + 'px)');
 
 	const $win  = $(window);
 	const y = $win.scrollTop()  + ($win.height() - $dialog.outerHeight())/2;
 	$dialog.css('top', y);
 	$dialog.adiaryDraggable({
-		cancel:	".ui-dialog-content, .ui-button"
+		handle: '.ui-dialog-titlebar'
 	});
 	return this;
 },
@@ -195,14 +191,14 @@ adiaryDraggable: function(opt) {
 
 	this.on('mousedown', function(evt){
 		$('iframe').css('pointer-events', 'none');
-		$obj = $(evt.target);
-		if (!$obj.hasClass('aui-draggable'))
-			$obj = $obj.parents('.aui-draggable');
+		const $tar = $(evt.target);
+		$obj = $tar.hasClass('aui-draggable') ? $tar : $tar.parentsOne('.aui-draggable');
 
-		if (opt && opt.cancel) {
-			const $o = $(evt.target);
-			if ($o.filter(opt.cancel).length ) return;
-			if ($o.parents(opt.cancel).length) return;
+		if (opt) {
+			const $o = $tar;
+			if ($tar != $obj) $o.add($tar.parentsUntil('.aui-draggable'));
+			if (opt.cancel &&  $o.filter(opt.cancel).length) return;
+			if (opt.handle && !$o.filter(opt.handle).length) return;
 		}
 		const p = $obj.offset();
 		sx = p.left - evt.pageX;
