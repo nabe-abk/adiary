@@ -103,6 +103,7 @@ adiaryDialogOpen: function() {
 	const h  = this.height();
 	const hf = data.$header.outerHeight() + data.$footer.outerHeight();
 	this.css('height', 'calc(100% - ' + hf + 'px)');
+	$dialog.css('height', $dialog.outerHeight());	// needs for calc 100%
 
 	const $win  = $(window);
 	const y = $win.scrollTop()  + ($win.height() - $dialog.outerHeight())/2;

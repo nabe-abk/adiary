@@ -1072,7 +1072,7 @@ ul.dynatree-container {
 
 	resize:			both;
 	overflow:		hidden;
-	min-width:		100px;
+	min-width:		200px;
 }
 .ui-dialog, .ui-dialog-content {
 	box-sizing:		border-box;
