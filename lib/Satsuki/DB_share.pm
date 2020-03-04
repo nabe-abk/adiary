@@ -1,14 +1,14 @@
 use strict;
 #-------------------------------------------------------------------------------
 # データベースモジュール、共通ルーチン
-#							(C)2013 nabe@abk
+#							(C)2020 nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::DB_share;
-our $VERSION = '1.00';
+our $VERSION = '1.10';
 
 # use Satsuki::Exporter 'import';
 use Exporter 'import';
-our @EXPORT = qw(select_match_limit1 select_match select_match_colary
+our @EXPORT = qw(select_match_pkey1 select_match_limit1	select_match
 		set_debug set_noerror debug warning error
 		embed_timer_wrapper);
 
@@ -18,6 +18,10 @@ our @EXPORT = qw(select_match_limit1 select_match select_match_colary
 #------------------------------------------------------------------------------
 # ●データの取得
 #------------------------------------------------------------------------------
+sub select_match_pkey1 {
+	my $h = &select_match(@_, '*limit', 1, '*cols', 'pkey')->[0];
+	return $h && $h->{pkey};
+}
 sub select_match_limit1 {
 	return &select_match(@_, '*limit', 1)->[0];
 }
@@ -50,14 +54,6 @@ sub select_match {
 		$h{match}->{$col}=$val;
 	}
 	return $self->select($table, \%h);
-}
-
-sub select_match_colary {
-	my $self  = shift;
-	my $table = shift;
-	my $col   = shift;
-	my $ary = $self->select_match($table, '*cols', [$col], @_);
-	return [ map {$_->{$col}} @$ary ];
 }
 
 ###############################################################################

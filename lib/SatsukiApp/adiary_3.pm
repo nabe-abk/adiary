@@ -1042,7 +1042,6 @@ sub edit_articles {
 
 	my $cnt = 0;
 	my $com;
-	my $comkeylist;
 	my $event_name;
 	my $cevent_name;
 	if ($mode eq 'delete') {
@@ -1052,7 +1051,6 @@ sub edit_articles {
 
 		$DB->delete_match("${blogid}_tagart", 'a_pkey', $keylist);
 		# $DB->delete_match("${blogid}_rev", 'a_pkey', $keylist);
-		$comkeylist = $DB->select_match_colary("${blogid}_com", 'pkey', 'a_pkey', $keylist);
 		$com = $DB->delete_match("${blogid}_com", 'a_pkey', $keylist);
 		$cnt = $DB->delete_match("${blogid}_art", 'pkey', $keylist);
 
