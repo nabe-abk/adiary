@@ -622,7 +622,7 @@ sub esc_js_string {	# 非破壊
 }
 
 # 改行なし文字列の正規化
-sub string_normalize {
+sub normalize_string {
 	my $self = shift;
 	$self->trim(@_);	# 前後のスペース除去
 	foreach(@_) {
@@ -1038,7 +1038,7 @@ sub validator {
 			} elsif ($f eq 'trim') {
 				$self->trim($v);
 			} elsif ($f eq 'normalize') {
-				$self->string_normalize($v);
+				$self->normalize_string($v);
 			} elsif ($f eq 'rgb') {
 				$self->trim($v);
 				if ($v !~ /^#[0-9A-Fa-f]{6}$/) { $v=''; }

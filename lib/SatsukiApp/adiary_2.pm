@@ -314,7 +314,7 @@ sub regist_article {
 	my $tags = $form->{tags};
 	my $name = $form->{name};
 	my $id   = $form->{id};
-	$ROBJ->string_normalize($title, $tags, $name);
+	$ROBJ->normalize_string($title, $tags, $name);
 	$ROBJ->tag_escape_amp($title, $tags, $name);
 	$id =~ s/\W//g;
 	if ($title =~ /^\s*$/) {	# タイトルがない場合、タイトルを日付にする
@@ -325,7 +325,7 @@ sub regist_article {
 	#------------------------------------------------------------
 	# タグ
 	#------------------------------------------------------------
-	my @tag = $self->tag_normalize($tags);
+	my @tag = $self->normalize_tag($tags);
 	$art{tags} = $tags = join(",",@tag);
 
 	#------------------------------------------------------------
@@ -353,7 +353,7 @@ sub regist_article {
 		# link_key/upnode の設定	※この２つは escpae しない
 		my $link_key = $form->{link_key} || $form->{link_key_txt};
 		# 前後の空白を除去
-		$ROBJ->string_normalize($link_key);
+		$ROBJ->normalize_string($link_key);
 
 		# 特殊文字除去		※ここを変更したら contents_edit も変更すること
 		if ($link_key =~ /^["',]/) {
@@ -1839,7 +1839,7 @@ sub generate_json {
 # ●タグのノーマライズ
 #------------------------------------------------------------------------------
 # aaa,,bbb::ccc,bbb,ddd,aaa → aaa,bbb::ccc,ddd
-sub tag_normalize {
+sub normalize_tag {
 	my $self = shift;
 	my $tags = shift;
 	if (!ref($tags)) {

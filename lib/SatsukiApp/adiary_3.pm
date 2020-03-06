@@ -1064,7 +1064,7 @@ sub edit_articles {
 		foreach(@$arts) {
 			my $pkey = $_->{pkey};
 			my $t = ($append ? $_->{tags} . ',' : '') . $opt->{tags};
-			my @tag  = $self->tag_normalize( $t );
+			my @tag  = $self->normalize_tag( $t );
 			my $tags = join(",",@tag);
 			my $r = $DB->update_match("${blogid}_art", { tags => $tags }, 'pkey', $pkey);
 			if (!$r) { next; }
@@ -1269,7 +1269,7 @@ sub tag_edit {
 	# タグの編集
 	foreach(@$edits) {
 		my ($pkey,$upnode,$priority,$name) = split(',',$_,4);
-		$ROBJ->string_normalize($name);
+		$ROBJ->normalize_string($name);
 		$ROBJ->tag_escape_amp($name);
 		if ($name =~ /::/ || $name =~ /,/ || $name eq '') {
 			$ROBJ->message("Tag name error '%s'", $name);
@@ -1379,7 +1379,7 @@ sub contents_edit {
 	my $com_edit;
 	foreach(@$edits) {
 		my ($pkey,$upnode,$priority,$link_key) = split(',',$_,4);
-		$ROBJ->string_normalize($link_key);
+		$ROBJ->normalize_string($link_key);
 		if ($link_key =~ /^[\"\',]/ || $link_key =~ /^\s*$/ || $link_key =~ m|^[\d&]|) {
 			$link_key = '';
 		}
