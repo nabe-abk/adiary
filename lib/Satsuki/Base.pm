@@ -269,7 +269,9 @@ sub finish {
 	if ($self->{Develop} && @$error) {
 		if ($ENV{SERVER_PROTOCOL} && $self->{Content_type} eq 'text/html') {
 			print "<hr><strong>(ERROR)</strong><br>\n",join("<br>\n", @$error);
-		} else { print "\n\n(ERROR) ",join("\n", @$error); }
+		} else {
+			print "\n\n(ERROR) ",$self->unesc(join("\n", @$error)),"\n";
+		}
 	}
 }
 
@@ -1633,22 +1635,31 @@ sub clear_form_error {
 	my $self = shift;
 	$self->{FormError}=undef;
 }
-sub form_error {
+sub form_error {	# for compatible
 	my $self = shift;
+	if (!@_) { return $self->{FormError}; }
 	my $name = shift;
-	if ($name eq '' && !@_) { return $self->{FormError}; }
 	$self->{FormError} ||= {};
 	$self->{FormError}->{$name}=$_[0] || 1;
 	$self->{FormError}->{"c_$name"}=' class="error"';
 	$self->{FormError}->{"e_$name"}=' error';
 	return defined $_[0] ? $self->message(@_) : undef;
 }
-sub form_info {
+
+sub clear_form_err {
 	my $self = shift;
-	my $name = shift;
-	$self->{FormInfo} ||= {};
-	$self->{FormInfo}->{$name}=shift || 1;;
+	$self->{FormErr}  =undef;
 }
+sub form_err {
+	my $self = shift;
+	if (!@_) { return $self->{FormErr}; }
+	my $name = shift;
+	my $msg  = $self->translate(@_);
+	my $h = $self->{FormErr} ||= { _order => [] };
+	$h->{$name}= $msg;
+	push(@{$h->{_order}}, $name);
+}
+
 
 #------------------------------------------------------------------------------
 # ●言語ファイルのロード
