@@ -28,17 +28,19 @@ sub new {
 sub utf8_zen2han {
 	# 引数処理
 	my $self = ($_[0] eq __PACKAGE__ || ref($_[0]) eq __PACKAGE__) && shift;
-	my ($str, $alpha_only) = @_;
+	my ($str, $opt) = @_;
 	if (ref($str) ne 'SCALAR') { my $s=$str; $str=\$s; }
 
 	# main
 	my $flag = utf8::is_utf8($$str);
 	Encode::_utf8_on($$str);
 
-	if ($alpha_only) {
+	if ($opt->{alpha_only}) {
 		$$str =~ tr/０-９Ａ-Ｚａ-ｚ/ 0-9A-Za-z/;
-	} else {
+	} elsif ($opt->{arc}) {
 		$$str =~ tr/　！”＃＄％＆’（）＊＋，－．／０-９：；＜＝＞？＠Ａ-Ｚ［￥］＾＿｀ａ-ｚ｛｜｝/ -}/;
+	} else {
+		$$str =~ tr/　！”＃＄％＆’＊＋，－．／０-９：；＜＝＞？＠Ａ-Ｚ［￥］＾＿｀ａ-ｚ｛｜｝/ -'*-}/;
 	}
 
 	if (!$flag) { Encode::_utf8_off($$str); }
