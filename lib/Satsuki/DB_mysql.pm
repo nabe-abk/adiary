@@ -1,13 +1,13 @@
 use strict;
 #-------------------------------------------------------------------------------
 # データベースプラグイン for mysql
-#						(C)2006-2016 nabe@abk
+#						(C)2006-2020 nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::DB_mysql;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-our $VERSION = '1.12';
+our $VERSION = '1.13';
 #-------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my $DB_attr = {AutoCommit => 1, RaiseError => 0, PrintError => 0};
@@ -308,6 +308,9 @@ sub generate_order_by {
 	my $sort = ref($h->{sort}    ) ? $h->{sort}     : [ $h->{sort}     ];
 	my $rev  = ref($h->{sort_rev}) ? $h->{sort_rev} : [ $h->{sort_rev} ];
 	my $sql='';
+	if ($h->{RDB_order} ne '') {	# RDBMS専用、order直指定
+		$sql .= ' ' . $h->{RDB_order} . ',';
+	}
 	foreach(0..$#$sort) {
 		my $col = $sort->[$_];
 		my $rev = $rev->[$_] || ord($col) == 0x2d;	# '-colname'
