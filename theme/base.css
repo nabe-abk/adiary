@@ -596,7 +596,7 @@ div.popup-block {
 .w560 { width: 560px; }
 .w600 { width: 600px; }
 .w640 { width: 640px; }
-.w100p{ width: 100%; }
+.w100p{ width: 100%; box-sizing: border-box; }
 .w98p { width:  98%; }
 .w95p { width:  95%; }
 .w90p { width:  90%; }
@@ -620,6 +620,7 @@ div.popup-block {
 .sp .w600,
 .sp .w640 {
 	width:	100%;
+	box-sizing: border-box;
 }
 .sp input[type="date"].w120 { width: 120px; }
 
