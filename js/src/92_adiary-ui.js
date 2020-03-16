@@ -58,6 +58,7 @@ adiaryDialog: function(opt) {
 	this.addClass('ui-dialog-content');
 	data.$restore = this.parent();
 	$dialog.append( this );
+	this.show();
 
 	//////////////////////////////////////////////////////////////////////
 	// button
