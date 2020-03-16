@@ -7,9 +7,9 @@ package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
 use Fcntl ();
 #-------------------------------------------------------------------------------
-our $VERSION    = 3.40;
+our $VERSION    = 3.50;
 our $OUTVERSION = "3.50-dev";
-our $DATA_VERSION = 3.40;
+our $DATA_VERSION = 3.50;
 ###############################################################################
 # ■システム内部イベント
 ###############################################################################
@@ -79,8 +79,8 @@ sub new {
 #------------------------------------------------------------------------------
 sub sphone_checker {
 	my $ua = $ENV{HTTP_USER_AGENT};
-	if (0<index($ua,'iPhone') || 0<index($ua,'iPod') || 0<index($ua,'Android')
-	 || 0<index($ua,'BlackBerry') || 0<index($ua,'Windows Phone')) {
+	if (0<index($ua,'iPhone') || 0<index($ua,'Android')
+	 || 0<index($ua,'iPad')   || 0<index($ua,'iPod')) {
 		return 1;
 	}
 	return ;
@@ -164,8 +164,19 @@ sub main {
 	#-------------------------------------------------------------
 	# POST actionの呼び出し
 	#-------------------------------------------------------------
-	my $action = $ROBJ->{Form}->{action};
-	if ($ROBJ->{POST} && (my ($dir,$file) = $self->parse_skel($action))) {
+	my $action = $ROBJ->{POST} && $ROBJ->{Form}->{action};
+	if ($action =~ /^_ajax_\w+$/) {
+		my $data = $self->ajax_function( $action );
+
+		# Append debug message
+		if ($ROBJ->{Develop} && ref($data) eq 'HASH' && !$data->{_no_debug}
+		&& (my $err = ($ROBJ->error_load_and_clear() . join("\n", @{$ROBJ->{Debug}})))) {
+			$data->{_debug} = $err;
+		}
+
+		$self->{action_data} = $ROBJ->generate_json( $data );
+
+	} elsif (my ($dir,$file) = $self->parse_skel($action)) {
 		local($self->{skel_dir}) = $dir;
 		$self->{action_data} = $ROBJ->call( "${dir}_action/$file" );
 
@@ -639,6 +650,71 @@ sub system_mode {
 		# デフォルトテーマの選択
 		$self->load_theme( $self->{default_theme} );
 	}
+}
+
+#------------------------------------------------------------------------------
+# ●Ajax汎用処理
+#------------------------------------------------------------------------------
+sub ajax_function {
+	my $self = shift;
+	$self->{action_is_main} = 1;
+	$self->{frame_skeleton} = undef;
+
+	my $h = $self->do_ajax_function(@_);
+	if (!ref($h)) { return { ret => $h } }
+	if (ref($h) ne 'ARRAY') { return $h; }
+
+	my %r = (ret => shift(@$h));
+	if (@$h) {
+		my $v = shift(@$h);
+		$r{ref($v) ? 'errs' : 'msg'} = $v;
+	}
+	if (@$h) { $r{data} = shift(@$h); }
+	return \%r;
+}
+sub do_ajax_function {
+	my $self = shift;
+	my $func = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	if ($func ne '_ajax_login' && $ROBJ->csrf_check()) {
+		return [ -99.1, 'Security Error' ];
+	}
+
+	my $r;
+	eval { $r = $self->$func( $ROBJ->{Form} ); };
+	if (!$@) { return $r; }
+
+	# eval error
+	if ($self->can($func)) {
+		return [ -99.9, $@ ];
+	}
+	return [ -99.2, "function not found: $func()" ];
+}
+
+#------------------------------------------------------------------------------
+# ●ログイン
+#------------------------------------------------------------------------------
+sub _ajax_login {
+	my $self = shift;
+	my $form = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $auth = $ROBJ->{Auth};
+	my $id   = $form->{adiary_id};
+
+	my $r = $auth->login($id, $form->{pass});
+	if ($r->{ret}) {	# error
+		if (!$ROBJ->{Develop}) { $r->{ret} = 1; }	# 1固定
+		return $r;
+	}
+
+	# login
+	$ROBJ->set_cookie('session', {
+		id  => $id,
+		sid => $r->{sid}
+	}, $auth->{expires});
+	$r->{_no_debug}=1;
+	return $r;
 }
 
 #------------------------------------------------------------------------------

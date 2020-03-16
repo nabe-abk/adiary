@@ -13,25 +13,30 @@ my $_SALT = 'eTUMs6mRN8vqiSCHWaOGwynJKFbBpdA29txZEDcYluVgr75hLPQXfIk/j4o3z.10';
 # ●ログイン
 #------------------------------------------------------------------------------
 sub login {
-	my ($self, $id, $pass) = @_;
+	my $self = shift;
+	my $id   = shift;
+	my $pass = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
 	$self->userdb_init();
 
 	# IP/HOST制限
-	if (! $ROBJ->check_ip_host($self->{allow_ip}, $self->{allow_host})) { return ; }
+	if (! $ROBJ->check_ip_host($self->{allow_ip}, $self->{allow_host})) {
+		return { ret=>1, msg=>'security error' };
+	}
 
 	# 無条件認証
 	if (! $self->{exists_admin} && $self->{start_up}) {
 		$self->{ok}    = 1;
 		$self->{pkey}  = -1;
-		$self->{id}    = "admin*";
-		$self->{name}  = "admin*";
+		$self->{id}    = "root*";
+		$self->{name}  = "root*";
+		$self->{email} = '';
 		$self->{auto}  = 1;
 		$self->{isadmin} = 1;	# 管理者権限
 		$self->{isroot}  = 1;
-		$self->log_save('admin*', 'login');
-		return 'auth (no exist user)';
+		$self->log_save('root*', 'login');
+		return { ret=>0, sid=>'auth (no exist user)' };
 	}
 
 	# ID確認
@@ -47,8 +52,7 @@ sub login {
 	if (!$udata || !%$udata) {	# uid が存在しない
 		$self->log_save_fail($id, 'login');
 		$self->login_fail_sleep( $self->{fail_sleep} );
-		$ROBJ->message('Username or password incorrect');
-		return;
+		return { ret=>10, msg => $ROBJ->translate('Username or password incorrect') };
 	}
 	$id = $udata->{id};
 
@@ -57,21 +61,18 @@ sub login {
 	my $fails = $udata->{fail_c};
 	if ($udata->{fail_tm} + $self->{fail_minute}*60 < $ROBJ->{TM}) { $fails=0; }
 	if ($fails > $self->{fail_count}) {
-		$ROBJ->message('Too many failed. Please retry in %d minutes', $self->{fail_minute});
-		return;
+		return { ret=>11, msg => $ROBJ->translate('Too many failed. Please retry in %d minutes', $self->{fail_minute}) };
 	}
 	if (!$self->check_pass($udata->{pass}, $pass)) {
 		$fails++;
 		$DB->update_match($table, {fail_c => $fails, fail_tm => $ROBJ->{TM}}, 'id', $id);
 		$self->log_save_fail($id, 'login');
 		$self->login_fail_sleep( $self->{fail_sleep} );
-		$ROBJ->message('Username or password incorrect');
-		return;
+		return { ret=>10, msg => $ROBJ->translate('Username or password incorrect') };
 	}
 	if ($udata->{disable}) {
 		$self->log_save_fail($id, 'login');
-		$ROBJ->message('This account is disable');
-		return;
+		return { ret=>20, msg => $ROBJ->translate('This account is disable') };
 	}
 
 	# 既にログイン済の場合、ログアウト
@@ -112,7 +113,7 @@ sub login {
 
 	# ログ保存
 	$self->log_save($id, 'login');
-	return $sid;
+	return { ret=>0, sid=>$sid };
 }
 
 #------------------------------------------------------------------------------
@@ -157,7 +158,9 @@ sub do_session_auth {
 
 	# セッションの認証
 	if (!$opt->{force_auth}) {
+		$DB->set_noerror(1);
 		my $session = $DB->select_match_limit1($self->{table}.'_sid', 'id', $id, 'sid', $session_id);
+		$DB->set_noerror(0);
 		if (! $session) { return; }
 
 		my $expires = $self->{expires};
@@ -274,10 +277,11 @@ sub set_logininfo {
 	my $id = $user->{id};
 
 	# ログイン成功
-	$self->{ok}   = 1;
-	$self->{pkey} = $user->{pkey};
-	$self->{id}   = $id;
-	$self->{name} = $user->{name};
+	$self->{ok}    = 1;
+	$self->{pkey}  = $user->{pkey};
+	$self->{id}    = $id;
+	$self->{name}  = $user->{name};
+	$self->{email} = $user->{email};
 	$self->{isadmin} = $user->{isadmin};	# 管理者権限
 	$self->{isroot}  = 0;
 	
@@ -309,7 +313,9 @@ sub userdb_init {
 	my $DB = $self->{DB};
 
 	# 管理者の存在確認
+	$DB->set_noerror(1);
 	my $h = $DB->select_match_limit1( $self->{table}, 'isadmin', 1, 'disable', 0, '*NoError', 1, '*cols', 'pkey' );
+	$DB->set_noerror(0);
 
 	# テーブルの確認
 	if (!$h && !$DB->find_table( $self->{table} )) {
@@ -331,9 +337,9 @@ sub log_save {
 	}
 	if ($self->{log_stop}) { return; }
 
-	my $id   = shift || '(none)';
+	my $id   = shift;
 	my $type = shift;
-	my $msg  = shift || '';
+	my $msg  = shift;
 	my $DB   = $self->{DB};
 	my $ROBJ = $self->{ROBJ};
 

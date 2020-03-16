@@ -1011,10 +1011,6 @@ sub get_filepath {
 #------------------------------------------------------------------------------
 # ●ファイル：すべての行を読み込む
 #------------------------------------------------------------------------------
-sub fread_lines_no_error {
-	my ($self, $file) = @_;
-	return $self->fread_lines($file, {NoError=>1});
-}
 sub fread_lines {
 	my ($self, $file, $flags) = @_;
 
@@ -1588,12 +1584,13 @@ sub change_hour {
 # ●時刻フォーマットの整形
 #------------------------------------------------------------------------------
 # tm_printf($format, $UTC, $change_hour);
+# tm_printf($UTC, $change_hour);
 #	$format		書式
 #	$UTC		UTCタイム
 #
 sub tm_printf {
 	my $self = shift;
-	my $str  = shift;
+	my $str  = ($_[0] =~ /^\d+$/) ? '%Y-%m-%d %H:%M:%S' : shift;
 	my ($tm, $ch_flag) = $self->change_hour(@_);
 
 	# This macro like 'strftime(3)' function.

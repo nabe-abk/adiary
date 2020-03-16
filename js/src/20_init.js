@@ -79,9 +79,8 @@ $$.load_msg = function(key) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// defer tags
+// <script-defer> tag
 //////////////////////////////////////////////////////////////////////////////
-$$.script_defer_doms=[];
 $$.init(function(){
 	const self=this;
 
@@ -95,35 +94,20 @@ $$.init(function(){
 
 	// script-defer
 	const $scripts = $('script-defer');
+	const line = [];
 	$scripts.each(function(idx, dom) {
-		const num = self.script_defer_doms.length;
-		self.script_defer_doms.push(dom);
-
-		let script = dom.innerHTML.replace(/^\s*<!--([\s\S]*?)-->\s*$/, "$1");
-		try {
-			eval(
-				'try{' + script + "\n}catch(e){ self.script_defer_error(e,"+ num + ") }"
-			)
-		} catch(e) {
-			self.script_defer_error_throw(e, 1, 0, self.script_defer_doms[num]);
-		};
+		line[idx] = self.get_line_number(dom);
 	});
-	if (!$scripts.length) return;
+	$scripts.each(function(idx, dom) {
+		const scr     = document.createElement('script');
+		scr.innerHTML = "\n".repeat(line[idx]) + dom.innerHTML;
+		dom.innerHTML = '';
+		dom.appendChild(scr);
+	});
 });
-$$.script_defer_error = function(err, idx) {
-	var line = 0;
-	var col  = 0;
-	var ma   = err.stack.match(/^[\s\S]*?:(\d+):(\d+)[^:]*\n/);
-	if (ma) {
-		line = parseInt(ma[1]);
-		col  = parseInt(ma[2]);
-	} else {
-		throw(err);
-	}
-	this.script_defer_error_throw(err, line, col, this.script_defer_doms[idx]);
-}
-$$.script_defer_error_throw = function(err, line, col, dom) {
-	line += 2;	// before <head> lines
+
+$$.get_line_number = function(dom) {
+	let line = 2;	// before <head> lines
 	domloop: while(1) {
 		while(!dom.previousSibling) {
 			if (!dom.parentElement) break domloop;
@@ -132,11 +116,7 @@ $$.script_defer_error_throw = function(err, line, col, dom) {
 		dom = dom.previousSibling;
 		line += (dom.outerHTML || dom.nodeValue || "").split("\n").length -1;
 	}
-
-	var path = location.href.replace(/#.*/,"");
-	if (err.lineNumber)
-		 throw new Error(err.message, path, line);
-	console.error("<script-defer> error!!\n", err.message + ' at ' + path + ':' + line + ':' + col);
+	return line;
 }
 
 //////////////////////////////////////////////////////////////////////////////

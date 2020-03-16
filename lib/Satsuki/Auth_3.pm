@@ -15,7 +15,11 @@ sub user_add {
 	my ($self, $form) = @_;
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
-	if (! $self->{isadmin}) { $ROBJ->message('Operation not permitted'); return 1; }
+	if (! $self->{isadmin}) {
+		return { ret=>1, msg => $ROBJ->translate('Operation not permitted') };
+	}
+
+	$ROBJ->clear_form_err();
 
 	# データチェック
 	$form->{new_user} = 1;
@@ -24,13 +28,16 @@ sub user_add {
 	# 追加チェック（上と順番を入れ替えないこと）
 	my $id = $form->{id};
 	my $user = $self->get_userinfo($id);
-	if ($user && %$user) { $ROBJ->form_error('id', "ID '%s' already exists", $id); }
+	if ($user && %$user) { $ROBJ->form_err('id', "ID '%s' already exists", $id); }
 	if ($form->{pass} eq '' && $form->{crypted_pass} eq '') {
-		$ROBJ->form_error('pass', 'Password is empty');
+		$ROBJ->form_err('pass', 'Password is empty');
 	}
 
 	# エラー終了
-	if (!$insert || $ROBJ->form_error()) { return ; }
+	my $errs = $ROBJ->form_err();
+	if (!$insert || $errs) {
+		return { ret=>10, errs => $errs };
+	}
 
 	# ユーザーデータの追加
 	$insert->{login_c} = 0;
@@ -38,28 +45,38 @@ sub user_add {
 	my $r = $DB->insert( $self->{table}, $insert );
 	if ($r) {
 		$self->log_save($id, 'regist');
-		return 0;
+		return { ret => 0 };
 	}
-	return 1;
+	return { ret => -1, msg => 'Internal Error' };
 }
 
 #-------------------------------------------------------------------------------
 # ●削除処理
 #-------------------------------------------------------------------------------
 sub user_delete {
-	my ($self, $delete_ary) = @_;
+	my ($self, $del_ary) = @_;
 	my $ROBJ = $self->{ROBJ};
-	if (! $self->{isadmin}) { $ROBJ->message('Operation not permitted'); return 1; }
-	if ($delete_ary eq '' || ref $delete_ary && !@$delete_ary) {
-		$ROBJ->message('No assignment delete user'); return 1;
+	if (!ref($del_ary) && $del_ary ne '') { $del_ary = [ $del_ary ]; }
+
+	if (! $self->{isadmin}) {
+		return { ret=>1, msg => $ROBJ->translate('Operation not permitted') };
+	}
+	if (ref($del_ary) ne 'ARRAY' || !@$del_ary) {
+		return { ret=>10, msg => $ROBJ->translate('No assignment delete user') };
 	}
 
 	my $DB    = $self->{DB};
 	my $table = $self->{table};
+	my $r = $DB->delete_match($table       , 'id', $del_ary);
+	        $DB->delete_match($table.'_sid', 'id', $del_ary);
 
-	my $r = $DB->delete_match($table       , 'id', $delete_ary);
-	        $DB->delete_match($table.'_sid', 'id', $delete_ary);
-	return ($r == $#$delete_ary+1) ? 0 : 1;
+	if ($r != $#$del_ary+1) {
+		return { ret=>-1, msg => "DB delete error: $r / " . ($#$del_ary+1) };
+	}
+	foreach(@$del_ary) {
+		$self->log_save($_, 'delete');
+	}
+	return { ret => 0 };
 }
 
 #-------------------------------------------------------------------------------
@@ -68,9 +85,28 @@ sub user_delete {
 sub user_edit {
 	my ($self, $form) = @_;
 	my $ROBJ = $self->{ROBJ};
-	if (! $self->{isadmin}) { $ROBJ->message('Operation not permitted'); return 1; }
+	if (! $self->{isadmin}) {
+		return { ret=>1, msg => $ROBJ->translate('Operation not permitted') };
+	}
 
 	return $self->update_user_data($form);
+}
+
+#-------------------------------------------------------------------------------
+# ●ランダムなUID生成（emailログイン運用時）
+#-------------------------------------------------------------------------------
+sub generate_uid {
+	my ($self, $str) = @_;
+	my $ROBJ = $self->{ROBJ};
+	my $DB = $self->{DB};
+
+	my $id;
+	foreach(0..99) {
+		my $x = $ROBJ->crypt_by_rand_nosalt($str);
+		my $h = $DB->select_match_limit1( $self->{table}, 'id', $x );
+		if (!$h) { $id=$x; last; }
+	}
+	return $id;
 }
 
 ###############################################################################
@@ -144,27 +180,6 @@ sub change_pass {
 	} );
 }
 
-
-###############################################################################
-# ■機能拡張
-###############################################################################
-#-------------------------------------------------------------------------------
-# ●ユーザー付加情報の変更
-#-------------------------------------------------------------------------------
-sub generate_uid {
-	my ($self, $str) = @_;
-	my $ROBJ = $self->{ROBJ};
-	my $DB = $self->{DB};
-
-	my $id;
-	foreach(0..99) {
-		my $x = $ROBJ->crypt_by_rand_nosalt($str);
-		my $h = $DB->select_match_limit1( $self->{table}, 'id', $x );
-		if (!$h) { $id=$x; last; }
-	}
-	return $id;
-}
-
 ###############################################################################
 # ■スケルトンルーチン
 ###############################################################################
@@ -176,7 +191,7 @@ sub load_userlist {
 	if (!$self->{isadmin}) { return []; }
 	my $DB = $self->{DB};
 
-	my $cols = [qw(pkey id name login_c login_tm fail_c fail_tm disable isadmin) ];
+	my $cols = [qw(pkey id name email login_c login_tm fail_c fail_tm disable isadmin) ];
 	my $ucols = $self->load_extcols();
 	push(@$cols, @$ucols);
 
@@ -185,6 +200,35 @@ sub load_userlist {
 		sort =>$sort || 'id'
 	});
 	return $list;
+}
+
+#------------------------------------------------------------------------------
+# ●ユーザー情報のロード（パスワード以外）
+#------------------------------------------------------------------------------
+sub load_user_info {
+	my $self = shift;
+	my $id   = $self->{isadmin} ? shift : $self->{id};
+	if (!$self->{ok}) { return; }
+
+	my $DB = $self->{DB};
+	my $h  = $DB->select_match_limit1( $self->{table}, 'id', $id );
+	if (!$h) { return; }
+
+	delete($h->{pass});
+	return $h;
+}
+
+#------------------------------------------------------------------------------
+# ●ログのロード
+#------------------------------------------------------------------------------
+sub load_logs {
+	my $self  = shift;
+	my $id    = shift;
+	my $limit = shift || 100;
+	my $DB    = $self->{DB};
+	my $table = $self->{table} . '_log';
+
+	return $DB->select_match($table, 'id', $id, '*sort', '-tm', '*limit', $limit);
 }
 
 ###############################################################################
@@ -198,50 +242,55 @@ sub check_user_data {
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
 
+	$ROBJ->clear_form_err();
+
 	# 整形済ユーザーデータ
 	if (! ref $user eq 'HASH') {
-		$ROBJ->form_error('', 'Internal Error(%s)', 'in check_user_data()');
+		$ROBJ->form_err('', 'Internal Error(%s)', 'in check_user_data()');
 		return undef;
 	}
 
 	# update用データ
 	my %update;
 
-
 	# IDの確認
 	my $id = $user->{id};
 	$id =~ s/[\r\n\0]//g;
+	$ROBJ->trim($id);
+	$user->{id} = $id;
 	if ($id eq '') {
-		$ROBJ->form_error('id', 'ID is empty');
+		$ROBJ->form_err('id', 'ID is empty');
 	} else {
 		if ($self->{uid_lower_rule}) {
-			   if ($id =~ /\W/)     { $ROBJ->form_error('id',"ID's character allowed \"%s\" only", "0-9, a-z" . ($self->{uid_underscore} ? ', _':'')); }
-			elsif ($id =~ /[A-Z]/)  { $ROBJ->form_error('id',"Don't use upper case in ID"); }
-			elsif ($id =~ /^[\d_]/) { $ROBJ->form_error('id','ID first character must be lower case between "a" to "z"'); }
+			   if ($id =~ /\W/)     { $ROBJ->form_err('id',"ID's character allowed \"%s\" only", "0-9, a-z" . ($self->{uid_underscore} ? ', _':'')); }
+			elsif ($id =~ /[A-Z]/)  { $ROBJ->form_err('id',"Don't use upper case in ID"); }
+			elsif ($id =~ /^[\d_]/) { $ROBJ->form_err('id','ID first character must be lower case between "a" to "z"'); }
 		} else {
-			if ($id =~ /\W/) { $ROBJ->form_error('id',"ID's character allowed \"%s\" only", "0-9, A-Z, a-z" . ($self->{uid_underscore} ? ', _':'')); }
+			if ($id =~ /\W/) { $ROBJ->form_err('id',"ID's character allowed \"%s\" only", "0-9, A-Z, a-z" . ($self->{uid_underscore} ? ', _':'')); }
 		}
 		if (!$self->{uid_underscore} && $id =~ /_/) {
-			if ($id =~ /^[\d_]/) { $ROBJ->form_error('id',"Don't use `_' in ID"); }
+			if ($id =~ /^[\d_]/) { $ROBJ->form_err('id',"Don't use `_' in ID"); }
 		}
-		if ($self->{uid_notag} && $id =~ /[\"\'<>]/) {
-			$ROBJ->form_error('id','ID not allow ", \', <, > charcteor');
+		if ($id =~ /[\"\'<> ]/) {
+			$ROBJ->form_err('id','ID not allow ", \', <, >, space character');
 		}
 		if (length($id) > $self->{uid_max_length}) {
-			$ROBJ->form_error('id',"Too long ID (max %d)", $self->{uid_max_length});
+			$ROBJ->form_err('id',"Too long ID (max %d)", $self->{uid_max_length});
 		}
 	}
 
 	# ユーザー名の確認
-	my $name = $user->{name};
-	if (defined $name) {
+	if (exists($user->{name})) {
+		my $name = $user->{name};
+		$ROBJ->trim($name);
 		$name =~ s/[\r\n\0]//g;
-		if ($name eq '') { $ROBJ->form_error('name','Name is empty'); }
+
+		if ($name eq '') { $ROBJ->form_err('name','Name is empty'); }
 		if ($self->{name_notag} && $name =~ /[\"\'<>]/) {
-			$ROBJ->form_error('name','Name not allow ", \', <, > charcteor');
+			$ROBJ->form_err('name','Name not allow ", \', <, > charcteor');
 		}
 		if (length($name) > $self->{name_max_length}) {
-			$ROBJ->form_error('name',"Too long name (max %d)", $self->{name_max_length});
+			$ROBJ->form_err('name',"Too long name (max %d)", $self->{name_max_length});
 		}
 		$update{name} = $name;
 	}
@@ -250,12 +299,12 @@ sub check_user_data {
 	my $pass = $user->{pass};
 	if ($pass ne '') {	# パスワードを変更する
 		if ($self->{disallow_num_pass} && $pass =~ /^\d+$/) {
-			$ROBJ->form_error('pass', "Not allow password is number only");
+			$ROBJ->form_err('pass', "Not allow password is number only");
 		}
 		if (length($pass) < $self->{pass_min}) {
-			$ROBJ->form_error('pass',"Too short password (min %d)", $self->{pass_min});
+			$ROBJ->form_err('pass',"Too short password (min %d)", $self->{pass_min});
 		} elsif (defined $user->{pass2} && $pass ne $user->{pass2}) {
-			$ROBJ->form_error('pass',"Mismatch password and retype password");
+			$ROBJ->form_err('pass2',"Mismatch password and retype password");
 		} else {
 			$pass = $ROBJ->crypt_by_rand($pass);
 			$update{pass} = $pass;
@@ -265,7 +314,7 @@ sub check_user_data {
 	if ($user->{disable_pass}) { $update{pass}='*'; }
 
 	# エラー処理
-	if ($ROBJ->form_error()) { return undef; }	# エラーがあった
+	if ($ROBJ->form_err()) { return undef; }	# エラーがあった
 
 	# ユーザーデータ生成
 	if ($user->{new_user}) {
@@ -276,9 +325,19 @@ sub check_user_data {
 	if (exists $user->{isadmin}) { $update{isadmin} = $user->{isadmin} ? 1 : 0; }
 	if (exists $user->{disable}) { $update{disable} = $user->{disable} ? 1 : 0; }
 
-	# ユーザ拡張カラム
-	foreach(@{ $self->{extcol} }) {
+	# ユーザ拡張カラム + email
+	my @ary = @{ $self->{extcol} };
+	push(@ary, {
+		name	=> 'email',
+		type	=> 'text',
+		index	=> 1,
+		unique	=> 1,
+		_notag	=> 1,
+		_nocrlf	=> 1
+	});
+	foreach(@ary) {
 		my $k = $_->{name};
+		$ROBJ->trim($k);
 		if ($_->{type} eq 'int') {
 			if ($user->{new_user})  { $update{$k} = 0; }
 			if (exists $user->{$k}) { $update{$k} = int($user->{$k}); }
@@ -302,17 +361,27 @@ sub check_user_data {
 # ●ユーザーデータのアップデート
 #------------------------------------------------------------------------------
 sub update_user_data {
-	my ($self, $update) = @_;
-	my $id = $update->{id};
-	
-	$update = $self->check_user_data($update);
-	if (! $update) { return 2; }
+	my ($self, $_update) = @_;
+	my $ROBJ = $self->{ROBJ};
+	$ROBJ->clear_form_err();
+
+	my $id = $_update->{id};
+	my $update = $self->check_user_data($_update);
+
+	# エラー終了
+	my $errs = $ROBJ->form_err();
+	if (!$update || $errs) {
+		return { ret=>10, errs => $errs };
+	}
 
 	my $DB = $self->{DB};
 	my $r  = $DB->update_match( $self->{table}, $update, 'id', $id);
+	if ($r != 1) {
+		return { ret=>-1, msg => 'DB update error' };
+	}
 
 	$self->log_save($id, 'update');
-	return $r ? 0 : 1;
+	return { ret => 0 };
 }
 
 #------------------------------------------------------------------------------
@@ -352,12 +421,14 @@ sub create_user_table {
 	my $DB    = $self->{DB};
 	my $table = $self->{table};
 
+	$DB->begin();
+
 	my %cols;
-	$cols{text}    = [ qw(id name pass) ];
+	$cols{text}    = [ qw(id name pass email) ];
 	$cols{int}     = [ qw(login_c login_tm fail_c fail_tm) ];
 	$cols{flag}    = [ qw(disable isadmin) ];
-	$cols{idx}     = [ qw(id isadmin) ];
-	$cols{unique}  = [ qw(id) ];
+	$cols{idx}     = [ qw(id email isadmin) ];
+	$cols{unique}  = [ qw(id email) ];
 	$cols{notnull} = [ qw(id name) ];
 	$DB->create_table_wrapper($table, \%cols, $self->{extcol});
 
@@ -375,12 +446,14 @@ sub create_user_table {
 	$cols{text}    = [ qw(id type msg ip host agent) ];
 	$cols{int}     = [ qw(tm) ];
 	$cols{flag}    = [ qw() ];
-	$cols{idx}     = [ qw(id type msg ip host tm) ];
+	$cols{idx}     = [ qw(id type ip tm) ];
 	$cols{unique}  = [ qw() ];
-	$cols{notnull} = [ qw(id tm) ];
+	$cols{notnull} = [ qw(tm) ];
 	# 不正IDを記録できるように、参照制約は付けない
 	# $cols{ref}     = { id => "$table.id" };
 	$DB->create_table_wrapper("${table}_log", \%cols);
+
+	$DB->commit();
 }
 
 1;

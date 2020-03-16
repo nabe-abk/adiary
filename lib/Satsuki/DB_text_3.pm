@@ -85,11 +85,7 @@ sub create_table {
 
 	# index の保存
 	$self->save_index($table);
-	# index の予備を保存
-	my $index_file_orig = $self->{index_file};
-	$self->{index_file} = $self->{index_backup_file};
-	$self->save_index($table);
-	$self->{index_file} = $index_file_orig;
+	$self->save_backup_index($table);
 
 	return 0;
 }
@@ -314,7 +310,7 @@ sub save_backup_index {
 	my $index_file_orig = $self->{index_file};
 	$self->{index_file} = $self->{index_backup_file};
 	local ($self->{"$table.tbl"}) = [];
-	$self->save_index($table);
+	$self->save_index($table, 1);
 	$self->{index_file} = $index_file_orig;
 	return 0;
 }

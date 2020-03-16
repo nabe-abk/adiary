@@ -397,6 +397,10 @@ em			{ font-style: normal; text-decoration: underline; }
 /*--------------------------------------------------------------------
 ●フォーム関連
 ---------------------------------------------------------------------*/
+form + form {
+	margin-top:		2em;
+}
+
 /* webkit default override */
 input {
 	box-sizing:		content-box;

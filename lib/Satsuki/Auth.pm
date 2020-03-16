@@ -26,9 +26,7 @@ sub new {
 	$self->{uid_lower_rule}  = 1;
 	$self->{uid_underscore}  = 1;
 	$self->{name_max_length} = 30;
-	$self->{name_secure}     = 1;
-	$self->{uid_notag}  = 1;
-	$self->{name_notag} = 1;
+	$self->{name_notag}      = 1;
 
 	$self->{disallow_num_pass}=1;
 	$self->{pass_min} = 4;

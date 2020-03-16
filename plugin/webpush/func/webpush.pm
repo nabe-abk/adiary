@@ -391,7 +391,7 @@ $mop->{load_list} = sub {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 	return $self->{list}
-	   || ($self->{list} = $ROBJ->fread_lines_no_error( $self->{data_file} ));
+	   || ($self->{list} = $ROBJ->fread_lines( $self->{data_file}, {NoError => 1} ));
 };
 
 #------------------------------------------------------------------------------

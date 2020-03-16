@@ -473,12 +473,16 @@ sub commit {
 			$self->delete_rowfile($table, $_);
 		}
 
-		$ROBJ->write_lock($self->{"$table.lock"});
+		if ($self->{"$table.lock"}) {
+			$ROBJ->write_lock($self->{"$table.lock"});
+		}
 		$self->save_index($table);
 
 		# トランザクションlock を解く
-		close ($self->{"$table.lock-tr"});
-		delete $self->{"$table.lock-tr"};
+		if ($self->{"$table.lock-tr"}) {
+			close ($self->{"$table.lock-tr"});
+			delete $self->{"$table.lock-tr"};
+		}
 	}
 	$self->{transaction}={};
 	$self->{trace}={};

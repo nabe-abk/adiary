@@ -2,6 +2,44 @@
 // ■Ajaxライブラリ
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
+//●ajax通信
+//////////////////////////////////////////////////////////////////////////////
+$$.send_ajax = function(opt) {
+	const self=this;
+
+	function error_default(h) {
+		if (opt.error) opt.error(h);
+
+		let msg = '';
+		if (h) {
+			if (h.ret)    msg += 'ret = ' + h.ret;
+			if (h.msg)    msg += '<p>' + self.tag_esc(h.msg)    + '</p>';
+			if (h.errs) {
+				const ary = [];
+				const e = h.errs;
+				const o = e._order || Object.keys(e);
+				for(let i in o)
+					ary.push(e[o[i]]);
+				msg += '<p class="ni">' + ary.join("<br>") + '</p>';
+			}
+			if (h._debug) msg += '<p class="ni">' + h._debug.replace("\n", '<br>') + '</p>';
+		}
+		self.show_error(msg);
+	}
+	$.ajax('./', {
+		method:		'POST',
+		data:		opt.data,
+		dataType:	'json',
+		error:		error_default,
+		success:	function(h) {
+			if (h.ret != 0  || h._debug) return error_default(h);
+			opt.success(h);
+		},
+		complete:	opt.complite,
+	});
+};
+
+//////////////////////////////////////////////////////////////////////////////
 // ●セッションを保持して随時データをロードする
 //////////////////////////////////////////////////////////////////////////////
 $$.session = function(btn, opt){

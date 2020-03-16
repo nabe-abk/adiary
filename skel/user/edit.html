@@ -22,35 +22,72 @@
 <article class="system setting">
 <h2><@v.title></h2>
 <div class="body">
-	<form method="POST">
-	<input type="hidden" name="action" value="<@v.skeleton>">
+
+	<form class="js-ajax" data-url="<@v.myself>?<@v.skel_dir>">
+	<input type="hidden" name="action" value="_ajax_user_edit">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<table>
-	<tr><th>ID</th>            <td><input type=hidden name="id" value="<@t.id>"><@t.id>（変更不可）</td></tr>
-	<tr><th>名前</th>          <td<@err.c_name>><input type=text name="name" class="w100" value="<@t.name>" required></td></tr>
-	<tr><th>パスワード</th>    <td<@err.c_pass>><input type=password name="pass" class="w120" value=""><@Auth.pass_min>文字</strong>以上。未指定なら変更なし。</td></tr>
-	<tr><th>パスワード確認</th><td<@err.c_pass>><input type=password name="pass2" class="w120" value="">←もう一度</td></tr>
-
-	<@ifexec(Auth.id eq t.id && Auth.isadmin, begin, begin)><@>rootの場合、管理者権限を剥奪できない
-	<tr><th>管理者</th><td>
-		<input type=hidden name="isadmin" value="1">自分の管理権限は剥奪できません
-	</td></tr>
-	<tr><th>無効化</th><td>
-		<input type=hidden name="disable" value="0">自分を無効にできません
-	</td></tr>
+	<tr>
+		<th>ID</th>
+		<td><input type="hidden" name="id" value="<@t.id>"><@t.id>（変更不可）</td>
+	</tr>
+	<tr>
+		<th>名前</th>
+		<td><input type="text" name="name" class="w120" value="<@t.name>" required></td>
+	</tr>
+	<tr>
+		<th>パスワード</th>
+		<td><input type="password" name="pass" class="w120" value=""><@Auth.pass_min>文字</strong>以上。<em>変更時のみ入力</em></td>
+	</tr>
+	<tr>
+		<th>パスワード確認</th>
+		<td><input type="password" name="pass2" class="w120" value="">←もう一度</td>
+	</tr>
+<!--
+	<tr>
+		<th>E-mail（任意）</th>
+		<td><input type="email" name="email" class="w300" value="<@t.email>"></td>
+	</tr>
+-->
+	<@ifexec(Auth.id eq t.id && Auth.isadmin, begin, begin)>
+	<tr>
+		<th>管理者</th>
+		<td><input type="hidden" name="isadmin" value="1">自分の管理権限は剥奪できません</td>
+	</tr>
+	<tr>
+		<th>無効化</th>
+		<td><input type="hidden" name="disable" value="0">自分を無効にできません</td>
+	</tr>
 	<$else>
-	<tr><th>管理者</th><td>
-		<input type="hidden" name="isadmin" value="0">
-		<label><input type=checkbox name="isadmin" value="1"<@if(t.isadmin, " checked")>>このユーザーを管理者にする</label>
-	</td></tr>
-	<tr><th>無効化</th><td>
-		<input type="hidden" name="disable" value="0">
-		<label><input type=checkbox name="disable" value="1"<@if(t.disable, " checked")>>このユーザーを無効にする</label>
-	</td></tr>
+	<tr>
+		<th>管理者</th>
+		<td>
+			<input type="hidden" name="isadmin" value="0">
+			<label><input type="checkbox" name="isadmin" value="1"<@if(t.isadmin, " checked")>>このユーザーを管理者にする</label>
+		</td>
+	</tr>
+	<tr>
+		<th>無効化</th>
+		<td>
+			<input type="hidden" name="disable" value="0">
+			<label><input type="checkbox" name="disable" value="1"<@if(t.disable, " checked")>>このユーザーを無効にする</label>
+		</td>
+	</tr>
 	<$end>
 	</table>
 
 	<button type="submit">このユーザーを編集する</button>
 	</form>
+
+<@ifexec(Auth.id ne t.id, begin)>
+	<form class="js-ajax js-check" data-url="<@v.myself>?<@v.skel_dir>" data-confirm="アカウントを削除しますか？" data-focus="cancel">
+	<input type="hidden" name="action" value="_ajax_user_delete">
+	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
+	<input type="hidden" name="id" value="<@t.id>">
+	<button id="btn-delete" type="submit">このアカウントを削除する</button>
+	</form>
+<$end>
+
+
 </div> <!-- end of body -->
 </article>

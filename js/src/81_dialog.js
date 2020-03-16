@@ -23,7 +23,12 @@ $$.show_dialog = function(h, _arg) {
 	div.adiaryDialog({
 		modal: true,
 		dialogClass: h.dclass,
-		buttons: { OK: function(){ div.adiaryDialog('close'); } }
+		buttons: {
+			OK: function(){
+				div.adiaryDialog('close');
+				if (h.callback) h.callback();
+			}
+		}
 	});
 	return false;
 }

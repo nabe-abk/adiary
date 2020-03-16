@@ -18,33 +18,52 @@
 <div class="body">
 <@call('_sub/writable_check')>
 <@ifexec(!ret, begin)>
-	<form method="POST" action="">
-	<input type="hidden" name="action" value="<@v.skeleton>">
+	<form class="js-ajax" id="add-user-form" data-url="">
+	<input type="hidden" name="action" value="_ajax_user_add">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
-	<@ifexec(! Auth.exists_admin, begin)>
+	<@ifexec(Auth.auto, begin)>
 	<p><strong class="warning">最初に管理者ユーザを追加します。</strong></p>
 	<$end>
 
 	<table>
-	<tr><th>ID</th>        <td<@err.c_id>>先頭は英小文字。「a-z, 0-9, _」のみ使用可能。<br><input type="text" name="adiary_id" class="w100" value="<@esc(Form.adiary_id)>" pattern="^[a-z][a-z0-9_]*$" required>
+	<tr>
+		<th>ID</th>
+		<td><input type="text" name="msys_id" class="w100 _reset" value="" data-name="id" pattern="^[a-z][a-z0-9_]*$" required>
+			先頭はa-zで「a-z, 0-9, _」のみ使用可能。
 		</td></tr>
-	<tr><th>名前</th>      <td<@err.c_name>><input type="text" name="name" class="w100" value="<@esc(Form.name)>" required></td></tr>
-	<tr><th>パスワード</th><td<@err.c_pass>><input type="password" name="pass" class="w120" value="" required>
-		<strong class="warning"><@Auth.pass_min>文字</strong>以上</td></tr>
-	<tr><th>パスワード確認</th><td<@err.c_pass>><input type="password" name="pass2" class="w120" value="" required>←もう一度</td></tr>
-	<tr><th>管理者</th>
+	<tr>
+		<th>名前</th>
+		<td><input type="text" name="name" class="w120 _reset" value="" required></td>
+	</tr>
+	<tr>
+		<th>パスワード</th>
+		<td><input type="password" name="pass" class="w120 _reset" value="" required>
+		<strong class="warning"><@Auth.pass_min>文字</strong>以上</td>
+	</tr>
+	<tr>
+		<th>パスワード確認</th><td<@err.c_pass>><input type="password" name="pass2" class="w120 _reset" value="" required></td>
+	</tr>
+<!--
+	<tr>
+		<th>E-mail（任意）</th>
+		<td><input type="email" name="email" class="w300 _reset" value="<@t.email>"></td>
+	</tr>
+-->
+	<tr>
+		<th>管理者</th>
 		<@ifexec(! Auth.exists_admin, begin, begin)><@>ユーザーなし自動承認モードなら無条件に管理者
 		<td><input type="hidden" name="isadmin" value="1">最初のユーザーは自動的に管理者になります</td></tr>
 		<$else>
 		<td>
-			<label><input type="checkbox" name="isadmin" value="1"<@if(Form.isadmin, ' checked')>>このユーザーを管理者にする</label>
+			<input type="hidden" name="checkbox.info" value="isadmin">
+			<label><input type="checkbox" id="isadmin" name="isadmin" value="1"<@if(Form.isadmin, ' checked')>>管理者にする</label>
 		</td>
 		<$end>
 	</tr>
 	</table>
 
 	<@ifexec(!Auth.auto, begin)>
-	<p><label><input type="checkbox" name="add_continue" value="1"<@if(Form.add_continue, ' checked')>>連続で追加する（追加成功後この画面に戻る）</label></p>
+	<p><label><input type="checkbox" id="continue">連続で追加する</label></p>
 	<$end>
 
 	<button type="submit">ユーザーを追加する</button>
@@ -52,4 +71,36 @@
 <$end>
 </div> <!-- end of body -->
 </article>
+
+
+<script-defer><!--
+	const $form = $('#add-user-form');
+
+<@ifexec(!Auth.auto, begin)>
+	$('#continue').on('change', function(evt){
+		const flag = $(evt.target).prop('checked');
+		$form.data('url', flag ? '' : '<@v.myself>?<@v.skel_dir>');
+	}).change();
+	$form.data('success', function(h){
+		if (!$('#continue').prop('checked')) return;
+
+		adiary.show_dialog("アカウントを追加しました。");
+		const f1 = $('#isadmin') .prop('checked');
+		const f2 = $('#continue').prop('checked');
+		$form[0].reset();
+		$('#isadmin') .prop('checked', f1);
+		$('#continue').prop('checked', f2);
+	});
+<$end>
+<@ifexec(Auth.auto, begin)>
+	$form.data('success', function(h){
+		adiary.show_dialog({
+			html:	'今追加したアカウントでログインしてください',
+			callback: function() {
+				window.location = '<@v.myself>?login'
+			}
+		})
+	});
+<$end>
+--></script-defer>
 

@@ -2,6 +2,59 @@
 // ■スケルトン用ルーチン
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
+//●ajax用フォーム
+//////////////////////////////////////////////////////////////////////////////
+$$.dom_init( function($R) {
+	const self=this;
+	const func = function($obj){
+		const checker = $obj.data('checker');
+		if (typeof(checker) === 'function') {
+			if (! checker($obj)) return;
+		}
+		$obj.find('.error').removeClass('error');
+
+		if ($obj.data('js-ajax-stop')) return;
+		if ($('.aui-overlay').length)  return;	// dialog viewing
+		$obj.data('js-ajax-stop', true);
+
+		self.send_ajax({
+			data:	$obj.serialize(),
+			success: function(h) {
+				const url = $obj.data('url');
+				if (url) window.location = url;
+				const success = $obj.data('success');
+				if (typeof(success) === 'function') success(h);
+			},
+			error: function(h) {
+				if (!h.errs) return;
+				const e = h.errs;
+				for(let k in e) {
+					if (k == '_order') continue;
+					try {
+						$obj.find('[name="'      + k + '"').addClass('error');
+						$obj.find('[data-name="' + k + '"').addClass('error');
+					} catch(e) {}
+				}
+			},
+			complite: function(h) {
+				$obj.data('js-ajax-stop', false);
+			}
+		});
+		return false;
+	};
+
+	$R.find('form.js-ajax').on('submit', function(evt) {
+		const $obj = $(evt.target);
+		if ($obj.hasClass('js-check')) {
+			$obj.data('submit-func', func);
+			return false;
+		}
+		func($obj);
+		return false;
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
 //●コメント欄の加工
 //////////////////////////////////////////////////////////////////////////////
 $$.init( function(){

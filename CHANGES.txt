@@ -8,6 +8,7 @@
 --【Compiler】forexecをforeachと書けるようにしました。
 --【Compiler】forexec, ifexec（elseなし）の begin を省略できるようにしました。
 --【Compiler】"++x"や"y--"等の記述を可能にしました。
+--【Auth】ユーザ管理まわりを大幅更新しました。
 --フォーム処理を更新しました。
 
 *Ver3.40a : 2020/03/16

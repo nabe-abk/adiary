@@ -13,18 +13,16 @@
 <article class="system">
 <h2><@v.title></h2>
 <div class="body">
-	<form action="<@v.thisurl>?login" method="POST">
-	<input type="hidden" name="action" value="login">
+	<form class="js-ajax" id="form" data-url="<@v.thisurl>">
+	<input type="hidden" name="action" value="_ajax_login">
 	<table class="login">
 	<tbody>
 	<tr>
-	<th>ID</th><td><input type="text" class="w80" name="adiary_id" id="id" value="<@esc(Query.id || Form.adiary_id)>" required></td>
+		<th>ID</th><td><input type="text" class="w100" name="adiary_id" id="id" value="" required></td>
 	</tr><tr>
-	<th>pass</th><td><input type="password" class="w80" id="pass" name="pass" value="<@if(Query.id eq 'test' || Query.id eq 'dummy', esc(Query.pass))>" required></td>
+		<th>pass</th><td><input type="password" class="w100" id="pass" name="pass" value="" required></td>
 	</tr><tr>
-	<td colspan="2" class="checkbox"><label><input type="checkbox" name="keep_login" value="1"<@if(Query.keep || Query.keep_login || Form.keep_login, ' checked')>>ログインを維持</label><span class="help" data-help="ブラウザを閉じても「ログインしたまま」にします。">?</span></td>
-	</tr><tr>
-	<td colspan="2" class="button"><button type="submit">ログイン</button></td>
+		<td colspan="2" class="button"><button type="submit">ログイン</button></td>
 	</tr>
 	</tbody>
 	</table>
@@ -34,9 +32,9 @@
 
 
 
-<@> cursol to id-form
+<@>
 <script-defer><!--
-$(document).ready( function() { $("<@if(Query.id ne '', "#pass", "#id")>").focus(); } );
+	$("<@if(Query.id ne '', "#pass", "#id")>").focus();
 --></script-defer>
 
 

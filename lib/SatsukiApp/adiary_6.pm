@@ -15,21 +15,21 @@ package SatsukiApp::adiary;
 # ■ワンライナーなサブルーチン等
 ###############################################################################
 my @update_versions = (
-	{ ver => 2.93, func => 'sys_update_293', plugin=>1, rebuild=>1 },
-	{ ver => 2.94, func => 'sys_update_294' },
+	{ ver => 2.93, plugin=>1, rebuild=>1, func=>'sys_update_293' },
+	{ ver => 2.94, func=>'sys_update_294' },
 	{ ver => 2.95, plugin=>1 },
-	{ ver => 2.96, func => 'sys_update_296', plugin=>1, theme=>1   },
-	{ ver => 2.97, func => 'sys_update_297', plugin=>1, theme=>1, rebuild=>1 },
+	{ ver => 2.96, plugin=>1, theme=>1, func=>'sys_update_296' },
+	{ ver => 2.97, plugin=>1, theme=>1, rebuild=>1, func=>'sys_update_297' },
 	{ ver => 2.98, plugin=>1, theme=>1 },
 	{ ver => 3.00, plugin=>1 },
 	{ ver => 3.01, plugin=>1 },
 	{ ver => 3.04, plugin=>1 },
 	{ ver => 3.05, plugin=>1 },
 	{ ver => 3.09, plugin=>1 },
-	{ ver => 3.10, func => 'sys_update_310', plugin=>1, theme=>1 },
+	{ ver => 3.10, plugin=>1, theme=>1, func => 'sys_update_310' },
 	{ ver => 3.11, plugin=>1 },
 	{ ver => 3.14, plugin=>1 },
-	{ ver => 3.15, func => 'sys_update_315', plugin=>1 },
+	{ ver => 3.15, plugin=>1, func => 'sys_update_315' },
 	{ ver => 3.20, plugin=>1 },
 	{ ver => 3.21, plugin=>1, theme=>1, rebuild_cond=>[
 		'\[&https?://github\.com',
@@ -43,7 +43,7 @@ my @update_versions = (
 	{ ver => 3.32, plugin=>1 },
 	{ ver => 3.34, plugin=>1 },
 	{ ver => 3.40, plugin=>1 },
-	{ ver => 3.50, plugin=>1 }
+	{ ver => 3.50, plugin=>1, func => 'sys_update_350' }
 );
 #------------------------------------------------------------------------------
 # ●システムアップデート
@@ -234,6 +234,19 @@ sub sys_update_330 {
 	}
 	$self->update_sysdat('edit_lock_interval', $self->{sys}->{edit_lock_time});
 	$self->update_sysdat('edit_lock_time', undef);
+}
+
+#------------------------------------------------------------------------------
+# ●システムアップデート for Ver3.50
+#------------------------------------------------------------------------------
+sub sys_update_350 {
+	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+	my $auth = $ROBJ->{Auth};
+
+	# DB変更
+	my $r = $auth->{DB}->add_column($auth->{table}, {name=>'email', type=>'text'});
+	if ($r) { $ROBJ->message("ALTER TABLE $auth->{table} add column error($r)"); }
 }
 
 ###############################################################################

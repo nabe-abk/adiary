@@ -85,6 +85,8 @@ $$.dom_init( function($R){
 		} else {
 			flag = ! ($btn.val() + '').match(/^\s*$/);
 		}
+		if ($btn.prop("disabled")) flag=false;
+
 		// id設定
 		if (!id) {
 			id = $btn.attr('id') ? $btn.attr('id') : 'name:' + $btn.attr('name');
@@ -162,18 +164,21 @@ $$._toggle = function(init, $obj) {
 	}
 
 	// 変更後の状態を設定
+	let delay = $obj.data('delay');
+	if (delay === '') delay = this.DefaultShowSpeed;
+
 	if (flag) {
 		$obj.addClass('sw-show');
 		$obj.removeClass('sw-hide');
 		if (init) $target.show();
-		     else $target.showDelay();
+		     else $target.show(delay);
 		if (storage) storage.set(id, '1');
 
 	} else {
 		$obj.addClass('sw-hide');
 		$obj.removeClass('sw-show');
 		if (init) $target.hide();
-		     else $target.hideDelay();
+		     else $target.hide(delay);
 		if (storage) storage.set(id, '0');
 	}
 	if (type == 'button') {
