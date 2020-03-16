@@ -8,6 +8,7 @@
 -【httpd】パス設定機能を付けました。これにより Reverse Proxy での運用が楽になります。
 -【httpd】UNIX domain socketモードを追加しました。
 -【Plugin/webpush】通知送信時のステータスcodeを 201 か確認するようにしました。((従来は200番台であることのみ確認していました。))
+-【Ver3.40a/Fix】リンク集の設定がうまく表示されない。（[https://adiary.adiary.jp/0419#c1:Thanks to やす]）
 -他
 
 *Ver3.34 : 2020/01/18
