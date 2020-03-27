@@ -34,18 +34,8 @@ sub select_match {
 		my $val = shift;
 		if ($col eq '*limit') { $h{limit}=$val; next; }
 		if ($col eq '*cols' ) { $h{cols} =$val; next; }
+		if ($col eq '*sort' ) { $h{sort} =$val; next; }
 		if ($col eq '*NoError') { $h{NoError}=$val; next; }
-		if ($col eq '*sort' ) {
-			$h{sort}||=[]; $h{sort_rev}||=[];
-			if (ord($val) == 0x2d) {	# == '-'
-				push(@{$h{sort}},substr($val,1));
-				push(@{$h{sort_rev}},1);
-				next;
-			}
-			push(@{$h{sort}},$val);
-			push(@{$h{sort_rev}},0);
-			next;
-		}
 		if (ord($col) == 0x2d) {	# == '-'
 			$h{not_match}->{substr($col,1)}=$val;
 			next;
