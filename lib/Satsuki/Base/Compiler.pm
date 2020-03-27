@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2019 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.82';
+our $VERSION = '1.83';
 #(簡易履歴)
+# 2020/03 Ver1.83  push_hash(), unshift_hash()追加。
 # 2020/02 Ver1.82  foreach追加。ifexec/forexecのbegin省略可。x++/--yの追加。
 # 2019/06 Ver1.81  grep() を修正
 # 2019/01 Ver1.80  出力先を配列からスカラに変更
@@ -243,6 +244,8 @@ my %inline_if = (if=>-1, ifdef=>-1,
 	ifcall=>1, ifredirect=>1, ifform_error=>1, ifform_clear=>1,
 	ifmessage=>2, ifnotice=>2,
 
+	ifpush_hash=>1, ifunshift_hash=>1,
+
 	ifset_cookie=>1, ifclear_cookie=>1,
 	ifset_header=>1, ifset_lastmodified=>2,
 	ifset_content_type=>2, ifset_status=>2,
@@ -400,10 +403,38 @@ $Builtin_func{arrayhash2hash} = <<'FUNC';
 sub {
 	my ($ary, $key) = @_;
 	if (!$ary || !@$ary) { return {} };
-	my %h = map {$_->{$key} => 1} @$ary;
+	my %h = map {$_->{$key} => $_} @$ary;
 	return \%h;
 }
 FUNC
+
+#--------------------------------------------------------------------
+# ●順序付 hash に値追加
+#--------------------------------------------------------------------
+$Builtin_func{push_hash} = <<'FUNC';
+sub {
+	my ($h, $key, $val) = @_;
+	if (ref($h) ne 'HASH') { return; };
+	if (!exists($h->{$key}) && $h->{_order}) {
+		push(@{$h->{_order}}, $key);
+	}
+	$h->{$key} = $val;
+	return $h;
+}
+FUNC
+
+$Builtin_func{unshift_hash} = <<'FUNC';
+sub {
+	my ($h, $key, $val) = @_;
+	if (ref($h) ne 'HASH') { return; };
+	if (!exists($h->{$key}) && $h->{_order}) {
+		unshift(@{$h->{_order}}, $key);
+	}
+	$h->{$key} = $val;
+	return $h;
+}
+FUNC
+
 #--------------------------------------------------------------------
 # ●指定したハッシュキーが存在したときのみコピーを生成する
 #--------------------------------------------------------------------
@@ -1169,15 +1200,22 @@ sub poland_to_eval {
 						} elsif (substr($y,0,2) eq 'if') {
 							$need_line_num = 1;
 							my $func = substr($y, 2);	# iffunc → func
+							if ($Builtin_func{$func}) {
+								$break_check_flag = &check_break_function($func);
+								$func = "\x04$func";
+							} else {
+								$func = "\$R->$func";
+							}
 							$x = shift(@ary);
+
 							if ($inline_if{$y} == 2 && $ary[1] ne '') {	# ifxxx(exp, A, B)
-								$x = "\$R->$func($x ? $ary[0] : $ary[1])";
+								$x = "$func($x ? $ary[0] : $ary[1])";
 							} elsif ($last_op && $cmd_flag eq '@') {
 								$line_info |= $l_no_change;
-								$x = "($x && ($VAR_OUT .= \$R->$func(" . join(',', @ary) . ")));";
+								$x = "($x && ($VAR_OUT .= $func(" . join(',', @ary) . ")));";
 								$arc_last = 1;
 							} else {
-								$x = "($x && \$R->$func(" . join(',', @ary) . "))";
+								$x = "($x && $func(" . join(',', @ary) . "))";
 								$arc_last = 1;
 							}
 						}
