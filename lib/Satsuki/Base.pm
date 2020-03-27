@@ -1285,36 +1285,36 @@ sub read_form {
 #------------------------------------------------------------------------------
 sub read_query {
 	my $self = shift;
-	my $array = shift || {};
 	if ($self->{Query}) { return $self->{Query}; }
-	if ($ENV{QUERY_STRING} eq '') { return {}; }
+	return ($self->{Query} = $self->parse_query($ENV{QUERY_STRING}, @_));
+}
+sub parse_query {
+	my $self   = shift;
+	my $q      = shift;
+	my $arykey = shift || {};
+	my $code   = $self->{System_coding};
 
-	# 文字コード関連, UA_code=表示（Form）文字コードが内部コードと違う場合
-	my $from = $self->{UA_code} || $self->{System_coding};
-	my $to   = $self->{System_coding};
-
-	my @query = split(/&/, $ENV{QUERY_STRING});
-	my %query;
-	foreach (@query) {
-		my ($name, $val) = split(/=/,$_,2);
-		$name =~ s|[^\w\-/]||g;
+	my %h;
+	foreach(split(/&/, $q)) {
+		my ($key, $val) = split(/=/,$_,2);
+		$key =~ s|[^\w\-/]||g;
 		$val =~ tr/+/ /;
 		$val =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
 
 		# 文字コード変換（文字コードの完全性保証）
 		my $jcode = $self->load_codepm_if_needs( $val );
-		$jcode && $jcode->from_to( \$val, $from, $to );
+		$jcode && $jcode->from_to( \$val, $code, $code );
 
 		$val =~ s/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]//g;	# TAB LF CR以外の制御コードを除去
 		$val =~ s/\r\n?/\n/g;	# 改行を統一
-		if ($array->{$name}) {
-			$query{$name} ||= [];
-			push(@{$query{$name}}, $val);
+		if ($arykey->{$key}) {
+			my $a = $h{$key} ||= [];
+			push(@$a, $val);
 			next;
 		}
-		$query{$name} = $val;
+		$h{$key} = $val;
 	}
-	return ($self->{Query} = \%query);
+	return \%h;
 }
 
 #------------------------------------------------------------------------------

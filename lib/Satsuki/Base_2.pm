@@ -15,14 +15,14 @@ sub compile {
 	#------------------------------------------------------------
 	# コンパイルログを残すか？
 	#------------------------------------------------------------
-	my $compile_log = $self->{Compile_log_dir};
-	if ($compile_log ne '' && (-d $compile_log || $self->mkdir($compile_log)) ) {
+	my $logfile = $self->{Compile_log_dir};
+	if ($logfile ne '' && (-d $logfile || $self->mkdir($logfile)) ) {
 		my $file = $src_file;
 		$file =~ s|/|_-_|g;
 		$file =~ s/[^\w\-\.]/_/g;
-		$compile_log .= $file;	# log を残す
+		$logfile .= $file;	# log を残す
 	} else {
-		undef $compile_log;
+		undef $logfile;
 	}
 	#------------------------------------------------------------
 	# コンパイル処理
@@ -30,7 +30,7 @@ sub compile {
 	if ($cache_file) { unlink($cache_file); }	# キャッシュ削除
 	my $c     = $self->loadpm('Base::Compiler');
 	my $lines = $self->fread_lines($src_filefull);
-	my ($errors, $warns, $arybuf) = $c->compile($lines, $src_file, $compile_log);
+	my ($errors, $warns, $arybuf) = $c->compile($lines, $src_file, $logfile);
 	if ($errors) {
 		$self->set_status(500);
 	}
@@ -822,7 +822,7 @@ sub form_data_check_and_save {
 	if ($type ne '_bin' && !ref($val)) {	# バイナリデータではない
 		# 文字コード変換（文字コードの完全性保証）
 		my $jcode = $self->load_codepm_if_needs( $val );
-		$jcode && $jcode->from_to( \$val, $self->{UA_code} || $self->{System_coding}, $self->{System_coding} );
+		$jcode && $jcode->from_to( \$val, $self->{System_coding}, $self->{System_coding} );
 		my $substr = $jcode ? sub { $jcode->jsubstr(@_) } : sub { substr($_[0],$_[1],$_[2]) };
 		my $length = $jcode ? sub { $jcode->jlength(@_) } : sub { length($_[0]) };
 
