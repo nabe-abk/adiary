@@ -1,11 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # skeleton parser / 構文解析コンパイラ
-#						(C)2006-2019 nabe@abk
+#						(C)2006-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.83';
+our $VERSION = '1.84';
 #(簡易履歴)
+# 2020/03 Ver1.84  hash() array() {} [] 表記の入れ子を可能に。
 # 2020/03 Ver1.83  push_hash(), unshift_hash()追加。
 # 2020/02 Ver1.82  foreach追加。ifexec/forexecのbegin省略可。x++/--yの追加。
 # 2019/06 Ver1.81  grep() を修正
@@ -131,8 +132,13 @@ my %op_formalname;	# 演算子正式名（存在するもののみ）
 # bit 4?12 - 演算子優先度（大きいほうが優先）
 $operators{'('}   =  0x00;
 $operators{')'}   =  0x00;
+$operators{'{'}   =  0x00;
+$operators{'}'}   =  0x00;
+$operators{'['}   =  0x00;
+$operators{']'}   =  0x00;
 $operators{';'}   =  0x00;
 $operators{','}   =  0x10;	# 例外処理
+$operators{'=>'}  =  0x10;
 $operators{'='}   =  0x21;
 $operators{'+='}  =  0x21;
 $operators{'-='}  =  0x21;
@@ -148,8 +154,8 @@ $operators{'>>='} =  0x21;
 $operators{'&&='} =  0x21;
 $operators{'||='} =  0x21;
 $operators{'..'}  =  0x30;	# 本当は || より優先度は低い
-$operators{'||'}  =  0x30;
-$operators{'&&'}  =  0x40;
+$operators{'||'}  =  0x38;
+$operators{'&&'}  =  0x48;
 $operators{'|'}   =  0x50;
 $operators{'^'}   =  0x60;
 $operators{'&'}   =  0x70;
@@ -691,10 +697,10 @@ sub preprocessor {
 					$str =~ s/"/\\"/g;					# " をエスケープ
 					$str =~ s/([\$\@])/"\\x" . unpack('H2', $1)/eg;		# $ @ をエスケープ
 					push(@strbuf, "\"$str\"");	# 文字列保存
-					$z .= "\x01[\x01$#strbuf]";
+					$z .= "\x01$#strbuf\x01";
 				} else {		# シングルクォーテーションの場合
 					push(@strbuf, "'$str'");	# 文字列保存
-					$z .= "\x01[\x01$#strbuf]";
+					$z .= "\x01$#strbuf\x01";
 				}
 			}
 			if (substr($z,-1) ne '>' || substr($z,-2) eq '=>') {
@@ -804,51 +810,13 @@ sub convert_reversed_poland {
 			"->('$x')";
 		!eg;
 
-		# [aaa, bbb] → array[aaa, bbb]
-		$cmd =~ s|\[([^\]\x00-\x04]*)\]|array($1)|g;
-
-		# {aaa => x, bbb=>y} → hash(aaa , x, bbb,y)
-		# {aaa  : x, bbb: y} → hash(aaa , x, bbb,y)
-		$cmd =~ s!\{([^\{\}]*)\}!
-			my $x=$1;
-			$x =~ s/=>|:/,/g;
-			"hash($x)";
-		!eg;
-
-		# flag(a b    c d) → flag(a,b,c,d)
-		# hash(a => b c:d) → hash(a,b,c,d)
-		$cmd =~ s!(^|\W)(arrayq?|hashq?|flagq?)\(\s*([^\(\)]*?)\s*\)!
-			my $c="$1$2";
-			my $x=$3;
-			if ($2 eq 'hash' || $2 eq 'hashq') {
-				$x =~ s/\s*(?:,|:|=>)\s*|\s+/,/g;
-			} else {
-				$x =~ s/\s*,\s*|\s+/,/g;
-			}
-			"$c($x)";
-		!eg;
-
-		# hash(aaa,x,'bbb',y,ccc,'z') → hash('aaa','x','bbb',y,'ccc','z')
-		$cmd =~ s#(^|\W)hash\(\s*([^\(\)]*?)\s*\)#
-			my $c=$1;
-			my @a=split(/,/, $2);
-			my $f=1;
-			foreach(@a) {
-				if ($f && $_ !~ /^\x01\[\x01/) {
-					$_ = &into_single_quot_string($_);
-				}
-				$f = !$f;
-			}
-			"${c}hash(" . join(',',@a) . ")";
-		#eg;
-
 		# flagq(a,b-c,dd,ee) → flag('a','b-c','dd','ee')
 		$cmd =~ s!(arrayq|hashq|flagq)\(\s*([^\(\)]*?)\s*\)!
 			my $c=$1;
-			my @a=&array2quote_string(split(/,/,$2));
+			my @a=&array2quote_string(split(/[, ]/,$2));
 			foreach(@a) {
 				push(@$strbuf, $_);
-				$_ = "\x01[\x01$#$strbuf]";
+				$_ = "\x01$#$strbuf\x01";
 			}
 			my $x=@a ? ("'" . join("','",@a) . "'") : '';
 			chop($c);
@@ -859,7 +827,9 @@ sub convert_reversed_poland {
 		$cmd =~ s/\s*//g;
 
 		$cmd =~ s/shift\(\)/shift(argv)/g;		# shift() → shift(argv)
-		$cmd =~ s/\(\)/(__undef__)/g;			# func() の中身に仮に undef を入れる
+		$cmd =~ s/\(\)/(__undef__)/g;			# () → (__undef__)
+		$cmd =~ s/\[\]/[__undef__]/g;			# [] → (__undef__)
+		$cmd =~ s/\{\}/{__undef__}/g;			# {} →  (__undef__)
 		$cmd =~ s/->\('([\w\.]+)'\)\(/%h$1%r(/g;	# ('x').func() への対応
 
 		# 構文解析
@@ -869,7 +839,7 @@ sub convert_reversed_poland {
 		my @poland;		# 逆ポーランド記法記録用
 		my $x = $cmd . ')';
 		my $right_arc = 0;
-		while ($x =~ /(.*?)([=,\(\)\+\-<>\^\*\/&|%!;\#\@ ])(.*)/s) {
+		while ($x =~ /(.*?)([=,\(\)\[\]\{\}\+\-<>\^\*\/&|%!;\#\@ ])(.*)/s) {
 			if ($1 ne '') { push(@poland,  $1); }	# 　演算子の手前を出力
 			my $op = $2;
 			if ($op eq ' ') { $op='%r'; }
@@ -882,7 +852,7 @@ sub convert_reversed_poland {
 			} else {
 				$x = $3;		# 残り
 			}
-			if ($op eq '-' && $1 eq '' && !$right_arc) { $op = '%m'; }	# 数値の負数表現判別
+			if ($op eq '-'  && $1 eq '' && !$right_arc) { $op = '%m'; }	# 数値の負数表現判別
 			if ($op eq '++' && $1 ne '') { $op='++r'; }	# "x++"を判定
 			if ($op eq '--' && $1 ne '') { $op='--r'; }	# "x--"を判定
 
@@ -895,10 +865,16 @@ sub convert_reversed_poland {
 			#
 			if ($op eq '(') {
 				push(@op, '('); push(@opl, 0);
-				if ($1 ne '') {		# xxxxxx() ならば関数実行
+				if ($1 ne '') {			# xxx() ならば関数実行
 					push(@op, '%r');
 					push(@opl, 0);
 				}
+			} elsif ($op eq '[' || $op eq '{') {
+				push(@op, $op); push(@opl, 0);
+				if ($1 ne '') {	last; }		# xxx[] xxx{} はエラー強制終了
+				push(@poland,  $op eq '[' ? 'array' : 'hashx');
+				push(@op, '%r');
+				push(@opl, 0);
 			} else {
 				my $z = $opl & 1;	# 右から優先の場合 $z = 1
 				if ($opl[$#opl] & $opl & 2) {	# スタックトップと現演算子が同時に単項演算子
@@ -907,13 +883,16 @@ sub convert_reversed_poland {
 					while ($#opl>=0 && $opl[$#opl] >= $opl + $z) {
 						my $op0   = pop(@op);
 						my $level = pop(@opl);
-						if ($op0 eq '(') { last; }	# '(' の場合、処理を強制終了
+						if ($op0 eq '(' && $op eq ')') { last; }
+						if ($op0 eq '[' && $op eq ']') { last; }
+						if ($op0 eq '{' && $op eq '}') { last; }
+
 						# 現演算子より優先度の低い演算子を出力
 						push(@poland, $op0);	# 逆ポーランド記法
 					}
 				}
 				# 新しい演算子を積む
-				if ($op eq ')') {
+				if ($op eq ')' || $op eq ']' || $op eq '}') {
 					$right_arc = 1;
 				} else {
 					$right_arc = 0;
@@ -921,8 +900,8 @@ sub convert_reversed_poland {
 					push(@opl, $opl);
 				}
 			}
-			# print "poland exp.   : ", join(' ', @poland), "\n";
-			# print "op stack dump : ", join(' ', @op), "\n";
+			## print "poland exp.   : ", join(' ', @poland), "\n";
+			## print "op stack dump : ", join(' ', @op), "\n";
 		}
 		#
 		# 変換完了
@@ -1049,7 +1028,7 @@ sub poland_to_eval {
 				# 演算式の合成
 				#
 				# constant（定数宣言）
-				if ($op eq '%r' && $y eq 'constant') {
+				if ($op eq '%r' && ($y eq 'constant' || $y eq 'const')) {
 					if ($xt ne 'obj') {
 						@stack      = ("$x is not object", '*');
 						@stack_type = ('error_msg', '*');
@@ -1302,10 +1281,20 @@ sub poland_to_eval {
 						$x = join(',', @ary);
 						push(@stack, "[$x]");
 
-					} elsif ($y eq 'hash') {
+					} elsif ($y eq 'hash' || $y eq 'hashx') {
 						# hash (a1, b1, a2, b2, ...) to {a1=>b1, a2=>b2}
 						# hashq(a1, b1, a2, b2, ...) to {'a1'=>'b1', 'a2'=>'b2'}
-						my @ary = &get_objects_array ($x_orig, $xt, $local_vars);
+						#      {a1, b1, a2, b2, ...} to {'a1'=>b1, 'a2'=>b2}	// = hashx()
+						my @ary;
+						if ($y eq 'hash') {
+							@ary = &get_objects_array ($x_orig, $xt, $local_vars);
+						} else {
+							my @a = &array2quote_string(ref($x_orig) ? @$x_orig : $x_orig);
+							my @b = &get_objects_array ($x_orig, $xt, $local_vars);
+							foreach(0..$#a) {
+								push(@ary, (($_ & 1) ? $b[$_] : $a[$_]));
+							}
+						}
 						my $x='';
 						@ary = grep { $_ ne '' } @ary;
 						while(@ary) {
@@ -1352,7 +1341,7 @@ sub poland_to_eval {
 				if ($last_op && $op eq '=' && $yt eq 'const_var' && $xt eq 'const') {
 					my $err;
 					my $const = $x;
-					if ($x =~ /^\x01\[\x01(\d+)\]$/) {
+					if ($x =~ /^\x01(\d+)\x01$/) {
 						$const = $strbuf->[$1];
 						$const =~ s/^[\"\'](.*)[\"\']$/$1/;
 						if ($const !~ /[\x00-\x08\x0a-\x1f\"\'\\]/) {
@@ -1373,7 +1362,7 @@ sub poland_to_eval {
 					}
 				}
 
-				if ($op eq ',')  {
+				if ($op eq ',' || $op eq '=>')  {
 					if (ref($yt) eq 'ARRAY') {
 						push(@$y,  $x_orig);
 						push(@$yt, $xt);
@@ -1510,7 +1499,7 @@ sub poland_to_eval {
 					$exp = oct($exp);
 				}
 				# 文字列でなければ置き換え
-				if ($exp !~ /^\x01\[\x01(\d+)\]$/) {		# 文字列
+				if ($exp !~ /^\x01(\d+)\x01$/) {		# 文字列
 					$_ = $exp;
 					next;
 				}
@@ -1553,8 +1542,8 @@ sub get_element_type {
 	my $local_vars_ary = shift;
 	my $strbuf   = shift;
 	my $p = $_[0];
-	if (exists $operators{$p}) { return 'op'; }		# 演算子
-	if ($p =~ /^\x01\[\x01(\d+)\]$/) {			# 文字列
+	if (exists $operators{$p}) { return 'op'; }	# 演算子
+	if ($p =~ /^\x01(\d+)\x01$/) {			# 文字列
 		# 該当文字列を評価する
 		my $num = $1;
 		my $local_vars = $local_vars_ary->[ $#$local_vars_ary ];
@@ -2141,11 +2130,11 @@ sub recover_string {
 
 	foreach my $ary (@$arybuf) {
 		if (! ref($ary)) {
-			$ary =~ s/\x01\[\x01(\d+)\]/$strbuf->[$1]/g;
+			$ary =~ s/\x01(\d+)\x01/$strbuf->[$1]/g;
 			next;
 		}
 		foreach(@$ary) {
-			$_ =~ s/\x01\[\x01(\d+)\]/$strbuf->[$1]/g;
+			$_ =~ s/\x01(\d+)\x01/$strbuf->[$1]/g;
 		}
 	}
 	return $arybuf;
@@ -2335,7 +2324,7 @@ sub debug_save {
 	# 文字列復元
 	#---------------------------------------------------
 	foreach(@lines) {
-		$_ =~ s/\x01\[(\d+?)\]/$strbuf->[$1]/g;
+		$_ =~ s/\x01(\d+?)\x01/$strbuf->[$1]/g;
 		$_ =~ s/[\x00-\x04]//g;	# 制御文字除去
 	}
 	# save
