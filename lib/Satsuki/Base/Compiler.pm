@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.84';
+our $VERSION = '1.90';
 #(簡易履歴)
+# 2020/04 Ver1.90  poland_to_eval() の大幅書き換え。
 # 2020/03 Ver1.84  hash() array() {} [] 表記の入れ子を可能に。
 # 2020/03 Ver1.83  push_hash(), unshift_hash()追加。
 # 2020/02 Ver1.82  foreach追加。ifexec/forexecのbegin省略可。x++/--yの追加。
@@ -113,86 +114,87 @@ SUB_HEAD
 #------------------------------------------------------------------------------
 # ●プラグマ定数
 #------------------------------------------------------------------------------
-my $p_ctab2blank     = 0x0001;	# コマンド手前がタブのみの場合、それを除去する
-my $p_cspace2blank   = 0x0002;	# コマンドのみの行の行頭空白や文末改行を自動除去する
-my $p_dellf_aftercmd = 0x0004;	# コマンド行に続く空行を除去する
-my $p_nocr           = 0x0010;	# 改行を除去する
-my $p_cmd_only       = 0x0020;	# コマンド以外を無視
-my $p_is_function    = 0x0040;	# 関数として処理
+my $P_ctab2blank     = 0x0001;	# コマンド手前がタブのみの場合、それを除去する
+my $P_cspace2blank   = 0x0002;	# コマンドのみの行の行頭空白や文末改行を自動除去する
+my $P_dellf_aftercmd = 0x0004;	# コマンド行に続く空行を除去する
+my $P_del_blank      = 0x0008;	# 空行を除去
+my $P_nocr           = 0x0010;	# 改行を除去する
+my $P_cmd_only       = 0x0020;	# コマンド以外を無視
+my $P_is_function    = 0x0040;	# 関数として処理
 
 #------------------------------------------------------------------------------
 # ●演算子情報
 #------------------------------------------------------------------------------
-my %operators;		# 優先度配列
-my %op_formalname;	# 演算子正式名（存在するもののみ）
+my %OPR;		# 優先度配列
+my %OPR_rename;	# 演算子正式名（存在するもののみ）
 # bit 0 - 右から左
 # bit 1 - 単項演算子
 # bit 2 - 単項右結合（x++/x--用）
 # bit 3 - 連結時にspaceが必要
 # bit 4?12 - 演算子優先度（大きいほうが優先）
-$operators{'('}   =  0x00;
-$operators{')'}   =  0x00;
-$operators{'{'}   =  0x00;
-$operators{'}'}   =  0x00;
-$operators{'['}   =  0x00;
-$operators{']'}   =  0x00;
-$operators{';'}   =  0x00;
-$operators{','}   =  0x10;	# 例外処理
-$operators{'=>'}  =  0x10;
-$operators{'='}   =  0x21;
-$operators{'+='}  =  0x21;
-$operators{'-='}  =  0x21;
-$operators{'*='}  =  0x21;
-$operators{'/='}  =  0x21;
-$operators{'%='}  =  0x21;
-$operators{'&='}  =  0x21;
-$operators{'|='}  =  0x21;
-$operators{'%.='} =  0x21; $op_formalname{'%.='} = '.=';
-$operators{'**='} =  0x21;
-$operators{'<<='} =  0x21;
-$operators{'>>='} =  0x21;
-$operators{'&&='} =  0x21;
-$operators{'||='} =  0x21;
-$operators{'..'}  =  0x30;	# 本当は || より優先度は低い
-$operators{'||'}  =  0x38;
-$operators{'&&'}  =  0x48;
-$operators{'|'}   =  0x50;
-$operators{'^'}   =  0x60;
-$operators{'&'}   =  0x70;
-$operators{'=='}  =  0x80;
-$operators{'!='}  =  0x80;
-$operators{'<=>'} =  0x80;
-$operators{'%e'}  =  0x88; $op_formalname{'%e'} = 'eq';
-$operators{'%n'}  =  0x88; $op_formalname{'%n'} = 'ne';
-$operators{'<'}   =  0x90;
-$operators{'>'}   =  0x90;
-$operators{'<='}  =  0x90;
-$operators{'>='}  =  0x90;
-$operators{'%d'}  =  0xa2; $op_formalname{'%d'} = 'defined';
-$operators{'>>'}  =  0xb0;
-$operators{'<<'}  =  0xb0;
-$operators{'+'}   =  0xc0;
-$operators{'-'}   =  0xc0;
-$operators{'%.'}  =  0xc0; $op_formalname{'%.'} = '.';
-$operators{'*'}   =  0xd0;
-$operators{'/'}   =  0xd0;
-$operators{'%'}   =  0xd0;
-$operators{'%x'}  =  0xd8; $op_formalname{'%x'} = 'x';
-$operators{'++'}  =  0xe2;
-$operators{'--'}  =  0xe2;
-$operators{'++r'} =  0xe6; $op_formalname{'++r'} = '++'; # x++
-$operators{'--r'} =  0xe6; $op_formalname{'--r'} = '--'; # x++
-$operators{'!'}   =  0xf2;	# boolean not
-$operators{'~'}   =  0xf2;	# bit invert
-$operators{'**'}  = 0x100;
-$operators{'%r'}  = 0x200;	# 例外処理
-$operators{' '}   = 0x200;	# 例外処理
-$operators{'#'}   = 0x200;				# 配列参照（例外処理）
-$operators{'->'}  = 0x200;				# ハッシュ参照／変数（例外処理）
-$operators{'%h'}  = 0x200;				# ハッシュ参照／メソッドcall（例外処理）
-$operators{'@'}   = 0x202;				# 配列デリファレンス（例外処理）
-$operators{'##'}  = 0x202;				# 配列の要素数-1（例外処理）
-$operators{'%m'}  = 0x202; $op_formalname{'%m'} = '-';	# 負の数値
+$OPR{'('}   =  0x00;
+$OPR{')'}   =  0x00;
+$OPR{'{'}   =  0x00;
+$OPR{'}'}   =  0x00;
+$OPR{'['}   =  0x00;
+$OPR{']'}   =  0x00;
+$OPR{';'}   =  0x00;
+$OPR{','}   =  0x10;	# 例外処理
+$OPR{'=>'}  =  0x10;
+$OPR{'='}   =  0x21;
+$OPR{'+='}  =  0x21;
+$OPR{'-='}  =  0x21;
+$OPR{'*='}  =  0x21;
+$OPR{'/='}  =  0x21;
+$OPR{'%='}  =  0x21;
+$OPR{'&='}  =  0x21;
+$OPR{'|='}  =  0x21;
+$OPR{'%.='} =  0x21; $OPR_rename{'%.='} = '.=';
+$OPR{'**='} =  0x21;
+$OPR{'<<='} =  0x21;
+$OPR{'>>='} =  0x21;
+$OPR{'&&='} =  0x21;
+$OPR{'||='} =  0x21;
+$OPR{'..'}  =  0x30;	# 本当は || より優先度は低い
+$OPR{'||'}  =  0x38;
+$OPR{'&&'}  =  0x48;
+$OPR{'|'}   =  0x50;
+$OPR{'^'}   =  0x60;
+$OPR{'&'}   =  0x70;
+$OPR{'=='}  =  0x80;
+$OPR{'!='}  =  0x80;
+$OPR{'<=>'} =  0x80;
+$OPR{'%e'}  =  0x88; $OPR_rename{'%e'} = 'eq';
+$OPR{'%n'}  =  0x88; $OPR_rename{'%n'} = 'ne';
+$OPR{'<'}   =  0x90;
+$OPR{'>'}   =  0x90;
+$OPR{'<='}  =  0x90;
+$OPR{'>='}  =  0x90;
+$OPR{'%d'}  =  0xa2; $OPR_rename{'%d'} = 'defined';
+$OPR{'>>'}  =  0xb0;
+$OPR{'<<'}  =  0xb0;
+$OPR{'+'}   =  0xc0;
+$OPR{'-'}   =  0xc0;
+$OPR{'%.'}  =  0xc8; $OPR_rename{'%.'} = '.';	# 数字定数との結合時に空白が必要
+$OPR{'*'}   =  0xd0;
+$OPR{'/'}   =  0xd0;
+$OPR{'%'}   =  0xd0;
+$OPR{'%x'}  =  0xd8; $OPR_rename{'%x'} = 'x';
+$OPR{'++'}  =  0xe2;
+$OPR{'--'}  =  0xe2;
+$OPR{'++r'} =  0xe6; $OPR_rename{'++r'} = '++'; # x++
+$OPR{'--r'} =  0xe6; $OPR_rename{'--r'} = '--'; # x++
+$OPR{'!'}   =  0xf2;	# boolean not
+$OPR{'~'}   =  0xf2;	# bit invert
+$OPR{'**'}  = 0x100;
+$OPR{'%r'}  = 0x200;	# 例外処理
+$OPR{' '}   = 0x200;	# 例外処理
+$OPR{'#'}   = 0x200;				# 配列参照（例外処理）
+$OPR{'->'}  = 0x200;				# ハッシュ参照／変数（例外処理）
+$OPR{'%h'}  = 0x200;				# ハッシュ参照／メソッドcall（例外処理）
+$OPR{'@'}   = 0x202;				# 配列デリファレンス（例外処理）
+$OPR{'##'}  = 0x202;				# 配列の要素数-1（例外処理）
+$OPR{'%m'}  = 0x202; $OPR_rename{'%m'} = '-';	# 負の数値
 
 #------------------------------------------------------------------------------
 # ●呼び出しを許可する perl の core 関数
@@ -207,7 +209,7 @@ $operators{'%m'}  = 0x202; $op_formalname{'%m'} = '-';	# 負の数値
 #	bit10 =1024 : 第３引数が hash
 #	-1 : 関数ではなく裸制御文
 
-my %core_functions = (undef => 0, length => 0, sprintf => 0, join => 4, split => 1,
+my %CoreFuncs = (undef => 0, length => 0, sprintf => 0, join => 4, split => 1,
 index => 0, rindex => 0, shift => 2, unshift => 2, pop => 2, push => 2,
 int => 0, abs => 0, sin => 0, cos => 0, log => 0, exp => 0, sqrt => 0, rand => 0,
 undef => 0, substr => 0, chop => 0, chomp => 0, chr => 0, ord => 0,
@@ -218,7 +220,7 @@ next=>-1, last=>-1, exists=>0, reverse => 15, return => 0, umask => 0, sleep => 
 # ●breakフラグをチェックする関数
 #------------------------------------------------------------------------------
 # 関数名の部分一致
-my @break_functions = (
+my @BreakFuncs = (
 'break',
 'jump',
 'continue',
@@ -231,19 +233,23 @@ my @break_functions = (
 #------------------------------------------------------------------------------
 # <$x = ifexec(...)> 等を許可しない。
 # <$ifexec(...)> のみ許可する。
-my %only_lastop_functions = ( forexec=>1, ifexec=>1, local=>1);
+#
+my %LastOpFuncs = (
+	forexec=>1,
+	ifexec=>1
+);
 
 #------------------------------------------------------------------------------
 # ●if関連の inline 展開
 #------------------------------------------------------------------------------
 # ifexec を inline 展開する
 # forexec を inline 展開する
-my $ifexec_inline_on  = 1;
-my $forexec_inline_on = 1;
-# ==> 全パスを実行しないと、きちんとした結果が得られなくなります
+#
+my $IfexecInline  = 1;
+my $ForexecInline = 1;
 
 # ifjump や ifmessage を展開する
-my %inline_if = (if=>-1, ifdef=>-1,
+my %InlineIf = (if=>-1, ifdef=>-1,
 	ifcontinue=>1,
 	ifbreak=>1, ifbreak_clear=>1, ifsuperbreak=>1, ifsuperbreak_clear=>1,
 	ifjump=>1, ifjump_clear=>1, ifsuperjump=>1, ifsuperjump_clear=>1,
@@ -268,29 +274,28 @@ my %inline_if = (if=>-1, ifdef=>-1,
 #------------------------------------------------------------------------------
 # ●行情報フラグ
 #------------------------------------------------------------------------------
-my $l_replace        = 0x0001;	# 置換処理
-my $l_line_number    = 0x0002;	# 行情報が必要
-my $l_break_check    = 0x0004;	# breakチェックが必要
-my $l_no_change      = 0x0008;	# 変更禁止フラグ
-my $l_v_load         = 0x0010;	# $v の値を取り出し
-my $l_single         = 0x0020;	# 単一式である
-my $l_indent         = 0x0100;	# indent 情報用のゲタ
-my $l_indent_bits    = 8;	# ↑が何ビットシフトか
+my $L_replace        = 0x0001;	# 置換処理
+my $L_line_number    = 0x0002;	# 行情報が必要
+my $L_break_check    = 0x0004;	# breakチェックが必要
+my $L_no_change      = 0x0008;	# 加工禁止フラグ
+my $L_const          = 0x0020;	# 定数置換である
+my $L_indent         = 0x0100;	# indent 情報用のゲタ
+my $L_indent_bits    = 8;	# ↑が何ビットシフトか
 
 #------------------------------------------------------------------------------
 # ●その他情報
 #------------------------------------------------------------------------------
 # 単位情報
-my %unit2num = (K => 1024, M => 1024*1024, G => 1024*1024*1024, T => 1024*1024*1024*1024,
+my %Unit2Num = (K => 1024, M => 1024*1024, G => 1024*1024*1024, T => 1024*1024*1024*1024,
 		week => 3600*24*7, day => 3600*24, hour => 3600, min => 60, sec => 1);
 
 # 定義済ローカル変数（内部使用）
-my %special_vars = (v=>1);
+my %SpecialVars = (v=>1);
 
 # 行番号の桁数
-my $line_num_length = 4;
-my $line_num_zero   = '0' x $line_num_length;
-# \d\d\d\d\d の正規表現も修正すること！
+my $LineNumOpt  = 1; 	# 桁数をソース行数に最適化
+my $LineNumLen  = 4;
+my $LineNumZero = '0' x $LineNumLen;
 
 ###############################################################################
 # ■インライン関数
@@ -298,7 +303,7 @@ my $line_num_zero   = '0' x $line_num_length;
 # #0?#9までの引数が取れる
 # 複雑な処理の場合は組み込み関数にすること
 # 展開時に外側に「( )」自動で付く。
-my %inline_functions = (
+my %InlineFuncs = (
 'is_int'   => '#0 =~ /^-?\d+$/',
 'is_array' => "ref(#0) eq 'ARRAY'",
 'is_hash'  => "ref(#0) eq 'HASH'"
@@ -310,11 +315,11 @@ my %inline_functions = (
 # 追加関数としてコンパイル済スケルトンの後ろに関数を付加する。
 # 呼び出し側では、その関数のリファレンスを呼び出す。
 #
-my %Builtin_func;
+my %BuiltinFunc;
 #--------------------------------------------------------------------
 # ●ifexecの処理（通常はインライン展開される）
 #--------------------------------------------------------------------
-$Builtin_func{ifexec} = <<'FUNC';
+$BuiltinFunc{ifexec} = <<'FUNC';
 sub {
 	my $self = shift;
 	my ($exp, $obj1, $obj2) = @_;
@@ -326,7 +331,7 @@ FUNC
 #--------------------------------------------------------------------
 # ●文字列を各文字の文字コードに分解
 #--------------------------------------------------------------------
-$Builtin_func{string2ordary} = <<'FUNC';
+$BuiltinFunc{string2ordary} = <<'FUNC';
 sub {
 	my $txt = shift;
 	return [ map { ord($_) } split('', $txt) ];
@@ -335,7 +340,7 @@ FUNC
 #--------------------------------------------------------------------
 # ●文字列マッチ
 #--------------------------------------------------------------------
-$Builtin_func{match} = <<'FUNC';
+$BuiltinFunc{match} = <<'FUNC';
 sub {
 	my ($data, $reg) = @_;
 	if ($data =~ /$reg/) {
@@ -347,7 +352,7 @@ FUNC
 #--------------------------------------------------------------------
 # ●文字列置換
 #--------------------------------------------------------------------
-$Builtin_func{replace} = <<'FUNC';
+$BuiltinFunc{replace} = <<'FUNC';
 sub {
 	my ($data, $x, $y) = @_;
 	if (ref $data ne 'ARRAY') {
@@ -360,7 +365,7 @@ sub {
 	return $data;
 }
 FUNC
-$Builtin_func{replace_one} = <<'FUNC';
+$BuiltinFunc{replace_one} = <<'FUNC';
 sub {
 	my ($data, $x, $y) = @_;
 	if (ref $data ne 'ARRAY') {
@@ -376,7 +381,7 @@ FUNC
 #--------------------------------------------------------------------
 # ●文字列検索
 #--------------------------------------------------------------------
-$Builtin_func{grep} = <<'FUNC';
+$BuiltinFunc{grep} = <<'FUNC';
 sub {
 	my $x = shift;
 	my $ary = $_[0];
@@ -389,14 +394,14 @@ FUNC
 #--------------------------------------------------------------------
 # ●ハッシュ関係
 #--------------------------------------------------------------------
-$Builtin_func{copy} = <<'FUNC';
+$BuiltinFunc{copy} = <<'FUNC';
 sub {
 	my %h = %{ $_[0] };
 	return \%h;
 }
 FUNC
 
-$Builtin_func{array2hash} = <<'FUNC';
+$BuiltinFunc{array2hash} = <<'FUNC';
 sub {
 	my $ary = shift;
 	if (!$ary || !@$ary) { return {} };
@@ -405,7 +410,7 @@ sub {
 }
 FUNC
 
-$Builtin_func{arrayhash2hash} = <<'FUNC';
+$BuiltinFunc{arrayhash2hash} = <<'FUNC';
 sub {
 	my ($ary, $key) = @_;
 	if (!$ary || !@$ary) { return {} };
@@ -417,7 +422,7 @@ FUNC
 #--------------------------------------------------------------------
 # ●順序付 hash に値追加
 #--------------------------------------------------------------------
-$Builtin_func{push_hash} = <<'FUNC';
+$BuiltinFunc{push_hash} = <<'FUNC';
 sub {
 	my ($h, $key, $val) = @_;
 	if (ref($h) ne 'HASH') { return; };
@@ -429,7 +434,7 @@ sub {
 }
 FUNC
 
-$Builtin_func{unshift_hash} = <<'FUNC';
+$BuiltinFunc{unshift_hash} = <<'FUNC';
 sub {
 	my ($h, $key, $val) = @_;
 	if (ref($h) ne 'HASH') { return; };
@@ -444,7 +449,7 @@ FUNC
 #--------------------------------------------------------------------
 # ●指定したハッシュキーが存在したときのみコピーを生成する
 #--------------------------------------------------------------------
-$Builtin_func{copy_with_key} = <<'FUNC';
+$BuiltinFunc{copy_with_key} = <<'FUNC';
 sub {
 	my ($out, $in, $ary) = @_;
 	foreach(@$ary) {
@@ -457,7 +462,7 @@ FUNC
 #--------------------------------------------------------------------
 # ●ハッシュや配列をソートする
 #--------------------------------------------------------------------
-$Builtin_func{sort_num} = <<'FUNC';
+$BuiltinFunc{sort_num} = <<'FUNC';
 sub {
 	my ($ary,$key) = @_;
 	if ($key eq '') { return [ sort {$a<=>$b} @$ary ]; }
@@ -465,7 +470,7 @@ sub {
 }
 FUNC
 
-$Builtin_func{sort_str} = <<'FUNC';
+$BuiltinFunc{sort_str} = <<'FUNC';
 sub {
 	my ($ary,$key) = @_;
 	if ($key eq '') { return [ sort {$a cmp $b} @$ary ]; }
@@ -477,7 +482,7 @@ FUNC
 # ●print
 #--------------------------------------------------------------------
 # 特別な状況以外では使用しないこと
-$Builtin_func{print} = <<'FUNC';
+$BuiltinFunc{print} = <<'FUNC';
 sub {
 	print @_;
 }
@@ -485,8 +490,8 @@ FUNC
 #--------------------------------------------------------------------
 # ●ファイル存在確認
 #--------------------------------------------------------------------
-$Builtin_func{'file_exists.arg'} = '$R,';
-$Builtin_func{file_exists} = <<'FUNC';
+$BuiltinFunc{'file_exists.arg'} = '$R,';
+$BuiltinFunc{file_exists} = <<'FUNC';
 sub {
 	my ($self, $file) = @_;
 	if (-e $file) { return 1; }
@@ -494,8 +499,8 @@ sub {
 }
 FUNC
 
-$Builtin_func{'file_readable.arg'} = '$R,';
-$Builtin_func{file_readable} = <<'FUNC';
+$BuiltinFunc{'file_readable.arg'} = '$R,';
+$BuiltinFunc{file_readable} = <<'FUNC';
 sub {
 	my ($self, $file) = @_;
 	if (-r $file) { return 1; }
@@ -503,8 +508,8 @@ sub {
 }
 FUNC
 
-$Builtin_func{'file_writable.arg'} = '$R,';
-$Builtin_func{file_writable} = <<'FUNC';
+$BuiltinFunc{'file_writable.arg'} = '$R,';
+$BuiltinFunc{file_writable} = <<'FUNC';
 sub {
 	my ($self, $file) = @_;
 	if (-w $file) { return 1; }
@@ -512,8 +517,8 @@ sub {
 }
 FUNC
 
-$Builtin_func{'file_size.arg'} = '$R,';
-$Builtin_func{file_size} = <<'FUNC';
+$BuiltinFunc{'file_size.arg'} = '$R,';
+$BuiltinFunc{file_size} = <<'FUNC';
 sub {
 	my ($self, $file) = @_;
 	return -s $file;
@@ -523,8 +528,8 @@ FUNC
 #--------------------------------------------------------------------
 # ●更新日時を付加
 #--------------------------------------------------------------------
-$Builtin_func{'add_lastmodified.arg'} = '$R,';
-$Builtin_func{add_lastmodified} = <<'FUNC';
+$BuiltinFunc{'add_lastmodified.arg'} = '$R,';
+$BuiltinFunc{add_lastmodified} = <<'FUNC';
 sub {
 	my ($self, $file) = @_;
 	return $file . '?' . $self->get_lastmodified( $file );
@@ -535,7 +540,7 @@ FUNC
 #--------------------------------------------------------------------
 # ●配列から指定した数をランダムにロードする
 #--------------------------------------------------------------------
-$Builtin_func{load_from_ary} = <<'FUNC';
+$BuiltinFunc{load_from_ary} = <<'FUNC';
 sub {
 	my ($ary,$num) = @_;
 	my $max = @$ary;
@@ -554,9 +559,9 @@ FUNC
 ###############################################################################
 # ■コンパイラ本体
 ###############################################################################
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 # ●[01] プリプロセッサ
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 # ・コマンドは１つだけで配列の１要素（１行）になるよう加工する（コマンド登場前後は、行分け）
 # ・文字列を配列に格納し、記号コードに置き換える
 # ・入力文字列から文字コード 00h-03h を除去する（内部的に使用するため）
@@ -603,19 +608,23 @@ sub preprocessor {
 		}
 
 		# 手前の行がコマンドのみの行ならば、続く空行を除去
-		if (($pragma & $p_dellf_aftercmd) && $prev_cmd_only && $x =~ /^\s*\n$/) { next; }
+		if (($pragma & $P_dellf_aftercmd) && $prev_cmd_only && $x =~ /^\s*\n$/) { next; }
 		$prev_cmd_only = 0;
+
+		# 空行を除去
+		if (($pragma & $P_del_blank) && $x =~ /^\r?\n?$/) { next; }
+
 		# $end で終わる行は行末改行除去
 		$x =~ s/(<[\$\@]end(?:\.\w+)?>)\r?\n$/$1/;
 
 		# プラグマの処理
-		if ($x =~ /^<\@([+-])?(\d+)(?:\.\w+)?>/) {
+		if ($x =~ /^<\@([+-])?(\d[0-9A-Fa-f]*)(?:\.\w+)?>/) {
 			my $n = oct("0x$2");
 			if    ($1 eq '+') { $pragma |=  $n; }
 			elsif ($1 eq '-') { $pragma &= ~$n; }
 			else              { $pragma  =  $n; }
-			if ($pragma & $p_is_function) {		# 関数処理なら
-				$pragma |= $p_cmd_only;		# コマンド以外を無視
+			if ($pragma & $P_is_function) {		# 関数処理なら
+				$pragma |= $P_cmd_only;		# コマンド以外を無視
 			}
 			# push(@buf, sprintf("pragma = %x", $pragma));
 			# push(@line_no, $line);
@@ -626,7 +635,7 @@ sub preprocessor {
 			$x=$1;
 			if ($x =~ /^\s*$/) { next; }
 		}
-		if ($pragma & $p_nocr) { $x =~ s/\n//g;}
+		if ($pragma & $P_nocr) { $x =~ s/\n//g;}
 		$x =~ s/[\x00-\x04]//g;		# 文字 00h-04h を除去
 		$x =~ s|</\$>|<\$\$>|g;		# </$> → <$$>
 
@@ -642,7 +651,7 @@ sub preprocessor {
 			my $y = $3;		# コマンド？
 			my $end_mark = '>';
 			if ($commands==1) {	# 行の最初のコマンドのみ
-				if (($pragma & $p_ctab2blank) && $t =~ /^\t+$/) { $t = ''; }
+				if (($pragma & $P_ctab2blank) && $t =~ /^\t+$/) { $t = ''; }
 			}
 			if ($t ne '') {		# コマンドより前部分
 				if ($t !~ /^\s+$/) {
@@ -721,7 +730,7 @@ sub preprocessor {
 			# }
 		}
 		# コマンドしかない行ならば
-		if (($pragma & $p_cspace2blank) && $commands && $line_is_cmd_only) {
+		if (($pragma & $P_cspace2blank) && $commands && $line_is_cmd_only) {
 			# 行末改行を除去する
 			if ($x eq "\n" || $x eq "\r\n") { $prev_cmd_only=1; $x=''; }
 			# 行頭空白を除去する
@@ -735,12 +744,17 @@ sub preprocessor {
 	}
 	$self->{pragma} = $pragma;	# プラグマを保存
 
+	if ($LineNumOpt) {
+		$LineNumLen  = length("$line");
+		$LineNumZero = '0' x $LineNumLen;
+	}
+
 	return (\@buf, \@line_no, \@strbuf);
 }
 
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 # ●[02] 逆ポーランド記法に変換
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 sub convert_reversed_poland {
 	my ($self, $buf, $lnum, $strbuf) = @_;
 
@@ -751,24 +765,6 @@ sub convert_reversed_poland {
 		if ($_ eq '<$>')     { $_=''; $comment_flag=1; next; }	# コメントの開始
 		if ($_ eq '<$$>')    { $_=''; $comment_flag=0; next; }	# コメントの終了
 		if ($comment_flag) { $_=''; next; }
-		#-------------------------------------------------------------
-		# ローカル変数宣言の場合
-		#-------------------------------------------------------------
-		if ($_ =~ /^<[\@\$]local\((.*)\)>/) {
-			my @vars = split(/\s*,\s*/, $1);
-			my %v;
-			foreach(@vars) {
-				if ($special_vars{$_}) { next; }
-				if ($_ !~ /^[a-z][a-z0-9]*$/) { next; }
-				$v{$_}=1;
-			}
-			if (%v) {
-				my @ary = keys(%v);
-				push(@ary, "l");	# local var flag
-				$_ = \@ary;
-			} else { $_=undef; }
-			next;
-		}
 		#-------------------------------------------------------------
 		# コメントアウトの場合、除去
 		#-------------------------------------------------------------
@@ -843,10 +839,10 @@ sub convert_reversed_poland {
 			if ($1 ne '') { push(@poland,  $1); }	# 　演算子の手前を出力
 			my $op = $2;
 			if ($op eq ' ') { $op='%r'; }
-			if (length($3) >1 && exists $operators{$op . substr($3, 0, 2)}) {	# 3文字の演算子？
+			if (length($3) >1 && exists $OPR{$op . substr($3, 0, 2)}) {	# 3文字の演算子？
 				$op .= substr($3, 0, 2);
 				$x   = substr($3, 2);	# 残り
-			} elsif ($3 ne '' && exists $operators{$op . substr($3, 0, 1)}) {	# 2文字の演算子？
+			} elsif ($3 ne '' && exists $OPR{$op . substr($3, 0, 1)}) {	# 2文字の演算子？
 				$op .= substr($3, 0, 1);
 				$x   = substr($3, 1);	# 残り
 			} else {
@@ -857,7 +853,7 @@ sub convert_reversed_poland {
 			if ($op eq '--' && $1 ne '') { $op='--r'; }	# "x--"を判定
 
 			# 演算子優先度を取り出す（bit 0 は右優先判別のときに使用）
-			my $opl = $operators{$op};
+			my $opl = $OPR{$op};
 			#
 			# $op  読み込んだ演算子
 			# $opl 演算子優先度
@@ -918,51 +914,37 @@ sub convert_reversed_poland {
 	return ;
 }
 
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 # ●[03] 逆ポーランド記法を eval 形式に変換
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 sub poland_to_eval {
 	my ($self, $buf, $lnum, $strbuf) = @_;
 	my $pragma = $self->{pragma};
 
-	my @local_vars_ary = ( {} );		# ローカル変数のバックアップ
-	my %constant;				# 定数バッファ
-	my $line = 0;				# 行カウンタ
-	foreach (@$buf) {
-		my $line_info = 0;	# 行情報
-		my $local_vars = $local_vars_ary[$#local_vars_ary];
+	my %constant;			# 定数バッファ
+	my @lv_stack = ( {} );		# ローカル変数のバックアップ
+	my $line = 0;			# 配列カウンタ
+	foreach(@$buf) {
 		$line++;
-		if (ref $_ ne 'ARRAY') {	# 逆ポーランド式でなければそのまま
+		if (ref $_ ne 'ARRAY' || !@$_) {	# 逆ポーランド式でなければそのまま
 			next;
 		}
 		# 元ソース中の行番号の生成
-		my $line_num     = substr($line_num_zero.$lnum->[$line], -$line_num_length);	# 下5文字分
-		my $line_num_int = int( $lnum->[$line] );
-
+		my $line_num = substr($LineNumZero.$lnum->[$line], -$LineNumLen);
 		my $cmd_flag = pop(@$_);
-		# ローカル変数の処理
-		if ($cmd_flag eq 'l') {
-			my $vars="";
-			my $local_vars = $local_vars_ary[$#local_vars_ary];
-			foreach my $v (@$_) {
-				if (! $local_vars->{$v}) { $local_vars->{$v}=1; }
-				$vars .= "\$$v,";
-			}
-			chop($vars);
-			$_ = "\x01$line_num" . "my ($vars)";
-			next;
-		}
+
 		# 処理準備
-		my @types = map { $self->get_element_type(\%constant, \@local_vars_ary, $strbuf, $_) } @$_;
+		my @types = map { $self->get_element_type(\%constant, \@lv_stack, $strbuf, $_) } @$_;
 
 		## print "\npoland expression : ", join(' ', @$_),    "\n";
 		## print   "data types        : ", join(' ', @types), "\n";
 		if (grep {$_ eq "error"} @types) {
 			my $error = 'Illigal expression';
-			$self->error($line_num_int, $error);
+			$self->error(int($line_num), $error);
 			$_ = "<!-- compiler : $error -->";	# エラー行を置換
 			next;
 		}
+
 		# 単一置換式 <@t.var> 等
 		if ($#$_ == 0 && $types[0] eq 'obj') {
 			my $var_name = pop(@$_);
@@ -971,7 +953,7 @@ sub poland_to_eval {
 				$self->warning($line_num, '"break" variable referenced. Do you mean "break()" function?');
 			}
 			# xxx.yyy のときの xxx を判別
-			if ($var_name =~ /^(\w+)/ && $local_vars->{$1}) {
+			if ($var_name =~ /^(\w+)/ && $lv_stack[$#lv_stack]->{$1}) {
 				$_ = "\x03" . $var_name;
 			} else {
 				$_ = "\x02" . $var_name;
@@ -980,582 +962,670 @@ sub poland_to_eval {
 			next;
 		}
 
-		# 単一式
-		if ($#$_ == 0) {
-			# const line info
-			$line_info |= $l_single;
-		}
+		# poland式
+		$_ = $self->p2e_one_line($cmd_flag, $line_num, $_, \@types, \%constant, \@lv_stack, $strbuf);
+	}
+	return;
+}
 
-		# 複式
-		my $i = 0;
-		my $error = 0;
-		my $last_op;		# 最後の演算子？
-		my $arc_last;		# 最後が全体括弧？
-		my @stack;
-		my @stack_type;
-		my $exists_call = 0;
-		my $break_check_flag = 0;
-		my $need_line_num    = 0;	# 行番号が必要
-		my $special_add;		# 命令付加
-		foreach my $p (@$_) {
-			$arc_last = 0;
-			## print "  dump stack : ", join(' ', @stack), "\n";
-			## print "  type stack : ", join(' ', @stack_type), "\n";
-			my $type = $types[$i++];		# 型をロード
-			if ($i > $#$_) { $last_op = 1; }	# 最後の演算子
-			if ($type eq 'op') {		# 演算子
-				my $op  = $p;
-				my $opl = $operators{$p};
-				## printf("\top     = $op [%x]\n", $opl);
+#------------------------------------------------------------------------------
+# ○eval変換（1行処理）
+#------------------------------------------------------------------------------
+sub p2e_one_line {
+	my $self = shift;
 
-				# 正式な perl演算子名に変換
-				if (exists $op_formalname{$op}) { $op = $op_formalname{$p}; }
+	my ($cmd_flag, $line_num, $poland, $types, $constant, $lv_stack, $strbuf) = @_;
+	my $local_vars = $lv_stack->[$#$lv_stack];
 
-				my $x  = pop(@stack);
-				my $xt = pop(@stack_type);
-				my $x_orig = $x;
-				if (!defined $x) { last; }	# エラー
-				if (ref $x eq 'ARRAY') {
-					$x = join(',', &get_objects_array($x, $xt, $local_vars));
+	my $stack = [];
+	my $stype = [];
+	my $st = {
+		l_info		=> 0,
+		cmd_flag	=> $cmd_flag,
+		line_num	=> $line_num,
+	};
+
+	# 単一定数置換 <@111>, <@"x">
+	if ($#$poland == 0 && $types->[0] eq 'const') {
+		$st->{l_info} |= $L_const;
+	}
+
+	my $prev_op;
+	foreach(0..$#$poland) {
+		## print "  dump stack : ", join(' ', @$stack), "\n";
+		## print "  type stack : ", join(' ', @$stype), "\n";
+
+		my $p    = $poland->[$_];
+		my $type = $types ->[$_];
+		$st->{last_op} = ($_ == $#$poland);
+
+		if ($type eq 'op') {		# 演算子
+			my $op  = $p;
+			my $opl = $OPR{$p};
+			## printf("\top     = $op [%x]\n", $opl);
+
+			# 正式な perl演算子名に変換
+			if (exists $OPR_rename{$op}) { $op = $OPR_rename{$p}; }
+
+			my $x  = pop(@$stack);
+			my $xt = pop(@$stype);
+			my $x_orig = $x;
+			if (!defined $x) { last; }	# エラー
+			if (ref $x eq 'ARRAY') {
+				$x = join(',', &get_objects_array($x, $xt, $local_vars));
+			}
+			my ($y, $yt);
+			if ((~$opl) & 2) {	# ２項演算子
+				$y  = pop(@$stack);
+				$yt = pop(@$stype);
+				if (!defined $y) { last; }	# エラー
+			}
+
+			#------------------------------------------------------
+			# constant処理
+			#------------------------------------------------------
+			if ($op eq '%r' && ($y eq 'constant' || $y eq 'const')) {
+				if ($xt ne 'obj') {
+					$st->{error_msg} = "$x is not object";
+					last;
 				}
-				my ($y, $yt);
-				if ((~$opl) & 2) {	# ２項演算子
-					$y  = pop(@stack);
-					$yt = pop(@stack_type);
-					if (!defined $y) { last; }	# エラー
+				push(@$stack, $x);
+				push(@$stype, 'const_var');
+				next;
+			}
+			if ($yt eq 'const_var') {
+				if (!$st->{last_op} || $op ne '=' || $xt ne 'const') {
+					$st->{error_msg} = "illegal const()";
+					last;
 				}
-				#
-				# 演算式の合成
-				#
-				# constant（定数宣言）
-				if ($op eq '%r' && ($y eq 'constant' || $y eq 'const')) {
-					if ($xt ne 'obj') {
-						@stack      = ("$x is not object", '*');
-						@stack_type = ('error_msg', '*');
-						last;	# エラー exit
-					}
-					push(@stack,      $x);
-					push(@stack_type, 'const_var');
-					next;
+				if ($x =~ /^\x01(\d+)\x01$/) {
+					$x = $strbuf->[$1];
+					$x =~ s/^[\"\'](.*)[\"\']$/$1/;
+					&into_single_quot_string($x);
 				}
+				@$stack = ($x);
+				@$stype = ('const');
+				$constant->{$y} = $x;
+				last;
+			}
 
-				if ($xt eq 'obj' || $xt eq 'const_var') { $x = &get_object($x,$local_vars); }	# オブジェクト評価
-				if ($op eq '%r') {
-					# call のチェック
-					if ($y eq 'call' || $y eq '_call' || $y eq 'ifcall') { $exists_call = 1; }
+			#------------------------------------------------------
+			# 一般処理
+			#------------------------------------------------------
+			if ($xt eq 'obj') { $x = &get_object($x,$local_vars); }	# オブジェクト評価
 
-					# _ で始まる関数は呼べない
-					if (0 && substr($y,0,1) eq '_') {
-						@stack      = ("Not allow call $y() function (skeleton security protect)", '*');
-						@stack_type = ('error_msg', '*');
-						last;	# エラー exit
-					}
-					# 入れ子を許可しない関数
-					if (!$last_op && $only_lastop_functions{$y}) {
-						@stack      = ("Not allow nest $y() function", '*');
-						@stack_type = ('error_msg', '*');
-						last;	# エラー exit
-					}
-					#--------------------------------------
-					# ifexec の展開
-					#--------------------------------------
-					if ($ifexec_inline_on && $y eq 'ifexec') {
-						my @ary = &get_objects_array($x_orig, $xt, $local_vars);
-						if ($#ary == 0) {
-					  		$ary[1] = "\x01[begin]";	# 省略時
-						}
-						if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) { $ary[2] = "\x02[$1]"; }
-						if ($#ary <= 2 && $ary[1] =~ /^\x01\[(begin.*)\]$/) { $ary[1] = "\x02[$1]"; }
-						$ary[0] =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
-						$x = join(",", @ary);
-						@stack = ("ifexec($x)");
-						@stack_type = ('*');
-						last;
-					}
-					#--------------------------------------
-					# foreachの置換
-					#--------------------------------------
-					if ($y =~ /^foreach(.*)/) {
-						$y = 'forexec' . $1;
-					}
-					#--------------------------------------
-					# forexec (foreach) の展開
-					#--------------------------------------
-					if ($forexec_inline_on && $y =~ /^forexec/) {
-					  my @ary = &get_objects_array($x_orig, $xt, $local_vars);
-					  if ($#ary == 1) {
-					  	$ary[2] = "\x01[begin]";
-					  }
-					  if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) {
-						my $begin_type = $1;
+			#------------------------------------------------------
+			# 関数call
+			#------------------------------------------------------
+			if ($op eq '%r') {
+				$self->p2e_function($st, $local_vars, $stack, $stype, $x_orig, $x, $xt, $y, $yt);
+				if ($st->{last} || $st->{error} || $st->{error_msg}) { last; }
+				next;
+			}
 
-						if ($y eq 'forexec' && $ary[1] =~ /^\$#\{(.*)\}$/) {
-							my $ary1 = $1;		# $#{$var} → $var
-							my $cmd = "my \$X=$ary[1]; if (ref($ary1) ne 'ARRAY') { \$X=-1; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] forexec: data is not array'); }; ";
-							if ($ary[0] =~ /^\$[a-z][a-z0-9]*$/) {	# ローカル変数
-								@stack = ($cmd . "foreach my $ary[0] (0..\$X, \x02[$begin_type])");
-							} else {	# 通常変数
-								@stack = ($cmd . "foreach(0..\$X, \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
-							}
-							@stack_type = ('*');
-							last;
-
-						} elsif ($y eq 'forexec') {
-							my $cmd = "my \$X=$ary[1]; if (ref(\$X) ne 'ARRAY') { \$X=[]; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] forexec: data is not array'); }; ";
-							if ($ary[0] =~ /^\$[a-z][a-z0-9]*$/) {	# ローカル変数
-								@stack = ($cmd . "foreach my $ary[0] (\@{ \$X }, \x02[$begin_type])");
-							} else {	# 通常変数
-								@stack = ($cmd . "foreach(\@{ \$X }, \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
-							}
-							@stack_type = ('*');
-							last;
-
-						} elsif ($y eq 'forexec_hash') {
-							my $cmd = "my \$H=$ary[1]; if (ref(\$H) ne 'HASH') { \$H={}; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] forexec_hash: data is not hash'); };"
-							. " my \$Keys=\$H->{_order} || [keys(\%\$H)]; if(!ref($ary[0])) {$ary[0]={}};"
-							. " foreach(\@\$Keys, \x02[$1])"
-							. "\x02{$ary[0]\->{key}=\$_; $ary[0]\->{val}=\$H->{\$_}; }\x02";
-							@stack      = ($cmd);
-							@stack_type = ('*');
-							last;
-						
-						} elsif ($y eq 'forexec_num') {
-							if ($ary[0] =~ /^\$[a-z][a-z0-9]*$/) {	# ローカル変数
-								@stack = ("foreach my $ary[0] (1..int($ary[1]), \x02[$begin_type])");
-							} else {
-								@stack = ("foreach(1..int($ary[1]), \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
-							}
-							@stack_type = ('*');
-							last;
-						}
-					  }
-					}
-
-					#--------------------------------------
-					# ifxxx の inline 展開
-					#--------------------------------------
-					if ($inline_if{$y}) {
-						$break_check_flag = &check_break_function($y);
-						my @ary = &get_objects_array($x_orig, $xt, $local_vars);
-						$x = undef;
-						if ($y eq 'ifdef') {
-							$y = 'if';
-							$ary[0] = "defined($ary[0])";
-						}
-						if ($y eq 'if' && $last_op && $#ary == 1 && $cmd_flag eq '@') {
-							$x = undef;
-							$line_info |= $l_no_change;
-							$x = "($ary[0] && ($VAR_OUT .= ($ary[1])));";
-							$arc_last = 1;
-
-						} elsif ($y eq 'if' && $ary[1] eq '') {
-							$x = undef;	# error
-						} elsif ($y eq 'if') {
-							if ($ary[2] ne '') {
-								$x = "($ary[0] ? $ary[1] : $ary[2])";
-							} else {
-								$x = "($ary[0] && $ary[1] || undef)";
-							}
-							$arc_last = 1;
-						} elsif ($y eq 'ifset') {
-							if ($#ary > 2) {
-								$x = "($ary[1]=$ary[0] ? $ary[2]: $ary[3])";
-							} elsif ($#ary == 2) {
-								$x = "($ary[0] && ($ary[1]=$ary[2]))";
-							} else { $x=undef; }
-							$arc_last = 1;
-						} elsif ($y =~ /^if(next|last)$/) {	# ifnext / iflast
-							if ($#ary == 0) {
-								$x = "($ary[0] && $1)";
-							} else { $x=undef; }
-							$arc_last = 1;
-						} elsif ($inline_if{$y} == 3 || $inline_if{$y} == 4) {	# ifpush / ifpop
-							my $cond = shift(@ary);
-							my $func = substr($y, 2);	# iffunc → func
-							if ($inline_if{$y}==4) { $ary[0] = '@{' . $ary[0] . '}'; }
-							$x = join(',', @ary);
-							$x = "($cond && $func($x))";
-							$arc_last = 1;
-						} elsif (substr($y,0,2) eq 'if') {
-							$need_line_num = 1;
-							my $func = substr($y, 2);	# iffunc → func
-							if ($Builtin_func{$func}) {
-								$break_check_flag = &check_break_function($func);
-								$func = "\x04$func";
-							} else {
-								$func = "\$R->$func";
-							}
-							$x = shift(@ary);
-
-							if ($inline_if{$y} == 2 && $ary[1] ne '') {	# ifxxx(exp, A, B)
-								$x = "$func($x ? $ary[0] : $ary[1])";
-							} elsif ($last_op && $cmd_flag eq '@') {
-								$line_info |= $l_no_change;
-								$x = "($x && ($VAR_OUT .= $func(" . join(',', @ary) . ")));";
-								$arc_last = 1;
-							} else {
-								$x = "($x && $func(" . join(',', @ary) . "))";
-								$arc_last = 1;
-							}
-						}
-						if (!defined $x) {
-							push(@stack,      $x,  $y);
-							push(@stack_type, $xt, $yt);
-							last;	# エラー exit
-						}
-						push(@stack, $x);
-						push(@stack_type, '*');
-						next;
-
-					#--------------------------------------
-					# core関数呼び出し
-					#--------------------------------------
-					} elsif (exists $core_functions{$y}) {
-						$need_line_num = 1;
-						# perl core 関数の呼び出し
-						if ($x eq '' || $x eq 'undef') {	# 引数省略は許可しない
-							if ($core_functions{$y}==-1) {	# next/last等の裸制御文
-								push(@stack, $y);
-								push(@stack_type, '*');
-								last;
-							}
-							push(@stack,      $x,  $y);
-							push(@stack_type, $xt, $yt);
-							last;	# エラー exit
-						}
-						# bit 0 =  1 : 戻り値が array
-						# bit 1 =  2 : 第１引数が array
-						# bit 2 =  4 : 第２引数が array
-						# bit 3 =  8 : 第３引数が array
-						my $mode = $core_functions{$y};
-						if ($mode) {
-							my @ary = &get_objects_array($x_orig, $xt, $local_vars);
-							if ($mode &    2 && defined $ary[0]) { $ary[0] = '@{' . $ary[0] . '}'; }
-							if ($mode &    4 && defined $ary[1]) { $ary[1] = '@{' . $ary[1] . '}'; }
-							if ($mode &    8 && defined $ary[2]) { $ary[2] = '@{' . $ary[2] . '}'; }
-							if ($mode &  256 && defined $ary[0]) { $ary[0] = '%{' . $ary[0] . '}'; }
-							if ($mode &  512 && defined $ary[1]) { $ary[1] = '%{' . $ary[1] . '}'; }
-							if ($mode & 1024 && defined $ary[2]) { $ary[2] = '%{' . $ary[2] . '}'; }
-							$x = join(',', @ary);
-						}
-						$x =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
-
-						if ($core_functions{$y} & 1) {
-							push(@stack, "[ $y($x) ]");	# 配列の戻り値をreference化
-						} else {
-							push(@stack, "$y($x)");
-						}
-						push(@stack_type, '*');
-						next;
-
-					#--------------------------------------
-					# inline関数呼び出し
-					#--------------------------------------
-					} elsif (exists $inline_functions{$y}) {
-						my $err;
-						my $func = $inline_functions{$y};
-						my @ary = &get_objects_array($x_orig, $xt, $local_vars);
-						$func =~ s/#(\d)/
-							$err |= ($ary[$1] eq '' || $ary[$1] eq 'undef');
-							$ary[$1]
-						/eg;
-
-						if ($err) {	# 必要な引数がない
-							push(@stack,      $x,  $y);
-							push(@stack_type, $xt, $yt);
-							last;	# エラー exit
-						}
-						push(@stack, "($func)");
-						push(@stack_type, '*');
-						next;
-					}
-
-					#--------------------------------------
-					# その他の関数呼び出し
-					#--------------------------------------
-					$need_line_num = 1;
-					if ($y eq 'array') {
-						# array (a, b, c, ...) to [a, b, c]
-						# arrayq(a, b, c, ...) to ['a', 'b', 'c']
-						my @ary = &get_objects_array ($x_orig, $xt, $local_vars);
-						$x = join(',', @ary);
-						push(@stack, "[$x]");
-
-					} elsif ($y eq 'hash' || $y eq 'hashx') {
-						# hash (a1, b1, a2, b2, ...) to {a1=>b1, a2=>b2}
-						# hashq(a1, b1, a2, b2, ...) to {'a1'=>'b1', 'a2'=>'b2'}
-						#      {a1, b1, a2, b2, ...} to {'a1'=>b1, 'a2'=>b2}	// = hashx()
-						my @ary;
-						if ($y eq 'hash') {
-							@ary = &get_objects_array ($x_orig, $xt, $local_vars);
-						} else {
-							my @a = &array2quote_string(ref($x_orig) ? @$x_orig : $x_orig);
-							my @b = &get_objects_array ($x_orig, $xt, $local_vars);
-							foreach(0..$#a) {
-								push(@ary, (($_ & 1) ? $b[$_] : $a[$_]));
-							}
-						}
-						my $x='';
-						@ary = grep { $_ ne '' } @ary;
-						while(@ary) {
-							my $a=shift(@ary);
-							my $b=shift(@ary) || '';
-							$x .= "$a=>$b,";
-						}
-						chop($x);
-						push(@stack, "{$x}");
-
-					} elsif ($y eq 'flag') {
-						# flag (a, b, c, ...) to {a=>1, b=>1, ...}
-						# flagq(a, b, c, ...) to {'a'=>1, 'b'=>1, ...}
-						my @ary = &get_objects_array($x_orig, $xt, $local_vars);
-						@ary = grep { $_ ne '' } @ary;
-						if (@ary) {
-							$x = "{" . join('=>1,', @ary) . "=>1}";
-						} else {
-							$x='{}';
-						}
-						push(@stack, $x);
-
-					} elsif ($Builtin_func{$y}) {
-						$break_check_flag = &check_break_function($y);
-						push(@stack, "\x04$y($x)");
-					} elsif ($yt eq 'obj') {
-						$break_check_flag = &check_break_function($y);
-						my ($class, $func) = &get_object_sep($y,$local_vars);
-						push(@stack, "$class\-\>$func($x)");
-					} elsif ($yt eq 'function-name') {		# %h 記述参照のこと
-						$break_check_flag = &check_break_function($y);
-						push(@stack, "$y($x)");
-					} else {	# エラー
-						push(@stack,      $x,  $y);
-						push(@stack_type, $xt, $yt);
-						last;
-					}
-					push(@stack_type, '*');
-					next;
+			if ($op eq ',' || $op eq '=>')  {
+				if (ref($yt) eq 'ARRAY') {
+					push(@$y,  $x_orig);
+					push(@$yt, $xt);
+				} else {
+					$y  = [$y,  $x_orig];
+					$yt = [$yt, $xt];
 				}
-				#--------------------------------------
-				# constantの処理
-				#--------------------------------------
-				if ($last_op && $op eq '=' && $yt eq 'const_var' && $xt eq 'const') {
-					my $err;
-					my $const = $x;
-					if ($x =~ /^\x01(\d+)\x01$/) {
-						$const = $strbuf->[$1];
-						$const =~ s/^[\"\'](.*)[\"\']$/$1/;
-						if ($const !~ /[\x00-\x08\x0a-\x1f\"\'\\]/) {
-							$err=0;
-						}
-					}
-					# 定数定義
-					if (!$err) {
-						@stack      = ($const);
-						@stack_type = ('const');
+				push(@$stack, $y);
+				push(@$stype, $yt);
+				next;
+			}
 
-						if ($const eq 'undef') {
-							$constant{$y}='';
-						} else {
-							$constant{$y} = $const;
-						}
-						last;
+			if ($yt eq 'obj') { $y = &get_object($y,$local_vars); }	# オブジェクト評価
+			if ($op eq '#')  {	# 配列参照
+				$x =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
+				if ($x eq '-1') {
+					push(@$stack, "$y\-\>[\$#$y]");
+				} else {
+					push(@$stack, "$y\-\>[$x]");
+				}
+				push(@$stype, '*');
+				next;
+			}
+			if ($op eq '->')  {	# ハッシュ参照（変数）
+				if ($yt eq 'string') {
+					push(@$stack, "\$R->{$y}\-\>{$x}");
+					push(@$stype, '*');
+				} else {
+					push(@$stack, "$y\-\>{$x}");
+					push(@$stype, '*');
+				}
+				next;
+			}
+			if ($op eq '%h')  {	# ハッシュ参照（メソッドcall）
+				push(@$stack, "$y\-\>$x_orig");
+				push(@$stype, 'function-name');
+				next;
+			}
+			if ($op eq '@')  {
+				push(@$stack, "\@\{$x\}");
+				push(@$stype, '*');
+				next;
+			}
+			if ($op eq '##')  {
+				push(@$stack, "\$\#\{$x\}");
+				push(@$stype, '*');
+				next;
+			}
+
+			#------------------------------------------------------
+			# 配列代入 (x,y,z) = func() 等
+			#------------------------------------------------------
+			if ($op eq '=' && ref($y) eq 'ARRAY')  {
+				if (grep { $_ != 'obj'} @$yt) {
+					# エラー
+					push(@$stack, $y);
+					push(@$stype, $yt);
+					last;
+				}
+				my @ary = &get_objects_array($y, $yt, $local_vars);
+				$y = "(". join(',', @ary) . ")";
+
+				# (x,y,z) = (1,2,3) : arrar to array
+				if (ref($x_orig) eq 'ARRAY') {
+					$x = "(". join(',', @$x_orig) . ")";
+				}
+			}
+
+			#------------------------------------------------------
+			# ローカル変数への代入
+			#------------------------------------------------------
+			if ($st->{last_op} && $op eq '=' && $y =~ /^\$[a-z][a-z0-9]*$/ && $y ne '$v') {
+				push(@$stack, "$y=$x");
+				push(@$stype, '*');
+				next;
+			}
+			#------------------------------------------------------
+			# 通常の２項演算子
+			#------------------------------------------------------
+			if ((~$opl) & 2) {
+				if ($opl & 1) {			# 右結合
+					my $xopl = $OPR{$xt};
+					if ($xopl && $opl<$xopl) {
+						$x =~ s/^\((.+)\)$/$1/;
+					}
+				} else {			# 左結合
+					my $yopl = $OPR{$yt};
+					if ( $opl == $yopl		# a + b + c や a . b . c のように同じ優先度の演算子が並んでいる
+					  || $yopl && $opl<$yopl) {	# 直前の演算子のほうが優先度が高い
+						$y =~ s/^\((.+)\)$/$1/;
 					}
 				}
 
-				if ($op eq ',' || $op eq '=>')  {
-					if (ref($yt) eq 'ARRAY') {
-						push(@$y,  $x_orig);
-						push(@$yt, $xt);
-					} else {
-						$y  = [$y,  $x_orig];
-						$yt = [$yt, $xt];
-					}
-					push(@stack,      $y);
-					push(@stack_type, $yt);
-					next;
-				}
-
-				if ($yt eq 'obj' || $yt eq 'const_var') { $y = &get_object($y,$local_vars); }	# オブジェクト評価
-				if ($op eq '#')  {	# 配列参照
-					$x =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
-					if ($x eq '-1') {
-						push(@stack, "$y\-\>[\$#$y]");
-					} else {
-						push(@stack, "$y\-\>[$x]");
-					}
-					push(@stack_type, '*');
-					$arc_last = 1;
-					next;
-				}
-				if ($op eq '->')  {	# ハッシュ参照（変数）
-					if ($yt eq 'string') {
-						push(@stack, "\$R->{$y}\-\>{$x}");
-						push(@stack_type, '*');
-					} else {
-						push(@stack, "$y\-\>{$x}");
-						push(@stack_type, '*');
-					}
-					$arc_last = 1;
-					next;
-				}
-				if ($op eq '%h')  {	# ハッシュ参照（メソッドcall）
-					push(@stack, "$y\-\>$x_orig");
-					push(@stack_type, 'function-name');
-					$arc_last = 1;
-					next;
-				}
-				if ($op eq '@')  {
-					push(@stack, "\@\{$x\}");
-					push(@stack_type, '*');
-					next;
-				}
-				if ($op eq '##')  {
-					push(@stack, "\$\#\{$x\}");
-					push(@stack_type, '*');
-					next;
-				}
-				# 配列代入 (x,y,z) = func() 等
-				if ($op eq '=' && ref($y) eq 'ARRAY')  {
-					if (grep { $_ != 'obj'} @$yt) {
-						# エラー
-						push(@stack,      $y);
-						push(@stack_type, $yt);
-						last;
-					}
-					my @ary = &get_objects_array($y, $yt, $local_vars);
-					$y = "(". join(',', @ary) . ")";
-
-					# (x,y,z) = (1,2,3) : arrar to array
-					if (ref($x_orig) eq 'ARRAY') {
-						$x = "(". join(',', @$x_orig) . ")";
-					}
-				}
-
-				# ローカル変数への代入
-				if ($last_op && $op eq '=' && $y =~ /^\$[a-z][a-z0-9]*$/ && $y ne '$v') {
-					push(@stack,      "$y=$x");
-					push(@stack_type, '*');
-					next;
-				}
-				# 通常の２項演算子
-				if ((~$opl) & 2) {
-					my $a  = ($opl & 8) ? "($y $op $x)" : "($y$op$x)";
-					my $at = '*';
-					if ($xt eq 'const' && $yt eq 'const') {
-						$a  = eval($a);
-						if ($a eq '') { if ($a) { $a=1; } else { $a=0; } }	# true/false
-						$at = 'const';
-					}
-					push(@stack,      $a);
-					push(@stack_type, $at);
-					$arc_last = 1;
-					next;
-				}
-				# 単項演算子
-				my $sp = ($opl & 8) ? ' ' : '';
-				my $a  = ($opl & 4) ? "($x$sp$op)" : "($op$sp$x)";	# 左結合か右結合か
-				my $at = '*';
-				if ($xt eq 'const') {
+				my $a  = ($opl & 8) ? "($y $op $x)" : "($y$op$x)";
+				my $at = $p;					# $op の記述名
+				if ($xt eq 'const' && $yt eq 'const') {
 					$a  = eval($a);
 					if ($a eq '') { if ($a) { $a=1; } else { $a=0; } }	# true/false
 					$at = 'const';
 				}
-				push(@stack,      $a);
-				push(@stack_type, $at);
-				$arc_last = 1;
+				push(@$stack, $a);
+				push(@$stype, $at);
 				next;
-
-			} elsif ($type eq 'error') {	# エラー
-				push(@stack,      $p);
-				push(@stack_type, $type);
-				last;
-
-			} else {	# オブジェクト指定
-				push(@stack,      $p);
-				push(@stack_type, $type);
 			}
-		}
-
-		if ($#stack != 0) {
-			my $error = 'Illigal expression (%d)';
-			if ($stack_type[0] eq 'error_msg') { $error=$stack[0]; }
-			$self->error($line_num_int, $error, $#stack );
-			&tag_escape(@stack);
-			$_ = "<!-- compiler : command error($#stack) $stack[0] $stack[1] $stack[2] $stack[3]-->";	# エラー行を置換
+			#------------------------------------------------------
+			# 単項演算子
+			#------------------------------------------------------
+			my $sp = ($opl & 8) ? ' ' : '';
+			my $a  = ($opl & 4) ? "($x$sp$op)" : "($op$sp$x)";	# 左結合か右結合か
+			my $at = '*';
+			if ($xt eq 'const') {
+				$a  = eval($a);
+				if ($a eq '') { if ($a) { $a=1; } else { $a=0; } }	# true/false
+				$at = 'const';
+			}
+			push(@$stack, $a);
+			push(@$stype, $at);
 			next;
-		} else {
-			my $exp  = pop(@stack);
-			my $type = pop(@stack_type);
-			if (ref $exp eq 'ARRAY') {
-				$exp = join(',', &get_objects_array($exp, $type, $local_vars));
-				$type = "*";
-			}
-			if ($arc_last && $exp =~ /^\((.*)\)(;?)$/) { $exp = "$1$2"; }	# 一番外の (  ) を外す
-			if ($type eq 'obj') { $exp = &get_object($exp,$local_vars); }	# オブジェクの場合、参照形式へ
-			if ($type eq 'const') {		# 定数
-				if ($cmd_flag eq "\$") { undef $_; next; }	# 無視
-				# 2/8/16進数なら数値化
-				if ($exp =~ /^0[xb]?\d+$/) {
-					$exp = oct($exp);
-				}
-				# 文字列でなければ置き換え
-				if ($exp !~ /^\x01(\d+)\x01$/) {		# 文字列
-					$_ = $exp;
-					next;
-				}
-			}
-		#	print "  eval string : $exp\n";
-			$_ = "\x01$line_num" . $exp;		# 置換
 
-			# 行情報を保存
-			if ($cmd_flag eq '@')  { $line_info |= $l_replace;     }	# 結果を置換する
-			if ($break_check_flag) { $line_info |= $l_break_check; }	# break をチェックする
-			if ($need_line_num)    { $line_info |= $l_line_number; }	# 関数呼び出しあり → 行情報を持つ
-			if ($exists_call)      { $line_info |= $l_v_load; }		# $v の再設定
-			if ($line_info) {	# 行情報がある
-				$_ .= "#$line_info";	# 行情報付加
+		} elsif ($type eq 'error') {	# エラー
+			push(@$stack, $p);
+			push(@$stype, $type);
+			last;
+
+		} else {	# オブジェクト指定
+			push(@$stack, $p);
+			push(@$stype, $type);
+		}
+	}
+
+	#----------------------------------------------------------------------
+	# スタックに 2つ以上 残っている = エラー
+	#----------------------------------------------------------------------
+	if ($#$stack != 0) {
+		my $error = $st->{error_msg} || 'Illigal expression (%d)';
+		$self->error(int($line_num), $error, $#$stack );
+		&tag_escape(@$stack);
+		return "<!-- compiler : command error($#$stack) " . join(' ', @$stack) . "-->";		# エラー行を置換
+	}
+
+	#----------------------------------------------------------------------
+	# 正常置換
+	#----------------------------------------------------------------------
+	my $exp  = pop(@$stack);
+	my $type = pop(@$stype);
+	if (ref $exp eq 'ARRAY') {
+		$exp = join(',', &get_objects_array($exp, $type, $local_vars));
+		$type = "*";
+	}
+	if ($exp =~ /^\((.*)\)(;?)$/) { $exp = "$1$2"; }		# 一番外の (  ) を外す
+	if ($type eq 'obj') { $exp = &get_object($exp,$local_vars); }	# オブジェクの場合、参照形式へ
+	if ($type eq 'const') {		# 定数
+		if ($cmd_flag eq "\$") { undef $_; next; }	# 無視
+		# 2/8/16進数なら数値化
+		if ($exp =~ /^0[xb]?\d+$/) {
+			$exp = oct($exp);
+		}
+		# 文字列でなければ置き換え
+		if ($exp !~ /^\x01(\d+)\x01$/) {		# 文字列
+			return $exp;
+		}
+	}
+	if ($type eq 'local') {		# <@local(x,y)>
+		$cmd_flag='$';
+	}
+	my $cmd = "\x01$line_num" . $exp;
+
+	# 行情報を保存
+	if ($cmd_flag eq '@')  { $st->{l_info} |= $L_replace; }	# 結果を置換する
+	if ($st->{l_info}) {
+		$cmd .= "#$st->{l_info}";		# 行情報付加
+	}
+	return $cmd;
+}
+
+#------------------------------------------------------------------------------
+# ○eval変換（関数処理）
+#------------------------------------------------------------------------------
+sub p2e_function {
+	my $self = shift;
+	my $st   = shift;
+	my ($local_vars, $stack, $stype, $x_orig, $x, $xt, $y, $yt) = @_;
+
+	#----------------------------------------------------------------------
+	# 入れ子を許可しない関数
+	#----------------------------------------------------------------------
+	if (!$st->{last_op} && $LastOpFuncs{$y}) {
+		$st->{error_msg}="Not allow nest $y() function";
+		return;
+	}
+
+	#----------------------------------------------------------------------
+	# local変数処理
+	#----------------------------------------------------------------------
+	if ($y eq 'local') {
+		$x  = ref($x_orig) ? $x_orig : [$x_orig];
+		$xt = ref($xt)     ? $xt     : [$xt];
+		my %h;
+		foreach(@$x) {
+			if (shift(@$xt) ne 'obj') {
+				$st->{error_msg}="Illegal local() format";
+				return;
+			}
+			if ($SpecialVars{$_} || $_ !~ /^[a-z][a-z0-9]*$/) {
+				$st->{error_msg}="Illegal local var: $_";
+				return;
+			}
+			if ($h{$_}) {
+				$st->{error_msg}="Duplicate local var: $_";
+				return;
+			}
+			$h{$_} = 1;
+		}
+		if ($#$x == 0) {
+			push(@$stack, "my \$$x_orig");
+		} else {
+			my $vars='';
+			foreach(@$x) {
+				$local_vars->{$_}=1;
+				$vars .= "\$$_,";
+			}
+			chop($vars);
+			push(@$stack, "my($vars)");
+		}
+		push(@$stype, 'local');
+		return;
+	}
+
+	#----------------------------------------------------------------------
+	# ifexec の展開
+	#----------------------------------------------------------------------
+	if ($IfexecInline && $y eq 'ifexec') {
+		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
+		if ($#ary == 0) {
+	  		$ary[1] = "\x01[begin]";	# 省略時
+		}
+		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) { $ary[2] = "\x02[$1]"; }
+		if ($#ary <= 2 && $ary[1] =~ /^\x01\[(begin.*)\]$/) { $ary[1] = "\x02[$1]"; }
+		$ary[0] =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
+		$x = join(",", @ary);
+		@$stack = ("ifexec($x)");
+		@$stype = ('*');
+		$st->{last}=1;
+		return;
+	}
+
+	#----------------------------------------------------------------------
+	# foreachの置換
+	#----------------------------------------------------------------------
+	if ($y =~ /^foreach(.*)/) {
+		$y = 'forexec' . $1;
+	}
+
+	#----------------------------------------------------------------------
+	# forexec (foreach) の展開
+	#----------------------------------------------------------------------
+	if ($ForexecInline && $y =~ /^forexec/) {
+		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
+		if ($#ary == 1) {
+		  	$ary[2] = "\x01[begin]";
+		}
+		my $line_num_int = int($st->{line_num});
+		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) {
+			my $begin_type = $1;
+
+			if ($y eq 'forexec') {
+				my $cmd = "my \$X=$ary[1]; if (ref(\$X) ne 'ARRAY') { \$X=[]; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] forexec: data is not array'); }; ";
+				if ($ary[0] =~ /^\$[a-z][a-z0-9]*$/) {	# ローカル変数
+					@$stack = ($cmd . "foreach my $ary[0] (\@\$X, \x02[$begin_type])");
+				} else {	# 通常変数
+					@$stack = ($cmd . "foreach(\@\$X, \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
+				}
+				@$stype = ('*');
+				$st->{last}=1;
+				return;
+			}
+
+			if ($y eq 'forexec_hash') {
+				my $cmd = "my \$H=$ary[1]; if (ref(\$H) ne 'HASH') { \$H={}; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] forexec_hash: data is not hash'); };"
+				. " my \$Keys=\$H->{_order} || [keys(\%\$H)]; if(!ref($ary[0])) {$ary[0]={}};"
+				. " foreach(\@\$Keys, \x02[$1])"
+				. "\x02{$ary[0]\->{key}=\$_; $ary[0]\->{val}=\$H->{\$_}; }\x02";
+				@$stack = ($cmd);
+				@$stype = ('*');
+				$st->{last}=1;
+				return;
+			}
+
+			if ($y eq 'forexec_num') {
+				if ($ary[0] =~ /^\$[a-z][a-z0-9]*$/) {	# ローカル変数
+					@$stack = ("foreach my $ary[0] (1..int($ary[1]), \x02[$begin_type])");
+				} else {
+					@$stack = ("foreach(1..int($ary[1]), \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
+				}
+				@$stype = ('*');
+				$st->{last}=1;
+				return;
 			}
 		}
 	}
-	return ;
 
-}
-#-----------------------------------------------------------
-# ○行番号取得
-#-----------------------------------------------------------
-sub get_line_num {
-	return substr($_[0], 1, $line_num_length);
-}
-sub get_line_num_int {
-	return int(substr($_[0], 1, $line_num_length));
-}
-sub get_line_data {
-	return substr($_[0], 1+$line_num_length);
+	#----------------------------------------------------------------------
+	# ifxxx の inline 展開
+	#----------------------------------------------------------------------
+	if ($InlineIf{$y}) {
+		$self->set_check_break_ifneed($st->{l_info}, $y);
+
+		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
+		$x = undef;
+		if ($y eq 'ifdef') {
+			$y = 'if';
+			$ary[0] = "defined($ary[0])";
+		}
+		if ($y eq 'if' && $st->{last_op} && $#ary == 1 && $st->{cmd_flag} eq '@') {
+			$self->set_no_change($st->{l_info});
+			$x = "($ary[0] && ($VAR_OUT.=($ary[1])));";
+
+		} elsif ($y eq 'if' && $ary[1] eq '') {
+			$x = undef;	# error
+		} elsif ($y eq 'if') {
+			if ($ary[2] ne '') {
+				$x = "($ary[0] ? $ary[1] : $ary[2])";
+			} else {
+				$x = "($ary[0] && $ary[1] || undef)";
+			}
+		} elsif ($y eq 'ifset') {
+			if ($#ary > 2) {
+				$x = "($ary[1]=$ary[0] ? $ary[2]: $ary[3])";
+			} elsif ($#ary == 2) {
+				$x = "($ary[0] && ($ary[1]=$ary[2]))";
+			} else { $x=undef; }
+		} elsif ($y =~ /^if(next|last)$/) {	# ifnext / iflast
+			if ($#ary == 0) {
+				$x = "($ary[0] && $1)";
+			} else { $x=undef; }
+		} elsif ($InlineIf{$y} == 3 || $InlineIf{$y} == 4) {	# ifpush / ifpop
+			my $cond = shift(@ary);
+			my $func = substr($y, 2);	# iffunc → func
+			if ($InlineIf{$y}==4) { $ary[0] = '@{' . $ary[0] . '}'; }
+			$x = join(',', @ary);
+			$x = "($cond && $func($x))";
+		} elsif (substr($y,0,2) eq 'if') {
+			$self->set_need_line_num($st->{l_info});
+			my $func = substr($y, 2);	# iffunc → func
+			if ($BuiltinFunc{$func}) {
+				$self->set_check_break_ifneed($st->{l_info}, $func);
+				$func = "\x04$func";
+			} else {
+				$func = "\$R->$func";
+			}
+			$x = shift(@ary);
+
+			if ($InlineIf{$y} == 2 && $ary[1] ne '') {	# ifxxx(exp, A, B)
+				$x = "$func($x ? $ary[0] : $ary[1])";
+			} elsif ($st->{last_op} && $st->{cmd_flag} eq '@') {
+				$self->set_no_change($st->{l_info});
+				$x = "($x && ($VAR_OUT.=$func(" . join(',', @ary) . ")));";
+			} else {
+				$x = "($x && $func(" . join(',', @ary) . "))";
+			}
+		}
+		if (!defined $x) {
+			$st->{error}=1;
+			return;
+		}
+		push(@$stack, $x);
+		push(@$stype, '*');
+		return;
+	}
+
+	#----------------------------------------------------------------------
+	# core関数呼び出し
+	#----------------------------------------------------------------------
+	if (exists $CoreFuncs{$y}) {
+		$self->set_need_line_num($st->{l_info});
+
+		# perl core 関数の呼び出し
+		if ($x eq '' || $x eq 'undef') {	# 引数省略は許可しない
+			if ($CoreFuncs{$y}==-1) {	# next/last等の裸制御文
+				push(@$stack, $y);
+				push(@$stype, '*');
+				$st->{last}=1;
+				return;
+			}
+			push(@$stack, $x,  $y);
+			push(@$stype, $xt, $yt);
+			$st->{error}=1;
+			return;
+		}
+
+		# bit 0 =  1 : 戻り値が array
+		# bit 1 =  2 : 第１引数が array
+		# bit 2 =  4 : 第２引数が array
+		# bit 3 =  8 : 第３引数が array
+		my $mode = $CoreFuncs{$y};
+		if ($mode) {
+			my @ary = &get_objects_array($x_orig, $xt, $local_vars);
+			if ($mode &    2 && defined $ary[0]) { $ary[0] = '@{' . $ary[0] . '}'; }
+			if ($mode &    4 && defined $ary[1]) { $ary[1] = '@{' . $ary[1] . '}'; }
+			if ($mode &    8 && defined $ary[2]) { $ary[2] = '@{' . $ary[2] . '}'; }
+			if ($mode &  256 && defined $ary[0]) { $ary[0] = '%{' . $ary[0] . '}'; }
+			if ($mode &  512 && defined $ary[1]) { $ary[1] = '%{' . $ary[1] . '}'; }
+			if ($mode & 1024 && defined $ary[2]) { $ary[2] = '%{' . $ary[2] . '}'; }
+			$x = join(',', @ary);
+		}
+		$x =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
+
+		if ($CoreFuncs{$y} & 1) {
+			push(@$stack, "[ $y($x) ]");	# 配列の戻り値をreference化
+		} else {
+			push(@$stack, "$y($x)");
+		}
+		push(@$stype, '*');
+		return;
+	}
+
+	#----------------------------------------------------------------------
+	# inline関数呼び出し
+	#----------------------------------------------------------------------
+	if (exists $InlineFuncs{$y}) {
+		my $err;
+		my $func = $InlineFuncs{$y};
+		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
+		$func =~ s/#(\d)/
+			$err |= ($ary[$1] eq '' || $ary[$1] eq 'undef');
+			$ary[$1]
+		/eg;
+
+		if ($err) {	# 必要な引数がない
+			push(@$stack, $x,  $y);
+			push(@$stype, $xt, $yt);
+			$st->{error}=1;
+			return;
+		}
+		push(@$stack, "($func)");
+		push(@$stype, '*');
+		return;
+	}
+
+	#----------------------------------------------------------------------
+	# その他の関数呼び出し
+	#----------------------------------------------------------------------
+	$self->set_need_line_num($st->{l_info});
+
+	if ($y eq 'array') {
+		# array (a, b, c, ...) to [a, b, c]
+		# arrayq(a, b, c, ...) to ['a', 'b', 'c']
+		my @ary = &get_objects_array ($x_orig, $xt, $local_vars);
+		$x = join(',', @ary);
+		push(@$stack, "[$x]");
+
+	} elsif ($y eq 'hash' || $y eq 'hashx') {
+		# hash (a1, b1, a2, b2, ...) to {a1=>b1, a2=>b2}
+		# hashq(a1, b1, a2, b2, ...) to {'a1'=>'b1', 'a2'=>'b2'}
+		#      {a1, b1, a2, b2, ...} to {'a1'=>b1, 'a2'=>b2}	// = hashx()
+		my @ary;
+		if ($y eq 'hash') {
+			@ary = &get_objects_array ($x_orig, $xt, $local_vars);
+		} else {
+			my @a = &array2quote_string(ref($x_orig) ? @$x_orig : $x_orig);
+			my @b = &get_objects_array ($x_orig, $xt, $local_vars);
+			foreach(0..$#a) {
+				push(@ary, (($_ & 1) ? $b[$_] : $a[$_]));
+			}
+		}
+		my $x='';
+		@ary = grep { $_ ne '' } @ary;
+		while(@ary) {
+			my $a=shift(@ary);
+			my $b=shift(@ary) || '';
+			$x .= "$a=>$b,";
+		}
+		chop($x);
+		push(@$stack, "{$x}");
+
+	} elsif ($y eq 'flag') {
+		# flag (a, b, c, ...) to {a=>1, b=>1, ...}
+		# flagq(a, b, c, ...) to {'a'=>1, 'b'=>1, ...}
+		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
+		@ary = grep { $_ ne '' } @ary;
+		if (@ary) {
+			$x = "{" . join('=>1,', @ary) . "=>1}";
+		} else {
+			$x='{}';
+		}
+		push(@$stack, $x);
+
+	} elsif ($BuiltinFunc{$y}) {
+		$self->set_check_break_ifneed($st->{l_info}, $y);
+		push(@$stack, "\x04$y($x)");
+	} elsif ($yt eq 'obj') {
+		$self->set_check_break_ifneed($st->{l_info}, $y);
+		my ($class, $func) = &get_object_sep($y,$local_vars);
+		push(@$stack, "$class\-\>$func($x)");
+	} elsif ($yt eq 'function-name') {		# %h 記述参照のこと
+		$self->set_check_break_ifneed($st->{l_info}, $y);
+		push(@$stack, "$y($x)");
+	} else {	# エラー
+		push(@$stack, $x,  $y);
+		push(@$stype, $xt, $yt);
+		$st->{error}=1;
+		return;
+	}
+	push(@$stype, '*');
+	return;
 }
 
-#-----------------------------------------------------------
-# ○要素の種類を取得
-#-----------------------------------------------------------
-sub get_element_type {
+#------------------------------------------------------------------------------
+# ○行情報設定
+#------------------------------------------------------------------------------
+sub set_check_break_ifneed {
 	my $self = shift;
+	if ($self->check_break_function($_[1])) {
+		$_[0] |= $L_break_check
+	}
+	return $_[0];
+}
+sub set_need_line_num {		# ソース行情報を持つ
+	my $self = shift;
+	return ($_[0] |= $L_line_number);
+}
+sub set_no_change {		# 加工禁止
+	my $self = shift;
+	return ($_[0] |= $L_no_change);
+}
+
+#------------------------------------------------------------------------------
+# ○要素の種類を取得
+#------------------------------------------------------------------------------
+sub get_element_type {
+	my $self     = shift;
 	my $constant = shift;
-	my $local_vars_ary = shift;
+	my $lv_stack = shift;
 	my $strbuf   = shift;
+
 	my $p = $_[0];
-	if (exists $operators{$p}) { return 'op'; }	# 演算子
+	if (exists $OPR{$p}) { return 'op'; }	# 演算子
 	if ($p =~ /^\x01(\d+)\x01$/) {			# 文字列
 		# 該当文字列を評価する
 		my $num = $1;
-		my $local_vars = $local_vars_ary->[ $#$local_vars_ary ];
+		my $local_vars = $lv_stack->[ $#$lv_stack ];
 		$strbuf->[$num] =~ s/\x01<([^>]+?)\#(\d+)>/&get_object($1, $local_vars) . "->[$2]"/eg;
-		$strbuf->[$num] =~ s/\x01<([^>]+?)>/(exists $constant->{$1}) ? $constant->{$1} : &get_object($1,$local_vars,1)/eg;
+		$strbuf->[$num] =~ s!\x01<([^>]+?)>!
+			if (exists $constant->{$1}) {
+				my $c = $constant->{$1};
+				if (substr($c,0,1) eq "'") {
+					$c = substr($c,1);
+					chop($c);
+					$c =~ s/([\"\\\$\@])/"\\$1"/eg;
+				}
+				$c;
+			} else {
+				&get_object($1,$local_vars,1);
+			}
+		!eg;
 		return substr($strbuf->[$num],0,1) eq "'" ? 'const' : 'string';
 	}
 	if ($p =~ /^'[^\']*'$/) {		# 文字定数
 		return 'const';
 	}
 	if ($p =~ /^([\d\.]+)([KMGT]|week|day|hour|min|sec)B?$/) {	# 単位付き数値
-		$p *= $unit2num{$2};
+		$p *= $Unit2Num{$2};
 		$_[0] = int($p);
 		return 'const';
 	}
@@ -1563,7 +1633,7 @@ sub get_element_type {
 	if ($p =~ /^[\d\.]+$/) { return 'const'; }	# 数値（加工しない）
 	if ($p =~ /^0[xb][\dA-Fa-f]+$/) { return 'const'; }		# 2進数 16進数
 	if ($p =~ /^([\d\.]+)([KMGT]|week|day|hour|min|sec)B?$/) {	# 単位付き数値
-		$p *= $unit2num{$2};
+		$p *= $Unit2Num{$2};
 		$_[0] = int($p);
 		return 'const';
 	}
@@ -1572,14 +1642,14 @@ sub get_element_type {
 	}
 	if ($p =~ /^(begin.*)/) {		# array
 		# ローカル変数環境を退避する
-		my %h = %{ $local_vars_ary->[ $#$local_vars_ary ] };
-		push(@$local_vars_ary, \%h);
+		my %h = %{ $lv_stack->[ $#$lv_stack ] };
+		push(@$lv_stack, \%h);
 		$_[0] = "\x01[$1]"; return 'array';
 	}
 	if ($p =~ /^end(.*)/ || $p =~ /^else(.*)/) {
 		# ローカル変数環境を元に戻す
-		if ($#$local_vars_ary) {
-			pop(@$local_vars_ary);
+		if ($#$lv_stack) {
+			pop(@$lv_stack);
 		}
 		$_[0] = "end$1"; return 'block';
 	}
@@ -1596,14 +1666,14 @@ sub get_element_type {
 	}
 	if ($p eq 'undef') { return 'const'; }
 	if ($p eq '__undef__') { $_[0]=''; return 'const'; }
-	if (exists $constant->{$p}) { $_[0] = "'".$constant->{$p}."'"; return 'const'; }
+	if (exists $constant->{$p}) { $_[0] = $constant->{$p}; return 'const'; }
 
 	return 'obj';
 }
 
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 # ●[04] begin - end ブロックの取り出しと文字列の置換
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 sub split_begin_block {
 	my ($self, $buf, $local_var_tmp_ary) = @_;
 
@@ -1622,7 +1692,7 @@ sub split_begin_block {
 		}
 		if ($line =~ /^\x01\d\d\d\dend(?:\.([^#]*))?/) {
 			my $lnum = &get_line_num_int($line);
-			my $end     = &get_line_data($line);
+			my $end  = &get_line_data   ($line);
 			$self->error($lnum, "Exists 'end' without 'begin' (%s)", $end );
 			$line = "<!-- compiler : block end exists, but corresponded end no exists ($end) -->";
 		}
@@ -1633,7 +1703,7 @@ sub split_begin_block {
 		foreach(@$ary) {
 			if ($_ =~ /^\x01\d\d\d\dend(?:\.([^#]*))?/) {
 				my $lnum = &get_line_num_int($_);
-				my $end     = &get_line_data($_);
+				my $end  = &get_line_data   ($_);
 				$self->error($lnum, "Exists 'end' without 'begin' (%s)", $end );
 				$_ = "<!-- compiler : block end exists, but corresponded end no exists ($end) -->";
 			}
@@ -1644,6 +1714,17 @@ sub split_begin_block {
 
 	return \@arybuf;
 }
+
+sub get_line_num {
+	return substr($_[0], 1, $LineNumLen);
+}
+sub get_line_num_int {
+	return int(substr($_[0], 1, $LineNumLen));
+}
+sub get_line_data {
+	return substr($_[0], 1+$LineNumLen);
+}
+
 #-----------------------------------------------------------
 # ○begin block 処理メイン（再起対応）
 #-----------------------------------------------------------
@@ -1821,24 +1902,24 @@ sub split_begin {
 	# ○ブロック展開処理
 	#------------------------------------------------------------
 	if (@if_blocks) {
-		$t =~ s/^(\x01\d\d\d\d)ifexec\(/${1}if (/;
+		$t =~ s/^(\x01\d+)ifexec\(/${1}if (/;
 		if ($t =~ /\x02\{.*?\}\x02/) {
 			$t =~ s/\x02\{(.*?)\}\x02//g;
-			push(@$newbuf, "$t {$1#$l_no_change");
+			push(@$newbuf, "$t {$1#$L_no_change");
 		} else {
-			push(@$newbuf, "$t {#$l_no_change");
+			push(@$newbuf, "$t {#$L_no_change");
 		}
 		my $block = shift(@if_blocks);
-		&info_rewrite($block, $info & $l_replace);
+		&info_rewrite($block, $info & $L_replace);
 		push(@$newbuf, @$block);
 		# else ?
 		if (@if_blocks) {
-			push(@$newbuf, "\x01$line_num_zero} else {#$l_no_change");
+			push(@$newbuf, "\x01$LineNumZero} else {#$L_no_change");
 			$block = shift(@if_blocks);
-			&info_rewrite($block, $info & $l_replace);
+			&info_rewrite($block, $info & $L_replace);
 			push(@$newbuf, @$block);
 		}
-		push(@$newbuf, "\x01$line_num_zero}#$l_no_change");
+		push(@$newbuf, "\x01$LineNumZero}#$L_no_change");
 		return ;
 	}
 	$t .= "#$info";
@@ -1853,7 +1934,7 @@ sub splice_block {
 	my @ary;
 	while(@$buf) {
 		my $line = shift(@$buf);
-		if ($line =~ /^\x01\d\d\d\dend(?:\.([^#]*))?/ && $1 eq $blockname) {
+		if ($line =~ /^\x01\d+end(?:\.([^#]*))?/ && $1 eq $blockname) {
 			return \@ary;
 		}
 		if (ord($line) == 1 && $line =~ /[\x01\x02]\[begin.*?\]/) {
@@ -1880,8 +1961,8 @@ sub info_rewrite {
 		}
 		my $info;
 		if ($_ =~ /(.*?)\#(\d+)$/s) { $_=$1; $info=$2; }
-		if (!$replace) { $info &= (0x7fffffff - $l_replace); }
-		$info += $l_indent;
+		if (!$replace) { $info &= (0x7fffffff - $L_replace); }
+		$info += $L_indent;
 		$_ .= "#$info";
 	}
 }
@@ -1914,10 +1995,10 @@ sub chain_lines {
 	foreach(@ary2) {
 		my ($flag, $info, $cmd) = $self->parse_line_to_cmd( $_ );
 		if ($flag == 1) {	# cmd
-			if (!($info & $l_replace)) {	# 置換しない
+			if (!($info & $L_replace)) {	# 置換しない
 				$cmd = "('',$cmd)[0]";
 			}
-			if (!($info & $l_single)) {	# 定数ではない
+			if (!($info & $L_const)) {	# 定数ではない
 				$cmd = "($cmd)";
 			}
 		}
@@ -1930,9 +2011,9 @@ sub chain_lines {
 	return @ary3 ? join('.', @ary3) : "''";
 }
 
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 # ●[05] 不要な行を削除し、行をまとめる
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 sub optimize {
 	my ($self, $arybuf) = @_;
 
@@ -1950,30 +2031,30 @@ sub optimize {
 			# コマンド or 置換文
 			#
 			if($str ne '') {
-				if (~$pragma & $p_cmd_only) { push(@new_ary, $str); }
+				if (~$pragma & $P_cmd_only) { push(@new_ary, $str); }
 				$str = '';
 			}
 			push(@new_ary, $_);
 		}
 		shift(@new_ary);	# dummy を読み捨て
-		if ($str ne '' && (~$pragma & $p_cmd_only)) { push(@new_ary, $str); }
+		if ($str ne '' && (~$pragma & $P_cmd_only)) { push(@new_ary, $str); }
 		$ary = \@new_ary;
 	}
 	return $arybuf;
 }
 
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 # ●[06] arrayブロックを１つのサブルーチンに置き換える
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 # inline 関数を展開する。
 sub array2sub {
 	my ($self, $arybuf) = @_;
 	my $pragma = $self->{pragma};
 
-	my @Builtin_funcs;
-	my %Builtin_funcs_cache;
+	my @BuiltinFuncs;
+	my %BuiltinFuncs_cache;
 	my $is_main = 1;
-	my $is_function = $pragma & $p_is_function;
+	my $is_function = $pragma & $P_is_function;
 	foreach my $ary (@$arybuf) {
 		my @sub_array;
 		my $base_indent = "\t";
@@ -1993,38 +2074,36 @@ sub array2sub {
 				# xxx.yy.zz 形式のデータに置換
 				# xxx.yy.zz 形式で xx がローカル変数
 				# コマンド外文字列
-				push(@sub_array, $indent . "$VAR_OUT .= $cmd;\n");
+				push(@sub_array, $indent . "$VAR_OUT.=$cmd;\n");
 				next;
 			}
 			#--------------------------
 			# $flag==1 コマンド行
 			#--------------------------
 			# indent 処理
-			$indent = $base_indent . ("\t" x ($info >> $l_indent_bits));
+			$indent = $base_indent . ("\t" x ($info >> $L_indent_bits));
 
 			# 行番号
 			my $lnum = &get_line_num_int($_);
 
 			# 加工禁止
-			if ($info & $l_no_change) {
+			if ($info & $L_no_change) {
 				push(@sub_array, "$indent$cmd\n");
 				if ($cmd =~ /^if\s*\(.*\)\s*\{/ || $cmd =~ /^}\s*else\s*\{/ || $cmd =~ /^my \$X/) { $indent .= "\t"; }
 				next;		# $cmd =~ /^my \$X/ は forexec のため
 			}
 			# 置換処理
-			if (!$is_function && $info & $l_replace) {	# 置換
-				if ($cmd =~ /;,/) { $cmd = "$VAR_OUT .= do{ $cmd };"; }
-				             else { $cmd = "$VAR_OUT .= $cmd;"; }
+			if (!$is_function && $info & $L_replace) {	# 置換
+				if ($cmd =~ /;,/) { $cmd = "$VAR_OUT.=do{ $cmd };"; }
+				             else { $cmd = "$VAR_OUT.=$cmd;"; }
 			} else {
 				$cmd .= ';';
 			}
 
 			# 行番号が必要？（エラーが起こらない行では不要）
-			if ($info & $l_line_number) { $cmd  = "$VAR_LNUM=$lnum; " . $cmd; }
-			# v の値をロード
-			if ($info & $l_v_load)      { $cmd .= " \$v=\$R->{v};"; }
+			if ($info & $L_line_number) { $cmd  = "$VAR_LNUM=$lnum; " . $cmd; }
 			# break flag を確認？
-			if ($info & $l_break_check) { $cmd .= " \$R->{Break} && return;"; }
+			if ($info & $L_break_check) { $cmd .= " \$R->{Break} && return;"; }
 			# コマンドを出力
 			push(@sub_array, "$indent$cmd\n");
 		}
@@ -2055,7 +2134,7 @@ sub array2sub {
 	if ($subs ne '') { $subs = "\tmy \@F;\n" . $subs; }
 
 	my $append='';
-	if ($pragma & $p_is_function) {
+	if ($pragma & $P_is_function) {
 		# 関数処理ならば、それを Base.pm に通知する
 		$append .= "\t\$R->{Is_function}=1;\n";
 	}
@@ -2107,12 +2186,12 @@ sub parse_line_to_cmd {
 
 	# 組み込み関数?
 	$cmd =~ s!\x04(\w+)\(!
-		my $arg = $Builtin_func{"$1.arg"};
+		my $arg = $BuiltinFunc{"$1.arg"};
 		if (exists($use_builtin_hash->{$1})) {
 			'&{$F[' . $use_builtin_hash->{$1} . ']}(' . $arg;
 		} else {
 			# 初めて使用する組み込み関数
-			push(@$use_builtin_ary, $Builtin_func{$1});
+			push(@$use_builtin_ary, $BuiltinFunc{$1});
 			$use_builtin_hash->{$1} = $#$use_builtin_ary;
 			'&{$F[' . $#$use_builtin_ary . ']}(' . $arg;
 		}
@@ -2122,9 +2201,9 @@ sub parse_line_to_cmd {
 
 
 
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 # ●[07] 文字列を復元する
-#------------------------------------------------------------------------------
+#//////////////////////////////////////////////////////////////////////////////
 sub recover_string {
 	my ($self, $arybuf, $strbuf) = @_;
 
@@ -2269,13 +2348,14 @@ sub tag_escape {
 # Ret) 1:true 0:false
 my %break_function_cache;
 sub check_break_function {
+	my $self = shift;
 	my $func = shift;
 	if (exists $break_function_cache{$func}) {
 		return $break_function_cache{$func};
 	}
 
 	my $flag=0;
-	foreach(@break_functions) {
+	foreach(@BreakFuncs) {
 		if (index($func,$_) == -1) { next; }
 		$flag=1;
 		last;
@@ -2339,12 +2419,12 @@ sub conv_display_style {
 	if (ref $lnum ne 'ARRAY') { $lnum = []; }
 
 	my $line = 0;	# 行カウンタ
-	my $this_line_default = '-' x $line_num_length;
+	my $this_line_default = '-' x $LineNumLen;
 	foreach(@$lines) {
 		$line++;
 		my $s = '::';
 		my $this_line = $this_line_default;
-		if ($lnum->[$line]) { $this_line = sprintf("%0${line_num_length}d", $lnum->[$line]); }
+		if ($lnum->[$line]) { $this_line = sprintf("%0${LineNumLen}d", $lnum->[$line]); }
 		if (ref $_ eq 'ARRAY') {	# 逆ポーランド記法の場合
 			my @ary = @$_;
 			$s = 'p)' . pop(@ary);
@@ -2355,7 +2435,7 @@ sub conv_display_style {
 			$_         = &get_line_data($_);
 			# 行情報取得
 			my $info = 0;
-			if ($_ =~ /\#(\d+)$/ && $1 & $l_replace) { $s = 'e@'; }
+			if ($_ =~ /\#(\d+)$/ && $1 & $L_replace) { $s = 'e@'; }
 		} elsif (ord($_) == 2) {	# replace 単一式
 			$s = 'R)';
 			$_ = substr($_, 1);
