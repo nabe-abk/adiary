@@ -290,17 +290,19 @@ sub set_logininfo {
 		$self->{ext}->{$_} = $user->{$_};
 	}
 
-	# セキュリティ拡張
-	if ($self->{root_id} ne '' && $self->{root_id} eq $id && $self->{isadmin}) {
-		$self->{isroot}=1;
-	} elsif ($self->{isadmin} && $self->{admin_list}) {
-		if (! $self->{admin_list}->{ $id }) { $self->{isadmin}=0; }
-	}
+	if (!$self->{isadmin}) { return; }
 
 	# IP/HOST制限
-	if (!$self->{isadmin}) { return; }
 	if (! $ROBJ->check_ip_host($self->{admin_allow_ip}, $self->{admin_allow_host})) {
-		$self->{isroot} = $self->{isadmin} = 0;
+		$self->{isadmin} = 0;
+	}
+
+	# セキュリティ拡張
+	if ($self->{root_list} && $self->{root_list}->{$id}) {
+		$self->{isroot}  = 1;
+
+	} elsif ($self->{admin_list} && ! $self->{admin_list}->{ $id }) {
+		$self->{isadmin} = 0;
 	}
 }
 

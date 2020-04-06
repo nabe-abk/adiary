@@ -228,7 +228,11 @@ sub load_logs {
 	my $DB    = $self->{DB};
 	my $table = $self->{table} . '_log';
 
-	return $DB->select_match($table, 'id', $id, '*sort', '-tm', '*limit', $limit);
+	my @arg = ('*sort', '-tm', '*limit', $limit);
+	if ($id ne '') {
+		unshift(@arg, 'id', $id);
+	}
+	return $DB->select_match($table, @arg);
 }
 
 ###############################################################################
