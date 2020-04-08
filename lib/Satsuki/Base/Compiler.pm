@@ -1267,7 +1267,7 @@ sub p2e_function {
 				$st->{error_msg}="Illegal local() format";
 				return;
 			}
-			if ($SpecialVars{$_} || $_ !~ /^[a-z][a-z0-9]*$/) {
+			if ($SpecialVars{$_} || $_ !~ /^[a-z][a-z0-9_]*$/) {
 				$st->{error_msg}="Illegal local var: $_";
 				return;
 			}
@@ -1279,6 +1279,7 @@ sub p2e_function {
 		}
 		if ($#$x == 0) {
 			push(@$stack, "my \$$x_orig");
+			$local_vars->{$x_orig}=1;
 		} else {
 			my $vars='';
 			foreach(@$x) {
