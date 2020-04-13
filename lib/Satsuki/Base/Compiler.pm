@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.90';
+our $VERSION = '1.91';
 #(簡易履歴)
+# 2020/04 Ver1.91  const()処理修正
 # 2020/04 Ver1.90  poland_to_eval() の大幅書き換え。
 # 2020/03 Ver1.84  hash() array() {} [] 表記の入れ子を可能に。
 # 2020/03 Ver1.83  push_hash(), unshift_hash()追加。
@@ -1038,11 +1039,6 @@ sub p2e_one_line {
 					$st->{error_msg} = "illegal const()";
 					last;
 				}
-				if ($x =~ /^\x01(\d+)\x01$/) {
-					$x = $strbuf->[$1];
-					$x =~ s/^[\"\'](.*)[\"\']$/$1/;
-					&into_single_quot_string($x);
-				}
 				@$stack = ($x);
 				@$stype = ('const');
 				$constant->{$y} = $x;
@@ -1144,6 +1140,10 @@ sub p2e_one_line {
 			# 通常の２項演算子
 			#------------------------------------------------------
 			if ((~$opl) & 2) {
+				if ($opl & 1 && $op =~ /=$/ && $yt eq 'const') {	# 代入演算子
+					$st->{error_msg} = "Can't modify constant";
+					last;
+				}
 				if ($opl & 1) {			# 右結合
 					my $xopl = $OPR{$xt};
 					if ($xopl && $opl<$xopl) {
@@ -1610,9 +1610,9 @@ sub get_element_type {
 		$strbuf->[$num] =~ s!\x01<([^>]+?)>!
 			if (exists $constant->{$1}) {
 				my $c = $constant->{$1};
-				if (substr($c,0,1) eq "'") {
-					$c = substr($c,1);
-					chop($c);
+				if ($c =~ /^\x01(\d+)\x01$/ && $strbuf->[$1] =~ /^\'(.*)\'$/) {
+					$c = $1;
+					$c =~ s/\\([\\\'])/$1 eq "'" ? "'" : "\\"/eg;
 					$c =~ s/([\"\\\$\@])/"\\$1"/eg;
 				}
 				$c;
