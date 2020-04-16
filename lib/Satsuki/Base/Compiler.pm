@@ -1054,7 +1054,7 @@ sub p2e_one_line {
 			# 関数call
 			#------------------------------------------------------
 			if ($op eq '%r') {
-				$self->p2e_function($st, $local_vars, $stack, $stype, $x_orig, $x, $xt, $y, $yt);
+				$self->p2e_function($st, $lv_stack, $stack, $stype, $x_orig, $x, $xt, $y, $yt);
 				if ($st->{last} || $st->{error} || $st->{error_msg}) { last; }
 				next;
 			}
@@ -1245,7 +1245,8 @@ sub p2e_one_line {
 sub p2e_function {
 	my $self = shift;
 	my $st   = shift;
-	my ($local_vars, $stack, $stype, $x_orig, $x, $xt, $y, $yt) = @_;
+	my ($lv_stack, $stack, $stype, $x_orig, $x, $xt, $y, $yt) = @_;
+	my $local_vars = $lv_stack->[$#$lv_stack];
 
 	#----------------------------------------------------------------------
 	# 入れ子を許可しない関数
@@ -1300,6 +1301,10 @@ sub p2e_function {
 		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
 		if ($#ary == 0) {
 	  		$ary[1] = "\x01[begin]";	# 省略時
+			# stack処理
+			my %h = %{ $lv_stack->[ $#$lv_stack ] };
+			push(@$lv_stack, \%h);
+			$local_vars = \%h;
 		}
 		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) { $ary[2] = "\x02[$1]"; }
 		if ($#ary <= 2 && $ary[1] =~ /^\x01\[(begin.*)\]$/) { $ary[1] = "\x02[$1]"; }
@@ -1325,6 +1330,11 @@ sub p2e_function {
 		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
 		if ($#ary == 1) {
 		  	$ary[2] = "\x01[begin]";
+
+			# stack処理
+			my %h = %{ $lv_stack->[ $#$lv_stack ] };
+			push(@$lv_stack, \%h);
+			$local_vars = \%h;
 		}
 		my $line_num_int = int($st->{line_num});
 		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) {
