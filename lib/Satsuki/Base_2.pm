@@ -330,7 +330,7 @@ sub mkdir {
 		if (substr($dir,-1) eq '/') { chop($dir); }
 		if (defined $mode) { $r = chmod($mode, $dir); }
 	} else { $self->error("Failed mkdir '%s'", $_[1]); }
-	return $r ? 0 : 1;
+	return $r;
 }
 
 #------------------------------------------------------------------------------
@@ -475,7 +475,7 @@ sub open_tmpfile {
 	my $dir  = $self->get_tmpdir();
 
 	# ディレクトリ確認
-	if (!-w  && !$self->mkdir($dir)) {
+	if (!-w $dir && !$self->mkdir($dir)) {
 		$self->error("Can't write temporary dir '%s'", $dir);
 		return ;
 	}

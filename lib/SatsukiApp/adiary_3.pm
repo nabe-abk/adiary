@@ -589,7 +589,7 @@ sub create_folder {
 	if ( !$self->check_file_name($name) ) { return -1; }
 
 	$ROBJ->fs_encode(\$name);
-	my $r = $ROBJ->mkdir("$dir$name");
+	my $r = $ROBJ->mkdir("$dir$name") ? 0 : 1;
 	$ROBJ->mkdir("$dir$name/.thumbnail");
 
 	return $r;
