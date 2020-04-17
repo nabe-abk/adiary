@@ -230,13 +230,18 @@ my @BreakFuncs = (
 'exec');
 
 #------------------------------------------------------------------------------
-# ●入れ子を許可しない関数
+# ●入れ子を許可しない関数 / begin省略を許可する関数
 #------------------------------------------------------------------------------
 # <$x = ifexec(...)> 等を許可しない。
 # <$ifexec(...)> のみ許可する。
 #
 my %LastOpFuncs = (
 	forexec=>1,
+	foreach=>1,
+	forexec_hash=>1,
+	foreach_hash=>1,
+	forexec_num=>1,
+	foreach_num=>1,
 	ifexec=>1
 );
 
@@ -934,8 +939,22 @@ sub poland_to_eval {
 		my $line_num = substr($LineNumZero.$lnum->[$line], -$LineNumLen);
 		my $cmd_flag = pop(@$_);
 
+		# ifexec/forexec の begin の省略
+		if ($LastOpFuncs{ $_->[0] } && 1<$#$_) {
+			my $z = pop(@$_);
+			my $y = pop(@$_);
+			if ($z eq '%r' && ($y ne ',' || $_->[$#$_] !~ /^begin/)) {
+				push(@$_, $y, 'begin');
+				$y=',';
+			}
+			push(@$_, $y, $z);
+		}
+
 		# 処理準備
 		my @types = map { $self->get_element_type(\%constant, \@lv_stack, $strbuf, $_) } @$_;
+
+		# ローカル変数設定
+		my $local_vars = $lv_stack[$#lv_stack] || {};
 
 		## print "\npoland expression : ", join(' ', @$_),    "\n";
 		## print   "data types        : ", join(' ', @types), "\n";
@@ -954,7 +973,7 @@ sub poland_to_eval {
 				$self->warning($line_num, '"break" variable referenced. Do you mean "break()" function?');
 			}
 			# xxx.yyy のときの xxx を判別
-			if ($var_name =~ /^(\w+)/ && $lv_stack[$#lv_stack]->{$1}) {
+			if ($var_name =~ /^(\w+)/ && $local_vars->{$1}) {
 				$_ = "\x03" . $var_name;
 			} else {
 				$_ = "\x02" . $var_name;
@@ -964,7 +983,7 @@ sub poland_to_eval {
 		}
 
 		# poland式
-		$_ = $self->p2e_one_line($cmd_flag, $line_num, $_, \@types, \%constant, \@lv_stack, $strbuf);
+		$_ = $self->p2e_one_line($cmd_flag, $line_num, $_, \@types, \%constant, $local_vars, $strbuf);
 	}
 	return;
 }
@@ -975,8 +994,7 @@ sub poland_to_eval {
 sub p2e_one_line {
 	my $self = shift;
 
-	my ($cmd_flag, $line_num, $poland, $types, $constant, $lv_stack, $strbuf) = @_;
-	my $local_vars = $lv_stack->[$#$lv_stack];
+	my ($cmd_flag, $line_num, $poland, $types, $constant, $local_vars, $strbuf) = @_;
 
 	my $stack = [];
 	my $stype = [];
@@ -1054,7 +1072,7 @@ sub p2e_one_line {
 			# 関数call
 			#------------------------------------------------------
 			if ($op eq '%r') {
-				$self->p2e_function($st, $lv_stack, $stack, $stype, $x_orig, $x, $xt, $y, $yt);
+				$self->p2e_function($st, $local_vars, $stack, $stype, $x_orig, $x, $xt, $y, $yt);
 				if ($st->{last} || $st->{error} || $st->{error_msg}) { last; }
 				next;
 			}
@@ -1245,8 +1263,7 @@ sub p2e_one_line {
 sub p2e_function {
 	my $self = shift;
 	my $st   = shift;
-	my ($lv_stack, $stack, $stype, $x_orig, $x, $xt, $y, $yt) = @_;
-	my $local_vars = $lv_stack->[$#$lv_stack];
+	my ($local_vars, $stack, $stype, $x_orig, $x, $xt, $y, $yt) = @_;
 
 	#----------------------------------------------------------------------
 	# 入れ子を許可しない関数
@@ -1299,13 +1316,6 @@ sub p2e_function {
 	#----------------------------------------------------------------------
 	if ($IfexecInline && $y eq 'ifexec') {
 		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
-		if ($#ary == 0) {
-	  		$ary[1] = "\x01[begin]";	# 省略時
-			# stack処理
-			my %h = %{ $lv_stack->[ $#$lv_stack ] };
-			push(@$lv_stack, \%h);
-			$local_vars = \%h;
-		}
 		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) { $ary[2] = "\x02[$1]"; }
 		if ($#ary <= 2 && $ary[1] =~ /^\x01\[(begin.*)\]$/) { $ary[1] = "\x02[$1]"; }
 		$ary[0] =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
@@ -1328,14 +1338,6 @@ sub p2e_function {
 	#----------------------------------------------------------------------
 	if ($ForexecInline && $y =~ /^forexec/) {
 		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
-		if ($#ary == 1) {
-		  	$ary[2] = "\x01[begin]";
-
-			# stack処理
-			my %h = %{ $lv_stack->[ $#$lv_stack ] };
-			push(@$lv_stack, \%h);
-			$local_vars = \%h;
-		}
 		my $line_num_int = int($st->{line_num});
 		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) {
 			my $begin_type = $1;
@@ -1354,9 +1356,9 @@ sub p2e_function {
 
 			if ($y eq 'forexec_hash') {
 				my $cmd = "my \$H=$ary[1]; if (ref(\$H) ne 'HASH') { \$H={}; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] forexec_hash: data is not hash'); };"
-				. " my \$Keys=\$H->{_order} || [keys(\%\$H)]; if(!ref($ary[0])) {$ary[0]={}};"
+				. " my \$Keys=\$H->{_order} || [keys(\%\$H)];"
 				. " foreach(\@\$Keys, \x02[$1])"
-				. "\x02{$ary[0]\->{key}=\$_; $ary[0]\->{val}=\$H->{\$_}; }\x02";
+				. "\x02{$ary[0] = {key=>\$_, val=>\$H->{\$_}};}\x02";
 				@$stack = ($cmd);
 				@$stype = ('*');
 				$st->{last}=1;
@@ -2100,8 +2102,8 @@ sub array2sub {
 			# 加工禁止
 			if ($info & $L_no_change) {
 				push(@sub_array, "$indent$cmd\n");
-				if ($cmd =~ /^if\s*\(.*\)\s*\{/ || $cmd =~ /^}\s*else\s*\{/ || $cmd =~ /^my \$X/) { $indent .= "\t"; }
-				next;		# $cmd =~ /^my \$X/ は forexec のため
+				if ($cmd =~ /^if\s*\(.*\)\s*\{/ || $cmd =~ /^}\s*else\s*\{/ || $cmd =~ /^my \$[XH]/ || $cmd =~ /^foreach /) { $indent .= "\t"; }
+				next;		# $cmd =~ /^my \$[XH]/ は forexec/forexec_hash のため
 			}
 			# 置換処理
 			if (!$is_function && $info & $L_replace) {	# 置換
