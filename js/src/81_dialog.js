@@ -6,9 +6,9 @@
 //////////////////////////////////////////////////////////////////////////////
 $$.show_error = function(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
-	h.dclass = (h.dclass ? h.dclass : '') + ' error-dialog';
+	h.class = (h.class ? h.class : '') + ' error-dialog';
 	h.default_title = 'ERROR';
-	return this.show_dialog(h);
+	return this.show_dialog(h, _arg);
 }
 $$.show_dialog = function(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
@@ -22,11 +22,11 @@ $$.show_dialog = function(h, _arg) {
 	div.attr('title', h.title || obj.data('title') || h.default_title || 'Dialog');
 	div.adiaryDialog({
 		modal: true,
-		dialogClass: h.dclass,
+		dialogClass: h.class,
 		buttons: {
 			OK: function(){
 				div.adiaryDialog('close');
-				if (h.callback) h.callback();
+				if (_arg && _arg.callback) _arg.callback();
 			}
 		}
 	});
@@ -86,7 +86,7 @@ $$.textarea_dialog = function(dom, func) {
 // ●入力フォームのダイアログの表示
 //////////////////////////////////////////////////////////////////////////////
 $$.form_dialog = function(h) {
-	var ele = h.elements || { type:'text', name:'str', dclass:'w80p' };
+	var ele = h.elements || { type:'text', name:'str', class:'w80p' };
 	if (!Array.isArray(ele)) ele = [ ele ];
 	var div = $('<div>').attr('id','popup-dialog');
 
@@ -122,7 +122,7 @@ $$.form_dialog = function(h) {
 			name: x.name,
 			value: x.val
 		});
-		inp.addClass( x.dclass || 'w80p');
+		inp.addClass( x.class || 'w80p');
 		form.append( inp );
 	}
 	div.empty();

@@ -13,27 +13,51 @@ $$.dom_init( function($R) {
 		}
 		$obj.find('.error').removeClass('error');
 
+		// file upload?
+		if ($obj.find('input[type="file"]').length) {
+			$obj.attr('method',  'POST');
+			$obj.attr('enctype', 'multipart/form-data');
+		}
+		const gen  = $obj.data('generator');
+		const data = (typeof(gen) === 'function') ? gen($obj) : (function(){
+			// file upload?
+			const $infile = $obj.find('input[type="file"]');
+			if (!$infile.length) return $obj.serialize();
+
+			$obj.attr('method',  'POST');
+			$obj.attr('enctype', 'multipart/form-data');
+			return new FormData($obj[0]);
+		})();
+
 		if ($obj.data('js-ajax-stop')) return;
 		if ($('.aui-overlay').length)  return;	// dialog viewing
 		$obj.data('js-ajax-stop', true);
 
 		self.send_ajax({
-			data:	$obj.serialize(),
+			data:	data,
 			success: function(h) {
+				const success = $obj.data('success');
+				if (typeof(success) === 'function') return success(h);
 				const url = $obj.data('url');
 				if (url) window.location = url;
-				const success = $obj.data('success');
-				if (typeof(success) === 'function') success(h);
 			},
 			error: function(h) {
 				if (!h.errs) return;
 				const e = h.errs;
 				for(let k in e) {
 					if (k == '_order') continue;
+
+					// with number?
+					const ma  = k.match(/^(.*)#(\d+)$/);
+					const num = ma ? ma[2] : undefined;
+					k = ma ? ma[1] : k;
 					try {
-						$obj.find('[name="'      + k + '"').addClass('error');
-						$obj.find('[data-name="' + k + '"').addClass('error');
-					} catch(e) {}
+						let $x = $obj.find('[name="' + k+ '"], [data-name="' + k + '"]');
+						if (num) $x = $($x[num-1]);
+						$x.addClass('error');
+					} catch(e) {
+						console.error(e);
+					}
 				}
 			},
 			complite: function(h) {

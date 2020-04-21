@@ -92,6 +92,23 @@ $$.insert_to_textarea = function(ta, text) {
 	ta.setSelectionRange(start, start);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// フォーム解析
+//////////////////////////////////////////////////////////////////////////////
+$$.parse_form = function($par) {
+	const data = {};
+	$par.find('input, select, textarea').each(function(idx, dom){
+		if (dom.disabled) return;
+		if (dom.type == 'checkbox' && !dom.checked) return;
+
+		const $obj = $(dom);
+		const name = $obj.attr('name');
+		if (name == undefined || name == '') return;
+		data[name] = $obj.val();
+	});
+	return data;
+};
+
 //############################################################################
 // ■その他jsファイル用サブルーチン
 //############################################################################

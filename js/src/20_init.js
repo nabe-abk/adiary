@@ -12,7 +12,7 @@ $$.init = function(func) {
 	// load adiary vars
 	let $obj = $secure('#' + this.name + '-vars');
 	let data;
-	if ($obj && $obj.myhasData('secure')) {
+	if ($obj && $obj.existsData('secure')) {
 		const json = $obj.html().replace(/^[\s\S]*?{/, '{').replace(/}[\s\S]*?$/, '}');
 		      data = JSON.parse(json);
 		const ary  = ['myself', 'myself2', 'Basepath', 'ScriptDir', 'PubdistDir', 'SpecialQuery', 'Static'];

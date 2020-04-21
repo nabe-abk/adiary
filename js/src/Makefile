@@ -38,5 +38,5 @@ $(OUTPUT): $(FILES) Makefile
 $(HTML): $(FILES) Makefile
 	echo -n>$(HTML); \
 	for file in $(FILES); do \
-		echo "<script defer src=\"<@Basepath><@v.script_dir>src/$$file?<@get_lastmodified(v.script_dir . 'src/$$file')>\"></script>" >>$(HTML); \
+		echo "<script defer src=\"<@argv#0 || v.script_dir>src/$$file?<@get_lastmodified(v.script_dir . 'src/$$file')>\"></script>" >>$(HTML); \
 	done

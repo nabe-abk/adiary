@@ -17,7 +17,6 @@
 //	isImg	画像ファイルか？ true/false
 //
 'use strict';
-var IE11;
 
 $( function(){
 	var tree = $('#album-folder-tree');
@@ -1426,7 +1425,7 @@ function ajax_upload(files) {
 	uploading = true;
 
 	var fd = new FormData( upform[0] );
-	if (!IE11 && !file_btn.val()) fd.delete('_file_btn');
+	if (!file_btn.val()) fd.delete('_file_btn');
 
 	for(var i=0; i<files.length; i++) {
 		if (!files[i]) continue;

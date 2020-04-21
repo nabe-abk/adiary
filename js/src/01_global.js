@@ -2,7 +2,6 @@
  * adiary.js (C)nabe@abk
  */
 'use strict';
-var IE11=false;	// IE11
 var SP;		// smart phone mode
 var Storage;	// Storage object
 
@@ -63,3 +62,7 @@ if (!String.repeat) String.prototype.repeat = function(num) {
 if (!Array.from) Array.from = function(arg) {
 	return Array.prototype.slice.call(arg);
 }
+
+if (FormData && !FormData.delete)
+	FormData.prototype.delete = function(arg) {};
+

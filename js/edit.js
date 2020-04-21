@@ -6,7 +6,6 @@
 'use strict';
 //### global variables #######################################################
 var insert_image;	// global function for album.js
-var IE11;
 
 $(function(){
 //############################################################################
@@ -547,7 +546,7 @@ function ajax_upload( form_dom, files, option ) {
 
 	// FormData生成
 	var fd = new FormData( form_dom );
-	if (!IE11 && !$file_btn.val()) fd.delete('_file_btn');
+	if (!$file_btn.val()) fd.delete('_file_btn');
 	fd.append('csrf_check_key', $('#csrf-key').val());
 	fd.append('action', 'etc/ajax_upload');
 	fd.append('folder', folder);

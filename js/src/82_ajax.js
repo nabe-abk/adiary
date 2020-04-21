@@ -24,16 +24,19 @@ $$.send_ajax = function(opt) {
 			}
 			if (h._debug) msg += '<p class="ni">' + h._debug.replace("\n", '<br>') + '</p>';
 		}
-		self.show_error(msg);
+		self.show_error(msg, opt.error_callback);
 	}
-	$.ajax('./', {
+	const data = opt.data;
+	return $.ajax('./', {
 		method:		'POST',
-		data:		opt.data,
+		data:		data.toString() == '[object Object]' ? $.param(data) : data,
+		processData:	false,
+		contentType:	false,
 		dataType:	'json',
 		error:		error_default,
 		success:	function(h) {
 			if (h.ret != 0  || h._debug) return error_default(h);
-			opt.success(h);
+			if (opt.success) opt.success(h);
 		},
 		complete:	opt.complite,
 	});

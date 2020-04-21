@@ -21,8 +21,9 @@ $$.dom_init( function($R) {
 
 	$R.findx('input.js-save, select.js-save').each( function(idx, dom) {
 		const $obj = $(dom);
-		const type = $obj.get_type();
-		let   id   = type != 'radio' && $obj.attr("id");
+		const type = $obj[0].type;
+
+		let id = type != 'radio' && $obj.attr("id");
 		if (!id) id = 'name=' + $obj.attr("name");
 		if (!id) return;
 
@@ -66,19 +67,25 @@ $$.dom_init( function($R) {
 $$.dom_init( function($R){
 	const $objs = $R.findx('input.js-enable, input.js-disable, select.js-enable, select.js-disable');
 
+	let   init;
 	const func = function(evt) {
-		let $btn = $(evt.target);
-		let $form = $btn.rootfind( $btn.data('target') );
+		const $btn = $(evt.target);
+		const $tar = $btn.rootfind( $btn.data('target') );
 
-		var id;
-		var flag;
-		var type = $btn.get_type();
+		const type = $btn[0].type;
+
+		// radio button with data-state="0" or "1"
+		if (type == 'radio') {
+			if (! $btn.prop("checked")) return;
+			let flag = $btn.data("state");
+			if ($btn.hasClass('js-enable')) flag=!flag;
+			$tar.prop('disabled', flag);
+			return;
+		}
+
+		let flag;
 		if (type == 'checkbox') {
 			flag = $btn.prop("checked");
-		} else if (type == 'radio') {
-			if (! $btn.prop("checked")) return;
-			flag = $btn.data("state");
-			id   = 'name:' + $btn.attr('name');
 		} else if (type == 'number' || $btn.data('type') == 'int') {
 			var val = $btn.val();
 			flag = val.length && val > 0;
@@ -87,30 +94,21 @@ $$.dom_init( function($R){
 		}
 		if ($btn.prop("disabled")) flag=false;
 
-		// id設定
-		if (!id) {
-			id = $btn.attr('id') ? $btn.attr('id') : 'name:' + $btn.attr('name');
-			if (!id) id = $btn.data('gen-id');
-			if (!id) {
-				id = 'js-generate-' + Math.floor( Math.random()*0x80000000 );
-				$btn.data('gen-id', id);
-			}
-		}
-
 		// disabled設定判別
-		const disable = $btn.hasClass('js-disable');
-		for(var i=0; i<$form.length; i++) {
-			var $obj = $($form[i]);
-			var h    = $obj.data('_jsdisable_list') || {};
-			if (flag) h[id] = true;
-			     else delete h[id];
-			$obj.data('_jsdisable_list', h);
-			$obj.prop('disabled', Object.keys(h).length ? disable : !disable);
-		}
+		const counter = $btn.hasClass('js-disable') ? '_disable_c' :  '_enable_c';
+		const add     = flag ? 1 : (init ? 0 : -1);
+		$tar.data(counter, ($tar.data(counter) || 0) + add);
+
+		const diff = ($tar.data('_disable_c') || 0) - ($tar.data('_enable_c') || 0)
+			   + ($btn.hasClass('js-enable') ? 0.1 : 0);
+
+		$tar.prop('disabled', diff>0);
 	}
 	// regist
 	$objs.change( func );
+	init = true;
 	$objs.change();
+	init = false;
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -135,7 +133,7 @@ $$._toggle = function(init, $obj) {
 	if ($obj[0].tagName == 'A')
 		return true;	// リンククリックそのまま（falseにするとリンクが飛べない）
 
-	const type = $obj[0].tagName == 'INPUT' && $obj.get_type();
+	const type = $obj[0].tagName == 'INPUT' && $obj[0].type;
 	let     id = $obj.data('target');
 	if (!id) {
 		// 子要素のクリックを拾う
@@ -148,7 +146,7 @@ $$._toggle = function(init, $obj) {
 	if (!$target.length) return false;
 
 	// スイッチの状態を保存する	ex)タグリスト(tree)
-	const storage = $obj.myhasData('save') ? Storage : null;
+	const storage = $obj.existsData('save') ? Storage : null;
 
 	// 変更後の状態取得
 	var flag;
@@ -163,10 +161,11 @@ $$._toggle = function(init, $obj) {
 		flag = init ? !$target.is(':hidden') : $target.is(':hidden');
 	}
 
-	// 変更後の状態を設定
+	// show speed
 	let delay = $obj.data('delay');
-	if (delay === '') delay = this.DefaultShowSpeed;
+	if (delay === undefined || delay === '') delay = this.DefaultShowSpeed;
 
+	// set state
 	if (flag) {
 		$obj.addClass('sw-show');
 		$obj.removeClass('sw-hide');
@@ -202,7 +201,7 @@ $$.dom_init( function($R){
 
 	const func = function(evt){
 		const $obj = $(evt.target);
-		if ($obj.get_type() != "radio")
+		if ($obj[0].type != "radio")
 			return self.toggle($obj);
 
 		const name = $obj.attr('name');
@@ -215,7 +214,7 @@ $$.dom_init( function($R){
 		var $obj = $(dom);
 		var f = self.toggle_init($obj);
 		if (f) 	// initalize success
-			$obj.on('click', func);
+			$obj.on(dom.tagName == 'INPUT' ? 'change' : 'click', func);
 	} );
 });
 
