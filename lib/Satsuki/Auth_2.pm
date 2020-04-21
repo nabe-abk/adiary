@@ -51,7 +51,6 @@ sub login {
 	}
 	if (!$udata || !%$udata) {	# uid が存在しない
 		$self->log_save_fail($id, 'login');
-		$self->login_fail_sleep( $self->{fail_sleep} );
 		return { ret=>10, msg => $ROBJ->translate('Username or password incorrect') };
 	}
 	$id = $udata->{id};
@@ -67,7 +66,6 @@ sub login {
 		$fails++;
 		$DB->update_match($table, {fail_c => $fails, fail_tm => $ROBJ->{TM}}, 'id', $id);
 		$self->log_save_fail($id, 'login');
-		$self->login_fail_sleep( $self->{fail_sleep} );
 		return { ret=>10, msg => $ROBJ->translate('Username or password incorrect') };
 	}
 	if ($udata->{disable}) {
@@ -390,18 +388,6 @@ sub check_pass {
 sub load_extcols {
 	my $self = shift;
 	return [ map {$_->{name}} @{ $self->{extcol} } ];
-}
-
-#------------------------------------------------------------------------------
-# ●ログイン失敗時のスリープ
-#------------------------------------------------------------------------------
-sub login_fail_sleep {
-	my $self = shift;
-	my $sec  = shift;
-	if ($sec <= 0) { return; }
-	$sec += int(rand(400))/1000-0.2;	# ±200ms
-	if ($sec <= 0) { return; }
-	select(undef, undef, undef, $sec);
 }
 
 1;

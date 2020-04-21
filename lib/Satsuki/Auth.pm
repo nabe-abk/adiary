@@ -37,7 +37,6 @@ sub new {
 	$self->{start_up}    = 0;
 	$self->{exists_admin}= -1;	# 初期値は-1
 
-	$self->{fail_count}  = 0;
 	$self->{fail_count}  = 15;
 	$self->{fail_minute} = 10;
 	
