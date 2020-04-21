@@ -42,7 +42,7 @@ $$.dom_init( function($R) {
 				if (url) window.location = url;
 			},
 			error: function(h) {
-				if (!h.errs) return;
+				if (!h || !h.errs) return;
 				const e = h.errs;
 				for(let k in e) {
 					if (k == '_order') continue;

@@ -169,11 +169,12 @@ sub main {
 		my $data = $self->ajax_function( $action );
 
 		# Append debug message
-		if ($ROBJ->{Develop} && ref($data) eq 'HASH' && !$data->{_no_debug}
-		&& (my $err = ($ROBJ->error_load_and_clear() . join("\n", @{$ROBJ->{Debug}})))) {
-			$data->{_debug} = $err;
+		if ($ROBJ->{Develop} && ref($data) eq 'HASH') {
+			$data->{_develop} = 1;
+			if (my $err = ($ROBJ->error_load_and_clear() . join("\n", @{$ROBJ->{Debug}}))) {
+				$data->{_debug} = $err;
+			}
 		}
-
 		$self->{action_data} = $ROBJ->generate_json( $data );
 
 	} elsif (my ($dir,$file) = $self->parse_skel($action)) {

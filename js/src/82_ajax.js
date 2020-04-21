@@ -12,7 +12,7 @@ $$.send_ajax = function(opt) {
 
 		let msg = '';
 		if (h) {
-			if (h.ret)    msg += 'ret = ' + h.ret;
+			if (h.ret && h._develop) msg += 'ret = ' + h.ret;
 			if (h.msg)    msg += '<p>' + self.tag_esc(h.msg)    + '</p>';
 			if (h.errs) {
 				const ary = [];
@@ -23,17 +23,19 @@ $$.send_ajax = function(opt) {
 				msg += '<p class="ni">' + ary.join("<br>") + '</p>';
 			}
 			if (h._debug) msg += '<p class="ni">' + h._debug.replace("\n", '<br>') + '</p>';
+		} else {
+			msg = '<p>response data error!</p>';
 		}
 		self.show_error(msg, opt.error_callback);
 	}
 	const data = opt.data;
-	return $.ajax('./', {
+	return $.ajax(opt.url || self.myself || './', {
 		method:		'POST',
 		data:		data.toString() == '[object Object]' ? $.param(data) : data,
 		processData:	false,
 		contentType:	false,
 		dataType:	'json',
-		error:		error_default,
+		error:		function(e) { error_default(undefined,e); },
 		success:	function(h) {
 			if (h.ret != 0  || h._debug) return error_default(h);
 			if (opt.success) opt.success(h);
@@ -43,12 +45,30 @@ $$.send_ajax = function(opt) {
 };
 
 //////////////////////////////////////////////////////////////////////////////
+//●promise of ajax
+//////////////////////////////////////////////////////////////////////////////
+$$.send_ajax_promise = function(opt) {
+	const self=this;
+
+	return new Promise( (resolve, reject) => {
+		opt.error_callback = function(){
+			reject();
+		};
+		opt.success = function(h) {
+			resolve(h);
+		};
+		self.send_ajax(opt);
+	});
+}
+
+//////////////////////////////////////////////////////////////////////////////
 // ●セッションを保持して随時データをロードする
 //////////////////////////////////////////////////////////////////////////////
 $$.session = function(btn, opt){
+  const self=this;
   $(btn).click( function(evt){
 	var $btn = $(evt.target);
-	var myself = opt.myself || this.myself;
+	var myself = opt.myself || self.myself;
 	var $log   = opt.$log   || $btn.rootfind($btn.data('log-target') || '#session-log');
 
 	var load_session = myself + '?etc/load_session';
