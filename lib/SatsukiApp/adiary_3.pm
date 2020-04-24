@@ -404,7 +404,7 @@ sub image_upload_form {
 	foreach(@$ary) {
 		if (!ref($_)) { next; }
 
-		my $fname = $_->{file_name};
+		my $fname = $_->{name};
 		if ($fname eq '') { next; }
 
 		if ($self->do_upload( $dir, $_ )){
@@ -420,7 +420,7 @@ sub image_upload_form {
 	# ファイルが残ってたら削除
 	foreach(@$ary) {
 		if (!ref($_)) { next; }
-		my $tmp = $_->{tmp_file};
+		my $tmp = $_->{tmp};
 		if ($tmp) { $ROBJ->file_delete($tmp); }
 	}
 
@@ -483,11 +483,11 @@ sub do_upload {
 	my $ROBJ = $self->{ROBJ};
 
 	# ハッシュデータ（フォームデータの確認）
-	my $file_name = $file_h->{file_name};
-	my $file_size = $file_h->{file_size};
-	my $tmp_file  = $file_h->{tmp_file};		# 読み込んだファイルデータ(tmp file)
+	my $file_name = $file_h->{name};
+	my $file_size = $file_h->{size};
+	my $tmp_file  = $file_h->{tmp};		# 読み込んだファイルデータ(tmp file)
 	if (!$self->check_file_name($file_name)) {
-		$ROBJ->message("File name error : %s", $file_h->{file_name});
+		$ROBJ->message("File name error : %s", $file_h->{name});
 		return 2;
 	}
 

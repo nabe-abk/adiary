@@ -835,15 +835,15 @@ sub art_import {
 	}
 
 	# ファイル選択チェック
-	if (! ref($form->{file}) || ! $form->{file}->{file_size}) {
+	if (! ref($form->{file}) || ! $form->{file}->{size}) {
 		$session->msg('Not selected file'); return -2;
 	}
-	$session->msg("Import file size: %f KB", int($form->{file}->{file_size}/1024 + 0.5));
+	$session->msg("Import file size: %f KB", int($form->{file}->{size}/1024 + 0.5));
 
 	# ファイルがメモリになかったら読み込む
 	if (!$form->{file}->{data}) {
-		sysopen(my $fh, $form->{file}->{tmp_file}, &Fcntl::O_RDONLY);
-		sysread($fh, $form->{file}->{data}, $form->{file}->{file_size});
+		sysopen(my $fh, $form->{file}->{tmp}, &Fcntl::O_RDONLY);
+		sysread($fh, $form->{file}->{data}, $form->{file}->{size});
 		close($fh);
 	}
 

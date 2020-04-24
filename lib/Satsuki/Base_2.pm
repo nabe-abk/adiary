@@ -760,29 +760,29 @@ sub read_multipart_form {
 			# ファイル名を加工（フルパスのとき、ファイル名のみ取り出す）
 			$filename =~ tr|\\|/|;
 			if ($filename =~ /\/([^\/]*)$/) { $filename = $1; }
-			$filename =~ s/[\r\n\x00\"]//g;
+			# TAB以外の制御コードと " を除去
+			$filename =~ s/[\x00-\x08\x0A-\x1F\x7F\"]//g;
 			# ファイルデータを読み込み
 			if ($use_temp_flag) {
 				if ( my ($fh,$file) = $self->open_tmpfile() ) {
 					# ファイルがオープンできたら、ファイルに出力
 					my $size = $buffer->read($fh, $boundary, $file_max_size);
 					close($fh);
-					my %h;
-					$h{tmp_file}   = $file;		# tmp file name
-					$h{file_name}  = $filename;
-					$h{file_size}  = $size;
-					$value = \%h;
+					$value = {
+						tmp	=> $file,		# tmp file name
+						name	=> $filename,
+						size	=> $size
+					};
 				} else {
 					$buffer->read(\$value, $boundary, 0);	# データ読み捨て
 				}
 			} else {
-				# 変数に読み込む
 				my $size = $buffer->read(\$value, $boundary, $file_max_size);
-				my %h;
-				$h{data}       = $value;	# tmp file name
-				$h{file_name}  = $filename;
-				$h{file_size}  = $size;
-				$value = \%h;
+				$value = {
+					data	=> $value,
+					name	=> $filename,
+					size	=> $size
+				};
 			}
 		} else {
 			$buffer->read(\$value, $boundary, $data_max_size);
@@ -817,53 +817,58 @@ sub read_multipart_form {
 sub form_data_check_and_save {
 	my ($self, $form, $options, $name, $val) = @_;
 
-	my $type = substr($name,-4);
-
-	if ($type ne '_bin' && !ref($val)) {	# バイナリデータではない
-		# 文字コード変換（文字コードの完全性保証）
-		my $jcode = $self->load_codepm_if_needs( $val );
-		$jcode && $jcode->from_to( \$val, $self->{System_coding}, $self->{System_coding} );
-		my $substr = $jcode ? sub { $jcode->jsubstr(@_) } : sub { substr($_[0],$_[1],$_[2]) };
-		my $length = $jcode ? sub { $jcode->jlength(@_) } : sub { length($_[0]) };
-
-		# TAB LF CR以外の制御コードを除去
-		$val =~ s/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]//g;
-
-		my $bytes = &$length($val);
-		if ($type eq '_txt') {	# テキストエリア系なら改行を統一
-			$val =~ s/\r\n?/\n/g;
-			my $txt_max_chars = $options->{txt_max_chars};
-			if ($txt_max_chars && $bytes >$txt_max_chars) {
-				$self->message("Too long form data '%s', limit %d chars", $name, $txt_max_chars);
-				$val = &$substr($val, 0, $txt_max_chars);
-			}
-		} elsif ($type eq '_int') {	# 整数値
-			if ($val ne '') { $val=int($val); }
-		} elsif ($type eq '_num') {	# 数値
-			if ($val ne '') { $val=0+$val; }
-		} elsif ($type eq '_flg') {	# フラグ
-			$val = $val ? 1 : 0;
-		} else {
-			my $str_max_chars = $options->{str_max_chars};
-			$val =~ s/[\r\n]//g;	# 改行を除去
-			if ($str_max_chars && $bytes >$str_max_chars) {
-				$self->message("Too long form data '%s', limit %d chars", $name, $str_max_chars);
-				$val = &$substr($val, 0, $str_max_chars);
-			}
-		}
-	}
-
-	if ($name =~ /^(.+)(?:_ary|\[\])$/) {			# 配列処理
+	if ($name =~ /^(.+)(?:_ary|\[\])$/) {		# 配列処理
 		my $a = $form->{"$1_ary"}  ||= [];
-		push(@$a, $val);
+		push(@$a, $self->form_type_check($1, $val, $options));
 
-	} elsif ($name =~ /^(.+)(?:_hash|\[([^\]]+)\])$/) {	# hash（1階層のみ対応）
+	} elsif ($name =~ /^(.+)\[([^\]]+)\]$/) {	# hash（1階層のみ対応）
 		my $h = $form->{"$1_hash"} ||= {};
-		$h->{$2} = $val;
+		$h->{$2} = $self->form_type_check($1, $val, $options);
 
 	} else {
-		$form->{$name} = $val;
+		$form->{$name} = $self->form_type_check($name, $val, $options);
 	}
+}
+
+sub form_type_check {
+	my ($self, $name, $val, $options) = @_;
+
+	my $type = substr($name,-4);
+
+	if (!ref($val))	     { return $val; }		# ファイルupload
+	if ($type eq '_bin') { return $val; }		# バイナリデータ
+	if ($type eq '_int') { return int($val);    }	# 整数
+	if ($type eq '_num') { return 0+$val;	    }	# 数値
+	if ($type eq '_flg') { return $val ? 1 : 0; }	# フラグ
+
+	# 文字コード変換（文字コードの完全性保証）
+	my $jcode = $self->load_codepm_if_needs( $val );
+	$jcode && $jcode->from_to( \$val, $self->{System_coding}, $self->{System_coding} );
+	my $substr = $jcode ? sub { $jcode->jsubstr(@_) } : sub { substr($_[0],$_[1],$_[2]) };
+	my $length = $jcode ? sub { $jcode->jlength(@_) } : sub { length($_[0]) };
+
+	# TAB LF CR以外の制御コードを除去
+	$val =~ s/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]//g;
+
+	my $bytes = &$length($val);
+	if ($type eq '_txt') {	# テキストエリア系なら改行を統一
+		$val =~ s/\r\n?/\n/g;
+		my $txt_max_chars = $options->{txt_max_chars};
+		if ($txt_max_chars && $bytes >$txt_max_chars) {
+			$self->message("Too long form data '%s', limit %d chars", $name, $txt_max_chars);
+			$val = &$substr($val, 0, $txt_max_chars);
+		}
+		return $val;
+	}
+
+	# その他文字列
+	my $str_max_chars = $options->{str_max_chars};
+	$val =~ s/[\r\n]//g;	# 改行を除去
+	if ($str_max_chars && $bytes >$str_max_chars) {
+		$self->message("Too long form data '%s', limit %d chars", $name, $str_max_chars);
+		$val = &$substr($val, 0, $str_max_chars);
+	}
+	return $val;
 }
 
 ###############################################################################

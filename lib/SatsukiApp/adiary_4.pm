@@ -858,12 +858,12 @@ sub plugin_upload_images {
 	my $dir = $self->plugin_image_dir();
 	foreach(@$ary) {
 		if (!ref($form->{$_})) { next; }
-		if (! $form->{$_}->{file_size}) { next; }	# サイズ0は無視
+		if (! $form->{$_}->{size}) { next; }		# サイズ0は無視
 		my $r = $self->upload_image_for_plugin($name, $_, $form->{$_});
 		if ($r) { next; }
 
 		# アップロード成功
-		my $file = $ret->{$_} = $form->{$_}->{file_name};
+		my $file = $ret->{$_} = $form->{$_}->{name};
 
 		# サイズ取得
 		my $img = $self->load_image_magick();
@@ -890,11 +890,11 @@ sub upload_image_for_plugin {
 		$ROBJ->form_error('file', "File data error.");
 		return -1;
 	}
-	if ($file->{file_name} =~ /(\.\w+)$/) {
+	if ($file->{name} =~ /(\.\w+)$/) {
 		$fname .= $1;
 	}
 	if (!$self->is_image($fname)) {
-		$ROBJ->form_error('file', "File is not image : %s", $file->{file_name});
+		$ROBJ->form_error('file', "File is not image : %s", $file->{name});
 		return -1;
 	}
 
@@ -903,7 +903,7 @@ sub upload_image_for_plugin {
 	$self->init_image_dir();
 	$ROBJ->mkdir( $dir );
 
-	$file->{file_name} = $pname . '-' . $fname;
+	$file->{name}      = $pname . '-' . $fname;
 	$file->{overwrite} = 1;
 	return $self->do_upload( $dir, $file );
 }
