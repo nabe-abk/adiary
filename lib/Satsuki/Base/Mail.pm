@@ -1,10 +1,10 @@
 use strict;
 #------------------------------------------------------------------------------
 # メール送受信モジュール
-#						(C)2006-2019 nabe / nabe@abk
+#						(C)2006-2020 nabe / nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Mail;
-our $VERSION = '1.20';
+our $VERSION = '1.21';
 #------------------------------------------------------------------------------
 use Socket;
 #------------------------------------------------------------------------------
@@ -29,7 +29,10 @@ sub new {
 
 	$Auth{PLAIN} = \&auth_plain;
 	$Auth{LOGIN} = \&auth_login;
-	$Auth{'CRAM-MD5'} = \&auth_cram_md5;
+	eval {
+		require Digest::HMAC_MD5;
+		$Auth{'CRAM-MD5'} = \&auth_cram_md5;
+	};
 	return $self;
 }
 
@@ -303,7 +306,6 @@ sub auth_cram_md5 {
 	my $pass = shift;
 	my $str  = $self->base64decode(shift);
 
-	require Digest::HMAC_MD5;
 	my $md5 = Digest::HMAC_MD5::hmac_md5_hex($str,$pass);
 
 	$self->send_data_check($sock, $self->base64encode("$user $md5"), 235);
