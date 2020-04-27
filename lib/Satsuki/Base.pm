@@ -1590,7 +1590,7 @@ sub change_hour {
 #
 sub tm_printf {
 	my $self = shift;
-	my $str  = ($_[0] =~ /^\d+$/) ? '%Y-%m-%d %H:%M:%S' : shift;
+	my $str  = ($_[0] =~ /^\d*$/) ? '%Y-%m-%d %H:%M:%S' : shift;
 	my ($tm, $ch_flag) = $self->change_hour(@_);
 
 	# This macro like 'strftime(3)' function.
