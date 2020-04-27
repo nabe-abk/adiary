@@ -1654,10 +1654,16 @@ sub get_element_type {
 		$_[0] = $1; return 'const';
 	}
 	if ($p =~ /^(begin.*)/) {		# array
-		# ローカル変数環境を退避する
-		my %h = %{ $lv_stack->[ $#$lv_stack ] };
-		push(@$lv_stack, \%h);
-		$_[0] = "\x01[$1]"; return 'array';
+		$_[0] = "\x01[$1]";
+		if ($p =~ /^begin_/) {
+			# 最後をコピー
+			push(@$lv_stack, $lv_stack->[$#$lv_stack]);
+		} else {
+			# ローカル変数環境を退避する
+			my %h = %{ $lv_stack->[ $#$lv_stack ] };
+			push(@$lv_stack, \%h);
+		}
+		return 'array';
 	}
 	if ($p =~ /^end(.*)/ || $p =~ /^else(.*)/) {
 		# ローカル変数環境を元に戻す
