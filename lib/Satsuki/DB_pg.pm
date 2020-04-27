@@ -8,7 +8,7 @@ use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
 use Encode ();
-our $VERSION = '1.13';
+our $VERSION = '1.14';
 #-------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0, pg_enable_utf8 => 0);
@@ -270,18 +270,19 @@ sub generate_select_where {
 		$_ =~ s/\W//g;
 		$where .= " AND $_ IS NOT NULL";
 	}
-	if ($h->{search_cols}) {
+	if ($h->{search_cols} || $h->{search_match}) {
 		my $words = $h->{search_words};
-		my $ilike = ($self->{alt_ilike} ? $self->{alt_ilike} : 'ILIKE');
 		foreach my $word (@$words) {
 			my $w = $word;
-			if (! $self->{alt_ilike}) {
-				$w =~ s/([\\%_])/\\$1/g;
-				$w = "%$w%";
-			}
+			$w =~ s/([\\%_])/\\$1/g;
 			my @x;
-			foreach (@{ $h->{search_cols} }) {
-				push(@x, "$_ $ilike ?");
+			foreach (@{ $h->{search_match} || [] }) {
+				push(@x, "$_ ILIKE ?");
+				push(@ary, $w);
+			}
+			$w = "%$w%";
+			foreach (@{ $h->{search_cols}  || [] }) {
+				push(@x, "$_ ILIKE ?");
 				push(@ary, $w);
 			}
 			$where .= " AND (" . join(' OR ', @x) . ")";
@@ -355,8 +356,6 @@ sub utf8_on {
 		Encode::_utf8_on($_);
 	}
 }
-
-
 
 ###############################################################################
 # ●タイマーの仕込み

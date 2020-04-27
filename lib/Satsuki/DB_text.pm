@@ -285,9 +285,10 @@ FUNCTION_TEXT
 	#---------------------------------------------
 	# 文字検索
 	#---------------------------------------------
-	if ($h->{search_cols}) {
+	if ($h->{search_cols} || $h->{search_match}) {
 		my $words = $h->{search_words};
-		my $cols  = $h->{search_cols};
+		my $cols  = $h->{search_cols}  || [];
+		my $match = $h->{search_match} || [];
 		my $do_load;
 		if ($sort_state==7) {	# indexのソートかつlimitあり
 			$db = [sort $sort_func @$db];
@@ -320,6 +321,11 @@ FUNCTION_TEXT
 			foreach my $w (@words_reg) {
 				foreach (@$cols) {
 					if ($h->{$_} !~ /$w/) { next; }
+					$cnt++;
+					last;
+				}
+				foreach (@$match) {
+					if ($h->{$_} !~ /^$w$/) { next; }
 					$cnt++;
 					last;
 				}
