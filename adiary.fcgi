@@ -66,8 +66,9 @@ while($request->Accept() >= 0) {
 		# FastCGI環境初期化
 		#--------------------------------------------------
 		my $ROBJ = Satsuki::Base->new();	# ルートオブジェクト生成
-		$ROBJ->{Timer} = $timer;
-		$ROBJ->{AutoReload} = $flag;
+		$ROBJ->{Timer}        = $timer;
+		$ROBJ->{AutoReload}   = $flag;
+		$ROBJ->{FCGI_request} = $request;
 
 		$ROBJ->init_for_fastcgi($request);
 
