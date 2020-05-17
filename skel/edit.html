@@ -197,7 +197,8 @@
 	<span class="element" id="select-parser-span">
 <@>		<span class="edit-caption">入力記法</span>
 		<select name="parser" id="select-parser">
-		<@forexec_hash(ROBJ, v.parsers, begin)><option value="<@key>"<@if(art.parser eq key, ' selected')>><@val></option>
+		<@forexec_hash(t, v.parsers, begin)>
+		<option value="<@t.key>"<@if(art.parser eq t.key, ' selected')>><@t.val></option>
 		<$end>
 	</select></span>
 
@@ -262,7 +263,7 @@
 			<li>AGENT <@art.agent></li>
 		</ul></li>
 	</ul>
-<form method="POST" action="<@v.myself2>" class="delete js-check" data-confirm="本当にこの記事を削除しますか？" data-focus="cancel">
+<form method="POST" action="<@v.myself2>" class="delete js-form-check" data-confirm="本当にこの記事を削除しますか？" data-focus="cancel">
 	<input type="hidden" name="action" value="delete">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<input type="hidden" name="delete_pkey_ary" value="<@edit_pkey>">

@@ -117,7 +117,7 @@
 	<div class="commentbody" id="c<@t.pkey>n-block">
 	<div class="commentview">
 	<@ifexec(coms && v.allow_edit, begin)>
-	<form method="POST" action="<@permalink>" class="js-check" data-target="#com .pkey-ary">
+	<form method="POST" action="<@permalink>" class="js-form-check" data-target="#com .pkey-ary">
 	<input type="hidden" name="action" value="comments_edit">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<div class="swiches">
@@ -151,10 +151,10 @@
 	<@ifexec(coms && v.allow_edit, begin)>
 	<div class="com-buttons">
 	<@ifexec(t.enable, begin)>
-	<button type="submit" name="enable"  class="js-check btn-help" data-confirm="" data-help="非公開コメントを表示することはできません">表示に設定</button>
-	<button type="submit" name="disable" class="js-check" data-confirm="">非表示に設定</button>
+	<button type="submit" name="enable"  class="js-form-check btn-help" data-confirm="" data-help="非公開コメントを表示することはできません">表示に設定</button>
+	<button type="submit" name="disable" class="js-form-check" data-confirm="">非表示に設定</button>
 	<$end>
-	<button type="submit" name="delete"  class="js-check" id="del-submit" data-confirm="%c件のコメントを削除しますか？" data-focus="cancel">削除</button>
+	<button type="submit" name="delete"  class="js-form-check" id="del-submit" data-confirm="%c件のコメントを削除しますか？" data-focus="cancel">削除</button>
 	</div>
 	</form>
 	<$end>

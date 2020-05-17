@@ -107,7 +107,7 @@
 <$ifset(ret.sort eq 'update_tm', date, '更新日時')>
 
 <@ifexec(v.allow_edit, begin)>
-	<form action="<@url>page=<@page>" method="POST" class="js-check" data-target="#artlist-table .pkey-ary">
+	<form action="<@url>page=<@page>" method="POST" class="js-form-check" data-target="#artlist-table .pkey-ary">
 	<input type="hidden" name="action" value="articles_edit">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 <$end>
@@ -168,11 +168,11 @@
 		<button type="submit" name="mode" value="tagset">タグの一括設定</button>
 	</div>
 	<div>
-	<button type="submit" name="mode" value="enable"  class="js-check" data-confirm="">表示に設定</button> <@\>
+	<button type="submit" name="mode" value="enable"  class="js-form-check" data-confirm="">表示に設定</button> <@\>
 	<@if(s.edit_by_author_only && !v.blog_admin, '<span class="help" data-help="他人の記事の状態は変更できません。">?</span>')>
-	<button type="submit" name="mode" value="disable" class="js-check" data-confirm="">非表示に設定</button>
+	<button type="submit" name="mode" value="disable" class="js-form-check" data-confirm="">非表示に設定</button>
 	<button type="button" data-target="#tag-form" class="js-switch">タグ設定</button>
-	<button type="submit" name="mode" value="delete"  class="js-check" id="del-submit" data-confirm="%c件の記事を削除しますか？" data-focus="cancel">削除</button>
+	<button type="submit" name="mode" value="delete"  class="js-form-check" id="del-submit" data-confirm="%c件の記事を削除しますか？" data-focus="cancel">削除</button>
 	</div>
 	</form>
 <$end>

@@ -40,7 +40,7 @@ $$.init( function(){
 	this.$body.on('mouseover', help, {
 		func: function($obj, $div){
 			var text = self.tag_esc_br( $obj.data("help") );
-			$div.attr('id', 'popup-help');
+			$div.addClass('popup popup-help');
 			$div.html( text );
 		}
 	}, func);
@@ -83,42 +83,21 @@ $$.init( function(){
 });
 
 //////////////////////////////////////////////////////////////////////////////
+//●ボタンでリンク
+//////////////////////////////////////////////////////////////////////////////
+$$.init(function(){
+	this.$body.on('click', 'button[data-href]', function(evt){
+		location.href = $(evt.target).data('href');
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
 //●input[type="text"]などで enter による submit 停止
 //////////////////////////////////////////////////////////////////////////////
 $$.init( function(){
 	this.$body.on('keypress', 'input.no-enter-submit, form.no-enter-submit input', function(evt){
 		if (evt.which === 13) return false;
 		return true;
-	});
-});
-
-//////////////////////////////////////////////////////////////////////////////
-//●textareaでのタブ入力
-//////////////////////////////////////////////////////////////////////////////
-$$.init( function(){
-	const self=this;
-
-	this.$body.on('focus', 'textarea', function(evt){
-		var $obj = $(evt.target);
-		$obj.data('_tab_stop', true);
-	});
-
-	this.$body.on('keydown', 'textarea', function(evt){
-		var $obj = $(evt.target);
-		if ($obj.prop('readonly') || $obj.prop('disabled')) return;
-
-		// ESC key
-		if (evt.keyCode == 27) return $obj.data('_tab_stop', true);
-
-		// フォーカス直後のTABは遷移させる
-		if ($obj.data('_tab_stop')) {
-			$obj.data('_tab_stop', false);
-			return;
-		}
-		if (evt.shiftKey || evt.keyCode != 9) return;
-
-		evt.preventDefault();
-		self.insert_to_textarea(evt.target, "\t");
 	});
 });
 
@@ -131,6 +110,14 @@ $$.init( function(){
 		const $tar = $obj.rootfind( $obj.data('target') );
 		if (! $tar.length ) return;
 
+		if ($tar.data('target') && !$tar.data('-regist-change-evt')) {
+			$tar.data('-regist-change-evt', true);
+			$tar.on('change', function(evt){
+				const $span = $tar.rootfind( $tar.data('target') );
+				const file  = $tar.val().replace(/^.*?([^\\\/]*)$/, "$1");
+				$span.text( file );
+			})
+		}
 		$tar.click();
 	});
 });
@@ -140,8 +127,8 @@ $$.init( function(){
 //////////////////////////////////////////////////////////////////////////////
 $$.init( function(){
 	this.$body.on('click', 'input.js-checked', function(evt){
-		var $obj = $(evt.target);
-		var target = $obj.data( 'target' );
+		const $obj = $(evt.target);
+		const target = $obj.data( 'target' );
 		$obj.rootfind(target).prop("checked", $obj.is(":checked"));
 	});
 });
@@ -151,7 +138,7 @@ $$.init( function(){
 //////////////////////////////////////////////////////////////////////////////
 $$.init( function(){
 	this.$body.on('change', '.js-on-change-submit', function(evt){
-		var $obj = $(evt.target);
+		const $obj = $(evt.target);
 		$obj.parentsOne('form').submit();
 	});
 });
@@ -214,33 +201,3 @@ $$.val_for_select = function($sel, val) {
 	$sel.val( val );
 	$sel.change();
 }
-
-//////////////////////////////////////////////////////////////////////////////
-//【スマホ】ドロップダウンメニューでの hover の代わり
-//////////////////////////////////////////////////////////////////////////////
-$$.init( function(){
-	function open_link(evt) {
-		location.href = $(evt.target).attr('href');
-	}
-
-	this.$body.on('click', '.js-alt-hover li > a', function(evt) {
-		const $obj = $(evt.target).parent();
-		if (!$obj.children('ul').length) return true;
-
-		if ($obj.hasClass('open')) {
-			$obj.removeClass('open');
-			$obj.find('.open').removeClass('open')
-		} else {
-			$obj.addClass('open');
-		}
-		// リンクをキャンセル。"return false" ではダブルクリックイベントが発生しない
-		evt.preventDefault();
-
-		// dbltapイベントを登録
-		if ($obj.data('_reg_dbltap')) return;
-		$obj.data('_reg_dbltap', true);
-		$obj.on('dblclick', open_link);
-		$obj.on('mydbltap', open_link);
-	});
-});
-

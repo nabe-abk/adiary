@@ -1,64 +1,34 @@
-//############################################################################
-// ■Ajaxライブラリ
-//############################################################################
 //////////////////////////////////////////////////////////////////////////////
-//●ajax通信
+//●特殊Queryの処理
 //////////////////////////////////////////////////////////////////////////////
-$$.send_ajax = function(opt) {
-	const self=this;
+$$.init(function(){
+ 	if (!this.SpecialQuery) return;
+ 	const myself   = this.myself;
+ 	const sp_query = this.SpecialQuery;
+ 
+ 	$('a').each( function(idx,dom) {
+		var obj = $(dom);
+		var url = obj.attr('href');
+		if (! url) return;
+		if (url.indexOf(myself)!=0) return;
+		if (url.match(/\?[\w\/]+$/)) return;		// 管理画面では解除する
+		if (url.match(/\?(.+&)?_\w+=/)) return;		// すでに特殊Queryがある
 
-	function error_default(h) {
-		if (opt.error) opt.error(h);
-
-		let msg = '';
-		if (h) {
-			if (h.ret && h._develop) msg += 'ret = ' + h.ret;
-			if (h.msg)    msg += '<p>' + self.tag_esc(h.msg)    + '</p>';
-			if (h.errs) {
-				const ary = [];
-				const e = h.errs;
-				const o = e._order || Object.keys(e);
-				for(let i in o)
-					ary.push(e[o[i]]);
-				msg += '<p class="ni">' + ary.join("<br>") + '</p>';
-			}
-			if (h._debug) msg += '<p class="ni">' + h._debug.replace("\n", '<br>') + '</p>';
-		} else {
-			msg = '<p>response data error!</p>';
-		}
-		self.show_error(msg, opt.error_callback);
-	}
-	const data = opt.data;
-	return $.ajax(opt.url || self.myself || './', {
-		method:		'POST',
-		data:		data.toString() == '[object Object]' ? $.param(data) : data,
-		processData:	false,
-		contentType:	false,
-		dataType:	'json',
-		error:		function(e) { error_default(undefined,e); },
-		success:	function(h) {
-			if (h.ret != 0  || h._debug) return error_default(h);
-			if (opt.success) opt.success(h);
-		},
-		complete:	opt.complite,
+		var ma =  url.match(/^(.*?)(\?.*?)?(#.*)?$/);
+		if (!ma) return;
+		url = ma[1] + (ma[2] ? ma[2] : '?') + sp_query + (ma[3] ? ma[3] : '');
+		obj.attr('href', url);
 	});
-};
+});
 
 //////////////////////////////////////////////////////////////////////////////
-//●promise of ajax
+// ●さつきタグ記号のエスケープ
 //////////////////////////////////////////////////////////////////////////////
-$$.send_ajax_promise = function(opt) {
-	const self=this;
-
-	return new Promise( (resolve, reject) => {
-		opt.error_callback = function(){
-			reject();
-		};
-		opt.success = function(h) {
-			resolve(h);
-		};
-		self.send_ajax(opt);
-	});
+$$.esc_satsuki_tag = function(str) {
+	return str.replace(/([:\[\]])/g, function(w,m){ return "\\" + m; });
+}
+$$.unesc_satsuki_tag = function(str) {
+	return str.replace(/\\([:\[\]])/g, "$1");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -153,4 +123,3 @@ $$.session = function(btn, opt){
 	}
   });
 };
-

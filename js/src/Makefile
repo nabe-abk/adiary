@@ -1,5 +1,5 @@
 #
-# Makefile for adiary.min.js
+# Makefile
 #
 
 COMPRESSOR = uglifyjs
@@ -9,34 +9,37 @@ OUTPUT	   = ../adiary.min.js
 MAP_FILE   = ../adiary.min.map
 HTML       = ../adiary-js-load.html
 
-FILES = 00_comment.js		\
+FILES = 00u_comment.js		\
 	jquery-3.4.1.js		\
-	01_global.js		\
-	10_jquery-ext.js	\
-	20_init.js		\
-	30_css.js		\
+	01u_startup.js		\
+	10_global-ext.js	\
+	11_jquery-ext.js	\
+	20_PrefixStorage.js	\
+	21_adiary-ui.js		\
+	30_init.js		\
 	40_dom.js		\
 	45_dom-special.js	\
-	50_skeleton.js		\
-	60_design-module.js	\
-	80_subroutines.js	\
-	81_dialog.js		\
-	82_ajax.js		\
-	83_popup.js		\
-	90_PrefixStorage.js	\
-	92_adiary-ui.js		\
+	50_subroutines.js	\
+	60_dialog.js		\
+	61_ajax.js		\
+	62_popup.js		\
+	70u_css.js		\
+	71u_dom.js		\
+	72u_skeleton.js		\
+	73u_design-module.js	\
+	80u_other.js		\
 	99_run_init.js		\
 	lightbox.js
 
-all:  $(OUTPUT)
+all:  $(OUTPUT) $(HTML)
 html: $(HTML)
 
 $(OUTPUT): $(FILES) Makefile
 	$(COMPRESSOR) $(OPTIONS) $(FILES) -o $(OUTPUT)
 	mv $(OUTPUT).map $(MAP_FILE)
 
-$(HTML): $(FILES) Makefile
+$(HTML): Makefile
 	echo -n>$(HTML); \
 	for file in $(FILES); do \
-		echo "<script defer src=\"<@argv#0 || v.script_dir>src/$$file?<@get_lastmodified(v.script_dir . 'src/$$file')>\"></script>" >>$(HTML); \
+		echo "<script defer src=\"<@Basepath><@v.script_dir>src/$$file?<@get_lastmodified(v.script_dir . 'src/$$file')>\"></script>" >>$(HTML); \
 	done

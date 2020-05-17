@@ -14,7 +14,87 @@ $$.dom_init  = function(arg) {
 $$.init($$.dom_init);
 
 //////////////////////////////////////////////////////////////////////////////
-//●フォーム値の保存	※表示、非表示よりも前に処理すること
+// ajax form
+//////////////////////////////////////////////////////////////////////////////
+$$.dom_init( function($R) {
+	const self=this;
+	const func = function($obj){
+		const checker = $obj.data('checker');
+		if (typeof(checker) === 'function') {
+			if (! checker($obj)) return;
+		}
+		$obj.find('.error').removeClass('error');
+
+		const gen  = $obj.data('generator');
+		const data = (typeof(gen) === 'function') ? gen($obj) : (function(){
+			// file upload?
+			const $infile = $obj.find('input[type="file"]');
+			if (!$infile.length) return $obj.serialize();
+
+			$obj.attr('method',  'POST');
+			$obj.attr('enctype', 'multipart/form-data');
+			return new FormData($obj[0]);
+		})();
+
+		if ($obj.data('js-ajax-stop')) return;
+		if ($('.aui-overlay').length)  return;	// dialog viewing
+		$obj.data('js-ajax-stop', true);
+
+		self.send_ajax({
+			data:	data,
+			success: function(h) {
+				const success = $obj.data('success');
+				if (typeof(success) === 'function') return success(h);
+
+				const url = $obj.data('url');
+				if (url) window.location = url;
+			},
+			error: function(h) {
+				const error = $obj.data('error');
+				if (typeof(error) === 'function') return error(h);
+
+				if (!h || !h.errs) return;
+				const e = h.errs;
+				for(let k in e) {
+					if (k == '_order') continue;
+
+					// with number?
+					const ma  = k.match(/^(.*)#(\d+)$/);
+					const num = ma ? ma[2] : undefined;
+					k = ma ? ma[1] : k;
+					try {
+						let $x = $obj.find('[name="' + k+ '"], [data-name="' + k + '"]');
+						if (num) $x = $($x[num-1]);
+						$x.addClass('error');
+					} catch(e) {
+						console.error(e);
+					}
+				}
+			},
+			error_callback: function(){
+				const reject = $obj.data('reject');
+				if (typeof(reject) === 'function') return reject();
+			},
+			complite: function(h) {
+				$obj.data('js-ajax-stop', false);
+			}
+		});
+		return false;
+	};
+
+	$R.find('form.js-ajax').on('submit', function(evt) {
+		const $obj = $(evt.target);
+		if ($obj.hasClass('js-form-check')) {
+			$obj.data('submit-func', func);
+			return false;
+		}
+		func($obj);
+		return false;
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
+// フォーム値の保存	※表示、非表示よりも前に処理すること
 //////////////////////////////////////////////////////////////////////////////
 $$.dom_init( function($R) {
 	const self = this;
@@ -62,7 +142,7 @@ $$.dom_init( function($R) {
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●フォーム操作による、enable/disableの自動変更 (js-saveより後)
+// フォーム操作による、enable/disableの自動変更 (js-saveより後)
 //////////////////////////////////////////////////////////////////////////////
 $$.dom_init( function($R){
 	const $objs = $R.findx('input.js-enable, input.js-disable, select.js-enable, select.js-disable');
@@ -76,7 +156,7 @@ $$.dom_init( function($R){
 
 		// radio button with data-state="0" or "1"
 		if (type == 'radio') {
-			if (! $btn.prop("checked")) return;
+			if ($btn.prop("disabled") || !$btn.prop("checked")) return;
 			let flag = $btn.data("state");
 			if ($btn.hasClass('js-enable')) flag=!flag;
 			$tar.prop('disabled', flag);
@@ -85,14 +165,17 @@ $$.dom_init( function($R){
 
 		let flag;
 		if (type == 'checkbox') {
-			flag = $btn.prop("checked");
+			flag = !$btn.prop("disabled") && $btn.prop("checked");
 		} else if (type == 'number' || $btn.data('type') == 'int') {
 			var val = $btn.val();
 			flag = val.length && val > 0;
 		} else {
 			flag = ! ($btn.val() + '').match(/^\s*$/);
 		}
-		if ($btn.prop("disabled")) flag=false;
+
+		// 変化してるか確認
+		if (!init && $btn.data('_flag') === flag) return;
+		$btn.data('_flag', flag);
 
 		// disabled設定判別
 		const counter = $btn.hasClass('js-disable') ? '_disable_c' :  '_enable_c';
@@ -112,11 +195,12 @@ $$.dom_init( function($R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●フォーム操作、クリック操作による表示・非表示の変更
+// フォーム操作、クリック操作による表示・非表示の変更
 //////////////////////////////////////////////////////////////////////////////
 // 一般要素 + input type="checkbox", type="button"
 // (例)
 // <input type="button" value="ボタン" class="js-switch"  data-target="xxx"
+//  data-delay="300"
 //  data-hide-val="表示する" data-show-val="非表示にする" data-default="show/hide">
 //
 $$.toggle = function() {
@@ -132,6 +216,13 @@ $$.toggle_init = function() {
 $$._toggle = function(init, $obj) {
 	if ($obj[0].tagName == 'A')
 		return true;	// リンククリックそのまま（falseにするとリンクが飛べない）
+
+	// append switch icon
+	if (init && $obj[0].tagName != 'INPUT' && $obj[0].tagName != 'BUTTON') {
+		const span = $('<span>');
+		span.addClass('ui-icon switch-icon');
+		$obj.prepend(span).addClass('sw-show');
+	}
 
 	const type = $obj[0].tagName == 'INPUT' && $obj[0].type;
 	let     id = $obj.data('target');
@@ -181,16 +272,8 @@ $$._toggle = function(init, $obj) {
 		if (storage) storage.set(id, '0');
 	}
 	if (type == 'button') {
-		var val = flag ? $obj.data('show-val') : $obj.data('hide-val');
+		const val = flag ? $obj.data('show-val') : $obj.data('hide-val');
 		if (val != undefined) $obj.val( val );
-	}
-
-	if (init) {
-		var dom = $obj[0];
-		if (dom.tagName == 'INPUT' || dom.tagName == 'BUTTON') return true;
-		var span = $('<span>');
-		span.addClass('ui-icon switch-icon');
-		$obj.prepend(span);
 	}
 	return true;
 }
@@ -219,80 +302,22 @@ $$.dom_init( function($R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●色選択ボックスを表示。 ※input[type=text] のリサイズより先に行うこと
-//////////////////////////////////////////////////////////////////////////////
-$$._load_picker = false;
-$$.dom_init( function($R){
-	const $cp = $R.findx('input.color-picker');
-	if (!$cp.length) return;
-
-	$cp.each(function(i,dom){
-		const $obj = $(dom);
-		const $box = $('<span>').addClass('colorbox');
-		$obj.before($box);
-		const color = $obj.val();
-		if (color.match(/^#[\dA-Fa-f]{6}$/))
-			$box.css('background-color', color);
-	});
-
-	// color pickerのロード
-	var dir = this.ScriptDir + 'colorpicker/';
-	this.prepend_css(dir + 'css/colorpicker.css');
-	this.load_script(dir + "colorpicker.js", function(){
-
-		$cp.each(function(idx,dom){
-			var $obj = $(dom);
-			$obj.ColorPicker({
-				onSubmit: function(hsb, hex, rgb, _el) {
-					var $el = $(_el);
-					$el.val('#' + hex);
-					$el.ColorPickerHide();
-					var $prev = $el.prev();
-					if (! $prev.hasClass('colorbox')) return;
-					$prev.css('background-color', '#' + hex);
-					$obj.change();
-				},
-				onChange: function(hsb, hex, rgb) {
-					var $prev = $obj.prev();
-					if (! $prev.hasClass('colorbox')) return;
-					$prev.css('background-color', '#' + hex);
-					var func = $obj.data('onChange');
-					if (func) func(hsb, hex, rgb);
-				}
-			});
-			$obj.ColorPickerSetColor( $obj.val() );
-		});
-		$cp.on('keyup', function(evt){
-			$(evt.target).ColorPickerSetColor(evt.target.value);
-		});
-		$cp.on('keydown', function(evt){
-			if (evt.keyCode != 27) return;
-			$(evt.target).ColorPickerHide();
-		});
-
-		// if loaded jQuery UI, color picker draggable
-		$R.rootfind('.colorpicker').adiaryDraggable({
-			cancel: ".colorpicker_color, .colorpicker_hue, .colorpicker_submit, input, span"
-		})
-	});
-});
-//////////////////////////////////////////////////////////////////////////////
-//●フォームsubmitチェック
+// フォームsubmitチェック
 //////////////////////////////////////////////////////////////////////////////
 $$.dom_init( function($R){
 	let confirmed;
 	const self=this;
 
-	$R.findx('button.js-check').on('click', function(evt){
+	$R.findx('button.js-form-check').on('click', function(evt){
 		const $obj  = $(evt.target);
-		const $form = $obj.parents('form.js-check');
+		const $form = $obj.parents('form.js-form-check');
 		if (!$form.length) return;
 		$form.data('confirm', $obj.data('confirm') );
 		$form.data('focus',   $obj.data('focus')   );
 		$form.data('button',  $obj);
 	});
 
-	$R.findx('form.js-check').on('submit', function(evt){
+	$R.findx('form.js-form-check').on('submit', function(evt){
 		const $form  = $(evt.target);
 		const target = $form.data('target');
 		let count=0;
@@ -329,18 +354,11 @@ $$.dom_init( function($R){
 });
 
 //////////////////////////////////////////////////////////////////////////////
-//●accordion機能
+// accordion機能
 //////////////////////////////////////////////////////////////////////////////
 $$.dom_init( function($R){
 	const $accordion = $R.findx('.js-accordion');
 	if (!$accordion.length) return;
 	$accordion.adiaryAccordion();
-});
-
-//////////////////////////////////////////////////////////////////////////////
-//●【スマホ】DnDエミュレーション登録
-//////////////////////////////////////////////////////////////////////////////
-$$.dom_init( function($R){
-	$R.findx('.treebox').dndEmulation();
 });
 

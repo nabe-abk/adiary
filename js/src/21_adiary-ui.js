@@ -45,11 +45,24 @@ adiaryDialog: function(opt) {
 		$close.append( $('<span>').addClass('ui-icon ui-icon-closethick') );
 		$title.append( $close );
 		$dialog.append( $title );
-		
+
 		$close.on('click', function(){
+			if (opt.exit) opt.exit();
 			self.adiaryDialogClose();
-		})
+		});
 		data.$header = $title;
+	}
+
+	//////////////////////////////////////////////////////////////////////
+	// ESC
+	//////////////////////////////////////////////////////////////////////
+	if (!('closeOnEscape ' in opt) || opt.closeOnEscape) {
+		$dialog.on('keydown', function(evt){
+			if (evt.which != 27) return;	// ESC
+
+			if (opt.exit) opt.exit();
+			self.adiaryDialogClose();
+		});
 	}
 
 	//////////////////////////////////////////////////////////////////////
@@ -67,7 +80,6 @@ adiaryDialog: function(opt) {
 		const $footer = $('<div>').addClass('ui-dialog-buttonpane');
 		const $btnset = $('<div>').addClass('ui-dialog-buttonset');
 		const btns = opt.buttons;
-		
 		for(let i in btns) {
 			let $btn = $('<button>')
 					.addClass('ui-button')
@@ -75,6 +87,7 @@ adiaryDialog: function(opt) {
 					.text( i );
 			$btn.on('click', btns[i]);
 			$btnset.append($btn);
+			if (!data.$focus) data.$focus = $btn;
 		}
 		$footer.append( $btnset );
 		$dialog.append( $footer );
@@ -112,6 +125,7 @@ adiaryDialogOpen: function() {
 	$dialog.adiaryDraggable({
 		handle: '.ui-dialog-titlebar'
 	});
+	if (data.$focus) data.$focus.focus();
 	return this;
 },
 adiaryDialogClose: function() {

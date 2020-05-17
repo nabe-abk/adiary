@@ -2,7 +2,7 @@
 // ■サブルーチン
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
-// CSSファイルの追加
+// CSS append
 //////////////////////////////////////////////////////////////////////////////
 $$.prepend_css = function(file) {
 	const $link = $("<link>")
@@ -15,7 +15,7 @@ $$.prepend_css = function(file) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// スタイルの追加
+// add style
 //////////////////////////////////////////////////////////////////////////////
 $$.append_style = function(css) {
 	const $style = $('<style>').attr('type','text/css').html(css || '');
@@ -55,7 +55,7 @@ $$.load_script = function(url, func) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// タグ除去
+// escape html tag
 //////////////////////////////////////////////////////////////////////////////
 $$.tag_esc = function(text) {
 	return text
@@ -83,17 +83,17 @@ $$.tag_decode_amp = function(text) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// テキストエリアに文字挿入
+// insert to textarea
 //////////////////////////////////////////////////////////////////////////////
 $$.insert_to_textarea = function(ta, text) {
-	var start = ta.selectionStart;	// カーソル位置
+	var start = ta.selectionStart;	// current cursol
 	ta.value  = ta.value.substring(0, start) + text + ta.value.substring(start);
 	start += text.length;
 	ta.setSelectionRange(start, start);
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// フォーム解析
+// parse form
 //////////////////////////////////////////////////////////////////////////////
 $$.parse_form = function($par) {
 	const data = {};
@@ -109,11 +109,25 @@ $$.parse_form = function($par) {
 	return data;
 };
 
-//############################################################################
-// ■その他jsファイル用サブルーチン
-//############################################################################
 //////////////////////////////////////////////////////////////////////////////
-// ●ファイルサイズ等の書式を整える
+// Cookie
+//////////////////////////////////////////////////////////////////////////////
+$$.set_cookie = function(name, val) {
+	document.cookie = encodeURIComponent(name) + '=' + encodeURIComponent(val) + '; SameSite=Lax;';
+}
+$$.get_cookie = function(name) {
+	var ary = document.cookie.split(/; */);
+	for (var i=0; i<ary.length; i++) {
+		var x = ary[i].split('=', 2);
+		var k = decodeURIComponent( x[0] );
+		if (name != k) continue;
+		return decodeURIComponent( x[1] );
+	}
+	return;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// file size format
 //////////////////////////////////////////////////////////////////////////////
 $$.size_format = function(s) {
 	function sprintf_3f(n){
@@ -131,14 +145,4 @@ $$.size_format = function(s) {
 	if (s > 1023487) return sprintf_3f( s/1048576 ) + ' MB';
 	if (s >     999) return sprintf_3f( s/1024    ) + ' KB';
 	return s + ' Byte';
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// ●さつきタグ記号のエスケープ
-//////////////////////////////////////////////////////////////////////////////
-$$.esc_satsuki_tag = function(str) {
-	return str.replace(/([:\[\]])/g, function(w,m){ return "\\" + m; });
-}
-$$.unesc_satsuki_tag = function(str) {
-	return str.replace(/\\([:\[\]])/g, "$1");
 }

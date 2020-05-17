@@ -1,17 +1,6 @@
 //############################################################################
-// ■CSSへの機能提供ライブラリ
+// ■CSSへの機能提供
 //############################################################################
-$$.css_funcs = [];
-$$.css_init  = function(func) {
-	if (func)
-		return this.css_funcs.push(func);
-
-	const funcs = this.css_funcs;
-	for(var i=0; i<funcs.length; i++)
-		funcs[i].call(this);
-}
-$$.init($$.css_init);
-
 //////////////////////////////////////////////////////////////////////////////
 // ●CSSから値を取得する
 //////////////////////////////////////////////////////////////////////////////
@@ -34,7 +23,7 @@ $$.get_value_from_css = function(id, attr) {
 //////////////////////////////////////////////////////////////////////////////
 //●sidebarのHTML位置変更
 //////////////////////////////////////////////////////////////////////////////
-$$.css_init(function(){
+$$.init(function(){
 	var flag = this.get_value_from_css('sidebar-move-to-before-main');
 	if (SP || !flag) return;
 
@@ -43,7 +32,7 @@ $$.css_init(function(){
 	sidebar.insertBefore( 'div.main:first-child' );
 });
 
-$$.css_init(function(){
+$$.init(function(){
 	var flag = this.get_value_from_css('side-b-move-to-footer');
 	if (SP || !flag) return;
 
@@ -54,7 +43,7 @@ $$.css_init(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●viewport の上書き
 //////////////////////////////////////////////////////////////////////////////
-$$.css_init(function(){
+$$.init(function(){
 	var val = this.get_value_from_css('viewport-setting');
 	if (!val) return;
 	$('#viewport').attr('content', val);
@@ -63,7 +52,7 @@ $$.css_init(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●ui-iconの生成
 //////////////////////////////////////////////////////////////////////////////
-$$.css_init(function(){
+$$.init(function(){
 	let color_bin;
 	{
 		const css = this.get_value_from_css('ui-icon-autoload', 'background-color');
@@ -126,7 +115,7 @@ $$.css_init(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●syntax highlight機能の自動ロード
 //////////////////////////////////////////////////////////////////////////////
-$$.css_init(function(){
+$$.init(function(){
 	const $codes = $('pre.syntax-highlight');
 	if (!$codes.length) return;
 	if (window.alt_SyntaxHighlight) return window.alt_SyntaxHighlight();

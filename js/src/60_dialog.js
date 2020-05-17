@@ -7,28 +7,32 @@
 $$.show_error = function(h, _arg) {
 	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
 	h.class = (h.class ? h.class : '') + ' error-dialog';
-	h.default_title = 'ERROR';
+	h.default_title = this.msg('error');
 	return this.show_dialog(h, _arg);
 }
-$$.show_dialog = function(h, _arg) {
+$$.show_dialog = function(h, _arg, callback) {
+	if (!callback && typeof(_arg) === 'function') {
+		callback = _arg; _arg = {};
+	}
 	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
-	var obj  = h.id && h.id.substr(0,1) == '#' && $secure( h.id ) || $('<div>');
-	var html = obj.html() || h.html;
+	const $obj = h.id && h.id.substr(0,1) == '#' && $secure( h.id ) || $('<div>');
+	let html = $obj.html() || h.html;
 	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
 	html = html.replace(/%[A-Za-z]/g, '');
 
-	var div = $('<div>');
-	div.html( html );
-	div.attr('title', h.title || obj.data('title') || h.default_title || 'Dialog');
-	div.adiaryDialog({
+	const $div = $('<div>');
+	$div.html( html );
+	$div.attr('title', h.title || $obj.data('title') || h.default_title || 'Dialog');
+	$div.adiaryDialog({
 		modal: true,
 		dialogClass: h.class,
 		buttons: {
 			OK: function(){
-				div.adiaryDialog('close');
-				if (_arg && _arg.callback) _arg.callback();
+				$div.adiaryDialog('close');
+				if (callback) callback();
 			}
-		}
+		},
+		exit: callback
 	});
 	return false;
 }
@@ -63,6 +67,9 @@ $$.confirm = function(h, callback) {
 		open: function(){
 			// set default false
 			//div.siblings('.ui-dialog-buttonpane').find('button:eq(0)').focus();
+		},
+		exit: function(){
+			callback(false);
 		}
 	});
 }
