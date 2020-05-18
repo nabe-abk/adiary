@@ -15,7 +15,7 @@
 <meta name="author" content="<@v.blogid>">
 <@if(no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
 <@>
-<@forexec(t, v.load_jscss(Basepath, 'csslib'), begin)>
+<@forexec(t, v.load_jscss('csslib'), begin)>
 <link rel="stylesheet" href="<@t>">
 <$end>
 <@>
@@ -34,7 +34,7 @@
 <link rel="stylesheet" href="<@Basepath><@file>?<@get_lastmodified(file)>" id="user-css">
 <$end>
 <@>
-<@forexec(t, v.load_jscss(Basepath, 'css'), begin)>
+<@forexec(t, v.load_jscss('css'), begin)>
 <link rel="stylesheet" href="<@t>">
 <$end>
 <@>
@@ -52,10 +52,10 @@
 <$else>
 <script defer src="<@Basepath><@v.script_dir>adiary.min.js?<@get_lastmodified(v.script_dir . 'adiary.min.js')>"></script>
 <$end>
-<@forexec(t, v.load_jscss(Basepath, 'jslib'), begin)>
+<@forexec(t, v.load_jscss('jslib'), begin)>
 <script defer src="<@t>"></script>
 <$end>
-<@forexec(t, v.load_jscss(Basepath, 'js'), begin)>
+<@forexec(t, v.load_jscss('js'), begin)>
 <script defer src="<@t>"></script>
 <$end>
 <$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">
