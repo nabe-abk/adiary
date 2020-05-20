@@ -6,34 +6,6 @@ use Satsuki::Base ();
 use Satsuki::Base_2 ();
 package Satsuki::Base;
 ###############################################################################
-# ■fork処理
-###############################################################################
-sub fork {
-	my $self = shift;
-	my $fcgi = $self->{FCGI_request};
-	$fcgi && $fcgi->Detach();
-
-	my $fork = fork();
-	if ($fork) {
-		# parent
-		$fcgi && $fcgi->Attach();
-		return $fork;
-	}
-	if (defined $fork) {
-		# child
-		close(STDIN);
-		close(STDOUT);
-		close(STDERR);
-		eval {	# to deamon
-			require	POSIX;
-			POSIX::setsid();
-		};
-		$self->{Shutdown} = 1;
-	}
-	return $fork;
-}
-
-###############################################################################
 # ■SpeedyCGI用のスタートアップ
 ###############################################################################
 sub init_for_speedycgi {
@@ -77,6 +49,34 @@ sub init_for_httpd {
 	my $port = int($ENV{SERVER_PORT});
 	my $protocol = ($port == 443) ? 'https://' : 'http://';
 	$self->{ServerURL} = $protocol . $ENV{SERVER_NAME} . (($port != 80 && $port != 443) ? ":$port" : '');
+}
+
+###############################################################################
+# ■fork処理
+###############################################################################
+sub fork {
+	my $self = shift;
+	my $fcgi; # = $self->{FCGI_request};
+	$fcgi && $fcgi->Detach();
+
+	my $fork = fork();
+	if ($fork) {
+		# parent
+		$fcgi && $fcgi->Attach();
+		return $fork;
+	}
+	if (defined $fork) {
+		# child
+		close(STDIN);
+		close(STDOUT);
+		## close(STDERR);	# Error on FastCGI
+		eval {
+			require	POSIX;
+			POSIX::setsid();
+		};
+		$self->{Shutdown} = 1;
+	}
+	return $fork;
 }
 
 ###############################################################################

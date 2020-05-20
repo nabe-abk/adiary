@@ -5,7 +5,6 @@ use strict;
 package Satsuki::DB_share_2;
 our $VERSION = '1.00';
 
-# use Satsuki::Exporter 'import';
 use Exporter 'import';
 our @EXPORT = qw(begin rollback commit);
 

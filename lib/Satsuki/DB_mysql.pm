@@ -1,19 +1,17 @@
 use strict;
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # データベースプラグイン for mysql
 #						(C)2006-2020 nabe@abk
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 package Satsuki::DB_mysql;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-our $VERSION = '1.14';
-#-------------------------------------------------------------------------------
+our $VERSION = '1.20';
+#------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
-my $DB_attr = {AutoCommit => 1, RaiseError => 0, PrintError => 0};
-#-------------------------------------------------------------------------------
-# コネクションプール
-my %Connection_pool;
+my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0);
+#------------------------------------------------------------------------------
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -35,28 +33,11 @@ sub new {
 	$self->{text_index_size}  = 32;
 	$self->{engine} = '';
 
-	# コネクション pool 処理
-	my $dbh;
-	my $connect_id = $self->{connect_id} = "$database\e$username\e".$ROBJ->crypt_by_string_nosalt($password);
-	if ($self->{Pool}) {
-		if (exists $Connection_pool{$connect_id}) {	# プールが存在したら
-			$dbh = $Connection_pool{$connect_id};	# 取り出す
-			if (! $dbh->ping) {
-				$dbh = undef;
-				delete $Connection_pool{$connect_id};
-			}
-			$dbh && $self->debug("pop from connection pool"); # debug-safe
-			if (! $dbh->{AutoCommit}) { $dbh->rollback(); }
-		}
-	}
-	if (! $dbh) {
-		$dbh = DBI->connect("DBI:mysql:$database", $username, $password, $DB_attr);
-		if (!$dbh) { $self->error('Connection faild'); return ; }
-	}
-	# プールする
-	if ($self->{Pool}) {
-		$Connection_pool{$connect_id} = $dbh;
-	}
+	# 接続
+	my $connect = $self->{Pool} ? 'connect_cached' : 'connect';
+	my $dbh = DBI->$connect("DBI:mysql:$database", $username, $password, \%DB_attr);
+	if (!$dbh) { $self->error('Connection faild'); return ; }
+	$self->{dbh} = $dbh;
 
 	# 文字コード設定（Perl 5.20 / 文字化け対策）
 	my $code = exists($self->{Charset}) ? $self->{Charset} : 'utf8';
@@ -66,9 +47,6 @@ sub new {
 		$self->debug($sql);		# debug-safe
 		$dbh->do($sql);
 	}
-
-	# 値保存
-	$self->{dbh} = $dbh;
 	return $self;
 }
 #------------------------------------------------------------------------------
@@ -77,7 +55,18 @@ sub new {
 sub Finish {
 	my $self = shift;
 	if ($self->{begin}) { $self->rollback(); }
-	if (! $self->{Pool}) { $self->{dbh}->disconnect(); }
+}
+#------------------------------------------------------------------------------
+# ●再接続
+#------------------------------------------------------------------------------
+sub reconnect {
+	my $self = shift;
+	my $force= shift;
+	my $dbh  = $self->{dbh};
+	if (!$force && $dbh->ping()) {
+		return;
+	}
+	$self->{dbh} = $dbh->clone();
 }
 
 ###############################################################################
@@ -99,7 +88,7 @@ sub find_table {
 	# テーブルからの情報取得
 	my $dbh = $self->{dbh};
 	my $sql = "SHOW TABLES LIKE ?";
-	my $sth = $dbh->prepare($sql);
+	my $sth = $dbh->prepare_cached($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute($table);
 
@@ -156,7 +145,7 @@ sub select {
 	#---------------------------------------------
 	# Do SQL
 	#---------------------------------------------
-	my $sth = $dbh->prepare($sql);
+	my $sth = $dbh->prepare_cached($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute(@$ary);
 	if (!$sth || $dbh->err) {
@@ -172,7 +161,7 @@ sub select {
 	my $hits;
 	if ($h->{require_hits}) {
 		$sql = 'SELECT FOUND_ROWS()';
-		$sth = $dbh->prepare($sql);
+		$sth = $dbh->prepare_cached($sql);
 		$self->debug($sql);	# debug-safe
 		$sth && $sth->execute();
 		if (!$sth || $dbh->err) {

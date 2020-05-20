@@ -6,7 +6,6 @@ use strict;
 package Satsuki::DB_share;
 our $VERSION = '1.10';
 
-# use Satsuki::Exporter 'import';
 use Exporter 'import';
 our @EXPORT = qw(select_match_pkey1 select_match_limit1	select_match
 		set_debug set_noerror debug warning error

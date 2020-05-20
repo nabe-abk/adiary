@@ -1,20 +1,17 @@
 use strict;
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # データベースプラグイン for PostgreSQL
 #						(C)2006-2020 nabe@abk
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 package Satsuki::DB_pg;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-use Encode ();
-our $VERSION = '1.14';
-#-------------------------------------------------------------------------------
+our $VERSION = '1.20';
+#------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0, pg_enable_utf8 => 0);
-#-------------------------------------------------------------------------------
-# コネクションプール
-my %Connection_pool;
+#------------------------------------------------------------------------------
 ###############################################################################
 # ■基本処理
 ###############################################################################
@@ -33,34 +30,14 @@ sub new {
 	$self->{db_id}  = "pg.$database.";
 	$self->{exist_tables_cache} = {};
 
-	# コネクション pool 処理
-	my $dbh;
-	my $connect_id = $self->{connect_id} = "$database\e$username\e".$ROBJ->crypt_by_string_nosalt($password);
-	if ($self->{Pool}) {
-		if (exists $Connection_pool{$connect_id}) {	# プールが存在したら
-			$dbh = $Connection_pool{$connect_id};	# 取り出す
-			if (! $dbh->ping) {
-				$dbh = undef;
-				delete $Connection_pool{$connect_id};
-			}
-			$dbh && $self->debug("pop from connection pool"); # debug-safe
-			if (! $dbh->{AutoCommit}) { $dbh->rollback(); }
-		}
-	}
 	# 接続
-	if (! $dbh) {
-		$dbh = DBI->connect("DBI:Pg:$database", $username, $password, \%DB_attr);
-		if (!$dbh) { $self->error('Connection faild'); return ; }
-	}
-	# プールする
-	if ($self->{Pool}) {
-		$Connection_pool{$connect_id} = $dbh;
-	}
+	my $connect = $self->{Pool} ? 'connect_cached' : 'connect';
+	my $dbh = DBI->$connect("DBI:Pg:$database", $username, $password, \%DB_attr);
+	if (!$dbh) { $self->error('Connection faild'); return ; }
+	$self->{dbh} = $dbh;
+
 	# 初期設定
 	$dbh->{pg_expand_array}=0;
-
-	# 値保存
-	$self->{dbh} = $dbh;
 
 	# UTF8判定 // DBD::Pg bug対策
 	my $ver = $DBD::Pg::VERSION;
@@ -68,11 +45,10 @@ sub new {
 		$ver = $1;
 		if (3.0 <= $ver && $ver < 6.0) {
 			# DBD Ver 3.3.0 to 3.5.3
+			require Encode;
 			$self->{PATCH_for_UTF8_flag} = 1;
 		}
 	}
-
-
 	return $self;
 }
 #------------------------------------------------------------------------------
@@ -81,7 +57,18 @@ sub new {
 sub Finish {
 	my $self = shift;
 	if ($self->{begin}) { $self->rollback(); }
-	if (! $self->{Pool}) { $self->{dbh}->disconnect(); }
+}
+#------------------------------------------------------------------------------
+# ●再接続
+#------------------------------------------------------------------------------
+sub reconnect {
+	my $self = shift;
+	my $force= shift;
+	my $dbh  = $self->{dbh};
+	if (!$force && $dbh->ping()) {
+		return;
+	}
+	$self->{dbh} = $dbh->clone();
 }
 
 ###############################################################################
@@ -103,7 +90,7 @@ sub find_table {
 	# テーブルからの情報取得
 	my $dbh = $self->{dbh};
 	my $sql = "SELECT tablename FROM pg_tables WHERE tablename=? LIMIT 1";
-	my $sth = $dbh->prepare($sql);
+	my $sth = $dbh->prepare_cached($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute($table);
 
@@ -131,7 +118,7 @@ sub select {
 	my $hits;
 	if ($h->{require_hits}) {
 		my $sql = "SELECT count(*) FROM $table$where";
-		my $sth = $dbh->prepare($sql);
+		my $sth = $dbh->prepare_cached($sql);
 		$self->debug($sql);	# debug-safe
 		$sth && $sth->execute(@$ary);
 		if (!$sth || $dbh->err) {
@@ -173,7 +160,7 @@ sub select {
 	#---------------------------------------------
 	# Do SQL
 	#---------------------------------------------
-	my $sth = $dbh->prepare($sql);
+	my $sth = $dbh->prepare_cached($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute(@$ary);
 	if (!$sth || $dbh->err) {
