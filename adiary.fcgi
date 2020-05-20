@@ -70,7 +70,7 @@ sub create_threads {
 			my $sock = shift;
 			my $req  = FCGI::Request( \*STDIN, \*STDOUT, \*STDERR, \%ENV, $sock );
 
-			&fcgi_main_loop($req);
+			&fcgi_main_loop($req, 1);
 			threads->detach();
 		}, $sock);
 		if (!defined $thr) { die "threads->create fail!"; }
@@ -81,7 +81,8 @@ sub create_threads {
 # FastCGI main loop
 ################################################################################
 sub fcgi_main_loop {
-	my $req = shift || FCGI::Request();
+	my $req    = shift || FCGI::Request();
+	my $deamon = shift;
 
 	my $modtime = (stat($0))[9];
 	my $reload;
@@ -113,6 +114,7 @@ sub fcgi_main_loop {
 			my $ROBJ = Satsuki::Base->new();	# ルートオブジェクト生成
 			$ROBJ->{Timer}        = $timer;
 			$ROBJ->{AutoReload}   = $flag;
+			$ROBJ->{mod_rewrite}  = $deamon;
 
 			$ROBJ->init_for_fastcgi($req);
 

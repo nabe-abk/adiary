@@ -202,7 +202,6 @@ sub init_path {
 	if (!defined $basepath) {
 		my $path = $script;
 		while(1) {
-			chop($path);
 			$path = substr($path, 0, rindex($path,'/')+1);
 			if (index($request, $path) == 0) { last; }
 		}
