@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.22';
+our $VERSION  = '1.23';
 our $SPEC_VER = '1.12';	# specification version for compatibility
 ###############################################################################
 # Satsuki system - HTTP Server
 #					Copyright (C)2019-2020 nabe@abk
 ###############################################################################
-# Last Update : 2020/02/26
+# Last Update : 2020/05/20
 #
 BEGIN {
 	my $path = $0;
@@ -436,6 +436,8 @@ if ($GENERATE_CONF) {
 				$exit_daemons++;
 			};
 		};
+	} else {
+		$SIG{CHLD} = 'IGNORE';
 	}
 
 	# open Browser on windows
@@ -445,7 +447,7 @@ if ($GENERATE_CONF) {
 
 	# main thread
 	while(1) {
-		sleep(2);
+		sleep(3);
 		$exit_daemons = $ITHREADS ? ($DEAMONS - $#{[ threads->list() ]} - 1) : $exit_daemons;
 		if (!$exit_daemons) { next; }
 
@@ -467,6 +469,10 @@ sub daemon_main {
 	my %bak = %ENV;
 	my $cgi = 0;
 
+	if (!$ITHREADS) {	# for fock() in CGI
+		$SIG{CHLD} = 'IGNORE';
+	}
+
 	$PID = $ITHREADS ? &thread_id() : $$;
 	$IsWindows && sleep(1);		# accept() blocking main thread on Windows
 
@@ -476,7 +482,12 @@ sub daemon_main {
 		my $addr = accept(my $sock, $srv);
 		if (!$addr) { next; }
 
-		&accept_client($sock, $addr, \%bak);	# $r==-1 if cgi_reload
+		my $st = &accept_client($sock, $addr, \%bak);	# $r==-1 if cgi_reload
+
+		if ($st->{shutdown}) {
+			print "$$ shutdown\n";
+			last;
+		}
 		if ($MAX_CGI_REQUESTS<$CGI_REQUESTS) { last; }
 	}
 
@@ -534,7 +545,7 @@ sub accept_client {
 	my $flag=1;
 	while($flag) {
 		$state = &parse_request($sock);
-		if (!$state || !$state->{keep_alive}) {
+		if (!$state || !$state->{keep_alive} || $state->{shutdown}) {
 			close($sock);
 			$flag = 0;
 		}
@@ -876,8 +887,9 @@ sub exec_cgi {
 	# Save LIB's modtime
 	&Satsuki::AutoReload::save_lib();
 
-	$state->{status} = $ROBJ->{Status};
-	$state->{send}   = $ROBJ->{Send} || 0;
+	$state->{status}   = $ROBJ->{Status};
+	$state->{send}     = $ROBJ->{Send} || 0;
+	$state->{shutdown} = $ROBJ->{Shutdown};
 }
 
 ###############################################################################

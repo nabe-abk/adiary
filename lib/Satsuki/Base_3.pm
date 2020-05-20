@@ -19,8 +19,8 @@ sub init_for_speedycgi {
 # ■FastCGI用のスタートアップ
 ###############################################################################
 sub init_for_fastcgi {
-	my ($self, $req, $sock) = @_;
-	if (!$req->IsFastCGI()) { return ; }	# フラグ確認
+	my $self = shift;
+	$self->{FCGI_request} = shift;
 
 	$self->{CGI_cache}= 1;
 	$self->{FastCGI}  = 1;
