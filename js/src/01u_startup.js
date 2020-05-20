@@ -34,7 +34,7 @@ $$.user_init = function(func) {
 
 	// load adiary vars
 	let $obj = $secure('#' + this.name + '-vars');
-	let data;
+	let data = {};
 	if ($obj && $obj.existsData('secure')) {
 		const json = $obj.html().replace(/^[\s\S]*?{/, '{').replace(/}[\s\S]*?$/, '}');
 		      data = JSON.parse(json);
