@@ -7,9 +7,12 @@ package Satsuki::DB_share;
 our $VERSION = '1.10';
 
 use Exporter 'import';
-our @EXPORT = qw(select_match_pkey1 select_match_limit1	select_match
-		set_debug set_noerror debug warning error
-		embed_timer_wrapper);
+our @EXPORT = qw(
+	select_match_pkey1 select_match_limit1 select_match
+	select_where_pkey1 select_where_limit1 select_where
+	set_debug set_noerror debug warning error
+	embed_timer_wrapper
+);
 
 ###############################################################################
 # ■selectの拡張
@@ -45,6 +48,29 @@ sub select_match {
 	return $self->select($table, \%h);
 }
 
+#------------------------------------------------------------------------------
+# ●for RDB
+#------------------------------------------------------------------------------
+sub select_where_pkey1 {
+	my $self  = shift;
+	my $table = shift;
+	my $where = shift;
+	my $h = $self->select($table, { RDB_where => $where, limit => 1, cols => 'pkey' }, @_)->[0];
+	return $h && $h->{pkey};
+}
+sub select_where_limit1 {
+	my $self  = shift;
+	my $table = shift;
+	my $where = shift;
+	return $self->select($table, { RDB_where => $where, limit => 1 }, @_)->[0];
+}
+sub select_where {
+	my $self  = shift;
+	my $table = shift;
+	my $where = shift;
+	return $self->select($table, { RDB_where => $where }, @_);
+}
+
 ###############################################################################
 # ■エラー処理
 ###############################################################################
@@ -54,7 +80,7 @@ sub select_match {
 sub set_debug {
 	my ($self, $flag) = @_;
 	my $r = $self->{DEBUG};
-	$self->{DEBUG} = $flag || 1;
+	$self->{DEBUG} = defined $flag ? $flag : 1;
 	return $r;
 }
 sub set_noerror {
