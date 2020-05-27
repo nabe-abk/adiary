@@ -50,25 +50,25 @@ $self->clear($name);
 ================================================================================
 ■使用例
 ================================================================================
-	<$loadpm("hi_timer")>
-	<$hi_timer.timer_start()>
+	<$timer = loadpm("Timer")>
+	<$timer.start()>
 		：
 		：計測したい部分
 		：
-	<@hi_timer.timer_stop()>		←計測結果表示
+	<@timer.stop()>		←計測結果表示
 
 　オブジェクト指向で扱いたい場合、名前指定は使用せずに、タイマー１つに付き
 １つのオブジェクトを生成してください。
 
 ●複数のタイマーを並列に使用し、止める位置と表示位置が違う場合
 
-	<$hi_timer.timer_start('tm1')>
-	<$hi_timer.timer_start('tm2')>
+	<$timer.start('tm1')>
+	<$timer.start('tm2')>
 		：
-	<$tmstr3 = hi_timer.timer_start('tm3')>
-	<$tmstr1 = hi_timer.timer_stop('tm2')>
+	<$tmstr3 = timer.start('tm3')>
+	<$tmstr1 = timer.stop('tm2')>
 		：
 	<@tmstr1>
-	<@hi_timer.timer_start(tm2)>
+	<@timer.start(tm2)>
 	<@tmstr3>
 
