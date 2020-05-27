@@ -55,20 +55,20 @@ sub select_where_pkey1 {
 	my $self  = shift;
 	my $table = shift;
 	my $where = shift;
-	my $h = $self->select($table, { RDB_where => $where, limit => 1, cols => 'pkey' }, @_)->[0];
+	my $h = $self->select($table, { RDB_where=>$where, RDB_values=>\@_, limit => 1, cols => 'pkey' })->[0];
 	return $h && $h->{pkey};
 }
 sub select_where_limit1 {
 	my $self  = shift;
 	my $table = shift;
 	my $where = shift;
-	return $self->select($table, { RDB_where => $where, limit => 1 }, @_)->[0];
+	return $self->select($table, { RDB_where=>$where, RDB_values=>\@_, limit => 1 })->[0];
 }
 sub select_where {
 	my $self  = shift;
 	my $table = shift;
 	my $where = shift;
-	return $self->select($table, { RDB_where => $where }, @_);
+	return $self->select($table, { RDB_where=>$where, RDB_values=>\@_ });
 }
 
 ###############################################################################

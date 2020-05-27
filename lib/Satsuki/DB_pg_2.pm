@@ -18,7 +18,7 @@ sub insert {
 
 	my ($cols, $vals);
 	my @ary;
-	foreach(keys(%$h)) {
+	foreach(sort(keys(%$h))) {
 		if ($_ !~ /^(\*?)(\w+)$/) { next; }
 		$cols .= "$2,";
 		my $v = $h->{$_};
@@ -111,7 +111,7 @@ sub update_match {
 	# 更新データSQL
 	my $cols;
 	my @ary;
-	foreach(keys(%$h)) {
+	foreach(sort(keys(%$h))) {
 		if ($_ !~ /^(\*?)(\w+)$/) { next; }
 		my $k = $2;
 		my $v = $h->{$_};
@@ -283,7 +283,7 @@ sub generate_where {
 	# ハッシュ引数を書き換え
 	if ($#_ == 0 && ref($_[0]) eq 'HASH') {
 		my $h = shift;
-		foreach(keys(%$h)) {
+		foreach(sort(keys(%$h))) {
 			push(@_, $_);
 			push(@_, $h->{$_});
 		}

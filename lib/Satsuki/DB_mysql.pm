@@ -7,7 +7,7 @@ package Satsuki::DB_mysql;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-our $VERSION = '1.20';
+our $VERSION = '1.21';
 #------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0);
@@ -186,7 +186,10 @@ sub generate_select_where {
 
 	my $where;
 	my @ary;
-	while(my ($k,$v) = each(%{ $h->{match} })) {
+	foreach(sort(keys(%{ $h->{match} }))) {
+		my $k = $_;
+		my $v = $h->{match}->{$_};
+
 		$k =~ s/\W//g;
 		if ($v eq '') {
 			$where .= " AND $k IS NULL";
@@ -207,7 +210,10 @@ sub generate_select_where {
 		$where .= " AND $k in ($w)";
 		push(@ary, @$v);
 	}
-	while(my ($k,$v) = each(%{ $h->{not_match} })) {
+	foreach(sort(keys(%{ $h->{not_match} }))) {
+		my $k = $_;
+		my $v = $h->{not_match}->{$_};
+
 		$k =~ s/\W//g;
 		if ($v eq '') {
 			$where .= " AND $k IS NOT NULL";
@@ -225,30 +231,34 @@ sub generate_select_where {
 		$where .= " AND $k not in ($w)";
 		push(@ary, @$v);
 	}
-	while(my ($k,$v) = each(%{ $h->{min} })) {
+	foreach(sort(keys(%{ $h->{min} }))) {
+		my $k = $_;
 		$k =~ s/\W//g;
 		$where .= " AND $k>=?";
-		push(@ary, $v);
+		push(@ary, $h->{min}->{$_});
 	}
-	while(my ($k,$v) = each(%{ $h->{max} })) {
+	foreach(sort(keys(%{ $h->{max} }))) {
+		my $k = $_;
 		$k =~ s/\W//g;
 		$where .= " AND $k<=?";
-		push(@ary, $v);
+		push(@ary, $h->{max}->{$_});
 	}
-	while(my ($k,$v) = each(%{ $h->{gt} })) {
+	foreach(sort(keys(%{ $h->{gt} }))) {
+		my $k = $_;
 		$k =~ s/\W//g;
 		$where .= " AND $k>?";
-		push(@ary, $v);
+		push(@ary, $h->{gt}->{$_});
 	}
-	while(my ($k,$v) = each(%{ $h->{lt} })) {
+	foreach(sort(keys(%{ $h->{lt} }))) {
+		my $k = $_;
 		$k =~ s/\W//g;
 		$where .= " AND $k<?";
-		push(@ary, $v);
+		push(@ary, $h->{lt}->{$_});
 	}
-	while(my ($k,$v) = each(%{ $h->{flag} })) {
+	foreach(sort(keys(%{ $h->{flag} }))) {
+		my $k = $_;
 		$k =~ s/\W//g;
-		if ($v) { $where .= " AND $k"; next; }
-		$where .= " AND NOT $k";
+		$where .= " AND " . ($h->{flag}->{$_} ? '' : 'NOT ') . $k;
 	}
 	foreach(@{ $h->{is_null} }) {
 		$_ =~ s/\W//g;
@@ -288,6 +298,7 @@ sub generate_select_where {
 			push(@ary, @{ $h->{RDB_values} });
 		}
 	}
+
 	if ($where) { $where = ' WHERE' . substr($where, 4); }
 
 	return ($where, \@ary);
@@ -313,7 +324,7 @@ sub generate_order_by {
 	}
 	chop($sql);
 	if ($sql) {
-		$sql = ' ORDER BY ' . $sql;
+		$sql = ' ORDER BY' . $sql;
 	}
 	return $sql
 }
