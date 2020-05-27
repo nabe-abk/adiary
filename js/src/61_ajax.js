@@ -37,7 +37,7 @@ $$.send_ajax = function(opt) {
 		dataType:	'json',
 		error:		function(e) { error_default(undefined,e); },
 		success:	function(h) {
-			if (h.ret != 0  || h._debug) return error_default(h);
+			if (h.ret != '0' || h._debug) return error_default(h);
 			if (opt.success) opt.success(h);
 		},
 		complete:	opt.complite,

@@ -1,7 +1,7 @@
 use strict;
 #-------------------------------------------------------------------------------
 # テキストデータベース
-#						(C)2005-2019 nabe@abk
+#						(C)2005-2020 nabe@abk
 #-------------------------------------------------------------------------------
 # 旧名 : DB_pseudo
 #
@@ -13,7 +13,7 @@ package Satsuki::DB_text;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 
-our $VERSION = '1.23';
+our $VERSION = '1.24';
 our $FileNameFormat = "%05d";
 our %IndexCache;
 ###############################################################################
@@ -75,10 +75,12 @@ sub find_table {
 # called by select method in DB_share.
 sub select {
 	my $self = shift;
+	my $table= shift;
+	my $h    = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	my ($table, $h) = @_;
 	$table =~ s/\W//g;
+	my $require_hits = wantarray;
 
 	my $db = $self->load_index($table, undef, $h->{NoError});	# table array ref
 	if ($#$db < 0) { return []; }
@@ -110,14 +112,14 @@ sub select {
 	#---------------------------------------------
 	# マッチング条件の処理
 	#---------------------------------------------
-	my @match    = keys(%{ $h->{match} });
-	my @not_match= keys(%{ $h->{not_match} });
-	my @min  = keys(%{ $h->{min} });
-	my @max  = keys(%{ $h->{max} });
-	my @gt   = keys(%{ $h->{gt}  });
-	my @lt   = keys(%{ $h->{lt}  });
-	my @flag = keys(%{ $h->{flag} });
-	my $is_null  = $h->{is_null} || [];
+	my @match    = sort( keys(%{ $h->{match}     }) );
+	my @not_match= sort( keys(%{ $h->{not_match} }) );
+	my @min      = sort( keys(%{ $h->{min}       }) );
+	my @max      = sort( keys(%{ $h->{max}       }) );
+	my @gt       = sort( keys(%{ $h->{gt}        }) );
+	my @lt       = sort( keys(%{ $h->{lt}        }) );
+	my @flag     = sort( keys(%{ $h->{flag}      }) );
+	my $is_null  = $h->{is_null}  || [];
 	my $not_null = $h->{not_null} || [];
 
 	# 単純検索対象カラムを列挙
@@ -126,7 +128,7 @@ sub select {
 	# limit設定あり？
 	my $limit;
 	my $limit_state;
-	if (! $h->{require_hits} && $h->{limit} ne '') {
+	if (! $require_hits && $h->{limit} ne '') {
 		$limit_state = int($h->{limit}) -1 + int($h->{offset});
 	}
 
@@ -358,11 +360,7 @@ FUNCTION_TEXT
 	#---------------------------------------------
 	# 該当件数を記録
 	#---------------------------------------------
-	# 常に返しても構わないが、上位モジュールのミス防止に
-	my $hits;
-	if ($h->{require_hits}) {
-		$hits = $#$db +1;
-	}
+	my $hits = $#$db +1;
 
 	#---------------------------------------------
 	# limit and offset
@@ -408,7 +406,7 @@ FUNCTION_TEXT
 		}
 	}
 
-	return wantarray ? ($db,$hits) : $db;
+	return $require_hits ? ($db,$hits) : $db;
 }
 
 ###############################################################################

@@ -54,9 +54,6 @@ sub load_arts_list {
 	if ($opt->{loads}) {
 		$h{limit} = int($opt->{loads});
 	}
-	if ($opt->{require_hits}) {
-		$h{require_hits} = 1;
-	}
 
 	# ロード対象記事オプション
 	if (! $self->{allow_edit}) {
@@ -113,9 +110,6 @@ sub load_coms_list {
 	}
 	if ($opt->{loads}) {
 		$h{limit} = int($opt->{loads});
-	}
-	if ($opt->{require_hits}) {
-		$h{require_hits} = 1;
 	}
 
 	# ロード対象記事オプション
@@ -1478,8 +1472,7 @@ sub update_bloginfo_article {
 		cols     => [ 'title', 'tm' ],
 		sort     => [ 'yyyymmdd', 'tm' ],
 		sort_rev => [ 1, 1 ],
-		limit    => 1,
-		require_hits => 1
+		limit    => 1
 	});
 
 	my $darts = $DB->select_by_group("${blogid}_art", {
@@ -1514,8 +1507,7 @@ sub update_bloginfo_comment {
 		cols     => [ 'tm' ],
 		sort     => 'tm',
 		sort_rev => 1,
-		limit    => 1,
-		require_hits => 1
+		limit    => 1
 	});
 
 	my %up;

@@ -7,7 +7,7 @@ package Satsuki::DB_mysql;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-our $VERSION = '1.21';
+our $VERSION = '1.24';
 #------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0);
@@ -105,6 +105,8 @@ sub select {
 	my $ROBJ = $self->{ROBJ};
 	$table =~ s/\W//g;
 
+	my $require_hits = wantarray;
+
 	#---------------------------------------------
 	# マッチング条件の処理
 	#---------------------------------------------
@@ -122,7 +124,7 @@ sub select {
 	}
 	# 該当件数を取得
 	my $found_rows;
-	if ($h->{require_hits}) { $found_rows = ' SQL_CALC_FOUND_ROWS'; }
+	if ($require_hits) { $found_rows = ' SQL_CALC_FOUND_ROWS'; }
 	# SQL
 	my $sql = "SELECT$found_rows $cols FROM $table$where";
 
@@ -155,11 +157,13 @@ sub select {
 	}
 	my $ret = $sth->fetchall_arrayref({});
 
+	if (!$require_hits) { return $ret; }
+
 	#---------------------------------------------
-	# 該当件数を記録
+	# 該当件数の取得
 	#---------------------------------------------
-	my $hits;
-	if ($h->{require_hits}) {
+	my $hits = $#$ret+1;
+	if ($limit ne '' && $limit <= $hits) {
 		$sql = 'SELECT FOUND_ROWS()';
 		$sth = $dbh->prepare_cached($sql);
 		$self->debug($sql);	# debug-safe
@@ -170,9 +174,9 @@ sub select {
 			return [];
 		}
 		$hits = $sth->fetchrow_array;
+		$sth->finish();
 	}
-
-	return wantarray ? ($ret,$hits) : $ret;
+	return ($ret,$hits);
 }
 
 ###############################################################################

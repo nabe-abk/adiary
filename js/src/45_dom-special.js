@@ -39,6 +39,8 @@ $$.dom_init( function($R) {
 		if ($obj.data('js-ajax-stop')) return;
 		if ($('.aui-overlay').length)  return;	// dialog viewing
 		$obj.data('js-ajax-stop', true);
+		const $btns = $obj.find('button[type!="button"]');
+		$btns.prop('disabled', true);
 
 		self.send_ajax({
 			data:	data,
@@ -77,6 +79,7 @@ $$.dom_init( function($R) {
 			},
 			complite: function(h) {
 				$obj.data('js-ajax-stop', false);
+				$btns.prop('disabled', false);
 			}
 		});
 		return false;

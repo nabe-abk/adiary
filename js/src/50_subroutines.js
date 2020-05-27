@@ -95,11 +95,15 @@ $$.insert_to_textarea = function(ta, text) {
 //////////////////////////////////////////////////////////////////////////////
 // parse form
 //////////////////////////////////////////////////////////////////////////////
-$$.parse_form = function($par) {
+$$.parse_form = function($par, cancel) {
 	const data = {};
+	const $cancel = (cancel instanceof jQuery) ? cancel
+		: (cancel === undefined ? cancel : $(cancel));
+
 	$par.find('input, select, textarea').each(function(idx, dom){
 		if (dom.disabled) return;
 		if (dom.type == 'checkbox' && !dom.checked) return;
+		if ($cancel && $cancel.find(dom).length) return;
 
 		const $obj = $(dom);
 		const name = $obj.attr('name');
