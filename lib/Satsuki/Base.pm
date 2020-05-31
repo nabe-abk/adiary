@@ -19,10 +19,10 @@ my $LOCALE = 'ja';
 #------------------------------------------------------------------------------
 use Satsuki::AutoLoader;
 use Fcntl;		# for sysopen/flock
+use Scalar::Util();
 ###############################################################################
 # ■コンストラクタ
 ###############################################################################
-# sub DESTROY { print "<br>ROBJ destroy!!!"; }
 sub new {
 	my $self = bless({}, shift);
 	$self->{ROBJ} = $self;
@@ -42,9 +42,8 @@ sub new {
 	# 初期設定
 	$self->{Status}  = 200;		# HTTP status (200 = OK)
 	$self->{SALT64chars}  = $_SALT;	# SALT生成用文字列
-	$self->{Form_options} = {};		# form用設定
-	$self->{Loadpm_cache} = {};		# load済obj cache
-	$self->{Loadpm_array} = [];		# load済obj配列
+	$self->{LoadpmCache}  = {};
+	$self->{FinishObjs}   = [];
 	$self->{CGI_mode}     = 'CGI-Perl';
 	$self->{Secret_word}  = '';
 	$self->{Content_type} = 'text/html';
@@ -254,8 +253,13 @@ sub init_stat_cache {
 sub finish {
 	my $self = shift;
 
-	# メモリリーク対策 & 各デストラクタ呼び出し
-	$self->object_free_finish();
+	# Finish and feee memory
+	foreach my $obj (reverse(@{ $self->{FinishObjs} })) {
+		$obj->Finish();
+	}
+	foreach(values(%$self)) {
+		$_ = undef;
+	}
 
 	# エラー情報の表示
 	my $error = $self->{Error};
@@ -264,35 +268,6 @@ sub finish {
 			print "<hr><strong>(ERROR)</strong><br>\n",join("<br>\n", @$error);
 		} else {
 			print "\n\n(ERROR) ",$self->unesc(join("\n", @$error)),"\n";
-		}
-	}
-}
-
-#------------------------------------------------------------------------------
-# ●オブジェクト開放ルーチン
-#------------------------------------------------------------------------------
-# 循環参照を解消する。
-sub object_free_finish {
-	my $self = shift;
-
-	my $d = $Satsuki::DESTROY_debug = $self->{DESTROY_debug};
-	if ($d) {
-		print "<h3>DESTROY debug</h3>\n";
-	}
-
-	my $mods = $self->{Loadpm_array};	# ロード済Satsuki obj
-	undef $self->{Loadpm_array};
-	undef $self->{ROBJ};
-
-	foreach my $obj (reverse(@$mods)) {
-		if (!$obj->can('Finish')) { next; }
-		$obj->Finish();
-	}
-	foreach my $obj (@$mods) {
-		undef $obj->{ROBJ};
-		foreach(values(%$obj)) {
-			if (substr(ref($_),0,7) ne 'Satsuki') { next; }
-			$_ = undef;
 		}
 	}
 }
@@ -953,7 +928,7 @@ sub loadapp {
 sub loadpm {
 	my $self  = shift;
 	my $pm    = shift;
-	my $cache = $self->{Loadpm_cache};
+	my $cache = $self->{LoadpmCache};
 	if ($cache->{$pm}) { return $cache->{$pm}; }
 	my $obj = $self->_loadpm('Satsuki::' . $pm, @_);
 	if (ref($obj) && $obj->{__CACHE_PM}) {
@@ -971,18 +946,29 @@ sub _loadpm {
 	$pm_file =~ s|::|/|g;
 	eval { require $pm_file; };
 	if ($@) { delete $INC{$pm_file}; die($@); }
-	{
-		no strict 'refs'; 	# デバッグルーチン埋め込み
-		my $dbg = $pm . '::debug';
-		if (! *$dbg{CODE}) { *$dbg = \&export_debug; }
-	}
+	#
+	no strict 'refs';
+	#
+	if (! *{"${pm}::debug"}{CODE}) { *{"${pm}::debug"} = \&export_debug; }
+
 	my $obj = $pm->new($self, @_);
-	if ($obj && substr($pm,0,7) eq 'Satsuki') {
-		push(@{$self->{Loadpm_array}}, $obj);
+	if ($obj->{ROBJ}) {	# 循環参照対策
+		Scalar::Util::weaken( $obj->{ROBJ} );
+	}
+
+	if ($self->{DESTROY_debug}) {
+		*{"${pm}::DESTROY"} = sub {
+			my $self = shift;
+			print STDERR "[$$] DESTROY $self\n";	# debug-safe
+		};
+		print STDERR "[$$] loadpm $pm\n";		# debug-safe
+	}
+
+	if (*{$pm . '::Finish'}{CODE}) {
+		push(@{$self->{LoadpmFinish}}, $obj);
 	}
 	return $obj;
 }
-
 sub export_debug {
 	my $self = shift;
 	$self->{ROBJ}->debug($_[0], 1);		# debug-safe

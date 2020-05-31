@@ -659,7 +659,7 @@ sub _read_form {
 	### POST 事前スクリプトの exec 
 	if ($self->{If_post_exec_pre}) { $self->execute( $self->{If_post_exec_pre} ); }
 	### オプションロード
-	my $options = $self->{Form_options};
+	my $options = $self->{Form_options} || {};
 	### マルチパート form か
 	my $content_type = $ENV{CONTENT_TYPE};
 	if (index($content_type, 'multipart/form-data') == 0) {
@@ -703,7 +703,7 @@ sub _read_form {
 #------------------------------------------------------------------------------
 sub read_multipart_form {
 	my ($self, $content_type) = @_;
-	my $options = $self->{Form_options};
+	my $options = $self->{Form_options} || {};
 
 	### データサイズの確認
 	my $length = $ENV{CONTENT_LENGTH};
