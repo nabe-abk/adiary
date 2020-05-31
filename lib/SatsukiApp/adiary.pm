@@ -45,7 +45,7 @@ sub new {
 	if (ref($self) ne 'HASH') { $self={}; }
 	bless($self, $class);
 
-	$self->{ROBJ}    = $ROBJ;	# root object save
+	$self->{ROBJ}    = $ROBJ;
 	$self->{DB}      = $DB;
 	$self->{VERSION} = $VERSION;
 	$self->{OUTVERSION} = $OUTVERSION;
