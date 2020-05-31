@@ -505,6 +505,7 @@ sub tmpwatch {
 	my $self = shift;
 	my ($dir, $time) = @_;
 	$dir = $dir ? $dir : $self->get_tmpdir();
+	$dir =~ s|([^/])/*$|$1/|;
 	if ($time < $self->{Temp_timeout}) { $time=$self->{Temp_timeout}; }
 	if ($time < 10) { $time = 10; }
 
