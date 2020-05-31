@@ -16,7 +16,7 @@ body
 	padding:		0;
 	margin:			0;
 }
-#sp-header, #header, #footer {
+#sp-header, #header, #footer, header .ddmenu>ul>li li {
 	background-color:	#343;		/* $c=titlebg */
 	background-image:	url(data:image/gif;base64,R0lGODlhBQAFAJEAAGZmZv///////wAAACH5BAEHAAIALAAAAAAFAAUAAAIHlGGCl5tdAAA7);
 }
@@ -143,7 +143,7 @@ h1 img, h1 a img {
 }
 header .ddmenu>ul>li li {
 	background-color:	#343;		/* $c=ddbg = titlebg */
-	background-image:	url("slant-tile.gif");
+	/* background-image:	url("slant-tile.gif"); */
 }
 /* 選択色 */
 .ddmenu>ul li:hover,
