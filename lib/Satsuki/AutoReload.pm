@@ -1,10 +1,10 @@
 use strict;
 #------------------------------------------------------------------------------
 # 更新されたライブラリの自動リロード
-#						(C)2013-2018 nabe@abk
+#						(C)2013-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::AutoReload;
-our $VERSION = '1.11';
+our $VERSION = '1.12';
 #------------------------------------------------------------------------------
 my $Satsuki_pkg = 'Satsuki';
 my $CheckTime;
@@ -19,8 +19,11 @@ $MyPkg =~ s|::|/|g;
 sub save_lib {
 	if ($ENV{SatsukiReloadStop}) { return; }
 	while (my ($pkg, $file) = each(%INC)) {
-		if (index($pkg, $Satsuki_pkg) != 0) { next; }
 		if (exists $Libs{$file}) { next; }
+		if (index($pkg, $Satsuki_pkg) != 0) {
+			$Libs{$file} = 0;
+			next;
+		}
 		$Libs{$file} = (stat($file)) [9];
 		push(@Packages, $pkg);
 	}
@@ -38,7 +41,7 @@ sub check_lib {
 	if (!$flag) {
 		if ($ENV{SatsukiReloadStop}) { return; }
 		while(my ($file,$tm) = each(%Libs)) {
-			if ($tm == (stat($file))[9]) { next; }
+			if (!$tm || $tm == (stat($file))[9]) { next; }
 			$flag=1;
 			last;
 		}
@@ -76,10 +79,11 @@ sub unload {
 	# パッケージの名前空間からすべて除去
 	foreach(keys(%$names)) {
 		substr($_,-2) eq '::' && next;
-		undef $names->{$_};		# 全型の変数開放
-
-		# 以下を実行するとグローバル変数の参照に不具合が出る
-		# delete $names->{$_};
+		if (ref($names->{$_})) {
+			delete $names->{$_};
+		} else {
+			undef  $names->{$_};	# スカラ変数用（参照エラー防止）
+		}
 	}
 }
 
