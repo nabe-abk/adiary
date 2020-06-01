@@ -21,6 +21,8 @@ sub AUTOLOAD {
 	my $x     = rindex($AUTOLOAD, '::');
 	my $class = substr($AUTOLOAD, 0, $x);
 	my $func  = substr($AUTOLOAD, $x+2);
+	if ($func eq 'DESTROY') { return; }
+
 	my $pmfile = $class;
 	$pmfile  =~ s|::|/|g;
 	$pmfile .= '_';

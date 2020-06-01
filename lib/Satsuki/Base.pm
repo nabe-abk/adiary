@@ -26,6 +26,7 @@ use Scalar::Util();
 sub new {
 	my $self = bless({}, shift);
 	$self->{ROBJ} = $self;
+	Scalar::Util::weaken( $self->{ROBJ} );
 
 	# グローバル変数、特殊変数
 	$self->{VERSION} = $VERSION;
@@ -253,12 +254,9 @@ sub init_stat_cache {
 sub finish {
 	my $self = shift;
 
-	# Finish and feee memory
+	# Finish
 	foreach my $obj (reverse(@{ $self->{FinishObjs} })) {
 		$obj->Finish();
-	}
-	foreach(values(%$self)) {
-		$_ = undef;
 	}
 
 	# エラー情報の表示
@@ -946,26 +944,24 @@ sub _loadpm {
 	$pm_file =~ s|::|/|g;
 	eval { require $pm_file; };
 	if ($@) { delete $INC{$pm_file}; die($@); }
-	#
-	no strict 'refs';
-	#
-	if (! *{"${pm}::debug"}{CODE}) { *{"${pm}::debug"} = \&export_debug; }
 
 	my $obj = $pm->new($self, @_);
 	if ($obj->{ROBJ}) {	# 循環参照対策
 		Scalar::Util::weaken( $obj->{ROBJ} );
 	}
-
+	#
+	no strict 'refs';
+	#
+	if (! *{"${pm}::debug"}{CODE}) { *{"${pm}::debug"}   = \&export_debug; }
+	if (*{$pm . '::Finish'}{CODE}) {
+		push(@{$self->{LoadpmFinish}}, $obj);
+	}
 	if ($self->{DESTROY_debug}) {
 		*{"${pm}::DESTROY"} = sub {
 			my $self = shift;
-			print STDERR "[$$] DESTROY $self\n";	# debug-safe
+			print STDERR "[$$] DESTROY $self\n";    # debug-safe
 		};
-		print STDERR "[$$] loadpm $pm\n";		# debug-safe
-	}
-
-	if (*{$pm . '::Finish'}{CODE}) {
-		push(@{$self->{LoadpmFinish}}, $obj);
+		print STDERR "[$$] loadpm $pm\n";               # debug-safe		
 	}
 	return $obj;
 }
