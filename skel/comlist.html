@@ -88,7 +88,7 @@
 	<$end>
 
 <@ifexec(v.allow_edit, begin)>
-	<form action="<@url>page=<@page>" method="POST" class="js-form-check" data-target="#comlist-table .pkey-ary">
+	<form action="<@url>page=<@page>" method="POST" class="js-check-form" data-target="#comlist-table .pkey-ary">
 	<input type="hidden" name="action" value="comments_edit">
 	<input type="hidden" name="from_comlist" value="1">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
@@ -129,9 +129,9 @@
 	</nav>
 
 <@ifexec(v.allow_edit, begin)>
-	<button type="submit" name="enable"  class="js-form-check btn-help" data-confirm="" data-help="非公開コメントおよび記事が非公開の場合は表示することはできません">表示に設定</button>
-	<button type="submit" name="disable" class="js-form-check" data-confirm="">非表示に設定</button>
-	<button type="submit" name="delete"  class="js-form-check" id="del-submit" data-confirm="%c件のコメントを削除しますか？" data-focus="cancel">削除</button>
+	<button type="submit" name="enable"  class="js-check-form btn-help" data-confirm="" data-help="非公開コメントおよび記事が非公開の場合は表示することはできません">表示に設定</button>
+	<button type="submit" name="disable" class="js-check-form" data-confirm="">非表示に設定</button>
+	<button type="submit" name="delete"  class="js-check-form" id="del-submit" data-confirm="%c件のコメントを削除しますか？" data-focus="cancel">削除</button>
 <@>	<label><input type="checkbox" name="del_check" class="js-enable" data-target="#del-submit">削除確認</label>
 	</form>
 <$end>
