@@ -9,6 +9,7 @@
 -【httpd】UNIX domain socketモードを追加しました。
 -【Plugin/webpush】通知送信時のステータスcodeを 201 か確認するようにしました。((従来は200番台であることのみ確認していました。))
 -【Ver3.40a/Fix】リンク集の設定がうまく表示されない。（[https://adiary.adiary.jp/0419#c1:Thanks to やす]）
+-【Ver3.40b/Fix】Perl5.8で2件目の投稿に失敗する。（[https://adiary.adiary.jp/0419#c8:Thanks to CCC]）
 -他
 
 *Ver3.34 : 2020/01/18

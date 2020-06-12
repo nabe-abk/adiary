@@ -680,7 +680,7 @@ sub generate_pkey {
 	my $nextval_str = substr(('0' x $datalen) . $nextval, -$datalen);
 	if (length($nextval_str) != $datalen) { $fail=1; }	# 失敗
 	# 書き換え
-	if (!seek($fh, length($version)+length($random), 0)) { $fail=1; }
+	if (!sysseek($fh, length($version)+length($random), 0)) { $fail=1; }
 	if (!$fail) {
 		if (syswrite($fh, $nextval_str, $datalen) != $datalen) { $fail=1; }
 	}
