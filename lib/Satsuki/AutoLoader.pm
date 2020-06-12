@@ -1,20 +1,16 @@
 use strict;
 #-------------------------------------------------------------------------------
-# モジュール分割のための AutoLoader for Satsuki-system
-#							(C)2006 nabe@abk
+# AutoLoader for Satsuki-system
+#							(C)2006-2020 nabe@abk
 #-------------------------------------------------------------------------------
-#######################################################################
-# オートローダーの仕様を変更した場合 AutoReload.pm も修正のこと。
-#######################################################################
 package Satsuki::AutoLoader;
 our $VERSION = '1.00';
 
 use Exporter 'import';
 our @EXPORT = qw(AUTOLOAD);
 our $AUTOLOAD;
-
 #------------------------------------------------------------------------------
-# ●AutoLoader本体
+# main
 #------------------------------------------------------------------------------
 sub AUTOLOAD {
 	if ($AUTOLOAD eq '') { return; }
@@ -29,37 +25,35 @@ sub AUTOLOAD {
 
 	# ロード
 	my $obj  = shift;
-	my $ROBJ = ref $obj ? $obj->{ROBJ} : {};
+	my $ROBJ = ref($obj) ? $obj->{ROBJ} : {};
 	my $can;
-	my $i=2;
-	while(1) {
+	foreach my $i (2..99) {
 		my $file = $pmfile . $i . '.pm';
-		if (!exists $INC{$file}) {
-			my $dir;
-			foreach(@INC) {
-				if (-e "$_/$file") { $dir=$_; last; }
-			}
-			if (!$dir) { last; }		# 自動ロードファイルが見つからない
+		if (exists $INC{$file}) { next; }
 
-			eval { require $file; };
-			if ($ROBJ->{AutoLoader_debug}) {
-				my $msg = "[AutoLoader] Try load $file for $func.";
-				warn $msg; $ROBJ->debug($msg);	# debug-safe
-			}
-			if ($@) {	#ロード失敗
-				delete $INC{$file};
-				die "[AutoLoader] $@\n";
-			}
+		my $dir;
+		foreach(@INC) {
+			if (-e "$_/$file") { $dir=$_; last; }
 		}
-		if (defined &$AUTOLOAD) { $can=1; last; }
-		$i++;
+		if (!$dir) { last; }		# File not found
+
+		eval { require $file; };
+		if ($ROBJ->{AutoLoader_debug}) {
+			my $msg = "[AutoLoader] Try load $file for $func.";
+			warn $msg; $ROBJ->debug($msg);	# debug-safe
+		}
+		if ($@) {	# require failed
+			delete $INC{$file};
+			die "[AutoLoader] $@\n";
+		}
+
+		if (defined &$AUTOLOAD) {
+			return $obj->$func(@_);
+		}
 	}
 
-	if (! $can) {
-		my ($pack, $file, $line) = caller(0);
-		die "[AutoLoader] Can't find method '$func' in '$class' at $file line $line\n";
-	}
-	return $obj->$func(@_);
+	my ($pack, $file, $line) = caller(0);
+	die "[AutoLoader] Can't find method '$func' in '$class' at $file line $line\n";
 }
 
 1;
