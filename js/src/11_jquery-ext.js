@@ -24,10 +24,7 @@ toggleDelay: function(){
 //●自分自身と子要素から探す / 同じセレクタでは１度しか見つからない
 //////////////////////////////////////////////////////////////////////////////
 findx: function(sel){
-	let x = $.fn.filter.apply(this, arguments);
-	let y = $.fn.find.apply  (this, arguments);
-	x = x.add(y);
-	// 重複処理の防止
+	const x = $.fn.find.apply(this, arguments).add( $.fn.filter.apply(this, arguments) );
 	const r = [];
 	const mark = '-mark-' + sel;
 	for(var i=0; i<x.length; i++) {
@@ -53,8 +50,8 @@ rootfind: function(sel) {
 //●親要素をひとつ選択
 //////////////////////////////////////////////////////////////////////////////
 parentsOne: function(filter){
-	const $obj = this.parents().filter(filter);
-	return $($obj[0]);
+	const $obj = this.parents(filter);
+	return $obj.first();
 },
 //////////////////////////////////////////////////////////////////////////////
 //●指定のdataを持っているか？

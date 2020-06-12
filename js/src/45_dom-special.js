@@ -19,10 +19,6 @@ $$.init($$.dom_init);
 $$.dom_init( function($R) {
 	const self=this;
 	const func = function($obj){
-		const checker = $obj.data('checker');
-		if (typeof(checker) === 'function') {
-			if (! checker($obj)) return;
-		}
 		$obj.find('.error').removeClass('error');
 
 		const gen  = $obj.data('generator');
@@ -87,7 +83,13 @@ $$.dom_init( function($R) {
 
 	$R.find('form.js-ajax').on('submit', function(evt) {
 		const $obj = $(evt.target);
-		if ($obj.hasClass('js-form-check')) {
+		const callback = function(){ func($obj) };
+
+		const checker  = $obj.data('checker');
+		if (typeof(checker) === 'function') {
+			if (! checker($obj, callback)) return false;
+		}
+		if ($obj.hasClass('js-check-form')) {
 			$obj.data('submit-func', func);
 			return false;
 		}
@@ -183,12 +185,15 @@ $$.dom_init( function($R){
 		// disabled設定判別
 		const counter = $btn.hasClass('js-disable') ? '_disable_c' :  '_enable_c';
 		const add     = flag ? 1 : (init ? 0 : -1);
-		$tar.data(counter, ($tar.data(counter) || 0) + add);
+		$tar.each(function(idx,dom){
+			const $obj = $(dom);
+			$obj.data(counter, ($obj.data(counter) || 0) + add);
 
-		const diff = ($tar.data('_disable_c') || 0) - ($tar.data('_enable_c') || 0)
-			   + ($btn.hasClass('js-enable') ? 0.1 : 0);
+			const diff = ($obj.data('_disable_c') || 0) - ($obj.data('_enable_c') || 0)
+				   + ($btn.hasClass('js-enable') ? 0.1 : 0);
 
-		$tar.prop('disabled', diff>0);
+			$obj.prop('disabled', diff>0);
+		});
 	}
 	// regist
 	$objs.change( func );
@@ -311,16 +316,16 @@ $$.dom_init( function($R){
 	let confirmed;
 	const self=this;
 
-	$R.findx('button.js-form-check').on('click', function(evt){
+	$R.findx('button.js-check-form').on('click', function(evt){
 		const $obj  = $(evt.target);
-		const $form = $obj.parents('form.js-form-check');
+		const $form = $obj.parents('form.js-check-form');
 		if (!$form.length) return;
 		$form.data('confirm', $obj.data('confirm') );
 		$form.data('focus',   $obj.data('focus')   );
 		$form.data('button',  $obj);
 	});
 
-	$R.findx('form.js-form-check').on('submit', function(evt){
+	$R.findx('form.js-check-form').on('submit', function(evt){
 		const $form  = $(evt.target);
 		const target = $form.data('target');
 		let count=0;

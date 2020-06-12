@@ -150,3 +150,17 @@ $$.size_format = function(s) {
 	if (s >     999) return sprintf_3f( s/1024    ) + ' KB';
 	return s + ' Byte';
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// to int
+//////////////////////////////////////////////////////////////////////////////
+$$.int = function(s) {
+	const x = parseInt(s);
+	return isNaN(x) ? 0 : x;
+}
+$$.float = function(s) {
+	const x = parseFloat(s);
+	return isNaN(x) ? 0 : x;
+}
+
+

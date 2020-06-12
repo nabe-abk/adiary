@@ -22,7 +22,7 @@ $$.show_dialog = function(h, _arg, callback) {
 
 	const $div = $('<div>');
 	$div.html( html );
-	$div.attr('title', h.title || $obj.data('title') || _arg.title || h.default_title || this.msg('confirm'));
+	$div.attr('title', h.title || $obj.data('title') || (_arg && _arg.title) || h.default_title || this.msg('confirm'));
 	$div.adiaryDialog({
 		modal: true,
 		dialogClass: h.class,

@@ -92,6 +92,16 @@ $$.init(function(){
 });
 
 //////////////////////////////////////////////////////////////////////////////
+//●ボタンで値設定
+//////////////////////////////////////////////////////////////////////////////
+$$.init(function(){
+	this.$body.on('click', 'button.js-set-value[data-target]', function(evt){
+		const $btn = $(evt.target);
+		$($btn.data('target')).val( $btn.attr('value') );
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
 //●input[type="text"]などで enter による submit 停止
 //////////////////////////////////////////////////////////////////////////////
 $$.init( function(){
@@ -140,6 +150,21 @@ $$.init( function(){
 	this.$body.on('change', '.js-on-change-submit', function(evt){
 		const $obj = $(evt.target);
 		$obj.parentsOne('form').submit();
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//●テーブルの行選択
+//////////////////////////////////////////////////////////////////////////////
+$$.init(function(){
+	this.$body.on('click', 'tbody.js-line-checked', function(evt){
+		const $obj = $(evt.target);
+		const $pars= $obj.parents('tr');
+		if ($pars.add($obj).filter('a,input,button,label').length) return;
+
+		const $tr  = $pars.last();
+		const $inp = $tr.find('input[type="checkbox"]');
+		$inp.first().click();
 	});
 });
 
