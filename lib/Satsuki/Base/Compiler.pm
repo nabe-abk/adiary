@@ -364,8 +364,8 @@ $BuiltinFunc{replace} = <<'FUNC';
 sub {
 	my ($data, $x, $y) = @_;
 	if (ref $data ne 'ARRAY') {
-		$_[0] =~ s/$x/$y/sg;
-		return $_[0];
+		$data =~ s/$x/$y/sg;
+		return $data;
 	}
 	foreach(@$data) {
 		$_ =~ s/$x/$y/sg;
@@ -377,8 +377,8 @@ $BuiltinFunc{replace_one} = <<'FUNC';
 sub {
 	my ($data, $x, $y) = @_;
 	if (ref $data ne 'ARRAY') {
-		$_[0] =~ s/$x/$y/;
-		return $_[0];
+		$data =~ s/$x/$y/;
+		return $data;
 	}
 	foreach(@$data) {
 		$_ =~ s/$x/$y/;
