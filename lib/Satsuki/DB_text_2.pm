@@ -4,7 +4,7 @@ use strict;
 #-------------------------------------------------------------------------------
 package Satsuki::DB_text;
 use Satsuki::DB_text ();
-use Fcntl ();
+use Fcntl;
 
 our $FileNameFormat;
 our %IndexCache;
@@ -660,7 +660,7 @@ sub generate_pkey {
 
 	# indexをopenしてlockをかける
 	my $fh;
-	if ( !sysopen($fh, $index, &Fcntl::O_RDWR) ) {
+	if ( !sysopen($fh, $index, O_RDWR) ) {
 		return 0;
 	}
 	$ROBJ->write_lock($fh);

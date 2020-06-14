@@ -5,7 +5,7 @@ use strict;
 #-------------------------------------------------------------------------------
 package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
-use Fcntl ();
+use Fcntl;
 #-------------------------------------------------------------------------------
 our $VERSION    = 3.50;
 our $OUTVERSION = "3.50-dev";
@@ -1405,7 +1405,7 @@ sub load_plugin_function {
 
 	my $fh;
 	my $func;
-	sysopen($fh, $file, &Fcntl::O_RDONLY);
+	sysopen($fh, $file, O_RDONLY);
 	my $r = sysread($fh, $func, $st[7]);
 	close($fh);
 	if ($r != $st[7]) { return -2; }	# 読み込んだバイト数確認

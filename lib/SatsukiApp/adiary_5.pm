@@ -842,7 +842,7 @@ sub art_import {
 
 	# ファイルがメモリになかったら読み込む
 	if (!$form->{file}->{data}) {
-		sysopen(my $fh, $form->{file}->{tmp}, &Fcntl::O_RDONLY);
+		sysopen(my $fh, $form->{file}->{tmp}, O_RDONLY);
 		sysread($fh, $form->{file}->{data}, $form->{file}->{size});
 		close($fh);
 	}

@@ -1818,7 +1818,7 @@ sub fread_lines {
 	require Fcntl;
 	my $fh;
 	my @lines;
-	if ( !sysopen($fh, $file, &Fcntl::O_RDONLY) ) {
+	if ( !sysopen($fh, $file, O_RDONLY) ) {
 		return [];
 	}
 	@lines = <$fh>;
