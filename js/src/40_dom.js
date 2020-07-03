@@ -160,7 +160,7 @@ $$.init(function(){
 	this.$body.on('click', 'tbody.js-line-checked', function(evt){
 		const $obj = $(evt.target);
 		const $pars= $obj.parents('tr');
-		if ($pars.add($obj).filter('a,input,button,label').length) return;
+		if ($pars.add($obj).filter('a,input,button,label,.line-checked-cancel').length) return;
 
 		const $tr  = $pars.last();
 		const $inp = $tr.find('input[type="checkbox"]');

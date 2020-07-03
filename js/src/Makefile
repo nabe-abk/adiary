@@ -2,7 +2,7 @@
 # Makefile
 #
 
-COMPRESSOR = uglifyjs
+COMPRESSOR = terser
 OPTIONS    = -c -m --comments '/^!!/' --source-map includeSources,filename
 
 OUTPUT	   = ../adiary.min.js
