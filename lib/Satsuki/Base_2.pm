@@ -1418,6 +1418,9 @@ sub json_encode {
 	$v =~ s/\\/&#92;/g;
 	$v =~ s/\n/\\n/g;
 	$v =~ s/\t/\\t/g;
+	$v =~ s/\r/\\r/g;
+	$v =~ s/\x08/\\b/g;	# Backspace
+	$v =~ s/\x09/\\f/g;	# HT
 	$v =~ s/"/\\"/g;
 	return '"' . $v . '"';
 }
