@@ -92,17 +92,7 @@ sub get_system_info {
 	return \%h;
 }
 
-sub read_check {
-	my ($self, $file) = @_;
-	return -r $file;
-}
-
-sub write_check {
-	my ($self, $file) = @_;
-	return -w $file;
-}
-
-sub lib_check {
+sub check_lib {
 	my ($self, $lib) = @_;
 	my $pm = $lib;
 	$pm =~ tr|::|/|;
@@ -114,6 +104,15 @@ sub lib_check {
 		$ver = ${$lib . '::VERSION'};
 	}
 	return $ver ? $ver : '?.??';
+}
+
+sub check_cmd {
+	my $self = shift;
+	my $cmd  = shift;
+	foreach(split(/:/, $ENV{PATH})) {
+		if (-x "$_/$cmd") { return 1; }
+	}
+	return 0;
 }
 
 ###############################################################################

@@ -39,7 +39,7 @@ System-Coding : <@System_coding>
 <tr>
 	<td><@t.key></td>
 	<td><@t.val></td>
-	<td class="c"><@if(x = write_check( t.val ), ok, ng)><$ifset(!x, fail, 1)></td>
+	<td class="c"><@if(x = file_writable( t.val ), ok, ng)><$ifset(!x, fail, 1)></td>
 </tr>
 <$end>
 </tbody>
@@ -55,13 +55,13 @@ System-Coding : <@System_coding>
 </tr>
 </thead><tbody>
 <tr>
-	<td>Image::Magick</td><td class="c"><@if(x = lib_check('Image::Magick'), #'<strong class="good">Ver<@x></strong>', ng)></td>
+	<td>Image::Magick</td><td class="c"><@if(x = check_lib('Image::Magick'), #'<strong class="good">Ver<@x></strong>', ng)></td>
 	<td>存在すれば画像縮小可能</td>
 </tr><tr>
-	<td>Net::SSLeay</td><td class="c"><@if(x = lib_check('Net::SSLeay'), #'<strong class="good">Ver<@x></strong>', ng)></td>
+	<td>Net::SSLeay</td><td class="c"><@if(x = check_lib('Net::SSLeay'), #'<strong class="good">Ver<@x></strong>', ng)></td>
 	<td>外部サイトへのhttps通信に必要</td>
 </tr><tr>
-	<td>CryptX</td><td class="c"><@if(x = lib_check('CryptX'), #'<strong class="good">Ver<@x></strong>', ng)></td>
+	<td>CryptX</td><td class="c"><@if(x = check_lib('CryptX'), #'<strong class="good">Ver<@x></strong>', ng)></td>
 	<td>push通知プラグインで使用</td>
 </tr>
 </table>

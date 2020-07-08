@@ -20,7 +20,7 @@
 		<li>ファイル当たりの最大容量: <@(v.uplaod_files_max>>20)>MB</li>
 	</ul>
 
-<$x = lib_check('Net::SSLeay')>
+<$x = check_lib('Net::SSLeay')>
 <@ifexec(!x, begin, begin)>
 
 	<p class="error">※この機能を使用するには「Net::SSLeay」ライブラリが必要です（サーバ管理者にご確認ください）。</p>
