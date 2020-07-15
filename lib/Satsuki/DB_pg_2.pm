@@ -296,7 +296,7 @@ sub generate_where {
 		if (!defined $col) { last; }
 
 		my $not = substr($col,0,1) eq '-' ? 1 : 0;
-		$col =~ s/\W//g;
+		$col =~ s/[^\w\.]//g;
 		if ($val eq '') {
 			$where .= " AND $col IS " . ($not ? 'NOT NULL' : 'NULL');
 			next;

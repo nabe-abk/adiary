@@ -194,7 +194,7 @@ sub generate_select_where {
 		my $k = $_;
 		my $v = $h->{match}->{$_};
 
-		$k =~ s/\W//g;
+		$k =~ s/[^\w\.]//g;
 		if ($v eq '') {
 			$where .= " AND $k IS NULL";
 			next;
@@ -218,7 +218,7 @@ sub generate_select_where {
 		my $k = $_;
 		my $v = $h->{not_match}->{$_};
 
-		$k =~ s/\W//g;
+		$k =~ s/[^\w\.]//g;
 		if ($v eq '') {
 			$where .= " AND $k IS NOT NULL";
 			next;
@@ -237,39 +237,39 @@ sub generate_select_where {
 	}
 	foreach(sort(keys(%{ $h->{min} }))) {
 		my $k = $_;
-		$k =~ s/\W//g;
+		$k =~ s/[^\w\.]//g;
 		$where .= " AND $k>=?";
 		push(@ary, $h->{min}->{$_});
 	}
 	foreach(sort(keys(%{ $h->{max} }))) {
 		my $k = $_;
-		$k =~ s/\W//g;
+		$k =~ s/[^\w\.]//g;
 		$where .= " AND $k<=?";
 		push(@ary, $h->{max}->{$_});
 	}
 	foreach(sort(keys(%{ $h->{gt} }))) {
 		my $k = $_;
-		$k =~ s/\W//g;
+		$k =~ s/[^\w\.]//g;
 		$where .= " AND $k>?";
 		push(@ary, $h->{gt}->{$_});
 	}
 	foreach(sort(keys(%{ $h->{lt} }))) {
 		my $k = $_;
-		$k =~ s/\W//g;
+		$k =~ s/[^\w\.]//g;
 		$where .= " AND $k<?";
 		push(@ary, $h->{lt}->{$_});
 	}
 	foreach(sort(keys(%{ $h->{flag} }))) {
 		my $k = $_;
-		$k =~ s/\W//g;
+		$k =~ s/[^\w\.]//g;
 		$where .= " AND " . ($h->{flag}->{$_} ? '' : 'NOT ') . $k;
 	}
 	foreach(@{ $h->{is_null} }) {
-		$_ =~ s/\W//g;
+		$_ =~ s/[^\w\.]//g;
 		$where .= " AND $_ IS NULL";
 	}
 	foreach(@{ $h->{not_null} }) {
-		$_ =~ s/\W//g;
+		$_ =~ s/[^\w\.]//g;
 		$where .= " AND $_ IS NOT NULL";
 	}
 	if ($h->{search_cols} || $h->{search_match}) {
@@ -279,11 +279,13 @@ sub generate_select_where {
 			$w =~ s/([\\%_])/\\$1/g;
 			my @x;
 			foreach (@{ $h->{search_match} || [] }) {
+				$_ =~ s/[^\w\.]//g;
 				push(@x, "$_ ILIKE ?");
 				push(@ary, $w);
 			}
 			$w = "%$w%";
 			foreach (@{ $h->{search_cols}  || [] }) {
+				$_ =~ s/[^\w\.]//g;
 				push(@x, "$_ ILIKE ?");
 				push(@ary, $w);
 			}
