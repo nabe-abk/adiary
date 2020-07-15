@@ -299,7 +299,7 @@ sub generate_select_where {
 		if ($c & 1)	{		# 奇数ならすべて除去
 			$add =~ s/'//g;
 		}
-		$where .= ' AND '.$add;
+		$where .= " AND ($add)";
 		if ($h->{RDB_values}) {
 			push(@ary, @{ $h->{RDB_values} });
 		}
