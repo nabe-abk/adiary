@@ -346,6 +346,12 @@ sub do_sql {
 	}
 	return $sth;
 }
+sub select_sql {
+	my $self = shift;
+	my $sth  = $self->do_sql(@_);
+	if (!$sth) { return []; }
+	return $sth->fetchall_arrayref({});
+}
 
 #------------------------------------------------------------------------------
 # ●dbhのロード
