@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '1.93';
+our $VERSION = '2.00';
 #(簡易履歴)
+# 2020/07 Ver2.00  elsif 追加
 # 2020/05 Ver1.93  weaken()追加
 # 2020/05 Ver1.92  esc_csv()追加
 # 2020/04 Ver1.91  const()処理修正
@@ -236,26 +237,23 @@ my @BreakFuncs = (
 #------------------------------------------------------------------------------
 # <$x = ifexec(...)> 等を許可しない。
 # <$ifexec(...)> のみ許可する。
+#	1:	--
+#	2:	begin補完
 #
 my %LastOpFuncs = (
-	forexec=>1,
-	foreach=>1,
-	forexec_hash=>1,
-	foreach_hash=>1,
-	forexec_num=>1,
-	foreach_num=>1,
-	ifexec=>1
+	forexec	=>2,
+	foreach	=>2,
+	forexec_hash=>2,
+	foreach_hash=>2,
+	forexec_num=>2,
+	foreach_num=>2,
+	ifexec	=>2,
+	elsif	=>1
 );
 
 #------------------------------------------------------------------------------
-# ●if関連の inline 展開
+# ●if複合関数
 #------------------------------------------------------------------------------
-# ifexec を inline 展開する
-# forexec を inline 展開する
-#
-my $IfexecInline  = 1;
-my $ForexecInline = 1;
-
 # ifjump や ifmessage を展開する
 my %InlineIf = (if=>-1, ifdef=>-1,
 	ifcontinue=>1,
@@ -964,7 +962,7 @@ sub poland_to_eval {
 		my $cmd_flag = pop(@$_);
 
 		# ifexec/forexec の begin の省略
-		if ($LastOpFuncs{ $_->[0] } && 1<$#$_) {
+		if ($LastOpFuncs{ $_->[0] }==2 && 1<$#$_) {
 			my $z = pop(@$_);
 			my $y = pop(@$_);
 			if ($z eq '%r' && ($y ne ',' || $_->[$#$_] !~ /^begin/)) {
@@ -1336,15 +1334,29 @@ sub p2e_function {
 	}
 
 	#----------------------------------------------------------------------
-	# ifexec の展開
+	# ifexec
 	#----------------------------------------------------------------------
-	if ($IfexecInline && $y eq 'ifexec') {
+	if ($y eq 'ifexec') {
 		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
 		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) { $ary[2] = "\x02[$1]"; }
 		if ($#ary <= 2 && $ary[1] =~ /^\x01\[(begin.*)\]$/) { $ary[1] = "\x02[$1]"; }
 		$ary[0] =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
 		$x = join(",", @ary);
 		@$stack = ("ifexec($x)");
+		@$stype = ('*');
+		$st->{last}=1;
+		return;
+	}
+	if ($y eq 'elsif') {
+		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
+		if ($#ary != 0) {
+			push(@$stack, $x,  $y);
+			push(@$stype, $xt, $yt);
+			$st->{error_msg} = "'elsif' allow one argument only";
+			return;
+		}
+		$x = join(",", @ary);
+		@$stack = ("elsif($x)");
 		@$stype = ('*');
 		$st->{last}=1;
 		return;
@@ -1360,7 +1372,7 @@ sub p2e_function {
 	#----------------------------------------------------------------------
 	# forexec (foreach) の展開
 	#----------------------------------------------------------------------
-	if ($ForexecInline && $y =~ /^forexec/) {
+	if ($y =~ /^forexec/) {
 		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
 		my $line_num_int = int($st->{line_num});
 		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) {
@@ -1741,13 +1753,14 @@ sub split_begin_block {
 		}
 		push(@newbuf, $line);
 	}
-	# @arybuf に end が残ってないか確認する（エラーチェック）
-	foreach my $ary (@arybuf) {
+	# end/elsif が残ってないか確認する（エラーチェック）
+	foreach my $ary (\@newbuf,@arybuf) {
 		foreach(@$ary) {
-			if ($_ =~ /^\x01\d\d\d\dend(?:\.([^#]*))?/) {
+			if ($_ =~ /^\x01\d+(end|elsif)(?:\.([^#]*))?/) {
+				my $cmd  = $1;
 				my $lnum = &get_line_num_int($_);
 				my $end  = &get_line_data   ($_);
-				$self->error($lnum, "Exists 'end' without 'begin' (%s)", $end );
+				$self->error($lnum, "Exists '$cmd' without 'begin' (%s)", $end );
 				$_ = "<!-- compiler : block end exists, but corresponded end no exists ($end) -->";
 			}
 		}
@@ -1779,6 +1792,7 @@ sub split_begin {
 	my $t = shift(@$buf);
 	if ($t =~ /(.*?)\#(\d+)$/s) { $t=$1; $info=$2; }
 
+	my $first=1;
 	while (ord($t) == 1 && $t =~ /(.*?)([\x01\x02])\[(begin.*?)\](.*)/s) {
 		my $left  = $1;
 		my $flag  = $2;
@@ -1792,8 +1806,21 @@ sub split_begin {
 			$t = "<!-- compiler : begin block error($begin) -->";	# エラー行を置換
 			last;
 		}
+		if ($buf->[0] =~ /^\x01\d+elsif\(/) {
+			my $p = $buf->[0];
+			if ($first && $left =~ /^\x01\d+ifexec\(/) {
+				$right = ",$flag\[$begin\]" . $right;
+				$buf->[0] =~ s/^(\x01\d+)elsif\(/$1}elsif(/;
+			} else {
+				my $lnum = &get_line_num_int($p);
+				$self->error($lnum, "Exists 'elsif' without crresponded 'ifexec'");
+				$buf->[0] = "<!-- compiler : elsif block error -->";	# エラー行を置換
+			}
+		} else {
+			$first=0;
+		}
 
-		# 前処理
+ 		# 前処理
 		if ($mode eq 'begin_string' || $mode eq 'begin_array' || $mode eq 'begin_hash' || $mode eq 'begin_hash_order') {
 			my @newary;
 			my $line = [];
@@ -1956,9 +1983,14 @@ sub split_begin {
 		&info_rewrite($block, $info & $L_replace);
 		push(@$newbuf, @$block);
 		# else ?
-		if (@if_blocks) {
-			push(@$newbuf, "\x01$LineNumZero} else {#$L_no_change");
+		while (@if_blocks) {
 			$block = shift(@if_blocks);
+			if ($block->[0] =~ /^\x01(\d+)}elsif\((.*)\)/) {
+				push(@$newbuf, "\x01$1} elsif ($2) {#$L_no_change");
+				shift(@$block);
+			} else {
+				push(@$newbuf, "\x01$LineNumZero} else {#$L_no_change");
+			}
 			&info_rewrite($block, $info & $L_replace);
 			push(@$newbuf, @$block);
 		}
@@ -1978,6 +2010,10 @@ sub splice_block {
 	while(@$buf) {
 		my $line = shift(@$buf);
 		if ($line =~ /^\x01\d+end(?:\.([^#]*))?/ && $1 eq $blockname) {
+			return \@ary;
+		}
+		if ($line =~ /^\x01\d+elsif\(.*/ && $line !~ /[\x01\x02]\[begin.*?\]/) {
+			unshift(@$buf, $line);
 			return \@ary;
 		}
 		if (ord($line) == 1 && $line =~ /[\x01\x02]\[begin.*?\]/) {
