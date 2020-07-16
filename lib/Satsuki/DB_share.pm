@@ -90,8 +90,11 @@ sub set_noerror {
 	return $r;
 }
 sub debug {
-	my ($self, $sql) = @_;
+	my $self = shift;
 	if (!$self->{DEBUG}) { return; }
+	my $sql = shift;
+	my @ary = @{ shift || [] };
+	$sql =~ s/\?/@ary ? shift(@ary) : '?'/eg;
 	$self->{ROBJ}->debug('['.$self->{_RDBMS}.'] '.$sql, 1);	# debug-safe
 }
 sub warning {

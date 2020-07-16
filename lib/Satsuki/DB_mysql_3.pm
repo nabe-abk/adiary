@@ -246,7 +246,7 @@ sub sql_create_table {
 
 	# テーブル作成
 	my $sth = $dbh->prepare($sql);
-	$self->debug($sql);	# debug-safe
+	$self->debug($sql, $ary);	# debug-safe
 	$sth && $sth->execute(@{$ary || []});
 	if (!$sth || $dbh->err) {
 		$self->error($sql);

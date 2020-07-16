@@ -47,7 +47,7 @@ sub insert {
 	$self->utf8_on(\@ary);
 	my $sql = "INSERT INTO $table($cols) VALUES($vals)";
 	my $sth = $dbh->prepare_cached($sql);
-	$self->debug($sql);	# debug-safe
+	$self->debug($sql, \@ary);	# debug-safe
 	$sth && $sth->execute(@ary);
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
@@ -134,7 +134,7 @@ sub update_match {
 	$self->utf8_on(\@ary);
 	my $sql = "UPDATE $table SET $cols$where";
 	my $sth = $dbh->prepare_cached($sql);
-	$self->debug($sql);	# debug-safe
+	$self->debug($sql, \@ary);	# debug-safe
 	$sth && $sth->execute( @ary );
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
@@ -162,7 +162,7 @@ sub delete_match {
 	$self->utf8_on(\@ary);
 	my $sql = "DELETE FROM $table$where";
 	my $sth = $dbh->prepare_cached($sql);
-	$self->debug($sql);	# debug-safe
+	$self->debug($sql, \@ary);	# debug-safe
 	$sth && $sth->execute( @ary );
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
@@ -229,7 +229,7 @@ sub select_by_group {
 	#---------------------------------------------
 	my $sql = "SELECT $sel FROM $table$where$group_by$order_by";
 	my $sth = $dbh->prepare_cached($sql);
-	$self->debug($sql);	# debug-safe
+	$self->debug($sql, $ary);	# debug-safe
 	$sth && $sth->execute(@$ary);
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
@@ -336,7 +336,7 @@ sub do_sql {
 	$self->utf8_on(\@ary);
 
 	my $dbh = $self->{dbh};
-	$self->debug($sql);	# debug-safe
+	$self->debug($sql, \@ary);	# debug-safe
 	my $sth = $dbh->prepare($sql);
 	$sth && $sth->execute(@ary);
 	if ($dbh->err) { $self->error(); }
