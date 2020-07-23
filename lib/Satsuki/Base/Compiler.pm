@@ -6,7 +6,7 @@ use strict;
 package Satsuki::Base::Compiler;
 our $VERSION = '2.00';
 #(簡易履歴)
-# 2020/07 Ver2.00  elsif 追加
+# 2020/07 Ver2.00  elsif 追加, foreach_num(t, 10, 20)の書式追加。
 # 2020/05 Ver1.93  weaken()追加
 # 2020/05 Ver1.92  esc_csv()追加
 # 2020/04 Ver1.91  const()処理修正
@@ -1402,10 +1402,26 @@ sub p2e_function {
 			}
 
 			if ($y eq 'forexec_num') {
+				$ary[1] =~ s/^\((.*)\)$/$1/;
 				if ($ary[0] =~ /^\$[a-z][a-z0-9]*$/) {	# ローカル変数
 					@$stack = ("foreach my $ary[0] (1..int($ary[1]), \x02[$begin_type])");
 				} else {
 					@$stack = ("foreach(1..int($ary[1]), \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
+				}
+				@$stype = ('*');
+				$st->{last}=1;
+				return;
+			}
+		}
+		if ($#ary == 3 && $ary[3] =~ /^\x01\[(begin.*)\]$/) {
+			my $begin_type = $1;
+			if ($y eq 'forexec_num') {
+				$ary[1] =~ s/^\((.*)\)$/$1/;
+				$ary[2] =~ s/^\((.*)\)$/$1/;
+				if ($ary[0] =~ /^\$[a-z][a-z0-9]*$/) {	# ローカル変数
+					@$stack = ("foreach my $ary[0] (int($ary[1])..int($ary[2]), \x02[$begin_type])");
+				} else {
+					@$stack = ("foreach(int($ary[1])..int($ary[2]), \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
 				}
 				@$stype = ('*');
 				$st->{last}=1;
