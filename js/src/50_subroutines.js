@@ -96,7 +96,13 @@ $$.insert_to_textarea = function(ta, text) {
 // parse form
 //////////////////////////////////////////////////////////////////////////////
 $$.parse_form = function($par, cancel) {
-	const data = {};
+	return this._parse_form(false, $par, cancel);
+}
+$$.parse_form_fd = function($par, cancel) {
+	return this._parse_form(true,  $par, cancel);
+}
+$$._parse_form = function(fdmode, $par, cancel) {
+	const data = fdmode ? new FormData : {};
 	const $cancel = (cancel instanceof jQuery) ? cancel
 		: (cancel === undefined ? cancel : $(cancel));
 
@@ -105,10 +111,21 @@ $$.parse_form = function($par, cancel) {
 		if (dom.type == 'checkbox' && !dom.checked) return;
 		if ($cancel && $cancel.find(dom).length) return;
 
-		const $obj = $(dom);
-		const name = $obj.attr('name');
+		const name = dom.name;
+
+		// file
+		if (dom.tagName == 'INPUT' && dom.type == 'file') {
+			if (!fdmode) return;
+			const files = dom.files;
+			for(let i=0; i<files.length; i++)
+				data.append(name, files[i]);
+			return;
+		}
 		if (name == undefined || name == '') return;
-		data[name] = $obj.val();
+		if (fdmode)
+			data.append(name, $(dom).val());
+		else
+			data[name] = $(dom).val();
 	});
 	return data;
 };

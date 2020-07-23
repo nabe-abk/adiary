@@ -131,6 +131,17 @@ $$.init( function(){
 		$tar.click();
 	});
 });
+//////////////////////////////////////////////////////////////////////////////
+//●file reset button
+//////////////////////////////////////////////////////////////////////////////
+$$.init( function(){
+	this.$body.on('click', 'button.js-reset-btn', function(evt) {
+		const $obj = $(evt.target);
+		const $tar = $obj.rootfind( $obj.data('target') );
+		if (!$tar.length || $tar.val()=='') return;
+		$tar.val('').change();
+	});
+});
 
 //////////////////////////////////////////////////////////////////////////////
 //●フォーム要素の全チェック
@@ -163,7 +174,7 @@ $$.init(function(){
 		if ($pars.add($obj).filter('a,input,button,label,.line-checked-cancel').length) return;
 
 		const $tr  = $pars.last();
-		const $inp = $tr.find('input[type="checkbox"]');
+		const $inp = $tr.find('input[type="checkbox"],input[type="radio"]');
 		$inp.first().click();
 	});
 });

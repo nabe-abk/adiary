@@ -23,13 +23,8 @@ $$.dom_init( function($R) {
 
 		const gen  = $obj.data('generator');
 		const data = (typeof(gen) === 'function') ? gen($obj) : (function(){
-			// file upload?
 			const $infile = $obj.find('input[type="file"]');
-			if (!$infile.length) return $obj.serialize();
-
-			$obj.attr('method',  'POST');
-			$obj.attr('enctype', 'multipart/form-data');
-			return new FormData($obj[0]);
+			return $infile.length ? (new FormData($obj[0])) : $obj.serialize();
 		})();
 
 		if ($obj.data('js-ajax-stop')) return;
