@@ -56,7 +56,7 @@ sub init_for_httpd {
 ###############################################################################
 sub fork {
 	my $self = shift;
-	my $fcgi; # = $self->{FCGI_request};
+	my $fcgi = $self->{FCGI_request};
 	$fcgi && $fcgi->Detach();
 
 	my $fork = fork();
