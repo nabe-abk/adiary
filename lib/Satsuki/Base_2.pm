@@ -386,7 +386,7 @@ sub file_symlink {
 #------------------------------------------------------------------------------
 sub file_move {
 	my ($self, $src, $des) = @_;
-	if (!-f $src || -f $des) { return 1; }
+	if (!-f $src) { return 1; }
 	{
 		my $r = rename($src, $des);
 		if ($r) { return 0; }	# success
