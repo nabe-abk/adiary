@@ -155,9 +155,9 @@
 
 	# マルチパート用の設定
 	<$Form_options.allow_multipart = Auth.ok>
+
 	# データインポートや画像アップロードの最大サイズになります
 	<$Form_options.multipart_total_max_size = v.uplaod_files_max>
-	<$Form_options.multipart_data_max_size  = 1024> その他のデータ
 
 	# 大きいデータの場合、送信ファイルを一度テンポラリに書き出す
 	<$ifset(ENV.CONTENT_LENGTH > 1M, Form_options.multipart_temp_flag, 1)>

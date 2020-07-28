@@ -646,6 +646,7 @@ sub _read_form {
 	my $length = $ENV{CONTENT_LENGTH};
 	my $total_max = $options->{total_max_size};	# 1MB
 	if ($total_max && $length > $total_max) {
+		$self->{POST_ERR} = 1;
 		$self->message('Too large form data (max %dKB)', $total_max >> 10); return ;
 	}
 	### 通常のフォーム処理
@@ -686,13 +687,13 @@ sub read_multipart_form {
 	{
 		my $max = $options->{multipart_total_max_size};
 		if ($max && $length > $max) {
+			$self->{POST_ERR} = 1;
 			$self->message('Too large form data (max %dKB)', $max >> 10);
 			return;
 		}
 	}
 
 	my $file_max_size = $options->{multipart_file_max_size};
-	my $data_max_size = $options->{multipart_data_max_size};
 	my $use_temp_flag = $options->{multipart_temp_flag};
 	my $header_max_size = 1024;
 
@@ -762,7 +763,7 @@ sub read_multipart_form {
 				};
 			}
 		} else {
-			$buffer->read(\$value, $boundary, $data_max_size);
+			$buffer->read(\$value, $boundary, 0);
 		}
 		$self->form_data_check_and_save($form, $options, $name, $value);
 
