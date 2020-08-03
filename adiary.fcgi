@@ -85,7 +85,6 @@ sub fcgi_main_loop {
 	my $deamon = shift;
 
 	my $modtime = (stat($0))[9];
-	my $reload;
 	my $shutdown;
 	while($req->Accept() >= 0) {
 		eval {
@@ -147,7 +146,7 @@ HTML
 		#--------------------------------------------------
 		# 自分自身の更新チェック
 		#--------------------------------------------------
-		if ($modtime != (stat($0))[9]) { $reload=1; last; }
+		if ($modtime != (stat($0))[9]) { last; }
 	}
 	$req->Finish();
 }
