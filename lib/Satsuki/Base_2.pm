@@ -503,14 +503,14 @@ sub open_tmpfile {
 #------------------------------------------------------------------------------
 sub tmpwatch {
 	my $self = shift;
-	my ($dir, $time) = @_;
+	my $dir  = shift;
+	my $sec  = shift || 3600;
 	$dir = $dir ? $dir : $self->get_tmpdir();
 	$dir =~ s|([^/])/*$|$1/|;
-	if ($time < $self->{Temp_timeout}) { $time=$self->{Temp_timeout}; }
-	if ($time < 10) { $time = 10; }
+	if ($sec < 10) { $sec = 10; }
 
 	# $check_tm より modtime が古ければ削除
-	my $check_tm = $self->{TM} - $time;
+	my $check_tm = $self->{TM} - $sec;
 
 	# 削除ループ
 	my $files = $self->search_files( $dir, {all=>1} );
