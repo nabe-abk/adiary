@@ -967,7 +967,7 @@ sub _loadpm {
 }
 sub export_debug {
 	my $self = shift;
-	$self->{ROBJ}->debug($_[0], 1);		# debug-safe
+	$self->{ROBJ}->debug(join(' ', @_), 1);		# debug-safe
 }
 
 ###############################################################################
