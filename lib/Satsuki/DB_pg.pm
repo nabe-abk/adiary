@@ -164,7 +164,7 @@ sub select {
 	if ($limit ne '' && $limit <= $hits) {
 		my $sql = "SELECT count(*) FROM $table$where";
 		my $sth = $dbh->prepare_cached($sql);
-		$self->debug($sql);	# debug-safe
+		$self->debug($sql, $ary);	# debug-safe
 		$sth && $sth->execute(@$ary);
 		if (!$sth || $dbh->err) {
 			$self->error($sql);

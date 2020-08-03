@@ -94,7 +94,7 @@ sub debug {
 	if (!$self->{DEBUG}) { return; }
 	my $sql = shift;
 	my @ary = @{ shift || [] };
-	$sql =~ s/\?/@ary ? shift(@ary) : '?'/eg;
+	$sql =~ s/\?/@ary ? ($ary[0] =~ m|^\d+$| ? shift(@ary) : "'" . shift(@ary) . "'") : '?'/eg;
 	$self->{ROBJ}->debug('['.$self->{_RDBMS}.'] '.$sql, 1);	# debug-safe
 }
 sub warning {
