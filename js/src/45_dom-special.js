@@ -228,22 +228,22 @@ $$._toggle = function(init, $obj) {
 	}
 
 	const type = $obj[0].tagName == 'INPUT' && $obj[0].type;
-	let     id = $obj.data('target');
-	if (!id) {
+	let   tar  = $obj.data('target');
+	if (!tar) {
 		// 子要素のクリックを拾う
-		$obj = $obj.parents("[data-target]").first();
+		$obj = $obj.parents(".js-switch").first();
 		if (!$obj.length) return;
-		id = $obj.data('target');
+		tar = $obj.data('target');
 	}
-
-	const $target = $obj.rootfind(id);
+	const $target = $obj.rootfind(tar);
 	if (!$target.length) return false;
 
 	// スイッチの状態を保存する	ex)タグリスト(tree)
 	const storage = $obj.existsData('save') ? Storage : null;
 
 	// 変更後の状態取得
-	var flag;
+	const id = $obj.attr('id') || $obj.attr('name') || tar;
+	let flag;
 	if (init && storage && storage.defined(id)) {
 		flag = storage.getInt(id) ? true : false;
 		if (type == 'checkbox' || type == 'radio') $obj.prop("checked", flag);
@@ -258,6 +258,18 @@ $$._toggle = function(init, $obj) {
 	// show speed
 	let delay = $obj.data('delay');
 	if (delay === undefined || delay === '') delay = this.DefaultShowSpeed;
+
+	// first mode
+	if (delay==0 || $obj.data('first')) {
+		const css_id = '--css--' + id.replace(/[^\w\-]/g, '-');
+		let   $css   = $('#' + css_id);
+		if (!$css.length) {
+			$css = $('<style>').attr('id', css_id);
+			$('head').append($css);
+		}
+		$css.text( flag ? '' : tar + '{ display: none; }' );
+		return true;
+	}
 
 	// set state
 	if (flag) {

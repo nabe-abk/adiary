@@ -43,15 +43,13 @@ findx: function(sel){
 // $(sel) element for "this" dom element is not append "document/html"
 //
 rootfind: function(sel) {
-	var html = this.parents().last();
-	return html.find(sel);
+	return this.parents().last().find(sel);
 },
 //////////////////////////////////////////////////////////////////////////////
 //●親要素をひとつ選択
 //////////////////////////////////////////////////////////////////////////////
 parentsOne: function(filter){
-	const $obj = this.parents(filter);
-	return $obj.first();
+	return this.parents(filter).first();
 },
 //////////////////////////////////////////////////////////////////////////////
 //●指定のdataを持っているか？
