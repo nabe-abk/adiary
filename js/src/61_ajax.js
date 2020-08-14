@@ -13,7 +13,7 @@ $$.send_ajax = function(opt) {
 		let msg = '';
 		if (h) {
 			if (h.ret && h._develop) msg += 'ret = ' + h.ret;
-			if (h.msg)    msg += '<p>' + self.tag_esc(h.msg)    + '</p>';
+			if (h.msg)    msg += '<p>' + self.tag_esc(h.msg.toString())    + '</p>';
 			if (h.errs) {
 				const ary = [];
 				const e = h.errs;
