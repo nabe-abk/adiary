@@ -1,5 +1,8 @@
 /*!
  * adiary.js (C)nabe@abk
+ *
+ * This JavaScript Framework (SatsukiJS) is free software;
+ * you can redistribute it and/or modify it under the AGPLv3.
  */
 'use strict';
 let SP;		// smart phone mode

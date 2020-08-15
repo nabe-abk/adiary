@@ -1,13 +1,15 @@
 #
 # Makefile
 #
+NAME       = adiary
+OUT_DIR    = ..
 
 COMPRESSOR = terser
-OPTIONS    = -c -m --comments '/^!!/' --source-map includeSources,filename
+OPTIONS    = -c -m --comments '/^!!/' --source-map "includeSources,filename,url='$(NAME).min.map',base='src/'"
 
-OUTPUT	   = ../adiary.min.js
-MAP_FILE   = ../adiary.min.map
-HTML       = ../adiary-js-load.html
+OUTPUT	   = $(OUT_DIR)/$(NAME).min.js
+MAP_FILE   = $(OUT_DIR)/$(NAME).min.map
+HTML       = $(OUT_DIR)/$(NAME)-js-load.html
 
 FILES = 00u_comment.js		\
 	jquery-3.4.1.js		\
