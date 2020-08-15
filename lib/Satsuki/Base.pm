@@ -825,9 +825,13 @@ sub regist_cache_cheker {
 #------------------------------------------------------------------------------
 # ●タグのエスケープ
 #------------------------------------------------------------------------------
-sub esc {	# 非破壊
+sub esc {
 	my $self = shift;
 	return $self->tag_escape(join('',@_));
+}
+sub esc_amp {
+	my $self = shift;
+	return $self->tag_escape_amp(join('',@_));
 }
 my %tesc = ('<'=>'&lt;', '>'=>'&gt;', '"'=>'&quot;', "'"=>'&#39;', '&'=>'&amp;');
 sub tag_escape {
