@@ -52,7 +52,7 @@
 	<tr>
 		<th>管理者</th>
 		<@ifexec(! Auth.exists_admin, begin, begin)><@>ユーザーなし自動承認モードなら無条件に管理者
-		<td><input type="hidden" name="isadmin" value="1">最初のユーザーは自動的に管理者になります</td></tr>
+		<td><input type="hidden" name="isadmin" value="1">最初のユーザーは自動的に管理者になります</td>
 		<$else>
 		<td>
 			<input type="hidden" name="checkbox.info" value="isadmin">
