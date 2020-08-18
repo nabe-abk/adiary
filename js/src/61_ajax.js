@@ -50,7 +50,7 @@ $$.send_ajax = function(opt) {
 $$.send_ajax_promise = function(opt) {
 	const self=this;
 
-	return new Promise( (resolve, reject) => {
+	return new Promise( function(resolve, reject) {
 		opt.error_callback = function(){
 			reject();
 		};
