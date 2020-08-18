@@ -6,7 +6,7 @@ use strict;
 package Satsuki::Base::Compiler;
 our $VERSION = '2.01';
 #(簡易履歴)
-# 2020/08 Ver2.01  'Is_function' to 'IsFunction'
+# 2020/08 Ver2.01  ifexecブロック自動認識。'Is_function' to 'IsFunction'
 # 2020/07 Ver2.00  elsif 追加, foreach_num(t, 10, 20)の書式追加。
 # 2020/05 Ver1.93  weaken()追加
 # 2020/05 Ver1.92  esc_csv()追加
@@ -969,6 +969,7 @@ sub poland_to_eval {
 			if ($z eq '%r' && ($y ne ',' || $_->[$#$_] !~ /^begin/)) {
 				push(@$_, $y, 'begin');
 				$y=',';
+				if ($_->[0] eq 'ifexec') { $_->[0] = 'ifexec_'; } # 補完処理 ifexec
 			}
 			push(@$_, $y, $z);
 		}
@@ -1337,13 +1338,13 @@ sub p2e_function {
 	#----------------------------------------------------------------------
 	# ifexec
 	#----------------------------------------------------------------------
-	if ($y eq 'ifexec') {
+	if ($y eq 'ifexec' || $y eq 'ifexec_') {
 		my @ary = &get_objects_array($x_orig, $xt, $local_vars);
 		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) { $ary[2] = "\x02[$1]"; }
 		if ($#ary <= 2 && $ary[1] =~ /^\x01\[(begin.*)\]$/) { $ary[1] = "\x02[$1]"; }
 		$ary[0] =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
 		$x = join(",", @ary);
-		@$stack = ("ifexec($x)");
+		@$stack = ("$y($x)");
 		@$stype = ('*');
 		$st->{last}=1;
 		return;
@@ -1723,7 +1724,7 @@ sub get_element_type {
 		if ($#$lv_stack) {
 			pop(@$lv_stack);
 		}
-		$_[0] = "end$1"; return 'block';
+		$_[0] = $p; return 'block';
 	}
 	if ($p =~ /^yes$/i || $p =~ /^true$/i) {
 		$_[0] = 1; return 'const';
@@ -1762,23 +1763,24 @@ sub split_begin_block {
 			$self->split_begin(\@newbuf, $buf, \@arybuf);
 			next;
 		}
-		if ($line =~ /^\x01\d\d\d\dend(?:\.([^#]*))?/) {
+		if ($line =~ /^\x01\d\d\d\d(else|end|elsif)(?:\.([^#]*))?/) {
+			my $cmd  = $1;
 			my $lnum = &get_line_num_int($line);
 			my $end  = &get_line_data   ($line);
-			$self->error($lnum, "Exists 'end' without 'begin' (%s)", $end );
-			$line = "<!-- compiler : block end exists, but corresponded end no exists ($end) -->";
+			$self->error($lnum, "Exists '%s' without 'begin' (%s)", $cmd, $end);
+			$line = "<!-- compiler : block '$cmd' exists, but corresponded end no exists ($end) -->";
 		}
 		push(@newbuf, $line);
 	}
 	# end/elsif が残ってないか確認する（エラーチェック）
 	foreach my $ary (\@newbuf,@arybuf) {
 		foreach(@$ary) {
-			if ($_ =~ /^\x01\d+(end|elsif)(?:\.([^#]*))?/) {
+			if ($_ =~ /^\x01\d+(else|end|elsif)(?:\.([^#]*))?/) {
 				my $cmd  = $1;
 				my $lnum = &get_line_num_int($_);
 				my $end  = &get_line_data   ($_);
-				$self->error($lnum, "Exists '$cmd' without 'begin' (%s)", $end );
-				$_ = "<!-- compiler : block end exists, but corresponded end no exists ($end) -->";
+				$self->error($lnum, "Exists '%s' without 'begin' (%s)", $cmd, $end);
+				$_ = "<!-- compiler : block '$cmd' exists, but corresponded end no exists ($end) -->";
 			}
 		}
 	}
@@ -1815,24 +1817,35 @@ sub split_begin {
 		my $flag  = $2;
 		my $begin = $3;
 		my $right = $4;
+
 		my ($mode, $blockname) = split(/\./, $begin, 2);
 		my $ary = $self->splice_block($buf, $mode, $blockname, $arybuf);
 		if (! defined $ary) {
 			my $lnum = &get_line_num_int($t);
 			$self->error($lnum, "Exists 'begin' without crresponded 'end' (%s)", $begin );
-			$t = "<!-- compiler : begin block error($begin) -->";	# エラー行を置換
+			$t = "<!-- compiler : begin block error($begin) -->";	# output html
 			last;
 		}
 		if ($buf->[0] =~ /^\x01\d+elsif\(/) {
 			my $p = $buf->[0];
-			if ($first && $left =~ /^\x01\d+ifexec\(/) {
+			if ($first && $left =~ /^\x01\d+ifexec_?\(/) {
 				$right = ",$flag\[$begin\]" . $right;
 				$buf->[0] =~ s/^(\x01\d+)elsif\(/$1}elsif(/;
 			} else {
 				my $lnum = &get_line_num_int($p);
 				$self->error($lnum, "Exists 'elsif' without crresponded 'ifexec'");
-				$buf->[0] = "<!-- compiler : elsif block error -->";	# エラー行を置換
+				$buf->[0] = "<!-- compiler : elsif block error -->";
 			}
+		} elsif ($buf->[0] =~ /^\x01\d+else$/) {
+			my $p = shift(@$buf);
+			if ($first && $left =~ /^\x01\d+ifexec_\(/) {
+				$right = ",$flag\[$begin\]" . $right;	# auto complite begin
+			} elsif(!$first) {
+				my $lnum = &get_line_num_int($p);
+				$self->error($lnum, "Illegal syntax 'else'");
+				$buf->[0] = "<!-- compiler : Illegal syntax 'else' -->";
+			}
+			$first=0;
 		} else {
 			$first=0;
 		}
@@ -1989,7 +2002,7 @@ sub split_begin {
 	# ○ブロック展開処理
 	#------------------------------------------------------------
 	if (@if_blocks) {
-		$t =~ s/^(\x01\d+)ifexec\(/${1}if (/;
+		$t =~ s/^(\x01\d+)ifexec_?\(/${1}if (/;
 		if ($t =~ /\x02\{.*?\}\x02/) {
 			$t =~ s/\x02\{(.*?)\}\x02//g;
 			push(@$newbuf, "$t {$1#$L_no_change");
@@ -2026,7 +2039,8 @@ sub splice_block {
 	my @ary;
 	while(@$buf) {
 		my $line = shift(@$buf);
-		if ($line =~ /^\x01\d+end(?:\.([^#]*))?/ && $1 eq $blockname) {
+		if ($line =~ /^(\x01\d+(else|end))(?:\.([^#]*))?/ && $3 eq $blockname) {
+			if ($2 eq 'else') { unshift(@$buf, $1); }
 			return \@ary;
 		}
 		if ($line =~ /^\x01\d+elsif\(.*/ && $line !~ /[\x01\x02]\[begin.*?\]/) {

@@ -2,16 +2,16 @@
 
 *Ver3.5x : 2020/xx/xx
 
--【httpd】.gitフォルダへのアクセスを禁止しました。
--【httpd】ルートフォルダ内（.httpd.plと同じディレクトリ内）のファイルアクセスを無視するようにしました。
 -【Base/System】
 --【Compiler】forexecをforeachと書けるようにしました。
---【Compiler】forexec, ifexec（elseなし）の begin を省略できるようにしました。
+--【Compiler】forexec, ifexec 等の begin を省略できるようにしました。
 --【Compiler】"++x"や"y--"等の記述を可能にしました。
 --【構文】call() ファイルが見つからない場合にエラー表示をするようにしました。
 --【Auth】ユーザ管理まわりを大幅更新しました。
 --【Auth】ログイン失敗sleep（fail_sleep）機能を削除しました。((sleepしたところで複数同時ログインを試みればセキュリティ対策として意味がないため。))
 --{<$Form_options.multipart_data_max_size>} オプションを削除しました。
+-【httpd】.gitフォルダへのアクセスを禁止しました。
+-【httpd】ルートフォルダ内（.httpd.plと同じディレクトリ内）のファイルアクセスを無視するようにしました。
 -【DB】DB再接続機能を付けました。
 -【DB】prapere() を prapere_cached() に変更しました。
 --フォーム処理を更新しました。
