@@ -30,7 +30,8 @@
 		<th>ID</th>
 		<td><input type="text" name="msys_id" class="w100 _reset" value="" data-name="id" pattern="^[a-z][a-z0-9_]*$" required>
 			先頭はa-zで「a-z, 0-9, _」のみ使用可能。
-		</td></tr>
+		</td>
+	</tr>
 	<tr>
 		<th>名前</th>
 		<td><input type="text" name="name" class="w120 _reset" value="" required></td>
@@ -55,7 +56,7 @@
 		<td><input type="hidden" name="isadmin" value="1">最初のユーザーは自動的に管理者になります</td>
 		<$else>
 		<td>
-			<input type="hidden" name="checkbox.info" value="isadmin">
+			<input type="hidden" name="isadmin" value="0">
 			<label><input type="checkbox" id="isadmin" name="isadmin" value="1"<@if(Form.isadmin, ' checked')>>管理者にする</label>
 		</td>
 		<$end>
