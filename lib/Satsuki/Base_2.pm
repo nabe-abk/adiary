@@ -15,7 +15,7 @@ sub compile {
 	#------------------------------------------------------------
 	# コンパイルログを残すか？
 	#------------------------------------------------------------
-	my $logfile = $self->{Compile_log_dir};
+	my $logfile = $self->{CompilerLog};
 	if ($logfile ne '' && (-d $logfile || $self->mkdir($logfile)) ) {
 		my $file = $src_file;
 		$file =~ s|/|_-_|g;
@@ -61,7 +61,7 @@ sub save_cache {
 TEXT
 	# バージョン／コンパイラ・スケルトンの更新時刻
 	push(@lines, "Version=1.01\n\0");
-	push(@lines, ($self->{Compiler_tm}) . "\0");
+	push(@lines, ($self->{CompilerTM}) . "\0");
 	push(@lines, $src_file_tm . "\0");
 
 	# ルーチンの保存
