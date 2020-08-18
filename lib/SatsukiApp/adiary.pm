@@ -165,28 +165,30 @@ sub main {
 	# POST actionの呼び出し
 	#-------------------------------------------------------------
 	my $action = $ROBJ->{POST} && $ROBJ->{Form}->{action};
-	if ($action =~ /^_ajax_\w+$/) {
-		my $data = $self->ajax_function( $action );
+	if ($action) {
+		if ($action =~ /^_ajax_\w+$/) {
+			my $data = $self->ajax_function( $action );
 
-		# Append debug message
-		if ($ROBJ->{Develop} && ref($data) eq 'HASH') {
-			$data->{_develop} = 1;
-			if (my $err = ($ROBJ->error_load_and_clear() . join("\n", @{$ROBJ->{Debug}}))) {
-				$data->{_debug} = $err;
+			# Append debug message
+			if ($ROBJ->{Develop} && ref($data) eq 'HASH') {
+				$data->{_develop} = 1;
+				if (my $err = ($ROBJ->error_load_and_clear() . join("\n", @{$ROBJ->{Debug}}))) {
+					$data->{_debug} = $err;
+				}
 			}
-		}
-		$self->{action_data} = $ROBJ->generate_json( $data );
+			$self->{action_data} = $ROBJ->generate_json( $data );
 
-	} elsif (my ($dir,$file) = $self->parse_skel($action)) {
-		local($self->{skel_dir}) = $dir;
-		$self->{action_data} = $ROBJ->call( "${dir}_action/$file" );
+		} elsif (my ($dir,$file) = $self->parse_skel($action)) {
+			local($self->{skel_dir}) = $dir;
+			$self->{action_data} = $ROBJ->call( "${dir}_action/$file" );
 
-		# CSRFチェック（無関係なactionを指定して, CSRFされるのを防ぐ）
-		if ($ROBJ->{Auth}->{ok}) { $ROBJ->csrf_check(); }
+			# CSRFチェック（無関係なactionを指定して, CSRFされるのを防ぐ）
+			if ($ROBJ->{Auth}->{ok}) { $ROBJ->csrf_check(); }
 
-		# キャッシュのクリア
-		if ($ROBJ->{Auth}->{ok} || $ROBJ->{action_return} eq '0') {
-			$self->clear_cache();
+			# キャッシュのクリア
+			if ($ROBJ->{Auth}->{ok} || $ROBJ->{action_return} eq '0') {
+				$self->clear_cache();
+			}
 		}
 	}
 
