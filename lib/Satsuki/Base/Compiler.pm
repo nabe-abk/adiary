@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.00';
+our $VERSION = '2.01';
 #(簡易履歴)
+# 2020/08 Ver2.01  'Is_function' to 'IsFunction'
 # 2020/07 Ver2.00  elsif 追加, foreach_num(t, 10, 20)の書式追加。
 # 2020/05 Ver1.93  weaken()追加
 # 2020/05 Ver1.92  esc_csv()追加
@@ -2231,7 +2232,7 @@ sub array2sub {
 	my $append='';
 	if ($pragma & $P_is_function) {
 		# 関数処理ならば、それを Base.pm に通知する
-		$append .= "\t\$R->{Is_function}=1;\n";
+		$append .= "\t\$R->{IsFunction}=1;\n";
 	}
 	return [$SUB_HEAD . $append . $subs . $main];
 }
@@ -2339,7 +2340,7 @@ sub debug {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $msg  = "[Compiler] $self->{src_file} : " . $ROBJ->translate(@_);
-	return $ROBJ->debug($msg,1,@_); # debug-safe
+	return $ROBJ->_debug($msg);	# debug-safe
 }
 
 ###############################################################################

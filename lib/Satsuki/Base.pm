@@ -1,11 +1,11 @@
 use strict;
 #------------------------------------------------------------------------------
 # Base system functions for satsuki system
-#						Copyright(C)2005-2019 nabe@abk
+#						Copyright(C)2005-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.61';
+our $VERSION = '2.62';
 our $RELOAD;
 my %StatCache;
 #------------------------------------------------------------------------------
@@ -62,12 +62,13 @@ sub new {
 	$self->{AMPM_name} = ['AM','PM','AM'];	# 午前, 午後, 深夜
 	$self->init_tm();
 
-	# スケルトン関連、ネストcall/jumpによる無限ループ防止設定
-	$self->{Skeleton_ext}    = '.html';
-	$self->{Jump_count}      = 0;
-	$self->{Nest_count}      = 0;
-	$self->{Nest_count_base} = 0;
-	$self->{Nest_max}        = 99;
+	# ネストcall/jumpによる無限ループ防止設定
+	$self->{SkeletonExt} = '.html';
+	$self->{JumpCount}   = 0;
+	$self->{NestCount}   = 0;
+	$self->{CurrentNest} = 0;
+	$self->{MaxNest}     = 99;
+	$self->{SkelDirs}    = [];
 
 	# error / debug
 	$self->{Error}   = [];
@@ -81,7 +82,7 @@ sub new {
 	#-------------------------------------------------------------
 	# スケルトンキャッシュ関連
 	#-------------------------------------------------------------
-	$self->{Compiler_tm} = $self->get_lastmodified( 'lib/Satsuki/Base/Compiler.pm' );
+	$self->{CompilerTM} = $self->get_lastmodified( 'lib/Satsuki/Base/Compiler.pm' );
 
 	my $cache_dir = $ENV{SatsukiCacheDir} || $SYSTEM_CACHE_DIR;
 	if (-d $cache_dir && -w $cache_dir) {
@@ -293,17 +294,17 @@ sub execute {
 	my ($self, $subroutine) = @_;
 	if (ref $subroutine ne 'CODE') {
 		my ($pack, $file, $line) = caller;
-		$self->error_from("line $line at $file : $self->{__src_file}", "[executor] Can't execute string '%s'", $subroutine);
+		$self->error_from("line $line at $file : $self->{CurrentSrc}", "[executor] Can't execute string '%s'", $subroutine);
 		return ;
 	}
 
 	#------------------------------------------------------------
 	# ○ネストチェック（無限ループ防止）
 	#------------------------------------------------------------
-	$self->{Nest_count}++;	# パーサーのネストカウンタ
-	if ($self->{Nest_count} > $self->{Nest_max}) {
-		my $err = $self->error_from('', '[executor] Too depth nested call (max %d)', $self->{Nest_max});
-		$self->{Nest_count}--;
+	$self->{NestCount}++;
+	if ($self->{NestCount} > $self->{MaxNest}) {
+		my $err = $self->error_from('', '[executor] Too depth nested call (max %d)', $self->{MaxNest});
+		$self->{NestCount}--;
 		$self->{Break} = 2;
 		return "<h1>$err</h1>";
 	}
@@ -313,15 +314,15 @@ sub execute {
 	#------------------------------------------------------------
 	my $output='';
 	my $line;
-	local($self->{Is_function});
+	local($self->{IsFunction});
 	{
-		## $self->{Timer}->start($self->{__src_file});
+		## $self->{Timer}->start($self->{CurrentSrc});
 		my $v_ref;
 		$self->{Return} = undef;
 		eval{ $self->{Return} = &$subroutine($self, \$output, \$line, $v_ref); };
 		$v_ref && ($self->{v} = $$v_ref);			# vを書き戻す
 		if ($ENV{SatsukiExit}) { die("exit($self->{Exit})"); }	# exit代わりのdie
-		## ($self->{"times"} ||= {})->{"$self->{__src_file}"} = $self->{Timer}->stop($self->{__src_file});
+		## ($self->{"times"} ||= {})->{"$self->{CurrentSrc}"} = $self->{Timer}->stop($self->{CurrentSrc});
 	}
 
 	# break
@@ -330,7 +331,7 @@ sub execute {
 		$self->set_status(500);
 		my $err = $@;
 		foreach(split(/\n/, $err)) {
-			$self->error_from("line $line at $self->{__src_file}", "[executor] $_");
+			$self->error_from("line $line at $self->{CurrentSrc}", "[executor] $_");
 		}
 		$RELOAD = 1;
 	}
@@ -338,27 +339,25 @@ sub execute {
 	#------------------------------------------------------------
 	# ○後処理
 	#------------------------------------------------------------
-	$self->{Nest_count}--;		# ネストカウンタ
+	$self->{NestCount}--;		# ネストカウンタ
 
 	while($break) {
 		my $break_level = abs($break);
-		# braek level 1 のとき、同一 callレベル 内で break
-		if ($break_level==1 && $self->{Nest_count} > $self->{Nest_count_base}) { last; }
-		# braek level 2 以上のとき、ネストレベル 0 まで break (super break)
-		if ($break_level >1 && $self->{Nest_count} > 0) { last; }
-		# 負数は現在までの処理結果を破棄
-		if ($break < 0) { $output = ''; }
+		if ($break_level==1 && $self->{NestCount} > $self->{CurrentNest}) { last; }	# 同一 level内
+		if ($break_level >1 && $self->{NestCount} > 0) { last; }			# superbreak
+		if ($break < 0) { $output = ''; }						# clear option
 		$self->{Break} = 0;
-		# jump or call ?
-		if ($self->{Jump_file}) {		# jump 処理
-			$self->{Jump_count}++;
-			if ($self->{Jump_count} < $self->{Nest_max}) {
-				my ($jump_file, $jump_skel) = ($self->{Jump_file}, $self->{Jump_skeleton});
-				undef $self->{Jump_file};
-				undef $self->{Jump_skeleton};
-				$output .= $self->__call($jump_file, $jump_skel, @{ $self->{Jump_argv} });
+
+		if ($self->{JumpFile}) {
+			my $file = $self->{JumpFile};
+			my $skel = $self->{JumpSkel};
+			$self->{JumpFile} = undef;
+			$self->{JumpSkel} = undef;
+			$self->{JumpCount}++;
+			if ($self->{JumpCount} < $self->{MaxNest}) {
+				$output .= $self->__call($file, $skel, @{ $self->{JumpArgv} });
 			} else {
-				my $err = $self->error_from('', "[executor] Too many jump (max %d)", $self->{Nest_max});
+				my $err = $self->error_from('', "[executor] Too many jump (max %d)", $self->{MaxNest});
 				$output .= "<h1>$err</h1>";
 			}
 		}
@@ -366,7 +365,7 @@ sub execute {
 	}
 
 	# functionとしてreturn値を取る？
-	return $self->{Is_function} ? $self->{Return} : $output;
+	return $self->{IsFunction} ? $self->{Return} : $output;
 }
 
 ###############################################################################
@@ -391,7 +390,7 @@ sub __call {
 	# ソースファイルを読み込めない
 	if (!-r $src_file) {
 		if ($cache_file) { unlink($cache_file); }	# キャッシュ削除
-		$self->error("[call] failed - Can't read file '%s'", $src_file || $skel_name . $self->{Skeleton_ext} );
+		$self->error("[call] failed - Can't read file '%s'", $src_file || $skel_name . $self->{SkeletonExt} );
 		return undef;
 	}
 
@@ -405,12 +404,12 @@ sub __call {
 	#------------------------------------------------------------
 	# 有効なキャッシュか確認
 	#------------------------------------------------------------
-	if ($cache_file && ($skel->{src_tm} != $src_tm || $skel->{compiler_tm} != $self->{Compiler_tm})) {
+	if ($cache_file && ($skel->{src_tm} != $src_tm || $skel->{compiler_tm} != $self->{CompilerTM})) {
 		# ファイルからキャッシュロード
 		$skel = $self->load_cache($cache_file);
 
 		# キャッシュが有効か確認する
-		if (!$skel || $skel->{compiler_tm} != $self->{Compiler_tm} || $skel->{src_tm} != $src_tm) {
+		if (!$skel || $skel->{compiler_tm} != $self->{CompilerTM} || $skel->{src_tm} != $src_tm) {
 			# $self->debug("Unload cache file : $src_file");
 			unlink($cache_file);
 			$skel = undef
@@ -424,7 +423,7 @@ sub __call {
 		$skel = {
 			arybuf => $self->compile($cache_file, $src_file, $src_file, $src_tm),
 			src_tm => $src_tm,
-			compiler_tm => $self->{Compiler_tm}
+			compiler_tm => $self->{CompilerTM}
 		};
 	}
 
@@ -452,11 +451,11 @@ sub __call {
 	# 実行処理
 	#------------------------------------------------------------
 	my $c = $self->{__cont_level};
-	local ($self->{argv}, $self->{__src_file}, $self->{__skeleton}, $self->{Nest_count_base});
-	$self->{argv}            = \@_;
-	$self->{__src_file}      = $src_file;
-	$self->{__skeleton}      = $skel_name;
-	$self->{Nest_count_base} = $self->{Nest_count};
+	local ($self->{argv}, $self->{CurrentSrc}, $self->{CurrentSkel}, $self->{CurrentNest});
+	$self->{argv}        = \@_;
+	$self->{CurrentSrc}  = $src_file;
+	$self->{CurrentSkel} = $skel_name;
+	$self->{CurrentNest} = $self->{NestCount};
 	return $self->execute( $arybuf->[0] );
 }
 
@@ -568,48 +567,42 @@ sub superjump_clear {	# callネストをすべてbreak & clear
 	$self->{Break} = -2;
 	return $self->jump(@_);
 }
-
 sub jump {
 	my $self = shift;
-	my $file = shift;
-	$file =~ s/[^\w\/]//g;
-	my ($jump_file, $skel_level) = $self->check_skeleton($file);
-
+	my $skel = shift;
 	$self->{Break} ||= 1;
-	if ($jump_file eq '') {	# not Found
-		$self->error("[jump] failed - File not found '%s'", $file);
-		return ;
+
+	my ($file, $level) = $self->check_skeleton($skel);
+	if ($file eq '') {
+		return $self->error("[%s] failed - File not found '%s'", 'jump', $skel);
 	}
-	$self->{Jump_file}     = $jump_file;
-	$self->{Jump_skeleton} = $file;
-	$self->{Jump_argv}     = \@_;
-	$self->{__cont_level}  = $skel_level -1;
-	return ;
+	$self->{JumpFile}  = $file;
+	$self->{JumpSkel}  = $skel;
+	$self->{JumpArgv}  = \@_;
+	$self->{SkelLevel} = $level -1;
+}
+sub _jump {
+	my $self = shift;
+	$self->{Break}     = 1;
+	$self->{JumpFile}  = shift;
+	$self->{JumpSkel}  = undef;
+	$self->{JumpArgv}  = \@_;
 }
 
-# 低レベル（ファイル指定）
-sub _jump {
-	my $self              = shift;
-	$self->{Jump_file}    = shift;
-	$self->{Jump_skeleton} = undef;
-	$self->{Break}        = 1;
-	$self->{argv}         = \@_;
-	return ;
-}
 #------------------------------------------------------------------------------
 # ●ユーザーskeleton からよりレベルの低いスケルトンへの移行（継続処理）
 #------------------------------------------------------------------------------
 sub continue {
 	my $self = shift;
-	my $file = $self->{__skeleton};
-	if ($self->{__cont_level}<0) { die "Can't continue($self->{__cont_level})."; }
+	my $skel = $self->{CurrentSkel};
+	if ($self->{SkelLevel}<0) { die "Can't continue($self->{SkelLevel})."; }
 
-	my ($jump_file, $skel_level) = $self->check_skeleton($file, $self->{__cont_level});
-	$self->{Jump_file}    = $jump_file;
-	$self->{Jump_skeleton}= $file;
-	$self->{Break}        = 1;
-	$self->{Jump_argv}    = $self->{argv};
-	$self->{__cont_level} = $skel_level -1;
+	my ($file, $level) = $self->check_skeleton($skel, $self->{SkelLevel});
+	$self->{Break}     = 1;
+	$self->{JumpFile}  = $file;
+	$self->{JumpSkel}  = $skel;
+	$self->{JumpArgv}  = $self->{argv};
+	$self->{SkelLevel} = $level -1;
 }
 
 #------------------------------------------------------------------------------
@@ -617,22 +610,20 @@ sub continue {
 #------------------------------------------------------------------------------
 sub call {
 	my $self = shift;
-	my $name = shift;
-
-	my ($call_file, $skel_level) = $self->check_skeleton($name);
-	if (!$call_file) { return; }
-	local ($self->{FILE}) = $name;
-	local ($self->{__cont_level});
-	$self->{__cont_level} = $skel_level -1;
-	return $self->__call($call_file, $name, @_);
+	my $skel = shift;
+	my ($file, $level) = $self->check_skeleton($skel);
+	if ($file eq '') {
+		$self->error("[%s] failed - File not found '%s'", 'call', $skel);
+		return;
+	}
+	local ($self->{SkelLevel}) = $level -1;
+	return $self->__call($file, $skel, @_);
 }
-# 低レベルコール（ファイル指定）
 sub _call {
 	my $self = shift;
 	my $file = shift;
 	return $self->__call($file, undef, @_);
 }
-
 
 ###############################################################################
 # ■スケルトンシステム関連
@@ -649,9 +640,9 @@ sub regist_skeleton {
 		return;
 	}
 
-	my $dirs = $self->{Sekeleton_dir} ||= {};
-	$dirs->{$level} = $dir;
-	$self->{Sekeleton_dir_levels} = [ sort {$b <=> $a} keys(%$dirs) ];
+	my $dirs = $self->{SkelDirs};
+	push(@$dirs, { level=>$level, dir=>$dir });
+	$self->{SkelDirs} = [ sort {$b->{level} <=> $a->{level}} @$dirs ];
 }
 
 #------------------------------------------------------------------------------
@@ -659,12 +650,10 @@ sub regist_skeleton {
 #------------------------------------------------------------------------------
 sub delete_skeleton {
 	my $self = shift;
-	my @r;
-	foreach(@_) {
-		push(@r, $self->{Sekeleton_dir}->{$_});
-		delete $self->{Sekeleton_dir}->{$_};
-	}
-	return wantarray ? @r : $r[0];
+	my $lv   = shift;
+	my $dirs = $self->{SkelDirs};
+	$self->{SkelDirs} = [ grep { $_->{level} != $lv } @$dirs ];
+	return grep { $_->{level}=$lv } @$dirs;
 }
 
 #------------------------------------------------------------------------------
@@ -676,21 +665,32 @@ sub check_skeleton {
 	my $self  = shift;
 	my $name  = shift;
 	my $level = defined $_[0] ? shift : 0x7fffffff;
+	$name =~ s|//+|/|g;
 
-	if ($name =~ m|[^\w/\.\-]| || $name =~ m|\.\.|) {
+	if ($name =~ m|^\.\.?/| && $self->{CurrentSkel} =~ m|^(.*/)|) {
+		my $dir = $1;
+		$dir =~ s|//+|/|g;
+		while($name =~ m|^(\.\.?)/(.*)|) {
+			$name = $2;
+			if ($1 eq '.') { next; }
+			if ($1 eq '..') {
+				$dir =~ s|[^/]+/+$||;
+			}
+		}
+		$name = $dir . $name;
+	}
+	if ($name =~ m|[^\w/\.\-]| || $name =~ m|\.\./|) {
 		$self->error("Not allow characters are used in skeleton name '%s'", $name);
 		return;
 	}
 
-	my $dirs = $self->{Sekeleton_dir};
-	if (!$dirs || !%$dirs) { return; }	# error
-
-	$name .= $self->{Skeleton_ext};
-	foreach(@{ $self->{Sekeleton_dir_levels} }) {
-		if ($_>$level) { next; }
-		my $file = $dirs->{$_} . $name;
+	$name .= $self->{SkeletonExt};
+	foreach(@{ $self->{SkelDirs} }) {
+		my $lv = $_->{level};
+		if ($lv > $level) { next; }
+		my $file = $_->{dir} . $name;
 		if (-r $file) {
-			return wantarray ? ($file, $_): $file;
+			return wantarray ? ($file, $lv): $file;
 		}
 	}
 	return;		# error
@@ -965,13 +965,13 @@ sub _loadpm {
 			my $self = shift;
 			print STDERR "[$$] DESTROY $self\n";    # debug-safe
 		};
-		print STDERR "[$$] loadpm $pm\n";               # debug-safe		
+		print STDERR "[$$] loadpm $pm\n";               # debug-safe
 	}
 	return $obj;
 }
 sub export_debug {
 	my $self = shift;
-	$self->{ROBJ}->debug(join(' ', @_), 1);		# debug-safe
+	$self->{ROBJ}->_debug(join(' ', @_));			# debug-safe
 }
 
 ###############################################################################

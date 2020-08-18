@@ -1320,11 +1320,16 @@ sub message_split {
 # ●ディバグルーチン
 #------------------------------------------------------------------------------
 sub debug {
-	my ($self, $msg, $level) = @_;
+	my $self = shift;
+	$self->_debug(join(' ', @_));	# debug-safe
+}
+sub _debug {
+	my $self = shift;
+	my ($msg, $level) = @_;
 	$self->tag_escape_amp($msg);
 	$msg =~ s/\n/<br>/g;
 	$msg =~ s/ /&ensp;/g;
-	my ($pack, $file, $line) = caller(int($level));
+	my ($pack, $file, $line) = caller(int($level)+1);
 	push(@{$self->{Debug}}, $msg . "<!-- in $file line $line -->");
 }
 sub warning {
