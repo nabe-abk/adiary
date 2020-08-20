@@ -653,7 +653,7 @@ sub delete_skeleton {
 	my $lv   = shift;
 	my $dirs = $self->{SkelDirs};
 	$self->{SkelDirs} = [ grep { $_->{level} != $lv } @$dirs ];
-	return grep { $_->{level}=$lv } @$dirs;
+	return grep { $_->{level}==$lv } @$dirs;
 }
 
 #------------------------------------------------------------------------------
