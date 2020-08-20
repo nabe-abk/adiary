@@ -18,7 +18,7 @@ $$.prepend_css = function(file) {
 // add style
 //////////////////////////////////////////////////////////////////////////////
 $$.append_style = function(css) {
-	const $style = $('<style>').attr('type','text/css').html(css || '');
+	const $style = $('<style>').html(css || '');
 	this.$head.append($style);
 	return $style;
 }

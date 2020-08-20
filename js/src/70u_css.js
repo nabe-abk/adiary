@@ -1,6 +1,17 @@
 //############################################################################
 // ■CSSへの機能提供
 //############################################################################
+adiary.css_funcs = [];
+adiary.css_init  = function(func) {
+	if (func)
+		return this.css_funcs.push(func);
+
+	const funcs = this.css_funcs;
+	for(var i=0; i<funcs.length; i++)
+		funcs[i].call(this);
+}
+adiary.init(adiary.css_init);
+
 //////////////////////////////////////////////////////////////////////////////
 // ●CSSから値を取得する
 //////////////////////////////////////////////////////////////////////////////
@@ -23,7 +34,7 @@ $$.get_value_from_css = function(id, attr) {
 //////////////////////////////////////////////////////////////////////////////
 //●sidebarのHTML位置変更
 //////////////////////////////////////////////////////////////////////////////
-$$.init(function(){
+$$.css_init(function(){
 	var flag = this.get_value_from_css('sidebar-move-to-before-main');
 	if (SP || !flag) return;
 
@@ -32,7 +43,7 @@ $$.init(function(){
 	sidebar.insertBefore( 'div.main:first-child' );
 });
 
-$$.init(function(){
+$$.css_init(function(){
 	var flag = this.get_value_from_css('side-b-move-to-footer');
 	if (SP || !flag) return;
 
@@ -43,7 +54,7 @@ $$.init(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●viewport の上書き
 //////////////////////////////////////////////////////////////////////////////
-$$.init(function(){
+$$.css_init(function(){
 	var val = this.get_value_from_css('viewport-setting');
 	if (!val) return;
 	$('#viewport').attr('content', val);
@@ -52,7 +63,7 @@ $$.init(function(){
 //////////////////////////////////////////////////////////////////////////////
 //●ui-iconの生成
 //////////////////////////////////////////////////////////////////////////////
-$$.init(function(){
+$$.css_init(function(){
 	let color_bin;
 	{
 		const css = this.get_value_from_css('ui-icon-autoload', 'background-color');
