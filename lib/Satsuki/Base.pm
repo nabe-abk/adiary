@@ -958,7 +958,7 @@ sub _loadpm {
 	#
 	if (! *{"${pm}::debug"}{CODE}) { *{"${pm}::debug"}   = \&export_debug; }
 	if (*{$pm . '::Finish'}{CODE}) {
-		push(@{$self->{LoadpmFinish}}, $obj);
+		push(@{$self->{FinishObjs}}, $obj);
 	}
 	if ($self->{DESTROY_debug}) {
 		*{"${pm}::DESTROY"} = sub {
