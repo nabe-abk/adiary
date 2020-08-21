@@ -13,7 +13,7 @@ package Satsuki::DB_text;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 
-our $VERSION = '1.24';
+our $VERSION = '1.30';
 our $FileNameFormat = "%05d";
 our %IndexCache;
 ###############################################################################
@@ -294,7 +294,8 @@ FUNCTION_TEXT
 	# 文字検索
 	#---------------------------------------------
 	if ($h->{search_cols} || $h->{search_match}) {
-		my $words = $h->{search_words};
+		my $words = $h->{search_words} || [];
+		my $not   = $h->{search_not}   || [];
 		my $cols  = $h->{search_cols}  || [];
 		my $match = $h->{search_match} || [];
 		my $do_load;
@@ -313,15 +314,20 @@ FUNCTION_TEXT
 		my @words_reg;
 		my $w_cnt=0;
 		foreach(@$words) {
-			my $x = $_;
-			$x =~ s/([^0-9A-Za-z\x80-\xff])/"\\x" . unpack('H2',$1)/eg;
+			my $x = $_ =~ s/([^0-9A-Za-z\x80-\xff])/"\\x" . unpack('H2',$1)/reg;
 			$x = qr/$x/i;
 			push(@words_reg, $x);
 			$w_cnt++;
 		}
+		my @not_words_reg;
+		foreach(@$not) {
+			my $x = $_ =~ s/([^0-9A-Za-z\x80-\xff])/"\\x" . unpack('H2',$1)/reg;
+			$x = qr/$x/i;
+			push(@not_words_reg, $x);
+		}
 		# 検索ループ
 		my @newary;
-		foreach $h (@$db) {
+		RowLoop: foreach $h (@$db) {
 			if ($do_load) {
 				$h = $self->read_rowfile($table, $h);
 			}
@@ -338,9 +344,17 @@ FUNCTION_TEXT
 					last;
 				}
 			}
-			if ($cnt == $w_cnt) {
-				push(@newary, $h);
+			if ($cnt != $w_cnt) { next; }
+
+			foreach my $w (@not_words_reg) {
+				foreach (@$cols) {
+					if ($h->{$_} =~ /$w/) { next RowLoop; }
+				}
+				foreach (@$match) {
+					if ($h->{$_} =~ /^$w$/) { next RowLoop; }
+				}
 			}
+			push(@newary, $h);
 		}
 		$db = \@newary;
 	}

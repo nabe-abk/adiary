@@ -7,7 +7,7 @@ package Satsuki::DB_pg;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-our $VERSION = '1.21';
+our $VERSION = '1.30';
 #------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0, PrintWarn => 0, pg_enable_utf8 => 0);
@@ -272,10 +272,10 @@ sub generate_select_where {
 		$where .= " AND $_ IS NOT NULL";
 	}
 	if ($h->{search_cols} || $h->{search_match}) {
-		my $words = $h->{search_words};
-		foreach my $word (@$words) {
-			my $w = $word;
-			$w =~ s/([\\%_])/\\$1/g;
+		my $search = sub {
+			my $w   = shift;
+			my $not = shift || '';
+			$w =~ s/([\\%_])/\\$1/rg;
 			my @x;
 			foreach (@{ $h->{search_match} || [] }) {
 				$_ =~ s/[^\w\.]//g;
@@ -288,7 +288,13 @@ sub generate_select_where {
 				push(@x, "$_ ILIKE ?");
 				push(@ary, $w);
 			}
-			$where .= " AND (" . join(' OR ', @x) . ")";
+			return @x ? " AND (" . join(' OR ', @x) . ")$not " : '';
+		};
+		foreach(@{ $h->{search_words} || [] }) {
+			$where .= &$search($_);
+		}
+		foreach(@{ $h->{search_not} || [] }) {
+			$where .= &$search($_, ' IS NOT TRUE');
 		}
 	}
 	if ($h->{RDB_where} ne '') { # RDBMS専用、where直指定
