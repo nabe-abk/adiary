@@ -122,8 +122,8 @@ sub generate_uid {
 sub change_user_info {
 	my ($self, $form) = @_;
 	my $ROBJ = $self->{ROBJ};
-	if (! $self->{ok}) { $ROBJ->message('No login');                   return 1; }
-	if ($self->{auto}) { $ROBJ->message("Can't execute with 'root*'"); return 1; }
+	if (! $self->{ok}) { return { ret=>1, msg => $ROBJ->translate('No login') }; }
+	if ($self->{auto}) { return { ret=>2, msg => $ROBJ->translate("Can't execute with 'root*'") }; }
 
 	my @scols = qw(pass pass2);
 	my @ncols = qw(name);
@@ -145,7 +145,7 @@ sub change_user_info {
 	my $secure = 0;
 	if ($form->{now_pass} ne '') {
 		if (! $self->check_pass_by_id($id, $form->{now_pass})) {
-			$ROBJ->message('Incorrect password'); return 1;
+			return { ret=>10, msg => $ROBJ->translate('Incorrect password') };
 		}
 		# セキュアなカラムデータコピー
 		foreach(@scols) {
@@ -168,13 +168,15 @@ sub change_user_info {
 sub change_pass {
 	my ($self, $form) = @_;
 	my $ROBJ = $self->{ROBJ};
-	if (! $self->{ok})       { $ROBJ->message('No login');                   return 1; }
-	if ($self->{auto})       { $ROBJ->message("Can't execute with 'root*'"); return 1; }
-	if ($form->{pass} eq '') { $ROBJ->message('New password is empty');      return 1; }
+	if (! $self->{ok}) { return { ret=>1, msg => $ROBJ->translate('No login') }; }
+	if ($self->{auto}) { return { ret=>2, msg => $ROBJ->translate("Can't execute with 'root*'") }; }
+	if ($form->{pass} eq '') {
+		return { ret=>3, msg => $ROBJ->translate('New password is empty') };
+	}
 
 	my $id = $self->{id};
 	if (! $self->check_pass_by_id($id, $form->{now_pass})) {
-		$ROBJ->message('Incorrect password'); return 1;
+		return { ret=>10, msg => $ROBJ->translate('Incorrect password') };
 	}
 
 	return $self->update_user_data( {
@@ -398,14 +400,10 @@ sub update_user_data {
 sub check_pass_by_id {
 	my ($self, $id, $pass) = @_;
 	my $DB = $self->{DB};
-	
-	my $db = $DB->select($self->{table}, {
-		cols => ['pass'],
-		match => {id => $id},
-		limit => 1
-	});
-	if (! @$db || $db->[0]->{'pass'} eq '*') { return; }
-	return $self->check_pass($db->[0]->{'pass'}, $pass);
+
+	my $h = $DB->select_match_limit1($self->{table}, 'id', $id, '*cols', 'pass');
+	if (!$h || $h->{'pass'} eq '*') { return; }
+	return $self->check_pass($h->{'pass'}, $pass);
 }
 
 #------------------------------------------------------------------------------

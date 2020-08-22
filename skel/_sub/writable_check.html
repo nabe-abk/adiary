@@ -2,7 +2,7 @@
 <@local(x,t)>
 <$ret = 0>
 <@forexec_hash(t, call('_sub/load_writable_dirs'), begin)>
-	<$x = write_check( t.val )>
+	<$x = file_writable( t.val )>
 	<@if(!x, #'<strong class="error"><span class="mono"><@t.val></span> ディレクトリに書き込みできません。</strong><br>')>
 	<$ifset(!x, ret, 1)>
 <$end>

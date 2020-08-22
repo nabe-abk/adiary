@@ -8,13 +8,15 @@
 <!--========================================================================-->
 <@> 階層ツリー、権限チェック、エラー表示
 <@call("_sub/menu_tree")>
+<@call('_sub/error_message')>
 
 <!--========================================================================-->
 <article class="system setting">
 <h2><@v.title></h2>
 <div class="body">
-	<form action="<@v.myself>?<@v.skeleton>" method="POST">
-	<input type="hidden" name="action" value="<@v.skel_dir>change_info">
+
+	<form class="js-ajax" data-url="<@v.myself>?menu">
+	<input type="hidden" name="action" value="_ajax_self_change_name">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<table class="blog-setting">
 	<tbody>
@@ -24,7 +26,7 @@
 	</tr>
 	<tr>
 		<th>アカウント名</th>
-		<td<@err.c_name>><input type=text name="name" class="w200" value="<@if(POST, esc(Form.name), Auth.name)>" ></td>
+		<td<@err.c_name>><input type=text name="name" class="w200" value="<@if(POST, esc(Form.name) || Auth.name, Auth.name)>" ></td>
 	</tr>
 	</table>
 	<button type="submit">アカウント名を変更</button><br>
@@ -33,8 +35,8 @@
 
 	<h3>パスワードの変更</h3>
 
-	<form action="<@v.myself>?<@v.skeleton>" method="POST">
-	<input type="hidden" name="action" value="<@v.skel_dir>change_pass">
+	<form class="js-ajax" data-url="<@v.myself>?menu">
+	<input type="hidden" name="action" value="_ajax_self_change_pass">
 	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<table class="blog-setting">
 	<tbody>
