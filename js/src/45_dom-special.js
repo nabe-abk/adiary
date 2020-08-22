@@ -37,9 +37,13 @@ $$.dom_init( function($R) {
 			data:	data,
 			success: function(h) {
 				const success = $obj.data('success');
-				if (typeof(success) === 'function') return success(h);
-
 				const url = $obj.data('url');
+				if (typeof(success) === 'function') return success(h);
+				if (typeof(success) === 'string' && success != '') {
+					return self.show_dialog(success, function(){
+						if (url) window.location = url;
+					});
+				}
 				if (url) window.location = url;
 			},
 			error: function(h) {
