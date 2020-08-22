@@ -5,7 +5,6 @@
 //[TAB=8]  require jQuery
 //
 'use strict';
-var Storage;
 
 $(function() {
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +13,7 @@ $(function() {
 var debug = false;
 var btnForce = true;
 var rePostDays = 30;
+var Storage = adiary.Storage;
 
 ///////////////////////////////////////////////////////////////////////////////
 var $span = $('#webpush-data');
