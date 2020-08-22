@@ -544,7 +544,7 @@ div.popup-block {
 	position:	absolute;
 	z-index:	1100;
 }
-#popup-help, #popup-com {
+div.popup-help, #popup-com {
 	background-color:	#eee;
 	padding:		6px;
 	font-size:		11pt;

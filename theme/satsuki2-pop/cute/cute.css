@@ -1101,7 +1101,7 @@ article.edit textarea {
     color:                  #b5001f;
 }
 
-#popup-help {
+div.popup-help {
     min-width:              100px;
     max-width:              360px;
     padding:                0.5em 1em;

@@ -1247,7 +1247,7 @@ article.edit span.tag {
 
 
 /* コメントのポップアップとか */
-#popup-help, #popup-com {
+div.popup-help, #popup-com {
 	background-color:		rgba(245,218,231, 0.95);
 	padding:				6px;
 	font-size:				90%;

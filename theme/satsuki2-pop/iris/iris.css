@@ -989,7 +989,7 @@ div.messages div.message {
     color:                  #0343c1;
 }
 
-#popup-help {
+div.popup-help {
     min-width:              100px;
     max-width:              720px;
     padding:                0.5em 1em;

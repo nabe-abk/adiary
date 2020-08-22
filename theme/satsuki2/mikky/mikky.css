@@ -789,7 +789,7 @@ article.edit span.tag {
 }
 
 
-#popup-help {
+div.popup-help {
 	min-width:		100px;
 	max-width:		360px;
 	padding:		0.5em 1em;
@@ -804,7 +804,7 @@ article.edit span.tag {
 	border-radius:		10px;
 	box-shadow:		6px 6px 4px 2px rgba(60,60,60,0.75);
 }
-#popup-help:before {
+div.popup-help:before {
 	content:		"HELP";
 	color:			#fff;
 	background-color:	#c33;
@@ -820,7 +820,7 @@ article.edit span.tag {
 	vertical-align:		middle;
 }
 /*
-#popup-help div.additional {
+div.popup-help div.additional {
 	color:			#000;
 	font-weight:		normal;
 }
