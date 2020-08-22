@@ -67,11 +67,15 @@ sub user_delete {
 
 	my $DB    = $self->{DB};
 	my $table = $self->{table};
-	my $r = $DB->delete_match($table       , 'id', $del_ary);
-	        $DB->delete_match($table.'_sid', 'id', $del_ary);
 
-	if ($r != $#$del_ary+1) {
-		return { ret=>-1, msg => "DB delete error: $r / " . ($#$del_ary+1) };
+	$DB->begin();
+	$DB->delete_match($table.'_sid', 'id', $del_ary);
+	my $r1 = $DB->delete_match($table       , 'id', $del_ary);
+	my $r2 = $DB->commit();
+
+	if ($r1 != $#$del_ary+1 || $r2) {
+		$DB->rollback();
+		return { ret=>-1, msg => "DB delete error: $r1 / " . ($#$del_ary+1) };
 	}
 	foreach(@$del_ary) {
 		$self->log_save($_, 'delete');
