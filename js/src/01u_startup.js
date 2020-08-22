@@ -5,11 +5,9 @@
  * you can redistribute it and/or modify it under the AGPLv3.
  */
 'use strict';
-let SP;		// smart phone mode
-let Storage;	// Storage object
-
 let $$ = {
 	name:			'adiary',	// export global name
+	SP:			false,		// smart phone mode
 	DialogWidth:		640,
 	DefaultShowSpeed:	300,	// msec
 	TouchDnDTime:		100,	// msec
@@ -54,13 +52,13 @@ $$.user_init = function(func) {
 
 	// Smartphone mode
 	if (this.$body.hasClass('sp')) {
-		SP = 1;
+		this.SP = 1;
 		this.DialogWidth = 320;
 	}
 
 	// PrefixStorage
 	if (this.Basepath)
-		Storage = new PrefixStorage( this.myself );
+		this.Storage = new PrefixStorage( this.myself );
 
 	// DB time, Total time
 	if (data.DBTime)    $('#system-info-db-time')   .text( data.DBTime    );

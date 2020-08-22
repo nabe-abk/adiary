@@ -36,7 +36,7 @@ $$.get_value_from_css = function(id, attr) {
 //////////////////////////////////////////////////////////////////////////////
 $$.css_init(function(){
 	var flag = this.get_value_from_css('sidebar-move-to-before-main');
-	if (SP || !flag) return;
+	if (this.SP || !flag) return;
 
 	// 入れ替え
 	var sidebar = $('#sidebar');
@@ -45,7 +45,7 @@ $$.css_init(function(){
 
 $$.css_init(function(){
 	var flag = this.get_value_from_css('side-b-move-to-footer');
-	if (SP || !flag) return;
+	if (this.SP || !flag) return;
 
 	// 入れ替え
 	$('#footer').prepend( $('#side-b') );

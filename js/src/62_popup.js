@@ -22,8 +22,8 @@ $$.popup_show = function(evt) {
 	if ($div.is(":animated")) return;
 
 	if (func) func($obj, $div);
-	$div.css("left", (SP ? 0 : (evt.pageX + this.PopupOffsetX)));
-	$div.css("top" ,            evt.pageY + this.PopupOffsetY);
+	$div.css("left", (this.SP ? 0 : (evt.pageX + this.PopupOffsetX)));
+	$div.css("top" ,                 evt.pageY + this.PopupOffsetY);
 	$div.showDelay();
 }
 // mouseout event

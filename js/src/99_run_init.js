@@ -8,7 +8,7 @@ $(function(){
 
 	// Emulate jquery.cookie for dynatree
 	// "jquery-storage" in "PrefixStorage.js"
-	$.storage_init( Storage );
+	$.storage_init( $$.Storage );
 	$.cookie = $.storage;
 	$.removeCookie = $.removeStorage;
 });

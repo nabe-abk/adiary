@@ -1,4 +1,36 @@
 //////////////////////////////////////////////////////////////////////////////
+//●画像・コメントのポップアップ
+//////////////////////////////////////////////////////////////////////////////
+$$.init( function(){
+	const self = this;
+	const func = function(evt){ self.popup(evt) }
+
+	this.$body.on('mouseover', '.js-popup-img', {
+		func: function($obj, $div) {
+			const $img = $('<img>');
+			$img.attr('src', $obj.data('img-url'));
+			$div.empty();
+			$div.attr('id', 'popup-image');
+			$div.append( img );
+		}
+	}, func);
+	$('.js-popup-img').removeAttr('title');	// remove title attr popup
+
+	this.$body.on('mouseover', '.js-popup-com', {
+		func: function($obj, $div){
+			var num = $obj.data('target');
+			if (num == '' || num == 0) return $div.empty();
+
+			var $com = $secure('#c' + num);
+			if (!$com.length) return $div.empty();
+
+			$div.attr('id', 'popup-com');
+			$div.html( $com.html() );
+		}
+	}, func);
+});
+
+//////////////////////////////////////////////////////////////////////////////
 //●textareaでのタブ入力
 //////////////////////////////////////////////////////////////////////////////
 $$.init( function(){

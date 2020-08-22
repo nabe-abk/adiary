@@ -114,19 +114,19 @@ $$.dom_init( function($R) {
 		if (type == 'checkbox') {
 			$obj.change( function(evt){
 				const $o = $(evt.target);
-				Storage.set(id, $o.prop('checked') ? 1 : 0);
+				self.Storage.set(id, $o.prop('checked') ? 1 : 0);
 			});
-			if ( Storage.defined(id) )
-				$obj.prop('checked', Storage.get(id) != 0 );
+			if ( self.Storage.defined(id) )
+				$obj.prop('checked', self.Storage.get(id) != 0 );
 			return;
 		}
 		if (type == 'radio') {
 			const val = $obj.attr('value');
 			$obj.change( function(evt){
 				const $o = $(evt.target);
-				Storage.set(id, val);
+				self.Storage.set(id, val);
 			});
-			if ( Storage.defined(id) && val == Storage.get(id)) {
+			if ( self.Storage.defined(id) && val == self.Storage.get(id)) {
 				$obj.prop('checked', 1);
 			}
 			return;
@@ -134,9 +134,9 @@ $$.dom_init( function($R) {
 		$obj.change( function(evt){
 			var $o = $(evt.target);
 			if ($o.val() == self.select_dummy_value) return;
-			Storage.set(id, $o.val());
+			self.Storage.set(id, $o.val());
 		});
-		const val = Storage.get(id);
+		const val = self.Storage.get(id);
 		if (! val) return;
 		if (dom.tagName == 'SELECT')
 			return self.val_for_select( $obj, val );
@@ -243,7 +243,7 @@ $$._toggle = function(init, $obj) {
 	if (!$target.length) return false;
 
 	// スイッチの状態を保存する	ex)タグリスト(tree)
-	const storage = $obj.existsData('save') ? Storage : null;
+	const storage = $obj.existsData('save') ? this.Storage : null;
 
 	// 変更後の状態取得
 	const id = $obj.attr('id') || $obj.attr('name') || tar;

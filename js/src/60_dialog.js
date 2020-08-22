@@ -95,7 +95,6 @@ $$.textarea_dialog = function(dom, func) {
 $$.form_dialog = function(h) {
 	var ele = h.elements || { type:'text', name:'str', class:'w80p' };
 	if (!Array.isArray(ele)) ele = [ ele ];
-	var div = $('<div>').attr('id','popup-dialog');
 
 	var form = $('<form>');
 	for(var i=0; i<ele.length; i++) {

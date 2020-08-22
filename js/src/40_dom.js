@@ -2,48 +2,23 @@
 //■DOM要素への拡張機能の提供
 //############################################################################
 //////////////////////////////////////////////////////////////////////////////
-//●画像・ヘルプ・コメントのポップアップ
+//●popup-help
 //////////////////////////////////////////////////////////////////////////////
 $$.init( function(){
 	const $popup_div = $('<div>').addClass('popup-block');
 	this.$popup_div  = $popup_div;
 	this.$body.append( $popup_div );
 	const self = this;
-	const func = function(evt){ self.popup(evt) }
-
-	this.$body.on('mouseover', '.js-popup-img', {
-		func: function($obj, $div) {
-			const $img = $('<img>');
-			$img.attr('src', $obj.data('img-url'));
-			$div.empty();
-			$div.attr('id', 'popup-image');
-			$div.append( img );
-		}
-	}, func);
-	$('.js-popup-img').removeAttr('title');	// remove title attr popup
-
-	this.$body.on('mouseover', '.js-popup-com', {
-		func: function($obj, $div){
-			var num = $obj.data('target');
-			if (num == '' || num == 0) return $div.empty();
-
-			var $com = $secure('#c' + num);
-			if (!$com.length) return $div.empty();
-
-			$div.attr('id', 'popup-com');
-			$div.html( $com.html() );
-		}
-	}, func);
 
 	// btn-help はスマホでは無効にする
-	const help = '.help[data-help]' + (SP ? '' : ', .btn-help[data-help]');
+	const help = '.help[data-help]' + (this.SP ? '' : ', .btn-help[data-help]');
 	this.$body.on('mouseover', help, {
 		func: function($obj, $div){
 			var text = self.tag_esc_br( $obj.data("help") );
 			$div.addClass('popup popup-help');
 			$div.html( text );
 		}
-	}, func);
+	}, function(evt){ self.popup(evt) });
 });
 
 //////////////////////////////////////////////////////////////////////////////

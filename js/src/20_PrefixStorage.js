@@ -100,7 +100,6 @@ PrefixStorage.prototype.clear = function(key) {
 // jQuery.storage
 //							(C)2019 nabe@abk
 //############################################################################
-//
 (function (root, factory) {
 	if (typeof define === 'function' && define.amd) {
 		define(['jquery'], factory);
@@ -109,7 +108,7 @@ PrefixStorage.prototype.clear = function(key) {
 	} else {
 		root.storage   = factory(root.jQuery);	// Browser
 	}
-}(this, function ($) {
+}(this, function($) {
 	var ls;
 	$.storage_init = function(_ls) {
 		ls = _ls;

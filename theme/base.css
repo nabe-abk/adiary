@@ -555,7 +555,7 @@ div.popup-help, #popup-com {
 #popup-com .ip-host-agent {
 	margin-top:		1em;
 }
-#popup-dialog textarea {
+.ui-dialog textarea {
 	font-size:	10pt;
 	line-height:	120%;
 }
