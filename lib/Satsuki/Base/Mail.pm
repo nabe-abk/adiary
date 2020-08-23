@@ -319,7 +319,7 @@ sub check_mail_address {
 	my @adr = split(/,/, shift);
 	if (!@adr) { return 0; }
 	foreach(@adr) {
-		if ($_ !~ /^[-_\.a-zA-Z0-9]+\@(?:[-\w]+\.)+[-\w]+$/) { return 0; }
+		if ($_ !~ /^[-\w\.]+\@(?:[-\w]+\.)+[-\w]+$/) { return 0; }
 	}
 	return 1;	# success
 }

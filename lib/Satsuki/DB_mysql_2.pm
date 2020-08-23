@@ -218,7 +218,7 @@ sub select_by_group {
 	#---------------------------------------------
 	# SQLを発行
 	#---------------------------------------------
-	my $sql = "SELECT $sel$group_col FROM $table$where$group_by$order_by";
+	my $sql = "SELECT $sel FROM $table$where$group_by$order_by";
 	my $sth = $dbh->prepare_cached($sql);
 	$self->debug($sql, $ary);	# debug-safe
 	$sth && $sth->execute(@$ary);
