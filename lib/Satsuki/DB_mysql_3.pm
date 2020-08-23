@@ -20,7 +20,8 @@ sub create_table {
 	if ($table eq '') {  $self->error('Called create_table() with null table name.'); return 9; }
 
 	# テーブル構造の解析
-	my $cols;
+	my $cols='';
+	my $refs='';
 	my @index_columns;
 	my %col_is_text;
 	my $varchar_size = $self->{index_text_max_length};
@@ -28,14 +29,14 @@ sub create_table {
 		my $check;
 		my $col = $_->{name};
 		$col =~ s/\W//g;		# check 制約は mysql に実装されていない（無視されるのみ）
-		if    ($_->{type} eq 'int')   { $cols .= ", $col INT"; }
-		elsif ($_->{type} eq 'float') { $cols .= ", $col FLOAT"; }
-		elsif ($_->{type} eq 'flag')  { $cols .= ", $col BOOLEAN"; $check=" CHECK($col=0 OR $col=1)"; }
+		if    ($_->{type} eq 'int')   { $cols .= ",\n $col INT"; }
+		elsif ($_->{type} eq 'float') { $cols .= ",\n $col FLOAT"; }	# check制約は実際には動かない
+		elsif ($_->{type} eq 'flag')  { $cols .= ",\n $col BOOLEAN"; $check=" CHECK($col=0 OR $col=1)"; }
 		elsif ($_->{type} eq 'text')  {
-			if ($_->{unique})     { $cols .= ", $col VARCHAR(" . int($self->{unique_text_size} || 256) .")"; }
-		          else                { $cols .= ", $col TEXT"; $col_is_text{$col}=1; }
+			if ($_->{unique})     { $cols .= ",\n $col VARCHAR(" . int($self->{unique_text_size} || 256) .")"; }
+		          else                { $cols .= ",\n $col TEXT"; $col_is_text{$col}=1; }
 		}
-		elsif ($_->{type} eq 'ltext') { $cols .= ", $col MEDIUMTEXT"; }
+		elsif ($_->{type} eq 'ltext') { $cols .= ",\n $col MEDIUMTEXT"; }
 		else {
 			$self->error('Column "%s" have invalid type "%s" in "CREATE TABLE %s"', $col, $_->{type}, $table);
 			return 20;
@@ -55,15 +56,16 @@ sub create_table {
 			my $ref_pkey = $_->{ref_pkey};	# mysql標準では無効
 			$ref_pkey =~ s/[^\w\.]//g;
 			my ($ref_table, $ref_col) = split(/\./, $ref_pkey);
-			$cols .= " REFERENCES $ref_table($ref_col)";
+			$refs .= ",\nFOREIGN KEY ($col) REFERENCES $ref_table($ref_col) ON UPDATE CASCADE";
 		}
 	}
 	# テーブル作成
-	my $sql = "CREATE TABLE $table(pkey SERIAL PRIMARY KEY$cols)";
+	my $sql = "CREATE TABLE $table(pkey int AUTO_INCREMENT PRIMARY KEY$cols$refs)";
 	if ($self->{engine}) {	# DBエンジン選択
 		$self->{engine} =~ s/\W//g;
 		$sql .= " ENGINE=" . $self->{engine};
 	}
+
 	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute();

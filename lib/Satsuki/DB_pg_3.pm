@@ -25,11 +25,11 @@ sub create_table {
 	foreach(@$columns) {
 		my $col = $_->{name};
 		$col =~ s/\W//g;
-		if    ($_->{type} eq 'int')   { $cols .= ", $col INT";     }
-		elsif ($_->{type} eq 'float') { $cols .= ", $col FLOAT";   }
-		elsif ($_->{type} eq 'flag')  { $cols .= ", $col BOOLEAN"; }
-		elsif ($_->{type} eq 'text')  { $cols .= ", $col TEXT";    }
-		elsif ($_->{type} eq 'ltext') { $cols .= ", $col TEXT";    }
+		if    ($_->{type} eq 'int')   { $cols .= ",\n $col INT";     }
+		elsif ($_->{type} eq 'float') { $cols .= ",\n $col FLOAT";   }
+		elsif ($_->{type} eq 'flag')  { $cols .= ",\n $col BOOLEAN"; }
+		elsif ($_->{type} eq 'text')  { $cols .= ",\n $col TEXT";    }
+		elsif ($_->{type} eq 'ltext') { $cols .= ",\n $col TEXT";    }
 		else {
 			$self->error('Column "%s" have invalid type "%s" in "CREATE TABLE %s"', $col, $_->{type}, $table);
 			return 20;
@@ -41,7 +41,7 @@ sub create_table {
 			my $ref_pkey = $_->{ref_pkey};
 			$ref_pkey =~ s/[^\w\.]//g;
 			my ($ref_table, $ref_col) = split(/\./, $ref_pkey);
-			$cols .= " REFERENCES $ref_table($ref_col)";
+			$cols .= " REFERENCES $ref_table($ref_col) ON UPDATE CASCADE";
 		}
 	}
 
