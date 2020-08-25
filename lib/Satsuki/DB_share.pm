@@ -92,27 +92,32 @@ sub set_noerror {
 sub debug {
 	my $self = shift;
 	if (!$self->{DEBUG}) { return; }
-	my $sql = shift;
-	my @ary = @{ shift || [] };
+
+	my $sql  = shift;
+	my @ary  = @{ shift || [] };
+	my $ROBJ = $self->{ROBJ};
+
 	$sql =~ s/\?/@ary ? ($ary[0] =~ m|^\d+$| ? shift(@ary) : "'" . shift(@ary) . "'") : '?'/eg;
-	$self->{ROBJ}->debug('['.$self->{_RDBMS}.'] '.$sql, 1);	# debug-safe
+	$ROBJ->_debug('['.$self->{_RDBMS}.'] '.$sql, 1);	# debug-safe
 }
 sub warning {
 	my $self = shift;
 	my $err  = shift;
-	$self->{ROBJ}->warning('['.$self->{_RDBMS}.':WARNING] '.$err, @_);
+	my $ROBJ = $self->{ROBJ};
+	$ROBJ->warning('['.$self->{_RDBMS}.':WARNING] '.$err, @_);
 }
 sub error {
 	my $self = shift;
+	my $err  = shift;
+	my $ROBJ = $self->{ROBJ};
 	if ($self->can('error_hook')) {
 		$self->error_hook(@_);
 	}
-	my $err = shift;
 	if (!defined $err) { return; }
 	if ($self->{NoError}) { 
 		return $self->warning($err, @_);
 	}
-	$self->{ROBJ}->error('['.$self->{_RDBMS}.'] '.$err, @_);
+	$ROBJ->error('['.$self->{_RDBMS}.'] '.$err, @_);
 }
 
 ###############################################################################
