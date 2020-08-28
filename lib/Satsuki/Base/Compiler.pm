@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.01';
+our $VERSION = '2.02';
 #(簡易履歴)
+# 2020/08 Ver2.02  delete_hash, ifdelete_hash 追加
 # 2020/08 Ver2.01  ifexecブロック自動認識。'Is_function' to 'IsFunction'
 # 2020/07 Ver2.00  elsif 追加, foreach_num(t, 10, 20)の書式追加。
 # 2020/05 Ver1.93  weaken()追加
@@ -263,7 +264,7 @@ my %InlineIf = (if=>-1, ifdef=>-1,
 	ifcall=>1, ifredirect=>1, ifform_error=>1, ifform_clear=>1,
 	ifmessage=>2, ifnotice=>2,
 
-	ifpush_hash=>1, ifunshift_hash=>1,
+	ifpush_hash=>1, ifunshift_hash=>1, ifdelete_hash=>1,
 
 	ifset_cookie=>1, ifclear_cookie=>1,
 	ifset_header=>1, ifset_lastmodified=>2,
@@ -427,7 +428,7 @@ sub {
 FUNC
 
 #--------------------------------------------------------------------
-# ●順序付 hash に値追加
+# ●順序付 hash に値追加, 削除
 #--------------------------------------------------------------------
 $BuiltinFunc{push_hash} = <<'FUNC';
 sub {
@@ -449,6 +450,18 @@ sub {
 		unshift(@{$h->{_order}}, $key);
 	}
 	$h->{$key} = $val;
+	return $h;
+}
+FUNC
+
+$BuiltinFunc{delete_hash} = <<'FUNC';
+sub {
+	my ($h, $key) = @_;
+	if (ref($h) ne 'HASH') { return; };
+	if (exists($h->{$key}) && $h->{_order}) {
+		$h->{_order} = [ grep { $_ ne $key } @{$h->{_order}} ];
+	}
+	delete $h->{$key};
 	return $h;
 }
 FUNC
@@ -1043,6 +1056,7 @@ sub p2e_one_line {
 		$st->{last_op} = ($_ == $#$poland);
 
 		if ($type eq 'op') {		# 演算子
+			my $orig_op = $p;
 			my $op  = $p;
 			my $opl = $OPR{$p};
 			## printf("\top     = $op [%x]\n", $opl);
@@ -1122,16 +1136,16 @@ sub p2e_one_line {
 				} else {
 					push(@$stack, "$y\-\>[$x]");
 				}
-				push(@$stype, '*');
+				push(@$stype, $orig_op);
 				next;
 			}
 			if ($op eq '->')  {	# ハッシュ参照（変数）
 				if ($yt eq 'string') {
 					push(@$stack, "\$R->{$y}\-\>{$x}");
-					push(@$stype, '*');
+					push(@$stype, $orig_op);
 				} else {
 					push(@$stack, "$y\-\>{$x}");
-					push(@$stype, '*');
+					push(@$stype, $orig_op);
 				}
 				next;
 			}
@@ -1142,12 +1156,12 @@ sub p2e_one_line {
 			}
 			if ($op eq '@')  {
 				push(@$stack, "\@\{$x\}");
-				push(@$stype, '*');
+				push(@$stype, $orig_op);
 				next;
 			}
 			if ($op eq '##')  {
 				push(@$stack, "\$\#\{$x\}");
-				push(@$stype, '*');
+				push(@$stype, $orig_op);
 				next;
 			}
 
@@ -1175,7 +1189,7 @@ sub p2e_one_line {
 			#------------------------------------------------------
 			if ($st->{last_op} && $op eq '=' && $y =~ /^\$[a-z][a-z0-9]*$/ && $y ne '$v') {
 				push(@$stack, "$y=$x");
-				push(@$stype, '*');
+				push(@$stype, $orig_op);
 				next;
 			}
 			#------------------------------------------------------
@@ -1200,7 +1214,7 @@ sub p2e_one_line {
 				}
 
 				my $a  = ($opl & 8) ? "($y $op $x)" : "($y$op$x)";
-				my $at = $p;					# $op の記述名
+				my $at = $orig_op;			# $op の記述名
 				if ($xt eq 'const' && $yt eq 'const') {
 					$a  = eval($a);
 					if ($a eq '') { if ($a) { $a=1; } else { $a=0; } }	# true/false
@@ -1215,7 +1229,7 @@ sub p2e_one_line {
 			#------------------------------------------------------
 			my $sp = ($opl & 8) ? ' ' : '';
 			my $a  = ($opl & 4) ? "($x$sp$op)" : "($op$sp$x)";	# 左結合か右結合か
-			my $at = '*';
+			my $at = $orig_op;
 			if ($xt eq 'const') {
 				$a  = eval($a);
 				if ($a eq '') { if ($a) { $a=1; } else { $a=0; } }	# true/false
@@ -1345,7 +1359,7 @@ sub p2e_function {
 		$ary[0] =~ s/^\((.*)\)$/$1/;	# 一番外の (  ) を外す
 		$x = join(",", @ary);
 		@$stack = ("$y($x)");
-		@$stype = ('*');
+		@$stype = ('!*');
 		$st->{last}=1;
 		return;
 	}
@@ -1359,7 +1373,7 @@ sub p2e_function {
 		}
 		$x = join(",", @ary);
 		@$stack = ("elsif($x)");
-		@$stype = ('*');
+		@$stype = ('!*');
 		$st->{last}=1;
 		return;
 	}
@@ -1387,7 +1401,7 @@ sub p2e_function {
 				} else {	# 通常変数
 					@$stack = ($cmd . "foreach(\@\$X, \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
 				}
-				@$stype = ('*');
+				@$stype = ('!*');
 				$st->{last}=1;
 				return;
 			}
@@ -1398,7 +1412,7 @@ sub p2e_function {
 				. " foreach(\@\$Keys, \x02[$1])"
 				. "\x02{$ary[0] = {key=>\$_, val=>\$H->{\$_}};}\x02";
 				@$stack = ($cmd);
-				@$stype = ('*');
+				@$stype = ('!*');
 				$st->{last}=1;
 				return;
 			}
@@ -1410,7 +1424,7 @@ sub p2e_function {
 				} else {
 					@$stack = ("foreach(1..int($ary[1]), \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
 				}
-				@$stype = ('*');
+				@$stype = ('!*');
 				$st->{last}=1;
 				return;
 			}
@@ -1425,7 +1439,7 @@ sub p2e_function {
 				} else {
 					@$stack = ("foreach(int($ary[1])..int($ary[2]), \x02[$begin_type])\x02{ $ary[0]=\$_;}\x02");
 				}
-				@$stype = ('*');
+				@$stype = ('!*');
 				$st->{last}=1;
 				return;
 			}
@@ -1497,7 +1511,7 @@ sub p2e_function {
 			return;
 		}
 		push(@$stack, $x);
-		push(@$stype, '*');
+		push(@$stype, '!*');
 		return;
 	}
 
@@ -1511,7 +1525,7 @@ sub p2e_function {
 		if ($x eq '' || $x eq 'undef') {	# 引数省略は許可しない
 			if ($CoreFuncs{$y}==-1) {	# next/last等の裸制御文
 				push(@$stack, $y);
-				push(@$stype, '*');
+				push(@$stype, '!*');
 				$st->{last}=1;
 				return;
 			}
@@ -1543,7 +1557,7 @@ sub p2e_function {
 		} else {
 			push(@$stack, "$y($x)");
 		}
-		push(@$stype, '*');
+		push(@$stype, '!*');
 		return;
 	}
 
@@ -1566,7 +1580,7 @@ sub p2e_function {
 			return;
 		}
 		push(@$stack, "($func)");
-		push(@$stype, '*');
+		push(@$stype, '!*');
 		return;
 	}
 
@@ -1634,7 +1648,7 @@ sub p2e_function {
 		$st->{error}=1;
 		return;
 	}
-	push(@$stype, '*');
+	push(@$stype, '!*');
 	return;
 }
 
