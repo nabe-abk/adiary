@@ -32,7 +32,6 @@ sub insert {
 		}
 	}
 	chop($cols); chop($vals);
-	if ($cols eq '') { return 0; }
 
 	# pkey保存 insert
 	my $pkey = int($h->{pkey});
