@@ -97,7 +97,7 @@ adiaryDialog: function(opt) {
 	//////////////////////////////////////////////////////////////////////
 	// append dialog obj
 	//////////////////////////////////////////////////////////////////////
-	data.$overlay = $('<div>').addClass('aui-overlay');
+	data.$overlay = $('<div>').addClass('ui-overlay aui-overlay');
 	data.$dialog  = $dialog;
 	data.beforeClose = opt.beforeClose;
 

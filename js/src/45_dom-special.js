@@ -28,7 +28,7 @@ $$.dom_init( function($R) {
 		})();
 
 		if ($obj.data('js-ajax-stop')) return;
-		if ($('.aui-overlay').length)  return;	// dialog viewing
+		if ($('.ui-overlay').length)   return;	// dialog viewing
 		$obj.data('js-ajax-stop', true);
 		const $btns = $obj.find('button[type!="button"]');
 		$btns.prop('disabled', true);

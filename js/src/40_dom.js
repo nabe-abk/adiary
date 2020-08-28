@@ -122,7 +122,7 @@ $$.init( function(){
 //●フォーム要素の全チェック
 //////////////////////////////////////////////////////////////////////////////
 $$.init( function(){
-	this.$body.on('click', 'input.js-checked', function(evt){
+	this.$body.on('change', 'input.js-checked', function(evt){
 		const $obj = $(evt.target);
 		const target = $obj.data( 'target' );
 		$obj.rootfind(target).prop("checked", $obj.is(":checked"));
