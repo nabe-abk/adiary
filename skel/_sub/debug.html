@@ -1,26 +1,19 @@
 <@6>
 <!--追加フッタ==============================================================-->
-
-<div class="main add-main">
-<p><strong>debug</strong></p>
+<div class="main add-main" id="debug-messages">
+<h2>debug</h2>
 
 <@ifexec(@Error, begin)>
-Error :<br>
-<div class="debug">
-<@error_load_and_clear("<br>\n")>
-</div>
+<div class="output-error">Error : <strong><@error_load_and_clear("<br>\n")></strong></div>
+<$end>
+<@ifexec(@Debug, begin)>
+<div class="output-debug">Debug : <strong><@join("<br>\n", Debug)></strong></div>
 <$end>
 <@ifexec(@Warning, begin)>
-Warning :<br>
-<div class="debug">
-<@join("<br>\n", Warning)><br>
-</div>
-<$end><@ifexec(@Debug, begin)>
-Debug :<br>
-<div class="debug">
-<@join("<br>\n", Debug)><br>
-</div>
+<div class="output-warning">Warning : <strong><@join("<br>\n", Warning)></strong></div>
 <$end>
+</div>
+
 <@ifexec(ENV_print, begin.env_print)>
 <div class="small debug mono">
 <@ifexec(1, begin)>
