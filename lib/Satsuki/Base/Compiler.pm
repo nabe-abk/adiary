@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.02';
+our $VERSION = '2.03';
 #(簡易履歴)
+# 2020/09 Ver2.03  プラグマのバグ修正と動作変更。
 # 2020/08 Ver2.02  delete_hash, ifdelete_hash 追加
 # 2020/08 Ver2.01  ifexecブロック自動認識。'Is_function' to 'IsFunction'
 # 2020/07 Ver2.00  elsif 追加, foreach_num(t, 10, 20)の書式追加。
@@ -120,13 +121,13 @@ SUB_HEAD
 #------------------------------------------------------------------------------
 # ●プラグマ定数
 #------------------------------------------------------------------------------
-my $P_ctab2blank     = 0x0001;	# コマンド手前がタブのみの場合、それを除去する
-my $P_cspace2blank   = 0x0002;	# コマンドのみの行の行頭空白や文末改行を自動除去する
-my $P_dellf_aftercmd = 0x0004;	# コマンド行に続く空行を除去する
-my $P_del_blank      = 0x0008;	# 空行を除去
-my $P_nocr           = 0x0010;	# 改行を除去する
-my $P_cmd_only       = 0x0020;	# コマンド以外を無視
-my $P_is_function    = 0x0040;	# 関数として処理
+my $P_del_begin_space = 0x0001;	# コマンド前の行頭がスペースのみの場合、それを除去する
+my $P_del_lf_cmdline  = 0x0002;	# コマンドのみの行の行頭空白や文末改行を自動除去する
+my $P_del_lf_aftercmd = 0x0004;	# コマンドのみの行に続く空行を除去する
+my $P_del_blank       = 0x0008;	# 空行を除去
+my $P_nocr            = 0x0010;	# 改行を除去する
+my $P_cmd_only        = 0x0020;	# コマンド以外を無視
+my $P_is_function     = 0x0040;	# 関数として処理
 
 #------------------------------------------------------------------------------
 # ●演算子情報
@@ -650,7 +651,7 @@ sub preprocessor {
 		}
 
 		# 手前の行がコマンドのみの行ならば、続く空行を除去
-		if (($pragma & $P_dellf_aftercmd) && $prev_cmd_only && $x =~ /^\s*\n$/) { next; }
+		if (($pragma & $P_del_lf_aftercmd) && $prev_cmd_only && $x =~ /^\s*\n$/) { next; }
 		$prev_cmd_only = 0;
 
 		# 空行を除去
@@ -685,7 +686,6 @@ sub preprocessor {
 		my $line_is_cmd_only = 1;
 		# コマンドの認識
 		my $commands = 0;
-		my $line_1st_data;
 		while ($x =~ /^(.*?)<([\$\@\#])(.*)/s) {	# コマンド
 			$commands++;
 			my $t = $1;		# 手前
@@ -693,7 +693,7 @@ sub preprocessor {
 			my $y = $3;		# コマンド？
 			my $end_mark = '>';
 			if ($commands==1) {	# 行の最初のコマンドのみ
-				if (($pragma & $P_ctab2blank) && $t =~ /^\t+$/) { $t = ''; }
+				if (($pragma & $P_del_begin_space) && $t =~ /^\s+$/) { $t = ''; }
 			}
 			if ($t ne '') {		# コマンドより前部分
 				if ($t !~ /^\s+$/) {
@@ -701,8 +701,8 @@ sub preprocessor {
 				}
 				push(@buf, $t);
 				push(@line_no, $line);	# 元の行を記憶
-				$line_1st_data = $#buf;
 			}
+
 			# <@@xxx> のとき行末改行を除去しない
 			if ($2 eq '@' && ord($y) == 0x40) {
 				$y = substr($y,1);
@@ -766,23 +766,18 @@ sub preprocessor {
 			}
 			push(@buf, $z);			# コマンド部分
 			push(@line_no, $line);		# 元の行を記憶
-			# 単純置換コマンドがあればコマンド行とみなさない
-			# if ($z =~ /^<\@\w[\w+\.]*(?:\#\d+)?>$/) {
-			# 	$line_is_cmd_only = 0;
-			# }
 		}
 		# コマンドしかない行ならば
-		if (($pragma & $P_cspace2blank) && $commands && $line_is_cmd_only) {
+		if (($pragma & $P_del_lf_cmdline) && $commands && $line_is_cmd_only) {
 			# 行末改行を除去する
-			if ($x eq "\n" || $x eq "\r\n") { $prev_cmd_only=1; $x=''; }
-			# 行頭空白を除去する
-			if (defined $line_1st_data) { $buf[$line_1st_data] = ''; }
+			if ($x =~ /^[\r\n]+$/) { $x=''; }
 		}
-		#begin などの処理ができなくなるので禁止
-		if ($x ne '') {		# 残りを push
-			push(@buf, $x);
+		if ($x ne '') {
+			if ($x !~ /^\s+$/) { $line_is_cmd_only=0; }
+			push(@buf, $x);		# 残り
 			push(@line_no, $line);	# 元の行を記憶
 		}
+		$prev_cmd_only = $line_is_cmd_only;
 	}
 	$self->{pragma} = $pragma;	# プラグマを保存
 
@@ -2367,7 +2362,7 @@ sub warning {
 sub debug {
 	my $self = shift;
 	my $ROBJ = $self->{ROBJ};
-	my $msg  = "[Compiler] $self->{src_file} : " . $ROBJ->translate(@_);
+	my $msg  = "[Compiler] $self->{src_file} : " . join(' ', @_);
 	return $ROBJ->_debug($msg);	# debug-safe
 }
 
