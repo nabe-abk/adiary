@@ -4,7 +4,7 @@ use strict;
 #						(C)2006-2020 nabe / nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Mail;
-our $VERSION = '1.21';
+our $VERSION = '1.30';
 #------------------------------------------------------------------------------
 use Socket;
 #------------------------------------------------------------------------------
@@ -52,46 +52,44 @@ sub send_mail {
 	my $ROBJ = $self->{ROBJ};
 
 	# 宛先確認
-	my $from = $self->check_mail_address($h->{from}) ? $h->{from} : '';
-	my $to   = $self->check_mail_address($h->{to}  ) ? $h->{to}   : '';
-	my $cc   = $self->check_mail_address($h->{cc}  ) ? $h->{cc}   : '';
-	my $bcc  = $self->check_mail_address($h->{bcc} ) ? $h->{bcc}  : '';
-	my $repto= $self->check_mail_address($h->{reply_to}) ? $h->{reply_to} : '';
-	my $retph= $self->check_mail_address($h->{return_path}) ? $h->{return_path} : '';
+	my $to    = $self->check_mail_addresses($h->{to}  );
+	my $cc    = $self->check_mail_addresses($h->{cc}  );
+	my $bcc   = $self->check_mail_addresses($h->{bcc} );
+	my $from  = $self->check_mail_address($h->{from}       );
+	my $repto = $self->check_mail_address($h->{reply_to}   );
+	my $retph = $self->check_mail_address($h->{return_path});
 
-	if ($to eq '') { $ROBJ->message('"To" is invalid'); return 1; }
+	if (!$to) { $ROBJ->message('"To" is invalid'); return 1; }
 
 	#----------------------------------------------------------------------
 	# message body
 	#----------------------------------------------------------------------
 	my $msg='';
 	{
-		my $from_name = $h->{from_name};
-		my $to_name   = $h->{to_name};
-		my $cc_name   = $h->{cc_name};
+		my $to_name   = ref($h->{to_name})   ? $h->{to_name}        : [ $h->{to_name} ];
+		my $cc_name   = ref($h->{cc_name})   ? $h->{cc_name}        : [ $h->{cc_name} ];
+		my $from_name = ref($h->{from_name}) ? $h->{from_name}->[0] : $h->{from_name};
+
 		my $subject   = $h->{subject};
 		my $text      = $h->{text};
-		foreach($from_name, $to_name, $cc_name) {
-			$_ =~ s/[\x00-\x1f<>\"]//g;
-		}
 		$subject =~ s/[\x00-\x08\x0a-\x1f]//g;		# TAB以外
 		$text    =~ s/[\x00-\x08\x0b\x0c\x0e-\x1f]//g;	# TAB, LF, CR以外
 
-		# MIME
-		$self->mime_encode($from_name, $to_name, $cc_name, $subject);
+		# To, Cc Headers
+		$msg .= $self->make_to_header('To', $to, $to_name);
+		$msg .= $self->make_to_header('Cc', $cc, $cc_name);
 
-		# from, to の加工
-		$from_name = $from_name ? "$from_name <$from>"	: $from;
-		$to_name   = $to_name   ? "$to_name <$to>"	: $to;
-		$cc_name   = $cc_name   ? "$cc_name <$cc>"	: $cc;
-
-		if ($from)  { $msg .= "From: $from_name\n"; }
-		if ($to)    { $msg .= "To: $to_name\n"; }
-		if ($cc)    { $msg .= "Cc: $cc_name\n"; }
+		if ($from) {
+			if ($from_name ne '') {
+				$msg .= "From: " . $self->mime_encode($from_name) . " <$from>\n";
+			} else {
+				$msg .= "From: $from\n";
+			}
+		}
 		if ($repto) { $msg .= "Reply-To: $repto\n"; }
 		if ($retph) { $msg .= "Return-Path: $retph\n"; }
-		$msg .= "Subject: $subject\n";
-		$msg .= "Date: " . $self->mail_date_local($ROBJ->{TM}) . "\n";
+		$msg .= "Subject:" . $self->mime_encode($subject)        . "\n";
+		$msg .= "Date: "   . $self->mail_date_local($ROBJ->{TM}) . "\n";
 		$msg .= "MIME-Version: 1.0\n";
 		$msg .= "Content-Type: text/plain; charset=\"$CODE\"\n";
 		$msg .= "X-Mailer: $self->{mailer}\n";
@@ -163,12 +161,8 @@ sub send_mail {
 		}
 		$from ||= $to;
 		$self->send_data_check($sock, "MAIL FROM:$from", 250);
-		$self->send_data_check($sock, "RCPT TO:$to", 250);
-		if ($cc) {
-			$self->send_data_check($sock, "RCPT TO:$cc", 250);
-		}
-		if ($bcc) {
-			$self->send_data_check($sock, "RCPT TO:$bcc", 250);
+		foreach(@$to,@$cc,@$bcc) {
+			$self->send_data_check($sock, "RCPT TO:$_", 250);
 		}
 		$self->send_data_check($sock, "DATA", 354);
 		$msg =~ s/(^|\n)\./$1../g;
@@ -184,6 +178,30 @@ sub send_mail {
 	}
 	return 0;
 }
+
+sub make_to_header {
+	my $self = shift;
+	my $type = shift;
+	my $adr  = shift || [];
+	my $name = shift || [];
+	my @ary;
+	foreach(0..$#$adr) {
+		my $a = $adr ->[$_];
+		my $n = $name->[$_];
+		if ($a eq '') { next; }
+		if ($n eq '') {
+			push(@ary, $a);
+			next;
+		}
+		# exists name
+		$n =~ s/[\x00-\x1f<>\"]//g;
+		$self->mime_encode($n);
+		push(@ary, "$n <$a>");
+	}
+	if (!@ary) { return ''; }
+	return "$type: " . join(",\n\t", @ary) . "\n";
+}
+
 #------------------------------------------------------------------------------
 # socket
 #------------------------------------------------------------------------------
@@ -316,12 +334,20 @@ sub auth_cram_md5 {
 ###############################################################################
 sub check_mail_address {
 	my $self = shift;
-	my @adr = split(/,/, shift);
-	if (!@adr) { return 0; }
-	foreach(@adr) {
-		if ($_ !~ /^[-\w\.]+\@(?:[-\w]+\.)+[-\w]+$/) { return 0; }
+	my $adr  = shift;
+	if ($adr !~ /^[-\w\.]+\@(?:[-\w]+\.)+[-\w]+$/) { return; }
+	return $adr;
+}
+sub check_mail_addresses {
+	my $self = shift;
+	my $adr  = shift;
+
+	my $ary  = ref($adr) ? $adr : [ split(/\s*,\s*/, $adr) ];
+	if (!@$ary) { return; }
+	foreach(@$ary) {
+		if ($_ !~ /^[-\w\.]+\@(?:[-\w]+\.)+[-\w]+$/) { return; }
 	}
-	return 1;	# success
+	return \@$ary;
 }
 
 sub get_timezone {
