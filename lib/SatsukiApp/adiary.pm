@@ -172,7 +172,7 @@ sub main {
 			# Append debug message
 			if ($ROBJ->{Develop} && ref($data) eq 'HASH') {
 				$data->{_develop} = 1;
-				if (my $err = ($ROBJ->error_load_and_clear() . join("\n", @{$ROBJ->{Debug}}))) {
+				if (my $err = ($ROBJ->error_load_and_clear() . join("\n", @{$ROBJ->{Message}}, @{$ROBJ->{Debug}}))) {
 					$data->{_debug} = $err;
 				}
 			}
@@ -660,8 +660,11 @@ sub system_mode {
 #------------------------------------------------------------------------------
 sub ajax_function {
 	my $self = shift;
+	my $ROBJ = $self->{ROBJ};
+
 	$self->{action_is_main} = 1;
 	$self->{frame_skeleton} = undef;
+	$ROBJ->set_content_type('application/json');
 
 	my $h = $self->do_ajax_function(@_);
 	if (!ref($h)) { return { ret => $h } }
