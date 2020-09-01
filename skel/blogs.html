@@ -1,4 +1,4 @@
-<@6>
+<@7>
 <@local(t,isadmin,url,s)>
 
 <@>権限チェック
@@ -23,7 +23,7 @@
 <div id="list-view">
 	<ul>
 	<@forexec(t, list, begin)>
-		<li><@if(admin, #'【<a href="<@t.url>?menu">管理</a>】')>
+		<li><@if(admin, #'【<a href="<@t.url>?menu">管理</a>】')>	<@\>
 		<@if(t.art_tm, tm_printf('<span class="small">%Y/%m/%d %H:%M</span> ', t.art_tm))>
 		<@if(t.private, "【非公開】")><a href="<@t.url>"><@if(t.newest_title ne '', t.newest_title, '-no diary-')></a>
 		<span class="small">(<@t.id> / <@t.blog_name>)</span></li>
