@@ -208,15 +208,15 @@ $OPR{'%m'}  = 0x202; $OPR_rename{'%m'} = '-';	# 負の数値
 #------------------------------------------------------------------------------
 #		  0 : 許可（そのまま）
 #	bit 0 =   1 : 戻り値が array
-#	bit 1 =   2 : 第１引数が array
-#	bit 2 =   4 : 第２引数が array
-#	bit 3 =   8 : 第３引数が array
+#	bit 1 =   2 : 第1引数が array
+#	bit 2 =   4 : 第2引数が array
+#	bit 3-7     : 第n引数が array
 #	bit 8 = 256 : 第１引数が hash
 #	bit 9 = 512 : 第２引数が hash
 #	bit10 =1024 : 第３引数が hash
 #	-1 : 関数ではなく裸制御文
 
-my %CoreFuncs = (undef => 0, length => 0, sprintf => 0, join => 4, split => 1,
+my %CoreFuncs = (undef => 0, length => 0, sprintf => 0, join => 252, split => 1,
 index => 0, rindex => 0, shift => 2, unshift => 2, pop => 2, push => 2,
 int => 0, abs => 0, sin => 0, cos => 0, log => 0, exp => 0, sqrt => 0, rand => 0,
 undef => 0, substr => 0, chop => 0, chomp => 0, chr => 0, ord => 0,
@@ -1537,9 +1537,9 @@ sub p2e_function {
 		my $mode = $CoreFuncs{$y};
 		if ($mode) {
 			my @ary = &get_objects_array($x_orig, $xt, $local_vars);
-			if ($mode &    2 && defined $ary[0]) { $ary[0] = '@{' . $ary[0] . '}'; }
-			if ($mode &    4 && defined $ary[1]) { $ary[1] = '@{' . $ary[1] . '}'; }
-			if ($mode &    8 && defined $ary[2]) { $ary[2] = '@{' . $ary[2] . '}'; }
+			foreach(0..6) {
+				if ($mode & (2<<$_) && defined $ary[$_]) { $ary[$_] = '@{' . $ary[$_] . '}'; }
+			}
 			if ($mode &  256 && defined $ary[0]) { $ary[0] = '%{' . $ary[0] . '}'; }
 			if ($mode &  512 && defined $ary[1]) { $ary[1] = '%{' . $ary[1] . '}'; }
 			if ($mode & 1024 && defined $ary[2]) { $ary[2] = '%{' . $ary[2] . '}'; }
