@@ -638,16 +638,18 @@ sub _read_form {
 	my $options = $self->{Form_options} || {};
 	### マルチパート form か
 	my $content_type = $ENV{CONTENT_TYPE};
+	my $multipart;
 	if (index($content_type, 'multipart/form-data') == 0) {
-		if (exists $options->{allow_multipart} && !$options->{allow_multipart}) { return; }
+		if (exists $options->{allow_multipart} && !$options->{allow_multipart}) {
+			return $self->POST_ERR_exit('Not allow multipart/form-data');
+		}
 		return $self->read_multipart_form( $content_type );
 	}
 	### データサイズの確認
 	my $length = $ENV{CONTENT_LENGTH};
-	my $total_max = $options->{total_max_size};	# 1MB
-	if ($total_max && $length > $total_max) {
-		$self->{POST_ERR} = 1;
-		$self->message('Too large form data (max %dKB)', $total_max >> 10); return ;
+	my $max = $options->{total_max_size};	# 1MB
+	if ($max && $length > $max) {
+		return $self->POST_ERR_exit('Too large form data (max %.1fMB)', $max/1048576);
 	}
 	### 通常のフォーム処理
 	my $content;
@@ -675,6 +677,20 @@ sub _read_form {
 	return $form;
 }
 
+sub POST_ERR_exit {
+	my $self = shift;
+	$self->{POST_ERR} = 1;
+	$self->message(@_);
+
+	my $size = $ENV{CONTENT_LENGTH};
+	while(0<$size) {
+		# Prevent borken pipe
+		read($self->{STDIN}, my $x, 1024*1024);
+		$size -= 1024*1024;
+	}
+	return;
+}
+
 #------------------------------------------------------------------------------
 # ●multipart フォームの読み込み RFC1867, RFC2388
 #------------------------------------------------------------------------------
@@ -687,9 +703,7 @@ sub read_multipart_form {
 	{
 		my $max = $options->{multipart_total_max_size};
 		if ($max && $length > $max) {
-			$self->{POST_ERR} = 1;
-			$self->message('Too large form data (max %dKB)', $max >> 10);
-			return;
+			return $self->POST_ERR_exit('Too large form data (max %.1fMB)', $max/1048576);
 		}
 	}
 
