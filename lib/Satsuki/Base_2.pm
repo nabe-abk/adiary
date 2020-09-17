@@ -15,7 +15,7 @@ sub compile {
 	#------------------------------------------------------------
 	# コンパイルログを残すか？
 	#------------------------------------------------------------
-	my $logfile = $self->{CompilerLog};
+	my $logfile = $self->{CompileLog};
 	if ($logfile ne '' && (-d $logfile || $self->mkdir($logfile)) ) {
 		my $file = $src_file;
 		$file =~ s|/|_-_|g;
