@@ -190,50 +190,55 @@ sub generate_select_where {
 
 	my $where;
 	my @ary;
-	foreach(sort(keys(%{ $h->{match} }))) {
-		my $k = $_;
-		my $v = $h->{match}->{$_};
+
+	my $match = sub {
+		my $k   = shift;
+		my $v   = shift;
+		my $not = shift;
 
 		$k =~ s/[^\w\.]//g;
 		if ($v eq '') {
-			$where .= " AND $k IS NULL";
-			next;
+			$where .= " AND $k is$not null";
+			return;
 		}
 		if (ref($v) ne 'ARRAY') {
-			$where .= " AND $k=?";
+			$where .= $not ? " AND $k!=?" : " AND $k=?";
 			push(@ary, $v);
-			next;
+			return;
 		}
+		#---------------------------------------------------
 		# 値が配列のとき
+		#---------------------------------------------------
+		if (!@$v) {
+			$where .= $not ? '' : ' AND false';
+			return;
+		}
+
+		my $add='';
+		if (grep {$_ eq ''} @$v) {
+			$v = [ grep { $_ ne '' } @$v ];
+			if (!@$v) {
+				$where .= " AND $k is$not null";
+				return;
+			}
+			if ($not) {
+				$add = " AND $k is not null";
+			} else {
+				$add = " OR $k is null)";
+				$k = "($k";
+			}
+		}
 		my $w = '?,' x ($#$v+1);
 		chop($w);
-		if ($w eq '') { 
-			$where .= " AND false";
-			next;
-		}
-		$where .= " AND $k in ($w)";
+		$where .= " AND $k$not in ($w)$add";
 		push(@ary, @$v);
+	};
+
+	foreach(sort(keys(%{ $h->{match} }))) {
+		&$match($_, $h->{match}->{$_});
 	}
 	foreach(sort(keys(%{ $h->{not_match} }))) {
-		my $k = $_;
-		my $v = $h->{not_match}->{$_};
-
-		$k =~ s/[^\w\.]//g;
-		if ($v eq '') {
-			$where .= " AND $k IS NOT NULL";
-			next;
-		}
-		if (ref($v) ne 'ARRAY') {
-			$where .= " AND $k!=?";
-			push(@ary, $v);
-			next;
-		}
-		# 値が配列のとき
-		my $w = '?,' x ($#$v+1);
-		chop($w);
-		if ($w eq '') { next; }
-		$where .= " AND $k not in ($w)";
-		push(@ary, @$v);
+		&$match($_, $h->{not_match}->{$_}, ' not');
 	}
 	foreach(sort(keys(%{ $h->{min} }))) {
 		my $k = $_;
@@ -262,15 +267,15 @@ sub generate_select_where {
 	foreach(sort(keys(%{ $h->{flag} }))) {
 		my $k = $_;
 		$k =~ s/[^\w\.]//g;
-		$where .= " AND " . ($h->{flag}->{$_} ? '' : 'NOT ') . $k;
+		$where .= " AND " . ($h->{flag}->{$_} ? '' : 'not ') . $k;
 	}
 	foreach(@{ $h->{is_null} }) {
 		$_ =~ s/[^\w\.]//g;
-		$where .= " AND $_ IS NULL";
+		$where .= " AND $_ is null";
 	}
 	foreach(@{ $h->{not_null} }) {
 		$_ =~ s/[^\w\.]//g;
-		$where .= " AND $_ IS NOT NULL";
+		$where .= " AND $_ is not null";
 	}
 	if ($h->{search_cols} || $h->{search_match}) {
 		my $search = sub {
@@ -296,7 +301,7 @@ sub generate_select_where {
 			$where .= &$search($_);
 		}
 		foreach(@{ $h->{search_not} || [] }) {
-			$where .= &$search($_, ' IS NOT TRUE');
+			$where .= &$search($_, ' is not true');
 		}
 	}
 	if ($h->{RDB_where} ne '') { # RDBMS専用、where直指定
