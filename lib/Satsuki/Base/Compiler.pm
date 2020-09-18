@@ -1068,12 +1068,6 @@ sub parse_block {
 			});
 		}
 	}
-	#foreach(@$buf) {
-	#	if (!ref($_)) { print "$_"; next; }
-	#	my @ary  = @$_;
-	#	my $flag = pop(@ary);
-	#	print "$flag " . join(' ', @ary) . "\n";
-	#}
 }
 
 #//////////////////////////////////////////////////////////////////////////////
@@ -1507,11 +1501,7 @@ sub p2e_function {
 		my $line_num_int = int($st->{line_num});
 
 		# ループ変数がローカル変数か判定
-		my $localvar = ($ary[0] =~ /^\$[a-z][a-z0-9]*$/);
-		if (!$localvar && $ary[0] =~ /^my (\$\w+)$/) {
-			$ary[0]   = $1;
-			$localvar = 1;
-		}
+		my $localvar = ($ary[0] =~ /^(?:my +)?\$[a-z][a-z0-9]*$/);
 
 		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) {
 			my $begin = $1;
@@ -1519,7 +1509,7 @@ sub p2e_function {
 			if ($y eq 'foreach') {
 				my $cmd = "my \$X=$ary[1]; if (ref(\$X) ne 'ARRAY') { \$X=[]; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] foreach: data is not array'); }; ";
 				if ($localvar) {
-					@$stack = ($cmd . "foreach my $ary[0] (\@\$X, \x02[$begin])");
+					@$stack = ($cmd . "foreach $ary[0] (\@\$X, \x02[$begin])");
 				} else {	# 通常変数
 					@$stack = ($cmd . "foreach(\@\$X, \x02[$begin])\x02{ $ary[0]=\$_;}\x02");
 				}
@@ -1545,7 +1535,7 @@ sub p2e_function {
 				my $ary  = ($type eq 'keys' ? "\$H->{_order} ? \@{\$H->{_order}} : " : '') . "$type(\%\$H)";
 
 				if ($localvar) {
-					@$stack = ($cmd . "foreach my $ary[0] ($ary, \x02[$begin])");
+					@$stack = ($cmd . "foreach $ary[0] ($ary, \x02[$begin])");
 				} else {	# 通常変数
 					@$stack = ($cmd . "foreach($ary, \x02[$begin])\x02{ $ary[0]=\$_;}\x02");
 				}
@@ -1557,7 +1547,7 @@ sub p2e_function {
 			if ($y eq 'foreach_num') {
 				$ary[1] =~ s/^\((.*)\)$/$1/;
 				if ($localvar) {
-					@$stack = ("foreach my $ary[0] (1..int($ary[1]), \x02[$begin])");
+					@$stack = ("foreach $ary[0] (1..int($ary[1]), \x02[$begin])");
 				} else {
 					@$stack = ("foreach(1..int($ary[1]), \x02[$begin])\x02{ $ary[0]=\$_;}\x02");
 				}
@@ -1572,7 +1562,7 @@ sub p2e_function {
 				$ary[1] =~ s/^\((.*)\)$/$1/;
 				$ary[2] =~ s/^\((.*)\)$/$1/;
 				if ($localvar) {
-					@$stack = ("foreach my $ary[0] (int($ary[1])..int($ary[2]), \x02[$begin])");
+					@$stack = ("foreach $ary[0] (int($ary[1])..int($ary[2]), \x02[$begin])");
 				} else {
 					@$stack = ("foreach(int($ary[1])..int($ary[2]), \x02[$begin])\x02{ $ary[0]=\$_;}\x02");
 				}
