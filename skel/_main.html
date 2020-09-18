@@ -114,7 +114,7 @@
 	<@ifexec(ret.narrow_tags, begin)>
 	<div class="narrow narrow-tag">
 	<span class="search-caption">タグで絞り込み</span>
-	<@forexec_hash(t,ret.narrow_tags,begin)>
+	<@foreach_hash(t,ret.narrow_tags,begin)>
 		<a href="<@url>&amp;t=<@encode_uricom(x = t.key)>"><@if(t.key eq '', '(タグなし)',t.key)>(<@t.val>)</a>
 	<$end>
 	</div>
@@ -124,7 +124,7 @@
 	<@ifexec(ret.narrow_ctype, begin)>
 	<div class="narrow narrow-ctype">
 	<span class="search-caption">種類で絞り込み</span>
-	<@forexec_hash(t,ret.narrow_ctype,begin)>
+	<@foreach_hash(t,ret.narrow_ctype,begin)>
 		<a href="<@url>&amp;c=<@t.key>"><@if(t.key eq '', '通常記事', t.key)>(<@t.val>)</a>
 	<$end>
 	</div>
@@ -135,7 +135,7 @@
 	<div class="narrow narrow-ymd">
 	<span class="search-caption">日付で絞り込み</span>
 	<$qx = q><$replace(qx, '&amp;d=\d+', '')>
-	<@forexec_hash(t,ret.narrow_ymd,begin)>
+	<@foreach_hash(t,ret.narrow_ymd,begin)>
 		<@ifexec(t.key == 0, begin)><a href="<@url>&amp;w=1">コンテンツ(<@t.val>)</a><$next()><$end>
 		<a href="<@v.myself>?<@qx>&amp;d=<@t.key>"><@if(t.key < 10000, "<@t.key>年", int(substr(t.key,4,2)) . '月')>(<@t.val>)</a>
 	<$end>
@@ -189,7 +189,7 @@
 <@page_nav = exec(begin.function)>
 <@ifexec(ret.pages, begin, begin)>
 	<a<@if(1<page, #' href="<@url>' . if(2<page, '&amp;p=' . (page-1)) . '"')> class="prev-page" rel="prev">前のページ</a>
-	<@forexec_num(x, page_max-page_offset, begin)>
+	<@foreach_num(x, page_max-page_offset, begin)>
 		<$t = page_offset + x>
 		<@if(t!=ret.page, #'<a href="<@url>&amp;p=<@t>"><@t></a>', "<strong><@t></strong>")> 
 	<$end>

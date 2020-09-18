@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.10';
+our $VERSION = '2.11';
 #(簡易履歴)
+# 2020/09 Ver2.11  forexec_hash(), forexec_num() の削除
 # 2020/09 Ver2.10  parse_block()追加。foreach_keys, foreach_values 追加
 # 2020/09 Ver2.03  プラグマのバグ修正と動作変更。
 # 2020/08 Ver2.02  delete_hash, ifdelete_hash 追加
@@ -249,16 +250,14 @@ my @BreakFuncs = (
 #	2:	begin補完
 #
 my %LastOpFuncs = (
-	forexec	=>2,
-	foreach	=>2,
-	forexec_hash=>2,
-	foreach_hash=>2,
-	foreach_keys=>2,
-	foreach_values=>2,
-	forexec_num=>2,
-	foreach_num=>2,
-	ifexec	=>2,
-	elsif	=>1
+	forexec		=>2,
+	foreach		=>2,
+	foreach_hash	=>2,
+	foreach_keys	=>2,
+	foreach_values	=>2,
+	foreach_num	=>2,
+	ifexec		=>2,
+	elsif		=>1
 );
 
 #------------------------------------------------------------------------------
@@ -1487,16 +1486,9 @@ sub p2e_function {
 	}
 
 	#----------------------------------------------------------------------
-	# forexec to foreach, for compatibility
-	#----------------------------------------------------------------------
-	if ($y =~ /^forexec(.*)/) {
-		$y = 'foreach' . $1;
-	}
-
-	#----------------------------------------------------------------------
 	# foreachの展開
 	#----------------------------------------------------------------------
-	if ($y =~ /^foreach/) {
+	if ($y =~ /^foreach/ || $y eq 'forexec') {
 		my @ary = $self->get_objects_array($x_orig, $xt, $local_vars);
 		my $line_num_int = int($st->{line_num});
 
@@ -1506,8 +1498,8 @@ sub p2e_function {
 		if ($#ary == 2 && $ary[2] =~ /^\x01\[(begin.*)\]$/) {
 			my $begin = $1;
 
-			if ($y eq 'foreach') {
-				my $cmd = "my \$X=$ary[1]; if (ref(\$X) ne 'ARRAY') { \$X=[]; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] foreach: data is not array'); }; ";
+			if ($y eq 'foreach' || $y eq 'forexec') {
+				my $cmd = "my \$X=$ary[1]; if (ref(\$X) ne 'ARRAY') { \$X=[]; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] $y: data is not array'); }; ";
 				if ($localvar) {
 					@$stack = ($cmd . "foreach $ary[0] (\@\$X, \x02[$begin])");
 				} else {	# 通常変数
@@ -1519,7 +1511,7 @@ sub p2e_function {
 			}
 
 			if ($y eq 'foreach_hash') {
-				my $cmd = "my \$H=$ary[1]; if (ref(\$H) ne 'HASH') { \$H={}; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] foreach_hash: data is not hash'); };"
+				my $cmd = "my \$H=$ary[1]; if (ref(\$H) ne 'HASH') { \$H={}; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] $y: data is not hash'); };"
 				. " my \$Keys=\$H->{_order} || [keys(\%\$H)];"
 				. " foreach(\@\$Keys, \x02[$1])"
 				. "\x02{$ary[0] = {key=>\$_, val=>\$H->{\$_}};}\x02";
@@ -1531,7 +1523,7 @@ sub p2e_function {
 
 			if ($y =~ /^foreach_(keys|values)$/) {
 				my $type = $1;
-				my $cmd  = "my \$H=$ary[1]; if (ref(\$H) ne 'HASH') { \$H={}; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] foreach_$type: data is not hash'); };";
+				my $cmd  = "my \$H=$ary[1]; if (ref(\$H) ne 'HASH') { \$H={}; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] $y: data is not hash'); };";
 				my $ary  = ($type eq 'keys' ? "\$H->{_order} ? \@{\$H->{_order}} : " : '') . "$type(\%\$H)";
 
 				if ($localvar) {

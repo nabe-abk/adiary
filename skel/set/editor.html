@@ -105,7 +105,7 @@
 	<tr><th>記事の入力方法</th>
 		<td>
 		<select name="parser">
-			<@forexec_hash(ROBJ, v.parsers, begin)>
+			<@foreach_hash(ROBJ, v.parsers, begin)>
 			<option value="<@key>"<@if(s.parser eq key, ' selected')>><@val></option>
 			<$end>
 		</select>

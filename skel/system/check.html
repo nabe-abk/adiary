@@ -35,7 +35,7 @@ System-Coding : <@System_coding>
 	<th>Directory type</th><th>path</th><th>write check</th>
 </tr>
 </thead><tbody>
-<@forexec_hash(t, call('_sub/load_writable_dirs'), begin)>
+<@foreach_hash(t, call('_sub/load_writable_dirs'), begin)>
 <tr>
 	<td><@t.key></td>
 	<td><@t.val></td>

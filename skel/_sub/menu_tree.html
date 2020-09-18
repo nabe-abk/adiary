@@ -40,7 +40,7 @@
 <@ifexec(dir ne v.skel_dir, begin)>
  <span class="splitter">&gt;</span>
 <select class="dir" onchange="location.href = $(this).val()">
-<@forexec_hash(t, call("<@dir>/_items") || {}, begin.for)>
+<@foreach_hash(t, call("<@dir>/_items") || {}, begin.for)>
 	<option value="<@v.myself>?<@dir><@t.key>"<@if(v.skel_dir eq "<@dir><@t.key>", ' selected')>><@t.val></option>
 <$end.for>
 </select>
@@ -52,7 +52,7 @@
  <span class="items">
  <span class="item-start">[</span>
 <$sep=''>
-<@forexec_hash(t, items, begin)>
+<@foreach_hash(t, items, begin)>
   <@sep>
   <@ifexec(v.skel_name eq t.key || v.skeleton eq t.key, begin, begin)>
 	<span class="select"><@t.val></span> <@\>

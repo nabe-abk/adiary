@@ -92,7 +92,7 @@
 	<@ifexec(pages>1, begin)>
 	<nav class="page-nav">
 		<@if(1<page, #'<a href="<@url>page=' . (page-1) . '">&lt;</a>', '<a>&lt;</a>')> 
-		<@forexec_num(x, page_max-page_offset, begin)>
+		<@foreach_num(x, page_max-page_offset, begin)>
 			<$t = page_offset + x>
 			<@if(t!=page, #'<a href="<@url>page=<@t>"><@t></a>', "<strong><@t></strong>")> 
 		<$end>

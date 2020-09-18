@@ -197,7 +197,7 @@
 	<span class="element" id="select-parser-span">
 <@>		<span class="edit-caption">入力記法</span>
 		<select name="parser" id="select-parser">
-		<@forexec_hash(t, v.parsers, begin)>
+		<@foreach_hash(t, v.parsers, begin)>
 		<option value="<@t.key>"<@if(art.parser eq t.key, ' selected')>><@t.val></option>
 		<$end>
 	</select></span>

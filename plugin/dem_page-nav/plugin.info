@@ -50,7 +50,7 @@ HTML
 <@page_nav_force || exec(begin.function)>
 <@ifexec(ret.pages, begin, begin)>
 	<a<@if(1<page, #' href="<@url>' . if(2<page, '&amp;p=' . (page-1)) . '"')> class="prev-page" rel="prev">前のページ</a>
-	<@forexec_num(x, page_max-page_offset, begin)>
+	<@foreach_num(x, page_max-page_offset, begin)>
 		<$t = page_offset + x>
 		<@if(t!=ret.page, #'<a href="<@url>&amp;p=<@t>"><@t></a>', "<strong><@t></strong>")> 
 	<$end>
