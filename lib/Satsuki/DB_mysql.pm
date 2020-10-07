@@ -36,7 +36,7 @@ sub new {
 	# 接続
 	my $connect = $self->{Pool} ? 'connect_cached' : 'connect';
 	my $dbh = DBI->$connect("DBI:mysql:$database", $username, $password, \%DB_attr);
-	if (!$dbh) { $self->error('Connection faild'); return ; }
+	if (!$dbh) { die "Database '$database' Connection faild"; }
 	$self->{dbh} = $dbh;
 
 	# 文字コード設定（Perl 5.20 / 文字化け対策）

@@ -33,7 +33,7 @@ sub new {
 	# 接続
 	my $connect = $self->{Pool} ? 'connect_cached' : 'connect';
 	my $dbh = DBI->$connect("DBI:Pg:$database", $username, $password, \%DB_attr);
-	if (!$dbh) { $self->error('Connection faild'); return ; }
+	if (!$dbh) { die "Database '$database' Connection faild"; }
 	$self->{dbh} = $dbh;
 
 	# 初期設定
