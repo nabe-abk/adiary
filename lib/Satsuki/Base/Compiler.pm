@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.11';
+our $VERSION = '2.12';
 #(簡易履歴)
+# 2020/10 Ver2.12  '..'演算子削除。from_to() 追加
 # 2020/09 Ver2.11  forexec_hash(), forexec_num() の削除
 # 2020/09 Ver2.10  parse_block()追加。foreach_keys, foreach_values 追加
 # 2020/09 Ver2.03  プラグマのバグ修正と動作変更。
@@ -168,7 +169,6 @@ $OPR{'<<='} =  0x21;
 $OPR{'>>='} =  0x21;
 $OPR{'&&='} =  0x21;
 $OPR{'||='} =  0x21;
-$OPR{'..'}  =  0x30;	# 本当は || より優先度は低い
 $OPR{'||'}  =  0x38;
 $OPR{'&&'}  =  0x48;
 $OPR{'|'}   =  0x50;
@@ -321,7 +321,8 @@ my $LineNumZero = '0' x $LineNumLen;
 my %InlineFuncs = (
 'is_int'   => '#0 =~ /^-?\d+$/',
 'is_array' => "ref(#0) eq 'ARRAY'",
-'is_hash'  => "ref(#0) eq 'HASH'"
+'is_hash'  => "ref(#0) eq 'HASH'",
+'from_to'  => "[(#0)..(#1)]"
 );
 
 ###############################################################################
