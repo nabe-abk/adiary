@@ -1037,10 +1037,12 @@ span.tag span.ui-icon-close,
 /* dynatree */
 ul.dynatree-container {
 	min-height:		20px;
+	line-height:		1.3;
 }
+
 #body ul.dynatree-container ul
 {
-	padding: 0 0 0 16px;
+	padding: 0 0 0 18px;
 	margin: 0;
 }
 #body ul.dynatree-container li
@@ -1048,8 +1050,19 @@ ul.dynatree-container {
 	margin: 0;
 	padding: 1px 0 0 0;
 }
-#body ul.dynatree-container > li > ul {
-	padding-left: 6px;
+span.dynatree-node a {
+	padding:	1px;
+}
+span.dynatree-node a:focus {
+	outline:	none;	/* for GC */
+}
+span.dynatree-icon,
+ul.dynatree-container img {
+	margin-left:	0px;
+}
+
+#album-folder-tree ul.dynatree-container > li > ul {
+	padding-left:	3px;
 }
 
 /* サイドバーフォルダーツリー */
