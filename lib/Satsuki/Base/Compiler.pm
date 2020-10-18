@@ -6,7 +6,7 @@ use strict;
 package Satsuki::Base::Compiler;
 our $VERSION = '2.12';
 #(簡易履歴)
-# 2020/10 Ver2.12  '..'演算子削除。from_to() 追加
+# 2020/10 Ver2.12  '..'演算子削除。from_to() 追加。_ で始まるローカル変数許可
 # 2020/09 Ver2.11  forexec_hash(), forexec_num() の削除
 # 2020/09 Ver2.10  parse_block()追加。foreach_keys, foreach_values 追加
 # 2020/09 Ver2.03  プラグマのバグ修正と動作変更。
@@ -305,7 +305,7 @@ my %Unit2Num = (K => 1024, M => 1024*1024, G => 1024*1024*1024, T => 1024*1024*1
 		week => 3600*24*7, day => 3600*24, hour => 3600, min => 60, sec => 1);
 
 # 定義済ローカル変数（内部使用）
-my %SpecialVars = (v=>1);
+my %SpecialVars = (v=>1, _=>1);
 
 # 行番号の桁数
 my $LineNumOpt  = 1; 	# 桁数をソース行数に最適化
@@ -1431,7 +1431,7 @@ sub p2e_function {
 				$st->{error_msg}="Illegal local() format";
 				return;
 			}
-			if ($SpecialVars{$_} || $_ !~ /^[a-z][a-z0-9_]*$/) {
+			if ($SpecialVars{$_} || $_ !~ /^[a-z_][a-z0-9_]*$/) {
 				$st->{error_msg}="Illegal local var: $_";
 				return;
 			}
