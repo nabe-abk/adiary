@@ -539,14 +539,10 @@ sub superbreak_clear {	# callネストをすべてbreak/clear
 #------------------------------------------------------------------------------
 sub exec {
 	my $self = shift;
-	my $ary  = shift;
-	if (! @_) { return $self->execute($ary); }
-	# 引数あり
-	my $backup = $self->{argv};
+	my $code = shift;
+	local ($self->{argv});
 	$self->{argv} = \@_;
-	my $r = $self->execute($ary);
-	$self->{argv} = $backup;
-	return $r;
+	return $self->execute($code);
 }
 
 #------------------------------------------------------------------------------
