@@ -208,7 +208,7 @@ $$.dom_init( function($R){
 // (例)
 // <input type="button" value="ボタン" class="js-switch"  data-target="xxx"
 //  data-delay="300"
-//  data-hide-val="表示する" data-show-val="非表示にする" data-default="show/hide">
+//  data-hide-val="表示する" data-show-val="非表示にする" data-negative="1">
 //
 $$.toggle = function() {
 	const arg = Array.from(arguments);
@@ -253,11 +253,10 @@ $$._toggle = function(init, $obj) {
 		if (type == 'checkbox' || type == 'radio') $obj.prop("checked", flag);
 	} else if (type == 'checkbox' || type == 'radio') {
 		flag = $obj.prop("checked");
-	} else if (init && $obj.data('default')) {
-		flag = ($obj.data('default') != 'hide');
 	} else {
 		flag = init ? !$target.is(':hidden') : $target.is(':hidden');
 	}
+	if ($obj.data('negative')) flag = !flag;
 
 	// show speed
 	let delay = $obj.data('delay');
