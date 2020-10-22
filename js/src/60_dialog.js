@@ -65,8 +65,9 @@ $$.confirm = function(h, callback) {
 		dialogClass: h.class,
 		buttons: btn,
 		open: function(){
-			// set default false
-			//div.siblings('.ui-dialog-buttonpane').find('button:eq(0)').focus();
+			const $bp = $div.siblings('.ui-dialog-buttonpane');
+			if (h.focus == 'ok')     $bp.find('button:eq(0)').focus();
+			if (h.focus == 'cancel') $bp.find('button:eq(1)').focus();
 		},
 		exit: function(){
 			callback(false);

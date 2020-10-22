@@ -6,7 +6,7 @@ $.fn.extend({
 //////////////////////////////////////////////////////////////////////////////
 // dialog
 //////////////////////////////////////////////////////////////////////////////
-// The "modal" option ignore, this option exists for jQuery UI compatiblity.
+// The "modal" option ignore, this option exists on jQuery UI.
 //
 adiaryDialog: function(opt) {
 	if ( opt === 'open' )	return this.adiaryDialogOpen();
@@ -41,7 +41,10 @@ adiaryDialog: function(opt) {
 		const $span  = $('<span>').addClass('ui-dialog-title')
 			.html( opt.title || this.attr('title') || '&ensp;' );
 		$title.append( $span );
-		const $close = $('<button>').addClass('ui-button').attr('title', 'Close');
+		const $close = $('<button>').addClass('ui-button').attr({
+			title: 'Close',
+			tabindex: -1
+		});
 		$close.append( $('<span>').addClass('ui-icon ui-icon-closethick') );
 		$title.append( $close );
 		$dialog.append( $title );
@@ -76,10 +79,11 @@ adiaryDialog: function(opt) {
 	//////////////////////////////////////////////////////////////////////
 	// button
 	//////////////////////////////////////////////////////////////////////
-	{
+	if (opt.buttons) {
 		const $footer = $('<div>').addClass('ui-dialog-buttonpane');
 		const $btnset = $('<div>').addClass('ui-dialog-buttonset');
 		const btns = opt.buttons;
+		const $btns = [];
 		for(let i in btns) {
 			let $btn = $('<button>')
 					.addClass('ui-button')
@@ -87,7 +91,7 @@ adiaryDialog: function(opt) {
 					.text( i );
 			$btn.on('click', btns[i]);
 			$btnset.append($btn);
-			if (!data.$focus) data.$focus = $btn;
+			$btns.push($btn);
 		}
 		$footer.append( $btnset );
 		$dialog.append( $footer );
@@ -95,10 +99,26 @@ adiaryDialog: function(opt) {
 	}
 
 	//////////////////////////////////////////////////////////////////////
+	// disable tab indexes
+	//////////////////////////////////////////////////////////////////////
+	const tabs = [];
+	data.tabs = tabs;
+	$('a, input, button, select, textarea').each(function(idx,dom){
+		const $obj = $(dom);
+		tabs.push({
+			$obj:	$obj,
+			index:	$obj.attr('tabindex')
+		})
+		$obj.attr('tabindex', -1);
+		$obj.blur();
+	});
+
+	//////////////////////////////////////////////////////////////////////
 	// append dialog obj
 	//////////////////////////////////////////////////////////////////////
 	data.$overlay = $('<div>').addClass('ui-overlay aui-overlay');
 	data.$dialog  = $dialog;
+	data.open        = opt.open;
 	data.beforeClose = opt.beforeClose;
 
 	if (opt && !opt.autoOpen && 'autoOpen' in opt) return this;
@@ -125,16 +145,26 @@ adiaryDialogOpen: function() {
 	$dialog.adiaryDraggable({
 		handle: '.ui-dialog-titlebar'
 	});
-	if (data.$focus) data.$focus.focus();
+
+	if (data.open) data.open( null, this );
+
 	return this;
 },
 adiaryDialogClose: function() {
 	const data = this.adiaryUIData('dialog');
-	if (data.beforeClose) data.beforeClose();
+	if (data.beforeClose) data.beforeClose.call( null, this );
 
 	this.adiaryUIRemove( data.$overlay );
 	this.adiaryUIRemove( data.$dialog  );
 	if (data.$restore && data.$restore.length) data.$restore.append( this );
+
+	// recovery tab index
+	const tabs = data.tabs;
+	for(const tab of tabs) {
+		const idx = tab.index;
+		if (idx === undefined) tab.$obj.removeAttr('tabindex');
+				else   tab.$obj.attr('tabindex', idx)
+	}
 
 	return this;
 },
