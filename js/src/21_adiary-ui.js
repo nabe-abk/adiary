@@ -110,8 +110,8 @@ adiaryDialog: function(opt) {
 			index:	$obj.attr('tabindex')
 		})
 		$obj.attr('tabindex', -1);
-		$obj.blur();
 	});
+	if (document.activeElement) $(document.activeElement).blur();
 
 	//////////////////////////////////////////////////////////////////////
 	// append dialog obj
