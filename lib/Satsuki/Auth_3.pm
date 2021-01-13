@@ -229,16 +229,33 @@ sub load_user_info {
 #------------------------------------------------------------------------------
 sub load_logs {
 	my $self  = shift;
-	my $id    = shift;
-	my $limit = shift || 100;
+	my $query = shift;
 	my $DB    = $self->{DB};
 	my $table = $self->{table} . '_log';
 
-	my @arg = ('*sort', '-tm', '*limit', $limit);
-	if ($id ne '') {
-		unshift(@arg, 'id', $id);
+	my %h = (
+		limit	=> int($query->{limit}) || 100,
+		sort	=> $query->{sort} || '-tm'
+	);
+	if ($query->{id}) {
+		$h{match}->{id} = $query->{id};
 	}
-	return $DB->select_match($table, @arg);
+
+	my $y = int($query->{year});
+	my $m = int($query->{mon});
+	(1969<$y) && eval {
+		require Time::Local;
+		if (0<$m && $m<13) {
+			$h{min}->{tm} = Time::Local::timelocal(0,0,0,1,$m-1,$y-1900);
+			if ($m==12) { $m=1; $y++; }
+			$h{max}->{tm} = Time::Local::timelocal(0,0,0,1,$m,  $y-1900) -1;
+		} else {
+			$h{min}->{tm} = Time::Local::timelocal(0,0,0,1,1,$y-1900);
+			$h{max}->{tm} = Time::Local::timelocal(0,0,0,1,1,$y-1900 +1);
+		}
+	};
+
+	return $DB->select($table, \%h);
 }
 
 ###############################################################################
