@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2020 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.12';
+our $VERSION = '2.13';
 #(簡易履歴)
+# 2020/12 Ver2.13  into_single_quot_string() の修正（0で始まる数字）。
 # 2020/10 Ver2.12  '..'演算子削除。from_to() 追加。_ で始まるローカル変数許可
 # 2020/09 Ver2.11  forexec_hash(), forexec_num() の削除
 # 2020/09 Ver2.10  parse_block()追加。foreach_keys, foreach_values 追加
@@ -2556,7 +2557,7 @@ sub array2quote_string {
 sub into_single_quot_string {
 	my $self = shift;
 	foreach(@_) {
-		if ($_ =~ /^\d+$/) { next; }		# 1234
+		if ($_ =~ /^[1-9]\d+$/) { next; }	# 1234
 		if ($_ =~ /^\d+\.\d*$/) { next; }	# 12.34
 		$_ =~ s/([\\'])/\\$1/g;
 		$_ = "'$_'";
