@@ -1293,7 +1293,8 @@ sub check_ip_host {
 	my $ip = $ENV{REMOTE_ADDR} . '.';
 	foreach(@$ip_ary) {		# 前方一致
 		if ($_ eq '') { next; }
-		my $x = $_ . (substr($_,-1) eq '.' ? '' : '.');
+		my $z = substr($_,-1);
+		my $x = $_ . ($z eq '.' || $z eq ':' ? '' : '.');
 		if (0 == index($ip, $x)) { return 1; }
 	}
 
