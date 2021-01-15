@@ -170,15 +170,12 @@ sub do_session_auth {
 
 	# user data load
 	my $auth = $DB->select_match_limit1($self->{table}, 'id', $id);
-	$self->set_logininfo($auth);
 
-	# 認証失敗
-	if ($auth->{disable}) {
-		$ROBJ->message('This account is disable');
-		return ;
-	}
+	# 無効アカウント
+	if ($auth->{disable}) { return; }
 
 	# ログイン成功
+	$self->set_logininfo($auth);
 	$self->{_sid} = $session_id;		# ログアウトで使用
 	return 1;
 }

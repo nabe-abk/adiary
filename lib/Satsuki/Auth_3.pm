@@ -406,6 +406,9 @@ sub update_user_data {
 	if ($r != 1) {
 		return { ret=>-1, msg => 'DB update error' };
 	}
+	if ($update->{disable}) {
+		$DB->delete_match($self->{table} . '_sid', 'id', $id);
+	}
 
 	$self->log_save($id, 'update');
 	return { ret => 0 };
