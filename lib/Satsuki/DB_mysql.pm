@@ -57,8 +57,13 @@ sub Finish {
 	if ($self->{begin}) { $self->rollback(); }
 }
 #------------------------------------------------------------------------------
-# ●再接続
+# ●切断/再接続
 #------------------------------------------------------------------------------
+sub disconnect {
+	my $self = shift;
+	my $dbh  = $self->{dbh};
+	return $dbh->disconnect();
+}
 sub reconnect {
 	my $self = shift;
 	my $force= shift;
