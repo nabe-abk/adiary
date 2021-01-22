@@ -70,10 +70,7 @@ sub fork {
 		close(STDIN);
 		close(STDOUT);
 		## close(STDERR);	# Error on FastCGI
-		eval {
-			require	POSIX;
-			POSIX::setsid();
-		};
+
 		$self->{Shutdown} = 1;
 	}
 	return $fork;
