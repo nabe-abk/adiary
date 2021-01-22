@@ -56,6 +56,7 @@ sub init_for_httpd {
 ###############################################################################
 sub fork {
 	my $self = shift;
+	my $dbl  = shift;
 	my $fcgi = $self->{FCGI_request};
 	$fcgi && $fcgi->Detach();
 
@@ -72,6 +73,13 @@ sub fork {
 		## close(STDERR);	# Error on FastCGI
 
 		$self->{Shutdown} = 1;
+		if ($dbl) {		# double fork
+			fork() && $self->exit();
+			eval {
+				require	POSIX;
+				POSIX::setsid();
+			};
+		}
 	}
 	return $fork;
 }
