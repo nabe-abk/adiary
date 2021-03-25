@@ -1,11 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # skeleton parser / 構文解析コンパイラ
-#						(C)2006-2020 nabe@abk
+#						(C)2006-2021 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.13';
+our $VERSION = '2.14';
 #(簡易履歴)
+# 2021/03 Ver2.14  foreach_hash(local(t,u), hash) 書式の追加
 # 2020/12 Ver2.13  into_single_quot_string() の修正（0で始まる数字）。
 # 2020/10 Ver2.12  '..'演算子削除。from_to() 追加。_ で始まるローカル変数許可
 # 2020/09 Ver2.11  forexec_hash(), forexec_num() の削除
@@ -1515,8 +1516,17 @@ sub p2e_function {
 			if ($y eq 'foreach_hash') {
 				my $cmd = "my \$H=$ary[1]; if (ref(\$H) ne 'HASH') { \$H={}; \$R->error_from(\"line $line_num_int at \$R->{__src_file}\", '[executor] $y: data is not hash'); };"
 				. " my \$Keys=\$H->{_order} || [keys(\%\$H)];"
-				. " foreach(\@\$Keys, \x02[$1])"
-				. "\x02{$ary[0] = {key=>\$_, val=>\$H->{\$_}};}\x02";
+				. " foreach(\@\$Keys, \x02[$1])";
+				# foreach(local(t,u), hash)  --> my($t,$u)
+				# foreach(array(t,u), hash)  --> [$R->{t},$R->{u}]
+				my $v = $ary[0];
+				if ($v =~ /^my *\(\$\w+,\$\w+\)$/) {
+					$cmd .= "\x02{$v = (\$_, \$H->{\$_});}\x02";
+				} elsif ($v =~ /^\[([^,]+,[^,]+)\]$/) {
+					$cmd .= "\x02{($1) = (\$_, \$H->{\$_});}\x02";
+				} else {
+					$cmd .= "\x02{$ary[0] = {key=>\$_, val=>\$H->{\$_}};}\x02";
+				}
 				@$stack = ($cmd);
 				@$stype = ('!*');
 				$st->{last}=1;
