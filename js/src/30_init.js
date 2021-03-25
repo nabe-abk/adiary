@@ -2,14 +2,21 @@
 // initalize
 //////////////////////////////////////////////////////////////////////////////
 $$.init_funcs  = [];
-$$.init = function(func) {
+$$.init = function(func, priority) {
 	if (func)
-		return this.init_funcs.push(func);
+		return this.init_funcs.push({
+			func:	func,
+			p:	priority || 100
+		});
 
 	// other initlize functions
 	const funcs = this.init_funcs;
+	funcs.sort(function(a,b) {
+		return a.p - b.p;
+	});
+
 	for(var i=0; i<funcs.length; i++)
-		funcs[i].call(this);
+		funcs[i].func.call(this);
 };
 
 //////////////////////////////////////////////////////////////////////////////
