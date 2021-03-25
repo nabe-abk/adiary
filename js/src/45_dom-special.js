@@ -262,8 +262,8 @@ $$._toggle = function(init, $obj) {
 	let delay = $obj.data('delay');
 	if (delay === undefined || delay === '') delay = this.DefaultShowSpeed;
 
-	// first mode
-	if (delay==0 && $obj.data('first')) {
+	// fast mode
+	if ($obj.data('fast')) {
 		const css_id = '--css--' + id.replace(/[^\w\-]/g, '-');
 		let   $css   = $('#' + css_id);
 		if (!$css.length) {
