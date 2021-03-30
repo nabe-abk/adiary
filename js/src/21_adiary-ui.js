@@ -135,7 +135,7 @@ adiaryDialogOpen: function() {
 
 	// set css
 	const h  = this.height();
-	const hf = data.$header.outerHeight() + data.$footer.outerHeight();
+	const hf = data.$header.outerHeight() + (data.$footer ? data.$footer.outerHeight() : 0);
 	this.css('height', 'calc(100% - ' + hf + 'px)');
 	$dialog.css('height', $dialog.outerHeight());	// needs for calc 100%
 
