@@ -5,4 +5,4 @@
 <$name = Query.name>
 <$replace(name, '[^\w\-]', '')>
 
-<@esc(join('',fread_lines_no_error("<@v.plugin_dir><@name>/README.txt")))>
+<@esc(join('', fread_lines( "<@v.plugin_dir><@name>/README.txt", flagq(NoError) )))>
