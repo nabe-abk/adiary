@@ -1,7 +1,7 @@
 use strict;
 #------------------------------------------------------------------------------
 # ユーザー認証・管理モジュール
-#						(C)2009 nabe / nabe@abk.nu
+#						(C)2009-2021 nabe@abk
 #------------------------------------------------------------------------------
 use Satsuki::Auth ();
 package Satsuki::Auth;
@@ -13,11 +13,12 @@ my $_SALT = 'eTUMs6mRN8vqiSCHWaOGwynJKFbBpdA29txZEDcYluVgr75hLPQXfIk/j4o3z.10';
 # ●ログイン
 #------------------------------------------------------------------------------
 sub login {
-	my $self = shift;
-	my $id   = shift;
-	my $pass = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $DB   = $self->{DB};
+	my $self   = shift;
+	my $id     = shift;
+	my $pass   = shift;
+	my $secret = shift;
+	my $ROBJ   = $self->{ROBJ};
+	my $DB     = $self->{DB};
 	$self->userdb_init();
 
 	# IP/HOST制限
@@ -79,7 +80,7 @@ sub login {
 	}
 
 	# ログイン成功
-	$self->set_logininfo($udata);
+	$self->set_logininfo($udata, $secret);
 
 	# 同一IDの古いログインセッションを削除
 	my @del_pkeys;
@@ -146,26 +147,23 @@ sub session_auth {
 }
 
 sub do_session_auth {
-	my ($self, $id, $session_id, $opt) = @_;
+	my ($self, $id, $session_id, $secret) = @_;
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
-	$opt ||= {};
 
 	if ($id eq 'root*') { return; }
 	if ($id eq '' || $session_id eq '') { return; }
 
 	# セッションの認証
-	if (!$opt->{force_auth}) {
-		$DB->set_noerror(1);
-		my $session = $DB->select_match_limit1($self->{table}.'_sid', 'id', $id, 'sid', $session_id);
-		$DB->set_noerror(0);
-		if (! $session) { return; }
+	my $bak = $DB->set_noerror(1);
+	my $session = $DB->select_match_limit1($self->{table}.'_sid', 'id', $id, 'sid', $session_id);
+	$DB->set_noerror($bak);
+	if (! $session) { return; }
 
-		my $expires = $self->{expires};
-		if (0<$expires && $session->{login_tm} + $expires < $ROBJ->{TM}) {	# 期限切れ
-			$DB->delete_match($self->{table}.'_sid', 'pkey', $session->{pkey});
-			return;
-		}
+	my $expires = $self->{expires};
+	if (0<$expires && $session->{login_tm} + $expires < $ROBJ->{TM}) {	# 期限切れ
+		$DB->delete_match($self->{table}.'_sid', 'pkey', $session->{pkey});
+		return;
 	}
 
 	# user data load
@@ -175,17 +173,9 @@ sub do_session_auth {
 	if ($auth->{disable}) { return; }
 
 	# ログイン成功
-	$self->set_logininfo($auth);
+	$self->set_logininfo($auth, $secret);
 	$self->{_sid} = $session_id;		# ログアウトで使用
 	return 1;
-}
-
-#------------------------------------------------------------------------------
-# ●IDを指定してログイン認証処理
-#------------------------------------------------------------------------------
-sub force_auth {
-	my ($self, $id) = @_;
-	return $self->session_auth($id, '', {force_auth => 1});
 }
 
 #------------------------------------------------------------------------------
@@ -205,6 +195,7 @@ sub logout {
 	undef $self->{isadmin};
 	undef $self->{isroot};
 	undef $self->{ext};
+	undef $self->{disabled_admin};
 
 	# セッション情報の消去
 	my $table = $self->{table} . '_sid';
@@ -266,10 +257,11 @@ sub get_uid {
 # ●ログイン情報を内部変数に設定する
 #------------------------------------------------------------------------------
 sub set_logininfo {
-	my $self = shift;
-	my $user = shift;
-	my $ROBJ = $self->{ROBJ};
-	my $id = $user->{id};
+	my $self   = shift;
+	my $user   = shift;
+	my $secret = shift;
+	my $ROBJ   = $self->{ROBJ};
+	my $id     = $user->{id};
 
 	# ログイン成功
 	$self->{ok}    = 1;
@@ -279,7 +271,8 @@ sub set_logininfo {
 	$self->{email} = $user->{email};
 	$self->{isadmin} = $user->{isadmin};	# 管理者権限
 	$self->{isroot}  = 0;
-	
+	$self->{disabled_admin} = 0;
+
 	# ユーザー拡張カラムロード
 	foreach(@{$self->load_extcols()},'login_c','login_tm','fail_c','fail_tm') {
 		$self->{ext}->{$_} = $user->{$_};
@@ -287,17 +280,26 @@ sub set_logininfo {
 
 	if (!$self->{isadmin}) { return; }
 
-	# IP/HOST制限
-	if (! $ROBJ->check_ip_host($self->{admin_allow_ip}, $self->{admin_allow_host})) {
-		$self->{isadmin} = 0;
-	}
-
 	# セキュリティ拡張
 	if ($self->{root_list} && $self->{root_list}->{$id}) {
 		$self->{isroot}  = 1;
 
 	} elsif ($self->{admin_list} && ! $self->{admin_list}->{ $id }) {
 		$self->{isadmin} = 0;
+	}
+
+	# admin権限の承認
+	if ($self->{admin_allow_ip} || $self->{admin_allow_host} || $self->{admin_secret} ne '') {
+		my $ok;
+		if ($self->{admin_secret} ne '' && $self->{admin_secret} eq $secret) { $ok=1; }
+		if (($self->{admin_allow_ip} || $self->{admin_allow_host})
+		 && $ROBJ->check_ip_host($self->{admin_allow_ip}, $self->{admin_allow_host})) { $ok=1; }
+
+		if (!$ok) {
+			$self->{isroot}  = 0;
+			$self->{isadmin} = 0;
+			$self->{disabled_admin} = 1;
+		}
 	}
 }
 
@@ -310,9 +312,9 @@ sub userdb_init {
 	my $DB = $self->{DB};
 
 	# 管理者の存在確認
-	$DB->set_noerror(1);
+	my $bak = $DB->set_noerror(1);
 	my $h = $DB->select_match_limit1( $self->{table}, 'isadmin', 1, 'disable', 0, '*NoError', 1, '*cols', 'pkey' );
-	$DB->set_noerror(0);
+	$DB->set_noerror($bak);
 
 	# テーブルの確認
 	if (!$h && !$DB->find_table( $self->{table} )) {
