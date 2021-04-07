@@ -23,6 +23,7 @@ sub login {
 
 	# IP/HOST制限
 	if (! $ROBJ->check_ip_host($self->{allow_ip}, $self->{allow_host})) {
+		$self->log_save($id, 'login', 'fail (IP)');
 		return { ret=>1, msg=>'security error' };
 	}
 
