@@ -1,16 +1,16 @@
 use strict;
 #------------------------------------------------------------------------------
 # Base system functions for satsuki system
-#						Copyright(C)2005-2020 nabe@abk
+#						Copyright(C)2005-2021 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.62';
+our $VERSION = '2.63';
 our $RELOAD;
 my %StatCache;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
-my $_SALT = '8RfoZYxLBkqeQFMd0l.pEmVCuAyUDO9b/3wSi5Trn47IzcHKPvGgsXhjNt126JWa';
+my $_SALT = '8RfoZYxLBkqeQFMd0l-pEmVCuAyUDO9b_3wSi5Trn47IzcHKPvGgsXhjNt126JWa';
 #------------------------------------------------------------------------------
 # 文字コード等のデフォルト設定。
 $Satsuki::SYSTEM_CODING = 'UTF-8';
