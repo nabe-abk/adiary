@@ -505,6 +505,7 @@ sub tmpwatch {
 	my $self = shift;
 	my $dir  = shift;
 	my $sec  = shift || 3600;
+	my $opt  = shift || { dir => 1 };
 	$dir = $dir ? $dir : $self->get_tmpdir();
 	$dir =~ s|([^/])/*$|$1/|;
 	if ($sec < 10) { $sec = 10; }
@@ -513,12 +514,17 @@ sub tmpwatch {
 	my $check_tm = $self->{TM} - $sec;
 
 	# 削除ループ
-	my $files = $self->search_files( $dir, {all=>1} );
+	my $files = $self->search_files( $dir, $opt );
 	my $c = 0;
 	foreach(@$files) {
-		my $file = $dir . $_;
-		if ((stat($file))[9] > $check_tm) { next; }
-		$c += unlink( $file );
+		my $file  = $dir . $_;
+		if (-d $file) {
+			$self->tmpwatch($file, $sec, $opt);
+			$c += rmdir( $file ) ? 1 : 0;
+		} else {
+			if ((stat($file))[9] > $check_tm) { next; }
+			$c += unlink( $file );
+		}
 	}
 	return $c;
 }

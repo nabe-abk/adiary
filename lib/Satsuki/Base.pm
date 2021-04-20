@@ -1200,7 +1200,7 @@ sub touch {
 #	ディレクトリには最後に / を付けて返す。
 #
 #	$opt->{ext}	 	検索する拡張子（".txt"のように指定）
-#	$opt->{all}	 = 1	'.'で始まるファイルを含める（"."と".."は無視）
+#	$opt->{all}	 = 1	'.'で始まるファイルを含める（"."と".."は常に無視）
 #	$opt->{dir}	 = 1	ディレクトリを含める
 #	$opt->{dir_only} = 1	ディレクトリのみ返す
 
@@ -1219,12 +1219,12 @@ sub search_files {
 	$opt->{dir} ||= $opt->{dir_only};
 	my @filelist;
 	foreach(readdir($fh)) {
-		if ($_ eq '.' || $_ eq '..' )  { next; }		# ./ ../ は無視
+		if ($_ eq '.' || $_ eq '..')  { next; }			# ./ ../ は無視
 		if (!$opt->{all} && substr($_,0,1) eq '.') { next; }	# 隠しファイルを無視
 		my $isDir = -d "$dir$_";
 		if ((!$opt->{dir} && $isDir) || ($opt->{dir_only} && !$isDir)) { next; }
 		if ($ext && ($_ !~ /(\.\w+)$/ || !$ext->{$1})) { next; }
-		push(@filelist, $_ . ($isDir ? '/':''));
+		push(@filelist, $_ . ($isDir ? '/' : ''));
 	}
 	closedir($fh);
 
