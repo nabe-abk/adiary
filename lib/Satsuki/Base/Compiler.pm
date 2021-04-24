@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2021 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.14';
+our $VERSION = '2.15';
 #(簡易履歴)
+# 2021/04 Ver2.15  大文字のローカル変数を許可
 # 2021/03 Ver2.14  foreach_hash(local(t,u), hash) 書式の追加
 # 2020/12 Ver2.13  into_single_quot_string() の修正（0で始まる数字）。
 # 2020/10 Ver2.12  '..'演算子削除。from_to() 追加。_ で始まるローカル変数許可
@@ -306,7 +307,7 @@ my $L_indent_bits    = 8;	# ↑が何ビットシフトか
 my %Unit2Num = (K => 1024, M => 1024*1024, G => 1024*1024*1024, T => 1024*1024*1024*1024,
 		week => 3600*24*7, day => 3600*24, hour => 3600, min => 60, sec => 1);
 
-# 定義済ローカル変数（内部使用）
+# 定義済ローカル変数（内部使用） + 大文字1文字は予約済
 my %SpecialVars = (v=>1, _=>1);
 
 # 行番号の桁数
@@ -1433,8 +1434,12 @@ sub p2e_function {
 				$st->{error_msg}="Illegal local() format";
 				return;
 			}
-			if ($SpecialVars{$_} || $_ !~ /^[a-z_][a-z0-9_]*$/) {
+			if ($_ !~ /^[A-Za-z_]\w*$/) {
 				$st->{error_msg}="Illegal local var: $_";
+				return;
+			}
+			if ($SpecialVars{$_} || $_ =~ /^[A-Z_]$/) {
+				$st->{error_msg}="Reserved local var name: $_";
 				return;
 			}
 			if ($h{$_}) {
