@@ -160,8 +160,9 @@ adiaryDialogClose: function() {
 
 	// recovery tab index
 	const tabs = data.tabs;
-	for(const tab of tabs) {
-		const idx = tab.index;
+	for(let i in tabs) {
+		let tab = tabs[i];
+		let idx = tab.index;
 		if (idx === undefined) tab.$obj.removeAttr('tabindex');
 				else   tab.$obj.attr('tabindex', idx)
 	}
