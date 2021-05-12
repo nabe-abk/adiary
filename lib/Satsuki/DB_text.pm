@@ -1,9 +1,8 @@
 use strict;
 #-------------------------------------------------------------------------------
 # テキストデータベース
-#						(C)2005-2020 nabe@abk
+#						(C)2005-2021 nabe@abk
 #-------------------------------------------------------------------------------
-# 旧名 : DB_pseudo
 #
 #■■■編集時の注意■■■
 # 　値を返し、または変更するとき、内部ハッシュ配列 $db および
@@ -13,7 +12,7 @@ package Satsuki::DB_text;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 
-our $VERSION = '1.30';
+our $VERSION = '1.31';
 our $FileNameFormat = "%05d";
 our %IndexCache;
 ###############################################################################
@@ -79,9 +78,9 @@ sub select {
 	my $db = $self->load_index($table, undef, $h->{NoError});	# table array ref
 	if ($#$db < 0) { return []; }
 
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	# 全文データロードの準備
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	my $dir = $self->{dir} . $table . '/';
 	my $ext = $self->{ext};
 
@@ -89,9 +88,9 @@ sub select {
 	my $index_cols  = $self->{"$table.idx"};
 	my $exists_cols = $self->{"$table.cols"};
 
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	# 選択カラムが正しいか？
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	my $sel_cols = $h->{cols};
 	if ($sel_cols) {
 		$sel_cols = ref($sel_cols) ? $sel_cols : [ $sel_cols ];
@@ -103,9 +102,9 @@ sub select {
 		}
 	}
 
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	# マッチング条件の処理
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	my @match    = sort( keys(%{ $h->{match}     }) );
 	my @not_match= sort( keys(%{ $h->{not_match} }) );
 	my @min      = sort( keys(%{ $h->{min}       }) );
@@ -113,20 +112,30 @@ sub select {
 	my @gt       = sort( keys(%{ $h->{gt}        }) );
 	my @lt       = sort( keys(%{ $h->{lt}        }) );
 	my @flag     = sort( keys(%{ $h->{flag}      }) );
-	my $is_null  = $h->{is_null}  || [];
-	my $not_null = $h->{not_null} || [];
+	my $is_null  = $h->{is_null}      || [];
+	my $not_null = $h->{not_null}     || [];
+	my $s_cols   = $h->{search_cols}  || [];
+	my $s_match  = $h->{search_match} || [];
+	my $s_equal  = $h->{search_equal} || [];
 
-	# 単純検索対象カラムを列挙
-	my @search_cols = (@match,@not_match,@min,@max,@gt,@lt,@flag,@$is_null,@$not_null);
+	my @target_cols_L1 = (
+		@match, @not_match, @min, @max, @gt, @lt, @flag,
+		@$is_null, @$not_null
+	);
+	my @target_cols_L2 = (@$s_cols, @$s_match, @$s_equal);
+	my @target_cols    = (@target_cols_L1, @target_cols_L2);
 
+	#----------------------------------------------------------------------
 	# limit設定あり？
-	my $limit;
+	#----------------------------------------------------------------------
 	my $limit_state;
-	if (! $require_hits && $h->{limit} ne '') {
+	if (!$require_hits && $h->{limit} ne '') {
 		$limit_state = int($h->{limit}) -1 + int($h->{offset});
 	}
 
+	#----------------------------------------------------------------------
 	# sort対象の確認
+	#----------------------------------------------------------------------
 	my ($sort_func, $sort) = $self->generate_sort_func($table, $h);
 	my $sort_state;
 	if (@$sort) {
@@ -147,216 +156,227 @@ sub select {
 		}
 	}
 
+	#----------------------------------------------------------------------
+	# 抽出処理
+	#----------------------------------------------------------------------
 	my $load_all_data = $self->{"$table.load_all"};
-	if (@search_cols) {
-		if (my @ary = grep { !$exists_cols->{$_} } @search_cols) {
+	my $copy_flag;
+	if (@target_cols) {
+		if (my @ary = grep { !$exists_cols->{$_} } @target_cols) {
 			foreach(@ary) {
 				$self->error("Search column '$_' is not exists");
 			}
 			return [];
 		}
-		my $do_load = 0;
-		# 検索前処理
-		if (!$load_all_data && grep {! $index_cols->{$_}} @search_cols) {
+		#--------------------------------------------------------------
+		# リミットとロード処理
+		#--------------------------------------------------------------
+		my $limit;
+		my $do_load_L1 = '';
+		my $do_load_L2 = '';
+
+		if (!$load_all_data && grep {! $index_cols->{$_}} @target_cols) {
 			# index外カラムの参照
 			$load_all_data = 1;
 			if ($sort_state == 7) {
 				# limit値がある and indexのみでソート可能
-				$do_load = 1;	# ファイル順次読み込み
+				$do_load_L1 = 1;	# ファイル順次読み込み
 				$db = [sort $sort_func @$db];
 				$sort_state = 0;
 				$limit = $limit_state;
 			} else {
-				# sortせず、全カラム検索が必要
+				# 全ロードする（キャッシュ環境ではキャッシュが効く）
 				$sort_state |= 4;
 				$db = $self->load_allrow($table);
 			}
 		}
+		if ($do_load_L1 && !(grep {! $index_cols->{$_}} @target_cols_L1)) {
+			$do_load_L1 = '';
+			$do_load_L2 = 1;
+		}
 
-		# 検索準備
-		my @cond;
-		my %in;
-		my $str = $self->{"$table.str"};
-		foreach (@match) {
-			my $v = $h->{match}->{$_};
-			if (ref($v) eq 'ARRAY') {
-				$in{$_} = { map {$_=>1} @$v };
-				push(@cond, "exists\$in->{$_}->{\$_->{$_}}");
-				next;
+		#--------------------------------------------------------------
+		# Level-1 検索条件
+		#--------------------------------------------------------------
+		my $cond_L1='';
+		my %match_h;
+		my %not_match_h;
+		if (@target_cols_L1) {
+			my @cond;
+			my $str = $self->{"$table.str"};
+			foreach (@match) {
+				my $v = $h->{match}->{$_};
+				if (ref($v) eq 'ARRAY') {
+					$match_h{$_} = { map {$_=>1} @$v };
+					push(@cond, "exists\$match_h->{$_}->{\$_->{$_}}");
+					next;
+				}
+				if ($str->{$_} || $v eq '') {	# $v eq '' はnullデータ
+					# 文字カラム
+					$v =~ s/([\\'])/\\$1/g;
+					push(@cond, "\$_->{$_}eq'$v'");
+					next;
+				}
+				{
+					# 数値カラム
+					$v += 0;
+					if ($v ne $h->{match}->{$_}) { $self->error("'$v' ($_ column) is not number"); return []; }
+					push(@cond, "\$_->{$_}==$v");
+					next;
+				}
 			}
-			if ($str->{$_} || $v eq '') {	# $v eq '' はnullデータ
-				# 文字カラム
-				$v =~ s/([\\'])/\\$1/g;
-				push(@cond, "\$_->{$_}eq'$v'");
-				next;
+			foreach (@not_match) {
+				my $v = $h->{not_match}->{$_};
+				if (ref($v) eq 'ARRAY') {
+					$not_match_h{$_} = { map {$_=>1} @$v };
+					push(@cond, "!exists\$not_match_h->{$_}->{\$_->{$_}}");
+					next;
+				}
+				if ($str->{$_} || $v eq '') {	# $v eq '' はnullデータ
+					$v =~ s/([\\'])/\\$1/g;
+					push(@cond, "\$_->{$_}ne'$v'");
+					next;
+				}
+				{
+					$v += 0;
+					if ($v ne $h->{not_match}->{$_}) { $self->error("'$v' ($_ column) is not number"); return []; }
+					push(@cond, "\$_->{$_}!=$v");
+					next;
+				}
 			}
-			{
-				# 数値カラム
-				$v += 0;
-				if ($v ne $h->{match}->{$_}) { $self->error("'$v' ($_ column) is not number"); return []; }
+			foreach (@flag) {
+				my $v = $h->{flag}->{$_};
+				if ($v ne '0' && $v ne '1') { $self->error("'$v' ($_ column) is not flag(allowd '1' or '0')"); return []; }
 				push(@cond, "\$_->{$_}==$v");
-				next;
 			}
-		}
-		foreach (@not_match) {
-			my $v = $h->{not_match}->{$_};
-			if (ref($v) eq 'ARRAY') {
-				$in{$_} = { map {$_=>1} @$v };
-				push(@cond, "!exists\$in->{$_}->{\$_->{$_}}");
-				next;
+			foreach (@min) {
+				my $v = $h->{min}->{$_} + 0;
+				if ($v != $h->{min}->{$_}) { $self->error("'$v' ($_ column) is not numeric"); return []; }
+				push(@cond, "\$_->{$_}>=$v");
 			}
-			if ($str->{$_} || $v eq '') {	# $v eq '' はnullデータ
-				$v =~ s/([\\'])/\\$1/g;
-				push(@cond, "\$_->{$_}ne'$v'");
-				next;
+			foreach (@max) {
+				my $v = $h->{max}->{$_} + 0;
+				if ($v != $h->{max}->{$_}) { $self->error("'$v' ($_ column) is not numeric"); return []; }
+				push(@cond, "\$_->{$_}<=$v");
 			}
-			{
-				$v += 0;
-				if ($v ne $h->{not_match}->{$_}) { $self->error("'$v' ($_ column) is not number"); return []; }
-				push(@cond, "\$_->{$_}!=$v");
-				next;
+			foreach (@gt) {
+				my $v = $h->{gt}->{$_} + 0;
+				if ($v != $h->{gt}->{$_}) { $self->error("'$v' ($_ column) is not numeric"); return []; }
+				push(@cond, "\$_->{$_}>$v");
 			}
+			foreach (@lt) {
+				my $v = $h->{lt}->{$_} + 0;
+				if ($v != $h->{lt}->{$_}) { $self->error("'$v' ($_ column) is not numeric"); return []; }
+				push(@cond, "\$_->{$_}<$v");
+			}
+			foreach (@$is_null) {
+				push(@cond, "\$_->{$_}eq''");
+			}
+			foreach (@$not_null) {
+				push(@cond, "\$_->{$_}ne''");
+			}
+
+			$cond_L1 = 'if (!(' . join(' && ', @cond) . ')) { next; }';
+			$self->debug("select '$table' where L1: $cond_L1");	# debug-safe
 		}
-		foreach (@flag) {
-			my $v = $h->{flag}->{$_};
-			if ($v ne '0' && $v ne '1') { $self->error("'$v' ($_ column) is not flag(allowd '1' or '0')"); return []; }
-			push(@cond, "\$_->{$_}==$v");
+
+		#--------------------------------------------------------------
+		# Level-2 検索条件（文字列検索）
+		#--------------------------------------------------------------
+		my $cond_L2='';
+		if (@target_cols_L2) {
+			my $words = $h->{search_words} || [];
+			my $not   = $h->{search_not}   || [];
+			my $cols  = $h->{search_cols}  || [];
+			my $match = $h->{search_match} || [];
+			my $equal = $h->{search_equal} || [];
+
+			# 検索の準備
+			my @cond;
+			foreach(@$words) {
+				my $x = $_ =~ s/([\\\"])/\\$1/rg;
+				my $r = $_ =~ s/([^0-9A-Za-z\x80-\xff])/"\\x" . unpack('H2',$1)/reg;
+
+				my @ary;
+				foreach (@$equal) {
+					push(@ary, "\$_->{$_} eq \"$x\"");
+				}
+				foreach (@$cols) {
+					push(@ary, "\$_->{$_} =~ /$r/i");
+				}
+				foreach (@$match) {
+					push(@ary, "\$_->{$_} =~ /^$r\$/i");
+				}
+				push(@cond, '(' . join(' || ', @ary) . ')');
+			}
+
+			my @not_words_reg;
+			foreach(@$not) {
+				my $x = $_ =~ s/([\\\"])/\\$1/rg;
+				my $r = $_ =~ s/([^0-9A-Za-z\x80-\xff])/"\\x" . unpack('H2',$1)/reg;
+
+				my @ary;
+				foreach (@$equal) {
+					push(@ary, "\$_->{$_} ne \"$x\"");
+				}
+				foreach (@$cols) {
+					push(@ary, "\$_->{$_} !~ /$r/i");
+				}
+				foreach (@$match) {
+					push(@ary, "\$_->{$_} !~ /^$r\$/i");
+				}
+				push(@cond, join(' && ', @ary));
+			}
+
+			$cond_L2 = 'if (!(' . join(' && ', @cond) . ')) { next; }';
+			$self->debug("select '$table' where L1: $cond_L2");	# debug-safe
 		}
-		foreach (@min) {
-			my $v = $h->{min}->{$_} + 0;
-			if ($v != $h->{min}->{$_}) { $self->error("'$v' ($_ column) is not numeric"); return []; }
-			push(@cond, "\$_->{$_}>=$v");
-		}
-		foreach (@max) {
-			my $v = $h->{max}->{$_} + 0;
-			if ($v != $h->{max}->{$_}) { $self->error("'$v' ($_ column) is not numeric"); return []; }
-			push(@cond, "\$_->{$_}<=$v");
-		}
-		foreach (@gt) {
-			my $v = $h->{gt}->{$_} + 0;
-			if ($v != $h->{gt}->{$_}) { $self->error("'$v' ($_ column) is not numeric"); return []; }
-			push(@cond, "\$_->{$_}>$v");
-		}
-		foreach (@lt) {
-			my $v = $h->{lt}->{$_} + 0;
-			if ($v != $h->{lt}->{$_}) { $self->error("'$v' ($_ column) is not numeric"); return []; }
-			push(@cond, "\$_->{$_}<$v");
-		}
-		foreach (@$is_null) {
-			push(@cond, "\$_->{$_}eq''");
-		}
-		foreach (@$not_null) {
-			push(@cond, "\$_->{$_}ne''");
-		}
-		my $cond = join('&&', @cond);
-		$self->debug("select '$table' where : $cond");	# debug-safe
-		my $addline;
-		if ($do_load) {
+
+		#--------------------------------------------------------------
+		# 検索関数生成
+		#--------------------------------------------------------------
+
+		if ($do_load_L1 || $do_load_L2) {
 			$dir =~ s/\\\'//g;
 			$ext =~ s/\\\'//g;
-			$addline = "\$_ = \$self->read_rowfile('$table', \$_);";
+			my $load = "\$_ = \$self->read_rowfile('$table', \$_);";
+			if ($do_load_L1) { $do_load_L1 = $load; }
+				else     { $do_load_L2 = $load; }
 		}
 		if ($limit) {
 			$limit = "if(\$#newary >= $limit) { last; }";
 		}
 		my $func=<<FUNCTION_TEXT;
 		sub {
-			my (\$self,\$db,\$in) = \@_;
+			my (\$self, \$db, \$match_h, \$not_match_h) = \@_;
 			my \@newary;
 			foreach(\@\$db) {
-				$addline
-				if ($cond) {
-					push(\@newary, \$_);
-					$limit
-				}
+				$do_load_L1
+				$cond_L1
+				$do_load_L2
+				$cond_L2
+				push(\@newary, \$_);
+				$limit
 			}
 			return \\\@newary;
 		}
 FUNCTION_TEXT
+		## $ROBJ->debug("[$table]" . $func =~ s/\t/　　/rg);
+
 		# 検索関数のコンパイルと実行
 		$func = $self->eval_and_cache($func);
-		$db = &$func($self, $db, \%in);
+		$db = &$func($self, $db, \%match_h, \%not_match_h);
 
-	} elsif(! $h->{search_cols}) {
+	} else {
 		# 内部データを破壊しないためのコピー生成
 		my @newary = @$db;
 		$db = \@newary;
 	}
 	if ($#$db < 0) { return []; }
 
-	#---------------------------------------------
-	# 文字検索
-	#---------------------------------------------
-	if ($h->{search_cols} || $h->{search_match}) {
-		my $words = $h->{search_words} || [];
-		my $not   = $h->{search_not}   || [];
-		my $cols  = $h->{search_cols}  || [];
-		my $match = $h->{search_match} || [];
-		my $do_load;
-		if ($sort_state==7) {	# indexのソートかつlimitあり
-			$db = [sort $sort_func @$db];
-			$sort_state = 0;
-			$limit = $limit_state;
-		}
-		if (!$load_all_data && grep {! $index_cols->{$_}} @$cols) {
-			$do_load       = 1;
-			$load_all_data = 1;
-			$sort_state   |= 4;
-		}
-		
-		# 検索語の準備
-		my @words_reg;
-		my $w_cnt=0;
-		foreach(@$words) {
-			my $x = $_ =~ s/([^0-9A-Za-z\x80-\xff])/"\\x" . unpack('H2',$1)/reg;
-			$x = qr/$x/i;
-			push(@words_reg, $x);
-			$w_cnt++;
-		}
-		my @not_words_reg;
-		foreach(@$not) {
-			my $x = $_ =~ s/([^0-9A-Za-z\x80-\xff])/"\\x" . unpack('H2',$1)/reg;
-			$x = qr/$x/i;
-			push(@not_words_reg, $x);
-		}
-		# 検索ループ
-		my @newary;
-		RowLoop: foreach $h (@$db) {
-			if ($do_load) {
-				$h = $self->read_rowfile($table, $h);
-			}
-			my $cnt=0;
-			foreach my $w (@words_reg) {
-				foreach (@$cols) {
-					if ($h->{$_} !~ /$w/) { next; }
-					$cnt++;
-					last;
-				}
-				foreach (@$match) {
-					if ($h->{$_} !~ /^$w$/) { next; }
-					$cnt++;
-					last;
-				}
-			}
-			if ($cnt != $w_cnt) { next; }
-
-			foreach my $w (@not_words_reg) {
-				foreach (@$cols) {
-					if ($h->{$_} =~ /$w/) { next RowLoop; }
-				}
-				foreach (@$match) {
-					if ($h->{$_} =~ /^$w$/) { next RowLoop; }
-				}
-			}
-			push(@newary, $h);
-		}
-		$db = \@newary;
-	}
-	if ($#$db < 0) { return []; }
-
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	# まだソートされてなければソートする
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	if ($sort_state) {
 		if (!$load_all_data && !($sort_state & 4)) {
 			$load_all_data = 1;
@@ -365,14 +385,14 @@ FUNCTION_TEXT
 		$db = [sort $sort_func @$db];
 	}
 
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	# 該当件数を記録
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	my $hits = $#$db +1;
 
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	# limit and offset
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	if ($h->{offset} ne '') {
 		splice(@$db, 0, $h->{offset});
 	}
@@ -380,9 +400,9 @@ FUNCTION_TEXT
 		splice(@$db, int($h->{limit}));
 	}
 
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	# all data load? / index 外のカラムが必要?
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	if (!$load_all_data) {
 		my $cols = $sel_cols;
 		if (!$cols) { $cols = [ keys(%$exists_cols) ]; }
@@ -392,9 +412,10 @@ FUNCTION_TEXT
 			}
 		}
 	}
-	#---------------------------------------------
+
+	#----------------------------------------------------------------------
 	# コピー生成
-	#---------------------------------------------
+	#----------------------------------------------------------------------
 	# 各配列要素の hashref を破壊しないためコピー生成
 	if ($sel_cols) {
 		my $func='sub { my $db = shift; foreach(@$db) {';

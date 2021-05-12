@@ -1,13 +1,13 @@
 use strict;
 #------------------------------------------------------------------------------
 # データベースプラグイン for PostgreSQL
-#						(C)2006-2020 nabe@abk
+#						(C)2006-2021 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::DB_pg;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-our $VERSION = '1.30';
+our $VERSION = '1.31';
 #------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0, PrintWarn => 0, pg_enable_utf8 => 0);
@@ -281,12 +281,17 @@ sub generate_select_where {
 		$_ =~ s/[^\w\.]//g;
 		$where .= " AND $_ is not null";
 	}
-	if ($h->{search_cols} || $h->{search_match}) {
+	if ($h->{search_cols} || $h->{search_match} || $h->{search_equal}) {
 		my $search = sub {
 			my $w   = shift;
 			my $not = shift || '';
-			$w =~ s/([\\%_])/\\$1/rg;
 			my @x;
+			foreach (@{ $h->{search_equal} || [] }) {
+				$_ =~ s/[^\w\.]//g;
+				push(@x, "$_=?");
+				push(@ary, $w);
+			}
+			$w =~ s/([\\%_])/\\$1/rg;
 			foreach (@{ $h->{search_match} || [] }) {
 				$_ =~ s/[^\w\.]//g;
 				push(@x, "$_ ILIKE ?");
