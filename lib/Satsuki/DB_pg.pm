@@ -288,19 +288,19 @@ sub generate_select_where {
 			my @x;
 			foreach (@{ $h->{search_equal} || [] }) {
 				$_ =~ s/[^\w\.]//g;
-				push(@x, "$_=?");
+				push(@x, "$_\::text=?");
 				push(@ary, $w);
 			}
 			$w =~ s/([\\%_])/\\$1/rg;
 			foreach (@{ $h->{search_match} || [] }) {
 				$_ =~ s/[^\w\.]//g;
-				push(@x, "$_ ILIKE ?");
+				push(@x, "$_\::text ILIKE ?");
 				push(@ary, $w);
 			}
 			$w = "%$w%";
 			foreach (@{ $h->{search_cols}  || [] }) {
 				$_ =~ s/[^\w\.]//g;
-				push(@x, "$_ ILIKE ?");
+				push(@x, "$_\::text ILIKE ?");
 				push(@ary, $w);
 			}
 			return @x ? " AND (" . join(' OR ', @x) . ")$not " : '';
