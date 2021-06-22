@@ -50,7 +50,7 @@ agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0
 <@>----------------------------------------------------------------------------
 <$logs = array()>
 <$art_dummy.title = '複数記事モード'>
-<$push(logs, copy(art_dummy))>
+<$push(logs, clone(art_dummy))>
 <$push(logs, art_dummy)>
 <$art_dummy.pkey=2>
 <$art_dummy.link_key ='02'>
