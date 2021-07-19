@@ -72,7 +72,10 @@ sub insert {
 		$self->error($dbh->errstr);
 		return 0;
 	}
-	return $sth->fetchrow_array;	# pkey
+
+	my $pkey = $sth->fetchrow_array;
+	$sth->finish();
+	return $pkey;
 }
 
 #------------------------------------------------------------------------------
@@ -93,7 +96,10 @@ sub generate_pkey {
 		$self->error($dbh->errstr);
 		return 0;
 	}
-	return $sth->fetchrow_array;	# pkey
+
+	my $pkey = $sth->fetchrow_array;
+	$sth->finish();
+	return $pkey;
 }
 
 #------------------------------------------------------------------------------
