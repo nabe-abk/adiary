@@ -15,24 +15,32 @@ $$.show_dialog = function(h, _arg, callback) {
 		callback = _arg; _arg = {};
 	}
 	if (typeof(h) === 'string') h = {id: h, html:h, hash:_arg};
-	const $obj = h.id && h.id.substr(0,1) == '#' && $secure( h.id ) || $('<div>');
-	let html = $obj.html() || h.html;
-	if (h.hash) html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
-	html = html.replace(/%[A-Za-z]/g, '');
+	const $obj = h instanceof $ ? h : (h.id && h.id.substr(0,1) == '#' && $secure( h.id ));
 
-	const $div = $('<div>');
-	$div.html( html );
-	$div.attr('title', h.title || $obj.data('title') || (_arg && _arg.title) || h.default_title || this.msg('confirm'));
+	let $div;
+	if (h.hash && Object.keys(h.hash)>0 || !$obj) {
+		$div = $('<div>');
+		let html = $obj ? $obj.html() : h.html;
+		html = html.replace(/%([A-Za-z])/g, function(w,m1){ return h.hash[m1] });
+		html = html.replace(/%[A-Za-z]/g, '');
+		$div.html( html );
+	} else {
+		$div = $obj;
+	}
+
+	$div.attr('title', h.title || $obj && $obj.data('title') || (_arg && _arg.title) || h.default_title || this.msg('confirm'));
 	$div.adiaryDialog({
 		modal: true,
 		dialogClass: h.class,
 		buttons: {
 			OK: function(){
 				$div.adiaryDialog('close');
-				if (callback) callback();
+				if (callback) callback( true, $div );
 			}
 		},
-		exit: callback
+		exit: function(){
+			callback( false )
+		}
 	});
 	return false;
 }

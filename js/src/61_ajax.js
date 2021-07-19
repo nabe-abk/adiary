@@ -60,3 +60,13 @@ $$.send_ajax_promise = function(opt) {
 		self.send_ajax(opt);
 	});
 }
+$$.send_ajax_promise_no_reject = function(opt) {
+	const self=this;
+
+	return new Promise( function(resolve, reject) {
+		opt.success = function(h) {
+			resolve(h);
+		};
+		self.send_ajax(opt);
+	});
+}
