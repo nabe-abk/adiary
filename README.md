@@ -1,4 +1,4 @@
-The "adiary" is high performance HTML5 CMS.
+The "adiary" is high performance CMS.
 This software licensed under AGPL version 3 or later.
 Current Version is Japanese message only.
 
