@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2021 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.17';
+our $VERSION = '2.18';
 #(簡易履歴)
+# 2021/10 Ver2.18  複数種類の begin_array/hash 引数があるときのバグ修正
 # 2021/09 Ver2.17  ハッシュデリファレンスを追加
 # 2021/06 Ver2.16  copy() を clone() に変更
 # 2021/04 Ver2.15  大文字のローカル変数を許可
@@ -1037,9 +1038,10 @@ sub parse_block {
 					next;
 				}
 
-				if (!$type) {
-					$po->[0] = 'end' . $begin->{type} . $label;
-				}
+				# <$end> を書き換えない。同一引数に複数の begin_xxx 時にうまく動かない
+				#if (!$type) {
+				#	$po->[0] = 'end' . $begin->{type} . $label;
+				#}
 				next;
 			}
 		}
@@ -2178,7 +2180,7 @@ sub splice_block {
 	while(@$buf) {
 		my $line = shift(@$buf);
 		if ($line =~ /^\x01\d+(?:else|end)(_\w+)?(\.\w+)?/
-		 && $1 eq $type && $2 eq $label) {
+		 && ($1 eq '' || $1 eq $type) && $2 eq $label) {
 			return \@ary;
 		}
 		if ($line =~ /^\x01\d+elsif\(.*/) {
