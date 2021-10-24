@@ -947,7 +947,7 @@ sub _loadpm {
 	if ($@) { delete $INC{$pm_file}; die($@); }
 
 	my $obj = $pm->new($self, @_);
-	if ($obj->{ROBJ}) {	# 循環参照対策
+	if (ref($obj) && $obj->{ROBJ}) {	# 循環参照対策
 		Scalar::Util::weaken( $obj->{ROBJ} );
 	}
 	#
