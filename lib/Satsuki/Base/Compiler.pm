@@ -1038,10 +1038,10 @@ sub parse_block {
 					next;
 				}
 
-				# <$end> を書き換えない。同一引数に複数の begin_xxx 時にうまく動かない
-				#if (!$type) {
-				#	$po->[0] = 'end' . $begin->{type} . $label;
-				#}
+				# ブロック解析のために <$end> を書き換える。
+				if (!$type) {
+					$po->[0] = 'end' . $begin->{type} . $label;
+				}
 				next;
 			}
 		}
@@ -1065,7 +1065,7 @@ sub parse_block {
 		#--------------------------------------------------------------
 		# begin抽出
 		#--------------------------------------------------------------
-		for(my $i=0; $i<$polen; $i++) {
+		for(my $i=$polen; 0<=$i; $i--) {
 			if ($po->[$i] !~ /^begin(_\w+)?(\.\w+)?$/) { next; }
 			push(@begins, {
 				func	=> $func,
