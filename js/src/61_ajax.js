@@ -26,7 +26,7 @@ $$.send_ajax = function(opt) {
 		} else {
 			msg = '<p>' + self.msg('server_response_error', 'response data error!') + '</p>';
 		}
-		self.show_error(msg, opt.error_callback);
+		self.show_error(msg, opt.error_dialog_callback);
 	}
 	const data = opt.data;
 	return $.ajax(opt.url || self.myself || './', {

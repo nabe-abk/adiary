@@ -59,6 +59,38 @@ existsData: function(name) {
 	return v !== undefined;
 },
 //////////////////////////////////////////////////////////////////////////////
+//●順次呼び出し on イベント登録
+//////////////////////////////////////////////////////////////////////////////
+onSequence: function(_event, _priority, _func) {
+	const name = '_on_' + _event.replace(/[^\w]/g, '_');
+
+	this.each(function(idx, dom) {
+		const self = $(dom);
+
+		if (!self.data(name)) {
+			const list = [];
+			self.data(name, list);
+
+			self.on(_event, function(){
+				for(const x of list) {
+					const r = x.func.apply(null, arguments);
+					if (!r) return false;	// false break
+				}
+				return true;
+			})
+		}
+		const list = self.data(name);
+		list.push({
+			priority:	_priority,
+			func:		_func
+		});
+		self.data(name, list.sort(function(a,b){
+			return a.priority - b.priority
+		}));
+	});
+	return this;
+},
+//////////////////////////////////////////////////////////////////////////////
 //●スマホでDnDをエミュレーションする
 //////////////////////////////////////////////////////////////////////////////
 dndEmulation: function(opt){

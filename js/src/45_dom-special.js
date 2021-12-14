@@ -14,6 +14,54 @@ $$.dom_init  = function(arg) {
 $$.init($$.dom_init);
 
 //////////////////////////////////////////////////////////////////////////////
+// submit checker
+//////////////////////////////////////////////////////////////////////////////
+$$.dom_init( function($R){
+	const self=this;
+
+	$R.findx('button.js-check-form').on('click', function(evt){
+		const $obj  = $(evt.target);
+		const $form = $obj.parents('form.js-check-form');
+		if (!$form.length) return;
+		$form.data('confirm', $obj.data('confirm') );
+		$form.data('focus',   $obj.data('focus')   );
+		$form.data('button',  $obj);
+	});
+
+	$R.findx('form.js-check-form').onSequence('submit', 10, function(evt){
+		const $form  = $(evt.target);
+		const target = $form.data('target');
+		let count=0;
+		if (target) {
+			count = $form.rootfind( target + ":checked" ).length;
+			if (!count) return false;	// ひとつもチェックされてない
+		}
+
+		// 確認メッセージがある？
+		var confirm = $form.data('confirm');
+		if (!confirm) return true;
+  		if ($form.data('_confirm_ok')) {
+  			$form.data('_confirm_ok', false);
+  			return true;
+  		}
+
+		// 確認ダイアログ
+		confirm = confirm.replace("%c", count);
+		self.confirm({
+			html: confirm,
+			focus: $form.data('focus')
+		}, function(flag) {
+			if (!flag) return;
+  			$form.data('_confirm_ok', true);
+			if ($form.data('button')) return $form.data('button').click();
+
+			$form.submit();
+		});
+		return false;
+	});
+});
+
+//////////////////////////////////////////////////////////////////////////////
 // ajax form
 //////////////////////////////////////////////////////////////////////////////
 $$.dom_init( function($R) {
@@ -28,10 +76,12 @@ $$.dom_init( function($R) {
 		})();
 
 		if ($obj.data('js-ajax-stop')) return;
-		if ($('.ui-overlay').length)   return;	// dialog viewing
 		$obj.data('js-ajax-stop', true);
-		const $btns = $obj.find('button[type!="button"]');
-		$btns.prop('disabled', true);
+		$obj.prop('disabled', true);
+
+		const start_func = $obj.data('ajax_start');
+		const comp_func  = $obj.data('ajax_complite');
+		if (typeof(start_func) === 'function') start_func($obj);
 
 		self.send_ajax({
 			data:	data,
@@ -68,29 +118,26 @@ $$.dom_init( function($R) {
 					}
 				}
 			},
-			error_callback: function(){
-				const reject = $obj.data('reject');
-				if (typeof(reject) === 'function') return reject();
+			error_dialog_callback: function(){
+				const callback = $obj.data('error_dialog_callback');
+				if (typeof(callback) === 'function') return callback();
 			},
 			complite: function(h) {
+				if (typeof(comp_func) === 'function') comp_func($obj);
 				$obj.data('js-ajax-stop', false);
-				$btns.prop('disabled', false);
+				$obj.prop('disabled', false);
 			}
 		});
 		return false;
 	};
 
-	$R.find('form.js-ajax').on('submit', function(evt) {
+	$R.find('form.js-ajax').onSequence('submit', 100, function(evt) {
 		const $obj = $(evt.target);
 		const callback = function(){ func($obj) };
 
 		const checker  = $obj.data('checker');
 		if (typeof(checker) === 'function') {
 			if (! checker($obj, callback)) return false;
-		}
-		if ($obj.hasClass('js-check-form')) {
-			$obj.data('submit-func', func);
-			return false;
 		}
 		func($obj);
 		return false;
@@ -317,58 +364,6 @@ $$.dom_init( function($R){
 		if (f) 	// initalize success
 			$obj.on(dom.tagName == 'INPUT' ? 'change' : 'click', func);
 	} );
-});
-
-//////////////////////////////////////////////////////////////////////////////
-// フォームsubmitチェック
-//////////////////////////////////////////////////////////////////////////////
-$$.dom_init( function($R){
-	let confirmed;
-	const self=this;
-
-	$R.findx('button.js-check-form').on('click', function(evt){
-		const $obj  = $(evt.target);
-		const $form = $obj.parents('form.js-check-form');
-		if (!$form.length) return;
-		$form.data('confirm', $obj.data('confirm') );
-		$form.data('focus',   $obj.data('focus')   );
-		$form.data('button',  $obj);
-	});
-
-	$R.findx('form.js-check-form').on('submit', function(evt){
-		const $form  = $(evt.target);
-		const target = $form.data('target');
-		let count=0;
-		if (target) {
-			count = $form.rootfind( target + ":checked" ).length;
-			if (!count) return false;	// ひとつもチェックされてない
-		}
-
-		// 確認メッセージがある？
-		var confirm = $form.data('confirm');
-		if (!confirm) return true;
-  		if (confirmed) {
-  			confirmed = false;
-  			return true;
-  		}
-
-		// 確認ダイアログ
-		confirm = confirm.replace("%c", count);
-		self.confirm({
-			html: confirm,
-			focus: $form.data('focus')
-		}, function(flag) {
-			if (!flag) return;
-			confirmed = true;
-			if ($form.data('button')) return $form.data('button').click();
-
-			const func = $form.data('submit-func');
-			if (typeof(func) == 'function')
-				return func($form);
-			$form.submit();
-		});
-		return false;
-	});
 });
 
 //////////////////////////////////////////////////////////////////////////////
