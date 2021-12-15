@@ -7,7 +7,7 @@
 $$.send_ajax = function(opt) {
 	const self=this;
 
-	function error_default(h) {
+	function error_default(h, err) {
 		if (opt.error) opt.error(h);
 
 		let msg = '';
@@ -26,7 +26,9 @@ $$.send_ajax = function(opt) {
 		} else {
 			msg = '<p>' + self.msg('server_response_error', 'response data error!') + '</p>';
 		}
-		self.show_error(msg, opt.error_dialog_callback);
+		self.show_error(msg, function(){
+			if (opt.error_dialog_callback) opt.error_dialog_callback(err)
+		});
 	}
 	const data = opt.data;
 	return $.ajax(opt.url || self.myself || './', {
@@ -51,8 +53,8 @@ $$.send_ajax_promise = function(opt) {
 	const self=this;
 
 	return new Promise( function(resolve, reject) {
-		opt.error_callback = function(){
-			reject();
+		opt.error_dialog_callback = function(e){
+			reject(e);
 		};
 		opt.success = function(h) {
 			resolve(h);
