@@ -38,7 +38,7 @@ $$.dom_init( function($R){
 		}
 
 		// 確認メッセージがある？
-		var confirm = $form.data('confirm');
+		let confirm = $form.data('confirm');
 		if (!confirm) return true;
   		if ($form.data('_confirm_ok')) {
   			$form.data('_confirm_ok', false);
@@ -46,7 +46,7 @@ $$.dom_init( function($R){
   		}
 
 		// 確認ダイアログ
-		confirm = confirm.replace("%c", count);
+		confirm = confirm.toString().replace("%c", count);
 		self.confirm({
 			html: confirm,
 			focus: $form.data('focus')
