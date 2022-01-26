@@ -80,7 +80,7 @@ $$.dom_init( function($R) {
 		$obj.prop('disabled', true);
 
 		const start_func = $obj.data('ajax_start');
-		const comp_func  = $obj.data('ajax_complite');
+		const comp_func  = $obj.data('ajax_complete');
 		if (typeof(start_func) === 'function') start_func($obj);
 
 		self.send_ajax({
@@ -122,7 +122,7 @@ $$.dom_init( function($R) {
 				const callback = $obj.data('error_dialog_callback');
 				if (typeof(callback) === 'function') return callback();
 			},
-			complite: function(h) {
+			complete: function(h) {
 				if (typeof(comp_func) === 'function') comp_func($obj);
 				$obj.data('js-ajax-stop', false);
 				$obj.prop('disabled', false);

@@ -42,7 +42,7 @@ $$.send_ajax = function(opt) {
 			if (h.ret != '0' || h._debug) return error_default(h);
 			if (opt.success) opt.success(h);
 		},
-		complete:	opt.complite,
+		complete:	opt.complete,
 	});
 };
 
