@@ -88,18 +88,19 @@ sub call_dir {
 	my $self  = shift;
 	my $dir   = shift;
 	my $level = shift || 0x7fffffff;
-	my $ext = $self->{Skeleton_ext};
+	my $ext   = $self->{SkeletonExt};
 
 	# パス安全性チェック
 	$self->clean_path($dir);
 
 	my %filehash;
-	my $dirs = $self->{Sekeleton_dir};
-	foreach(@{ $self->{Sekeleton_dir_levels} }) {
-		if ($_>$level) { next; }
-		my $files = $self->search_files( "$dirs->{$_}$dir", {ext => $ext});
+	foreach(@{ $self->{SkelDirs} }) {
+		my $lv = $_->{level};
+		if ($lv > $level) { next; }
+		my $files = $self->search_files( "$_->{dir}$dir", {ext => $ext});
 		map { $filehash{$_}=1; } @$files;
 	}
+
 	# ソート
 	my @files = sort(keys(%filehash));
 	my $ext_len = length($ext);
