@@ -1490,8 +1490,8 @@ sub save_image_to_album {
 	my $data = shift;
 
 	return $self->do_upload( $dir, {
-		file_name => $name,
-		file_size => length($data),
+		name => $name,
+		size => length($data),
 		data => $data
 	});
 }
