@@ -1,11 +1,12 @@
 use strict;
 #------------------------------------------------------------------------------
 # skeleton parser / 構文解析コンパイラ
-#						(C)2006-2021 nabe@abk
+#						(C)2006-2022 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.18';
+our $VERSION = '2.19';
 #(簡易履歴)
+# 2022/02 Ver2.19  end 直後に elsif があるときのブロック切り出しバグ修正
 # 2021/10 Ver2.18  複数種類の begin_array/hash 引数があるときのバグ修正
 # 2021/09 Ver2.17  ハッシュデリファレンスを追加
 # 2021/06 Ver2.16  copy() を clone() に変更
@@ -1983,9 +1984,11 @@ sub split_begin {
 			$t = "<!-- compiler : '$begin' without 'end' -->";
 			last;
 		}
-		if ($buf->[0] =~ /^\x01\d+elsif\(/) {
+		if ($ary->[$#$ary] =~ /^\x01\d+elsif\(/) {
 			$right = ",$flag\[$begin\]" . $right;
-			$buf->[0] =~ s/^(\x01\d+)elsif\(/$1}elsif(/;
+			my $elsif = pop(@$ary);
+			$elsif    =~ s/^(\x01\d+)elsif\(/$1}elsif(/;
+			unshift(@$buf, $elsif);
 		}
 
  		# 前処理
@@ -2184,7 +2187,7 @@ sub splice_block {
 			return \@ary;
 		}
 		if ($line =~ /^\x01\d+elsif\(.*/) {
-			unshift(@$buf, $line);
+			push(@ary, $line);
 			return \@ary;
 		}
 		if (ord($line) == 1 && $line =~ /[\x01\x02]\[begin.*?\]/) {
@@ -2340,7 +2343,7 @@ sub array2sub {
 			# 加工禁止
 			if ($info & $L_no_change) {
 				push(@sub_array, "$indent$cmd\n");
-				if ($cmd =~ /^if\s*\(.*\)\s*\{/ || $cmd =~ /^}\s*else\s*\{/ || $cmd =~ /^my \$[XH]/ || $cmd =~ /^foreach /) { $indent .= "\t"; }
+				if ($cmd =~ /^if\s*\(.*\)\s*\{/ || $cmd =~ /^}\s*else\s*\{/ || $cmd =~ /^}\s*elsif\s*\(.*\)\s*\{/ || $cmd =~ /^my \$[XH]/ || $cmd =~ /^foreach /) { $indent .= "\t"; }
 				next;		# $cmd =~ /^my \$[XH]/ は foreach/foreach_hash のため
 			}
 			# 置換処理
