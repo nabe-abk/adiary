@@ -1,8 +1,7 @@
 use strict;
-#------------------------------------------------------------------------------
-# ユーザー認証・管理モジュール
-#						(C)2009-2021 nabe@abk
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# Split from Satsuki::Auth.pm for AUTOLOAD.
+#-------------------------------------------------------------------------------
 use Satsuki::Auth ();
 package Satsuki::Auth;
 my $_SALT = 'eTUMs6mRN8vqiSCHWaOGwynJKFbBpdA29txZEDcYluVgr75hLPQXfIk/j4o3z.10';
@@ -27,16 +26,9 @@ sub login {
 		return { ret=>1, msg=>'security error' };
 	}
 
-	# 無条件認証
+	# スタートアップ認証
 	if (! $self->{exists_admin} && $self->{start_up}) {
-		$self->{ok}    = 1;
-		$self->{pkey}  = -1;
-		$self->{id}    = "root*";
-		$self->{name}  = "root*";
-		$self->{email} = '';
-		$self->{auto}  = 1;
-		$self->{isadmin} = 1;	# 管理者権限
-		$self->{isroot}  = 1;
+		$self->set_start_up_admin();
 		$self->log_save('root*', 'login');
 		return { ret=>0, sid=>'auth (no exist user)' };
 	}
@@ -133,15 +125,9 @@ sub session_auth {
 	# 失敗したとき
 	$self->userdb_init();
 
-	# ユーザー未登録時に自動認証？
+	# スタートアップ認証
 	if (! $self->{exists_admin} && $self->{start_up}) {	# 無条件認証
-		$self->{ok}    = 1;
-		$self->{pkey}  = -1;
-		$self->{id}    = "root*";
-		$self->{name}  = "root*";
-		$self->{auto}  = 1;
-		$self->{isadmin} = 1;	# 管理者権限
-		$self->{isroot}  = 1;
+		$self->set_start_up_admin();
 		return 2;
 	}
 	return $r;
@@ -195,8 +181,8 @@ sub logout {
 	undef $self->{name};
 	undef $self->{isadmin};
 	undef $self->{isroot};
-	undef $self->{ext};
 	undef $self->{disabled_admin};
+	$self->{ext} = {};
 
 	# セッション情報の消去
 	my $table = $self->{table} . '_sid';
@@ -238,22 +224,26 @@ sub get_userinfo {
 	return $h;
 }
 
-#-------------------------------------------------------------------------------
-# ●ユーザーの確認
-#-------------------------------------------------------------------------------
-sub get_uid {
-	my ($self, $id, $col) = @_;
-	if (!grep {$col eq $_} @{ $self->load_extcols() }) {
-		$col='id';
-	}
-	my $DB = $self->{DB};
-	my $h = $DB->select_match_limit1($self->{table}, $col, $id);
-	return ($id ne '' && $h) ? $h->{id} : undef;
-}
-
 ###############################################################################
 # ■サブルーチン
 ###############################################################################
+#------------------------------------------------------------------------------
+# ●非登録時の初期管理者承認の設定
+#------------------------------------------------------------------------------
+sub set_start_up_admin {
+	my $self = shift;
+	$self->{ok}      = 1;
+	$self->{pkey}    = -1;
+	$self->{id}      = "root*";
+	$self->{name}    = "root*";
+	$self->{email}   = '';
+	$self->{auto}    = 1;
+	$self->{isadmin} = 1;	# 管理者権限
+	$self->{isroot}  = 1;
+	$self->{ext}     = {};
+	return;
+}
+
 #------------------------------------------------------------------------------
 # ●ログイン情報を内部変数に設定する
 #------------------------------------------------------------------------------
@@ -274,10 +264,12 @@ sub set_logininfo {
 	$self->{isroot}  = 0;
 	$self->{disabled_admin} = 0;
 
-	# ユーザー拡張カラムロード
-	foreach(@{$self->load_extcols()},'login_c','login_tm','fail_c','fail_tm') {
-		$self->{ext}->{$_} = $user->{$_};
+	# 拡張カラム
+	my %h = %$user;
+	foreach(qw(pass pkey id name email disable isadmin)) {
+		delete $h{$_};
 	}
+	$self->{ext} = \%h;
 
 	if (!$self->{isadmin}) { return; }
 
@@ -309,19 +301,25 @@ sub set_logininfo {
 #------------------------------------------------------------------------------
 sub userdb_init {
 	my $self = shift;
-	if (0 <= $self->{exists_admin}) { return $self->{exists_admin}; }
+	if (0<=$self->{exists_admin}) { return; }	# 初期値 -1
+
 	my $DB = $self->{DB};
 
 	# 管理者の存在確認
-	my $bak = $DB->set_noerror(1);
-	my $h = $DB->select_match_limit1( $self->{table}, 'isadmin', 1, 'disable', 0, '*NoError', 1, '*cols', 'pkey' );
-	$DB->set_noerror($bak);
+	$self->{exists_admin} = 1;
+	if ($self->{start_up}) {
+		my $bak  = $DB->set_noerror(1);
+		my $pkey = $DB->select_match_pkey1( $self->{table}, 'isadmin', 1, 'disable', 0, '*NoError', 1, '*cols', 'pkey' );
+		$DB->set_noerror($bak);
+		if (!$pkey) {
+			$self->{exists_admin} = 0;
+		}
+	}
 
-	# テーブルの確認
-	if (!$h && !$DB->find_table( $self->{table} )) {
+	# テーブルがなければ自動生成
+	if (!$DB->find_table( $self->{table} )) {
 		$self->create_user_table();
 	}
-	return ($self->{exists_admin} = $h ? 1 : 0);
 }
 
 #------------------------------------------------------------------------------
@@ -380,14 +378,6 @@ sub check_pass {
 	my ($self, $crypted, $plain) = @_;
 	if (crypt($plain, $crypted) eq $crypted) { return 1; }	# auth
 	return 0;
-}
-
-#------------------------------------------------------------------------------
-# ●ユーザーカラム名をロードする
-#------------------------------------------------------------------------------
-sub load_extcols {
-	my $self = shift;
-	return [ map {$_->{name}} @{ $self->{extcol} } ];
 }
 
 1;

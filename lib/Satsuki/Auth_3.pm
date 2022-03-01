@@ -12,7 +12,7 @@ package Satsuki::Auth;
 # ●ユーザーの追加
 #-------------------------------------------------------------------------------
 sub user_add {
-	my ($self, $form) = @_;
+	my ($self, $form, $ext) = @_;
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
 	if (! $self->{isadmin}) {
@@ -23,7 +23,7 @@ sub user_add {
 
 	# データチェック
 	$form->{new_user} = 1;
-	my $insert = $self->check_user_data( $form );
+	my $insert = $self->check_user_data( $form, $ext );
 
 	# 追加チェック（上と順番を入れ替えないこと）
 	my $id = $form->{id};
@@ -87,13 +87,13 @@ sub user_delete {
 # ●ユーザーの編集
 #-------------------------------------------------------------------------------
 sub user_edit {
-	my ($self, $form) = @_;
+	my ($self, $form, $ext) = @_;
 	my $ROBJ = $self->{ROBJ};
 	if (! $self->{isadmin}) {
 		return { ret=>1, msg => $ROBJ->translate('Operation not permitted') };
 	}
 
-	return $self->update_user_data($form);
+	return $self->update_user_data($form, $ext);
 }
 
 #-------------------------------------------------------------------------------
@@ -117,49 +117,35 @@ sub generate_uid {
 # ■ユーザー本人による変更
 ###############################################################################
 #-------------------------------------------------------------------------------
-# ●ユーザー名の変更（ユーザー本人）
+# ●ユーザー情報の変更（ユーザー本人）
 #-------------------------------------------------------------------------------
 sub change_user_info {
-	my ($self, $form) = @_;
+	my ($self, $form, $ext) = @_;
 	my $ROBJ = $self->{ROBJ};
 	if (! $self->{ok}) { return { ret=>1, msg => $ROBJ->translate('No login') }; }
 	if ($self->{auto}) { return { ret=>2, msg => $ROBJ->translate("Can't execute with 'root*'") }; }
 
-	my @scols = qw(pass pass2);
-	my @ncols = qw(name);
-	{
-		# カラム拡張
-		my $extcol = $self->{extcol};
-		foreach(@$extcol) {
-			if ($_->{_secure}<0) { next; }
-			if ($_->{_secure}) {
-				push(@scols, $_->{name});
-				next;
-			}
-			push(@ncols, $_->{name});
+	my %update;
+
+	my $ary = $self->allow_user_change_columns();
+	foreach(@$ary) {
+		if (exists($form->{$_})) {
+			$update{$_} = $form->{$_};
 		}
 	}
 
-	my $id = $self->{id};
-	my %h = (id => $id);
-	my $secure = 0;
+	#
+	# パスワード変更確認
+	#
 	if ($form->{now_pass} ne '') {
-		if (! $self->check_pass_by_id($id, $form->{now_pass})) {
+		if (! $self->check_pass_by_id($self->{id}, $form->{now_pass})) {
 			return { ret=>10, msg => $ROBJ->translate('Incorrect password') };
 		}
-		# セキュアなカラムデータコピー
-		foreach(@scols) {
-			if (!exists $form->{$_}) { next; }
-			$h{$_} = $form->{$_};
-		}
-	}
-	# その他のカラムのコピー
-	foreach(@ncols) {
-		if (!exists $form->{$_}) { next; }
-		$h{$_} = $form->{$_};
+		if (exists($form->{pass} )) { $update{pass}  = $form->{pass};  }
+		if (exists($form->{pass2})) { $update{pass2} = $form->{pass2}; }
 	}
 
-	return $self->update_user_data( \%h );
+	return $self->update_user_data( \%update, $ext );
 }
 
 #-------------------------------------------------------------------------------
@@ -197,14 +183,10 @@ sub load_userlist {
 	if (!$self->{isadmin}) { return []; }
 	my $DB = $self->{DB};
 
-	my $cols = [qw(pkey id name email login_c login_tm fail_c fail_tm disable isadmin) ];
-	my $ucols = $self->load_extcols();
-	push(@$cols, @$ucols);
-
-	my $list = $DB->select($self->{table}, {
-		cols =>$cols, 
-		sort =>$sort || 'id'
-	});
+	my $list = $DB->select_match($self->{table}, '*sort', $sort || 'id');
+	foreach(@$list) {
+		delete $_->{pass};
+	}
 	return $list;
 }
 
@@ -265,7 +247,7 @@ sub load_logs {
 # ●ユーザーデータの整合性確認
 #------------------------------------------------------------------------------
 sub check_user_data {
-	my ($self, $user) = @_;
+	my ($self, $user, $ext) = @_;
 	my $ROBJ = $self->{ROBJ};
 	my $DB   = $self->{DB};
 
@@ -322,6 +304,26 @@ sub check_user_data {
 		$update{name} = $name;
 	}
 
+	# emailカラム
+	if (exists($user->{email})) {
+		my $email = $user->{email};
+		$email =~ s/[<>\"\'\r\n\s]//g;
+
+		$update{email} = $email;
+	}
+
+	# 拡張カラム
+	if ($ext) {
+		my %h = map { $_ => 1 } @{ $self->load_main_table_columns() };
+		foreach(keys(%$ext)) {
+			if ($h{$_}) {
+				$ROBJ->form_err('', "'%s' are not allowed in the forced column", $_);
+				next;
+			}
+			$update{$_} = $ext->{$_};
+		}
+	}
+
 	# パスワードの確認
 	my $pass = $user->{pass};
 	if ($pass ne '') {	# パスワードを変更する
@@ -352,35 +354,6 @@ sub check_user_data {
 	if (exists $user->{isadmin}) { $update{isadmin} = $user->{isadmin} ? 1 : 0; }
 	if (exists $user->{disable}) { $update{disable} = $user->{disable} ? 1 : 0; }
 
-	# ユーザ拡張カラム + email
-	my @ary = @{ $self->{extcol} };
-	push(@ary, {
-		name	=> 'email',
-		type	=> 'text',
-		index	=> 1,
-		unique	=> 1,
-		_notag	=> 1,
-		_nocrlf	=> 1
-	});
-	foreach(@ary) {
-		my $k = $_->{name};
-		$ROBJ->trim($k);
-		if ($_->{type} eq 'int') {
-			if ($user->{new_user})  { $update{$k} = 0; }
-			if (exists $user->{$k}) { $update{$k} = int($user->{$k}); }
-		} elsif ($_->{type} eq 'flag') {
-			if ($user->{new_user})  { $update{$k} = 0; }
-			if (exists $user->{$k}) { $update{$k} = $user->{$k} ? 1 : 0; }
-		} else {
-			if ($user->{new_user})  { $update{$k} = ''; }
-			if (exists $user->{$k}) {
-				$update{$k} = $user->{$k};
-				if ($_->{_notag})  { $update{$k} =~ s/[<>\"\']//g; }
-				if ($_->{_nocrlf}) { $update{$k} =~ s/[\r\n]//g;   }
-			}
-		}
-	}
-
 	return \%update;
 }
 
@@ -388,12 +361,12 @@ sub check_user_data {
 # ●ユーザーデータのアップデート
 #------------------------------------------------------------------------------
 sub update_user_data {
-	my ($self, $_update) = @_;
+	my ($self, $_update, $force) = @_;
 	my $ROBJ = $self->{ROBJ};
 	$ROBJ->clear_form_err();
 
 	my $id = $_update->{id};
-	my $update = $self->check_user_data($_update);
+	my $update = $self->check_user_data($_update, $force);
 
 	# エラー終了
 	my $errs = $ROBJ->form_err();
@@ -442,6 +415,14 @@ sub sudo {
 ###############################################################################
 # ■ユーザーデータベースの作成
 ###############################################################################
+sub load_main_table_columns {
+	my $self = shift;
+	return [ qw(pkey  id name pass email  login_c login_tm fail_c fail_tm  disable isadmin) ];
+}
+sub allow_user_change_columns {
+	my $self = shift;
+	return [ qw(name email) ];
+}
 sub create_user_table {
 	my $self  = shift;
 	my $DB    = $self->{DB};
@@ -480,6 +461,18 @@ sub create_user_table {
 	$DB->create_table_wrapper("${table}_log", \%cols);
 
 	$DB->commit();
+}
+
+#------------------------------------------------------------------------------
+# ●カラムの追加
+#------------------------------------------------------------------------------
+sub add_column {
+	my $self  = shift;
+	my $h     = shift;
+	my $DB    = $self->{DB};
+	my $table = $self->{table};
+
+	return $DB->add_column($table, $h);
 }
 
 1;
