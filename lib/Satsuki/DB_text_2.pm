@@ -26,6 +26,22 @@ sub insert {
 		$self->error("Can't find '%s' table", $table);
 		return 0;
 	}
+
+	# デフォルト値の処理
+	my $default = $self->{"$table.default"};
+	my %x;
+	foreach(keys(%$default)) {
+		if (exists($h->{$_}) || $default->{$_} eq '') { next; }
+		$x{$_} = $default->{$_};
+	}
+	if (%x) {
+		# デフォルト値が必要なら元データを破壊しないためマージする
+		foreach(keys(%$h)) {
+			$x{$_} = $h->{$_};
+		}
+		$h = \%x;
+	}
+
 	# データの整合性チェック
 	$h = $self->check_column_type($table, $h);
 	if (!defined $h) {
@@ -508,7 +524,7 @@ sub load_trace_ary {
 # ●columnの型/not nullチェック
 #------------------------------------------------------------------------------
 sub check_column_type {
-	my ($self, $table, $h, $update_flag) = @_;
+	my ($self, $table, $h, $is_update) = @_;
 	my $ROBJ = $self->{ROBJ};
 	my $cols       = $self->{"$table.cols"};
 	my $int_cols   = $self->{"$table.int"};
@@ -537,10 +553,10 @@ sub check_column_type {
 	}
 	# not null制約の確認
 	my $notnull_cols = $self->{"$table.notnull"};
-	my @check_columns_ary = $update_flag ? keys(%new_hash) : keys(%$notnull_cols);	# update or insert
+	my @check_columns_ary = $is_update ? keys(%new_hash) : keys(%$notnull_cols);	# update or insert
 	foreach (@check_columns_ary) {
 		if (!$notnull_cols->{$_}) { next; }
-		if (!$update_flag && $_ eq 'pkey') { next; }
+		if (!$is_update && $_ eq 'pkey') { next; }
 		if (!defined $h->{$_}) {
 			$self->error("On '%s' table, '%s' column is constrained not null", $table, $_);
 			return undef;
@@ -715,26 +731,30 @@ sub save_index {
 
 	my @lines;
 	# 1行目 = DBファイルのVersion番号
-	push(@lines, "4\n");
+	push(@lines, "5\n");
 	# 2行目 = ランダム値
 	push(@lines, "R" . $ROBJ->{TM} . rand(1) . "\n");	# random signature
 	# 3行目 = シリアル値（現在の最大値）
 	# 	★★★仕様変更時は generate_pkey も編集のこと★★★
 	push(@lines, "00000$serial\n");	# 00付加必須
 	# 4行目 = 全カラム名
-	push(@lines, join("\t", sort(keys(%{ $self->{"$table.cols"} }))). "\n");
+	my @allcols = sort(keys(%{ $self->{"$table.cols"} }));
+	push(@lines, join("\t", @allcols) . "\n");
 	# 5行目 = 整数カラム名
-	push(@lines, join("\t", sort(keys(%{ $self->{"$table.int"}  }))). "\n");
+	push(@lines, join("\t", sort(keys(%{ $self->{"$table.int"}     }))) . "\n");
 	# 6行目 = 数値カラム名
-	push(@lines, join("\t", sort(keys(%{ $self->{"$table.float"} }))). "\n");
+	push(@lines, join("\t", sort(keys(%{ $self->{"$table.float"}   }))) . "\n");
 	# 7行目 = flagカラム名
-	push(@lines, join("\t", sort(keys(%{ $self->{"$table.flag"}  }))). "\n");
+	push(@lines, join("\t", sort(keys(%{ $self->{"$table.flag"}    }))) . "\n");
 	# 8行目 = 文字列カラム
-	push(@lines, join("\t", sort(keys(%{ $self->{"$table.str"}   }))). "\n");
+	push(@lines, join("\t", sort(keys(%{ $self->{"$table.str"}     }))) . "\n");
 	# 9行目 = UNIQUEカラム
-	push(@lines, join("\t", sort(keys(%{ $self->{"$table.unique"}  }))). "\n");
+	push(@lines, join("\t", sort(keys(%{ $self->{"$table.unique"}  }))) . "\n");
 	#10行目 = NOT NULLカラム
-	push(@lines, join("\t", sort(keys(%{ $self->{"$table.notnull"} }))). "\n");
+	push(@lines, join("\t", sort(keys(%{ $self->{"$table.notnull"} }))) . "\n");
+	#11行目 = defaultカラム
+	my $de = $self->{"$table.default"};
+	push(@lines, join("\t", map { $de->{$_} } @allcols) . "\n");
 
 	# pkeyの昇順に全データを並べる
 	my @newary = sort { $a->{pkey} <=> $b->{pkey} } @$db;
@@ -748,7 +768,7 @@ sub save_index {
 		delete $h{pkey};
 		@idx_cols = ('pkey', sort(keys(%h)));
 	}
-	# 10行目 = indexカラム名
+	# 12行目 = indexカラム名
 	push(@lines, join("\t", @idx_cols) . "\n");
 
 	#--------------------------------------

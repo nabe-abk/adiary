@@ -1,7 +1,7 @@
 use strict;
 #-------------------------------------------------------------------------------
 # テキストデータベース
-#						(C)2005-2021 nabe@abk
+#						(C)2005-2022 nabe@abk
 #-------------------------------------------------------------------------------
 #
 #■■■編集時の注意■■■
@@ -12,7 +12,7 @@ package Satsuki::DB_text;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 
-our $VERSION = '1.31';
+our $VERSION = '1.32';
 our $FileNameFormat = "%05d";
 our %IndexCache;
 ###############################################################################
@@ -517,7 +517,8 @@ sub load_index {
 	# 3行目 = シリアル値
 	$self->{"$table.serial"} = int(shift(@$lines));
 	# 4行目 = 全カラム名
-	$self->{"$table.cols"} = { map { $_ => 1} split(/\t/, shift(@$lines)) };
+	my @allcols = split(/\t/, shift(@$lines));
+	$self->{"$table.cols"} = { map { $_ => 1} @allcols };
 	# 5行目 = 数値カラム名
 	$self->{"$table.int"}  = { map { $_ => 1} split(/\t/, shift(@$lines)) };
 	# 6行目 = floatカラム名
@@ -542,7 +543,12 @@ sub load_index {
 		$self->{"$table.unique"}  = { pkey=>1 };
 		$self->{"$table.notnull"} = { pkey=>1 };
 	}
-	# 11行目 = indexカラム名
+	if ($version > 4) {	# Ver5以降のみ存在
+		#11行目 = defaultカラム
+		my @ary  = split(/\t/, shift(@$lines));
+		$self->{"$table.default"} = { map { $_ => shift(@ary) } @allcols };
+	}
+	# 12行目 = indexカラム名
 	my @idx_cols = split(/\t/, shift(@$lines));
 	$self->{"$table.idx"} = { map { $_ => 1} @idx_cols };
 

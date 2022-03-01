@@ -22,6 +22,7 @@ sub create_table {
 	# テーブル構造の解析
 	my $cols;
 	my @index_columns;
+	my @val;
 	foreach(@$columns) {
 		my $col = $_->{name};
 		$col =~ s/\W//g;
@@ -37,10 +38,14 @@ sub create_table {
 		if ($_->{not_null}) { $cols .= ' NOT NULL'; }		# NOT NULL制約
 		if ($_->{unique})   { $cols .= ' UNIQUE';   }		# ユニーク制約
 		elsif ($_->{index}) { push(@index_columns, $col); }	# ユニークカラムは自動index生成
-		if ($_->{ref_pkey}) {	# 外部キー制約（ table_name.col_name 形式の文字列 ）
-			my $ref_pkey = $_->{ref_pkey};
-			$ref_pkey =~ s/[^\w\.]//g;
-			my ($ref_table, $ref_col) = split(/\./, $ref_pkey);
+
+		if (exists($_->{default})) {
+			$cols .= ' DEFAULT ?';
+			push(@val, $_->{default});
+		}
+		if ($_->{ref}) {
+			# 外部キー制約（ table_name.col_name 形式の文字列 ）
+			my ($ref_table, $ref_col) = split(/\./, $_->{ref} =~ s/[^\w\.]//rg);
 			$cols .= " REFERENCES $ref_table($ref_col) ON UPDATE CASCADE";
 		}
 	}
@@ -49,7 +54,7 @@ sub create_table {
 	my $sql = "CREATE TABLE $table(pkey SERIAL PRIMARY KEY$cols)";
 	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
-	$sth && $sth->execute();
+	$sth && $sth->execute(@val);
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);
@@ -116,6 +121,7 @@ sub add_column {
 	my $col = $h->{name};
 	$col =~ s/\W//g;
 	my $sql;
+	my @val;
 	if    ($h->{type} eq 'int')   { $sql .= "$col INT";     }
 	elsif ($h->{type} eq 'float') { $sql .= "$col FLOAT";   }
 	elsif ($h->{type} eq 'flag')  { $sql .= "$col BOOLEAN"; }
@@ -127,18 +133,21 @@ sub add_column {
 	}
 	if ($h->{unique})   { $sql .= ' UNIQUE';   }		# ユニーク制約
 	if ($h->{not_null}) { $sql .= ' NOT NULL'; }		# NOT NULL制約
-	if ($h->{ref_pkey}) {	# 外部キー制約（ table_name.col_name 形式の文字列 ）
-		my $ref_pkey = $h->{ref_pkey};
-		$ref_pkey =~ s/[^\w\.]//g;
-		my ($ref_table, $ref_col) = split(/\./, $ref_pkey);
-		$sql .= " REFERENCES $ref_table($ref_col)";
+	if (exists($h->{default})) {
+		$sql .= " DEFAULT ?";
+		push(@val, $h->{default});
+	}
+	if ($_->{ref}) {
+		# 外部キー制約（ table_name.col_name 形式の文字列 ）
+		my ($ref_table, $ref_col) = split(/\./, $h->{ref} =~ s/[^\w\.]//rg);
+		$sql .= " REFERENCES $ref_table($ref_col) ON UPDATE CASCADE";
 	}
 
 	# SQL発行
 	$sql = "ALTER TABLE $table ADD COLUMN $sql";
 	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
-	$sth && $sth->execute();
+	$sth && $sth->execute(@val);
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);

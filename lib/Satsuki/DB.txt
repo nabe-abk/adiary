@@ -1,5 +1,5 @@
 ################################################################################
-データベースシステム Ver1.31			Copyright (C)2021 nabe@abk
+データベースシステム Ver1.32			Copyright (C)2022 nabe@abk
 ################################################################################
 [TAB=8]
 
@@ -69,7 +69,8 @@ $r = $self->create_table($table, \@colums);
 	  $h->{index}		INDEX化するか
 	  $h->{unique}		そのカラムにユニーク制約を付けるか
 	  $h->{not_null}	NOT NULL制約を付けるか
-	  $h->{ref_pkey}	外部キー制約（ table_name.col_name 形式の文字列 ）
+	  $h->{default}		デフォルト値
+	  $h->{ref}		外部キー制約（ table_name.col_name 形式の文字列 ）
 
 	  $h->{index_tdb}	TextDBの時にはINDEX化する。(※)
 
@@ -84,7 +85,7 @@ Ret:
 	$r != 0			失敗
 
 ※TextDBでは、$_->{index} または $_->{index_tdb} が指定された要素がindexになります。
-　テキストDBは検索対象となる要素は、なるべくindex化しないとパフォーマンスが悪化する。
+　テキストDBは検索対象となる要素は、index化しないとパフォーマンスが悪化します。
 （全文検索の対象などの大きいデータは除く。
 　index化するデータ量が極端に増えると逆にパスォーマンスが低下します。）
 
@@ -106,7 +107,8 @@ $r = $self->create_table_wrapper($table, \%h);
 	$cols{idx_tdb} = [ qw(id regist_tm isadmin) ];
 	$cols{unique}  = [ qw(id) ];
 	$cols{notnull} = [ qw(id name) ];
-	$cols{ref}     = { id => "id_xxx_table.id" };
+	$cols{ref}     = { id   => "id_xxx_table.id" };
+	$cols{default} = { info => "a@b.c" };
 	my $r = $DB->create_table_wrapper($table, \%cols);
 
 ================================================================================

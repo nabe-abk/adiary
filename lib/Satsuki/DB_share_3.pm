@@ -39,8 +39,11 @@ sub create_table_wrapper {
 	foreach(@{$ci->{idx_tdb}}) { $cols{$_}->{index_tdb}= 1; }			# index_tdbカラム
 	foreach(@{$ci->{unique}})  { $cols{$_}->{unique}   = 1; }			# uniqueカラム
 	foreach(@{$ci->{notnull}}) { $cols{$_}->{not_null} = 1; }			# NOT NULLeカラム
+	while(my ($k, $v) = each(%{ $ci->{default} })) {		# デフォルト
+		$cols{$k}->{default}  = $v;
+	}
 	while(my ($k, $v) = each(%{ $ci->{ref} })) {			# 外部キー
-		$cols{$k}->{ref_pkey} = $v;
+		$cols{$k}->{ref} = $v;
 	}
 	my @cols;
 	while(my ($k,$v) = each(%cols)) { push(@cols, $v); }

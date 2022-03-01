@@ -1,13 +1,13 @@
 use strict;
 #------------------------------------------------------------------------------
 # データベースプラグイン for mysql
-#						(C)2006-2021 nabe@abk
+#						(C)2006-2022 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::DB_mysql;
 use Satsuki::AutoLoader;
 use Satsuki::DB_share;
 use DBI ();
-our $VERSION = '1.31';
+our $VERSION = '1.32';
 #------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0, PrintWarn => 0);

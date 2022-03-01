@@ -30,6 +30,7 @@ sub create_table {
 	my %str_cols;
 	my %unique_cols  = ('pkey'=>1);
 	my %notnull_cols = ('pkey'=>1);
+	my %default;
 	foreach(@$colums) {
 		my $col = $_->{name};
 		$col =~ s/\W//g;
@@ -49,8 +50,9 @@ sub create_table {
 			$self->error('Column "%s" have invalid type "%s"', $col, $_->{type});
 			return 20;
 		}
-		if ($_->{unique})   { $unique_cols {$col}=1; }
-		if ($_->{not_null}) { $notnull_cols{$col}=1; }
+		if ($_->{unique})        { $unique_cols {$col}=1; }
+		if ($_->{not_null})      { $notnull_cols{$col}=1; }
+		if ($_->{default} ne '') { $default{$col} = $_->{default}; }
 
 		# indexカラム？（UNIQUEカラムはindexにする）
 		if ($_->{index} || $_->{index_tdb} || $_->{unique}) {
@@ -60,7 +62,7 @@ sub create_table {
 
 	my $dir = $self->{dir} . $table . '/';
 	if (!-e $dir) {
-		if ($ROBJ->mkdir($dir) ) { $self->error("mkdir '$dir' error : $!"); }
+		if (!$ROBJ->mkdir($dir)) { $self->error("mkdir '$dir' error : $!"); }
 	}
 	if ($table =~ /^\d/) {
 		$self->error("To be a 'a-z' or '_' at the first character of a table name : '%s'", $table);
@@ -81,6 +83,7 @@ sub create_table {
 	$self->{"$table.str"}     = \%str_cols;		# 文字列
 	$self->{"$table.unique"}  = \%unique_cols;	# UNIQUE
 	$self->{"$table.notnull"} = \%notnull_cols;	# NOT NULL
+	$self->{"$table.default"} = \%default;		# Default
 	$self->{"$table.serial"}  = 0;
 
 	# index の保存

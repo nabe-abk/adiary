@@ -23,6 +23,7 @@ sub create_table {
 	my $cols='';
 	my $refs='';
 	my @index_columns;
+	my @val;
 	my %col_is_text;
 	my $varchar_size = $self->{index_text_max_length};
 	foreach(@$colums) {
@@ -43,20 +44,17 @@ sub create_table {
 		}
 		if ($_->{index})    { push(@index_columns, $col); }
 		if ($_->{unique})   { $cols .= ' UNIQUE';   }	# ユニーク制約
-		if ($_->{not_null}) { $cols .= ' NOT NULL';
-			# NOT NULL制約時は generate_pkey のために適当なデフォルト値を設定する
-			if ($_->{type} eq 'int' || $_->{type} eq 'float' || $_->{type} eq 'flag') {
-				$cols .= ' DEFAULT 0';
-			} else {
-				$cols .= " DEFAULT ''";
-			}
-		 }
+		if ($_->{not_null}) { $cols .= ' NOT NULL'; }
+		if (exists($_->{default})) {
+			$cols .= ' DEFAULT ?';
+			push(@val, $_->{default});
+		}
+
 		$cols .= $check;
-		if ($_->{ref_pkey}) {	# 外部キー制約（ table_name.col_name 形式の文字列 ）
-			my $ref_pkey = $_->{ref_pkey};	# mysql標準では無効
-			$ref_pkey =~ s/[^\w\.]//g;
-			my ($ref_table, $ref_col) = split(/\./, $ref_pkey);
-			$refs .= ",\nFOREIGN KEY ($col) REFERENCES $ref_table($ref_col) ON UPDATE CASCADE";
+		if ($_->{ref}) {
+			# 外部キー制約（ table_name.col_name 形式の文字列 ）
+			my ($ref_table, $ref_col) = split(/\./, $_->{ref} =~ s/[^\w\.]//rg);
+			$cols .= ",\nFOREIGN KEY ($col) REFERENCES $ref_table($ref_col) ON UPDATE CASCADE";
 		}
 	}
 	# テーブル作成
@@ -68,7 +66,7 @@ sub create_table {
 
 	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
-	$sth && $sth->execute();
+	$sth && $sth->execute(@val);
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);
@@ -135,6 +133,7 @@ sub add_column {
 	my $col = $h->{name};
 	$col =~ s/\W//g;
 	my ($sql, $col_is_text, $check);
+	my @val;
 	if    ($h->{type} eq 'int')   { $sql .= "$col INT";   }
 	elsif ($h->{type} eq 'float') { $sql .= "$col FLOAT"; }
 	elsif ($h->{type} eq 'flag')  { $sql .= "$col TINYINT UNSIGNED"; $check=" CHECK($col=0 OR $col=1)"; }
@@ -149,19 +148,22 @@ sub add_column {
 	}
 	if ($h->{unique})   { $sql .= ' UNIQUE';   }	# ユニーク制約
 	if ($h->{not_null}) { $sql .= ' NOT NULL'; }	# NOT NULL制約
+	if (exists($h->{default})) {
+		$sql .= " DEFAULT ?";
+		push(@val, $h->{default});
+	}
 	$sql .= $check;
-	if ($h->{ref_pkey}) {	# 外部キー制約（ table_name.col_name 形式の文字列 ）
-		my $ref_pkey = $h->{ref_pkey};	# mysql標準では無効
-		$ref_pkey =~ s/[^\w\.]//g;
-		my ($ref_table, $ref_col) = split(/\./, $ref_pkey);
-		$sql .= " REFERENCES $ref_table($ref_col)";
+	if ($_->{ref}) {
+		# 外部キー制約（ table_name.col_name 形式の文字列 ）
+		my ($ref_table, $ref_col) = split(/\./, $h->{ref} =~ s/[^\w\.]//rg);
+		$sql .= ",\nFOREIGN KEY ($col) REFERENCES $ref_table($ref_col) ON UPDATE CASCADE";
 	}
 
 	# SQL発行
 	$sql = "ALTER TABLE $table ADD COLUMN $sql";
 	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
-	$sth && $sth->execute();
+	$sth && $sth->execute(@val);
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);
