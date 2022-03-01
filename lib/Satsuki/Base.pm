@@ -1280,7 +1280,7 @@ sub parse_query {
 
 		$val =~ s/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]//g;	# TAB LF CR以外の制御コードを除去
 		$val =~ s/\r\n?/\n/g;	# 改行を統一
-		if ($arykey->{$key}) {
+		if ($arykey->{$key} || substr($key,-4) eq '_ary') {
 			my $a = $h{$key} ||= [];
 			push(@$a, $val);
 			next;
