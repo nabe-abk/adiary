@@ -2,14 +2,6 @@
 
 *Ver3.5x : 2020/xx/xx
 
--【Base/System】
---【Compiler】forexecをforeachと書けるようにしました。
---【Compiler】forexec, ifexec 等の begin を省略できるようにしました。
---【Compiler】"++x"や"y--"等の記述を可能にしました。
---【構文】call() ファイルが見つからない場合にエラー表示をするようにしました。
---【Auth】ユーザ管理まわりを大幅更新しました。
---【Auth】ログイン失敗sleep（fail_sleep）機能を削除しました。((sleepしたところで複数同時ログインを試みればセキュリティ対策として意味がないため。))
---{<$Form_options.multipart_data_max_size>} オプションを削除しました。
 -【httpd】.gitフォルダへのアクセスを禁止しました。
 -【httpd】ルートフォルダ内（.httpd.plと同じディレクトリ内）のファイルアクセスを無視するようにしました。
 -【DB】DB再接続機能を付けました。
@@ -19,6 +11,14 @@
 -【Fix】ツリー表示のノードがずれている。
 -【Fix/Theme】nature-forest, nature-sky のドロップダウンメニューの背景が正しくない。
 -【Fix/MariaDB】テキスト検索がうまく実行できない。
+-【Base/System】
+--【Compiler】forexecをforeachと書けるようにしました。
+--【Compiler】forexec, ifexec 等の begin を省略できるようにしました。
+--【Compiler】"++x"や"y--"等の記述を可能にしました。
+--【構文】call() ファイルが見つからない場合にエラー表示をするようにしました。
+--【Auth】ユーザ管理まわりを大幅更新しました。
+--【Auth】ログイン失敗sleep（fail_sleep）機能を削除しました。((sleepしたところで複数同時ログインを試みればセキュリティ対策として意味がないため。))
+--{<$Form_options.multipart_data_max_size>} オプションを削除しました。
 
 *Ver3.40a : 2020/03/16
 
