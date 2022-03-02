@@ -66,8 +66,33 @@ sub generate_pkey {
 	my $ROBJ = $self->{ROBJ};
 	$table =~ s/\W//g;
 
+	# not nullカラムを探す
+	my $sql = " show columns from $table WHERE `Null`='NO' AND `Key`!='PRI'";
+	my $sth = $dbh->prepare_cached($sql);
+	$self->debug($sql);	# debug-safe
+	$sth && $sth->execute();
+	if (!$sth || $dbh->err) {
+		$self->error($sql);
+		$self->error($dbh->errstr);
+		return 0;
+	}
+	my @cols;
+	my @vals;
+	{
+		my $ary = $sth->fetchall_arrayref({});
+		foreach(@$ary) {
+			push(@cols, "`$_->{Field}`");
+			my $type = $_->{Type};
+			if ($type =~ /int|float|boolean/i) {
+				push(@vals, 0);
+			} else {
+				push(@vals, "''");
+			}
+		}
+	}
+
 	# ダミーデータを挿入し削除する
-	my $sql = "INSERT INTO $table() VALUES()";
+	my $sql = "INSERT INTO $table(" . join(',', @cols) . ") VALUES(" . join(',', @vals) . ")";
 	my $sth = $dbh->prepare_cached($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute();
