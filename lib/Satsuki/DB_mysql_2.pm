@@ -66,8 +66,8 @@ sub generate_pkey {
 	my $ROBJ = $self->{ROBJ};
 	$table =~ s/\W//g;
 
-	# not nullカラムを探す
-	my $sql = " show columns from $table WHERE `Null`='NO' AND `Key`!='PRI'";
+	# not nullカラムを探し、適当なデフォルト値を生成する
+	my $sql = "show columns FROM $table WHERE `Null`='NO' AND `Key`!='PRI' AND `Default` is null";
 	my $sth = $dbh->prepare_cached($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute();
