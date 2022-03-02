@@ -22,7 +22,7 @@ sub create_table {
 	# テーブル構造の解析
 	my $cols;
 	my @index_columns;
-	my @val;
+	my @vals;
 	foreach(@$columns) {
 		my $col = $_->{name};
 		$col =~ s/\W//g;
@@ -41,7 +41,7 @@ sub create_table {
 
 		if (exists($_->{default})) {
 			$cols .= ' DEFAULT ?';
-			push(@val, $_->{default});
+			push(@vals, $_->{default});
 		}
 		if ($_->{ref}) {
 			# 外部キー制約（ table_name.col_name 形式の文字列 ）
@@ -54,7 +54,7 @@ sub create_table {
 	my $sql = "CREATE TABLE $table(pkey SERIAL PRIMARY KEY$cols)";
 	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
-	$sth && $sth->execute(@val);
+	$sth && $sth->execute(@vals);
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);
@@ -121,7 +121,7 @@ sub add_column {
 	my $col = $h->{name};
 	$col =~ s/\W//g;
 	my $sql;
-	my @val;
+	my @vals;
 	if    ($h->{type} eq 'int')   { $sql .= "$col INT";     }
 	elsif ($h->{type} eq 'float') { $sql .= "$col FLOAT";   }
 	elsif ($h->{type} eq 'flag')  { $sql .= "$col BOOLEAN"; }
@@ -135,7 +135,7 @@ sub add_column {
 	if ($h->{not_null}) { $sql .= ' NOT NULL'; }		# NOT NULL制約
 	if (exists($h->{default})) {
 		$sql .= " DEFAULT ?";
-		push(@val, $h->{default});
+		push(@vals, $h->{default});
 	}
 	if ($_->{ref}) {
 		# 外部キー制約（ table_name.col_name 形式の文字列 ）
@@ -147,7 +147,7 @@ sub add_column {
 	$sql = "ALTER TABLE $table ADD COLUMN $sql";
 	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
-	$sth && $sth->execute(@val);
+	$sth && $sth->execute(@vals);
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);

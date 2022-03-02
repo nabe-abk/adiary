@@ -23,7 +23,7 @@ sub create_table {
 	my $cols='';
 	my $refs='';
 	my @index_columns;
-	my @val;
+	my @vals;
 	my %col_is_text;
 	my $varchar_size = $self->{index_text_max_length};
 	foreach(@$colums) {
@@ -47,7 +47,7 @@ sub create_table {
 		if ($_->{not_null}) { $cols .= ' NOT NULL'; }
 		if (exists($_->{default})) {
 			$cols .= ' DEFAULT ?';
-			push(@val, $_->{default});
+			push(@vals, $_->{default});
 		}
 
 		$cols .= $check;
@@ -66,7 +66,7 @@ sub create_table {
 
 	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
-	$sth && $sth->execute(@val);
+	$sth && $sth->execute(@vals);
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);
@@ -133,7 +133,7 @@ sub add_column {
 	my $col = $h->{name};
 	$col =~ s/\W//g;
 	my ($sql, $col_is_text, $check);
-	my @val;
+	my @vals;
 	if    ($h->{type} eq 'int')   { $sql .= "$col INT";   }
 	elsif ($h->{type} eq 'float') { $sql .= "$col FLOAT"; }
 	elsif ($h->{type} eq 'flag')  { $sql .= "$col TINYINT UNSIGNED"; $check=" CHECK($col=0 OR $col=1)"; }
@@ -150,7 +150,7 @@ sub add_column {
 	if ($h->{not_null}) { $sql .= ' NOT NULL'; }	# NOT NULL制約
 	if (exists($h->{default})) {
 		$sql .= " DEFAULT ?";
-		push(@val, $h->{default});
+		push(@vals, $h->{default});
 	}
 	$sql .= $check;
 	if ($_->{ref}) {
@@ -163,7 +163,7 @@ sub add_column {
 	$sql = "ALTER TABLE $table ADD COLUMN $sql";
 	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
-	$sth && $sth->execute(@val);
+	$sth && $sth->execute(@vals);
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);
