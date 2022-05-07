@@ -1158,7 +1158,7 @@ sub generate_rand_string {
 sub generate_nonce {
 	my $self = shift;
 	my $base = $self->{SALT64chars};
-	$base =~ tr|+/.|-__|;
+	$base =~ tr|/.|-_|;
 	$self->generate_rand_string(shift, sub {
 		my $c = shift;
 		return substr($base, $c & 63, 1);

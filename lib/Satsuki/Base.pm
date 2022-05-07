@@ -5,12 +5,12 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.64';
+our $VERSION = '2.65';
 our $RELOAD;
 my %StatCache;
 #------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
-my $_SALT = '8RfoZYxLBkqeQFMd0l-pEmVCuAyUDO9b_3wSi5Trn47IzcHKPvGgsXhjNt126JWa';
+my $_SALT = '8RfoZYxLBkqCuAyUDO9b/eQFMd0ln47IzcHKPvGgsXhj.pEmV3wSi5TrNt126JWa';
 #------------------------------------------------------------------------------
 # 文字コード等のデフォルト設定。
 $Satsuki::SYSTEM_CODING = 'UTF-8';
