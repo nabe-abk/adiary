@@ -22,7 +22,7 @@
 	<tr>
 		<th>削除</th><th>No</th><th>ID</th><th>名前</th><th>無効</th><th>管理者</th><th>操作</th><th>ブログ</th>
 	</tr>
-	<@forexec(t, Auth.load_userlist('pkey'), begin)>
+	<@forexec(t, Auth.load_users('pkey'), begin)>
 	<tr>
 		<@ifexec(t.pkey == Auth.pkey, begin, begin)>
 		<td class="c"></td>

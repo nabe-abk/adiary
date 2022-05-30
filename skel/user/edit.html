@@ -9,7 +9,7 @@
 <@> システムモード
 <$v.system_mode("ユーザーの編集")>
 
-<$t = Auth.get_userinfo(Query.id)>
+<$t = Auth.load_user_info(Query.id)>
 <$ifmessage(Query.id eq '', "IDが指定されていません")>
 <$ifmessage(Query.id ne '' && !defined t.id,  "ID「<@Query.id>」がみつかりません")>
 

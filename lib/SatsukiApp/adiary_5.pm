@@ -234,7 +234,7 @@ sub rebuild_blog {
 	local($self->{trust_mode}) = $t;
 	if ($self->{admin_trust_mode} && $t) {
 		my $auth = $ROBJ->{Auth};
-		my $user = $auth->sudo('get_userinfo', $blogid);
+		my $user = $auth->sudo('load_user_info', $blogid);
 		if ($user && !$user->{isadmin}) {
 			$self->{trust_mode} = 0;
 		}
