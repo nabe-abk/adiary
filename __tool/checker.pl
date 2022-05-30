@@ -120,7 +120,7 @@ print "---adiary Release checker-------------------------------------------\n";
 # CRLF check
 #------------------------------------------------------------------------------
 {
-	open(my $fh, "grep -r '\r\n' skel/ js/*.js js/src/*.js lib/ info/ plugin/ theme/|");
+	open(my $fh, "grep -rI '\r\n' skel/ js/*.js js/src/*.js lib/ info/ plugin/ theme/|");
 	my @ary = <$fh>;
 	close($fh);
 

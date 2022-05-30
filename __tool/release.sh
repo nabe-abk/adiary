@@ -61,6 +61,7 @@ cp -Rp $CPFLAGS $BASE $RELEASE/
 
 cp -Rp $CPFLAGS plugin $RELEASE/
 rm -rf $RELEASE/plugin/\@*
+rm -rf $RELEASE/lib/Satsuki/.git
 
 cp -p $EXE $RELEASE/
 
