@@ -7,8 +7,9 @@
 $$.send_ajax = function(opt) {
 	const self=this;
 
-	function error_default(h, err) {
-		if (opt.error) opt.error(h);
+	function error_default(err, h) {
+		if (opt.error) opt.error(err, h);
+		if ('dialog' in opt && !opt.dialog) return;
 
 		let msg = '';
 		if (h) {
@@ -27,7 +28,7 @@ $$.send_ajax = function(opt) {
 			msg = '<p>' + self.msg('server_response_error', 'response data error!') + '</p>';
 		}
 		self.show_error(msg, function(){
-			if (opt.error_dialog_callback) opt.error_dialog_callback(err)
+			if (opt.error_dialog_callback) opt.error_dialog_callback(err, h)
 		});
 	}
 	const data = opt.data;
@@ -37,9 +38,9 @@ $$.send_ajax = function(opt) {
 		processData:	false,
 		contentType:	false,
 		dataType:	'json',
-		error:		function(e) { error_default(undefined,e); },
+		error:		function(e) { error_default(e); },
 		success:	function(h) {
-			if (h.ret != '0' || h._debug) return error_default(h);
+			if (h.ret != '0' || h._debug) return error_default('', h);
 			if (opt.success) opt.success(h);
 		},
 		complete:	opt.complete,
@@ -56,16 +57,8 @@ $$.send_ajax_promise = function(opt) {
 		opt.error_dialog_callback = function(e){
 			reject(e);
 		};
-		opt.success = function(h) {
-			resolve(h);
-		};
-		self.send_ajax(opt);
-	});
-}
-$$.send_ajax_promise_no_reject = function(opt) {
-	const self=this;
+		if ('dialog' in opt && !opt.dialog) opt.error = opt.error_dialog_callback;
 
-	return new Promise( function(resolve, reject) {
 		opt.success = function(h) {
 			resolve(h);
 		};
