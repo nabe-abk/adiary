@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.65';
+our $VERSION = '2.66';
 our $RELOAD;
 my %StatCache;
 #------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ sub start_up {
 
 	# 致命的エラーがあった場合、表示して終了
 	if ($self->{Error_flag}) {
-		my $err = $self->error_load_and_clear("\n");
+		my $err = $self->clear_error("\n");
 		$self->set_status(500);
 		$self->output($err, 'text/html');
 		$self->exit(-1);
@@ -1749,7 +1749,7 @@ sub error_from {
 	return $msg;
 }
 
-sub error_load_and_clear {
+sub clear_error {
 	my $self  = shift;
 	my $chain = shift || "<br>\n";
 	my $error = $self->{Error};

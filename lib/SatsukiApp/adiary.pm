@@ -172,7 +172,7 @@ sub main {
 			# Append debug message
 			if ($ROBJ->{Develop} && ref($data) eq 'HASH') {
 				$data->{_develop} = 1;
-				if (my $err = ($ROBJ->error_load_and_clear() . join("\n", @{$ROBJ->{Message}}, @{$ROBJ->{Debug}}))) {
+				if (my $err = ($ROBJ->clear_error() . join("\n", @{$ROBJ->{Message}}, @{$ROBJ->{Debug}}))) {
 					$data->{_debug} = $err;
 				}
 			}

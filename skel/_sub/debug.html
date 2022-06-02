@@ -4,7 +4,7 @@
 <h2>debug</h2>
 
 <@ifexec(@Error, begin)>
-<div class="output-error">Error : <strong><@error_load_and_clear("<br>\n")></strong></div>
+<div class="output-error">Error : <strong><@clear_error("<br>\n")></strong></div>
 <$end>
 <@ifexec(@Debug, begin)>
 <div class="output-debug">Debug : <strong><@join("<br>\n", Debug)></strong></div>
