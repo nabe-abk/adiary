@@ -96,7 +96,7 @@ $$.dom_init( function($R) {
 				}
 				if (url) window.location = url;
 			},
-			error: function(h) {
+			error: function(err, h) {
 				const error = $obj.data('error');
 				if (typeof(error) === 'function') return error(h);
 
