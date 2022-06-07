@@ -56,14 +56,16 @@ sub user_add {
 # ●削除処理
 #-------------------------------------------------------------------------------
 sub user_delete {
-	my ($self, $del_ary) = @_;
+	my $self = shift;
+	my $del  = ref($_[0]) ? shift : [shift];
+	my $col  = shift || 'id';
 	my $ROBJ = $self->{ROBJ};
-	if (!ref($del_ary) && $del_ary ne '') { $del_ary = [ $del_ary ]; }
+	if (!ref($del) && $del ne '') { $del = [ $del ]; }
 
 	if (! $self->{isadmin}) {
 		return { ret=>1, msg => $ROBJ->translate('Operation not permitted') };
 	}
-	if (ref($del_ary) ne 'ARRAY' || !@$del_ary) {
+	if (ref($del) ne 'ARRAY' || !@$del) {
 		return { ret=>10, msg => $ROBJ->translate('No assignment delete user') };
 	}
 
@@ -71,15 +73,15 @@ sub user_delete {
 	my $table = $self->{table};
 
 	$DB->begin();
-	$DB->delete_match($table.'_sid', 'id', $del_ary);
-	my $r1 = $DB->delete_match($table       , 'id', $del_ary);
+	$DB->delete_match($table . '_sid', $col, $del);
+	my $r1 = $DB->delete_match($table, $col, $del);
 	my $r2 = $DB->commit();
 
-	if ($r1 != $#$del_ary+1 || $r2) {
+	if ($r1 != $#$del+1 || $r2) {
 		$DB->rollback();
-		return { ret=>-1, msg => "DB delete error: $r1 / " . ($#$del_ary+1) };
+		return { ret=>-1, msg => "DB delete error: $r1 / " . ($#$del+1) };
 	}
-	foreach(@$del_ary) {
+	foreach(@$del) {
 		$self->log_save($_, 'delete');
 	}
 	return { ret => 0 };
@@ -96,23 +98,6 @@ sub user_edit {
 	}
 
 	return $self->update_user_data($form, $ext);
-}
-
-#-------------------------------------------------------------------------------
-# ●ランダムなUID生成（emailログイン運用時）
-#-------------------------------------------------------------------------------
-sub generate_uid {
-	my ($self, $str) = @_;
-	my $ROBJ = $self->{ROBJ};
-	my $DB = $self->{DB};
-
-	my $id;
-	foreach(0..99) {
-		my $x = $ROBJ->crypt_by_rand_nosalt($str);
-		my $h = $DB->select_match_limit1( $self->{table}, 'id', $x );
-		if (!$h) { $id=$x; last; }
-	}
-	return $id;
 }
 
 ################################################################################
@@ -197,12 +182,8 @@ sub load_users {
 #------------------------------------------------------------------------------
 sub load_user_info {
 	my $self = shift;
-	return $self->load_user_info_col('id', @_);
-}
-sub load_user_info_col {
-	my $self = shift;
-	my $col  = shift || 'id';
 	my $id   = shift;
+	my $col  = shift || 'id';
 	if (!$self->{isadmin}) { return; }
 
 	my $DB = $self->{DB};

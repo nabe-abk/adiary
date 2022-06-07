@@ -93,7 +93,7 @@ sub login {
 	}
 
 	# セッションIDの生成と保存
-	my $sid = $self->generate_SessionID();
+	my $sid = $self->generate_session_id();
 	$DB->insert("${table}_sid", {
 		id       => $id,
 		sid      => $sid,
@@ -331,7 +331,7 @@ sub log_save {
 #-------------------------------------------------------------------------------
 # ●セッションIDを生成する
 #-------------------------------------------------------------------------------
-sub generate_SessionID {
+sub generate_session_id {
 	my $self = shift;
 	my $sid;
 	my $salt = $self->{ROBJ}->{SALT64chars} || $_SALT;
@@ -340,7 +340,7 @@ sub generate_SessionID {
 	for(my $i=0; $i<12; $i++) {
 		$sid .= substr($salt, int(rand(256+ord(substr($base,$i,1))*256) % 64), 1);
 	}
-	$sid =~ tr|/|-|;	# 携帯電話用hack
+	$sid =~ tr|/|-|;
 	return $sid;
 }
 
