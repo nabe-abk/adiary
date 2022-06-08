@@ -57,20 +57,20 @@ sub user_add {
 #-------------------------------------------------------------------------------
 sub user_delete {
 	my $self = shift;
-	my $del  = ref($_[0]) ? shift : [shift];
+	my $del  = ref($_[0]) ? shift : (defined($_[0]) ? [shift] : []);
 	my $col  = shift || 'id';
 	my $ROBJ = $self->{ROBJ};
-	if (!ref($del) && $del ne '') { $del = [ $del ]; }
 
 	if (! $self->{isadmin}) {
 		return { ret=>1, msg => $ROBJ->translate('Operation not permitted') };
 	}
-	if (ref($del) ne 'ARRAY' || !@$del) {
+	if (!@$del) {
 		return { ret=>10, msg => $ROBJ->translate('No assignment delete user') };
 	}
 
 	my $DB    = $self->{DB};
 	my $table = $self->{table};
+	my $ary   = $DB->select_match($table, $col, $del, '*sort', 'pkey');
 
 	$DB->begin();
 	$DB->delete_match($table . '_sid', $col, $del);
@@ -81,8 +81,8 @@ sub user_delete {
 		$DB->rollback();
 		return { ret=>-1, msg => "DB delete error: $r1 / " . ($#$del+1) };
 	}
-	foreach(@$del) {
-		$self->log_save($_, 'delete');
+	foreach(@$ary) {
+		$self->log_save($_->{id}, 'delete');
 	}
 	return { ret => 0 };
 }
