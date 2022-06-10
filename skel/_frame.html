@@ -48,10 +48,11 @@
 <@>
 <!-- JavaScript ============================================-->
 <@ifexec(DevelopJS, begin, begin)>
-<@_call(v.script_dir . 'adiary-js-load.html')>
+<@_call(v.script_dir . 'asys-js-load.html')>
 <$else>
-<script defer src="<@Basepath><@v.script_dir>adiary.min.js?<@get_lastmodified(v.script_dir . 'adiary.min.js')>"></script>
+<script defer src="<@Basepath><@v.script_dir>asys.min.js?<@get_lastmodified(v.script_dir . 'asys.min.js')>"></script>
 <$end>
+<script defer src="<@Basepath><@v.script_dir>adiary.js?<@get_lastmodified(v.script_dir . 'adiary.js')>"></script>
 <@forexec(t, v.load_jscss('jslib'), begin)>
 <script defer src="<@t>"></script>
 <$end>
@@ -119,8 +120,10 @@
 	"other":	"その他"
 }
 --></div>
-<div style="display: none" id="adiary-vars" data-secure><!--
+<div style="display: none" id="asys-vars" data-secure><!--
 {
+	"name":		"adiary",
+	"Initialize":	false,
 	"myself":	"<@v.myself>",
 	"myself2":	"<@v.myself2>",
 	"Basepath":	"<@Basepath>",

@@ -747,8 +747,8 @@ function view_html_source(_obj) {
 // ロードが早すぎて iframe.on("load") が呼ばれない時の対策
 //----------------------------------------------------------------------------
 if (!iframe_onload && iframe[0] && iframe[0].contentWindow && iframe[0].contentWindow.$)
-	iframe.trigger("load");
-	
+	// jQuery-uiよりも早いことがあるで、少しウエイトを入れる
+	setTimeout(function(){ iframe.trigger("load"); }, 200);
 //----------------------------------------------------------------------------
 });
 

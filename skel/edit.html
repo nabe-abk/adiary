@@ -88,7 +88,7 @@
 	</select>
 	<div id="open-draft-buttons">
 	<button type="button" id="open-draft">開く</button>
-	<button type="button" id="open-template" class="btn-help" data-help="テンプレートとして開くと、編集・保存しても元にした下書きは残り続けます。">テンプレートに使用</button>
+	<button type="button" id="open-template">テンプレートに使用</button><span class="help" data-help="テンプレートとして開くと、編集・保存しても元にした下書きは残り続けます。">?</span>
 	</div>
 </div>
 </article>
@@ -202,10 +202,10 @@
 		<$end>
 	</select></span>
 
-	<button type="button" id="edit-file-upload" class="btn-help fileup" data-folder="<@if(s.edit_upload ne '', s.edit_upload, 'adiary/%y/')>" data-title="ファイルを選択" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップしてもアップロードできます。">Upload</button>
+	<button type="button" id="edit-file-upload" class="fileup" data-folder="<@if(s.edit_upload ne '', s.edit_upload, 'adiary/%y/')>" data-title="ファイルを選択">Upload</button><span class="help" data-help="ファイルを直接アップロードして記事に貼付けます。記事エリアに直接ドラッグ＆ドロップしてもアップロードできます。">?</span>
 	<button type="submit" name="edit" id="save-normal" value="1"><@save_btn_text></button>
 	<@ifexec(!edit_pkey || art.draft, begin)>
-	<button type="submit" name="draft" value="1" id="save-draft" class="btn-help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">下書き<@if(edit_pkey, '保存', '作成')></button>
+	<button type="submit" name="draft" value="1" id="save-draft">下書き<@if(edit_pkey, '保存', '作成')></button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
 	<$end>
 
 	<!--===============================================================-->

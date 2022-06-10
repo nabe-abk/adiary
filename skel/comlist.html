@@ -129,7 +129,7 @@
 	</nav>
 
 <@ifexec(v.allow_edit, begin)>
-	<button type="submit" name="enable"  class="js-check-form btn-help" data-confirm="" data-help="非公開コメントおよび記事が非公開の場合は表示することはできません">表示に設定</button>
+	<button type="submit" name="enable"  class="js-check-form" data-confirm="">表示に設定</button><span class="help" data-help="非公開コメントおよび記事が非公開の場合は表示することはできません">?</span>
 	<button type="submit" name="disable" class="js-check-form" data-confirm="">非表示に設定</button>
 	<button type="submit" name="delete"  class="js-check-form" id="del-submit" data-confirm="%c件のコメントを削除しますか？" data-focus="cancel">削除</button>
 <@>	<label><input type="checkbox" name="del_check" class="js-enable" data-target="#del-submit">削除確認</label>

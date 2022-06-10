@@ -94,7 +94,7 @@ input[type="checkbox"] {
 <iframe id="iframe" src="<@v.myself>?<@v.skel_dir>art_sample"></iframe>
 
 <!-- デザインモジュールの情報 =============================================-->
-<div class="js-hook-stop" id="design-modules-data" style="display: none">
+<div id="design-modules-data" style="display: none">
 <@forexec(t, mods, begin)>
 <$ifnext(t.adiary_version > v.VERSION)>  <@>  対応Versionチェック
 <$ifnext(t.trust_mode && !v.trust_mode)> <@>  trust_mode専用プラグイン

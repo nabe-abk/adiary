@@ -172,7 +172,7 @@
 	<@ifexec(coms && v.allow_edit, begin)>
 	<div class="com-buttons">
 	<@ifexec(t.enable, begin)>
-	<button type="submit" name="enable"  class="js-check-form btn-help" data-confirm="" data-help="非公開コメントを表示することはできません">表示に設定</button>
+	<button type="submit" name="enable"  class="js-check-form" data-confirm="">表示に設定</button><span class="help" data-help="非公開コメントは表示することはできません">?</span>
 	<button type="submit" name="disable" class="js-check-form" data-confirm="">非表示に設定</button>
 	<$end>
 	<button type="submit" name="delete"  class="js-check-form" id="del-submit" data-confirm="%c件のコメントを削除しますか？" data-focus="cancel">削除</button>
