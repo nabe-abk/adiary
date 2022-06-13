@@ -45,7 +45,7 @@
 #--------------------------------------
 # ignore files
 #--------------------------------------
-/js/src
+/js/asys.src
 /info/textparser_site_tags.txt
 /plugin/@3rd-party/
 /lib/SatsukiApp/form.pm
