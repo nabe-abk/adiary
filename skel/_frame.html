@@ -48,7 +48,7 @@
 <@>
 <!-- JavaScript ============================================-->
 <@ifexec(DevelopJS, begin, begin)>
-<@_call("<@v.script_dir>asys-js-load.html", v.script_dir . 'asys.src/')>
+<@_call("<@v.script_dir>asys-js-load.html", v.script_dir . 'src/')>
 <$else>
 <script defer src="<@Basepath><@v.script_dir>asys.min.js?<@get_lastmodified(v.script_dir . 'asys.min.js')>"></script>
 <$end>
