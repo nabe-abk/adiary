@@ -5,7 +5,7 @@ use strict;
 #------------------------------------------------------------------------------
 package Satsuki::Base;
 #------------------------------------------------------------------------------
-our $VERSION = '2.66';
+our $VERSION = '2.67';
 our $RELOAD;
 my %StatCache;
 #------------------------------------------------------------------------------
@@ -269,6 +269,22 @@ sub finish {
 			print "\n\n(ERROR) ",$self->unesc(join("\n", @$error)),"\n";
 		}
 	}
+
+	if (!$self->{CGI_cache}) { return; }
+
+	#-------------------------------------------------------------
+	# memory limiter
+	#-------------------------------------------------------------
+	my $limit = $self->{MemoryLimit};
+	if (!$limit) { return; }
+
+	sysopen(my $fh, "/proc/$$/statm", O_RDONLY) or return;
+	my $statm = <$fh>;
+	close($fh);
+	if (!$statm) { return; }
+
+	my $mem = (split(/ /, $statm))[1] * 4096;
+	if ($limit<$mem) { $self->{Shutdown} = 1; }
 }
 
 #------------------------------------------------------------------------------
@@ -277,7 +293,6 @@ sub finish {
 sub exit {
 	my $self = shift;
 	my $ext  = shift;
-	$self->finish();	# 終了前処理
 	$self->{Exit}  = $ext;
 	$self->{Break} = -2;
 	$ENV{SatsukiExit} = 1;
