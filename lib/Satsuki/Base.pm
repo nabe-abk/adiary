@@ -957,7 +957,7 @@ sub _loadpm {
 	if (*{$pm . '::Finish'}{CODE}) {
 		push(@{$self->{FinishObjs}}, $obj);
 	}
-	if ($self->{DESTROY_debug}) {
+	if ($self->{DestroyDebug}) {
 		*{"${pm}::DESTROY"} = sub {
 			my $self = shift;
 			print STDERR "[$$] DESTROY $self\n";    # debug-safe
