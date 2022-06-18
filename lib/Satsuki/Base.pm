@@ -278,13 +278,13 @@ sub finish {
 	my $limit = $self->{MemoryLimit};
 	if (!$limit) { return; }
 
-	sysopen(my $fh, "/proc/$$/statm", O_RDONLY) or return;
-	my $statm = <$fh>;
+	local($/);
+	sysopen(my $fh, "/proc/$$/status", O_RDONLY) or return;
+	<$fh> =~ /VmHWM:\s*(\d+)/;
 	close($fh);
-	if (!$statm) { return; }
 
-	my $mem = (split(/ /, $statm))[1] * 4096;
-	if ($limit<$mem) { $self->{Shutdown} = 1; }
+	my $size = $1<<10;
+	if ($limit<$size) { $self->{Shutdown} = 1; }
 }
 
 #------------------------------------------------------------------------------
