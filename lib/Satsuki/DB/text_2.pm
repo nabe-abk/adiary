@@ -2,8 +2,7 @@ use strict;
 #-------------------------------------------------------------------------------
 # Split from Satsuki::DB_text.pm for AUTOLOAD.
 #-------------------------------------------------------------------------------
-package Satsuki::DB_text;
-use Satsuki::DB_text ();
+package Satsuki::DB::text;
 use Fcntl;
 
 our $FileNameFormat;

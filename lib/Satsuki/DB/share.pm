@@ -3,7 +3,7 @@ use strict;
 # データベースモジュール、共通ルーチン
 #							(C)2020-2022 nabe@abk
 #-------------------------------------------------------------------------------
-package Satsuki::DB_share;
+package Satsuki::DB::share;
 our $VERSION = '1.11';
 
 use Exporter 'import';

@@ -2,10 +2,8 @@ use strict;
 #-------------------------------------------------------------------------------
 # Split from Satsuki::DB_text.pm for AUTOLOAD.
 #-------------------------------------------------------------------------------
-package Satsuki::DB_text;
-use Satsuki::DB_text ();
-use Satsuki::DB_text_2 ();
-use Satsuki::DB_share_3;
+package Satsuki::DB::text;
+use Satsuki::DB::share_3;
 our $FileNameFormat;
 our %IndexCache;
 ###############################################################################

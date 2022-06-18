@@ -2,7 +2,7 @@ use strict;
 #------------------------------------------------------------------------------
 # DB_share_3.pm for AutoLoader
 #------------------------------------------------------------------------------
-package Satsuki::DB_share_3;
+package Satsuki::DB::share_3;
 our $VERSION = '1.00';
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(&get_options &create_table_wrapper);
