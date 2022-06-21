@@ -4,8 +4,9 @@ use strict;
 #						(C)2006-2022 nabe@abk
 #------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.19';
+our $VERSION = '2.20';
 #(簡易履歴)
+# 2022/06 Ver2.20  <@h.01> のようなハッシュ参照を正しく処理
 # 2022/02 Ver2.19  end 直後に elsif があるときのブロック切り出しバグ修正
 # 2021/10 Ver2.18  複数種類の begin_array/hash 引数があるときのバグ修正
 # 2021/09 Ver2.17  ハッシュデリファレンスを追加
@@ -1781,6 +1782,10 @@ sub p2e_function {
 	} elsif ($yt eq 'obj') {
 		$self->set_check_break_ifneed($st->{l_info}, $y);
 		my ($class, $func) = $self->get_object_sep($y,$local_vars);
+		if ($func =~ /^'/) {
+			$st->{error_msg} = 'illegal function name';
+			return;
+		}
 		push(@$stack, "$class\-\>$func($x)");
 	} elsif ($yt eq 'function-name') {		# %h 記述参照のこと
 		$self->set_check_break_ifneed($st->{l_info}, $y);
@@ -2527,20 +2532,20 @@ sub get_object_sep {
 	$name =~ s/\.(\.*)/#$1/g;
 	my @ary = split(/#/, $name);
 	my $obj  = "\$R";
-	my $last = pop(@ary);
-	# 最適化機能
+
 	my $first = $ary[0];
 	if ($first eq 'v')              { $obj='$v';       shift(@ary); }
 	  elsif ($local_vars->{$first}) { $obj="\$$first"; shift(@ary); }
 	# print "$first $obj $local_vars->{$first}\n";
-	foreach $name (@ary) {
-		if (index($name, '.')<0) {
-			$obj .= "->{$name}";
-			next;
-		}
-		$obj .= "->{'$name'}";
+
+	@ary = map {
+		(index($_, '.')>=0 || $_ =~ /^\d/) ? "'$_'" : $_
+	} @ary;
+
+	my $last = pop(@ary);
+	foreach(@ary) {
+		$obj .= "->{$_}";
 	}
-	if (index($last, '.')>=0) { $last="'$last'"; }
 	return ($obj, $last);
 }
 
