@@ -9,6 +9,7 @@
 --フォーム処理を更新しました。
 -【Fix】.fcgi(socket mode) + Apache + リバースproxy運用時にうまく動作しない。
 -【Fix】ツリー表示のノードがずれている。
+-【Fix】記事編集画面でアップロード詳細ボタンが2回目以降効かない。
 -【Fix/Theme】nature-forest, nature-sky のドロップダウンメニューの背景が正しくない。
 -【Fix/MariaDB】テキスト検索がうまく実行できない。
 -【Base/System】

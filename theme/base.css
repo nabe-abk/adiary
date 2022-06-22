@@ -1167,6 +1167,7 @@ ul.dynatree-container img {
 	font-family:		monospace;
 }
 .ui-dialog ul {
+	padding:		0 0 0 1em;
 	margin:			1em 0em 1em 2em;
 }
 

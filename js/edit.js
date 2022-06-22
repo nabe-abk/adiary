@@ -434,8 +434,8 @@ function open_upload_dialog(files) {
 				});
 			},
 			complete: function(){
-				div.adiaryDialog( 'close' );
 				$upform.detach();
+				div.adiaryDialog( 'close' );
 				div.remove();
 			}
 		});
@@ -443,10 +443,11 @@ function open_upload_dialog(files) {
 		$file_btn.val('');
 	};
 	buttons[ adiary.msg('cancel') ] = function(){
-		div.adiaryDialog( 'close' );
 		$upform.detach();
+		div.adiaryDialog( 'close' );
 		div.remove();
 	};
+
 	div.adiaryDialog({
 		modal: true,
 		width:  adiary.DialogWidth,
