@@ -1,9 +1,9 @@
 	<@> url = 記事URL
 	<$ps = v.load_plgset('<@this>')>
 	<div class="social-buttons" data-module-name="<@this>">
-	<@>############################################
+	<@>#################################################
 	<@> Twitter
-	<@>############################################
+	<@>#################################################
 	<@ifexec(ps.twitter ne '0', begin)>
 	<span class="social-button twitter-share" data-url="<@url>">
 		<$text = t.title . ' - ' . s.blog_name>
@@ -16,9 +16,9 @@
 	</span>
 	<$end>
 	<@>
-	<@>############################################
+	<@>#################################################
 	<@> Facebook
-	<@>############################################
+	<@>#################################################
 	<@ifexec(ps.facebook ne '0', begin)>
 	<span class="social-button facebook-share" data-url="<@url>">
 		<a target="_blank" class="share" rel="nofollow" href="https://www.facebook.com/sharer/sharer.php?u=" title="Facebookでシェア"></a> <@\>
@@ -26,9 +26,9 @@
 	</span>
 	<$end>
 	<@>
-	<@>############################################
+	<@>#################################################
 	<@> はてなブックマーク
-	<@>############################################
+	<@>#################################################
 	<@ifexec(ps.hatena ne '0', begin)>
 	<span class="social-button hatena-bookmark" data-url="<@url>">
 		<a target="_blank" class="share" rel="nofollow" href="https://b.hatena.ne.jp/add?mode=confirm&amp;url=" title="はてなブックマークに追加"></a> <@\>
@@ -36,9 +36,9 @@
 	</span>
 	<$end>
 	<@>
-	<@>############################################
+	<@>#################################################
 	<@> Pocket
-	<@>############################################
+	<@>#################################################
 	<@ifexec(ps.pocket ne '0', begin)>
 	<span class="social-button pocket-bookmark" data-url="<@url>">
 		<a target="_blank" class="share" rel="nofollow" href="http://getpocket.com/edit?url=" title="Pocket"></a> <@\>
@@ -46,5 +46,5 @@
 	</span>
 	<$end>
 	<@>
-	<@>##################################################################
+	<@>#####################################################################
 	</div>

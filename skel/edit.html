@@ -208,7 +208,7 @@
 	<button type="submit" name="draft" value="1" id="save-draft">下書き<@if(edit_pkey, '保存', '作成')></button><span class="help" data-help="下書きは記事一覧にも表示されません。下書き記事は、テンプレートとして使用することもできます。">?</span>
 	<$end>
 
-	<!--===============================================================-->
+	<!--=================================================================-->
 	<ul class="checkbox">
 		<li><label>
 		<@ifexec(!art.enable || art.draft || !edit_pkey, begin, begin)>

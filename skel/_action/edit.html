@@ -27,9 +27,9 @@
 <$(action_return, art) = v.edit_article(Form)>
 <$ifbreak(action_return ne '0')>
 
-<@>---------------------------------------------
+<@>-----------------------------------------------
 <@> POST成功時の処理
-<@>---------------------------------------------
+<@>-----------------------------------------------
 
 <$ifmessage(Form.edit_key_int, '記事を編集しました', '記事を書き込みました')>
 <$url = v.myself2 . art.elink_key . if(Form.parser_debug, '?etc/parser_debug')>
