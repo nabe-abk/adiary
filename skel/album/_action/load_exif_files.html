@@ -1,5 +1,4 @@
 <@20>
-<$ifbreak(csrf_check())>
 <$ifbreak(!v.allow_edit)>
 <$(action_return, data) = v.load_exif_files( Form.folder )>
 

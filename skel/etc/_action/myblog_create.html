@@ -1,5 +1,4 @@
 <@20>
-<$ifbreak(csrf_check())>
 <$ifbreak(v.sys.create_blog_only_admin && !Auth.isadmin)>
 
 <$action_return = v.blog_create( Auth.id )>

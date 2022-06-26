@@ -1,7 +1,6 @@
 <@20>
 <@local(h)>
 <$ifbreak(! v.blog_admin && ! Auth.isadmin)>
-<$ifbreak(csrf_check())>
 
 前処理
 <$ifset(Form.allow_com_sel ne '' , Form.allow_com_users, Form.allow_com_sel)>

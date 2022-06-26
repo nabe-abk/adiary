@@ -126,7 +126,7 @@
 <$coms = if(v.allow_edit, t.coms_all, t.coms)>
 <@ifexec(t.com_ok || coms, begin)>
 <$view = if(Query.c ne 'all', s.view_coms || 20)>
-<$secure_id  = make_secure_id( v.blogid . t.pkey )>
+<$secure_id  = v.make_secure_id( v.blogid . t.pkey )>
 <$secure_ary = string2ordary( secure_id )>
 <aside class="comment" id="com">
 	<div class="caption js-switch" data-target="#c<@t.pkey>n-block"><span class="caption-title">コメント</span><span class="com-num">（<span class="num"><@coms></span>件）</span>
@@ -139,7 +139,6 @@
 	<@ifexec(coms && v.allow_edit, begin)>
 	<form method="POST" action="<@permalink>" class="js-check-form" data-target="#com .pkey-ary">
 	<input type="hidden" name="action" value="comments_edit">
-	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<div class="swiches">
 	<label><input type="checkbox" name="view_ip_host_agent" class="js-switch" data-target="#com div.ip-host-agent">投稿者情報の表示</label>
 	<label><input type="checkbox" name="all_select" class="js-checked" data-target="#com .pkey-ary">すべて選択</label>
@@ -189,7 +188,6 @@
 	<form method="POST" action="<@permalink>" class="comment" id="comment-form" data-module-name="dec_comment-form" data-fix="1"
 	 data-secure="<$x=t.pkey & 255><@forexec(c, secure_ary, begin)><@c ^ x>,<$end>25">
 		<input type="hidden" name="action" value="comment_post">
-		<@if(Auth.ok, #'\t\t<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">\n')>
 		<input type="hidden" name="a_pkey" value="<@t.pkey>" id="comment-form-apkey">
 		<input type="hidden" name="secure_id" value="" id="comment-form-sid">
 		<span class="caption-name">名前</span><span class="separater">:</span>

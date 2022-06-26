@@ -1,6 +1,5 @@
 <@20>
 <@local(h,id)>
-<$ifbreak(csrf_check())>
 <$ifbreak(! Auth.isadmin)>
 
 <$h = validator(begin_hash, Form)>

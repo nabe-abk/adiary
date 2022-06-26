@@ -182,9 +182,6 @@ sub main {
 			local($self->{skel_dir}) = $dir;
 			$self->{action_data} = $ROBJ->call( "${dir}_action/$file" );
 
-			# CSRFチェック（無関係なactionを指定して, CSRFされるのを防ぐ）
-			if ($ROBJ->{Auth}->{ok}) { $ROBJ->csrf_check(); }
-
 			# キャッシュのクリア
 			if ($ROBJ->{Auth}->{ok} || $ROBJ->{action_return} eq '0') {
 				$self->clear_cache();
@@ -213,7 +210,6 @@ sub authorization {
 	my $session = $cookie->{session};
 	if (ref $session eq 'HASH') {	# ログインセッション処理
 		$auth->session_auth($session->{id}, $session->{sid});
-		$ROBJ->make_csrf_check_key($session->{sid});
 	}
 	# 管理者 trust mode 設定
 	if ($self->{admin_trust_mode} && $auth->{isadmin}) {
@@ -683,7 +679,7 @@ sub do_ajax_function {
 	my $func = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	if ($func ne '_ajax_login' && $ROBJ->csrf_check()) {
+	if ($func ne '_ajax_login') {
 		return [ -99.1, 'Security Error' ];
 	}
 
@@ -1489,7 +1485,7 @@ sub load_sysdat {
 	$self->{sys}=$sys;
 	# Secret_word 自動設定
 	if (!$sys->{Secret_word}) {
-		$self->update_sysdat('Secret_word', $ROBJ->crypt_by_rand_nosalt($ENV{HTTP_USER_AGENT}));
+		$self->update_sysdat('Secret_word', $ROBJ->generate_nonce(40));
 	}
 	# Versionチェック
 	if ($sys->{VERSION} < $DATA_VERSION) {
@@ -1644,6 +1640,26 @@ sub load_contents_postprocessor {
 	}
 	return \%h;
 }
+}
+
+################################################################################
+# security id system for post of no login
+################################################################################
+#-------------------------------------------------------------------------------
+# ●特殊IDルーチン
+#-------------------------------------------------------------------------------
+sub make_secure_id {
+	my $self = shift;
+	my $base = shift;
+	my $old  = shift;
+	my $ROBJ = $self->{ROBJ};
+
+	my $stime = $ROBJ->{Secure_time} || 3600;
+	my $code  = int($ROBJ->{TM} / $stime) - int($old);
+
+	my $id = $ROBJ->crypt_by_string_nosalt($ROBJ->{Secret_word}, $base . $code);
+	$id =~ tr|/|-|;
+	return substr($id, 0, 32);
 }
 
 ################################################################################

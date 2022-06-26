@@ -1,7 +1,6 @@
 <@20>
 <@local(h)>
 <$ifbreak(! v.blog_admin && ! Auth.isadmin)>
-<$ifbreak(csrf_check())>
 
 <$h = validator(begin_hash, Form)>
 	admin_users = 管理権限を与えるユーザー

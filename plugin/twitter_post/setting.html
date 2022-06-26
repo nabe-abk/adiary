@@ -53,7 +53,6 @@
 <script>
 $(function(){
 var ajax_url = '<@v.myself>?etc/ajax_dummy';
-var csrf_check_key = '<@CSRF_check_key>';
 var action  = 'twitter/oauth';
 
 //==============================================================================
@@ -83,7 +82,6 @@ $('#do-oauth').click( function(){
 function ajax_post(action, data, callback) {
 	data = data || {};
 	data.action = action;
-	data.csrf_check_key = csrf_check_key;
 	data.back_url = location.href;
 	$.post(ajax_url, data, callback, 'text');
 }

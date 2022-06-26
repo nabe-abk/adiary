@@ -1103,23 +1103,8 @@ sub validator {
 }
 
 ################################################################################
-# ■セキュリティ関連
+# ■フォーム処理／セキュリティ関連
 ################################################################################
-#-------------------------------------------------------------------------------
-# ●CSRF対策ルーチン
-#-------------------------------------------------------------------------------
-sub csrf_check {
-	my $self = shift;
-	my $post_key = shift || $self->{Form}->{csrf_check_key};
-	if (!$self->{POST} || $self->{CSRF_no_check}) { return; }
-	my $check_key = $self->{CSRF_check_key};
-	if ($post_key ne '' && $post_key eq $check_key) { return 0; }
-
-	$self->form_clear();
-	$self->message("This post may be CSRF attack");
-	return 1;
-}
-
 #-------------------------------------------------------------------------------
 # ●フォームの中身をすべて消去し、POST=0にする。
 #-------------------------------------------------------------------------------
@@ -1134,14 +1119,9 @@ sub form_clear {
 # ●ランダムなsaltでcryptする
 #-------------------------------------------------------------------------------
 sub crypt_by_rand {
-	my ($self, $secret) = @_;
-	return $self->crypt_by_string($secret, $self->generate_rand_string());
+	my $self = shift;
+	return $self->crypt_by_string(shift, $self->generate_rand_string());
 }
-sub crypt_by_rand_nosalt {
-	my ($self, $secret) = @_;
-	return $self->crypt_by_string_nosalt($secret, $self->generate_rand_string());
-}
-
 sub generate_rand_string {
 	my $self = shift;
 	my $len  = shift || 20;
@@ -1163,6 +1143,60 @@ sub generate_nonce {
 		my $c = shift;
 		return substr($base, $c & 63, 1);
 	});
+}
+
+#-------------------------------------------------------------------------------
+# crypt by string
+#-------------------------------------------------------------------------------
+sub crypt_by_string {
+	my ($self, $secret, $generator) = @_;
+	return $self->crypt($secret, $self->salt_by_string($generator));
+}
+sub crypt_by_string_nosalt {
+	my $self = shift;
+	my $str  = $self->crypt_by_string(@_);
+	return $str =~ /^\$\d\$.*?\$(.*)/ ? $1 : substr($str, 2);
+}
+
+#-------------------------------------------------------------------------------
+# generate salt from string
+#-------------------------------------------------------------------------------
+my @S_RAND = (0xb5d8f3c,0x96a4072,0x492c3e6,0x6053399,0xae5f1a8,0x5bf1227,0x02a7e6f,0x4b0bd91);
+sub salt_by_string {
+	my $self = shift;
+	my $gen  = shift;
+	my $b64  = $self->{SALT64chars};
+
+	# 文字列用の数値生成
+	my ($x,$y) = (0,0);
+	my $len = length($gen);
+	for(my $i=0; $i<$len; $i++) {
+		my $c = ord(substr($gen, $i, 1));
+		$x += $c * $S_RAND[  $i    & 7];
+		$y += $c * $S_RAND[ ($i+4) & 7];
+	}
+	my $salt = '';	# gen 16 byte
+	for(my $i=0; $i<48; $i+=6) {
+		$salt .= substr($b64, ($x>>$i) & 63,1) . substr($b64, ($y>>$i) & 63,1)
+	}
+	return $salt;
+}
+
+#-------------------------------------------------------------------------------
+# ●crypt
+#-------------------------------------------------------------------------------
+my $CRYPT_mode;
+sub crypt {
+	my $self = shift;
+	my ($x, $salt) = @_;
+	if (substr($salt, 0, 1) eq '$') { return crypt($x, $salt); }
+
+	if (!defined $CRYPT_mode) {
+		$CRYPT_mode ||= crypt('', '$6$') ne '' ? '$6$' : '';	# SHA512
+		$CRYPT_mode ||= crypt('', '$5$') ne '' ? '$5$' : '';	# SHA256
+		$CRYPT_mode ||= crypt('', '$1$') ne '' ? '$1$' : '';	# MD5
+	}
+	return $CRYPT_mode ? crypt($x, "$CRYPT_mode$salt") : crypt($x, $salt);
 }
 
 ################################################################################

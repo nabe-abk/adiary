@@ -1,6 +1,6 @@
 <@20>
 <@local(mode,msg,c)>
-<$ifbreak(!v.allow_edit || csrf_check())>
+<$ifbreak(!v.allow_edit)>
 
 <$ifset(exists(Form.enable ), mode, 'enable'  )>
 <$ifset(exists(Form.enable ), msg , '%d件のコメントを新たに表示しました')>

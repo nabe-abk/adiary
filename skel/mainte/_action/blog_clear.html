@@ -1,5 +1,4 @@
 <@20>
-<$ifbreak(csrf_check())>
 <$ifexec(lc(Form.yes) ne 'yes', begin)>
 <$form_error('yes', '削除確認エラー')>
 <$break()>

@@ -1239,9 +1239,8 @@ sub post_comment {
 	my $a_pkey = int($form->{a_pkey});
 	if (! $auth->{ok}) {
 		my $secure_id = $form->{secure_id};
-		my $secu_id_now = $ROBJ->make_secure_id($blogid . $a_pkey);
-		my $secu_id_old = $ROBJ->make_secure_id($blogid . $a_pkey, 1);
-		if ($secure_id ne $secu_id_now && $secure_id ne $secu_id_old) {
+		if ($secure_id ne $self->make_secure_id($blogid . $a_pkey)
+		 && $secure_id ne $self->make_secure_id($blogid . $a_pkey, 1)) {
 			$ROBJ->message('Security error. Please repost.');
 			return 9;
 		}

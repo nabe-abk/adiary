@@ -20,7 +20,6 @@
 <@ifexec(!ret, begin)>
 	<form class="js-ajax" id="add-user-form">
 	<input type="hidden" name="action" value="_ajax_user_add">
-	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<@ifexec(Auth.auto, begin)>
 	<p><strong class="warning">最初に管理者ユーザを追加します。</strong></p>
 	<$end>

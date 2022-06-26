@@ -108,7 +108,6 @@
 <@ifexec(v.allow_edit, begin)>
 	<form action="<@url>page=<@page>" method="POST" class="js-check-form" data-target="#artlist-table .pkey-ary">
 	<input type="hidden" name="action" value="articles_edit">
-	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 <$end>
 	<table id="artlist-table" class="list-table">
 	<thead><tr>

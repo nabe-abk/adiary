@@ -1,7 +1,6 @@
 <@20>
 <@local(h)>
 <$ifbreak(! v.blog_admin && ! Auth.isadmin)>
-<$ifbreak(csrf_check())>
 
 <$x = join(',', v.parsers._order)>
 <$h = validator(begin_hash, Form)>

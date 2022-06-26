@@ -4,7 +4,6 @@
 	<form method="POST" action="<@permalink>" class="comment" id="comment-form" data-module-name="<@this>" data-fix="1"
 	 data-secure="<$x=t.pkey & 255><@forexec(c, secure_ary, begin)><@c ^ x>,<$end>25">
 	 	<input type="hidden" name="action" value="comment_post">
-		<@if(Auth.ok, #'\t\t<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">\n')>
 		<input type="hidden" name="a_pkey" value="<@t.pkey>" id="comment-form-apkey">
 		<input type="hidden" name="secure_id" value="" id="comment-form-sid">
 		<span class="caption-name">名前</span><span class="separater">:</span>

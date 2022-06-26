@@ -17,7 +17,6 @@
 
 	<form action="<@v.myself>?<@v.skeleton>" method="POST">
 	<input type="hidden" name="action" value="<@v.skel_dir>reinstall_plugins">
-	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 	<button type="submit">再インストール</button>
 	</form>
 
@@ -31,7 +30,6 @@
 
 	<form action="<@v.myself>?<@v.skeleton>" method="POST" class="js-check-form" data-target=".plugin-name">
 	<input type="hidden" name="action" value="<@v.skel_dir>reset_plugins">
-	<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 
 	<$ary = v.get_plugins_setting()>
 	<table>

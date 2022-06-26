@@ -118,27 +118,23 @@ input[type="checkbox"] {
 <!-- フォーム -->
 <form action="<@v.myself>?<@v.skeleton>" method="POST" id="js-form">
 <input type="hidden" name="action" value="<@v.skeleton>">
-<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 </form>
 
 <!-- モジュール設定画面用フォーム -->
 <form method="POST" id="setting-form"
  data-url="<@v.myself>?plugin/plugin_setting&amp;name=">
 <input type="hidden" name="action" value="plugin/plugin_setting">
-<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 </form>
 
 <!-- モジュールHTMLロード用フォーム -->
 <form method="POST" id="load-module-form">
 <input type="hidden" name="action" value="design/load_module">
-<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 <input type="hidden" name="module_name" id="js-load-module-name">
 </form>
 
 <!-- モジュールリセット -->
 <form method="POST" id="reset-form">
 <input type="hidden" name="action" value="plugin/reset_plugin">
-<input type="hidden" name="csrf_check_key" value="<@CSRF_check_key>">
 </form>
 
 

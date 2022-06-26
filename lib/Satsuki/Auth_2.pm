@@ -335,10 +335,9 @@ sub generate_session_id {
 	my $self = shift;
 	my $sid;
 	my $salt = $self->{ROBJ}->{SALT64chars} || $_SALT;
-	my $base = $ENV{UNIQUE_ID} . $ENV{REMOTE_ADDR};
-	my $sid  = $self->{ROBJ}->make_secure_id($base, int(rand(8192)), 8);
-	for(my $i=0; $i<12; $i++) {
-		$sid .= substr($salt, int(rand(256+ord(substr($base,$i,1))*256) % 64), 1);
+	my $port = int($ENV{REMOTE_PORT});
+	for(my $i=0; $i<20; $i++) {
+		$sid .= substr($salt, int(rand(256) + $port) % 64, 1);
 	}
 	$sid =~ tr|/|-|;
 	return $sid;

@@ -1,6 +1,5 @@
 <@20>
 <@local(art)>
-<$ifbreak(csrf_check())>
 <$ifbreak(!v.allow_edit)>
 
 <$ifexec(Form.edit_pkey_int && !v.check_editor(Form.edit_pkey_int), begin)>

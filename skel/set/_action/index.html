@@ -1,7 +1,6 @@
 <@20>
 <@local(h,h2)>
 <$ifbreak(! v.blog_admin && ! Auth.isadmin)>
-<$ifbreak(csrf_check())>
 
 <$h = validator(begin_hash, Form)>
 	blog_name = ブログ名
