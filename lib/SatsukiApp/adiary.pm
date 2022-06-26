@@ -1492,7 +1492,6 @@ sub load_sysdat {
 		$self->{require_update} = 1;
 	}
 
-	$ROBJ->{Secret_word} = $sys->{Secret_word};
 	return $sys;
 }
 
@@ -1657,7 +1656,7 @@ sub make_secure_id {
 	my $stime = $ROBJ->{Secure_time} || 3600;
 	my $code  = int($ROBJ->{TM} / $stime) - int($old);
 
-	my $id = $ROBJ->crypt_by_string_nosalt($ROBJ->{Secret_word}, $base . $code);
+	my $id = $ROBJ->crypt_by_string_nosalt($self->{sys}->{Secret_word}, $base . $code);
 	$id =~ tr|/|-|;
 	return substr($id, 0, 32);
 }

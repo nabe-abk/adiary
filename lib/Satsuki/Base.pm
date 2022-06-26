@@ -10,10 +10,7 @@ our $RELOAD;
 my %StatCache;
 #-------------------------------------------------------------------------------
 my $SYSTEM_CACHE_DIR = '__cache/';
-my $_SALT = '8RfoZYxLBkqCuAyUDO9b/eQFMd0ln47IzcHKPvGgsXhj.pEmV3wSi5TrNt126JWa';
 #-------------------------------------------------------------------------------
-# 文字コード等のデフォルト設定。
-$Satsuki::SYSTEM_CODING = 'UTF-8';
 my $CODE_LIB = 'Jcode';
 my $LOCALE = 'ja';
 #-------------------------------------------------------------------------------
@@ -42,16 +39,14 @@ sub new {
 
 	# 初期設定
 	$self->{Status}  = 200;		# HTTP status (200 = OK)
-	$self->{SALT64chars}  = $_SALT;	# SALT生成用文字列
 	$self->{LoadpmCache}  = {};
 	$self->{FinishObjs}   = [];
 	$self->{CGI_mode}     = 'CGI-Perl';
-	$self->{Secret_word}  = '';
 	$self->{Content_type} = 'text/html';
 	$self->{Headers}      = [];		# ヘッダ出力バッファ
 
 	# 内部文字コード
-	$self->{System_coding} = $Satsuki::SYSTEM_CODING;
+	$self->{System_coding} = 'UTF-8';
 	$self->{Code_lib} = $CODE_LIB;
 	$self->{Locale}   = $LOCALE;
 	$self->{Locale2}  = $LOCALE;	# ex)ja_JP
@@ -1562,7 +1557,7 @@ sub load_codepm_if_needs {
 			return $self->loadpm('Code::' . $self->{Code_lib}, @_);
 		}
 	}
-	return ;
+	return;
 }
 
 #-------------------------------------------------------------------------------

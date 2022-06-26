@@ -20,10 +20,11 @@ my %Auth;
 #-------------------------------------------------------------------------------
 sub new {
 	my $self = bless({}, shift);
-	$self->{ROBJ} = shift;
+	my $ROBJ = shift;
+	$self->{ROBJ}   = $ROBJ;
 	$self->{mailer} = "Satsuki-Base-Mail Version $VERSION";
 
-	$CODE = $Satsuki::SYSTEM_CODING || 'UTF-8';
+	$CODE = $ROBJ->{SystemCoding} || 'UTF-8';
 
 	$self->{__CACHE_PM} = 1;
 

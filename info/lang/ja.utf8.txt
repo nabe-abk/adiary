@@ -10,7 +10,6 @@ Locale=ja
 #-----------------------------------------------------------
 Too large form data (max %.1fMB)=フォームデータが大きすぎます（最大 %dMB）
 Not allow multipart/form-data=マルチパートフォームは許可されていません。
-This post may be CSRF attack=この POST は CSRF 攻撃の可能性があります
 Multipart form read error=マルチパートフォームの読み込みに失敗しました
 Too long form data '%s', limit %d chars=フォーム「%s」は長すぎるため、%s文字に制限されました
 #-----------------------------------------------------------

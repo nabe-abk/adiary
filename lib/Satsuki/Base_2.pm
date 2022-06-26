@@ -1,9 +1,7 @@
 use strict;
-#-------------------------------------------------------------------------------
-# Split from Base.pm for AutoLoader
-#-------------------------------------------------------------------------------
-use Satsuki::Base ();
 package Satsuki::Base;
+#-------------------------------------------------------------------------------
+my $BASE64 = '8RfoZYxLBkqCuAyUDO9b/eQFMd0ln47IzcHKPvGgsXhj.pEmV3wSi5TrNt126JWa';
 ################################################################################
 # ■スケルトンコンパイルとキャッシュ
 ################################################################################
@@ -1137,7 +1135,7 @@ sub generate_rand_string {
 }
 sub generate_nonce {
 	my $self = shift;
-	my $base = $self->{SALT64chars};
+	my $base = $BASE64;
 	$base =~ tr|/.|-_|;
 	$self->generate_rand_string(shift, sub {
 		my $c = shift;
@@ -1165,7 +1163,6 @@ my @S_RAND = (0xb5d8f3c,0x96a4072,0x492c3e6,0x6053399,0xae5f1a8,0x5bf1227,0x02a7
 sub salt_by_string {
 	my $self = shift;
 	my $gen  = shift;
-	my $b64  = $self->{SALT64chars};
 
 	# 文字列用の数値生成
 	my ($x,$y) = (0,0);
@@ -1177,7 +1174,7 @@ sub salt_by_string {
 	}
 	my $salt = '';	# gen 16 byte
 	for(my $i=0; $i<48; $i+=6) {
-		$salt .= substr($b64, ($x>>$i) & 63,1) . substr($b64, ($y>>$i) & 63,1)
+		$salt .= substr($BASE64, ($x>>$i) & 63,1) . substr($BASE64, ($y>>$i) & 63,1)
 	}
 	return $salt;
 }

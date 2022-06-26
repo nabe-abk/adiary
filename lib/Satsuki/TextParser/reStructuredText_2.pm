@@ -1,8 +1,4 @@
 use strict;
-#-------------------------------------------------------------------------------
-# Split from Satsuki::TextParser::reStructuredText.pm for AUTOLOAD.
-#-------------------------------------------------------------------------------
-use Satsuki::TextParser::reStructuredText ();
 package Satsuki::TextParser::reStructuredText;
 use Fcntl;
 ################################################################################

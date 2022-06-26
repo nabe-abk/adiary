@@ -1,10 +1,5 @@
 use strict;
-#-------------------------------------------------------------------------------
-# Split from Satsuki::Auth.pm for AUTOLOAD.
-#-------------------------------------------------------------------------------
-use Satsuki::Auth ();
 package Satsuki::Auth;
-my $_SALT = 'eTUMs6mRN8vqiSCHWaOGwynJKFbBpdA29txZEDcYluVgr75hLPQXfIk/j4o3z.10';
 ################################################################################
 # ■認証ルーチン
 ################################################################################
@@ -93,7 +88,7 @@ sub login {
 	}
 
 	# セッションIDの生成と保存
-	my $sid = $self->generate_session_id();
+	my $sid = $ROBJ->generate_nonce(32);
 	$DB->insert("${table}_sid", {
 		id       => $id,
 		sid      => $sid,
@@ -326,21 +321,6 @@ sub log_save {
 	}
 
 	$DB->insert($self->{table} . '_log', $h);
-}
-
-#-------------------------------------------------------------------------------
-# ●セッションIDを生成する
-#-------------------------------------------------------------------------------
-sub generate_session_id {
-	my $self = shift;
-	my $sid;
-	my $salt = $self->{ROBJ}->{SALT64chars} || $_SALT;
-	my $port = int($ENV{REMOTE_PORT});
-	for(my $i=0; $i<20; $i++) {
-		$sid .= substr($salt, int(rand(256) + $port) % 64, 1);
-	}
-	$sid =~ tr|/|-|;
-	return $sid;
 }
 
 #-------------------------------------------------------------------------------
