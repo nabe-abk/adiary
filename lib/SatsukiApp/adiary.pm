@@ -1,7 +1,7 @@
 use strict;
 #-------------------------------------------------------------------------------
 # ブログシステム - adiary
-#						(C)2006-2020 nabe@abk
+#						(C)2006-2022 nabe@abk
 #-------------------------------------------------------------------------------
 package SatsukiApp::adiary;
 use Satsuki::AutoLoader;
@@ -58,12 +58,6 @@ sub new {
 	# 現在の日時設定（日付変更時間対策）
 	$self->{now} = $ROBJ->{Now};
 
-	# 日付変更時間を「元日とエイプリルフール」は無視する設定
-	$ROBJ->{Change_hour_func} = sub {
-		my ($s,$m,$h, $day, $mon) = @_;
-		return ! ($day==1 && ($mon == 1 || $mon == 4));
-	};
-
 	# スマホ判別
 	$self->{sphone} = $self->sphone_checker();
 
@@ -71,6 +65,7 @@ sub new {
 	if ($ROBJ->{CGI_cache} && $ENV{SatsukiTimer} ne '0' && !$Satsuki::Timer::VERSION) {
 		require Satsuki::Timer;
 	}
+
 	return $self;
 }
 

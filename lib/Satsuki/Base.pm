@@ -1434,7 +1434,6 @@ sub time2timehash {
 # print_tm($UTC);
 # print_tmf($format, $UTC);
 #
-sub tm_printf { return &print_tmf(@_); }	# old function
 sub print_tm {
 	my $self = shift;
 	return $self->print_tmf('%Y-%m-%d %H:%M:%S', @_);
