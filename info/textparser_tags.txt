@@ -182,8 +182,6 @@ image       = 画像アルバム, image, 3,  ${image}$2$3
 image#small = 画像アルバム, image, 3,  ${image}$2.thumbnail/$3.jpg
 image#link  = 画像アルバム, image, 3,  ${image}$2$3
 
-
-
 #------------------------------------------------------------------------------
 # Audio/Video
 #------------------------------------------------------------------------------
@@ -227,6 +225,10 @@ footer = <div style="text-align:right; right-margin:2em; font-size: 90%;">#1</di
 
 # popup
 popup = popup, ASCII, 2, <module name="popup" class="popup" text="#1" popup="#2">
+
+# tel
+tel   = <a href="tel:$0">#0</a>
+sms   = <a href="sms:$0">#0</a>
 
 # 内部変数置換
 myself  = text:${myself}
