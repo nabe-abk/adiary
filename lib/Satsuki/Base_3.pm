@@ -40,8 +40,8 @@ sub init_for_httpd {
 	$self->{CGI_mode} = 'httpd';
 
 	$self->{Initialized_path} = 1;
-	$self->{Basepath}     = $path;
-	$self->{mod_rewrite}  = 1;
+	$self->{Basepath}   = $path;
+	$self->{ModRewrite} = 1;
 
 	$self->{myself}  = $path;
 	$self->{myself2} = $path;
