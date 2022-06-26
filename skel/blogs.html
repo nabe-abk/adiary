@@ -24,7 +24,7 @@
 	<ul>
 	<@forexec(t, list, begin)>
 		<li><@if(admin, #'【<a href="<@t.url>?menu">管理</a>】')>	<@\>
-		<@if(t.art_tm, tm_printf('<span class="small">%Y/%m/%d %H:%M</span> ', t.art_tm))>
+		<@if(t.art_tm, print_tmf('<span class="small">%Y/%m/%d %H:%M</span> ', t.art_tm))>
 		<@if(t.private, "【非公開】")><a href="<@t.url>"><@if(t.newest_title ne '', t.newest_title, '-no diary-')></a>
 		<span class="small">(<@t.id> / <@t.blog_name>)</span></li>
 	<$end>
@@ -44,9 +44,9 @@
 	<tr>
 		<td><a href="<@t.url>"><@t.id></a><@if(t.private, "【非公開】")></td>
 		<td class="r large"><@t.arts></td>
-		<td class="c"><@if(t.arts, tm_printf('%Y/%m/%d <span class="hhmm">%H:%M</span>', t.art_tm, 0), '-')></td>
+		<td class="c"><@if(t.arts, print_tmf('%Y/%m/%d <span class="hhmm">%H:%M</span>', t.art_tm, 0), '-')></td>
 		<td class="r large"><@t.coms></td>
-		<td class="c"><@if(t.coms, tm_printf('%Y/%m/%d <span class="hhmm">%H:%M</span>', t.com_tm, 0), '-')></td>
+		<td class="c"><@if(t.coms, print_tmf('%Y/%m/%d <span class="hhmm">%H:%M</span>', t.com_tm, 0), '-')></td>
 		<@if(isadmin, #'<td><a href="<@t.url>?menu">管理</a>・<a href="<@t.url>?mainte/blog_drop">削除</a></td>')>
 	</tr>
 	<$end>

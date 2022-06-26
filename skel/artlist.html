@@ -130,7 +130,7 @@
 		<td class="c"><label for="art-<@t.pkey>"><@if(t.enable, '公')></label></td>
 		<$end>
 		<@ifexec(date, begin, begin)>
-		<td class="c"><label for="art-<@t.pkey>"><@tm_printf('%Y/%m/%d %K:%M', t.(ret.sort))></label></td>
+		<td class="c"><label for="art-<@t.pkey>"><@print_tmf('%Y/%m/%d %H:%M', t.(ret.sort))></label></td>
 		<$else>
 		<td class="c" nowrap><label for="art-<@t.pkey>"><@v.format_ymd(t.yyyymmdd)></label></td>
 		<$end>

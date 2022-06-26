@@ -44,7 +44,7 @@ STATUS: <@t.status>
 CONVERT BREAKS: <@t.convert_breaks>
 ALLOW COMMENTS: <@t.com_ok>
 ALLOW PINGS: <@opt.allow_pings>
-DATE: <@tm_printf("%m/%d/%Y %H:%M:%S", t.tm, 0)>
+DATE: <@print_tmf("%m/%d/%Y %H:%M:%S", t.tm, 0)>
 <@forexec(t2, t.tags_ary, begin)>
 CATEGORY: <@t2>
 <$end>
@@ -73,7 +73,7 @@ AUTHOR: <@t2.name>
 EMAIL: <@t2.email>
 URL: <@t2.url>
 IP: <@t2.ip>
-DATE: <@tm_printf("%m/%d/%Y %H:%M:%S", t2.tm, 0)>
+DATE: <@print_tmf("%m/%d/%Y %H:%M:%S", t2.tm, 0)>
 <@@exporter.br2lf( t2.text )>
 
 -----

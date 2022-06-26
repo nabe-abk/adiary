@@ -321,7 +321,7 @@ sub make_thumbnail_for_notimage {
 	my $album_file = $self->{album_font};
 	if ($self->{album_font} && -r $album_file) {
 		my @st = stat("$dir$file");
-		my $tm = $ROBJ->tm_printf("%Y/%m/%d %H:%M", $st[9]);
+		my $tm = $ROBJ->print_tmf("%Y/%m/%d %H:%M", $st[9]);
 		my $fs = $self->size_format($st[7]);
 		my $name = $file;
 		my $code = $ROBJ->{System_coding};
@@ -634,7 +634,7 @@ sub move_files {
 
 	my $files = $form->{file_ary} || [];
 	my @fail;
-	my $tm = $ROBJ->tm_printf("%Y%m%d-%H%M%S");
+	my $tm = $ROBJ->print_tmf("%Y%m%d-%H%M%S");
 	foreach(@$files) {
 		if ( !$self->check_file_name($_) ) {
 			push(@fail, $_);

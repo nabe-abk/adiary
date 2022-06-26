@@ -39,7 +39,7 @@
 <@forexec(t2, v.load_comments_current_blog(t, 5, flagq(enable_only)), begin)>
 <$replace(t2.text, '<br>', ' ')>
 <$tag_delete(t2.text)>
-<@t2.name>『<@v.string_clip(t2.text, 64)>』(<@tm_printf('%Y/%m/%d %J:%M', t2.tm)>)</span><br>
+<@t2.name>『<@v.string_clip(t2.text, 64)>』(<@print_tmf('%Y/%m/%d %H:%M', t2.tm)>)</span><br>
 <$end>
 </div>
 <$end.comment>

@@ -39,20 +39,6 @@
 		<th>ブログの紹介<br>（RSSにも出力）<br><a href="<@v.myself>?etc/allow_tags&amp;n=description" target="_blank">使用可能なHTMLタグ</a></th><td><textarea name="description_txt" class="description w400" cols="50" rows="3" wrap="soft"><@replace(x = s.description_txt, "<br>", "\n")></textarea>
 		改行有効。タグ非推奨。紹介文以外は<a href="<@v.myself>?design/edit">デザイン編集</a>を。</td>
 	</tr>
-	<tr>
-		<th>日付変更時間<span class="help" data-help="例えば「20日1時」を「19日深夜1時」として表示する機能です。元日と4/1は常に無効。">?</span><td>午前 
-		<select name="change_hour_int" class="int">
-			<option value="0"<@if(s.change_hour_int == 0, ' selected')>>0</option>
-			<option value="1"<@if(s.change_hour_int == 1, ' selected')>>1</option>
-			<option value="2"<@if(s.change_hour_int == 2, ' selected')>>2</option>
-			<option value="3"<@if(s.change_hour_int == 3, ' selected')>>3</option>
-			<option value="4"<@if(s.change_hour_int == 4, ' selected')>>4</option>
-			<option value="5"<@if(s.change_hour_int == 5, ' selected')>>5</option>
-			<option value="6"<@if(s.change_hour_int == 6, ' selected')>>6</option>
-			<option value="7"<@if(s.change_hour_int == 7, ' selected')>>7</option>
-			<option value="8"<@if(s.change_hour_int == 8, ' selected')>>8</option>
-		</select> 時</td>
-	</tr>
 	<tr><th>更新通知<span class="help" data-help="あなたが新しい記事を書いたことを、pingサーバに通知し公開します。">?</span></th>
 		<td>
 		<label><input type="checkbox" name="ping" value="1"<@if(s.ping, ' checked')>>更新通知Pingを送信する</label>

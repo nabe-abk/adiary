@@ -51,7 +51,7 @@
 <allowcomments><@t.com_ok></allowcomments>
 <allowpings><@opt.allow_pings></allowpings>
 <convertbreaks><@t.convert_breaks></convertbreaks>
-<date><@tm_printf("%Y/%m/%d %H:%M:%S", t.tm, 0)><@tz></date>
+<date><@print_tmf("%Y/%m/%d %H:%M:%S", t.tm, 0)><@tz></date>
 <$exporter.cdata_escape(t.body, t.ex_body)>
 <excerpt />
 <keyword />
@@ -69,7 +69,7 @@
 <email><@esc_xml(t2.email)></email>
 <url><@esc_xml(t2.url)></url>
 <host><@t2.ip></host>
-<date><@tm_printf("%Y/%m/%d %H:%M:%S", t2.tm, 0)><@tz></date>
+<date><@print_tmf("%Y/%m/%d %H:%M:%S", t2.tm, 0)><@tz></date>
 <description><![CDATA[<@exporter.cdata_escape( t2.text )>]]></description>
 </comment>
 <$end>

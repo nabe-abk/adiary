@@ -1383,7 +1383,7 @@ sub split_cookie {
 # ■日付・時刻処理
 ################################################################################
 #-------------------------------------------------------------------------------
-#●RFC日付処理
+# RFC date
 #-------------------------------------------------------------------------------
 # Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 2822
 sub rfc_date {
@@ -1399,7 +1399,7 @@ sub rfc_date {
 }
 
 #-------------------------------------------------------------------------------
-#●W3C Date
+# W3C date
 #-------------------------------------------------------------------------------
 sub w3c_date {
 	my $self = shift;
@@ -1409,14 +1409,11 @@ sub w3c_date {
 }
 
 #-------------------------------------------------------------------------------
-# ●時刻ハッシュの設定
+# make time hash
 #-------------------------------------------------------------------------------
-# time2timehash($time_utc, $change_hour);
-#	$change_hour	日付変更時間の指定
-#
 sub time2timehash {
 	my $self = shift;
-	my $tm   = $self->change_hour(@_);
+	my $tm   = shift || $self->{TM};
 
 	my %h;
 	$h{tm} = $tm;
@@ -1431,64 +1428,41 @@ sub time2timehash {
 	return \%h;
 }
 
-sub change_hour {
-	my $self = shift;
-	my $tm = shift || $self->{TM};
-	my $change_hour = (defined $_[0]) ? shift : $self->{Change_hour};
-
-	my ($sec, $min, $hour, $day, $mon, $year) = localtime($tm);
-	my $ch_func = $self->{Change_hour_func};
-	if ($change_hour && $ch_func) {
-		$change_hour = &$ch_func($sec, $min, $hour, $day, $mon+1, $year+1900) ? $change_hour : 0;
-	}
-
-	my $ch_flag=0;
-	if ($hour < $change_hour) {	# 日付変更時間 処理
-		$ch_flag =1;
-		$tm -= 86400;
-	}
-	return wantarray ? ($tm, $ch_flag) : $tm;
-}
 #-------------------------------------------------------------------------------
-# ●時刻フォーマットの整形
+# print formatted time
 #-------------------------------------------------------------------------------
-# tm_printf($format, $UTC, $change_hour);
-# tm_printf($UTC, $change_hour);
-#	$format		書式
-#	$UTC		UTCタイム
+# print_tm($UTC);
+# print_tmf($format, $UTC);
 #
-sub tm_printf {
+sub tm_printf { return &print_tmf(@_); }	# old function
+sub print_tm {
 	my $self = shift;
-	my $str  = ($_[0] =~ /^\d*$/) ? '%Y-%m-%d %H:%M:%S' : shift;
-	my ($tm, $ch_flag) = $self->change_hour(@_);
+	return $self->print_tmf('%Y-%m-%d %H:%M:%S', @_);
+}
+sub print_tmf {
+	my $self = shift;
+	my $fm   = shift;
+	my $tm   = shift || $self->{TM};
 
 	# This macro like 'strftime(3)' function.
-	# 完全互換　：%Y %y %m %d %I %H %M %S %w %s %e
-	# ほぼ互換  ：%j %k %l （桁可変が非互換）
-	# 表記変更可：%a %p
-	# 独自拡張　：%n, %i %L, %J %K
+	# compatible : %Y %y %m %d %I %H %M %S %w %s %e and %a %p
+	my ($s, $m, $h, $d, $m, $y, $wd, $yd, $isdst) = localtime($tm);
 	my %h;
 	$h{s} = $tm;
-	($h{S}, $h{M}, $h{k}, $h{e}, $h{n}, $h{Y}, $h{w}, $h{j}, $h{isdst}) = localtime($tm);
-	$h{y}  = sprintf("%02d", $h{Y} % 100);
-	$h{Y} +=1900;
-	$h{n} +=1;		# month
-	$h{m}  = sprintf("%02d", $h{n});
-	$h{d}  = sprintf("%02d", $h{e});
-	$h{H}  = sprintf("%02d", $h{k});	# 24時間表記
-	$h{M}  = sprintf("%02d", $h{M});
-	$h{S}  = sprintf("%02d", $h{S});
-	$h{a}  = $self->{WDAY_name}->[$h{w}];	# 曜日名
-	$h{i}  = $h{k} % 12;			# 12時間表記( 0-11)
-	$h{L}  = sprintf("%02d", $h{L});	# 12時間表記(00-11)（2桁）
-	$h{l}  = $h{i} || 12;			# 12時間表記( 1-12)
-	$h{I}  = sprintf("%02d", $h{l});	# 12時間表記(01-12)（2桁）
-	$h{J}  = $h{H} + 24*$ch_flag;		# 24+$change_hour 時間処理
-	$h{K}  = sprintf("%02d", $h{J});	# 24+$change_hour 時間処理（2桁）
-	$h{p}  = $self->{AMPM_name}->[ int($h{J}/12) ];	# 午前、午後、深夜
+	$h{j} = $yd;
+	$h{y} = sprintf("%02d", $y % 100);
+	$h{Y} = $y + 1900;
+	$h{m} = sprintf("%02d", $m+1);
+	$h{d} = sprintf("%02d", $d);
+	$h{H} = sprintf("%02d", $h);		# 00-23
+	$h{M} = sprintf("%02d", $m);
+	$h{S} = sprintf("%02d", $s);
+	$h{I} = sprintf("%02d", $h % 12);	# 00-11
 
-	$str =~ s/%(\w)/$h{$1}/g;
-	return $str;
+	$h{a}  = $self->{WDAY_name}->[$wd];
+	$h{p}  = $self->{AMPM_name}->[ int($h/12) ];
+	$fm =~ s/%(\w)/$h{$1}/g;
+	return $fm;
 }
 
 ################################################################################
@@ -1525,7 +1499,6 @@ sub form_err {
 	$h->{$name}= $msg;
 	push(@{$h->{_order}}, $name);
 }
-
 
 #-------------------------------------------------------------------------------
 # ●言語ファイルのロード

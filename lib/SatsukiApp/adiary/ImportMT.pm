@@ -51,7 +51,6 @@ sub import_arts {
 	if ($days[$#days] =~ /^[\n\s]*$/s) { pop(@days); }
 
 	# 日付変更時間
-	my $change_hour = $form->{change_hour_int};
 	my $lf2br       = $form->{lf2br};
 	my $lf2br_force = $form->{lf2br_force};
 	my $tz          = int($form->{tz}) * 3600;
@@ -80,7 +79,7 @@ sub import_arts {
 			# 個別処理
 			if ($key eq 'DATE') {	# 日付データ解析
 				$art{tm} = &date2utc($val, $tz);
-				my $h = $ROBJ->time2timehash( $art{tm}, $change_hour );
+				my $h = $ROBJ->time2timehash( $art{tm} );
 				$art{year} = $h->{year};
 				$art{mon}  = $h->{mon};
 				$art{day}  = $h->{day};

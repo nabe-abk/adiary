@@ -59,7 +59,6 @@ sub import_arts {
 	undef $data;
 
 	# 引数設定
-	my $change_hour = $form->{change_hour_int};
 	my $lf2br       = $form->{lf2br};
 	my $lf2br_force = $form->{lf2br_force};
 	my $tz          = int($form->{tz}) * 3600;
@@ -86,7 +85,7 @@ sub import_arts {
 		# 日付変換
 		my $tm = $art{tm} = &date2utc($art{date}, $tz);
 		if (! $tm) { next; }	# DATE がないデータは無視
-		my $h = $ROBJ->time2timehash( $art{tm}, $change_hour );
+		my $h = $ROBJ->time2timehash( $art{tm} );
 		$art{year} = $h->{year};
 		$art{mon}  = $h->{mon};
 		$art{day}  = $h->{day};

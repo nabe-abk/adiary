@@ -99,7 +99,7 @@ $(function(){
 <title><@esc_xml(t.title)></title>
 <author><@esc_xml(t.name)></author>
 <category><@esc_xml(t.tags_ary#0)></category>
-<date><@tm_printf("%Y/%m/%d %H:%M:%S", t.tm, 0)></date>
+<date><@print_tmf("%Y/%m/%d %H:%M:%S", t.tm, 0)></date>
 <$exporter.cdata_escape(t.body, t.ex_body)>
 <description><![CDATA[<@t.body>]]></description>
 <sequel><![CDATA[<@t.ex_body>]]></sequel>
@@ -114,7 +114,7 @@ $(function(){
 <name><@esc_xml(t2.name)></name>
 <email><@esc_xml(t2.email)></email>
 <url><@esc_xml(t2.url)></url>
-<date><@tm_printf("%Y/%m/%d %H:%M:%S", t2.tm, 0)></date>
+<date><@print_tmf("%Y/%m/%d %H:%M:%S", t2.tm, 0)></date>
 <description><![CDATA[<@exporter.cdata_escape( t2.text )>]]></description>
 </comment>
 <$end>

@@ -113,7 +113,7 @@
 		<$end>
 		<td><a href="<@v.myself2><@t.a_elink_key>" title="<@v.format_ymd(t.a_yyyymmdd)> <@t.a_title>"><@v.string_clip(t.a_title,10)></a></td>
 		<td><a href="<@v.myself2><@t.a_elink_key>#c<@t.num>"<@if(v.allow_edit, #' class="js-popup-com" data-target="<@t.pkey>"')>><@t.name></a></td>
-		<td class="c"><label for="com-<@t.pkey>"><@tm_printf('%Y/%m/%d %K:%M', t.tm)></label></td>
+		<td class="c"><label for="com-<@t.pkey>"><@print_tmf('%Y/%m/%d %H:%M', t.tm)></label></td>
 		<td><label for="com-<@t.pkey>"><@v.string_clip(t.text_nobr,20)></label></td>
 	</tr>
 	<$end>
@@ -146,7 +146,7 @@
 			<span class="canchor"><a href="#c<@c.num>"><@c.num></a>:</span>	<@\>
 			<span class="commentator author<@if(c.id, " login-user")>"<@if(c.id, " title=<@c.id>")>><@ifexec(c.email && v.allow_edit, begin, begin)><a href="mailto:<@c.email>"><@c.name></a><$else><@c.name><$end></span>
 			<@ifexec(c.url, begin)><span class="comment-url"><a href="<@c.url>" rel="nofollow">URL</a></span><$end>
-			<span class="comment-date"><@tm_printf('%Y年%m月%d日(%a) %p%i時%M分', c.tm)></span>
+			<span class="comment-date"><@print_tm(c.tm)></span>
 			<@ifexec(!c.enable, begin)>
 			<@if(c.hidden, '<strong class="comment-hidden">（非公開コメント）', '<strong class="comment-disable">（非表示）')></strong>
 			<$end>

@@ -1126,7 +1126,7 @@ sub make_section_timestamp {
 	if ($name >= 100000000) {	# 時刻記法
 		my $ROBJ   = $self->{ROBJ};
 		my $format = $self->{timestamp_date} || '%Y/%m/%d';
-		$tm = $ROBJ->tm_printf($format, $name);
+		$tm = $ROBJ->print_tmf($format, $name);
 	} elsif (  $name =~ m|^\d+/\d+(?:/\d+)?(?: \d+:\d+)?$|
 		|| $name =~ m|^\d+-\d+(?:-\d+)?(?: \d+:\d+)?$|
 		|| $name =~ m|^\d+:\d+$|)

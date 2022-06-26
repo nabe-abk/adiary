@@ -97,7 +97,6 @@ sub import_arts {
 	}
 
 	# 引数設定
-	my $change_hour   = $form->{change_hour_int};
 	my $import_static = $form->{import_static};	# 静的ページをインポート
 	my $tags4static   = $form->{tags_for_static};	# 静的ページに付加するタグ
 	my $no_auth_com   = $form->{no_auth};		# 非承認コメントをインポートしない
@@ -164,7 +163,7 @@ sub import_arts {
 		my $gmt = &date2utc($day->{'wp:post_date_gmt'});
 		if ($gmt) {
 			# 記事につける日付
-			my $h = $ROBJ->time2timehash( $gmt, $change_hour );
+			my $h = $ROBJ->time2timehash( $gmt );
 			$art{year}= $h->{year};
 			$art{mon} = $h->{mon};
 			$art{day} = $h->{day};
