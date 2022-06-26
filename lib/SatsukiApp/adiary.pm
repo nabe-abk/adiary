@@ -679,7 +679,7 @@ sub do_ajax_function {
 	my $func = shift;
 	my $ROBJ = $self->{ROBJ};
 
-	if ($func ne '_ajax_login') {
+	if ($func ne '_ajax_login' && !$ROBJ->{Auth}->{ok}) {
 		return [ -99.1, 'Security Error' ];
 	}
 

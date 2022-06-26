@@ -25,6 +25,12 @@
 	<p class="adiary-hint">※このページの代わりに、特定のブログを<a href="<@v.myself>?system/setting">標準で表示させる設定（デフォルトブログ）</a>があります。</p>
 	<$end>
 
+	<@> 初回起動時
+	<$ifexec(!Auth.ok)><$Auth.userdb_init()><$end>
+	<$ifexec(!Auth.exists_admin)>
+	<$ifredirect(Auth.auto, v.myself2 . '?login_auto')>
+	<$end>
+
 	</div>
 </article>
 

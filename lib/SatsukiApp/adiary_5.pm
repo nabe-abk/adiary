@@ -27,8 +27,8 @@ sub _ajax_user_add {
 		return { ret=>1, msg => $ROBJ->translate('Operation not permitted') };
 	}
 
-	$form->{id} = $form->{msys_id};
-	delete $form->{msys_id};
+	$form->{id} = $form->{adiary_id};
+	delete $form->{adiary_id};
 
 	return $auth->user_add($form);
 }
