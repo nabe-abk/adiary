@@ -1445,14 +1445,14 @@ sub print_tmf {
 
 	# This macro like 'strftime(3)' function.
 	# compatible : %Y %y %m %d %I %H %M %S %w %s %e and %a %p
-	my ($s, $m, $h, $d, $m, $y, $wd, $yd, $isdst) = localtime($tm);
+	my ($s, $m, $h, $D, $M, $Y, $wd, $yd, $isdst) = localtime($tm);
 	my %h;
 	$h{s} = $tm;
 	$h{j} = $yd;
-	$h{y} = sprintf("%02d", $y % 100);
-	$h{Y} = $y + 1900;
-	$h{m} = sprintf("%02d", $m+1);
-	$h{d} = sprintf("%02d", $d);
+	$h{y} = sprintf("%02d", $Y % 100);
+	$h{Y} = $Y + 1900;
+	$h{m} = sprintf("%02d", $M+1);
+	$h{d} = sprintf("%02d", $D);
 	$h{H} = sprintf("%02d", $h);		# 00-23
 	$h{M} = sprintf("%02d", $m);
 	$h{S} = sprintf("%02d", $s);
