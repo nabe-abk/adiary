@@ -16,7 +16,7 @@ sub {
 	my $ptheme = $set->{print_theme} || '_print';
 
 	$modules{_header} = <<HTML;
-<!--Information=========================================-->
+<!--Information==========================================-->
 <div class="hatena-module" id="$id" data-module-name="$name">
 <div class="hatena-moduletitle$hidden">$title</div>
 <div class="hatena-modulebody">

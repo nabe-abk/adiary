@@ -9,7 +9,7 @@ sub {
 
 	my $title = $set->{title} || 'link list';
 	my $html = <<HTML;
-<!--Links=========================================-->
+<!--Links======================================-->
 <div class="hatena-module side-link-list" data-module-name="$name" id="$id">
 <div class="hatena-moduletitle">$title</div>
 <div class="hatena-modulebody">

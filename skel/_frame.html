@@ -8,13 +8,13 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="<@SystemCode>">
-<!-- Meta tagst ============================================-->
+<@>-----------------------------------------------------------------------------
+<meta http-equiv="Content-Type" content="text/html; charset=<@SystemCode>">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="generator" content="adiary <@v.OUTVERSION>">
 <meta name="author" content="<@v.blogid>">
 <@if(no_robots, #'<meta name="robots" content="noindex,nofollow">\n')>
-<@>
+<@>-----------------------------------------------------------------------------
 <@forexec(t, v.load_jscss('csslib'), begin)>
 <link rel="stylesheet" href="<@t>">
 <$end>
@@ -46,7 +46,7 @@
 <@> ショートカットアイコン
 <link rel="icon" href="<@Basepath><@if(s.iconfile, s.iconfile, #'<@v.pubdist_dir>default-icon.png')>">
 <@>
-<!-- JavaScript ============================================-->
+<!--JavaScript===========================================-->
 <@ifexec(DevelopJS, begin, begin)>
 <@_call("<@v.script_dir>asys-js-load.html", v.script_dir . 'src/')>
 <$else>
@@ -81,10 +81,10 @@
 <@>-----------------------------------------------------------------------------
 <@> main
 <@>-----------------------------------------------------------------------------
-<!--Start of body ==========================================================-->
+<!--Start of body============================================================-->
 <div id="hatena-body"><div>
 
-<!--内容====================================================================-->
+<!--内容=====================================================================-->
 <div class="main" id="main-first">
 <@inframe>
 </div> <!-- End of main -->
@@ -92,12 +92,12 @@
 <@>-----------------------------------------------------------------------------
 <@> sidebar
 <@>-----------------------------------------------------------------------------
-<!--sidebar=================================================================-->
+<!--sidebar==================================================================-->
 <@call( if(v.sidebar, v.sidebar, '_sidebar') )>
 
 <@ifcall(Develop && (@Error || @Warning || @Debug) || ENV_print, '_sub/debug')>
 </div></div> <!-- End of #hatena-body -->
-<!--End of body ============================================================-->
+<!--End of body==============================================================-->
 
 <$ps = v.load_plgset('def_footer')>
 <footer id="footer" data-module-name="def_footer" data-fix="1"><div><!--フッタ-->
