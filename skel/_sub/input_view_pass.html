@@ -4,16 +4,19 @@
 <html>
 <head>
 <meta charset="<@SystemCode>">
+<meta name="robots" content="noindex,nofollow">
 <title>表示パスワード入力</title>
+<script src="<@Basepath><@v.script_dir>asys.min.js?<@get_lastmodified(v.script_dir . 'asys.min.js')>"></script>
 </head>
 <body>
 
 表示パスワードを入力してください。<br>
 <input type="text" value="" id="pass" size="30">
 <button id="btn">送信</button>
-<@>---------------------------------------------------------
-<script>
-document.getElementById('btn').onclick = function(){
+
+<@>-----------------------------------------------------------------------------
+<script><!--
+function pass_enter(){
 	var pass = document.getElementById('pass').value;
 
 	exp=new Date();
@@ -22,6 +25,22 @@ document.getElementById('btn').onclick = function(){
 
 	location.reload();
 };
-</script>
+document.getElementById('btn').onclick = pass_enter;
+
+document.getElementById('pass').onkeydown = function(evt){
+	if (evt.keyCode == 13) pass_enter(evt);
+};
+--></script>
+<@>-----------------------------------------------------------------------------
+<div style="margin-top: 2em; font-size: 9pt;">
+<label><input type="checkbox" class="js-switch" data-target="#login-form">login</label>
+</div>
+<form class="js-ajax" id="login-form" data-url="<@v.thisurl>">
+	<input type="hidden" name="action" value="_ajax_login">
+	ID <input type="text" class="w100" name="adiary_id" id="id" value="" required><br>
+	pass <input type="password" class="w100" id="pass" name="pass" value="" required><br>
+	<button type="submit">ログイン</button><br>
+</form>
+<@>-----------------------------------------------------------------------------
 </body>
 </html>

@@ -150,16 +150,22 @@ sub main {
 	# 表示スケルトン選択
 	$self->select_skeleton( $ROBJ->{Query}->{_} || $self->{query0} );
 
-	# 表示パスワードチェック
-	if ($self->{view_pass}) { $self->check_view_pass(); }
+	#-------------------------------------------------------------
+	# POST action判定
+	#-------------------------------------------------------------
+	my $action = $ROBJ->{POST} && $ROBJ->{Form}->{action};
 
-	# メンテナンスモード
-	if ($sys->{mainte_mode} || $self->{require_update}) { $self->mainte_mode(); }
+	if ($action ne '_ajax_login') {
+		# 表示パスワードチェック
+		if ($self->{view_pass}) { $self->check_view_pass(); }
+
+		# メンテナンスモード
+		if ($sys->{mainte_mode} || $self->{require_update}) { $self->mainte_mode(); }
+	}
 
 	#-------------------------------------------------------------
 	# POST actionの呼び出し
 	#-------------------------------------------------------------
-	my $action = $ROBJ->{POST} && $ROBJ->{Form}->{action};
 	if ($action) {
 		if ($action =~ /^_ajax_\w+$/) {
 			my $data = $self->ajax_function( $action );
