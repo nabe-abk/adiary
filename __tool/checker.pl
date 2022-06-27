@@ -4,12 +4,12 @@ use strict;
 use Encode;
 use Encode::Guess qw(ascii euc-jp shiftjis iso-2022-jp);
 ################################################################################
-# Perl Compile Checker
+# release checker
 ################################################################################
 my $perl = $ARGV[0] || "/usr/bin/perl";
-my $opt  = "-I./lib";
+my $opt  = "-I./lib -I./";
 
-print "---adiary Compile checker-------------------------------------------\n";
+print "---Compile checker--------------------------------------------------------------\n";
 #-------------------------------------------------------------------------------
 {
 	open(my $fh, "$perl -v|");
@@ -32,28 +32,27 @@ print "---adiary Compile checker-------------------------------------------\n";
 	my @files = <$fh>;
 	close($fh);
 
-	my %skip;
-	foreach(@files) {
+	my %load;
+	foreach(sort(@files)) {
 		chomp($_);
-		if ($_ !~ /_(\d+)\.pm$/) { next; }
-
-		my $file = $_;
-		my $num  = (2<$1) ? '_' . ($1 -1) : '';
-		$file =~ s/_(\d+)\.pm$/$num.pm/;
-		$skip{$file} = 1;
+		$_ =~ s|^lib/||;
+		if ($_ =~ /['"\\]/) {
+			print "skip compile: $_\n";
+			next;
+		}
+		my $base = $_ =~ /^(.*)_\d+\.pm/ ? "$1.pm" : $_;
+		$load{$base} .= "require '$_';";
 	}
-	foreach(@files) {
-		if ($skip{$_}) { next; }
-		system("$perl $opt $_");
+	foreach(keys(%load)) {
+		system("$perl $opt -e \"$load{$_}\"");
 	}
 }
-print "\n";
 
 ################################################################################
 # adiary Release checker
 ################################################################################
 my $errors=0;
-print "---adiary Release checker-------------------------------------------\n";
+print "---Release checker--------------------------------------------------------------\n";
 #-------------------------------------------------------------------------------
 # Debug check
 #-------------------------------------------------------------------------------
@@ -68,7 +67,7 @@ print "---adiary Release checker-------------------------------------------\n";
 		if ($file !~ /\.(?:pm|cgi|pl|html)$/) { next; }
 		if ($line =~ /^\s*#/) { next; }
 		if ($line =~ /{DEBUG}/) { next; }
-		if ($line =~ /#\s*debug-safe/) { next; }
+		if ($line =~ /#\s*debug-safe|##\s*safe/) { next; }
 		if ($line =~ /{Debug_mode}/) { next; }
 		if ($line =~ m!^\s*<@>! && $line =~ m|<[\@\$]debug|) { next; }
 
@@ -105,14 +104,10 @@ print "---adiary Release checker-------------------------------------------\n";
 	my @ary = <$fh>;
 	close($fh);
 
-	my %files;
 	foreach(@ary) {
 		my ($file, $linenum, $line) = split(/:/, $_, 3);
 		print "## '&nbsp;' warning : $file\n";
 		print "$linenum:$line";
-	}
-	foreach(sort(keys(%files))) {
-		print "## CRLF warning : $_\n";
 	}
 }
 
@@ -177,34 +172,6 @@ print "---adiary Release checker-------------------------------------------\n";
 		print "## code error : $code $_ \n";
 		$errors++;
 	}
-}
-
-#-------------------------------------------------------------------------------
-# adiary.min.js check
-#-------------------------------------------------------------------------------
-{
-	my $file = 'js/adiary.min.js';
-	my $dir  = "js/src/";
-	my $min  = &get_lastmodified($file);
-
-	opendir(my $fh, $dir);
-	my @files = readdir($fh);
-	closedir($fh);
-
-	my $err;
-	foreach(@files) {
-		if ($_ eq '.' || $_ eq '..') { next; }
-		my $mod = &get_lastmodified("$dir$_");
-
-		if ($mod <= $min) { next; }
-		$err=1;
-		print "## $file - ",&get_date($min)," < ", &get_date($mod), " - $_\n";
-	}
-	if ($err) {
-		$errors++;
-		print "## Should run 'make' on $dir\n\n";
-	}
-
 }
 
 #-------------------------------------------------------------------------------
