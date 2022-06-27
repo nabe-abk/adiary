@@ -96,7 +96,7 @@ sub update_adiaryDB {
 	my $out = $ROBJ->call( $self->{output_skelton} );
 	if ($self->{outputDB_charset}) {
 		my $jcode = $ROBJ->load_codepm();
-		$jcode->from_to(\$out, $ROBJ->{System_coding}, $self->{outputDB_charset});
+		$jcode->from_to(\$out, $ROBJ->{SystemCode}, $self->{outputDB_charset});
 	}
 
 	my $DB = $self->{outputDB};
@@ -131,7 +131,7 @@ sub post_action {
 	# 旧Verのバグ。強制的に EUC-JP で送信する
 	if (0<$self->{adiary_version} && $self->{adiary_version}<1.44) {
 		my $jcode = $ROBJ->load_codepm();
-		$self->{message} = $jcode->from_to($self->{message}, $ROBJ->{System_coding}, 'EUC-JP');
+		$self->{message} = $jcode->from_to($self->{message}, $ROBJ->{SystemCode}, 'EUC-JP');
 	}
 	return $r;
 }

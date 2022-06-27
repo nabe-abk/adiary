@@ -355,7 +355,7 @@ sub v2convert {
 
 	# sub routine -------------------------------------------------
 	my $from  = $h->{lang};
-	my $to    = $ROBJ->{System_coding};
+	my $to    = $ROBJ->{SystemCode};
 	my $jcode = $ROBJ->load_codepm();
 	sub conv_code {
 		foreach(@_) {

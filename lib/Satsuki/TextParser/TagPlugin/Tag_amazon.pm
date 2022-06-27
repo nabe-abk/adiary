@@ -36,7 +36,7 @@ sub amazon_search {
 	my $name    = $keyword;
 	# 文字コード変換
 	my $ROBJ = $pobj->{ROBJ};
-	my $system_coding = $ROBJ->{System_coding};
+	my $system_coding = $ROBJ->{SystemCode};
 	if ($system_coding ne 'UTF-8') {
 		my $jcode = $pobj->{jcode} ||= $ROBJ->load_codepm();
 		$jcode->from_to(\$keyword, $system_coding, 'UTF-8');

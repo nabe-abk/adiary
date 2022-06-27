@@ -29,7 +29,7 @@ sub export {
 	my $aobj = $option->{aobj};
 
 	# 文字コード変換
-	my $system_coding = $ROBJ->{System_coding};
+	my $system_coding = $ROBJ->{SystemCode};
 	my $output_coding = 'UTF-8';
 	my $jcode = $system_coding ne $output_coding ? $ROBJ->load_codepm() : undef;
 

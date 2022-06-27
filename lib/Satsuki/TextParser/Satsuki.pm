@@ -1368,7 +1368,7 @@ sub replace_link {
 	my $jcode = $code ? $ROBJ->load_codepm() : undef;
 
 	foreach(@argv) {
-		if ($jcode) { $jcode->from_to(\$_, $ROBJ->{System_coding}, $code); }
+		if ($jcode) { $jcode->from_to(\$_, $ROBJ->{SystemCode}, $code); }
 		$self->encode_uricom($_);
 	}
 	$url =~ s/\$(\d)/$argv[$1]/g;		# 文字コード変換後

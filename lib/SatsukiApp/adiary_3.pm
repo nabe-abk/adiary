@@ -324,7 +324,7 @@ sub make_thumbnail_for_notimage {
 		my $tm = $ROBJ->print_tmf("%Y/%m/%d %H:%M", $st[9]);
 		my $fs = $self->size_format($st[7]);
 		my $name = $file;
-		my $code = $ROBJ->{System_coding};
+		my $code = $ROBJ->{SystemCode};
 		$ROBJ->fs_decode(\$name);
 		if ($code ne 'UTF-8') {
 			my $jcode = $ROBJ->load_codepm();

@@ -24,7 +24,7 @@ sub new {
 	$self->{ROBJ}   = $ROBJ;
 	$self->{mailer} = "Satsuki-Base-Mail Version $VERSION";
 
-	$CODE = $ROBJ->{SystemCoding} || 'UTF-8';
+	$CODE = $ROBJ->{SystemCode} || 'UTF-8';
 
 	$self->{__CACHE_PM} = 1;
 

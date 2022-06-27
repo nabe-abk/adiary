@@ -9,11 +9,6 @@ our $VERSION = '2.67';
 our $RELOAD;
 my %StatCache;
 #-------------------------------------------------------------------------------
-my $SYSTEM_CACHE_DIR = '__cache/';
-#-------------------------------------------------------------------------------
-my $CODE_LIB = 'Jcode';
-my $LOCALE = 'ja';
-#-------------------------------------------------------------------------------
 use Satsuki::AutoLoader;
 use Fcntl;		# for sysopen/flock
 use Scalar::Util();
@@ -45,11 +40,10 @@ sub new {
 	$self->{Content_type} = 'text/html';
 	$self->{Headers}      = [];		# ヘッダ出力バッファ
 
-	# 内部文字コード
-	$self->{System_coding} = 'UTF-8';
-	$self->{Code_lib} = $CODE_LIB;
-	$self->{Locale}   = $LOCALE;
-	$self->{Locale2}  = $LOCALE;	# ex)ja_JP
+	# charset setting
+	$self->{SystemCode} = 'UTF-8';
+	$self->{CodeLIB};
+	$self->{Locale};
 
 	# 時刻／日付関連の設定
 	$self->{TM} = time;
@@ -79,7 +73,7 @@ sub new {
 	#-------------------------------------------------------------
 	$self->{CompilerTM} = $self->get_lastmodified( 'lib/Satsuki/Base/Compiler.pm' );
 
-	my $cache_dir = $ENV{SatsukiCacheDir} || $SYSTEM_CACHE_DIR;
+	my $cache_dir = $ENV{SatsukiCacheDir} || '__cache/';
 	if (-d $cache_dir && -w $cache_dir) {
 		$self->{__cache_dir} = $cache_dir;
 	}
@@ -784,7 +778,7 @@ sub http_headers {
 
 	# Content-Type;
 	$ctype   ||= $self->{Content_type};
-	$charset ||= $self->{System_coding};
+	$charset ||= $self->{SystemCode};
 	if ($clen ne '') {
 		$header .= "Content-Length: $clen\r\n";
 	}
@@ -1275,7 +1269,7 @@ sub parse_query {
 	my $self   = shift;
 	my $q      = shift;
 	my $arykey = shift || {};
-	my $code   = $self->{System_coding};
+	my $code   = $self->{SystemCode};
 
 	my %h;
 	foreach(split(/&/, $q)) {
@@ -1505,14 +1499,10 @@ sub form_err {
 sub load_language_file {
 	my ($self, $file) = @_;
 	# 言語ファイルロード
-	my $mt = $self->{Msg_translate} = $self->fread_hash_cached($file);
-	# システムの言語設定
-	$self->{System_coding} = $mt->{System_coding};
-	$self->{Code_lib} = $mt->{Code_lib};
-	$self->{Locale}   = $mt->{Locale};
-	$self->{Locale2}  = $mt->{Locale2} || $mt->{Locale};
+	my $h = $self->{Msg_translate} = $self->fread_hash_cached($file);
 
-	$self->{FsLocale} && $self->init_fslocale();
+	$self->{CodeLib} = $h->{CodeLib};
+	$self->{Locale}  = $h->{Locale};
 }
 
 #-------------------------------------------------------------------------------
@@ -1520,13 +1510,13 @@ sub load_language_file {
 #-------------------------------------------------------------------------------
 sub load_codepm {
 	my $self = shift;
-	return $self->loadpm('Code::' . $self->{Code_lib}, @_);
+	return $self->{CodeLib} ? $self->loadpm('Code::' . $self->{CodeLib}, @_) : undef;
 }
 sub load_codepm_if_needs {
 	my $self = shift;
 	foreach (@_) {
 		if ($_ =~ /[^\x00-\x0D\x10-\x1A\x1C-\x7E]/) {
-			return $self->loadpm('Code::' . $self->{Code_lib}, @_);
+			return $self->load_codepm(@_);
 		}
 	}
 	return;

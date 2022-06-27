@@ -38,7 +38,7 @@ sub import_arts {
 		}
 
 		# 文字コード変換
-		my $system_coding = $ROBJ->{System_coding};
+		my $system_coding = $ROBJ->{SystemCode};
 		my $jcode = $ROBJ->load_codepm();
 		$jcode->from_to(\$data, '', $system_coding);
 

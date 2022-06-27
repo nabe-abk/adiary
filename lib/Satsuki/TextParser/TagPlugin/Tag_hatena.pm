@@ -103,7 +103,7 @@ sub hatena_graph {
 	if ($ary->[0] ne '') {
 		$name = $graph = shift(@$ary);
 		my $jcode = $pobj->{jcode} ||= $ROBJ->load_codepm();
-		$jcode->from_to(\$graph, $ROBJ->{System_coding}, 'UTF-8');
+		$jcode->from_to(\$graph, $ROBJ->{SystemCode}, 'UTF-8');
 		$pobj->encode_uricom($graph);
 		$url .= $graph . '/';
 	}

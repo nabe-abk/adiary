@@ -481,7 +481,7 @@ sub code_conv {
 	my ($self, $value, $code) = @_;
 	my $ROBJ = $self->{ROBJ};
 	$self->{jcode} ||= $ROBJ->load_codepm();
-	$self->{jcode}->from_to(\$value, $ROBJ->{System_coding}, $code);
+	$self->{jcode}->from_to(\$value, $ROBJ->{SystemCode}, $code);
 	$ROBJ->encode_uricom( $value );
 	return $value;
 }

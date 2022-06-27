@@ -41,7 +41,7 @@ sub import_arts {
 		$file_coding =~ tr/a-z/A-Z/;
 
 		# 文字コード変換
-		my $system_coding = $ROBJ->{System_coding};
+		my $system_coding = $ROBJ->{SystemCode};
 		if ($system_coding ne $file_coding) {
 			my $jcode = $ROBJ->load_codepm();
 			$jcode->from_to(\$data, $file_coding, $system_coding);

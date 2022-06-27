@@ -21,7 +21,7 @@ sub new {
 
 	$self->{section_hnum}   = 3;	# H3から使用する
 	$self->{tab_width}      = 8;	# タブの幅
-	$self->{system_coding}  = $ROBJ ? $ROBJ->{System_coding} : 'utf8';
+	$self->{system_coding}  = $ROBJ ? $ROBJ->{SystemCode} : 'utf8';
 
 	$self->{ambiguous_full} = 0;	# Ambiguousな文字コードをfullwidthとして扱う
 	$self->{lf_patch}       = 1;	# 日本語のpタグ中の改行を消す

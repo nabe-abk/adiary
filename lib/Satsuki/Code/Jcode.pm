@@ -77,7 +77,7 @@ sub get_codename {
 #-------------------------------------------------------------------------------
 sub jsubstr {
 	my $self = shift;
-	return $self->jsubstr_code($self->{ROBJ}->{System_coding}, @_);
+	return $self->jsubstr_code($self->{ROBJ}->{SystemCode}, @_);
 }
 sub jsubstr_code {
 	my $self = shift;
@@ -103,7 +103,7 @@ sub jsubstr_code {
 #-------------------------------------------------------------------------------
 sub jlength {
 	my $self = shift;
-	return $self->jlength_code($self->{ROBJ}->{System_coding}, @_);
+	return $self->jlength_code($self->{ROBJ}->{SystemCode}, @_);
 }
 sub jlength_code {
 	my $self = shift;

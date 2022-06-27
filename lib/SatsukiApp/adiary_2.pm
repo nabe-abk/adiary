@@ -648,7 +648,7 @@ sub send_update_ping {
 
 	# see http://www.xmlrpc.com/weblogsCom
 	my $jcode;
-	my $system_coding = $ROBJ->{System_coding};
+	my $system_coding = $ROBJ->{SystemCode};
 	if ($system_coding ne 'UTF-8') {
 		$jcode = $ROBJ->load_codepm();
 		$ping{blog_name} = $jcode->from_to($ping{blog_name}, $system_coding, 'UTF-8');
@@ -666,12 +666,12 @@ sub send_update_ping {
 		}
 		if ($xml->{flerror} || $xml->{faultCode}) {
 			my $err_msg = $xml->{message} || $xml->{faultString};
-			$jcode && $jcode->from_to(\$err_msg, 'UTF-8', $ROBJ->{System_coding});
+			$jcode && $jcode->from_to(\$err_msg, 'UTF-8', $ROBJ->{SystemCode});
 			$ROBJ->notice('Error : %s (from %s)', $err_msg, $_);
 			next;
 		}
 		my $msg = $xml->{message};
-		$jcode && $jcode->from_to(\$msg, 'UTF-8', $ROBJ->{System_coding});
+		$jcode && $jcode->from_to(\$msg, 'UTF-8', $ROBJ->{SystemCode});
 		$ROBJ->notice("Ping sended : %s (from %s)", $msg, $_);
 	}
 	return 0;
@@ -1130,7 +1130,7 @@ sub generate_rss {
 			no_comment => $blog->{rss_no_comment},
 			items => $blog->{rss_items_int}
 		});
-		$jcode->from_to($rss, $ROBJ->{System_coding}, 'UTF-8');
+		$jcode->from_to($rss, $ROBJ->{SystemCode}, 'UTF-8');
 
 		# ファイルに書き込み
 		$ret = $ROBJ->fwrite_lines($file, $rss);
@@ -1150,7 +1150,7 @@ sub generate_rss {
 			title => $blog->{rss2_title},
 			items => $blog->{rss_items_int}
 		});
-		$jcode->from_to($rss, $ROBJ->{System_coding}, 'UTF-8');
+		$jcode->from_to($rss, $ROBJ->{SystemCode}, 'UTF-8');
 		$ROBJ->fwrite_lines($file2, $rss);
 		push(@files, 'rss2.xml');
 	} else {

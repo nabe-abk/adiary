@@ -133,7 +133,7 @@ sub escape_into_quote {
 	my $self = shift;
 	my $form = shift || $self->{Form};
 	my $jcode = $self->load_codepm();
-	my $code  = $self->{System_coding};
+	my $code  = $self->{SystemCode};
 	foreach(keys(%$form)) {
 		$form->{$_} = $jcode->from_to($form->{$_}, $code, $code);
 		$form->{$_} =~ s/&/&amp;/g;
@@ -546,7 +546,7 @@ sub file_lock {
 }
 
 #-------------------------------------------------------------------------------
-# ●ファイルシステムlocale
+# file system's locale
 #-------------------------------------------------------------------------------
 sub set_fslocale {
 	my $self = shift;
@@ -556,7 +556,7 @@ sub set_fslocale {
 sub init_fslocale {
 	my $self = shift;
 	my $fs   = $self->{FsLocale};
-	if (!$fs || $fs =~ /utf-?8/i && $self->{System_coding} =~ /utf-?8/i) {
+	if (!$fs || $fs =~ /utf-?8/i && $self->{SystemCode} =~ /utf-?8/i) {
 		delete $self->{FsCoder};
 		return;
 	}
@@ -566,13 +566,13 @@ sub fs_decode {
 	my $self = shift;
 	my $file = shift;
 	if (!$self->{FsCoder}) { return $file; }
-	return $self->{FsCoder}->from_to( $file, $self->{FsLocale}, $self->{System_coding});
+	return $self->{FsCoder}->from_to( $file, $self->{FsLocale}, $self->{SystemCode});
 }
 sub fs_encode {
 	my $self = shift;
 	my $file = shift;
 	if (!$self->{FsCoder}) { return $file; }
-	return $self->{FsCoder}->from_to( $file, $self->{System_coding}, $self->{FsLocale});
+	return $self->{FsCoder}->from_to( $file, $self->{SystemCode}, $self->{FsLocale});
 }
 
 ################################################################################
@@ -840,7 +840,7 @@ sub form_type_check {
 
 	# 文字コード変換（文字コードの完全性保証）
 	my $jcode = $self->load_codepm_if_needs( $val );
-	$jcode && $jcode->from_to( \$val, $self->{System_coding}, $self->{System_coding} );
+	$jcode && $jcode->from_to( \$val, $self->{SystemCode}, $self->{SystemCode} );
 	my $substr = $jcode ? sub { $jcode->jsubstr(@_) } : sub { substr($_[0],$_[1],$_[2]) };
 	my $length = $jcode ? sub { $jcode->jlength(@_) } : sub { length($_[0]) };
 

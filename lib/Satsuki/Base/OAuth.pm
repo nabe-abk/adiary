@@ -140,13 +140,13 @@ sub request {
 
 	# フォーム値の追加
 	my $jcode;
-	if ($ROBJ->{System_coding} ne 'UTF-8') {
+	if ($ROBJ->{SystemCode} ne 'UTF-8') {
 		$jcode = $ROBJ->load_codepm();
 	}
 	foreach(keys(%$req)) {
 		my $v = $req->{$_};
 		if ($jcode) {
-			$jcode->from_to(\$v, $ROBJ->{System_coding}, 'UTF-8');
+			$jcode->from_to(\$v, $ROBJ->{SystemCode}, 'UTF-8');
 		}
 		$self->oauth_encode_uricom($v);
 		$msg{$_} = $v;
