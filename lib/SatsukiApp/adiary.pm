@@ -44,6 +44,7 @@ sub new {
 	my ($class, $ROBJ, $DB, $self) = @_;
 	if (ref($self) ne 'HASH') { $self={}; }
 	bless($self, $class);
+	$self->{__FINISH} = 1;
 
 	$self->{ROBJ}    = $ROBJ;
 	$self->{DB}      = $DB;
@@ -105,13 +106,12 @@ frame_skeleton	=> '_frame'
 	foreach(keys(%h)) {
 		$self->{$_} = $h{$_};
 	}
-
 }
 
 ################################################################################
 # ●デストラクタ
 ################################################################################
-sub Finish {
+sub FINISH {
 	my $self = shift;
 	$self->save_blogset_sys();
 	$self->save_sysdat();

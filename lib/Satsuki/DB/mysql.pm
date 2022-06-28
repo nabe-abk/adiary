@@ -26,8 +26,9 @@ sub new {
 	$self->{ROBJ} = $ROBJ;	# root object save
 
 	# 初期設定
-	$self->{_RDBMS} = 'MySQL';
-	$self->{db_id}  = "my.$database.";
+	$self->{__FINISH} = 1;
+	$self->{_RDBMS}   = 'MySQL';
+	$self->{db_id}    = "my.$database.";
 	$self->{exist_tables_cache} = {};
 	$self->{unique_text_size} = 128;	# 256以上はエラーのことがある
 	$self->{text_index_size}  = 32;
@@ -52,7 +53,7 @@ sub new {
 #-------------------------------------------------------------------------------
 # ●デストラクタ代わり
 #-------------------------------------------------------------------------------
-sub Finish {
+sub FINISH {
 	my $self = shift;
 	if ($self->{begin}) { $self->rollback(); }
 }

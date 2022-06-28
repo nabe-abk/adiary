@@ -12,11 +12,11 @@ our $AUTOLOAD;
 #-------------------------------------------------------------------------------
 sub new {
 	my $class = shift;
-	return bless({ROBJ => shift, _FILENAME => shift}, $class);
+	return bless({ROBJ => shift, _FILENAME => shift, __FINISH => 1}, $class);
 }
-sub Finish {
+sub FINISH {
 	my $self = shift;
-	my $func = $self->{'Finish'};
+	my $func = $self->{'FINISH'};
 	if (ref($func) eq 'CODE') { return &$func($self,@_); }
 }
 

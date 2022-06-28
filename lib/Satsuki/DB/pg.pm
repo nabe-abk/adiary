@@ -26,8 +26,9 @@ sub new {
 	$self->{ROBJ} = $ROBJ;	# root object save
 
 	# 初期設定
-	$self->{_RDBMS} = 'PostgreSQL';
-	$self->{db_id}  = "pg.$database.";
+	$self->{__FINISH} = 1;
+	$self->{_RDBMS}   = 'PostgreSQL';
+	$self->{db_id}    = "pg.$database.";
 	$self->{exist_tables_cache} = {};
 
 	# 接続
@@ -54,7 +55,7 @@ sub new {
 #-------------------------------------------------------------------------------
 # ●デストラクタ代わり
 #-------------------------------------------------------------------------------
-sub Finish {
+sub FINISH {
 	my $self = shift;
 	if ($self->{begin}) { $self->rollback(); }
 }

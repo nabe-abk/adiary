@@ -246,7 +246,7 @@ sub finish {
 
 	# Finish
 	foreach my $obj (reverse(@{ $self->{FinishObjs} })) {
-		$obj->Finish();
+		$obj->FINISH();
 	}
 
 	# エラー情報の表示
@@ -947,26 +947,29 @@ sub _loadpm {
 	my $pm   = shift;
 	my $pm_file = $pm . '.pm';
 	$pm_file =~ s|::|/|g;
-	eval { require $pm_file; };
-	if ($@) { delete $INC{$pm_file}; die($@); }
+
+	if (! $INC{$pm_file}) {
+		eval { require $pm_file; };
+		if ($@) { delete $INC{$pm_file}; die($@); }
+
+		no strict 'refs';
+
+		if (! *{"${pm}::debug"}{CODE}) { *{"${pm}::debug"}   = \&export_debug; }
+		if ($self->{DestroyDebug}) {
+			*{"${pm}::DESTROY"} = sub {
+				my $self = shift;
+				print STDERR "[$$] DESTROY $self\n";    # debug-safe
+			};
+			print STDERR "[$$] loadpm $pm\n";               # debug-safe
+		}
+	}
 
 	my $obj = $pm->new($self, @_);
-	if (ref($obj) && $obj->{ROBJ}) {	# 循環参照対策
+	if (ref($obj) && $obj->{ROBJ}) {				# 循環参照対策
 		Scalar::Util::weaken( $obj->{ROBJ} );
 	}
-	#
-	no strict 'refs';
-	#
-	if (! *{"${pm}::debug"}{CODE}) { *{"${pm}::debug"}   = \&export_debug; }
-	if (*{$pm . '::Finish'}{CODE}) {
+	if ($obj->{__FINISH}) {
 		push(@{$self->{FinishObjs}}, $obj);
-	}
-	if ($self->{DestroyDebug}) {
-		*{"${pm}::DESTROY"} = sub {
-			my $self = shift;
-			print STDERR "[$$] DESTROY $self\n";    # debug-safe
-		};
-		print STDERR "[$$] loadpm $pm\n";               # debug-safe
 	}
 	return $obj;
 }

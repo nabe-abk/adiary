@@ -15,16 +15,20 @@ use Fcntl;
 #-------------------------------------------------------------------------------
 sub new {
 	my $self = bless({}, shift);
-	my $ROBJ = $self->{ROBJ} = shift;
+	$self->{ROBJ}       = shift;
+	$self->{__FINISH}   = 1;
+
 	$self->{sid_base}   = shift or die "Invalid sid";
 	$self->{sid_number} = int(shift) || 0;
+
+
 	return $self;
 }
 
 #-------------------------------------------------------------------------------
 # ●デストラクタ
 #-------------------------------------------------------------------------------
-sub Finish {
+sub FINISH {
 	my $self = shift;
 	$self->close();
 }
