@@ -26,7 +26,7 @@ sub compile {
 	# コンパイル処理
 	#-------------------------------------------------------------
 	if ($cache_file) { unlink($cache_file); }	# キャッシュ削除
-	my $c     = $self->loadpm('Base::Compiler');
+	my $c     = $self->loadpm('Base::Compiler' . $self->{CompilerVer});
 	my $lines = $self->fread_lines($src_filefull);
 	my ($errors, $warns, $arybuf) = $c->compile($lines, $src_file, $logfile);
 	if ($errors) {

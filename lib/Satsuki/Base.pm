@@ -122,9 +122,8 @@ sub start_up {
 
 	# 致命的エラーがあった場合、表示して終了
 	if ($self->{Error_flag}) {
-		my $err = $self->clear_error("\n");
 		$self->set_status(500);
-		$self->output($err, 'text/html');
+		$self->output_error('text/html');
 		$self->exit(-1);
 	}
 
@@ -250,13 +249,8 @@ sub finish {
 	}
 
 	# エラー情報の表示
-	my $error = $self->{Error};
-	if ($self->{Develop} && @$error) {
-		if ($ENV{SERVER_PROTOCOL} && $self->{Content_type} eq 'text/html') {
-			print "<hr><strong>(ERROR)</strong><br>\n",join("<br>\n", @$error);
-		} else {
-			print "\n\n(ERROR) ",$self->unesc(join("\n", @$error)),"\n";
-		}
+	if ($self->{Develop} && @{$self->{Error}}) {
+		$self->output_error();
 	}
 
 	if (!$self->{CGI_cache}) { return; }
@@ -1619,5 +1613,22 @@ sub clear_error {
 	return join($chain, @$error);
 }
 
+#-------------------------------------------------------------------------------
+# ●エラー出力
+#-------------------------------------------------------------------------------
+sub output_error {
+	my $self  = shift;
+	my $ctype = shift;
+	my $errs  = $self->{Error};
+
+	if ($ENV{SERVER_PROTOCOL} && $ctype) {
+		$self->output_http_headers($ctype, @_);
+	}
+	if ($ENV{SERVER_PROTOCOL} && $self->{Content_type} eq 'text/html') {
+		print "<hr><strong>(ERROR)</strong><br>\n",join("<br>\n", @$errs);
+	} else {
+		print "\n(ERROR) ",$self->unesc(join("\n", @$errs)),"\n";
+	}
+}
 
 1;
