@@ -2,7 +2,6 @@
 <@local(h)>
 <$ifbreak(! v.blog_admin && ! Auth.isadmin)>
 
-<$x = join(',', v.parsers._order)>
 <$h = validator(begin_hash, Form)>
 	<@>編集画面デフォルト
 	enable = flag
@@ -34,7 +33,7 @@
 
 	<@>パーサー関連
 	parser = デフォルトのパーサー
-	parser:enum = <@x>
+	parser:enum = <@join(',', v.parsers._order)>
 
 	seemore_msg = 「続きを読む」のメッセージ
 	seemore_msg:default   = 続きを読む
@@ -45,7 +44,7 @@
 <$ifbreak(form_error())>
 
 <$ifexec(h.edit_upload ne '', begin)>
-	<$replace_one(h.edit_upload, '/*$', '/')>
+	<$h.edit_upload = replace(h.edit_upload, '/+$', '/')>
 <$end>
 
 <$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>
