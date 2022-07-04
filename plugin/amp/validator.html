@@ -1,7 +1,7 @@
 <@40.is_function>
 <@local(h, this, txt)>
 <$this = argv#1>
-<$h = validator(begin_hash, argv#0) )>
+<$h = validator(begin_hash, argv#0)>
 	head_txt = ヘッダの後
 	head_txt:filter0 = trim
 	head_txt:filter1 = file:<@v.plugin_dir><@this>/allow_tags.txt

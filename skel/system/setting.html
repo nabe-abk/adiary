@@ -9,7 +9,7 @@
 <@> 階層ツリー、権限チェック、エラー表示
 <@call("_sub/menu_tree")>
 
-<$s = v.sys)>
+<$s = v.sys>
 <$ifexec(POST, begin)>
 	<$s = Form>
 	<$tag_escape(s.ping_servers_txt, s.http_timeout, s.reload_time, s.clip_dots)>

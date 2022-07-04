@@ -39,7 +39,7 @@
 
 <@ifexec(!v.blogid, begin, begin)>
 	<$set_status(404)>
-	<$ifmessage(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません")>
+	<$message(if(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません"))>
 	<$ifmessage(v.path_blogid && ! Auth.ok, "もしあなたが「ID:<@v.path_blogid>」ならばログインしてください。")>
 <$else>
   <$ifexec(##logs==-1, begin)>
@@ -49,7 +49,7 @@
 <$end>
 
 <@><!--========================================================================-->
-<$page = ret.page)>
+<$page = ret.page>
 <$url  = v.myself>
 <@>
 <@ifexec(ret.mode eq 'search', begin.search)>

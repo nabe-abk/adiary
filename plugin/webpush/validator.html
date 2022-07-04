@@ -31,7 +31,7 @@
 	unknown_server = flag
 <$end>
 <$ifset(Auth.isadmin, h2.('max:max'), 1000000)>
-<$h = validator(h2, form) )>
+<$h = validator(h2, form)>
 
 <@> 手動通知送信
 <$ifexec(form.ping_now, begin)>

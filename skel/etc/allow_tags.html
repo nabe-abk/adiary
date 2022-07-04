@@ -9,7 +9,7 @@
 
 <$name = Query.n>
 <$replace(name, '\W', '')>
-<$tag = v.load_tag_escaper( name ))>
+<$tag = v.load_tag_escaper( name )>
 
 <$ifjump(!tag.file_load, '_sub/error_message', "指定のファイルが見つかりません")>
 

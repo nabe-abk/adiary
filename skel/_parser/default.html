@@ -14,13 +14,14 @@
 <$parser.image_attr  = 'data-lightbox="k%k"'>
 
 タグ置換用データ
+<$local(img) = v.blogimg_dir()>
 <$parser.vars = begin_hash>
 	Basepath= <@Basepath>
 	public  = <@v.pub_dir>
 	pubdist = <@v.pubdist_dir>
 	myself  = <@v.myself>
 	myself2 = <@v.myself2>
-	image   = <@v.blogimg_dir()>
+	image   = <@img>
 	asid    = <@s.asid>
 <$end>
 

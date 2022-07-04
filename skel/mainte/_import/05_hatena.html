@@ -23,8 +23,8 @@
 		<li><label><input type="checkbox" name="Hatena:up_section" value="1" checked>タイトルにした見出しは記事中から削除する</label><span class="help" data-help="はてなダイアリーでは管理が1日単位であるため、1日の間に複数のトップレベルの見出し（*見出し）がある場合、意図したとおりに表示されないことがあります。">?</span></li>
 
 		<li>パーサー選択 <select name="Hatena:parser">
-		<@foreach_hash(ROBJ, v.parsers, begin)>
-			<option value="<@key>"<@if(key eq 'default_p1', ' selected')>><@val></option>
+		<@foreach_hash(t, v.parsers, begin)>
+			<option value="<@t.key>"<@if(t.key eq 'default_p1', ' selected')>><@t.val></option>
 		<$end>
 		</select>（通常は変更不要）</li>
 	</ul>

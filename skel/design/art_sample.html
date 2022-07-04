@@ -28,7 +28,7 @@ coms_all=0
 link_key=<@'01'>
 agent=Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0
 <$end>
-<$(t,ret) = v.load_article_current_blog(s.frontpage))>
+<$(t,ret) = v.load_article_current_blog(s.frontpage)>
 <$ifexec(!t, begin)>
 	<$(logs,ret) = v.load_articles_current_blog('',{}, { load_items => 1 })>
 	<$t = logs#0>

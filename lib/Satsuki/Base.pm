@@ -292,7 +292,7 @@ sub execute {
 	my ($self, $subroutine) = @_;
 	if (ref $subroutine ne 'CODE') {
 		my ($pack, $file, $line) = caller;
-		$self->error_from("line $line at $file : $self->{CurrentSrc}", "[executor] Can't execute string '%s'", $subroutine);
+		$self->error_from("$file line $line: $self->{CurrentSrc}", "[executor] Can't execute string '%s'", $subroutine);
 		return ;
 	}
 
@@ -314,13 +314,11 @@ sub execute {
 	my $line;
 	local($self->{IsFunction});
 	{
-		## $self->{Timer}->start($self->{CurrentSrc});
 		my $v_ref;
 		$self->{Return} = undef;
 		eval{ $self->{Return} = &$subroutine($self, \$output, \$line, $v_ref); };
 		$v_ref && ($self->{v} = $$v_ref);			# vを書き戻す
 		if ($ENV{SatsukiExit}) { die("exit($self->{Exit})"); }	# exit代わりのdie
-		## ($self->{"times"} ||= {})->{"$self->{CurrentSrc}"} = $self->{Timer}->stop($self->{CurrentSrc});
 	}
 
 	# break
@@ -329,7 +327,7 @@ sub execute {
 		$self->set_status(500);
 		my $err = $@;
 		foreach(split(/\n/, $err)) {
-			$self->error_from("line $line at $self->{CurrentSrc}", "[executor] $_");
+			$self->error_from("$self->{CurrentSrc} line $line", "[executor] $_");
 		}
 		$RELOAD = 1;
 	}
@@ -361,6 +359,7 @@ sub execute {
 		}
 		last;
 	}
+	if ($self->{Break}) { die "Break"; }
 
 	# functionとしてreturn値を取る？
 	return $self->{IsFunction} ? $self->{Return} : $output;
@@ -432,9 +431,9 @@ sub __call {
 	if (!$skel->{executable}) {
 		my $error;
 		foreach (@$arybuf) {
-			my $x = $_;
-			eval "\$_ = $_";
-			if ($@) { $self->error_from("at $src_file", "[perl-compiler] $@"); $error=1; }
+			my $X = $_;
+			eval "\$_ = $X";
+			if ($@) { $self->error_from($src_file, "[perl-compiler] $@"); $error=1; }
 		}
 		if ($error) { return undef; }
 		$skel->{executable} = 1;
@@ -454,6 +453,7 @@ sub __call {
 	$self->{CurrentSrc}  = $src_file;
 	$self->{CurrentSkel} = $skel_name;
 	$self->{CurrentNest} = $self->{NestCount};
+
 	return $self->execute( $arybuf->[0] );
 }
 
@@ -474,7 +474,7 @@ sub load_cache {
 	shift(@$lines);	# 注意書き読み捨て
 	my $version = shift(@$lines);
 	$version = substr($version, index($version, '=')+1);
-	if ($version < 1.01) { return; }	# 失敗
+	if ($version<2) { return; }	# 失敗
 
 	# このキャッシュを生成したコンパイラのタイムスタンプ(UTC)
 	$cache{compiler_tm} = shift(@$lines);
@@ -486,21 +486,6 @@ sub load_cache {
 	my $arys = shift(@$lines) + 0;
 	for(my $i=0; $i<$arys; $i++) {
 		push(@arybuf, shift(@$lines));
-	}
-	# 予備１
-	my $rows = shift(@$lines) + 0;
-	for(my $i=0; $i<$rows; $i++) {
-		shift(@$lines);
-	}
-	# 予備２
-	my $rows = shift(@$lines) + 0;
-	for(my $i=0; $i<$rows; $i++) {
-		shift(@$lines);
-	}
-	# 予備３
-	$rows = shift(@$lines) + 0;
-	for(my $i=0; $i<$rows; $i++) {
-		shift(@$lines);
 	}
 
 	# @$lines が空であるかチェック
@@ -519,18 +504,22 @@ sub load_cache {
 sub break {
 	my ($self, $break_level) = @_;
 	$self->{Break} = int($break_level) || 1;
+	die("Break");
 }
 sub break_clear {	# 今までの内容破棄
 	my $self = shift;
 	$self->{Break} = -1;
+	die("Break");
 }
 sub superbreak {	# callネストをすべてbreak
 	my $self = shift;
 	$self->{Break} = 2;
+	die("Break");
 }
 sub superbreak_clear {	# callネストをすべてbreak/clear
 	my $self = shift;
 	$self->{Break} = -2;
+	die("Break");
 }
 #-------------------------------------------------------------------------------
 # ●beginブロックの実行
@@ -574,6 +563,7 @@ sub jump {
 	$self->{JumpSkel}  = $skel;
 	$self->{JumpArgv}  = \@_;
 	$self->{SkelLevel} = $level -1;
+	die("Break");
 }
 sub _jump {
 	my $self = shift;
@@ -581,6 +571,7 @@ sub _jump {
 	$self->{JumpFile}  = shift;
 	$self->{JumpSkel}  = undef;
 	$self->{JumpArgv}  = \@_;
+	die("Break");
 }
 
 #-------------------------------------------------------------------------------
@@ -597,6 +588,7 @@ sub continue {
 	$self->{JumpSkel}  = $skel;
 	$self->{JumpArgv}  = $self->{argv};
 	$self->{SkelLevel} = $level -1;
+	die("Break");
 }
 
 #-------------------------------------------------------------------------------
@@ -1583,7 +1575,7 @@ sub error_from {
 			if ($file eq $prev_file) {
 				push(@froms, $line);
 			} else {
-				push(@froms, "in $file $line");
+				push(@froms, "$file line $line");
 				$prev_file = $file;
 			}
 			if (!($pack eq __PACKAGE__ || $pack =~ /::DB_/) || $i>9) { last; }
@@ -1592,8 +1584,6 @@ sub error_from {
 		while(@froms) {
 			$from = pop(@froms) . " ($from)";
 		}
-	} else {
-		$from = "From $from";
 	}
 	if ($from ne '') { $msg = "$msg ($from)"; }
 	$self->tag_escape($msg);

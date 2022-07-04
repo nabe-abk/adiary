@@ -35,7 +35,7 @@
 		<td class="r"><@if(t.disable, "無効")></td>
 		<td class="r"><@if(t.isadmin, "管理者")></td>
 		<td><a href="<@v.myself>?<@v.skel_dir>edit&amp;id=<@t.id>">編集する</a></td>
-		<td><@ifexec(v.find_blog(t.id), begin))> <@\>
+		<td><@ifexec(v.find_blog(t.id), begin)> <@\>
 		<a href="<@v.get_blog_path(t.id)>">ブログを開く</a>
 		<$end></td>
 	</tr>

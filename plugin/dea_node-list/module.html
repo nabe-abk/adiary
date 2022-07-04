@@ -13,7 +13,7 @@
 <@ifexec(!node.children && node.family, begin)>
 <h3>関連記事</h3>
 <ul class="art-list art-family">
-<@forexec(t2, load_from_ary(node.family, ps.displays || 5), begin)>
+<@forexec(t2, v.load_from_ary(node.family, ps.displays || 5), begin)>
 	<li><a href="<@v.myself2><@t2.elink_key>"><@t2.title></a></li>
 <$end>
 </ul>

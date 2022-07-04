@@ -10,7 +10,7 @@
 <$art_day  = ret.day>
 
 <@ifexec(!v.blogid, begin)>
-	<$ifmessage(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません")>
+	<$message(if(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません"))>
 	<$ifmessage(v.path_blogid && ! Auth.ok, "もしあなたが「ID:<@v.path_blogid>」ならばログインしてください。")>
 <$end>
 <$ifexec(v.blogid && !t, begin)>

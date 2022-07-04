@@ -58,19 +58,16 @@ sub save_cache {
 \0
 TEXT
 	# バージョン／コンパイラ・スケルトンの更新時刻
-	push(@lines, "Version=1.01\n\0");
+	push(@lines, "Version=2\n\0");
 	push(@lines, ($self->{CompilerTM}) . "\0");
 	push(@lines, $src_file_tm . "\0");
 
 	# ルーチンの保存
 	push(@lines, ($#$arybuf+1) . "\0");
 	foreach (@$arybuf) {
+		$_ =~ s/\0//g;		# Just in case
 		push(@lines, "$_\0");	# routines
 	}
-	# 予備領域
-	push(@lines, "0\0");
-	push(@lines, "0\0");
-	push(@lines, "0\0");
 
 	# ファイルに書き出し
 	$self->fwrite_lines($cache_file, \@lines);

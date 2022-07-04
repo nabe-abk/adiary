@@ -14,12 +14,12 @@
 <@id> a,
 <@id> a:link,
 <@id> a:visited {
-	color:			<@ps.font_c)>;
+	color:			<@ps.font_c>;
 }
 <$end>
 <@id> a {
 <@ifexec(ps.font_s ne '', begin)>
-	font-size:		<@ps.font_s)>px;
+	font-size:		<@ps.font_s>px;
 	line-height:		100%;
 <$end>
 <@ifexec(ps.font_bf, begin)>

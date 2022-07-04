@@ -23,7 +23,7 @@
 <$ifexec(tagmode, begin, begin)>
 	<$link = encode_uricom(link = t.name)>
 <$else>
-	<$link = t.elink_key)>
+	<$link = t.elink_key>
 	<@> / で始まるlink_keyに link_key_encode() での細工した先頭 ./ を除去する
 	<$ifset(substr(link,0,2) eq './', link, substr(link,2))>
 <$end>
@@ -42,7 +42,6 @@
 <@>-------------------------------------------------------------------
 <@> コンテンツリスト
 <@>-------------------------------------------------------------------
-<$tree = argv#1>
 <@ifexec(root, begin)>
 <@exec(sub, root, 0)>
 <$end>

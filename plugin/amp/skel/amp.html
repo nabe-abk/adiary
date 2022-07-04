@@ -18,7 +18,7 @@
 <$art = t>
 
 <@ifexec(!v.blogid, begin)>
-	<$ifmessage(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません")>
+	<$message(if(v.path_blogid, "ブログ <@v.path_blogid> が存在しません", "ブログが指定されていません"))>
 	<$ifmessage(v.path_blogid && ! Auth.ok, "もしあなたが「ID:<@v.path_blogid>」ならばログインしてください。")>
 <$end>
 <$ifmessage(!t, "該当する記事がありません")>
@@ -93,7 +93,7 @@
 <@ifexec(!node.children && node.family, begin)>
 <h3>関連記事</h3>
 <ul class="art-list art-family">
-<@forexec(t2, load_from_ary(node.family, 5), begin)>
+<@forexec(t2, v.load_from_ary(node.family, 5), begin)>
 	<li><a href="<@v.myself2><@t2.elink_key>"><@t2.title></a></li>
 <$end>
 </ul>

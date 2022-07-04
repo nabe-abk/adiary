@@ -13,7 +13,7 @@
 <rss version="2.0">
 <$(logs, h) = v.load_arts_for_rss( opt )>
 <channel>
-	<title><@ifdef(opt.title, opt.title, s.blog_name)></title>
+	<title><@if(opt.title ne '', opt.title, s.blog_name)></title>
 	<link><@ServerURL><@v.myself></link>
 	<language>ja</language>
 	<description><@esc_xml(s.description_txt)></description>

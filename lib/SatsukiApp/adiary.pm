@@ -1928,4 +1928,24 @@ sub check_editor {
 	return ($auth->{id} eq $artid);
 }
 
+#---------------------------------------------------------------------
+# ●配列から指定した数をランダムにロードする
+#---------------------------------------------------------------------
+sub load_from_ary {
+	my $self = shift;
+	my ($ary,$num) = @_;
+	my $max = @$ary;
+	if ($max <= $num) { return $ary; }
+	my @a = @$ary;
+	for(my $i=0; $i<$max; $i++) {
+		my $r = int(rand($max));
+		my $x = $a[$i];
+		$a[$i] = $a[$r];
+		$a[$r] = $x;
+	}
+	return [ splice(@a, 0, $num) ];
+}
+
+
+
 1;

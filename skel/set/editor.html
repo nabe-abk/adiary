@@ -13,9 +13,9 @@
 <$s = set>
 <$ifexec(POST, begin)>
 	<$s = Form>
-	<$tag_escape( \
+	<$tag_escape( 	\
 		s.http_target, s.http_class, s.http_rel, \
-		s.image_target, s.image_class, s.image_rel, \
+		s.image_target, s.image_class, s.image_rel,	\
 		s.section_anchor, s.subsection_anchor)>
 <$end>
 
@@ -104,8 +104,8 @@
 	<tr><th>記事の入力方法</th>
 		<td>
 		<select name="parser">
-			<@foreach_hash(ROBJ, v.parsers, begin)>
-			<option value="<@key>"<@if(s.parser eq key, ' selected')>><@val></option>
+			<@foreach_hash(t, v.parsers, begin)>
+			<option value="<@t.key>"<@if(s.parser eq t.key, ' selected')>><@t.val></option>
 			<$end>
 		</select>
 		</td>
