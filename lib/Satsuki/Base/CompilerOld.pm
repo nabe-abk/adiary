@@ -3,7 +3,7 @@ use strict;
 # skeleton parser / 構文解析コンパイラ
 #						(C)2006-2022 nabe@abk
 #-------------------------------------------------------------------------------
-package Satsuki::Base::Compiler;
+package Satsuki::Base::CompilerOld;
 our $VERSION = '2.20';
 #(簡易履歴)
 # 2022/06 Ver2.20  <@h.01> のようなハッシュ参照を正しく処理
