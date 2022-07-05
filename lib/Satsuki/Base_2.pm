@@ -13,11 +13,11 @@ sub compile {
 	#-------------------------------------------------------------
 	# コンパイルログを残すか？
 	#-------------------------------------------------------------
-	my $logfile = $self->{CompileLog};
+	my $logfile = $self->{CompilerLog};
 	if ($logfile ne '' && (-d $logfile || $self->mkdir($logfile)) ) {
 		my $file = $src_file;
-		$file =~ s|/|_-_|g;
-		$file =~ s/[^\w\-\.]/_/g;
+		$file =~ tr|/|-|;
+		$file =~ s/[^\w\-\.~]/_/g;
 		$logfile .= $file;	# log を残す
 	} else {
 		undef $logfile;

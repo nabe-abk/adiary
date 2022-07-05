@@ -71,8 +71,6 @@ sub new {
 	#-------------------------------------------------------------
 	# スケルトンキャッシュ関連
 	#-------------------------------------------------------------
-	$self->{CompilerTM} = $self->get_lastmodified( 'lib/Satsuki/Base/Compiler.pm' );
-
 	my $cache_dir = $ENV{SatsukiCacheDir} || '__cache/';
 	if (-d $cache_dir && -w $cache_dir) {
 		$self->{__cache_dir} = $cache_dir;
@@ -401,6 +399,8 @@ sub __call {
 	#-------------------------------------------------------------
 	# 有効なキャッシュか確認
 	#-------------------------------------------------------------
+	$self->{CompilerTM} ||= $self->get_lastmodified( 'lib/Satsuki/Base/Compiler' . $self->{CompilerVer} . '.pm' );
+
 	if ($cache_file && ($skel->{src_tm} != $src_tm || $skel->{compiler_tm} != $self->{CompilerTM})) {
 		# ファイルからキャッシュロード
 		$skel = $self->load_cache($cache_file);

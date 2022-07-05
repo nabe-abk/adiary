@@ -21,8 +21,13 @@
 -【Fix/Theme】nature-forest, nature-sky のドロップダウンメニューの背景が正しくない。
 -【Fix/MariaDB】テキスト検索がうまく実行できない。
 -【Base/System】
+--【Compiler】全面的に書き直し、ブロック処理のバグが修正されました。
+--【Compiler】break の検出方法を変更して処理を効率化しました。
+--【Compiler】next, last, break を () なしで書けるよになりました。
+--【Compiler】正規表現が直接書けるようになりました。
+--【Compiler】strict modeが実装されました。
 --【Compiler】forexecをforeachと書けるようにしました。
---【Compiler】forexec, ifexec 等の begin を省略できるようにしました。
+--【Compiler】foreach, ifexec 等の begin を省略できるようにしました。
 --【Compiler】"++x"や"y--"等の記述を可能にしました。
 --【構文】call() ファイルが見つからない場合にエラー表示をするようにしました。
 --【Auth】ユーザ管理まわりを大幅更新しました。
