@@ -75,15 +75,17 @@ sub compile {
 # Forced to be considered a function, not a variable
 #-------------------------------------------------------------------------------
 my %SpecialFunctions = (
-	break	=> 1,
+	break	=> 0,		# 0 is none
 	shift	=> 'argv',	# default argument, 'shift' to 'shift(argv)'
-	next	=> 1,
-	last	=> 1
+	next	=> 0,
+	last	=> 0
 );
 
 #-------------------------------------------------------------------------------
 # Internal variables
 #-------------------------------------------------------------------------------
+my $NO_ARG   = '_.none._';
+
 my $VAR_ROOT = '$R';
 my $VAR_OUT  = '$$O';
 my $VAR_LNUM = '$$L';
@@ -134,14 +136,14 @@ my %InlineFuncs = (
 	replace => { f=>'#0 =~ s!$1!$2!rg',	arg=>3, min=>'=~', max=>'=~' },
 
 	is_int	=> { f=>'#0 =~ /^-?\d+$/',	arg=>1, min=>'=~', max=>'=~' },
-	is_array=> { f=>"ref(#0) eq 'ARRAY'",	arg=>1, min=>'%e' },
-	is_hash => { f=>"ref(#0) eq 'HASH'",	arg=>1, min=>'%e' },
+	is_array=> { f=>"ref(#0) eq 'ARRAY'",	arg=>1, min=>'eq' },
+	is_hash => { f=>"ref(#0) eq 'HASH'",	arg=>1, min=>'eq' },
 	from_to => { f=>'[#0..#1]',		arg=>2, max=>'..' },
 
-	file_exists =>	{ f=>'-e #0', arg=>1, min=>'-f', max=>'-f' },
-	file_readable=>	{ f=>'-r #0', arg=>1, min=>'-f', max=>'-f' },
-	file_writable=>	{ f=>'-w #0', arg=>1, min=>'-f', max=>'-f' },
-	file_size =>	{ f=>'-s #0', arg=>1, min=>'-f', max=>'-f' },
+	file_exists =>	{ f=>'-e #0', arg=>1, min=>'-e', max=>'-e' },
+	file_readable=>	{ f=>'-r #0', arg=>1, min=>'-r', max=>'-r' },
+	file_writable=>	{ f=>'-w #0', arg=>1, min=>'-w', max=>'-w' },
+	file_size =>	{ f=>'-s #0', arg=>1, min=>'-s', max=>'-s' },
 
 	weaken => { f=>'Scalar::Util::weaken(#0)', arg=>1 }
 );
@@ -304,12 +306,11 @@ my %OPR_formal;		# to formal name
 # bit 0	- right to left
 # bit 1 - unary operator
 # bit 2 - unary right join operator for "x++/x--"
-# bit 3 - non use
+# bit 3 -
 # bit 4-  priority (higher is first)
 use constant OPL_right_to_left	=> 0x01;
 use constant OPL_unary		=> 0x02;
 use constant OPL_unary_right	=> 0x04;
-use constant OPL_non_use	=> 0x08;
 use constant OPL_max		=> 0x1000;
 
 $OPR{'('}  =  0x00;
@@ -335,8 +336,8 @@ $OPR{'<<='}=  0x21;
 $OPR{'>>='}=  0x21;
 $OPR{'&&='}=  0x21;
 $OPR{'||='}=  0x21;
-$OPR{'?'}  =  0x38;
-$OPR{'..'} =  0x48;
+$OPR{'?'}  =  0x30;	# not use
+$OPR{'..'} =  0x40;	# not use
 $OPR{'||'} =  0x50; $OPR_formal{'||'}  = ' || ';	# for readability
 $OPR{'&&'} =  0x60; $OPR_formal{'&&'}  = ' && ';	#
 $OPR{'|'}  =  0x70;
@@ -345,14 +346,17 @@ $OPR{'&'}  =  0x90;
 $OPR{'=='} =  0xa0;
 $OPR{'!='} =  0xa0;
 $OPR{'<=>'}=  0xa0;
-$OPR{'%e'} =  0xa0; $OPR_formal{'%e'} = ' eq ';
-$OPR{'%n'} =  0xa0; $OPR_formal{'%n'} = ' ne ';
+$OPR{'eq'} =  0xa0; $OPR_formal{'eq'} = ' eq ';
+$OPR{'ne'} =  0xa0; $OPR_formal{'ne'} = ' ne ';
 $OPR{'<'}  =  0xb0;
 $OPR{'>'}  =  0xb0;
 $OPR{'<='} =  0xb0;
 $OPR{'>='} =  0xb0;
-$OPR{'%d'} =  0xc2; $OPR_formal{'%d'} = 'defined';
-$OPR{'-f'} =  0xc8;
+$OPR{'defined'}=0xc2;
+$OPR{'-e'} =  0xc2; $OPR_formal{'-e'} = '-e ';
+$OPR{'-r'} =  0xc2; $OPR_formal{'-r'} = '-r ';
+$OPR{'-w'} =  0xc2; $OPR_formal{'-w'} = '-w ';
+$OPR{'-s'} =  0xc2; $OPR_formal{'-s'} = '-s ';
 $OPR{'>>'} =  0xd0;
 $OPR{'<<'} =  0xd0;
 $OPR{'+'}  =  0xe0;
@@ -663,10 +667,8 @@ sub convert_reversed_poland {
 		$cmd =~ s/([^\w\)])(\.[^\w=\.])/$1%$2/g; # concat strings
 		$cmd =~ s/%([A-Za-z][\w\.])/%%$1/g;	# dereference hash
 		$cmd =~ s/\.=/%.=/g;			# .=
-		$cmd =~ s/(\W)eq(\W)/$1%e$2/g;		# eq
-		$cmd =~ s/(\W)ne(\W)/$1%n$2/g;		# ne
-		$cmd =~ s/(\W)defined(\W)/$1%d$2/g;	# defined
-		# $cmd =~ s/(\W)x(\W)/$1%x$2/g;		# 'str' x n
+		# $cmd =~ s/(\W)x(\W)/$1%x$2/g;		# (void) if set valid, do not use "var x".
+
 		$cmd =~ s/\.\(/->(/g;			# "x.()" to "x->()"
 		$cmd =~ s/\)\./)->/g;			# "().y" to "()->y"
 
@@ -696,69 +698,97 @@ sub convert_reversed_poland {
 			"$c($x)";
 		!eg;
 
-		$cmd =~ s/\s+//g;				# delete space
-		$cmd =~ s/shift\(\)/shift(argv)/g;		# shift() to shift(argv)
-		$cmd =~ s/\(\)/(_.none._)/g;			# () to (_.none._)
-		$cmd =~ s/\[\]/[_.none._]/g;			# [] to (_.none._)
-		$cmd =~ s/\{\}/{_.none._}/g;			# {} to (_.none._)
+		$cmd =~ s/(\x00\d+\x00)/ $1 /g;			# string with space
+		$cmd =~ s/\s+/ /g;
+		$cmd =~ s/shift\( ?\)/shift(argv)/g;		# shift() to shift(argv)
+		$cmd =~ s/\( ?\)/($NO_ARG)/g;			# ()
+		$cmd =~ s/\[ ?\]/[$NO_ARG]/g;			# []
+		$cmd =~ s/\{ ?\}/{$NO_ARG}/g;			# {}
 
 		if ($_->{replace} && $cmd =~ /^local\(/) {	# <@local()> to <$local()>
 			$_->{replace}=0;
 		}
 
-		#---------------------------------------------------------------
-		# convert loop
-		#---------------------------------------------------------------
-		my @poland;
-		my $x = $cmd . ')';
-		my @op  = ('(');	# operator stack
-		my @opl = ( 0 );	# operator stack priority
-		my $r_paren = 0;	# Right parenthesis flag
+		use constant DEBUG_PL => 0;
 
-		while ($x =~ /^(.*?)([=,\(\)\[\]\{\}\+\-<>\^\*\/&|%!;\#\@])(.*)/s) {
-			if ($SpecialFunctions{$1} && $2 ne '(') {
-				# break --> break(), last --> last()
-				my $v = $SpecialFunctions{$1};
-				$x = $v ne '1' ? "$1($v)$2$3" : "$1(_.none._)$2$3";
-				next;
-			}
+		DEBUG_PL && print "\n$cmd\n";
+		#---------------------------------------------------------------
+		# split operators
+		#---------------------------------------------------------------
+		my @buf;
+		$cmd .= ' ';
+		while ($cmd =~ /^(.*?)([=,\(\)\[\]\{\}\+\-<>\^\*\/&|%!;\#\@\ ])(.*)/s) {
 			if ($1 ne '') {
-				push(@poland, $1);
+				push(@buf, $1);
+			}
+			if ($2 eq ' ') {
+				$cmd = $3;
+				next;
 			}
 
 			my $op = $2;
 			if (length($3) >1 && exists $OPR{$op . substr($3, 0, 2)}) {	# 3 characters oprator
 				$op .= substr($3, 0, 2);
-				$x   = substr($3, 2);
+				$cmd = substr($3, 2);
 			} elsif ($3 ne '' && exists $OPR{$op . substr($3, 0, 1)}) {	# 2 characters oprator
 				$op .= substr($3, 0, 1);
-				$x   = substr($3, 1);
+				$cmd = substr($3, 1);
 			} else {
-				$x = $3;
+				$cmd = $3;
 			}
-			if ($op eq '-'  && $1 eq '' && !$r_paren) { $op = '%m'; }	# minus number
-			if ($op eq '++' && $1 ne '') { $op='++r'; }			# x++
-			if ($op eq '--' && $1 ne '') { $op='--r'; }			# x--
+			push(@buf, $op);
+		}
 
-			my $opl = $OPR{$op};
+		DEBUG_PL && print "buf[0-" . ($#buf) . "]: ", join(' ', @buf), "\n";
+		#---------------------------------------------------------------
+		# convert loop
+		#---------------------------------------------------------------
+		my @poland;
+		my @op  = ('(');	# operator stack
+		my @opl = ( 0 );	# operator stack priority
+		push(@buf, ')');
+		my $prev_is_op;
 
-			# $1   before operator
+		while(@buf) {
+			my $x    = shift(@buf);
+			my $next = $_[0];
+
+			if ($SpecialFunctions{$x} && $next ne '(') {
+				# break --> break(), shift --> shift(argv)
+				my $v = $SpecialFunctions{$1} || $NO_ARG;
+				unshift(@buf, '(', $v, ')');
+			}
+
+			my $opl = $OPR{$x};
+			if (!defined $opl) {
+				push(@poland, $x);
+				$prev_is_op=0;
+				next;
+			}
+
+			my $op = $x;
+			if ($op eq '-'  &&  $prev_is_op) { $op='%m'; }	# minus number
+			if ($op eq '++' && !$prev_is_op) { $op='++r'; }	# x++
+			if ($op eq '--' && !$prev_is_op) { $op='--r'; }	# x--
+
 			# $op  operator
 			# $opl operator priority
 
 			if ($op eq '(') {
 				push(@op, '('); push(@opl, 0);
-				if ($1 ne '') {			# xxx() is function call
+				if ($prev_is_op eq '0') {		# xxx() is function call
 					push(@op, '%r');
 					push(@opl, 0);
 				}
+				$prev_is_op = 1;
 
 			} elsif ($op eq '[' || $op eq '{') {
 				push(@op, $op); push(@opl, 0);
-				if ($1 ne '') {	last; }		# xxx[] xxx{} is error
+				if ($prev_is_op eq '0') { last; }	# xxx[] xxx{} is error
 				push(@poland,  $op eq '[' ? 'array' : 'hashx');
 				push(@op, '%r');
 				push(@opl, 0);
+				$prev_is_op = 1;
 
 			} else {
 				my $z = $opl & 1;		# $z=1 if operator from right
@@ -779,21 +809,21 @@ sub convert_reversed_poland {
 				}
 				# push new operator
 				if ($op eq ')' || $op eq ']' || $op eq '}') {
-					$r_paren = 1;
+					$prev_is_op = 0;
 				} else {
-					$r_paren = 0;
+					$prev_is_op = 1;
 					push(@op,  $op);
 					push(@opl, $opl);
 				}
 			}
-			## print "poland exp.   : ", join(' ', @poland), "\n";
-			## print "op stack dump : ", join(' ', @op), "\n";
+			DEBUG_PL && print "poland   : ", join(' ', @poland, $#poland), "\n";
+			DEBUG_PL && print "op stack : ", join(' ', @op), "\n";
 		}
 
 		#---------------------------------------------------------------
 		# convert finish
 		#---------------------------------------------------------------
-		if ($x ne '' || $#op >= 0) {	# remain string or remain stack
+		if (@buf || $#op >= 0) {	# remain @buf or remain stack
 			$self->error($_, 'Illegal expression: %s', $_->{cmd});
 			next;
 		}
@@ -1029,15 +1059,15 @@ sub poland_to_expression {
 	my %error_block;
 	my $const = $st->{const};
 
-	my $DEBUG_CV = 0;	# convert main
-	my $DEBUG_LV = 0;	# local var stack
+	use constant DEBUG_CV => 0;	# convert main
+	use constant DEBUG_LV => 0;	# local var stack
 
 	foreach my $line (@$lines) {
 		my $po = $line->{poland};
 		if (!$po) { next; }
 
-		$DEBUG_LV && print "cmd = $line->{cmd}\n";
-		$DEBUG_CV && print "poland: " . join(' ', @$po) . "\n";
+		DEBUG_LV && print "cmd = $line->{cmd}\n";
+		DEBUG_CV && print "poland: " . join(' ', @$po) . "\n";
 
 		#---------------------------------------------------------------
 		# special lines
@@ -1046,7 +1076,7 @@ sub poland_to_expression {
 			if ($error_block{$line->{block_end}}) { next; }
 
 			$self->pop_localvar_stack($st, $line->{else});
-			$DEBUG_LV && $self->dump_localvar_stack($st, "pop");
+			DEBUG_LV && $self->dump_localvar_stack($st, "pop");
 
 			$line->{exp}  = $line->{else} ? '} else {' : '}';
 			$line->{code} = 1;
@@ -1057,7 +1087,7 @@ sub poland_to_expression {
 		}
 		if ($line->{elsif}) {
 			$self->pop_localvar_stack($st, 1);
-			$DEBUG_LV &&  $self->dump_localvar_stack($st, "pop");
+			DEBUG_LV &&  $self->dump_localvar_stack($st, "pop");
 		}
 
 		#---------------------------------------------------------------
@@ -1079,11 +1109,11 @@ sub poland_to_expression {
 			@$poland = ($po->[$_]);
 			while(@$poland) {
 				my ($el, $type) = $self->get_element_type($st, shift(@$poland));
-				if ($DEBUG_CV) {
+				if (DEBUG_CV) {
 					print "  dump stack : ", join(' ', map { ref($_) ? '['.join(',',@$_).']' : $_ } @$stack), "\n";
 					print "  type stack : ", join(' ', map { ref($_) ? '['.join(',',@$_).']' : $_ } @$stype), "\n";
 					print "   opl stack : ", join(' ', map { ref($_) ? '['.join(',',@$_).']' : $_ } @$sopl),  "\n";
-					print "  ele / type : $el / $type\n\n";
+					print "  ele / type : $el / $type / " . $OPR{$el} . "\n\n";
 				}
 				if ($type eq 'op') {
 					$st->{line}    = $line;
@@ -1111,10 +1141,11 @@ sub poland_to_expression {
 		# error trap
 		#---------------------------------------------------------------
 		if (!@err && $#$stack != 0) {
-			@err = ('Illegal expression: %s', $_->{cmd});
+			@err = ('Illegal expression: %s', $line->{cmd});
 		}
 		my $exp  = !@err && pop(@$stack);
 		my $type = !@err && pop(@$stype);
+		my $opl  = !@err && pop(@$sopl);
 
 		if (!@err && $strict) {
 			if ($type eq 'obj') { $self->get_object($st, $exp); }
@@ -1152,7 +1183,7 @@ sub poland_to_expression {
 				$c--;
 			}
 			$self->push_localvar_stack($st, \%local_bak, $c);
-			$DEBUG_LV &&  $self->dump_localvar_stack($st, "push $c");
+			DEBUG_LV &&  $self->dump_localvar_stack($st, "push $c");
 		}
 
 		#---------------------------------------------------------------
@@ -1161,6 +1192,7 @@ sub poland_to_expression {
 		if (ref $exp eq 'ARRAY') {
 			$exp = join(',', $self->get_objects_array($st, $exp, $type));
 			$type = "*";
+			$opl  = $OPR{','};
 		}
 
 		if (!$line->{replace} && ($type eq 'obj' || $type eq 'const')) {
@@ -1177,6 +1209,7 @@ sub poland_to_expression {
 			next;
 		}
 		$line->{exp} = $exp;
+		$line->{opl} = $opl;
 	}
 
 	return [ grep { $_ } @$lines ];
@@ -1348,6 +1381,8 @@ sub p2e_operator {
 	if ($opl & OPL_right_to_left && $op =~ /=$/ && $yt eq 'const') {	# "a=b" assignment
 		return (0,0,0, "Can not modify constant");
 	}
+	if (!ref($x) && $xl==$opl && (~$opl & OPL_right_to_left)) { $x = "($x)"; }
+	if (!ref($y) && $yl==$opl && ( $opl & OPL_right_to_left)) { $y = "($y)"; }
 
 	my $a  = "$y$op$x";
 	my $at = '';
@@ -1935,8 +1970,9 @@ sub rewrite_block_non_code {
 	foreach(@$lines) {
 		my $data = $_->{data};
 		if (exists($_->{exp})) {
+			my $exp=$_->{exp};
 			if ($_->{replace}) {
-				push(@expbuf, $_->{var_exp} ? $_->{exp} : "($_->{exp})");
+				push(@expbuf, $_->{opl} < $OPR{'%.'} ? "($exp)" : $exp);
 			} else {
 				push(@expbuf, "(($_->{exp}),'')");
 			}
@@ -2082,6 +2118,8 @@ sub post_process {
 	foreach(@buf) {
 		my $tab = "\t" x ($_->{block_lv} + $DefaultIndentTAB);
 		if (exists($_->{out})) {
+			if ($is_func) { next; }
+
 			my $text = $_->{out};
 			if ($text eq '') { next; }
 			if ($text =~ /^[\s]+$/) {
@@ -2098,7 +2136,8 @@ sub post_process {
 		if ($_->{code}) {
 			push(@out, $tab . $lnum . $_->{exp} . "\n");	# no semicolon
 		} elsif (!$is_func && $_->{replace}) {
-			push(@out, $tab . $lnum . "$VAR_OUT.=" . $_->{exp} . ";\n");
+			my $exp = $_->{opl} <= $OPR{'%.='} ? "($_->{exp})" : $_->{exp};		# ".=" is right to left, include equal
+			push(@out, $tab . $lnum . "$VAR_OUT.=" . $exp . ";\n");
 		} else {
 			push(@out, $tab . $lnum . $_->{exp} . ";\n");
 		}
