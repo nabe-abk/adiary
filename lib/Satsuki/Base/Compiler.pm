@@ -361,7 +361,7 @@ $OPR{'>>'} =  0xd0;
 $OPR{'<<'} =  0xd0;
 $OPR{'+'}  =  0xe0;
 $OPR{'-'}  =  0xe0;
-$OPR{'.'}  =  0xe0; $OPR_formal{'.'}  = ' . ';	# need space ex) 'abc' . 123
+$OPR{'.'}  =  0xe0; $OPR_formal{'.'}  = ' . ';	# need space ex) 123 .'abc'
 $OPR{'*'}  =  0xf0;
 $OPR{'/'}  =  0xf0;
 $OPR{'%'}  =  0xf0;
@@ -1520,7 +1520,8 @@ sub p2e_function {
 		}
 
 		if ($is_arg2 && ($y eq 'foreach' || $y eq 'forexec')) {
-			return ("$foreach(\@{$arg[0]}) {$after");
+			my $ary = $self->dereference_array($arg[0]);
+			return ("$foreach($ary) {$after");
 		}
 
 		if ($is_arg2 && $y eq 'foreach_hash') {
@@ -1529,7 +1530,7 @@ sub p2e_function {
 		}
 
 		if ($is_arg2 && $y =~ /^foreach_(keys|values)$/) {
-			my $ary  = $1 eq 'keys' ? '$H->{_order} || [keys(%$H)]' : 'values(%$H)';
+			my $ary = $self->dereference_array($1 eq 'keys' ? '$H->{_order} || [keys(%$H)]' : 'values(%$H)');
 			return ("my \$H=$arg[0]; $foreach(\@{$ary}) {$after");
 		}
 
@@ -1662,7 +1663,7 @@ sub p2e_function {
 		if ($c == CF_control) { return ($y) }	# next, last
 
 		foreach(0..3) {
-			if ($c & ( 0x10<<$_) && defined $arg[$_]) { $arg[$_] = "\@{$arg[$_]}"; }
+			if ($c & ( 0x10<<$_) && defined $arg[$_]) { $arg[$_] = $self->dereference_array($arg[$_]); }
 			if ($c & (0x100<<$_) && defined $arg[$_]) { $arg[$_] = "\%{$arg[$_]}"; }
 		}
 		if ($c & 0x80) {
@@ -1670,7 +1671,7 @@ sub p2e_function {
 		}
 		my $a = join(',', @arg);
 		if ($c & CF_return_array) {
-			return ("[ $y($a) ]");
+			return ("[$y($a)]");
 		}
 		return ("$y($a)");
 	}
@@ -1914,6 +1915,15 @@ sub array2quoted_string {
 	return @ary;
 }
 
+#-------------------------------------------------------------------------------
+# [1,2,3] to (1,2,3), $var to @{$var}
+#-------------------------------------------------------------------------------
+sub dereference_array {
+	my $self = shift;
+	my $ary  = shift;
+	return $ary =~ /^\[(.*)\]$/ ? "$1" : "\@{$ary}";
+}
+
 ################################################################################
 # process block
 ################################################################################
@@ -2081,7 +2091,7 @@ sub rb_squot {
 		my $y = shift(@ary);
 		if ($y ne '') {
 			$y = $exp->[$y];
-			if ($y ne '') { $o .= ".$y"; }
+			if ($y ne '') { $o .= ($o =~ /\.\d+$/ ? ' ' : '') . ".$y"; }
 		}
 	}
 	if ($o eq '') { return "''"; }
