@@ -114,6 +114,11 @@ sub compile {
 	$arybuf = $self->recover_string($arybuf, $strbuf);
 	if ($debugfile ne '') { $self->debug_save("${debugfile}_08.log", undef, undef, [], $arybuf); }
 
+	if ($self->{ROBJ}->{CompilerTest}) {
+		print join('', @$arybuf);
+	}
+
+
 	return ($self->{errors}, $self->{warnings}, $arybuf);
 }
 ################################################################################

@@ -330,14 +330,14 @@ $OPR{'/='} =  0x21;
 $OPR{'%='} =  0x21;
 $OPR{'&='} =  0x21;
 $OPR{'|='} =  0x21;
-$OPR{'%.='}=  0x21; $OPR_formal{'%.='} = '.=';
+$OPR{'.='} =  0x21;
 $OPR{'**='}=  0x21;
 $OPR{'<<='}=  0x21;
 $OPR{'>>='}=  0x21;
 $OPR{'&&='}=  0x21;
 $OPR{'||='}=  0x21;
 $OPR{'?'}  =  0x30;	# not use
-$OPR{'..'} =  0x40;	# not use
+$OPR{'..'} =  0x40;
 $OPR{'||'} =  0x50; $OPR_formal{'||'}  = ' || ';	# for readability
 $OPR{'&&'} =  0x60; $OPR_formal{'&&'}  = ' && ';	#
 $OPR{'|'}  =  0x70;
@@ -361,7 +361,7 @@ $OPR{'>>'} =  0xd0;
 $OPR{'<<'} =  0xd0;
 $OPR{'+'}  =  0xe0;
 $OPR{'-'}  =  0xe0;
-$OPR{'%.'} =  0xe0; $OPR_formal{'%.'} = ' . ';	# need space ex) 'abc' . 123
+$OPR{'.'}  =  0xe0; $OPR_formal{'.'}  = ' . ';	# need space ex) 'abc' . 123
 $OPR{'*'}  =  0xf0;
 $OPR{'/'}  =  0xf0;
 $OPR{'%'}  =  0xf0;
@@ -664,11 +664,8 @@ sub convert_reversed_poland {
 		#---------------------------------------------------------------
 		# format command
 		#---------------------------------------------------------------
-		$cmd =~ s/([^\w\)])(\.[^\w=\.])/$1%$2/g; # concat strings
 		$cmd =~ s/%([A-Za-z][\w\.])/%%$1/g;	# dereference hash
-		$cmd =~ s/\.=/%.=/g;			# .=
 		# $cmd =~ s/(\W)x(\W)/$1%x$2/g;		# (void) if set valid, do not use "var x".
-
 		$cmd =~ s/\.\(/->(/g;			# "x.()" to "x->()"
 		$cmd =~ s/\)\./)->/g;			# "().y" to "()->y"
 
@@ -717,9 +714,10 @@ sub convert_reversed_poland {
 		#---------------------------------------------------------------
 		my @buf;
 		$cmd .= ' ';
-		while ($cmd =~ /^(.*?)([=,\(\)\[\]\{\}\+\-<>\^\*\/&|%!;\#\@\ ])(.*)/s) {
-			if ($1 ne '') {
-				push(@buf, $1);
+		while ($cmd =~ /^(.*?)([=,\.\(\)\[\]\{\}\+\-<>\^\*\/&|%!;\#\@\ ])(.*)/s) {
+			my $prev = $1;
+			if ($prev ne '') {
+				push(@buf, $prev);
 			}
 			if ($2 eq ' ') {
 				$cmd = $3;
@@ -735,6 +733,23 @@ sub convert_reversed_poland {
 				$cmd = substr($3, 1);
 			} else {
 				$cmd = $3;
+			}
+
+			if ($op eq '.') {
+				if ($prev =~ /\w$/ && $cmd =~ /^(\w(?:\w|\.\w)*)(.*)/) {	# \w.\w
+					$buf[$#buf] .= '.' . $1;
+					$cmd = $2;
+					next;
+				}
+				if ($prev =~ /^\d+$/) {		# 01234.+
+					$buf[$#buf] .= '.';
+					next
+				}
+				if ($cmd =~ /^(\d+)(.*)/) {	# -.1234
+					push(@buf, ".$1");
+					$cmd = $2;
+					next
+				}
 			}
 			push(@buf, $op);
 		}
@@ -1249,7 +1264,7 @@ sub p2e_operator {
 	my $stype = $st->{stype};
 	my $sopl  = $st->{sopl};
 
-	# ex) $OPR_formal{'%.'} to '.'
+	# ex) $OPR_formal{'%x'} to 'x'
 	my $op  = exists($OPR_formal{$el}) ? $OPR_formal{$el} : $el;
 	my $opl = $OPR{$el};
 
@@ -1391,6 +1406,10 @@ sub p2e_operator {
 		if ($a =~ /[^\-\d\.]/) { $a = $self->into_single_quot($a); }
 		if ($a eq '') { $a="''"; }
 		$at = 'const';
+	}
+	if ($op eq '..') {
+		$a   = "[$a]";
+		$opl = OPL_max;
 	}
 	return ($a, $at, $opl);
 }
@@ -1776,7 +1795,7 @@ sub get_element_type {
 		return ($el, 'const');
 	}
 	if ($el =~ /^[\d\.]+$/) {
-		if ($el =~ /^(?:\d+|\d+\.\d+|\d*\.\d+)$/) {
+		if ($el =~ /^(?:\d+|\d+\.\d*|\d*\.\d+)$/) {
 			return ($el, 'const');		# is number
 		}
 		return (0, 'error');
@@ -1972,7 +1991,7 @@ sub rewrite_block_non_code {
 		if (exists($_->{exp})) {
 			my $exp=$_->{exp};
 			if ($_->{replace}) {
-				push(@expbuf, $_->{opl} < $OPR{'%.'} ? "($exp)" : $exp);
+				push(@expbuf, $_->{opl} < $OPR{'.'} ? "($exp)" : $exp);
 			} else {
 				push(@expbuf, "(($_->{exp}),'')");
 			}
@@ -2136,7 +2155,7 @@ sub post_process {
 		if ($_->{code}) {
 			push(@out, $tab . $lnum . $_->{exp} . "\n");	# no semicolon
 		} elsif (!$is_func && $_->{replace}) {
-			my $exp = $_->{opl} <= $OPR{'%.='} ? "($_->{exp})" : $_->{exp};		# ".=" is right to left, include equal
+			my $exp = $_->{opl} <= $OPR{'.='} ? "($_->{exp})" : $_->{exp};		# ".=" is right to left, include equal
 			push(@out, $tab . $lnum . "$VAR_OUT.=" . $exp . ";\n");
 		} else {
 			push(@out, $tab . $lnum . $_->{exp} . ";\n");
