@@ -118,7 +118,6 @@ my %BlockStatement = map { $_ => 1} qw(
 	foreach
 	foreach_hash
 	foreach_keys
-	foreach_values
 	foreach_num
 	ifexec
 );
@@ -186,6 +185,7 @@ index=>0, rindex=>0, shift=>0x10, unshift=>0x10, pop=>0x10, push=>0x10,
 int=>1, abs=>1, sin=>1, cos=>1, log=>1, exp=>1, sqrt=>1, rand=>1,
 undef=>0, substr=>0, chop=>0, chomp=>0, chr=>1, ord=>1, print=>0,
 uc=>1, lc=>1, keys=>0x103, values=>0x103, ref=>0, delete=>0, splice=>0x12,
+keys=>0x103, values=>0x103,
 next=>4, last=>4, exists=>1, reverse=>0xf2, return=>0, umask=>1, sleep=>1);
 
 use constant CF_arg_one		=> 1;
@@ -1529,9 +1529,9 @@ sub p2e_function {
 				. "$var={key=>\$_,val=>\$H->{\$_}};");
 		}
 
-		if ($is_arg2 && $y =~ /^foreach_(keys|values)$/) {
-			my $ary = $self->dereference_array($1 eq 'keys' ? '$H->{_order} || [keys(%$H)]' : 'values(%$H)');
-			return ("my \$H=$arg[0]; $foreach(\@{$ary}) {$after");
+		if ($is_arg2 && $y eq 'foreach_keys') {
+			my $ary = '$H->{_order} ? @{$H->{_order}} : keys(%$H)';
+			return ("my \$H=$arg[0]; $foreach($ary) {$after");
 		}
 
 		if ($is_arg2 && $y eq 'foreach_num') {
