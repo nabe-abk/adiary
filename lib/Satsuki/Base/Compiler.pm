@@ -431,7 +431,7 @@ sub preprocessor {
 		# Line concatenation
 		my $data =  $_;
 		if ($chain_line) {
-			$data =~ s/^\s*//;
+			$data =~ s/^\s+//;
 			$chain_line = 0;
 		}
 		# Concatenate the next line when "<@\>" is at the end of the line
@@ -500,11 +500,11 @@ sub preprocessor {
 			my $mode = $2;
 			my $tmp  = $3;
 			if ($command_c==1) {	# First command
-				if ($P->{rm_space_before_cmd} && $prev =~ /^\s+$/) { $prev=''; }
+				if ($P->{rm_spaces_cmd_only} && $prev =~ /^\s+$/) { $prev=''; }
 			}
 
 			if ($prev ne '') {
-				$exists_string ||= $prev !~ /^\s+$/;
+				$exists_string ||= $prev !~ /^\s*$/;
 				push(@out, {
 					data	=> $prev,
 					delete	=> $P->{rm_any},
