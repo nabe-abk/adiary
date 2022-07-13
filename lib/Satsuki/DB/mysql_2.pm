@@ -337,22 +337,26 @@ sub generate_where {
 #-------------------------------------------------------------------------------
 sub do_sql {
 	my $self = shift;
-	my $ROBJ = $self->{ROBJ};
 	my $sql  = shift;
+	my $ROBJ = $self->{ROBJ};
 
-	my $err_f = 1;						# エラー表示フラグ
-	if ($sql =~ /^\d$/) { $err_f=$sql; $sql=shift; }	# エラー表示なし
+	my @ary = @_;
+	$self->utf8_on(\@ary);
 
 	my $dbh = $self->{dbh};
-	$self->debug($sql, \@_);	# debug-safe
+	$self->debug($sql, \@ary);	# debug-safe
 	my $sth = $dbh->prepare($sql);
-	$sth && $sth->execute(@_);
-	if ($dbh->err) { $self->error(); }
-	if ($err_f && (!$sth || $dbh->err)) {
+	$sth && $sth->execute(@ary);
+	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);
 	}
 	return $sth;
+}
+sub do_sql_rows {
+	my $self = shift;
+	my $sth  = $self->do_sql(@_);
+	return $sth ? $sth->rows : undef;
 }
 sub select_sql {
 	my $self = shift;
