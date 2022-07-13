@@ -1578,7 +1578,7 @@ sub error_from {
 				push(@froms, "$file line $line");
 				$prev_file = $file;
 			}
-			if (!($pack eq __PACKAGE__ || $pack =~ /::DB_/) || $i>9) { last; }
+			if (!($pack eq __PACKAGE__ || $pack =~ /::DB::/) || $i>9) { last; }
 		}
 		$from = pop(@froms);
 		while(@froms) {
