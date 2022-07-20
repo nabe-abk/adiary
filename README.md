@@ -55,9 +55,9 @@ MITライセンスやPerlライセンスだと大変助かります。
 
 # 利用著作物
 
-## JavaScript
+以下のものをライセンスに基づき使用しています。
 
-以下の公開ライブラリをライセンスに基づき使用しています。
+## JavaScript
 
   * jQuery (MIT)
     * jQuery UI (MIT / GPLv2)
