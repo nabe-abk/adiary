@@ -7,7 +7,7 @@ package Satsuki::DB::pg;
 use Satsuki::AutoLoader;
 use Satsuki::DB::share;
 use DBI ();
-our $VERSION = '1.32';
+our $VERSION = '1.33';
 #-------------------------------------------------------------------------------
 # データベースの接続属性 (DBI)
 my %DB_attr = (AutoCommit => 1, RaiseError => 0, PrintError => 0, PrintWarn => 0, pg_enable_utf8 => 0);
@@ -113,8 +113,6 @@ sub select {
 	my $ROBJ = $self->{ROBJ};
 	$table =~ s/\W//g;
 
-	my $require_hits = wantarray;
-
 	#-----------------------------------------
 	# マッチング条件の処理
 	#-----------------------------------------
@@ -156,12 +154,11 @@ sub select {
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
 		$self->error($dbh->errstr);
-		return [];
+		return $h->{want_sth} ? undef : [];
 	}
 
-	my $ret = $sth->fetchall_arrayref({});
-
-	if (!$require_hits) { return $ret; }
+	my $ret = $h->{want_sth} ? $sth : $sth->fetchall_arrayref({});
+	if (!wantarray) { return $ret; }
 
 	#-----------------------------------------
 	# 該当件数の取得
