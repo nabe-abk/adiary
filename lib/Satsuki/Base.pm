@@ -857,7 +857,8 @@ sub tag_delete {
 sub trim {
 	my $self = shift;
 	foreach(@_) {
-		$_ =~ s/^[\s\r\n]*(.*?)[\s\r\n]*$/$1/s;
+		$_ =~ s/^\s+//;
+		$_ =~ s/\s+$//;
 	}
 	return $_[0];
 }
