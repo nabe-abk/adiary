@@ -589,7 +589,7 @@ sub preprocessor {
 					$str =~ s/\\([\"\\\$\@])/"\\x" . unpack('H2', $1)/eg;	# escape special character
 					$str =~ s/"/\\"/g;					# escape double quote
 					$str =~ s/<@([\w\.]+?(\#\d+)?)>/\x01$1\x01/g;		# replace variable "val=<@val>"
-					$str =~ s/([\$\@])/\\$1/eg;				# escape '$' and '@'
+					$str =~ s/([\$\@])/\\$1/g;				# escape '$' and '@'
 
 					push(@$strbuf, "\"$str\"");
 					$cmd .= "\x00$#$strbuf\x00";
