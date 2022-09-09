@@ -75,11 +75,7 @@ sub new {
 #-------------------------------------------------------------------------------
 sub sphone_checker {
 	my $ua = $ENV{HTTP_USER_AGENT};
-	if (0<index($ua,'iPhone') || 0<index($ua,'Android')
-	 || 0<index($ua,'iPad')   || 0<index($ua,'iPod')) {
-		return 1;
-	}
-	return ;
+	return 0<index($ua,'Android') || 0<index($ua,'iPhone') || 0<index($ua,'iPad');
 }
 
 #-------------------------------------------------------------------------------
