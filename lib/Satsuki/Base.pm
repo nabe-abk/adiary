@@ -1479,8 +1479,10 @@ sub form_err {
 	my $name = shift;
 	my $msg  = $self->translate(@_);
 	my $h = $self->{FormErr} ||= { _order => [] };
-	$h->{$name}= $msg;
-	push(@{$h->{_order}}, $name);
+	if (!exists($h->{$name})) {
+		push(@{$h->{_order}}, $name);
+	}
+	$h->{$name} = $msg;
 }
 
 #-------------------------------------------------------------------------------
