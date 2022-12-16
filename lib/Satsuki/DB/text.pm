@@ -560,7 +560,7 @@ sub load_index {
 	# キャッシュを消す
 	if( exists($IndexCache{$table}) ) { $self->clear_cache($table); }
 
-	my $parse_func='sub{return{';
+	my $parse_func='sub{return{ ';	# last space for chop()
 	foreach (0..$#idx_cols) {
 		my $col=$idx_cols[$_];
 		$col =~ s/\W//g;
