@@ -10,7 +10,7 @@ MAP_FILE   = ../adiary.min.map
 HTML       = ../adiary-js-load.html
 
 FILES = 00_comment.js		\
-	jquery-3.4.1.js		\
+	jquery-3.6.2.js		\
 	01_global.js		\
 	10_jquery-ext.js	\
 	20_init.js		\
