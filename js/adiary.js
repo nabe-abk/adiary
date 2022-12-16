@@ -795,16 +795,16 @@ $$.twitter_css_fix = function(css_text){
 		for (var i=0; i<iframes.length; i++) {
 			iframe = iframes[i];
 			if (iframe.id.substring(0, 15) != 'twitter-widget-') continue;
-			if (iframe.className.indexOf('twitter-timeline')<0)  continue;
 
 			var $doc = $(iframe.contentDocument || iframe.document);
 			break;
 		}
 		if (!$doc) return -1;
+		console.log($doc);
 
 		// wait load tweets
-		var tweet = $doc.find('.timeline-Tweet');
-		if (tweet.length < 1) return -2;
+	//	var tweet = $doc.find('.timeline-Tweet');
+	//	if (tweet.length < 1) return -2;
 
 		$(iframe).css('min-width', 0);
 		var css = $('<style>').attr({
