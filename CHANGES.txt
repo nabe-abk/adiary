@@ -20,6 +20,7 @@
 -【Fix】記事編集時、先頭数字のタイトルからリンクキーを自動設定すると、余計な文字がつく。
 -【Fix/Theme】nature-forest, nature-sky のドロップダウンメニューの背景が正しくない。
 -【Fix/MariaDB】テキスト検索がうまく実行できない。
+-【Fix/Plugin】sitemap.xmlの日付が正しく表示されない。（[https://adiary.adiary.jp/0419#c17:Thanks to runner]）
 -【Base/System】
 --【Compiler】全面的に書き直し、ブロック処理のバグが修正されました。
 --【Compiler】break の検出方法を変更して処理を効率化しました。

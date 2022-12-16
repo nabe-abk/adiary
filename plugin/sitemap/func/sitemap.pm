@@ -10,7 +10,7 @@ sub {
 	my $h = {
 		flag      => { enable => 1 },
 		not_match => { ctype => 'link' },
-		cols      => [ 'title', 'tm', 'link_key' ],
+		cols      => [ 'title', 'tm', 'link_key', 'update_tm' ],
 	};
 	my $ary = $DB->select("$self->{blogid}_art", $h);
 
