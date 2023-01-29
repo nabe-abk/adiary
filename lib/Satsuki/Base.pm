@@ -49,7 +49,6 @@ sub new {
 	$self->{TM} = time;
 	$self->{WDAY_name} = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 	$self->{AMPM_name} = ['AM','PM','AM'];	# 午前, 午後, 深夜
-	$self->init_tm();
 
 	# ネストcall/jumpによる無限ループ防止設定
 	$self->{SkeletonExt} = '.html';
@@ -597,6 +596,9 @@ sub continue {
 sub call {
 	my $self = shift;
 	my $skel = shift;
+	if (substr($skel,0,2) eq './') {
+		$skel = ($self->{CurrentSkel} =~ m|^(.*/)| ? $1 : '') . substr($skel,2);
+	}
 	my ($file, $level) = $self->check_skeleton($skel);
 	if ($file eq '') {
 		$self->error("[%s] failed - File not found '%s'", 'call', $skel);
