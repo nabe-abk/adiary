@@ -1,6 +1,6 @@
 use strict;
 #-------------------------------------------------------------------------------
-# 更新されたライブラリの自動リロード
+# Auto reload module
 #						(C)2013-2020 nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::AutoReload;
@@ -14,7 +14,7 @@ my @Packages;
 my $MyPkg = __PACKAGE__ . '.pm';
 $MyPkg =~ s|::|/|g;
 ################################################################################
-# ●ライブラリの情報保存
+# save library information
 ################################################################################
 sub save_lib {
 	if ($ENV{SatsukiReloadStop}) { return; }
@@ -30,7 +30,7 @@ sub save_lib {
 }
 
 ################################################################################
-# ●更新されたモジュールをアンロードする
+# check and unload
 ################################################################################
 sub check_lib {
 	my $tm = time();
@@ -48,18 +48,18 @@ sub check_lib {
 		if (!$flag) { return 0; }
 	}
 
-	# 更新されたものがあれば、ロード済パッケージをすべてアンロード
+	# if exist update, unload all library
 	foreach(@Packages) {
-		if ($_ eq $MyPkg)       { next; }
+		if ($_ eq $MyPkg)       { next; }	# ignore myself
 		delete $INC{$_};
-		if ($_ =~ /_\d+\.pm$/i) { next; }	# _2.pm _3.pm 等は無視
-		# 名前空間からすべて除去
+		if ($_ =~ /_\d+\.pm$/i) { next; }	# ignore _2.pm _3.pm
+
 		&unload($_);
 	}
 	undef %Libs;
 	undef @Packages;
 
-	# 自分自身をリロード（unloadは危険なのでしない）
+	# reload myself
 	delete $INC{$MyPkg};
 	require $MyPkg;
 
@@ -67,7 +67,7 @@ sub check_lib {
 }
 
 #-------------------------------------------------------------------------------
-# ●指定されたパッケージをアンロードする
+# unload
 #-------------------------------------------------------------------------------
 sub unload {
 	no strict 'refs';
@@ -76,13 +76,14 @@ sub unload {
 	$pkg =~ s/\.pm$//;
 	$pkg =~ s[/][::]g;
 	my $names = \%{ $pkg . '::' };
-	# パッケージの名前空間からすべて除去
+
+	# delete from Namespace
 	foreach(keys(%$names)) {
 		substr($_,-2) eq '::' && next;
 		if (ref($names->{$_})) {
 			delete $names->{$_};
 		} else {
-			undef  $names->{$_};	# スカラ変数用（参照エラー防止）
+			undef  $names->{$_};	# for scalar, do not "delete" it!
 		}
 	}
 }

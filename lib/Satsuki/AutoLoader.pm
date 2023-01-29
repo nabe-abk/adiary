@@ -4,7 +4,7 @@ use strict;
 #							(C)2006-2020 nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::AutoLoader;
-our $VERSION = '1.00';
+our $VERSION = '1.10';
 
 use Exporter 'import';
 our @EXPORT = qw(AUTOLOAD);
@@ -19,23 +19,31 @@ sub AUTOLOAD {
 	my $func  = substr($AUTOLOAD, $x+2);
 	if ($func eq 'DESTROY') { return; }
 
-	my $pmfile = $class;
-	$pmfile  =~ s|::|/|g;
-	$pmfile .= '_';
+	my $pmfile = ($class =~ s|::|/|rg) . '_';
 
-	# ロード
 	my $obj  = shift;
 	my $ROBJ = ref($obj) ? $obj->{ROBJ} : {};
-	my $can;
-	foreach my $i (2..99) {
-		my $file = $pmfile . $i . '.pm';
-		if (exists $INC{$file}) { next; }
+
+	# load xxx_2.pm to xxx_99.pm files
+	foreach my $i (1..99) {
+		my $file;
+		if ($i==1) {
+			# load xxx_yyy() to xxx.pm file
+			if ($func !~ /^([A-Za-z][A-Za-z0-9]*)_/) { next; }
+			$file = $pmfile . $1 . '.pm';
+		} else {
+			$file = $pmfile . $i . '.pm';
+			if (exists $INC{$file}) { next; }
+		}
 
 		my $dir;
 		foreach(@INC) {
 			if (-e "$_/$file") { $dir=$_; last; }
 		}
-		if (!$dir) { last; }		# File not found
+		if (!$dir) {	# File not found
+			if ($i==1) { next; }
+			last;
+		}
 
 		eval { require $file; };
 		if ($ROBJ->{AutoLoader_debug}) {
