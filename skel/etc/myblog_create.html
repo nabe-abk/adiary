@@ -29,7 +29,10 @@
 	<tr>
 		<th>ブログID</th><td><input type="text" class="w80" name="id" id="blogid" value="<@Auth.id>" readonly>（変更不可）</td>
 	</tr>
-	<input type="hidden" name="load_design" value="1">
+	<tr>
+		<th>デザイン</th><td><label><input type="checkbox" name="load_design" value="1" checked>標準デザインをロード</label></td>
+	</tr>
+
 	<@ifexec(Auth.isadmin, begin)>
 	<tr>
 		<th>設定</th>
