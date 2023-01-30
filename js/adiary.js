@@ -49,7 +49,7 @@ $(function(){
 
 	// Google Analytics - UA (2023/07 obsolute)
 	if (data.GA_ID) {
-		ga=function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+		var ga=function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 		ga('create', data.GA_ID, 'auto');
 		ga('send', 'pageview');
 		this.load_script('https://www.google-analytics.com/analytics.js');
