@@ -38,7 +38,16 @@ $(function(){
 	if (data.DBTime)    $('#system-info-db-time')   .text( data.DBTime    );
 	if (data.TotalTime) $('#system-info-total-time').text( data.TotalTime );
 
-	// Google Analytics
+	// Google Analytics 4
+	if (data.GA4_ID) {
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('config', data.GA4_ID);
+		this.load_script('https://www.googletagmanager.com/gtag/js?id=' + data.GA4_ID);
+	}
+
+	// Google Analytics - UA (2023/07 obsolute)
 	if (data.GA_ID) {
 		ga=function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 		ga('create', data.GA_ID, 'auto');

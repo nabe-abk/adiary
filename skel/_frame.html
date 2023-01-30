@@ -134,6 +134,7 @@
 	"DBTime":	<@int(Timer.check('db')*10000 + 0.5)/10>,
 	"TotalTime":	<@int(Timer.check()*10000 + 0.5)/10>,
 <$end>
+	"GA4_ID":	"<@if(!v.system_mode && s.ga4id, s.ga4id)>",
 	"GA_ID":	"<@if(!v.system_mode && s.gaid, s.gaid)>"
 }
 --></div>

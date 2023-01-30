@@ -71,10 +71,11 @@
 
 	<table class="blog-setting">
 	<tbody>
-	<tr><th>Google Analytics ID<span class="help" data-help="Googleによるログ解析サービス。Google Analytics をご利用の方はトラッキングID（例：UA-012345-2）を設定してください。">?</span></th>
+	<tr><th>Google Analytics ID</th>
 		<td>
-		<input type="text" name="gaid" class="w160" value="<@tag_escape(s.gaid)>" id="gaid">
-		<button type="button" data-title="Google Analyticsの自動設定" id="gaid-setting" data-msg="Google Analyticsのトラッキングコードを貼り付けてください。">コードから自動設定する</button>
+		GA4 <input type="text" name="ga4id" class="w160" value="<@tag_escape(s.ga4id)>" id="ga4id"><button type="button" data-title="Google Analyticsの自動設定" id="gaid-setting" data-msg="Google Analyticsのトラッキングコードを貼り付けてください。">コードから自動設定する</button><br>
+		旧UA <input type="text" name="gaid"  class="w160" value="<@tag_escape(s.gaid)>"  id="gaid"><span class="help" data-help="こちらは2023/07以降使用できなくなります。">?</span>
+		
 		</td>
 	</tr>
 	<tr><th>AmazonアフィリエイトID<span class="help" data-help="Amazonアソシエイトを利用する方は、トラッキングIDを設定してください。ここで設定したIDは、記法でAmazonの商品にリンクする際、自動的に挿入されます。\nIDを変更した場合はブログの再構築が必要です。">?</span></th>
@@ -97,6 +98,9 @@
 $('#gaid-setting').click(function(evt){
 	adiary.textarea_dialog(evt.target, function(data){
 		var x;
+		if (x = data.match(/\?id=([\w\-]+)/)) {
+			$('#ga4id').val( x[1] );
+		}
 		if (x = data.match(/['"](UA-\d+-\d+)/)) {
 			$('#gaid').val( x[1] );
 		}
