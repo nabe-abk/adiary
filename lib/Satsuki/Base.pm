@@ -181,9 +181,10 @@ sub init_path {
 	my $basepath = $self->{Basepath} ||= $ENV{Basepath};
 	if (!defined $basepath) {
 		my $path = $script;
-		while(1) {
+		while($path ne '') {
 			$path = substr($path, 0, rindex($path,'/')+1);
 			if (index($request, $path) == 0) { last; }
+			chop($path);
 		}
 		$self->{Basepath} = $basepath = $path;
 	}
