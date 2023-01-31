@@ -155,7 +155,7 @@
 			<$end>
 			<span class="commentator author<@if(c.id, " login-user")>"<@if(c.id, " title=<@c.id>")>><@ifexec(c.email && v.allow_edit, begin, begin)><a href="mailto:<@c.email>"><@c.name></a><$else><@c.name><$end></span>
 			<@ifexec(c.url, begin)><span class="comment-url"><a href="<@c.url>" rel="nofollow">URL</a></span><$end>
-			<span class="comment-date"><@print_tm(c.tm)></span>
+			<span class="comment-date"><@print_tmf('%Y/%m/%d %H:%M:%S',c.tm)></span>
 			<@ifexec(!c.enable, begin)>
 			<@if(c.hidden, '<strong class="comment-hidden">（非公開コメント）', '<strong class="comment-disable">（非表示）')></strong>
 			<$end>
