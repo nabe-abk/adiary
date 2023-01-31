@@ -13,7 +13,7 @@
 <$ifbreak(form_error())>
 
 <$ifexec(h.lf2br, begin)>
-	<$replace_dest(h.footer_txt, '[\r\n]', '<br>')>
+	<$replace_dest(h.footer_txt, '\r?\n', '<br>')>
 <$end>
 
 <$return(h)>
