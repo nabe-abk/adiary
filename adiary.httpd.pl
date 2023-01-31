@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 use 5.8.1;
 use strict;
-our $VERSION  = '1.23';
+our $VERSION  = '1.24';
 our $SPEC_VER = '1.12';	# specification version for compatibility
 ################################################################################
 # Satsuki system - HTTP Server
-#					Copyright (C)2019-2020 nabe@abk
+#					Copyright (C)2019-2023 nabe@abk
 ################################################################################
-# Last Update : 2020/05/20
+# Last Update : 2023/01/31
 #
 BEGIN {
 	my $path = $0;
@@ -61,7 +61,7 @@ my $R_BITS;	# select socket bits
 
 my $MAX_CGI_REQUESTS = 10000;
 
-my $SYS_CODE;
+my $SYS_CODE = 'UTF-8';
 my $FS_CODE;
 my $PATH0;	# Remove last '/' from PATH
 my $PATH0_len;	# $PATH0's length
@@ -141,6 +141,9 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 			if ($k2 eq 'sf') { $key=$ky; $SILENT_FILE = $SILENT_OTHER = 1; next; }
 			if ($k  eq 's')  { $key=$kx; $SILENT_CGI  = $SILENT_FILE = $SILENT_OTHER = 1; next; }
 
+			# system code
+			if ($k2 eq 'cs') { $key=$ky; $SYS_CODE = shift(@ary); next; }
+
 			#---------------------------------------------
 			# option with argument
 			#---------------------------------------------
@@ -149,7 +152,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 				$key = '';
 				$val = $1 ne '' ? $1 : shift(@ary);
 				if ($val eq '') {
-					print "needs argument: -$k option\n";
+					print STDERR "needs argument: -$k option\n";
 					exit(-1);
 				}
 			}
@@ -162,7 +165,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 			# size argument
 			#---------------------------------------------
 			if ($k eq 'b' && $val !~ /^(\d+)(?:([GMK])B?)?$/) {
-				print "Invalid argument: -$k option >>$val\n";
+				print STDERR "Invalid argument: -$k option >>$val\n";
 				exit(-1);
 			}
 			my $unit = $1 . ($2 ne '' ? $2 : 'K');
@@ -172,7 +175,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 			# float argument
 			#---------------------------------------------
 			if ($k eq 't' && $val !~ /^\d+(?:\.\d+)?$/) {
-				print "Invalid argument: -$k option >>$val\n";
+				print STDERR "Invalid argument: -$k option >>$val\n";
 				exit(-1);
 			}
 			if ($k eq 't') { $TIMEOUT = $val; next; }
@@ -181,7 +184,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 			# integer argument
 			#---------------------------------------------
 			if ($k =~ /^[pdm]$/ && $val !~ /^\d+$/) {
-				print "Invalid argument: -$k option >>$val\n";
+				print STDERR "Invalid argument: -$k option >>$val\n";
 				exit(-1);
 			}
 			if ($k eq 'p') { $PORT    = $val; next; }
@@ -191,7 +194,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 			#---------------------------------------------
 			# Unknown
 			#---------------------------------------------
-			print "Unknown option : -$k\n";
+			print STDERR "Unknown option : -$k\n";
 			exit(-1);
 		}
 	}
@@ -217,7 +220,8 @@ Available options are:
   -d daemons	start daemons (default:10, min:1)
   -m max_req	maximum cgi requests per daemon (default:10000, min:100)
   -e mime_file	load mime types file name (default: /etc/mime.types)
-  -c fs_code	set file system's code (charset)
+  -c  fs_code	set file system's character code (default is auto)
+  -cs sys_code	set cgi  system's character code (default: UTF-8)
   -b bufsize	buffer size [KB] (default:1024 = 1M, min:64)
   -u filename	UNIX domain socket mode
   -f		use fork()
@@ -368,12 +372,25 @@ if ($MIME_FILE && -e $MIME_FILE) {
 }
 
 #-------------------------------------------------------------------------------
-# File system encode
+# file system encode
 #-------------------------------------------------------------------------------
 if ($FS_CODE) {
-	if ($FS_CODE =~ /utf-?8/i) { $FS_CODE='UTF-8'; }
 	require Encode;
-	print "\tFile system coding: $FS_CODE\n";
+
+	my $enc = Encode::find_encoding($FS_CODE);
+	if (!$enc) {
+		print STDERR "Unknown file system code: $FS_CODE\n";
+		exit(-1);
+	}
+	$FS_CODE = $enc->mime_name || $enc->name;
+
+	my $enc2 = Encode::find_encoding($SYS_CODE);
+	if (!$enc2) {
+		print STDERR "Unknown cgi system code: $SYS_CODE\n";
+		exit(-1);
+	}
+	$SYS_CODE = $enc2->mime_name || $enc2->name;
+	print "\tFile system code: $FS_CODE (cgi system is $SYS_CODE)\n";
 }
 
 #-------------------------------------------------------------------------------
@@ -819,8 +836,6 @@ sub preload_satsuki_lib {
 	require Satsuki::AutoReload;
 	&Satsuki::AutoReload::save_lib();
 	if ($ENV{SatsukiTimer}) { require Satsuki::Timer; }
-
-	$SYS_CODE = $Satsuki::SYSTEM_CODING;
 }
 
 sub exec_cgi {
