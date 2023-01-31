@@ -78,6 +78,7 @@ function module_setting(obj) {
 	});
 
 	// フォーム本体をロード
+	formbody.empty();
 	formbody.load(url, function(){
 		adiary.dom_init( formdiv );
 		formbody.append( errdiv );
