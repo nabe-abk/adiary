@@ -217,7 +217,7 @@ sub make_thumbnail_for_image {
 
 	# Windowsで日本語ファイル名がなぜか読み書きできない
 	my $tmpfile;
-	if ($^O eq 'MSWin32' && $ROBJ->{FsCoder}) {
+	if ($^O eq 'MSWin32' && $ROBJ->{FsConvert}) {
 		$tmpfile = $self->blogimg_dir() . '.imagetmp' . rand();
 	}
 
@@ -349,7 +349,7 @@ sub make_thumbnail_for_notimage {
 
 	# patch for windows
 	my $f = "${dir}.thumbnail/$file.jpg";
-	if ($^O eq 'MSWin32' && $ROBJ->{FsCoder} &&  $f =~ /[^\x20-\x7e]/) {
+	if ($^O eq 'MSWin32' && $ROBJ->{FsConvert} &&  $f =~ /[^\x20-\x7e]/) {
 		my $tmpfile = $self->blogimg_dir() . '.imagetmp'  . rand() . '.jpg';
 		$img->Write( $tmpfile );
 		rename($tmpfile, $f);
