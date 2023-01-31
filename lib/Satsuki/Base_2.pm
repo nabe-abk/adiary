@@ -554,22 +554,25 @@ sub init_fslocale {
 	my $self = shift;
 	my $fs   = $self->{FsLocale};
 	if (!$fs || $fs =~ /utf-?8/i && $self->{SystemCode} =~ /utf-?8/i) {
-		delete $self->{FsCoder};
+		$self->{FsConvert}=0;
 		return;
 	}
-	$self->{FsCoder} ||= $self->load_codepm();
+	require Encode;
+	$self->{FsConvert}=1;
 }
 sub fs_decode {
 	my $self = shift;
-	my $file = shift;
-	if (!$self->{FsCoder}) { return $file; }
-	return $self->{FsCoder}->from_to( $file, $self->{FsLocale}, $self->{SystemCode});
+	my $file = ref($_[0]) ? shift : \(my $x = shift);
+	if (!$self->{FsConvert}) { return $$file; }
+	Encode::from_to( $$file, $self->{FsLocale}, $self->{SystemCode});
+	return $$file;
 }
 sub fs_encode {
 	my $self = shift;
-	my $file = shift;
-	if (!$self->{FsCoder}) { return $file; }
-	return $self->{FsCoder}->from_to( $file, $self->{SystemCode}, $self->{FsLocale});
+	my $file = ref($_[0]) ? shift : \(my $x = shift);
+	if (!$self->{FsConvert}) { return $$file; }
+	Encode::from_to( $$file, $self->{SystemCode}, $self->{FsLocale});
+	return $$file;
 }
 
 ################################################################################
