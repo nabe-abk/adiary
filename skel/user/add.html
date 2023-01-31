@@ -27,7 +27,7 @@
 	<table>
 	<tr>
 		<th>ID</th>
-		<td><input type="text" name="adiary_id" class="w100 _reset" value="" data-name="id" pattern="^[a-z][a-z0-9_]*$" required>
+		<td><input type="text" id="adiary-id" name="adiary_id" class="w100 _reset" value="" data-name="id" pattern="^[a-z][a-z0-9_]*$" required>
 			先頭はa-zで「a-z, 0-9, _」のみ使用可能。
 		</td>
 	</tr>
@@ -83,7 +83,7 @@
 			return;
 		}
 
-		adiary.show_dialog("アカウントを追加しました。");
+		adiary.show_dialog("<p>アカウントを追加しました。</p>");
 		const f1 = $('#isadmin') .prop('checked');
 		const f2 = $('#continue').prop('checked');
 		$form[0].reset();
@@ -93,8 +93,8 @@
 <$end>
 <@ifexec(Auth.auto, begin)>
 	$form.data('success', function(h){
-		adiary.show_dialog('今追加したアカウントでログインしてください', function() {
-			window.location = '<@v.myself>?login'
+		adiary.show_dialog('<p>今追加したアカウントでログインしてください。</p>', function() {
+			window.location = '<@v.myself>?login&id=' + encodeURIComponent($('#adiary-id').val());
 		});
 	});
 <$end>

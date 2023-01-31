@@ -13,14 +13,14 @@
 <article class="system">
 <h2><@v.title></h2>
 <div class="body">
-	<form class="js-ajax" id="form" data-url="<@v.thisurl>">
+	<form class="js-ajax" id="form" data-url="<@v.thisurl>?login_auth">
 	<input type="hidden" name="action" value="_ajax_login">
 	<table class="login">
 	<tbody>
 	<tr>
-		<th>ID</th><td><input type="text" class="w100" name="adiary_id" id="id" value="" required></td>
+		<th>ID</th><td><input type="text" class="w100" name="adiary_id" id="id" value="<@esc(Query.id || Form.adiary_id)>" required></td>
 	</tr><tr>
-		<th>pass</th><td><input type="password" class="w100" id="pass" name="pass" value="" required></td>
+		<th>pass</th><td><input type="password" class="w100" id="pass" name="pass" value="<@if(Query.id eq 'test' || Query.id eq 'dummy', esc(Query.pass))>" required></td>
 	</tr><tr>
 		<td colspan="2" class="button"><button type="submit">ログイン</button></td>
 	</tr>
