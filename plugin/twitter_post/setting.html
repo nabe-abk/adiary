@@ -3,7 +3,7 @@
 <$ps=argv#0>
 <$name=argv#1>
 
-<@ifexec(!lib_check('Net::SSLeay'), begin)>
+<@ifexec(!check_lib('Net::SSLeay'), begin)>
 	<p>このプラグインを使用するには「Net::SSLeay」ライブラリをサーバにインストールしてください。</p>
 	<$break()>
 <$end>
