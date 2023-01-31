@@ -656,10 +656,14 @@ sub send_update_ping {
 	}
 	my $send;
 	foreach(@servers) {
+		$_ =~ s/[\r\n]+$//g;
 		if ($_ eq '' || substr($_, 0, 1) eq '#') { next; }
 		$ping{ping_server} = $_;
 		my $xml = $self->send_weblogUpdates_Ping(\%ping);
-		if (!ref $xml) { next; }
+		if (!ref $xml) {
+			$ROBJ->notice('Error : %s (from %s)', $xml, $_);
+			next;
+		}
 		if (! exists $xml->{flerror}) {
 			$ROBJ->notice('Error : Illegal response "%s". (Is it ping server?)', $_);
 			next;
@@ -736,8 +740,7 @@ POST_BODY
 	#-------------------------------------------------------------
 	my ($status, $header, $res) = $http->post($post_url, undef, $post_body);
 	if ($status != 200 || !defined $res) {
-		$ROBJ->notice( $http->{error_msg} );
-		return 100;
+		return $http->{error_msg} || "[$status] ping server access error";
 	}
 
 	#-------------------------------------------------------------
