@@ -13,9 +13,9 @@
 <$t = art.title>
 <$n = v.blog.blog_name>
 <$tag_unescape(t,n)>
-<$replace(line, '%t', t)>
-<$replace(line, '%n', n)>
-<$replace(line, '%u', art.absolute_url)>
+<$replace_dest(line, '%t', t)>
+<$replace_dest(line, '%n', n)>
+<$replace_dest(line, '%u', art.absolute_url)>
 
 <@> ツイート処理
 <$tw = call('_sub/load_twitter_info', ps)>

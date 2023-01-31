@@ -1,7 +1,7 @@
 <@7>
 <@local(ps)>
 <$ps=argv#0>
-	<$txt = ps.msg_txt><$ifexec(ps.lf2br, begin)><$replace(txt, '<br>', "\n")><$end>
+	<$txt = ps.msg_txt><$ifexec(ps.lf2br, begin)><$replace_dest(txt, '<br>', "\n")><$end>
 	<div>
 	フォームの後ろに表示するテキスト。
 	<textarea class="w512" rows="4" name="msg_txt"><@esc(txt)></textarea>

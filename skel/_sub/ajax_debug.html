@@ -7,7 +7,7 @@ Warning : <@join("\n", Warning)>
 <$end>
 <@ifexec(@Debug, begin)>
 <$str=join("\n", Debug)>
-<$replace(str,'&ensp;',' ')>
-<$replace(str,'<br>',"\n")>
+<$replace_dest(str,'&ensp;',' ')>
+<$replace_dest(str,'<br>',"\n")>
 Debug : <@str>
 <$end>

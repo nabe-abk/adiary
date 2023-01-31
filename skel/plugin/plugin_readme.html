@@ -3,6 +3,6 @@
 <$v.frame_skeleton=''>
 <$set_content_type('text/plain')>
 <$name = Query.name>
-<$replace(name, '[^\w\-]', '')>
+<$replace_dest(name, '[^\w\-]', '')>
 
 <@esc(join('', fread_lines( "<@v.plugin_dir><@name>/README.txt", flagq(NoError) )))>

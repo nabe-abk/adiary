@@ -2,7 +2,7 @@
 <@local(ps)>
 <$ps=argv#0>
 
-	<$txt = ps.free_txt><$ifexec(ps.lf2br, begin)><$replace(txt, '<br>', "\n")><$end>
+	<$txt = ps.free_txt><$ifexec(ps.lf2br, begin)><$replace_dest(txt, '<br>', "\n")><$end>
 	<textarea class="w512" rows="8" name="free_txt"><@esc(txt)></textarea>
 
 	<p><label><input type="checkbox" name="lf2br" value="1"<@if(ps.lf2br, ' checked')>>改行を有効にする</label>

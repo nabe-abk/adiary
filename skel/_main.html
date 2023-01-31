@@ -134,7 +134,7 @@
 	<@ifexec(ret.narrow_ymd, begin)>
 	<div class="narrow narrow-ymd">
 	<span class="search-caption">日付で絞り込み</span>
-	<$qx = q><$replace(qx, '&amp;d=\d+', '')>
+	<$qx = q><$replace_dest(qx, '&amp;d=\d+', '')>
 	<@foreach_hash(t,ret.narrow_ymd,begin)>
 		<@ifexec(t.key == 0, begin)><a href="<@url>&amp;w=1">コンテンツ(<@t.val>)</a><$next()><$end>
 		<a href="<@v.myself>?<@qx>&amp;d=<@t.key>"><@if(t.key < 10000, "<@t.key>年", int(substr(t.key,4,2)) . '月')>(<@t.val>)</a>

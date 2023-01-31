@@ -3,7 +3,7 @@
 <$v.frame_skeleton=''>
 <$name = Query.name>
 <$mode = Query.mode>
-<$replace(name, '[^\w\-,]', '')>
+<$replace_dest(name, '[^\w\-,]', '')>
 
 <@ifexec(v.blogid eq '', begin)>
 	<@"blog id not defined!">

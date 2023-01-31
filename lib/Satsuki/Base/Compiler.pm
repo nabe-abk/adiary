@@ -1,10 +1,10 @@
 use strict;
 #-------------------------------------------------------------------------------
 # skeleton compiler
-#						(C)2006-2022 nabe@abk
+#						(C)2006-2023 nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '2.99';
+our $VERSION = '3.00';
 use Satsuki::AutoLoader;
 ################################################################################
 # constructor
@@ -132,7 +132,8 @@ my %InlineFuncs = (
 	s	=> { f=>'s!$0!$1!$2', arg=>2 },
 	m	=> { f=>'m!$0!$1',    arg=>2 },
 
-	replace => { f=>'#0 =~ s!$1!$2!rg',	arg=>3, min=>'=~', max=>'=~' },
+	replace      => { f=>'#0 =~ s!$1!$2!rg',arg=>3, min=>'=~', max=>'=~' },
+	replace_dest => { f=>'#0 =~ s!$1!$2!g',	arg=>3, min=>'=~', max=>'=~' },
 
 	is_int	=> { f=>'#0 =~ /^-?\d+$/',	arg=>1, min=>'=~', max=>'=~' },
 	is_array=> { f=>"ref(#0) eq 'ARRAY'",	arg=>1, min=>'eq' },

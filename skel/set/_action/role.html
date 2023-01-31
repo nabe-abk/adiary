@@ -22,8 +22,8 @@
 <$ifbreak(form_error())>
 
 後処理
-<$replace(h.admin_users, '\s*,\s*', ', ')>
-<$replace(h.edit_users,  '\s*,\s*', ', ')>
+<$replace_dest(h.admin_users, '\s*,\s*', ', ')>
+<$replace_dest(h.edit_users,  '\s*,\s*', ', ')>
 
 
 <$action_return = v.save_blogset(h, if(Query.blogid eq '*', '*'))>

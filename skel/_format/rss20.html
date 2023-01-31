@@ -37,7 +37,7 @@
 <h4><a href="<@url>#com">■コメント（<@t.coms>件）</a><@if(5 < t.coms, ' - 古いコメントが省略されています')></h4>
 <div style="margin-left: 1em;">
 <@forexec(t2, v.load_comments_current_blog(t, 5, flagq(enable_only)), begin)>
-<$replace(t2.text, '<br>', ' ')>
+<$replace_dest(t2.text, '<br>', ' ')>
 <$tag_delete(t2.text)>
 <@t2.name>『<@v.string_clip(t2.text, 64)>』(<@print_tmf('%Y/%m/%d %H:%M', t2.tm)>)</span><br>
 <$end>

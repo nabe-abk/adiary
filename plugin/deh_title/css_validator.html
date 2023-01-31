@@ -141,7 +141,7 @@
 <$ifbreak(form_error())>
 
 <$fam = h.font_f>
-<$replace(fam, '".*?"', '')>		<@> "xxx" → 除去
+<$replace_dest(fam, '".*?"', '')>		<@> "xxx" → 除去
 <$ifset(match(fam, '"'), h.font_f, '')>	<@> まだ " が残ってる
 
 <@> ファイル無効化

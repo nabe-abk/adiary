@@ -18,7 +18,7 @@
 <$ifbreak(form_error())>
 
 <$ifexec(h.lf2br, begin)>
-	<$replace(h.msg, '[\r\n]', '<br>')>
+	<$replace_dest(h.msg, '[\r\n]', '<br>')>
 <$end>
 
 <$return(h)>
