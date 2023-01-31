@@ -128,7 +128,7 @@ sub select {
 	}
 	# 該当件数を取得
 	my $found_rows;
-	if ($require_hits) { $found_rows = ' SQL_CALC_FOUND_ROWS'; }
+	if (wantarray) { $found_rows = ' SQL_CALC_FOUND_ROWS'; }
 	# SQL
 	my $sql = "SELECT$found_rows $cols FROM $table$where";
 
