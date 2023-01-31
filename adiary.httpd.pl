@@ -152,7 +152,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 				$key = '';
 				$val = $1 ne '' ? $1 : shift(@ary);
 				if ($val eq '') {
-					print STDERR "needs argument: -$k option\n";
+					print STDERR "needs argument: -$k option\n";	# debug-safe
 					exit(-1);
 				}
 			}
@@ -165,7 +165,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 			# size argument
 			#---------------------------------------------
 			if ($k eq 'b' && $val !~ /^(\d+)(?:([GMK])B?)?$/) {
-				print STDERR "Invalid argument: -$k option >>$val\n";
+				print STDERR "Invalid argument: -$k option >>$val\n";	# debug-safe
 				exit(-1);
 			}
 			my $unit = $1 . ($2 ne '' ? $2 : 'K');
@@ -175,7 +175,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 			# float argument
 			#---------------------------------------------
 			if ($k eq 't' && $val !~ /^\d+(?:\.\d+)?$/) {
-				print STDERR "Invalid argument: -$k option >>$val\n";
+				print STDERR "Invalid argument: -$k option >>$val\n";	# debug-safe
 				exit(-1);
 			}
 			if ($k eq 't') { $TIMEOUT = $val; next; }
@@ -184,7 +184,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 			# integer argument
 			#---------------------------------------------
 			if ($k =~ /^[pdm]$/ && $val !~ /^\d+$/) {
-				print STDERR "Invalid argument: -$k option >>$val\n";
+				print STDERR "Invalid argument: -$k option >>$val\n";	# debug-safe
 				exit(-1);
 			}
 			if ($k eq 'p') { $PORT    = $val; next; }
@@ -194,7 +194,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 			#---------------------------------------------
 			# Unknown
 			#---------------------------------------------
-			print STDERR "Unknown option : -$k\n";
+			print STDERR "Unknown option : -$k\n";	# debug-safe
 			exit(-1);
 		}
 	}
@@ -379,14 +379,14 @@ if ($FS_CODE) {
 
 	my $enc = Encode::find_encoding($FS_CODE);
 	if (!$enc) {
-		print STDERR "Unknown file system code: $FS_CODE\n";
+		print STDERR "Unknown file system code: $FS_CODE\n";	# debug-safe
 		exit(-1);
 	}
 	$FS_CODE = $enc->mime_name || $enc->name;
 
 	my $enc2 = Encode::find_encoding($SYS_CODE);
 	if (!$enc2) {
-		print STDERR "Unknown cgi system code: $SYS_CODE\n";
+		print STDERR "Unknown cgi system code: $SYS_CODE\n";	# debug-safe
 		exit(-1);
 	}
 	$SYS_CODE = $enc2->mime_name || $enc2->name;
