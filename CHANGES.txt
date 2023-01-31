@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.5x : 2020/xx/xx
+*Ver3.5x : 2023/01/31
 
 -表示以外でのIE11サポートを止めました。
 -[g:Google Analytics 4]に対応しました。
@@ -39,7 +39,7 @@
 --CSRF対策機能を除去しました。((Cookieの近年の仕様変更により、IE11以外では問題がなくなったため。))
 -その他（多数）
 
-*Ver3.40c : 2020/03/16
+*Ver3.40d : 2022/12/16
 
 -SpeedyCGI用の起動スクリプトを削除しました。
 -mod_perl対応コードを削除しました。
@@ -50,6 +50,7 @@
 -【Ver3.40a/Fix】リンク集の設定がうまく表示されない。（[https://adiary.adiary.jp/0419#c1:Thanks to やす]）
 -【Ver3.40b/Fix】Perl5.8で2件目の投稿に失敗する。（[https://adiary.adiary.jp/0419#c8:Thanks to CCC]）
 -【Ver3.40c/Fix】AmazonアフィリエイトIDの自動埋め込みが機能していない。
+-【Ver3.40d】jQueryをVer3.6.2に更新。（[https://adiary.adiary.jp/0419#c15:Thanks to runner]）
 -他
 
 *Ver3.34 : 2020/01/18
