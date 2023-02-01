@@ -11,7 +11,10 @@ $(function(){
 (function(){
 	const self = this;
 
-	this.SP = false;			// smart phone mode
+	this.SP = false;		// smart phone mode
+	this.DialogWidth       = -1;	// auto
+	this.DialogMinWidth    = 480;
+
 	this.CommentEnableTime = 10000;	// msec
 	this.CommentEnableKeys = 10;
 	this.SyntaxHighlightTheme = 'adiary';
@@ -31,7 +34,8 @@ $(function(){
 	// Smartphone mode
 	if (this.$body.hasClass('sp')) {
 		this.SP = 1;
-		this.DialogWidth = 320;
+		this.DialogWidth    = 320;
+		this.DialogMinWidth =   0;
 	}
 
 	// DB time, Total time
