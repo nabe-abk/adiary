@@ -27,7 +27,7 @@ And, '__cache' and 'data/' directories not permit to access from web.
 
 # 著作権表示(Copyright)
 
- Copyright (C)2013-2020 nabe@abk.
+ Copyright (C)2013-2023 nabe@abk.
 
 本プログラム（システム）はフリーソフトウェアです。
 
@@ -88,9 +88,9 @@ VLゴシックフォント（pub-dist/VL-PGothic-Regular.ttf）を
 
 ## 画像アイコン
 
-  * pub-dist/album-icon  以下のアイコンの多くはせりか氏の著作物です。
+  * pub-dist/album-icon 以下のアイコンの多くはせりか氏の著作物です。
   * pub-dist/album-icon/pdf.png は http://iconhoihoi.oops.jp/ の著作物です。
-  * pub-dist/album-icon  以下の g-*.png と trashbox.png はGNOME Desktopアイコンです。
+  * pub-dist/album-icon 以下の g-*.png と trashbox.png はGNOME Desktopアイコンです。
   * pub-dist/mahjong/ 以下のファイルは「[麻雀豆腐](http://majandofu.com/mahjong-images)」の画像を利用しています。
   * theme/_img/social-buttons.png は「Simplicity (GPL)」に含まれるアイコンを元にしました。
 
