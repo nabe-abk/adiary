@@ -1,11 +1,12 @@
 #!/usr/bin/perl
-use 5.8.1;
+use 5.14.0;
 use strict;
 #-------------------------------------------------------------------------------
 # Satsuki system - Startup routine (for FastCGI)
-#					Copyright (C)2005-2020 nabe@abk
+#					Copyright (C)2005-2023 nabe@abk
 #-------------------------------------------------------------------------------
-# Last Update : 2020/05/20
+# Last Update : 2023/02/02
+#
 BEGIN {
 	unshift(@INC, './lib');
 	$0 =~ m|^(.*?)[^/]*$|;

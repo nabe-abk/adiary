@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use 5.8.1;
+use 5.14.0;
 use strict;
 our $VERSION  = '1.24';
 our $SPEC_VER = '1.12';	# specification version for compatibility
@@ -7,7 +7,7 @@ our $SPEC_VER = '1.12';	# specification version for compatibility
 # Satsuki system - HTTP Server
 #					Copyright (C)2019-2023 nabe@abk
 ################################################################################
-# Last Update : 2023/01/31
+# Last Update : 2023/02/02
 #
 BEGIN {
 	my $path = $0;

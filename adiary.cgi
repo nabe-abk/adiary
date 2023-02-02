@@ -1,12 +1,21 @@
 #!/usr/bin/perl
-use 5.8.1;
 use strict;
 unshift(@INC, './lib');
 #-------------------------------------------------------------------------------
 # Satsuki system - Startup routine (for CGI)
-#					Copyright (C)2005-2017 nabe@abk
+#					Copyright (C)2005-2023 nabe@abk
 #-------------------------------------------------------------------------------
-# Last Update : 2017/02/10
+# Last Update : 2023/02/02
+#
+BEGIN {
+	if ($] < 5.014) {
+		my $v = int($]); my $sb = int(($]-$v)*1000);
+		print "Content-Type: text/html;\n\n";
+		print "Do not work with <u>Perl $v.$sb</u>.<br>Requires <strong>Perl 5.14 or newer</strong>.";
+		exit(-1);
+	}
+};
+#-------------------------------------------------------------------------------
 eval {
 	require Satsuki::Base;
 
