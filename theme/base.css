@@ -1113,8 +1113,10 @@ ul.dynatree-container img {
 }
 .ui-dialog-content {
 	padding:		0.5em 1em;
-	height:			100%;
 	overflow:		auto;
+}
+.ui-dialog-content p {
+	max-width:		640px;
 }
 .ui-dialog-buttonpane {
 	text-align:		right;
