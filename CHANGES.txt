@@ -27,7 +27,7 @@
 -【Base/System】
 --【Compiler】全面的に書き直し、ブロック処理のバグが修正されました。
 --【Compiler】break の検出方法を変更して処理を効率化しました。
---【Compiler】next, last, break を () なしで書けるよになりました。
+--【Compiler】next, last, break を () なしで書けるようになりました。
 --【Compiler】正規表現が直接書けるようになりました。
 --【Compiler】strict modeが実装されました。
 --【Compiler】forexecをforeachと書けるようにしました。
