@@ -4,7 +4,7 @@ use strict;
 #						(C)2006-2023 nabe@abk
 #-------------------------------------------------------------------------------
 package Satsuki::Base::Compiler;
-our $VERSION = '3.00';
+our $VERSION = '3.01';
 use Satsuki::AutoLoader;
 ################################################################################
 # constructor
@@ -72,16 +72,6 @@ sub compile {
 #	\x01begin.12	marking of "begin" with block number.
 #
 #-------------------------------------------------------------------------------
-# Forced to be considered a function, not a variable
-#-------------------------------------------------------------------------------
-my %SpecialFunctions = (
-	break	=> 0,		# 0 is none
-	shift	=> 'argv',	# default argument, 'shift' to 'shift(argv)'
-	next	=> 0,
-	last	=> 0
-);
-
-#-------------------------------------------------------------------------------
 # Internal variables
 #-------------------------------------------------------------------------------
 my $NO_ARG   = '_.none._';
@@ -99,6 +89,16 @@ SUB_HEAD
 my $DefaultIndentTAB = 1;
 
 my %ReservedVars = map { $_ => 1 } qw(R O L v);
+
+#-------------------------------------------------------------------------------
+# Forced to be considered a function, not a variable
+#-------------------------------------------------------------------------------
+my %SpecialFunctions = (
+	break	=> $NO_ARG,
+	shift	=> 'argv',	# default argument, 'shift' to 'shift(argv)'
+	next	=> $NO_ARG,
+	last	=> $NO_ARG
+);
 
 #-------------------------------------------------------------------------------
 # other setting
@@ -771,8 +771,7 @@ sub convert_reversed_poland {
 
 			if ($SpecialFunctions{$x} && $next ne '(') {
 				# break --> break(), shift --> shift(argv)
-				my $v = $SpecialFunctions{$1} || $NO_ARG;
-				unshift(@buf, '(', $v, ')');
+				unshift(@buf, '(', $SpecialFunctions{$x}, ')');
 			}
 
 			my $opl = $OPR{$x};
