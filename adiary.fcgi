@@ -5,7 +5,7 @@ use strict;
 # Satsuki system - Startup routine (for FastCGI)
 #					Copyright (C)2005-2023 nabe@abk
 #-------------------------------------------------------------------------------
-# Last Update : 2023/02/02
+# Last Update : 2023/02/15
 #
 BEGIN {
 	unshift(@INC, './lib');
@@ -112,9 +112,9 @@ sub fcgi_main_loop {
 			# FastCGI環境初期化
 			#-------------------------------------------------------
 			my $ROBJ = Satsuki::Base->new();	# ルートオブジェクト生成
-			$ROBJ->{Timer}        = $timer;
-			$ROBJ->{AutoReload}   = $flag;
-			$ROBJ->{mod_rewrite}  = $deamon;
+			$ROBJ->{Timer}      = $timer;
+			$ROBJ->{AutoReload} = $flag;
+			$ROBJ->{ModRewrite} = $deamon;
 
 			$ROBJ->init_for_fastcgi($req);
 
