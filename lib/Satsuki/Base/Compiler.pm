@@ -767,10 +767,9 @@ sub convert_reversed_poland {
 
 		while(@buf) {
 			my $x    = shift(@buf);
-			my $next = $_[0];
+			my $next = $buf[0];
 
 			if ($SpecialFunctions{$x} && $next ne '(') {
-				# break --> break(), shift --> shift(argv)
 				unshift(@buf, '(', $SpecialFunctions{$x}, ')');
 			}
 
@@ -1710,8 +1709,8 @@ sub p2e_function {
 			}
 			$doll[$p2] =~ s/[^a-df-z]//g;	# remove 'e'
 
-			foreach(@arg) {
-				$_ =~ s/((?:\\.|[^\\!])*)([\\!])/$1\\$2/sg;
+			foreach(@doll) {
+				$_ =~ s/((?:\\.|[^\\!])*)([\\!])?/$1 . ($2 ? "\\$2" : '')/seg;
 			}
 		}
 
