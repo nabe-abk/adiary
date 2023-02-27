@@ -144,7 +144,7 @@ $functions{'root'} = $functions{'sqrt'};
 
 $functions{'floor'} = sub { int($_[0]) };
 $functions{'round'} = sub { int($_[0]+0.5) };
-$functions{'ceil'}  = sub { (int($_[0]) != $_[0]) ? ($_[0]+1) : $_[0] };
+$functions{'ceil'}  = sub { ($_[0]<0 || int($_[0]) == $_[0]) ? int($_[0]) : int($_[0]+1) };
 $functions{'int'}   = $functions{'floor'};
 $functions{'rint'}  = $functions{'round'};
 $functions{'cint'}  = $functions{'round'};
