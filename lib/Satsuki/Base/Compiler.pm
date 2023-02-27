@@ -767,7 +767,7 @@ sub convert_reversed_poland {
 
 		while(@buf) {
 			my $x    = shift(@buf);
-			my $next = $_[0];
+			my $next = $buf[0];
 
 			if ($SpecialFunctions{$x} && $next ne '(') {
 				# break --> break(), shift --> shift(argv)
