@@ -40,7 +40,7 @@ sub login {
 	}
 	if (!$udata || !%$udata) {	# uid が存在しない
 		$self->log_save_fail($id, 'login');
-		return { ret=>10, msg => $ROBJ->translate('Username or password incorrect') };
+		return { ret=>10, msg => $ROBJ->translate('Username or password incorrect.') };
 	}
 	$id = $udata->{id};
 
@@ -49,17 +49,17 @@ sub login {
 	my $fails = $udata->{fail_c};
 	if ($udata->{fail_tm} + $self->{fail_minute}*60 < $ROBJ->{TM}) { $fails=0; }
 	if ($fails > $self->{fail_count}) {
-		return { ret=>11, msg => $ROBJ->translate('Too many failed. Please retry in %d minutes', $self->{fail_minute}) };
+		return { ret=>11, msg => $ROBJ->translate('Too many failed. Please retry in %d minutes.', $self->{fail_minute}) };
 	}
 	if (!$self->check_pass($udata->{pass}, $pass)) {
 		$fails++;
 		$DB->update_match($table, {fail_c => $fails, fail_tm => $ROBJ->{TM}}, 'id', $id);
 		$self->log_save_fail($id, 'login');
-		return { ret=>10, msg => $ROBJ->translate('Username or password incorrect') };
+		return { ret=>10, msg => $ROBJ->translate('Username or password incorrect.') };
 	}
 	if ($udata->{disable}) {
 		$self->log_save_fail($id, 'login');
-		return { ret=>20, msg => $ROBJ->translate('This account is disable') };
+		return { ret=>20, msg => $ROBJ->translate('This account is disable.') };
 	}
 
 	# 既にログイン済の場合、ログアウト
