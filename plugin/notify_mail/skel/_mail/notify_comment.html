@@ -23,8 +23,9 @@
 <$h.from  = from>
 <$ifset(from, h.reply_to, from)>
 <$h.from_name = Server_name>
+<$local(bname) = unesc(v.blog.blog_name)>
 <$h.subject = if(ps.subject ne '', ps.subject, '%n notify')>
-<$h.subject = replace(h.subject, '%n', "『<@v.blog.blog_name>』")>
+<$h.subject = replace(h.subject, '%n', "『<@bname>』")>
 <$h.text = begin_string>
 『<@unesc(if(art.title ne '', art.title, v.blog.blog_name))>』にコメントされました。
 from <@form.name>
