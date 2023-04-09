@@ -71,7 +71,7 @@ MITライセンスやPerlライセンスだと大変助かります。
   * Image::Magick (Apache 2.0)
   * Net::SSLeay (Perl)
   * CryptX (Perl)
-  * Crypt::glibc (LGPL / use Windows only)
+  * [Crypt::glibc](https://github.com/nabe-abk/Crypt-glibc) (LGPL / use Windows only)
 
 ## プラグインとテーマ
 
