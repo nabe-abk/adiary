@@ -1698,6 +1698,8 @@ sub p2e_function {
 
 			foreach(0..$#par) {
 				if (index($func, "%$_")<0) { next; }
+
+				if ($xt->[$_] eq 'obj') { next; }
 				if ($xt->[$_] eq 'const') {
 					$par[$_]=eval($par[$_]);
 					next;
@@ -1706,7 +1708,7 @@ sub p2e_function {
 					$par[$_]=$1;	# "xxx" to xxx
 					next;
 				}
-				return (0,0,0, "%s's option is string only: %s", "$y()", $arg[$_]);
+				return (0,0,0, "%s's option must be strings or variable or constant: %s", "$y()", $arg[$_]);
 			}
 
 			foreach(@par) {
