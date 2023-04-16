@@ -1698,14 +1698,15 @@ sub p2e_function {
 
 			foreach(0..$#par) {
 				if (index($func, "%$_")<0) { next; }
+				my $t = $xt->[$_];
 
-				if ($xt->[$_] eq 'obj') { next; }
-				if ($xt->[$_] eq 'const') {
-					$par[$_]=eval($par[$_]);
+				if ($t eq 'obj') { next; }
+				if (($t eq 'string' || $t eq 'const') && $par[$_] =~ /^"(.*)"$/) {
+					$par[$_]=$1;	# "xxx" to xxx
 					next;
 				}
-				if ($xt->[$_] eq 'string' && $par[$_] =~ /^"(.*)"$/) {
-					$par[$_]=$1;	# "xxx" to xxx
+				if ($t eq 'const') {
+					$par[$_]=eval($par[$_]);
 					next;
 				}
 				return (0,0,0, "%s's option must be strings or variable or constant: %s", "$y()", $arg[$_]);
