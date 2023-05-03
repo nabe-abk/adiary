@@ -832,7 +832,7 @@ sub form_type_check {
 
 	my $type = substr($name,-4);
 
-	if (!ref($val))	     { return $val; }		# ファイルupload
+	if (ref($val))	     { return $val; }		# ファイルupload
 	if ($type eq '_bin') { return $val; }		# バイナリデータ
 	if ($type eq '_int') { return int($val);    }	# 整数
 	if ($type eq '_num') { return 0+$val;	    }	# 数値

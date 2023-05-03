@@ -43,6 +43,7 @@
 -【Ver3.50b/Fix】calc記法のceilの処理が正しくない。（[https://github.com/nabe-abk/adiary/pull/9:Thanks to  kjimba]）
 -【Ver3.50c/Fix】メール通知のタイトルの %n 置換時に余計な「""」が付く。
 -【Ver3.50d/Fix】Perl 5.36 で動かないバグを修正。記事編集画面で、画像タグの置換処理が一部不具合があったので修正。
+-【Ver3.50e/Fix】フォームの型チェックが誤っていたので修正（Markdownでの不具合あり）。[https://github.com/nabe-abk/adiary/issues/10:Thanks to 1484]
 
 *Ver3.40d : 2022/12/16
 
