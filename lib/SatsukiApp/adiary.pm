@@ -8,7 +8,7 @@ use Satsuki::AutoLoader;
 use Fcntl;
 #-------------------------------------------------------------------------------
 our $VERSION    = 3.50;
-our $OUTVERSION = "3.50e";
+our $OUTVERSION = "3.50f";
 our $DATA_VERSION = 3.50;
 ################################################################################
 # ■システム内部イベント
@@ -398,8 +398,9 @@ sub select_default_skeleton {
 	my $self = shift;
 	my $mode = shift || $self->{pinfo};
 	my $blog = $self->{blog};
-	if ($blog->{album_mode}) {
-		$self->{ROBJ}->redirect( $self->{myself} . '?album/' );
+	my $ROBJ = $self->{ROBJ};
+	if (!$ROBJ->{POST} && $blog->{album_mode}) {
+		$ROBJ->redirect( $self->{myself} . '?album/' );
 	} elsif ($mode eq '' && !$self->{path_blogid}) {
 		return $self->{top_skeleton};
 	} elsif ($mode ne '' && $mode !~ /^[1-9]\d+$/ || $mode eq '' && $self->{query} eq '' && $blog->{frontpage}) {
