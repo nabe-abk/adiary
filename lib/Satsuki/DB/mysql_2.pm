@@ -38,7 +38,7 @@ sub insert {
 
 	# SQL 発行
 	my $sql = "INSERT INTO $table($cols) VALUES($vals)";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql, \@ary);	# debug-safe
 	$sth && $sth->execute(@ary);
 	if (!$sth || $dbh->err) {
@@ -64,7 +64,7 @@ sub generate_pkey {
 
 	# not nullカラムを探し、適当なデフォルト値を生成する
 	my $sql = "show columns FROM $table WHERE `Null`='NO' AND `Key`!='PRI' AND `Default` is null";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute();
 	if (!$sth || $dbh->err) {
@@ -89,7 +89,7 @@ sub generate_pkey {
 
 	# ダミーデータを挿入し削除する
 	my $sql = "INSERT INTO $table(" . join(',', @cols) . ") VALUES(" . join(',', @vals) . ")";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute();
 	if (!$sth || $dbh->err) {
@@ -103,7 +103,7 @@ sub generate_pkey {
 
 	# 挿入データの削除
 	$sql = "DELETE FROM $table WHERE pkey=$pkey";
-	$sth = $dbh->prepare_cached($sql);
+	$sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute();
 
@@ -145,7 +145,7 @@ sub update_match {
 
 	# SQL 発行
 	my $sql = "UPDATE $table SET $cols$where";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql, \@ary);	# debug-safe
 	$sth && $sth->execute( @ary );
 	if (!$sth || $dbh->err) {
@@ -172,7 +172,7 @@ sub delete_match {
 
 	# SQL 発行
 	my $sql = "DELETE FROM $table$where";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql, \@ary);	# debug-safe
 	$sth && $sth->execute( @ary );
 	if (!$sth || $dbh->err) {
@@ -239,7 +239,7 @@ sub select_by_group {
 	# SQLを発行
 	#-----------------------------------------
 	my $sql = "SELECT $sel FROM $table$where$group_by$order_by";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql, $ary);	# debug-safe
 	$sth && $sth->execute(@$ary);
 	if (!$sth || $dbh->err) {

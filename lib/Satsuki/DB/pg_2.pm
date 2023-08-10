@@ -41,7 +41,7 @@ sub insert {
 	# SQL 発行
 	$self->utf8_on(\@ary);
 	my $sql = "INSERT INTO $table($cols) VALUES($vals)";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql, \@ary);	# debug-safe
 	$sth && $sth->execute(@ary);
 	if (!$sth || $dbh->err) {
@@ -61,7 +61,7 @@ sub insert {
 
 	# 成功した場合 pkey を返す
 	$sql = "SELECT lastval()";
-	$sth = $dbh->prepare_cached($sql);
+	$sth = $dbh->prepare($sql);
 	$sth && $sth->execute();
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
@@ -85,7 +85,7 @@ sub generate_pkey {
 
 	# 成功した場合 pkey を返す
 	my $sql = "SELECT nextval(pg_catalog.pg_get_serial_sequence('$table', 'pkey'))";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$sth && $sth->execute();
 	if (!$sth || $dbh->err) {
 		$self->error($sql);
@@ -134,7 +134,7 @@ sub update_match {
 	# SQL 発行
 	$self->utf8_on(\@ary);
 	my $sql = "UPDATE $table SET $cols$where";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql, \@ary);	# debug-safe
 	$sth && $sth->execute( @ary );
 	if (!$sth || $dbh->err) {
@@ -162,7 +162,7 @@ sub delete_match {
 	# SQL 発行
 	$self->utf8_on(\@ary);
 	my $sql = "DELETE FROM $table$where";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql, \@ary);	# debug-safe
 	$sth && $sth->execute( @ary );
 	if (!$sth || $dbh->err) {
@@ -229,7 +229,7 @@ sub select_by_group {
 	# SQLを発行
 	#-----------------------------------------
 	my $sql = "SELECT $sel FROM $table$where$group_by$order_by";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql, $ary);	# debug-safe
 	$sth && $sth->execute(@$ary);
 	if (!$sth || $dbh->err) {
