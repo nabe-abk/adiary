@@ -26,6 +26,7 @@
 <$local(bname) = unesc(v.blog.blog_name)>
 <$h.subject = if(ps.subject ne '', ps.subject, '%n notify')>
 <$h.subject = replace(h.subject, '%n', "『<@bname>』")>
+<$ifset(ENV.REMOTE_HOST && ENV.REMOTE_ADDR ne ENV.REMOTE_HOST, chost, #' - <@ENV.REMOTE_HOST>')>
 <$h.text = begin_string>
 『<@unesc(if(art.title ne '', art.title, v.blog.blog_name))>』にコメントされました。
 from <@form.name>
@@ -33,6 +34,9 @@ from <@form.name>
 <@form.comment_txt>
 
 <@ServerURL><@v.myself2><@v.link_key_encode(x = art.link_key)>#com
+
+IP: <@ENV.REMOTE_ADDR><@chost>
+AGENT: <@ENV.HTTP_USER_AGENT>
 <$end>
 <$m = loadpm('Base::Mail')>
 <$r = m.send_mail(h)>
