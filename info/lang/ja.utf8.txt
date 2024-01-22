@@ -107,7 +107,7 @@ URL format error '%s'=URLの書式が正しくありません : %s
 #-----------------------------------------------------------
 # message
 #-----------------------------------------------------------
-Username or password incorrect=ユーザー名またはパスワードが正しくありません
+Username or password incorrect.=ユーザー名またはパスワードが正しくありません。
 This account is disable=このアカウントは現在使用できません
 No exists user data. You should add new user before use this=ユーザーが登録されていません。ユーザーを追加してから使用してください
 Too many failed. Please retry in %d minutes=%d分以上経ってから再度試してください。
