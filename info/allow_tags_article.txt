@@ -148,7 +148,7 @@ _module_start
 # YouTube モジュール
 #------------------------------------------------------------------------------
 *youtube
-<iframe class="youtube-player" style="width:#{width|420}px; height:#{height|315}px;" src="https://www.youtube.com/embed/${vid}" frameborder="0">
+<iframe class="youtube-player" style="width:#{width|480}px; height:#{height|270}px;" src="https://www.youtube.com/embed/${vid}" frameborder="0">
 </iframe>
 
 #------------------------------------------------------------------------------
@@ -161,17 +161,18 @@ _module_start
 #------------------------------------------------------------------------------
 # ニコニコ動画 モジュール
 #------------------------------------------------------------------------------
+
 *nico
-<iframe class="niconico" style="width:312px; height:176px" src="http://ext.nicovideo.jp/thumb/${vid}" frameborder="0"  scrolling="no"><a href="http://www.nicovideo.jp/watch/${vid}">http://www.nicovideo.jp/watch/${vid}</a></iframe>
+<iframe class="niconico nico-video" style="width:#{width|480}px; height:#{height|270}px;" src="https://embed.nicovideo.jp/watch/${vid}" frameborder="0"  scrolling="no"></iframe>
 
 *nico:mylist
-<iframe class="niconico nico-mylist" style="width:312px; height:176px" frameborder="0" scrolling="no" src="http://ext.nicovideo.jp/thumb_mylist/${mid}" width="312"></iframe>
+<iframe class="niconico nico-mylist" style="width:312px; height:176px" frameborder="0" scrolling="no" src="https://ext.nicovideo.jp/thumb_mylist/${mid}" width="312"></iframe>
 
-*nico:mylist
-<iframe class="niconico nico-user" style="width:312px; height:176px" frameborder="0" scrolling="no" src="http://ext.nicovideo.jp/thumb_user/${uid}"></iframe>
+*nico:user
+<iframe class="niconico nico-user" style="width:312px; height:176px" frameborder="0" scrolling="no" src="https://ext.nicovideo.jp/thumb_user/${uid}"></iframe>
 
-*nico:commu
-<iframe class="niconico nico-commu" style="width:312px; height:176px" frameborder="0" scrolling="no" src="http://ext.nicovideo.jp/thumb_community/${cid}"></iframe>
+*nico:community
+<iframe class="niconico nico-community" style="width:312px; height:176px" frameborder="0" scrolling="no" src="https://ext.nicovideo.jp/thumb_community/${cid}"></iframe>
 
 #------------------------------------------------------------------------------
 # github/gist表示モジュール  【注】async/deferでは動作しない!!

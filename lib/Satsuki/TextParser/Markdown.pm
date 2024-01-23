@@ -696,7 +696,7 @@ sub parse_inline {
 	my $links = $self->{links};
 	foreach(@$lines) {
 		if (substr($_,-1) eq "\x02") { next; }
-		
+
 		# エスケープ処理
 		$_ =~ s/\\([\\'\*_\{\}\[\]\(\)>#\+\-\.\~!])/"\x03E" . ord($1) . "\x03"/eg;
 
