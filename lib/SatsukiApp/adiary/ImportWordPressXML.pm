@@ -28,15 +28,14 @@ sub import_arts {
 	my ($self, $aobj, $form, $session) = @_;
 	my $ROBJ = $self->{ROBJ};
 
-	my $input_coding = 'UTF-8';
-
 	# データチェック
 	my $data = $form->{file}->{data};
 	delete $form->{file};
 	{
-		my $check_data = substr($data, 0, 4096);
-		if ($check_data !~ m|<!--\s*generator="wordpress/|i
-		 || $check_data !~ m|<\?xml [^>]*? encoding="([\w\-]*)".*?\?>|) {
+		my $check = substr($data, 0, 4096);
+		if ($check !~ m|<!--\s*This is a WordPress eXtended RSS file|i
+		 && $check !~ m|<!--\s*generator="wordpress/|i
+		 || $check !~ m|<\?xml [^>]*? encoding="([\w\-]*)".*?\?>|) {
 			$session->msg('Data format error (%s)', "WordPress(XML)");
 			return -1;
 		}

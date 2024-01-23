@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.50h : 2023/02/02 - 2023/10/16
+*Ver3.50h : 2023/02/02 - 2024/01/24
 
 -[bf:Perl 5.14.0以降]が必要です。((Perl 5.8では動作しなくなりました。古いPerlを使用しているレンタルサーバの場合、レンタルサーバの設定画面からPerlを最新版に切り替えてください。))
 -表示以外でのIE11サポートを止めました。
@@ -40,13 +40,16 @@
 --CSRF対策機能を除去しました。((Cookieの近年の仕様変更により、IE11以外では問題がなくなったため。))
 -その他（多数）
 -【Ver3.50a/Fix】OGPの表示に記事情報が反映されない。
--【Ver3.50b/Fix】calc記法のceilの処理が正しくない。（[https://github.com/nabe-abk/adiary/pull/9:Thanks to  kjimba]）
+-【Ver3.50b/Fix】calc記法のceilの処理が正しくない。（[https://github.com/nabe-abk/adiary/pull/9:Thanks to kjimba]）
 -【Ver3.50c/Fix】メール通知のタイトルの %n 置換時に余計な「""」が付く。
 -【Ver3.50d/Fix】Perl 5.36 で動かないバグを修正。記事編集画面で、画像タグの置換処理が一部不具合があったので修正。
 -【Ver3.50e/Fix】フォームの型チェックが誤っていたので修正（Markdownでの不具合あり）。（[https://github.com/nabe-abk/adiary/issues/10:Thanks to 1484]）
 -【Ver3.50f/Fix】アルバムモード設定時、ログインができない。
 -【Ver3.50g/Fix】PostgreSQL/MySQLモジュールのprepare_cached()をprepare()に修正。（[https://adiary.adiary.jp/0423:詳細]）
 -【Ver3.50h】メール通知プラグインで、投稿者のIP/Hostをメールに記載するようにしました。
+-【Ver3.50i】
+--ニコニコ動画タグを修正しました。（[https://adiary.adiary.jp/0422#c10:Thanks to りこ]）
+--インポート処理にてWordpress XMLの判定を変更しました。
 
 *Ver3.40d : 2022/12/16
 
