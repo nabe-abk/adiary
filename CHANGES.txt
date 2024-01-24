@@ -48,10 +48,10 @@
 -【Ver3.50g/Fix】PostgreSQL/MySQLモジュールのprepare_cached()をprepare()に修正。（[https://adiary.adiary.jp/0423:詳細]）
 -【Ver3.50h】メール通知プラグインで、投稿者のIP/Hostをメールに記載するようにしました。
 -【Ver3.50i】
---ニコニコ動画タグを修正しました。
 --インポート処理にてWordpress XMLの判定を変更しました。
+--【Fix】ニコニコ動画タグを追加・修正しました。（[https://adiary.adiary.jp/0422#c10:Thanks to りこ]）
 --【Fix】Markdownのインランコード記法関連のエスケープ処理にバグがある。（[https://adiary.adiary.jp/0422#c10:Thanks to りこ]）
-
+--【Fix】Markdownで見出し記法に{<p>}タグを出力してしまう。
 
 *Ver3.40d : 2022/12/16
 

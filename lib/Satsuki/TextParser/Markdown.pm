@@ -1,14 +1,14 @@
 use strict;
 #-------------------------------------------------------------------------------
-# markdown記法
-#                                              (C)2014-2019 nabe / nabe@abk.nu
+# Markdown parser
+#                                              (C)2014-2024 nabe / nabe@abk.nu
 #-------------------------------------------------------------------------------
-# コメント中に [M] とあるものは、Markdown.pl 準拠。
-# [GFM] とあるものは、GitHub Flavored Markdown 準拠。
-# [S] とあるものは、adiary拡張（Satsuki記法互換機能）
+# [M]	is compatible to Markdown.pl.
+# [GFM] is compatible to GitHub Flavored Markdown.
+# [S]	is Satsuki syntax extension.
 #
 package Satsuki::TextParser::Markdown;
-our $VERSION = '1.21';
+our $VERSION = '1.22';
 #-------------------------------------------------------------------------------
 ################################################################################
 # ■基本処理
@@ -52,10 +52,9 @@ sub new {
 #	\x01	これ以上、行処理しない
 #	\x02	これ以上、行処理も記法処理もしない
 # 特殊記号
-#	\x00		escape_without_tag() で使用
-#	\x03E		文字エスケープ
-#	\x03C		コメント退避
-#	\x02\x01	セクションの終わり
+#	\x00		未使用
+#	\x03		文字エスケープ
+#	\x04		コメント退避
 #
 #-------------------------------------------------------------------------------
 # ●記事本文の整形
@@ -66,8 +65,8 @@ sub parse {
 
 	# コメントの退避
 	my @comment;
-	$text =~ s/[\x00-\x03]//g;		# 特殊文字削除
-	$text =~ s/(\n?(?:<!(?:--.*?--\s*)+>))/push(@comment, $1),"\x03C" . $#comment . "\x03"/esg;
+	$text =~ s/[\x00-\x04]//g;		# 特殊文字削除
+	$text =~ s/(\n?(?:<!(?:--.*?--\s*)+>))/push(@comment, $1),"\x04" . $#comment . "\x04"/esg;
 
 	# 行に分解
 	my $lines = [ split(/\n/, $text) ];
@@ -97,13 +96,10 @@ sub parse {
 	#-----------------------------------------
 	# ○後処理
 	#-----------------------------------------
-	my $sec;
-	if (substr($lines->[$#$lines],-2) eq "\x02\x01") { $sec=pop(@$lines); }
-	while(@$lines && $lines->[$#$lines] eq '') { pop(@$lines); }
-	if ($sec) { push(@$lines, $sec); }
+	my $all = join("\n", @$lines);
+	$all =~ s|\n+\n</section>\x02|\n</section>\x02\n|g;
 
 	# [S] <toc>の後処理
-	my $all = join("\n", @$lines);
 	if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
 		$sobj->{sections} = $self->{sections};
 		$sobj->post_process( \$all );
@@ -124,12 +120,12 @@ sub parse {
 		# コメント中の %SeeMore% 除去
 		$_ =~ s/<\!--%SeeMore%-->/<\!--%SeeMore% -->/;
 	}
-	$all   =~ s/\x03C(\d+)\x03/$comment[$1]/g;
-	$short =~ s/\x03C(\d+)\x03/$comment[$1]/g;
+	$all   =~ s/\x04(\d+)\x04/$comment[$1]/g;
+	$short =~ s/\x04(\d+)\x04/$comment[$1]/g;
 
 	# 特殊文字の除去
-	$all   =~ s/[\x00-\x03]//g;
-	$short =~ s/[\x00-\x03]//g;
+	$all   =~ s/[\x00-\x04]//g;
+	$short =~ s/[\x00-\x04]//g;
 
 	return wantarray ? ($all, $short) : $all;
 }
@@ -170,7 +166,7 @@ sub parse_special_block {
 		my $x = shift(@$lines);
 
 		# コメントのみの行
-		if ($x =~ /^(?:\x03C\d+\x03\s*)+$/) {
+		if ($x =~ /^(?:\x04\d+\x04\s*)+$/) {
 			$x .= "\x02";
 		}
 
@@ -262,7 +258,7 @@ sub parse_special_block {
 			my $level = length($1);
 			my $title = $2;
 			if ($level == 1 && $sectioning && @ary) {
-				push(@ary, "</section>\x02\x01");
+				push(@ary, "</section>\x02");
 				push(@ary, "<section>\x02");
 				$in_section=1;
 			}
@@ -301,7 +297,7 @@ sub parse_special_block {
 			# output html
 			my $h  = $self->{section_hnum} + $level -1;
 			if (6 < $h) { $h=6; }
-			push(@ary, "$self->{indent}<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\">$title</a></h$h>");
+			push(@ary, "$self->{indent}<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\">$title</a></h$h>\x01");
 			push(@ary,'');
 			$newblock=1;
 			next;
@@ -327,7 +323,6 @@ sub parse_special_block {
 		if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
 			if ($x =~ m!(.*?)\[\*toc(\d*)(?:|:(.*?))\](.*)!) {
 				if ($1 ne '') { push(@ary,$1); }
-				push(@ary,'',"<toc>depth=$2:$3</toc>\x01");
 				if ($3 ne '') { push(@ary,$4); }
 				next;
 			}
@@ -345,7 +340,7 @@ sub parse_special_block {
 	#-----------------------------------------------------------------------
 	if ($sectioning && grep { $_ =~ /[^\s]/ } @ary) {
 		unshift(@ary, "<section>\x02");
-		push(@ary,'',"</section>\x02\x01");
+		push(@ary, "</section>\x02");
 	}
 	return \@ary;
 }
@@ -681,7 +676,7 @@ sub parse_inline {
 	# 強調タグ処理避け
 	sub escape_special_char {
 		my $s = shift;
-		$s =~ s/([\*\~\`_])/"\x03E". ord($1) ."\x03"/eg;
+		$s =~ s/([\*\~\`_])/"\x03". ord($1) ."\x03"/eg;
 		return $s;
 	}
 
@@ -788,6 +783,11 @@ sub parse_inline {
 		if ($self->{gfm_ext}) {
 			$_ =~ s|~~(.*?)~~|<del>$1</del>|xg;
 		}
+
+		# escape special charactor "<" ">"
+		$_ =~ s!(.*?)(</[\w\-]+>|<[\w\-]+(?:\s+[\w\-]+(?:\s*=\s*(?:[^\s\"]+|"[^\"]*"))?)*\s*>|$)!
+			(($1 =~ s/</&lt;/rg) =~ s/>/&gt;/rg) . $2;
+		!eg;
 	}
 
 	#---------------------------------------------------
@@ -802,7 +802,7 @@ sub parse_inline {
 sub un_escape {
 	my $self = shift;
 	foreach(@_) {
-		$_ =~ s/\x03E(\d+)\x03/chr($1)/eg;
+		$_ =~ s/\x03(\d+)\x03/chr($1)/eg;
 	}
 	return $_[0];
 }
