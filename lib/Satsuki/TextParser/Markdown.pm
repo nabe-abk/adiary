@@ -8,7 +8,7 @@ use strict;
 # [S]	is Satsuki syntax extension.
 #
 package Satsuki::TextParser::Markdown;
-our $VERSION = '1.22';
+our $VERSION = '1.23';
 #-------------------------------------------------------------------------------
 ################################################################################
 # ■基本処理
@@ -22,6 +22,7 @@ sub new {
 
 	$self->{section_hnum} = 3;	# H3から使用する
 	$self->{tab_width} = 4;		# タブの幅
+	$self->{escape_spchar} = 1;	# タグではない <, > をエスケープする
 
 	$self->{lf_patch} = 1;		# 日本語のpタグ中の改行を消す
 	$self->{md_in_htmlblk} = 1;	# Markdown Inside HTML Blocksを許可する / PHP Markdown Extra
@@ -785,9 +786,11 @@ sub parse_inline {
 		}
 
 		# escape special charactor "<" ">"
-		$_ =~ s!(.*?)(</[\w\-]+>|<[\w\-]+(?:\s+[\w\-]+(?:\s*=\s*(?:[^\s\"]+|"[^\"]*"))?)*\s*>|$)!
-			(($1 =~ s/</&lt;/rg) =~ s/>/&gt;/rg) . $2;
-		!eg;
+		if ($self->{escape_spchar}) {
+			$_ =~ s!(.*?)(</[\w\-]+>|<[\w\-]+(?:\s+[\w\-]+(?:\s*=\s*(?:[^\s\"]+|"[^\"]*"))?)*\s*/?>|$)!
+				(($1 =~ s/</&lt;/rg) =~ s/>/&gt;/rg) . $2;
+			!eg;
+		}
 	}
 
 	#---------------------------------------------------
