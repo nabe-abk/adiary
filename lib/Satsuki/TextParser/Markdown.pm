@@ -324,6 +324,7 @@ sub parse_special_block {
 		if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
 			if ($x =~ m!(.*?)\[\*toc(\d*)(?:|:(.*?))\](.*)!) {
 				if ($1 ne '') { push(@ary,$1); }
+				push(@ary,'',"<toc>depth=$2:$3</toc>\x01");
 				if ($3 ne '') { push(@ary,$4); }
 				next;
 			}
