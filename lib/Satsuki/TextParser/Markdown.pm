@@ -368,7 +368,7 @@ sub parse_block {
 		if ($x =~ /^\s*$/) { $x=''; }
 
 		# 空行
-		if ($x eq '' ) {
+		if ($x eq '') {
 			if (@p_block) {
 				$self->p_block_end(\@ary, \@p_block, $pmode);
 				push(@ary, $x);
@@ -462,7 +462,7 @@ sub parse_block {
 				foreach(@$li) {
 					$_ =~ s/^  ? ? ?//;
 				}
-				my $blk = $self->parse_block($li, 1);
+				my $blk = $self->parse_block( $self->parse_special_block($li, 1), 1 );
 				if ($blk->[$#$blk] eq '') { pop(@$blk); }
 				$blk->[0] = '<li>' . $blk->[0];
 				$blk->[$#$blk] .= '</li>';
@@ -488,7 +488,7 @@ sub parse_block {
 				$x = shift(@$lines);
 			}
 			# [M] 入れ子処理する
-			my $blk = $self->parse_block( $self->parse_special_block(\@block, 1) );
+			my $blk = $self->parse_block( $self->parse_special_block(\@block, 1), 1 );
 			push(@ary, @$blk);
 			push(@ary, '</blockquote>');
 			push(@ary, '');
