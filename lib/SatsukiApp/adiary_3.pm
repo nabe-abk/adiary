@@ -234,6 +234,7 @@ sub make_thumbnail_for_image {
 			$img->Read( $f );
 		}
 		$img = $img->[0];
+		$img->AutoOrient();
 		($w, $h) = $img->Get('width', 'height');
 	};
 	if ($@) { return -1; }	# load 失敗
