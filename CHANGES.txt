@@ -54,7 +54,7 @@
 --【Fix】Markdownで見出し記法に{<p>}タグを出力してしまう。
 -【Ver3.50j/Markdown/Fix】Ver3.50iにてMarkdown記法で{[*toc]}が無効になっていた。((必要な行がなぜか消えてる謎のエンバグ……))
 -【Ver3.50k/Markdown/Fix】リスト記法の入れ子処理が正しくない。（[https://adiary.adiary.jp/0422#c21:Thanks to りこ]）
--【Ver3.50l】EXIFのOrientationタグ対策で、ImageMagickのAutoOrientメソットを呼び出すようにしました。（[https://adiary.adiary.jp/0422#c24:Thanks to りこ]）
+-【Ver3.50l】EXIFのOrientationタグ対策にImageMagickのAutoOrientメソッドを使用しました。（[https://adiary.adiary.jp/0422#c24:Thanks to りこ]）
 -【Ver3.50l/Markdown/Fix】Codeブロック中のコメントがあると正しく表示されない。（[https://adiary.adiary.jp/0422#c25:Thanks to りこ]）
 
 *Ver3.40d : 2022/12/16
