@@ -64,10 +64,8 @@ sub parse {
 	my ($self, $text) = @_;
 	my $sobj = $self->{satsuki_tags} && $self->{satsuki_obj};	# Satsuki parser
 
-	# コメントの退避
-	my @comment;
 	$text =~ s/[\x00-\x04]//g;		# 特殊文字削除
-	$text =~ s/(\n?(?:<!(?:--.*?--\s*)+>))/push(@comment, $1),"\x04" . $#comment . "\x04"/esg;
+	$self->save_comments($text);
 
 	# 行に分解
 	my $lines = [ split(/\n/, $text) ];
@@ -117,18 +115,37 @@ sub parse {
 	}
 
 	# コメントの復元
-	foreach(@comment) {
-		# コメント中の %SeeMore% 除去
-		$_ =~ s/<\!--%SeeMore%-->/<\!--%SeeMore% -->/;
-	}
-	$all   =~ s/\x04(\d+)\x04/$comment[$1]/g;
-	$short =~ s/\x04(\d+)\x04/$comment[$1]/g;
+	$self->restore_comments($all, $short);
 
 	# 特殊文字の除去
 	$all   =~ s/[\x00-\x04]//g;
 	$short =~ s/[\x00-\x04]//g;
 
 	return wantarray ? ($all, $short) : $all;
+}
+
+#-------------------------------------------------------------------------------
+# save comments
+#-------------------------------------------------------------------------------
+sub save_comments {
+	my $self = shift;
+	my @ary;
+	foreach(@_) {
+		$_ =~ s/(<!(?:--.*?--\s*)+>)/push(@ary, $1),"\x04" . $#ary . "\x04"/esg;
+	}
+	foreach(@ary) {
+		# remove %SeeMore% in comment
+		$_ =~ s/<\!--%SeeMore%-->/<\!--%SeeMore% -->/;
+	}
+	$self->{comments_ary} = \@ary;
+}
+
+sub restore_comments {
+	my $self = shift;
+	my $ary = $self->{comments_ary};
+	foreach(@_) {
+		$_ =~ s/\x04(\d+)\x04/$ary->[$1]/g;
+	}
 }
 
 ################################################################################
@@ -820,6 +837,7 @@ sub un_escape {
 #-------------------------------------------------------------------------------
 sub escape_in_code {
 	my $self = shift;
+	$self->restore_comments(@_);
 	foreach(@_) {
 		$_ =~ s/&/&amp;/g;
 		$_ =~ s/</&lt;/g;
@@ -833,6 +851,7 @@ sub escape_in_code {
 #-------------------------------------------------------------------------------
 sub tag_escape {
 	my $self = shift;
+	$self->restore_comments(@_);
 	foreach(@_) {
 		# $_ =~ s/&/&amp;/g;
 		$_ =~ s/</&lt;/g;
