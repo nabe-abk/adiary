@@ -8,14 +8,11 @@ use strict;
 # [S]	is Satsuki syntax extension.
 #
 package Satsuki::TextParser::Markdown;
-our $VERSION = '1.23';
+our $VERSION = '1.30';
 #-------------------------------------------------------------------------------
 ################################################################################
-# ■基本処理
+# Constructor
 ################################################################################
-#-------------------------------------------------------------------------------
-# ●【コンストラクタ】
-#-------------------------------------------------------------------------------
 sub new {
 	my $self = bless({}, shift);
 	$self->{ROBJ} = shift;
@@ -47,64 +44,58 @@ sub new {
 }
 
 ################################################################################
-# ■メインルーチン
+# Main
 ################################################################################
 # 行末記号
 #	\x01	これ以上、行処理しない
 #	\x02	これ以上、行処理も記法処理もしない
 # 特殊記号
-#	\x00		未使用
-#	\x03		文字エスケープ
-#	\x04		コメント退避
+#	\x00	not use
+#	\x03	escape character
+#	\x04	for HTML comment
 #
 #-------------------------------------------------------------------------------
-# ●記事本文の整形
+# parse
 #-------------------------------------------------------------------------------
 sub parse {
 	my ($self, $text) = @_;
-	my $sobj = $self->{satsuki_tags} && $self->{satsuki_obj};	# Satsuki parser
 
-	$text =~ s/[\x00-\x04]//g;		# 特殊文字削除
+	my $sobj = $self->{satsuki_tags} && $self->{satsuki_obj};	# Satsuki parser
+	$self->{sobj} = $sobj;
+
+	# Delete special character
+	$text =~ s/[\x00-\x04]//g;
 	$self->save_comments($text);
 
-	# 行に分解
 	my $lines = [ split(/\n/, $text) ];
 	undef $text;
 
-	# 内部変数初期化
-	$self->{links} = {};
+	# Init internal variables
 	if ( $sobj ) {
 		$sobj->{thisurl}  = $self->{thisurl};
 		$sobj->{thispkey} = $self->{thispkey};
 	}
 	$self->{sections} = [];
+	$self->{links}    = {};
 	$self->{ids}      = {};
 
-	#-----------------------------------------
-	# ○処理スタート
-	#-----------------------------------------
-	# [01] 特殊ブロックのパースと空行の整形
-	$lines = $self->parse_special_block($lines);
-
-	# [02] その他のブロックのパース
-	$lines = $self->parse_block($lines);
-
-	# [03] インライン記法の処理
+	# parse main
+	$lines = $self->parse_block ($lines);
 	$lines = $self->parse_inline($lines);
 
 	#-----------------------------------------
-	# ○後処理
+	# post process
 	#-----------------------------------------
 	my $all = join("\n", @$lines);
 	$all =~ s|\n+\n</section>\x02|\n</section>\x02\n|g;
 
-	# [S] <toc>の後処理
+	# [S] <toc>
 	if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
 		$sobj->{sections} = $self->{sections};
 		$sobj->post_process( \$all );
 	}
 
-	# [S] Moreの処理
+	# [S] See More
 	my $short = '';
 	if ($all =~ /^((.*?)\n?<p class="seemore">.*)<!--%SeeMore%-->\x02?\n(.*)$/s ) {
 		$short = $1;
@@ -114,10 +105,7 @@ sub parse {
 		}
 	}
 
-	# コメントの復元
 	$self->restore_comments($all, $short);
-
-	# 特殊文字の除去
 	$all   =~ s/[\x00-\x04]//g;
 	$short =~ s/[\x00-\x04]//g;
 
@@ -149,50 +137,56 @@ sub restore_comments {
 }
 
 ################################################################################
-# ■ Markdownパーサー
+# Markdown Block Parser
 ################################################################################
-#-------------------------------------------------------------------------------
-# ●[01] 特殊ブロックのパースと空行の整形
-#-------------------------------------------------------------------------------
-sub parse_special_block {
+sub parse_nest_block {
+	return &parse_block($_[0], $_[1], 1);
+}
+sub parse_block {
 	my ($self, $lines, $nest) = @_;
-	my $sectioning = $nest ? 0 : $self->{sectioning};
 
-	my @ary;
-
-	#
-	# 連続する空行を1つの空行にする。特殊ブロックをブロックとして切り出す。
-	#
-	my $in_section;
-	my $newblock=1;
-	my $tw = $self->{tab_width};
 	my $block_tags = qr!
+		# original
 		p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|
 		script|noscript|form|fieldset|iframe|math|ins|del|
-		# 以下、追加した要素
+		# append tags
 		style|article|section|nav|aside|header|footer|details|
 		audio|video|figure|canvas|map|
-		# GFM拡張の一部 https://github.github.com/gfm/#html-block
+		# GFM https://github.github.com/gfm/#html-block
 		address|aside|base|hr|option|source
 	!x;
+
+	my $pmode      = ($nest && !grep { $_ eq '' } @$lines) ? 0 : 1;
+	my $sectioning = $nest ? 0 : $self->{sectioning};
+	my $in_section = 0;
+	my $seemore    = 1;
+	my $tab_width  = $self->{tab_width};
+	my $links      = $self->{links};
+
+	my @p_block;
 
 	#-----------------------------------------------------------------------
 	# main loop
 	#-----------------------------------------------------------------------
+	my @ary;
 	push(@$lines, '');
 	while(@$lines) {
 		my $x = shift(@$lines);
 
-		# コメントのみの行
-		if ($x =~ /^(?:\x04\d+\x04\s*)+$/) {
-			$x .= "\x02";
+		# HTML comment only
+		if ($x =~ /^\s*(?:\x04\d+\x04\s*)+$/) {
+			push(@ary, "\x02");
+			next;
 		}
 
-		# [M] TAB to SPACE 4つ
-		$x =~ s/(.*?)\t/$1 . (' ' x ($tw - (length($1) % $tw)))/eg;
+		# [M] TAB to SPACE
+		$x =~ s/(.*?)\t/$1 . (' ' x ($tab_width - (length($1) % $tab_width)))/eg;
 
-		# HTMLブロック
+		#---------------------------------------------------------------
+		# HTML block
+		#---------------------------------------------------------------
 		if (!$nest && $x =~ /^<($block_tags)\b[^>]*>/i) {
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			my $tagend = qr|</$1\s*>\s*$|;
 			my $endmark = "\x02";
 			if ($self->{md_in_htmlblk} && $x =~ /markdown\s*=\s*"1"/) {
@@ -206,7 +200,6 @@ sub parse_special_block {
 				$x = shift(@$lines);
 			}
 			push(@ary, $x . ($endmark ? $endmark : "\x01"));
-			$newblock=1;
 			next;
 		}
 
@@ -214,6 +207,7 @@ sub parse_special_block {
 		# [Qiita] MathJax
 		#---------------------------------------------------------------
 		if ($self->{qiita_math} && $x =~ /^```math\s*$/) {
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			my @code;
 			$x = shift(@$lines);
 			while(@$lines && $x !~ /^```\s*$/) {
@@ -227,21 +221,23 @@ sub parse_special_block {
 		}
 
 		#---------------------------------------------------------------
-		# [GFM] シンタックスハイライト
+		# [GFM] Fenced code blocks
 		#---------------------------------------------------------------
-		if ($self->{gfm_ext} && $x =~ /^```([^`]*?)\s*$/) {
-			my ($lang,$file) = split(':', $1, 2);
+		if ($self->{gfm_ext} && $x =~ /^(```+|~~~+)([^`]*?)\s*$/) {
+			$self->p_block_end(\@ary, \@p_block, $pmode);
+			my $fence = $1;
+			my ($lang,$file) = split(':', $2, 2);
 			my @code;
-			$x = shift(@$lines);
-			while(@$lines && $x !~ /^```\s*$/) {
+			while(@$lines) {
+				$x = shift(@$lines);
+				if (substr($x,0,length($fence)) eq $fence && $x =~ /^[`~]+\s*$/) { last; }
 				$self->escape_in_code($x);
 				push(@code, "$x\x02");
-				$x = shift(@$lines);
 			}
 
 			$self->tag_escape($lang, $file);
 			my $class='';
-			if ($self->{satsuki_syntax_h}) {	# [S] Satsuki記法準拠
+			if ($self->{satsuki_syntax_h}) {	# [S]
 				if ($lang ne '') {
 					$class = ' ' . $lang;
 				}
@@ -258,21 +254,19 @@ sub parse_special_block {
 		}
 
 		#---------------------------------------------------------------
-		# 見出し記法
+		# Header syntax
 		#---------------------------------------------------------------
-		# 下線==/--による見出し
+		# ==/--
 		# [M] 2個以上の連なりで文末にスペース以外の文字がない
-		if ($x =~ /^===*\s*$/ && !$newblock) {
-			$x = '# '  . pop(@ary);
+		if ($x =~ /^===*\s*$/ && $#p_block == 0) {
+			$x = '# '  . pop(@p_block);
 		}
-		if ($x =~ /^---*\s*$/ && !$newblock) {
-			$x = '## ' . pop(@ary);
+		if ($x =~ /^---*\s*$/ && $#p_block == 0) {
+			$x = '## ' . pop(@p_block);
 		}
 
-		# 見出し
 		if ($x =~ /^(#+)\s*(.*?)\s*\#*$/) {
-			if (!$newblock) { push(@ary,''); }
-
+			$self->p_block_end(\@ary, \@p_block, $pmode);
 			my $level = length($1);
 			my $title = $2;
 			if ($level == 1 && $sectioning && @ary) {
@@ -281,7 +275,7 @@ sub parse_special_block {
 				$in_section=1;
 			}
 
-			# セクション情報の生成
+			# generate section
 			my $base = '';
 			my $secs = $self->{sections};
 			foreach(2..$level) {
@@ -317,26 +311,11 @@ sub parse_special_block {
 			if (6 < $h) { $h=6; }
 			push(@ary, "$self->{indent}<h$h id=\"$id\"><a href=\"$self->{thisurl}#$id\">$title</a></h$h>\x01");
 			push(@ary,'');
-			$newblock=1;
 			next;
 		}
 
 		#---------------------------------------------------------------
-		# 空行
-		#---------------------------------------------------------------
-		if ($x eq '') {
-			if (!$newblock) { push(@ary,''); }
-			$newblock=1;
-			next;
-		}
-
-		#---------------------------------------------------------------
-		# 文章行
-		#---------------------------------------------------------------
-		$newblock=0;
-
-		#---------------------------------------------------------------
-		# [S] Satsukiタグのマクロ展開
+		# [S] Satsuki macro
 		#---------------------------------------------------------------
 		if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
 			if ($x =~ m!(.*?)\[\*toc(\d*)(?:|:(.*?))\](.*)!) {
@@ -346,62 +325,23 @@ sub parse_special_block {
 				next;
 			}
 		}
-		push(@ary, $x);
-	}
 
-	#-----------------------------------------------------------------------
-	# 文末空行の除去
-	#-----------------------------------------------------------------------
-	while(@ary && $ary[$#ary] eq '') { pop(@ary); }
-
-	#-----------------------------------------------------------------------
-	# セクショニングを行う
-	#-----------------------------------------------------------------------
-	if ($sectioning && grep { $_ =~ /[^\s]/ } @ary) {
-		unshift(@ary, "<section>\x02");
-		push(@ary, "</section>\x02");
-	}
-	return \@ary;
-}
-
-#-------------------------------------------------------------------------------
-# ●[02] ブロックのパース
-#-------------------------------------------------------------------------------
-sub parse_block {
-	my ($self, $lines, $rec) = @_;
-
-	my $pmode=1;
-	my $seemore = 1;
-	if ($rec && !grep{ $_ eq '' } @$lines) { $pmode=0; }
-
-	my @ary;
-	if ($lines->[$#$lines] ne '') { push(@$lines, ''); }
-	my $links = $self->{links};
-	my @p_block;
-
-	while(@$lines) {
+		#===============================================================
+		# paragraph
+		#===============================================================
 		my $blank = !@p_block;
-		my $x = shift(@$lines);
 		if ($x =~ /^\s*$/) { $x=''; }
 
-		# 空行
+		# blank line
 		if ($x eq '') {
-			if (@p_block) {
-				$self->p_block_end(\@ary, \@p_block, $pmode);
-				push(@ary, $x);
-			}
-			next;
-		}
-		# 特殊行
-		if (ord(substr($x, -1)) < 3) {
 			$self->p_block_end(\@ary, \@p_block, $pmode);
 			push(@ary, $x);
 			next;
 		}
 
-		#-------------------------------------------
-		# リストブロック
-		#-------------------------------------------
+		#---------------------------------------------------------------
+		# list block
+		#---------------------------------------------------------------
 		if ($x =~ /^ ? ? ?(\*|\+|\-|\d+\.) /) {
 			$self->p_block_end(\@ary, \@p_block, $pmode);
 			my $ulol = length($1)<2 ? 'ul' : 'ol';
@@ -469,7 +409,7 @@ sub parse_block {
 				}
 			}
 
-			# ネスト処理
+			# nest
 			foreach my $li (@ul) {
 				if ($#$li == 0) {
 					push(@ary, $p{$li} ? "<li><p>$li->[0]</p></li>" : "<li>$li->[0]</li>");
@@ -479,7 +419,8 @@ sub parse_block {
 				foreach(@$li) {
 					$_ =~ s/^  ? ? ?//;
 				}
-				my $blk = $self->parse_block( $self->parse_special_block($li, 1), 1 );
+
+				my $blk = $self->parse_nest_block( $li );
 				if ($blk->[$#$blk] eq '') { pop(@$blk); }
 				$blk->[0] = '<li>' . $blk->[0];
 				$blk->[$#$blk] .= '</li>';
@@ -489,9 +430,9 @@ sub parse_block {
 			next;
 		}
 
-		#-------------------------------------------
-		# 引用ブロック [M] ブロックは入れ子処理する
-		#-------------------------------------------
+		#---------------------------------------------------------------
+		# [M] blockquote
+		#---------------------------------------------------------------
 		if ($x =~ /^ ? ? ?>/) {
 			$self->p_block_end(\@ary, \@p_block, $pmode);
 			push(@ary, '<blockquote>');
@@ -505,16 +446,15 @@ sub parse_block {
 				$x = shift(@$lines);
 			}
 			# [M] 入れ子処理する
-			my $blk = $self->parse_block( $self->parse_special_block(\@block, 1), 1 );
+			my $blk = $self->parse_nest_block( \@block );
 			push(@ary, @$blk);
 			push(@ary, '</blockquote>');
-			push(@ary, '');
 			next;
 		}
 
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		# [M] コードブロック
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		if ($blank && $x =~ /^    (.*)/) {
 			$self->p_block_end(\@ary, \@p_block, $pmode);
 			my @code = ($x);
@@ -537,9 +477,9 @@ sub parse_block {
 			next;
 		}
 
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		# [GFM] テーブル
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		if ($self->{gfm_ext} && $blank
 		 && $x =~ /^\s*\|/
 		 && $lines->[0] =~ /^\s*|(?:\s*:?\-{3,}:?\s*\|)+\s*$/
@@ -600,9 +540,9 @@ sub parse_block {
 			}
 		}
 
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		# 続きを読む記法
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		if ($blank && $seemore && $self->{satsuki_seemore} && ($x eq '====' || $x eq '=====')) {
 			$self->p_block_end(\@ary, \@p_block, $pmode);
 			push(@ary, <<TEXT);
@@ -613,9 +553,9 @@ TEXT
 			next;
 		}
 
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		# <hr />
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		my $y = $x;
 		$y =~ s/\s//g;
 		if ($y =~ /^\*\*\*\**$|^----*$|^____*$/) {
@@ -624,9 +564,9 @@ TEXT
 			next;
 		}
 
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		# リンク定義。[M] 参照名が空文字の場合は無効
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		if ($x =~ /^ ? ? ?\[([^\]]+)\]:\s*(.*?)\s*(?:\s*("[^\"]*"|'[^\']*')\s*)?\s*$/) {
 			$self->p_block_end(\@ary, \@p_block, $pmode);
 			my $name = $1;
@@ -643,14 +583,20 @@ TEXT
 			next;
 		}
 
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		# 通常文字
-		#-------------------------------------------
+		#---------------------------------------------------------------
 		$x =~ s/^ ? ? ?//;	# [M] 手前スペース3つまで削除
 		push(@p_block, $x);	# 段落ブロック
+
 	}
-	# 文末空行の除去
 	while(@ary && $ary[$#ary] eq '') { pop(@ary); }
+
+	# sectioning
+	if ($sectioning && grep { $_ =~ /[^\s]/ } @ary) {
+		unshift(@ary, "<section>\x02");
+		push(@ary, "</section>\x02");
+	}
 	return \@ary;
 }
 
@@ -658,7 +604,7 @@ sub p_block_end {
 	my $self = shift;
 	my $ary  = shift;
 	my $blk  = shift;
-	my $pmode = shift;
+	my $pmode= shift;
 	my $lf_patch = $self->{lf_patch};
 	if (!@$blk) { return; }
 
@@ -680,9 +626,9 @@ sub p_block_end {
 	@$blk = ();
 }
 
-#-------------------------------------------------------------------------------
-# ●[03] インライン記法の処理
-#-------------------------------------------------------------------------------
+################################################################################
+# Markdown Inline Parser
+################################################################################
 sub parse_oneline {
 	my ($self, $text) = @_;
 	my $lines = $self->parse_inline( [$text] );
@@ -828,9 +774,8 @@ sub un_escape {
 	return $_[0];
 }
 
-
 ################################################################################
-# サブルーチン
+# Subroutine
 ################################################################################
 #-------------------------------------------------------------------------------
 # ●コードブロック中のエスケープ
