@@ -1,5 +1,9 @@
 #!/bin/sh
 
+TAR="tar jcf"
+EXT="bz2"
+
+#-----------------------------------------------------------
 
 if [ "$1" != '' ]
 then
@@ -92,7 +96,7 @@ cp -p $CPFLAGS skel.local/README.txt $RELEASE/skel.local/
 #-----------------------------------------------------------
 if [ -r $EXCLUSIVE_LIST ] 
 then
-	echo "\n---Exclusive file list----------------------------------------------"
+	echo "\n---Exclusive file list----------------------------------------------------------"
 	cat $EXCLUSIVE_LIST
 
 	cd $RELEASE
@@ -101,9 +105,36 @@ then
 fi
 
 #-----------------------------------------------------------
-# end
+# RELEASE files check
 #-----------------------------------------------------------
-echo "\n--------------------------------------------------------------------"
-echo RELEASED : $RELEASE/
+# if not exist RELEASE dir, exit
+if [ ! -e $RELEASE/ ]
+then
+	echo $RELEASE/ not exists.
+	exit
+fi
 
-#-----------------------------------------------------------
+echo "\n---Packaging--------------------------------------------------------------------"
+
+# Windows zip
+if [ `which zip` ]; then
+	echo zip -q adiary-windows_x64.zip -r $RELEASE/
+	     zip -q adiary-windows_x64.zip -r $RELEASE/
+fi
+rm -f $RELEASE/*.exe
+
+#------------------------------------------------------------------
+
+# Release file
+echo $TAR $RELEASE.tar.$EXT $RELEASE/
+     $TAR $RELEASE.tar.$EXT $RELEASE/
+
+# no font package
+<< COMMENT
+rm -rf $RELEASE/pub-dist/VL-PGothic-Regular.ttf $RELEASE/VLGothic/
+
+echo tar $TAR $RELEASE-nofont.tar.$EXT $RELEASE/
+     tar $TAR $RELEASE-nofont.tar.$EXT $RELEASE/
+COMMENT
+
+rm -rf $RELEASE
