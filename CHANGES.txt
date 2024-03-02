@@ -57,6 +57,7 @@
 -【Ver3.50l】EXIFのOrientationタグ対策にImageMagickのAutoOrientメソッドを使用しました。（[https://adiary.adiary.jp/0422#c24:Thanks to りこ]）
 -【Ver3.50l/Markdown/Fix】Codeブロック中のコメントがあると正しく表示されない。（[https://adiary.adiary.jp/0422#c25:Thanks to りこ]）
 -【Ver3.50m/Markdown】Fenced code blocksの処理を新しいGFM仕様に合わせました。
+-【Ver3.50n/Markdown/Fix】\{ \}記号のエスケープ処理を除去しました。（[https://adiary.adiary.jp/0422#c34:Thanks to りこ]）
 
 *Ver3.40d : 2022/12/16
 
