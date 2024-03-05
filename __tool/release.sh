@@ -5,9 +5,11 @@ EXT="bz2"
 
 #-----------------------------------------------------------
 
-if [ "$1" != '' ]
+if [ -r "$1" ]
 then
 	EXCLUSIVE_LIST=$1
+	echo Use exclusive list: $1
+	echo
 else
 	EXCLUSIVE_LIST=__tool/norelease.list
 fi
@@ -42,7 +44,7 @@ BASE="
 	README.md
 	CHANGES.txt
 	index.html
-	dot.htaccess
+	.htaccess.sample
 "
 EXE="
 	adiary.exe
@@ -94,7 +96,7 @@ cp -p $CPFLAGS skel.local/README.txt $RELEASE/skel.local/
 #-----------------------------------------------------------
 # remove exclusive files
 #-----------------------------------------------------------
-if [ -r $EXCLUSIVE_LIST ] 
+if [ -r $EXCLUSIVE_LIST ]
 then
 	echo "\n---Exclusive file list----------------------------------------------------------"
 	cat $EXCLUSIVE_LIST
@@ -113,6 +115,14 @@ then
 	echo $RELEASE/ not exists.
 	exit
 fi
+
+if [ "$1" = "test" -o  "$2" = "test" ]
+then
+	echo
+	echo No packaging for check
+	exit
+fi
+
 
 echo "\n---Packaging--------------------------------------------------------------------"
 

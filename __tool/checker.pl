@@ -115,7 +115,7 @@ print "---Release checker-------------------------------------------------------
 # CRLF check
 #-------------------------------------------------------------------------------
 {
-	open(my $fh, "grep -rI '\r\n' skel/ js/*.js js/src/*.js lib/ info/ plugin/ theme/|");
+	open(my $fh, "grep -rI '\r\n' skel/ js/*.js lib/ info/ plugin/ theme/|");
 	my @ary = <$fh>;
 	close($fh);
 
