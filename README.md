@@ -12,7 +12,7 @@ And, '__cache' and 'data/' directories not permit to access from web.
 # 動作環境
 
   * Apache またはそれと互換性のあるWebサーバ
-  * Perl 5.8.1以降（pure Perl可）
+  * Perl 5.14.0以降（pure Perl可）
 
 # インストール方法
 
