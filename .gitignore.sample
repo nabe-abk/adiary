@@ -6,7 +6,7 @@
 #--------------------------------------
 # root files
 #--------------------------------------
-!/.gitignore
+!/.gitignore.sample
 !/adiary.cgi
 !/adiary.fcgi
 !/adiary.env.cgi.sample
@@ -45,18 +45,10 @@
 #--------------------------------------
 # ignore files
 #--------------------------------------
-/js/src
-/js/asys.src
 /info/textparser_site_tags.txt
 /plugin/@3rd-party/
-/lib/SatsukiApp/form.pm
-/lib/SatsukiApp/form_2.pm
 
 #--------------------------------------
-# Special Edition files
+# Other
 #--------------------------------------
-/theme/satsuki2/mint/
-/theme/satsuki2/chie/
-/theme/satsuki2-pop/minato/
 
-/plugin/sp_hide_sentence/
