@@ -7,13 +7,13 @@
 # root files
 #--------------------------------------
 !/.gitignore.sample
+!/.htaccess.sample
 !/adiary.cgi
 !/adiary.fcgi
 !/adiary.env.cgi.sample
 !/adiary.conf.cgi.sample
 !/adiary.httpd.pl
 !/CHANGES.txt
-!/dot.htaccess
 !/index.html
 !/README.md
 
