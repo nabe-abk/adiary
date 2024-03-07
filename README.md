@@ -1,7 +1,7 @@
 # adiary-extend
 
 このプログラムは[nabe-abk/adiary](https://github.com/nabe-abk/adiary)のフォークです。
-原典となる著作権表記はオリジナルのREADMEは[README.original.md](README.original.md)に記されています。
+原典となる著作権表記はオリジナルのREADMEである、[README.original.md](README.original.md)に記しています。
 
 フォーク後の改変箇所についてはGitのコミットログに記すものとします。
 
