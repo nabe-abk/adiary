@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.50h : 2023/02/02 - 2024/01/24
+*Ver3.50 : 2023/02/02 - 2024/05/27
 
 -[bf:Perl 5.14.0以降]が必要です。((Perl 5.8では動作しなくなりました。古いPerlを使用しているレンタルサーバの場合、レンタルサーバの設定画面からPerlを最新版に切り替えてください。))
 -表示以外でのIE11サポートを止めました。
@@ -58,8 +58,9 @@
 -【Ver3.50l/Markdown/Fix】Codeブロック中のコメントがあると正しく表示されない。（[https://adiary.adiary.jp/0422#c25:Thanks to りこ]）
 -【Ver3.50m/Markdown】Fenced code blocksの処理を新しいGFM仕様に合わせました。
 -【Ver3.50n/Markdown/Fix】\{ \}記号のエスケープ処理を除去しました。（[https://adiary.adiary.jp/0422#c34:Thanks to りこ]）
+-【Ver3.50o/Fix】{[google:image]}タグと{[google:video]}タグの中身が逆だったので修正。（[https://adiary.adiary.jp/0422#c40:Thanks to n]）
 
-*Ver3.40d : 2022/12/16
+*Ver3.40 : 2022/12/16
 
 -SpeedyCGI用の起動スクリプトを削除しました。
 -mod_perl対応コードを削除しました。
@@ -97,7 +98,7 @@
 -【記法/Fix】Google画像検索等のURLを変更しました((過去記事に対しては、ブログ記事の再構築が必要です。))。（[https://adiary.adiary.jp/0414#c7:Thanks to jimba]）
 -【Fix】ブログ一覧のテーブル表示でソートカラムを選択すると画面が切り替わる。
 
-*Ver3.31d : 2019/11/24
+*Ver3.31 : 2019/11/24
 
 -adiary.jsをリファクタリングしました。
 --jQuery等のjsライブラリとまとめて、adiary.min.js に minify しました。
@@ -133,7 +134,7 @@
 -【Ver3.31d/Fix】【標準記法】（Ver3.30～）エスケープ文字の復元ミスを修正。script環境を修正。（[https://adiary.adiary.jp/0414#c1:Thanks to 荻拓]）
 -他
 
-*Ver3.30a : 2019/06/30
+*Ver3.30 : 2019/06/30
 
 -[https://adiary.org/v3man/reStructuredText/:reStructuredText]に対応しました。
 -[https://adiary.org/v3man/special/sphinx_cms:Sphinx連携機能]が付きました。
@@ -225,7 +226,7 @@
 -【Fix】インポート等のセッション画面表示がおかしい。
 -【httpd/EXE】コードを若干変更。
 
-*Ver3.21b : 2019/02/12
+*Ver3.21 : 2019/02/12
 
 -内部処理を見直し、2%-5%程度処理を高速化しました。
 -起動時のパス解析を更新しました。

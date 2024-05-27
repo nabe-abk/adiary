@@ -66,8 +66,8 @@ qt = >title
 #------------------------------------------------------------------------------
 google       = Google検索,         UTF-8, https://www.google.co.jp/search?q=
 google:ja    = Google検索(ja),     UTF-8, https://www.google.co.jp/search?lr=lang_ja&q=
-google:image = Googleイメージ検索, UTF-8, https://www.google.co.jp/search?tbm=vid&q=
-google:video = Google動画検索,     UTF-8, https://www.google.co.jp/search?tbm=isch&q=
+google:image = Googleイメージ検索, UTF-8, https://www.google.co.jp/search?tbm=isch&q=
+google:video = Google動画検索,     UTF-8, https://www.google.co.jp/search?tbm=vid&q=
 google:news  = Googleニュース検索, UTF-8, https://www.google.co.jp/search?tbm=nws&q=
 google:transit = Googleトランジット, UTF-8, 2, https://www.google.com/maps?saddr=$1&daddr=$2
 google:qr      = QRコード生成, image, 999, https://chart.googleapis.com/chart?cht=qr&chs=92x92&chl=$0
