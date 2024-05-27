@@ -148,7 +148,7 @@ _module_start
 # YouTube モジュール
 #------------------------------------------------------------------------------
 *youtube
-<iframe class="youtube-player" style="width:#{width|480}px; height:#{height|270}px;" src="https://www.youtube.com/embed/${vid}" frameborder="0">
+<iframe class="youtube-player" style="width:#{width|480}px; height:#{height|270}px;" src="https://www.youtube.com/embed/${vid}?${opt}" frameborder="0">
 </iframe>
 
 #------------------------------------------------------------------------------
