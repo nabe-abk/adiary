@@ -71,6 +71,9 @@ sub _filter {
 	if ($url =~ m|^https://twitter\.com/(\w+)/status/(\d+)$|) {
 		return "<module name=\"tweet\" uid=\"$1\" status-id=\"$2\">";
 	}
+	if ($url =~ m|^https://x\.com/(\w+)/status/(\d+)$|) {
+		return "<module name=\"tweet\" uid=\"$1\" status-id=\"$2\">";
+	}
 
 	#-------------------------------------------------------------
 	# ニコニコ動画
