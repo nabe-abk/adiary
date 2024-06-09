@@ -57,12 +57,15 @@ sub _filter {
 	#-------------------------------------------------------------
 	# youtube
 	#-------------------------------------------------------------
-	if ($url =~ m|^https?://www\.youtube\.com/watch\?v=(\w+)$|) {
+	if ($url =~ m|^https?://www\.youtube\.com/watch\?v=(\w+)((?:&\w+=\w+)*)|) {
+		my $vid = $1;
 		my $w = 480;
 		my $h = 270;
 		if ($ary->[0] eq 'small') { $w=320; $h=180; }
 		if ($ary->[0] eq 'large') { $w=640; $h=360; }
-		return "<module name=\"youtube\" vid=\"$1\" width=\"$w\" height=\"$h\">";
+		my $opt= $2 ? substr($2,1) : '';
+		$opt =~ s/(^|&)t=(\d+)s?/${1}start=$2/g;
+		return "<module name=\"youtube\" vid=\"$vid\" width=\"$w\" height=\"$h\" opt=\"$opt\">";
 	}
 
 	#-------------------------------------------------------------
@@ -78,17 +81,21 @@ sub _filter {
 	#-------------------------------------------------------------
 	# ニコニコ動画
 	#-------------------------------------------------------------
-	if ($url =~ m|^http://www\.nicovideo\.jp/watch/(\w+)(?:\?.*)?$|) {
-		return "<module name=\"nico\" vid=\"$1\">";
+	if ($url =~ m|^https?://www\.nicovideo\.jp/watch/(\w+)(?:\?.*)?$|) {
+		my $w = 480;
+		my $h = 270;
+		if ($ary->[0] eq 'small') { $w=320; $h=180; }
+		if ($ary->[0] eq 'large') { $w=640; $h=360; }
+		return "<module name=\"nico\" vid=\"$1\" width=\"$w\" height=\"$h\">";
 	}
-	if ($url =~ m|^http://www.nicovideo.jp/mylist/(\w+)(?:\?.*)?$|) {
+	if ($url =~ m|^https?://www.nicovideo.jp/mylist/(\w+)(?:\?.*)?$|) {
 		return "<module name=\"nico:mylist\" mid=\"$1\">";
 	}
-	if ($url =~ m|^http://www.nicovideo.jp/user/(\w+)(?:\?.*)?$|) {
+	if ($url =~ m|^https?://www.nicovideo.jp/user/(\w+)(?:\?.*)?$|) {
 		return "<module name=\"nico:user\" uid=\"$1\">";
 	}
-	if ($url =~ m|^http://com\.nicovideo\.jp/community/(\w+)(?:\?.*)?$|) {
-		return "<module name=\"nico:commu\" cid=\"$1\">";
+	if ($url =~ m|^https?://com\.nicovideo\.jp/community/(\w+)(?:\?.*)?$|) {
+		return "<module name=\"nico:community\" cid=\"$1\">";
 	}
 
 	#-------------------------------------------------------------

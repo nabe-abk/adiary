@@ -919,9 +919,9 @@ sub void_plugin_images {
 		if ($_ !~ /^(\w+)_void$/) { next; }
 		if (! $form->{$_}) { next; }
 		my $n = $1;
-		$h->{$n} = undef
-		$h->{"${n}_w"} = undef
-		$h->{"${n}_h"} = undef
+		$h->{$n} = undef;
+		$h->{"${n}_w"} = undef;
+		$h->{"${n}_h"} = undef;
 	}
 }
 

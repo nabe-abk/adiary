@@ -281,7 +281,7 @@
 <span id="msg-upload-error">アップロードに失敗しました。</span>
 <span id="msg-upload-fail">%n 個中 %f 個のアップロードに失敗しました。</span>
 <span id="image-dir"><@v.blogimg_dir()></span>
-<span id="image-attr"><@replace(s.image_attr, '%k', edit_pkey || 0)></span>
+<span id="image-attr"><$edit_pkey ||= 0><@replace_dest(s.image_attr, '%k', edit_pkey)></span>
 <span id="exif-tag"><@if(v.blog.exif_tag, ":#[exif:%d:%f:<@v.blog.exif_tag>]", ':#[exif:%d:%f:%271 %272 / %37386mm F%33437 %33434sec ISO%34855]')></span>
 <span id="edit-lock-interval"><@v.sys.edit_lock_interval || 0></span>
 

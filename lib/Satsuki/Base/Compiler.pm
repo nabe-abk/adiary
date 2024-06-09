@@ -128,12 +128,9 @@ my %BlockStatement = map { $_ => 1} qw(
 # arg = minimal arguments
 #
 my %InlineFuncs = (
-	tr	=> { f=>'tr!$0!$1!',  arg=>2 },
-	s	=> { f=>'s!$0!$1!$2', arg=>2 },
-	m	=> { f=>'m!$0!$1',    arg=>2 },
-
-	replace      => { f=>'#0 =~ s!$1!$2!rg',arg=>3, min=>'=~', max=>'=~' },
-	replace_dest => { f=>'#0 =~ s!$1!$2!g',	arg=>3, min=>'=~', max=>'=~' },
+	match	=>	{ f=>'#0 =~ m!%1! ? [$1,$2,$3,$4,$5,$6,$7,$8,$9] : undef', arg=>2, min=>'?', max=>'=~' },
+	replace =>	{ f=>'#0 =~ s!%1!%2!rg',arg=>3, min=>'=~', max=>'=~' },
+	replace_dest =>	{ f=>'#0 =~ s!%1!%2!g',	arg=>3, min=>'=~', max=>'=~' },
 
 	is_int	=> { f=>'#0 =~ /^-?\d+$/',	arg=>1, min=>'=~', max=>'=~' },
 	is_array=> { f=>"ref(#0) eq 'ARRAY'",	arg=>1, min=>'eq' },
@@ -145,8 +142,10 @@ my %InlineFuncs = (
 	file_writable=>	{ f=>'-w #0', arg=>1, min=>'-w', max=>'-w' },
 	file_size =>	{ f=>'-s #0', arg=>1, min=>'-s', max=>'-s' },
 
-	weaken => { f=>'Scalar::Util::weaken(#0)', arg=>1 }
+	sref	=> { f=>'\(my $Z = #0)', arg=>1, min=>'=', max=>'='},
+	weaken	=> { f=>'Scalar::Util::weaken(#0)', arg=>1 }
 );
+
 
 #///////////////////////////////////////////////////////////////////////////////
 # inline if() functions
@@ -203,14 +202,6 @@ my %BuiltinFunc; my $B=\%BuiltinFunc;
 $B->{string2ordary}=<<'FUNC';
 	my $txt = shift;
 	return [ map { ord($_) } split('', $txt) ];
-FUNC
-
-$B->{match}=<<'FUNC';
-	my ($data, $reg) = @_;
-	if ($data =~ /$reg/) {
-		return [$',$1,$2,$3,$4,$5,$6,$7,$8,$9];
-	}
-	return ;
 FUNC
 
 $B->{grep}=<<'FUNC';
@@ -337,7 +328,7 @@ $OPR{'<<='}=  0x21;
 $OPR{'>>='}=  0x21;
 $OPR{'&&='}=  0x21;
 $OPR{'||='}=  0x21;
-$OPR{'?'}  =  0x30;	# not use
+$OPR{'?'}  =  0x30;	# used by match()
 $OPR{'..'} =  0x40;
 $OPR{'||'} =  0x50; $OPR_formal{'||'}  = ' || ';	# for readability
 $OPR{'&&'} =  0x60; $OPR_formal{'&&'}  = ' && ';	#
@@ -1683,35 +1674,46 @@ sub p2e_function {
 	if ($InlineFuncs{$y}) {
 		my $h = $InlineFuncs{$y};
 		my @arg = $self->get_objects_array($st, $x, $xt);
-		if ($#arg+1 < $h->{arg}) {
+		my $args= $h->{arg};
+		if ($#arg+1 < $args) {
 			return (0,0,0, 'The number of arguments is invalid: %s', "$y()");
 		}
 		my $func = $h->{f};
 
-		my @doll;
-		if ($func =~ /\$\d/) {	# replace for $n. ex) s => { f=>'s!$0!$1!$2' }
+		my @par;
+		if ($func =~ /%\d/) {	# replace(a,b,c,mod) f=>'#0 =~ s|%1|%2|g" to "a =~ s!b!c!mod"
 			my $at = ref($xt) ? $xt : [$xt];
-			@doll  = @arg;
+			@par = @arg;
 
-			my @ary;
-			$func =~ s/\$(\d+)/push(@ary,$1),''/egr;
-			my $p2 = $ary[2];
-
-			if ($p2 ne '' && $doll[$p2] ne '') {
-				if ($xt->[$p2] ne 'const') {
-					return (0,0,0, 'regexp modifier is const string only: %s', $doll[$p2]);
+			my $mod = $par[$args];
+			if ($mod ne '') {
+				if ($xt->[$args] ne 'const') {
+					return (0,0,0, '%s modifier is const string only: %s', "$y()", $mod);
 				}
-				if ($doll[$p2] =~ /e/) {
-					return (0,0,0, 'regexp modifier do not include "e": %s', $doll[$p2]);
+				if ($mod =~ /e/) {
+					return (0,0,0, '%s modifier do not include "e": %s', "$y()", $mod);
 				}
 			}
-			foreach(0..$#doll) {
-				if ($xt->[$_] eq 'const') { $doll[$_]=eval($doll[$_]); }
-			}
-			$doll[$p2] =~ s/[^a-df-z]//g;	# remove 'e'
+			$func .= ($mod =~ s/[^a-df-z]//rg);
 
-			foreach(@arg) {
-				$_ =~ s/((?:\\.|[^\\!])*)([\\!])/$1\\$2/sg;
+			foreach(0..$#par) {
+				if (index($func, "%$_")<0) { next; }
+				my $t = $xt->[$_];
+
+				if ($t eq 'obj') { next; }
+				if (($t eq 'string' || $t eq 'const') && $par[$_] =~ /^"(.*)"$/) {
+					$par[$_]=$1;	# "xxx" to xxx
+					next;
+				}
+				if ($t eq 'const') {
+					$par[$_]=eval($par[$_]);
+					next;
+				}
+				return (0,0,0, "%s's option must be strings or variable or constant: %s", "$y()", $arg[$_]);
+			}
+
+			foreach(@par) {
+				$_ =~ s/((?:\\.|[^\\!\@])*)([\\!\@])?/$1 . ($2 ? "\\$2" : '')/seg;
 			}
 		}
 
@@ -1720,7 +1722,8 @@ sub p2e_function {
 		foreach(0..$#arg) {
 			if ($al->[$_]<$opl) { $arg[$_]="($arg[$_])"; }
 		}
-		$func =~ s/([#\$])(\d+)/$1 eq '$' ? $doll[$2] : $arg[$2]/eg;
+		$func =~ s/#(\d+)/$arg[$1]/g;
+		$func =~ s/%(\d+)/$par[$1]/eg;
 		return ($func, $OPR{$h->{min}} || OPL_max);
 	}
 

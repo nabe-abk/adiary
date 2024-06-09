@@ -96,7 +96,7 @@ sub find_table {
 	# テーブルからの情報取得
 	my $dbh = $self->{dbh};
 	my $sql = "SELECT tablename FROM pg_tables WHERE tablename=? LIMIT 1";
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql);	# debug-safe
 	$sth && $sth->execute($table);
 
@@ -148,7 +148,7 @@ sub select {
 	#-----------------------------------------
 	# Do SQL
 	#-----------------------------------------
-	my $sth = $dbh->prepare_cached($sql);
+	my $sth = $dbh->prepare($sql);
 	$self->debug($sql, $ary);	# debug-safe
 	$sth && $sth->execute(@$ary);
 	if (!$sth || $dbh->err) {
@@ -166,7 +166,7 @@ sub select {
 	my $hits = $#$ret+1;
 	if ($limit ne '' && $limit <= $hits) {
 		my $sql = "SELECT count(*) FROM $table$where";
-		my $sth = $dbh->prepare_cached($sql);
+		my $sth = $dbh->prepare($sql);
 		$self->debug($sql, $ary);	# debug-safe
 		$sth && $sth->execute(@$ary);
 		if (!$sth || $dbh->err) {
