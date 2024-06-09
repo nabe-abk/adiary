@@ -61,6 +61,7 @@
 -【Ver3.50o】
 --【Fix】{[google:image]}タグと{[google:video]}タグの中身が逆だったので修正。（[https://adiary.adiary.jp/0422#c40:Thanks to n]）
 --フィルター記法にて、YouTubeの再生開始時間等を指定可能にしました。
+-【Ver3.50p】フィルター記法で https://x.com のリンクに対応しました。（[https://github.com/nabe-abk/adiary/pull/12:Thanks to kjimba]）
 
 *Ver3.40 : 2022/12/16
 

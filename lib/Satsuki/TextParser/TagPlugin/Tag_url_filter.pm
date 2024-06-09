@@ -71,7 +71,7 @@ sub _filter {
 	#-------------------------------------------------------------
 	# twitter
 	#-------------------------------------------------------------
-	if ($url =~ m|^https://twitter\.com/(\w+)/status/(\d+)$|) {
+	if ($url =~ m!^https://(?:twitter|x)\.com/(\w+)/status/(\d+)$!) {
 		return "<module name=\"tweet\" uid=\"$1\" status-id=\"$2\">";
 	}
 
