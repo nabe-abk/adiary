@@ -70,9 +70,6 @@ google:image = Googleイメージ検索, UTF-8, https://www.google.co.jp/search?
 google:video = Google動画検索,     UTF-8, https://www.google.co.jp/search?tbm=vid&q=
 google:news  = Googleニュース検索, UTF-8, https://www.google.co.jp/search?tbm=nws&q=
 google:transit = Googleトランジット, UTF-8, 2, https://www.google.com/maps?saddr=$1&daddr=$2
-google:qr      = QRコード生成, image, 999, https://chart.googleapis.com/chart?cht=qr&chs=92x92&chl=$0
-google:qr#link = QRコード生成, image, 999, $0
-google:qr#ext  = 1
 
 g   = >google
 g:ja= >google:ja
@@ -80,9 +77,11 @@ gi  = >google:image
 gv  = >google:video
 gn  = >google:news
 tr  = >google:transit
-qr  = >google:qr
 
 youtube = youtube,ASCII,1, <module name="youtube" vid="$1">
+
+# 代替
+qr = QRコード生成, image, 999, https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=40&data=$0
 
 #------------------------------------------------------------------------------
 # Amazon プラグイン
@@ -142,14 +141,13 @@ search:q  = >search:question
 #------------------------------------------------------------------------------
 # TeX記法
 #------------------------------------------------------------------------------
-tex =>gtex
+tex =>math
+gtex=>math
 
 math  = MathJax API, ASCII, 1, <span class="math">#1</span>
 mathd = MathJax API, ASCII, 1, <span class="math">\displaystyle #1</span>
 mref  = MathJax Ref, ASCII, 1, <span class="mathref math">\ref{#1}</span>
 mrefa = MathJax Ref, ASCII, 1, html:(<span class="mathref math">\ref{#1}</span>)
-
-gtex = Google Chart API, ASCII, 1, <img src="https://chart.googleapis.com/chart?cht=tx&chf=bg,s,ffffff00&chl=$1" alt="#1" title="#1" class="tex">
 
 # mimeTeX（要インストール http://adiary.org/v3man/Satsuki-tag/tex#mimetex）
 mtex = mimeTeX, ASCII, 1, <img src="${Basepath}mimetex.cgi?$1" alt="#1" title="#1" class="tex">
