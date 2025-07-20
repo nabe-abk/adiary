@@ -2,6 +2,7 @@
 
 *Ver3.51 : 2025/07/20
 
+-highlight.jsを最新版に入れ替えました。[https://github.com/nabe-abk/adiary/blob/master/js/highlight.lang-list.txt:対応言語リスト]。
 -【記法】Google Chart APIの廃止に伴い、{{[tex], [qr]}}記法のリンク先を変更しました。
 -他
 

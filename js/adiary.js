@@ -17,7 +17,7 @@ $(function(){
 
 	this.CommentEnableTime = 10000;	// msec
 	this.CommentEnableKeys = 10;
-	this.SyntaxHighlightTheme = 'adiary';
+	this.SyntaxHighlightTheme = '00_adiary';
 
 	// load adiary vars
 	let data = this.asys_vars;
@@ -230,7 +230,7 @@ $$.init(function(){
 
 	let css = this.get_value_from_css('syntax-highlight-theme') || this.SyntaxHighlightTheme;
 	css = css.replace(/\.css$/, '').replace(/[^\w\-]/g, '');
-	const css_file = this.PubdistDir + 'highlight-js/'+ css +'.css';
+	const css_file = this.PubdistDir + 'highlight-styles/'+ css +'.css';
 
 	const $style = $('#syntaxhighlight-theme');
 	if ($style.length)
@@ -238,7 +238,7 @@ $$.init(function(){
 
 	this.prepend_css(css_file).attr('id', 'syntaxhighlight-theme');
 
-	this.load_script(this.ScriptDir + 'highlight.pack.js', function(){
+	this.load_script(this.ScriptDir + 'highlight.min.js', function(){
 		$codes.each(function(i, block) {
 			hljs.highlightBlock(block);
 

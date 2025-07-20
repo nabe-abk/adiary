@@ -29,10 +29,10 @@
 </optgroup>
 	<option value="<@v.myself>?personal/"<@if(dir eq 'personal/', ' selected')>>アカウント設定</option>
 <@ifexec(Auth.isadmin, begin)>
-	<optgroup label="システム">
+<optgroup label="システム">
 	<option value="<@v.myself>?user/"<@if(dir eq 'user/', ' selected')>>ユーザー管理</option>
 	<option value="<@v.myself>?system/"<@if(dir eq 'system/', ' selected')>>システム管理</option>
-	</optgroup>
+</optgroup>
 <$end>
 </select>
 <$end>
