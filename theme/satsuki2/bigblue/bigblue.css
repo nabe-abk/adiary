@@ -579,7 +579,7 @@ blockquote, pre, div.box {
 div.body blockquote p {
 	margin:			0.2em 0.5em 0.2em 0;
 }
-pre {
+pre:not(.syntax-highlight) {
 	background-color:	#e1e4f2;			/* $c=prebg */
 }
 

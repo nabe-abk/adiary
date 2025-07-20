@@ -582,11 +582,13 @@ div.body ol ol {
 	margin-bottom:		0;
 }
 
-blockquote, pre, div.box {
+blockquote, div.box, pre {
 	margin:			12px 2em 12px 2em;
 	padding:		11px 1em 11px 1em;
 	border:			1px solid #ccc;			/* $c=fixborder */
 	border-radius:		4px;
+}
+blockquote, div.box, pre:not(.syntax-highlight) {
 	background-color:	#fff2f0;			/* $c=prebg */
 }
 div.body blockquote p,

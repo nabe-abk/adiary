@@ -502,8 +502,11 @@ blockquote, pre, div.box {
 	margin:			0.5em 2em 0.5em 2em;
 	padding:		0.3em 1em 0.3em 1em;
 	border-radius:		4px;
+}
+blockquote, div.box, pre:not(.syntax-highlight) {
 	background-color:	#f4f4ff;			/* $c=prebg */
 }
+
 div.body blockquote p {
 	margin:			0.2em 0.5em 0.2em 0;
 }

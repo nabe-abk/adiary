@@ -239,6 +239,22 @@ $$.init(function(){
 	this.prepend_css(css_file).attr('id', 'syntaxhighlight-theme');
 
 	this.load_script(this.ScriptDir + 'highlight.min.js', function(){
+		const buf = [];
+		hljs.addPlugin({
+			'before:highlightElement': ({el, language}) => {
+				el.innerHTML = el.innerHTML.replace(/\x1b/g, "");
+				for(const com of $(el).find('span.comment, strong.comment')){
+					buf.push(com.outerHTML);
+					com.innerHTML = "\x1b" + buf.length + "\x1b";
+				}
+			},
+			'after:highlightElement': ({ el, result, text }) => {
+				el.innerHTML = el.innerHTML.replace(/\x1b(?:\<span [^>]*>)?(\d+)(?:\<\/span>)?\x1b/g, (all, m1) => {
+					return buf[m1 - 1];
+				});
+			}
+		});
+
 		$codes.each(function(i, block) {
 			hljs.highlightBlock(block);
 

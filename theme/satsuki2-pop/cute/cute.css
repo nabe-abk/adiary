@@ -633,17 +633,16 @@ blockquote p + p {
 
 /* pre記法 */
 /*------------------------------------------------------------------*/
-article pre {
+article pre, pre.hljs  {
     font-family:            monospace;
     display:                block;
     position:               relative;
     z-index:                0;
-    background-color:       rbg(240,140,171);
-    background-color:       rgba(240, 140, 171, 0.3);
+    background-color:       rgba(240, 180, 223, 0.3);
 }
 
 pre span.comment {
-    color:                  #748cad;
+    color:                  #546ccd;
     font-family:            monospace;
 }
 

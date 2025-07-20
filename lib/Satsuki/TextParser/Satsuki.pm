@@ -226,6 +226,7 @@ push(@Blocks, {
 	start  => '>||#',
 	end    => '#||<',
 	tag    => 'pre',
+	class  => 'syntax-highlight',
 	bcom   => 1,
 	pre    => 1
 });
@@ -233,6 +234,7 @@ push(@Blocks, {
 	start  => '>||',
 	end    => '||<',
 	tag    => 'pre',
+	class  => 'syntax-highlight',
 	pre    => 1
 });
 push(@Blocks, {

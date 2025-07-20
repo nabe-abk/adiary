@@ -585,17 +585,13 @@ div.body-main pre {
     position:               relative;
     margin-left:            8px;
     z-index:                0;
+    overflow:               hidden;
 }
 
 div.body-main pre:before {
     position:               absolute;
     display:                block;
-    background-image:       url(box-bg.png), -moz-linear-gradient( top, white, #e8e4ed);
-    background-image:       url(box-bg.png), -webkit-gradient( linear, left top, left bottom, from(#ffffff), to(#e8e4ed));
-    background-image:       url(box-bg.png), -khtml-linear-gradient( top, white, #e8e4ed);
-    background-image:       url(box-bg.png), -ms-linear-gradient( top, white, #e8e4ed);
-    background-image:       url(box-bg.png), -o-linear-gradient( top, white, #e8e4ed);
-    background-image:       url(box-bg.png), -linear-gradient( top, white, #e8e4ed);
+    background-image:       url(box-bg.png), linear-gradient( top, white, #e8e4ed);
     content:                "";
     top:                    0;
     left:                   0;
@@ -608,11 +604,6 @@ div.body-main pre:before {
 div.body-main pre:after {
     position:               absolute;
     display:                block;
-    background-image:       -moz-linear-gradient( top, #e8e4ed, #e1dde6);
-    background-image:       -webkit-gradient( linear, left top, left bottom, from(#e8e4ed), to(#e1dde6));
-    background-image:       -khtml-linear-gradient( top, #e8e4ed, #e1dde6);
-    background-image:       -ms-linear-gradient( top, #e8e4ed, #e1dde6);
-    background-image:       -o-linear-gradient( top, #e8e4ed, #e1dde6);
     background-image:       linear-gradient( top, #e8e4ed, #e1dde6);
     content:                "";
     top:                    3px;
@@ -621,11 +612,6 @@ div.body-main pre:after {
     height:                 100%;
     box-shadow:             0 4px 10px rgba(0, 0, 0, 0.3);
     z-index:                -2;
-    -moz-transform:         rotate(-1.5deg);
-    -webkit-transform:      rotate(-1.5deg);
-    -khtml-transform:       rotate(-1.5deg);
-    -ms-transform:          rotate(-1.5deg);
-    -o-transform:           rotate(-1.5deg);
     transform:              rotate(-1.5deg);
 }
 
