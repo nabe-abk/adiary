@@ -27,7 +27,7 @@ And, '__cache' and 'data/' directories not permit to access from web.
 
 # 著作権表示(Copyright)
 
- Copyright (C)2013-2023 nabe@abk.
+ Copyright (C)2013-2025 nabe@abk.
 
 本プログラム（システム）はフリーソフトウェアです。
 
