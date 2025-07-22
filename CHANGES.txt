@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.51 : 2025/07/21
+*Ver3.51 : 2025/07/22
 
 -highlight.jsを最新版に入れ替えました。[https://github.com/nabe-abk/adiary/blob/master/js/highlight.lang-list.txt:対応言語リスト]。
 -pre記法（ブロック記法）使用時、標準でシンタックスハイライトが効くように変更しました。((古い記事に対して有効にしたい場合は、ブログの再構築をしてください。))
