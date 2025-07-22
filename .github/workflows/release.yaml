@@ -15,6 +15,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get Version String
+        run: |
+          echo "${{github.ref_name}}" | perl -e 'print "VERSION=" . (<STDIN> =~ /^.*?(\d+\.\d+(?:\.\d+)?\w*)/ ? $1 : "")' >> "$GITHUB_ENV"
+
+      - name: Check Version
+        run: |
+          if [ "$VERSION" = "" ]; then
+            echo "Version is not found!"
+            exit 99
+          fi
+
       - name: Get release script
         run: git clone --depth 1 https://github.com/nabe-abk/adiary-release-tools __tools/
 
@@ -31,7 +42,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Create Release
-        run: gh release create "${{github.ref_name}}" *.tar.bz2 *.zip
+        run: gh release create "${{github.ref_name}}" -t "Version $VERSION" -n "[Release note](https://adiary.adiary.jp/?&t=adiary::%e3%83%aa%e3%83%aa%e3%83%bc%e3%82%b9&q=$VERSION)." *.tar.bz2 *.zip
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
