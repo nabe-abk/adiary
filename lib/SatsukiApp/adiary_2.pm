@@ -571,6 +571,7 @@ sub set_description {
 	my $h    = shift;
 	my $ROBJ = $self->{ROBJ};
 	my $text = $h->{text};
+#	$h->{main_image}='';
 
 	while($text =~ /<img\s+(?:[\w-]+\s*=\s*"[^"]*"\s+)*src\s*=\s*"([^"]+)"/gi) {
 		my $img = $1;
