@@ -817,46 +817,7 @@ $$.init( function(){
 ////////////////////////////////////////////////////////////////////////////////
 //●twitterウィジェットのデザイン変更スクリプト
 ////////////////////////////////////////////////////////////////////////////////
-$$.twitter_css_fix = function(css_text){
-	var try_max  = 25;
-	var try_msec = 200;
-	function callfunc() {
-		var r=1;
-		if (try_max--<1) return;
-		try{
-			r = css_fix(css_text);
-		} catch(e) { ; }
-		if (r) setTimeout(callfunc, try_msec);
-	}
-	setTimeout(callfunc, try_msec);
-
-	function css_fix(css_text) {
-		var iframes = $('iframe');
-		var iframe;
-		var $doc;
-		for (var i=0; i<iframes.length; i++) {
-			iframe = iframes[i];
-			if (iframe.id.substring(0, 15) != 'twitter-widget-') continue;
-
-			var $doc = $(iframe.contentDocument || iframe.document);
-			break;
-		}
-		if (!$doc) return -1;
-		console.log($doc);
-
-		// wait load tweets
-	//	var tweet = $doc.find('.timeline-Tweet');
-	//	if (tweet.length < 1) return -2;
-
-		$(iframe).css('min-width', 0);
-		var css = $('<style>').attr({
-			id: 'add-tw-css',
-			type: 'text/css'
-		});
-		css.html(css_text);
-		$doc.find('head').append(css);
-	}
-}
+$$.twitter_css_fix = function(){}
 
 ////////////////////////////////////////////////////////////////////////////////
 //●月別過去ログリストのリロード
