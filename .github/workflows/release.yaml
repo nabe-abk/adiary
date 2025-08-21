@@ -17,7 +17,7 @@ jobs:
 
       - name: Get Version String
         run: |
-          echo "${{github.ref_name}}" | perl -e 'print "VERSION=" . (<STDIN> =~ /^.*?(\d+\.\d+(?:\.\d+)?\w*)/ ? $1 : "")' >> "$GITHUB_ENV"
+          echo "${{github.ref_name}}" | perl -e 'print "VERSION=" . (<STDIN> =~ /^.*?(\d+\.\d+(?:\.\d+)?\w*)/ ? $1 : "") . "\n"' >> "$GITHUB_ENV"
 
       - name: Check Version
         run: |
