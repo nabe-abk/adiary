@@ -15,7 +15,6 @@
 }
 #adiary-body {
 	margin:			0;
-	width:			626px;
 }
 #hatena-body {
 	padding-left:		2px;
@@ -30,65 +29,87 @@
 	border:			none;
 }
 
+:root {
+	--article-font-size:	12px;
+	--article-bg-adjust:	0px;
+}
+article section {
+	background-position-y:	var(--article-bg-adjust);
+}
+
 /*--------------------------------------------------------------------
 ■記事配置と標準の横幅
 --------------------------------------------------------------------*/
-#adiary-body {
-	width:			626px;
-}
-article {
-	width:			620px;
-}
-#viewport-setting {
-	min-width:		1px;
-	font-family:		"width=626";
+@media screen and (min-width: 550px) {
+	#viewport-setting {
+		min-width:	1px;
+		font-family:	"width=600";
+	}
+	#adiary-body {
+		width:		600px;
+	}
+	article {
+		width:		592px;
+	}
+
+	h2:before {
+		width:		calc(        17px*33   );	/* 561px */
+		left:		calc((100% - 17px*33)/2);
+	}
+	article.article div.body:before {
+		width:		calc(        28px*20.5);	/* 574px */
+		margin-left:	calc((100% - 28px*20.5)/2);
+	}
 }
 
 /*--------------------------------------------------------------------
 ■幅の設定（480px）
 --------------------------------------------------------------------*/
-@media screen and (min-width: 480px) and (max-width: 599px) {
-#adiary-body {
-	width:			480px;
+@media screen and (min-width: 400px) and (max-width: 549px) {
+	#viewport-setting {
+		min-width:	1px;
+		font-family:	"width=480";
+	}
+	#adiary-body {
+		width:		480px;
+	}
+	article {
+		width:		472px;
+	}
+
+	h2:before {
+		width:		calc(        17px*26   );	/* 442px */
+		left:		calc((100% - 17px*26)/2);
+	}
+	article.article div.body:before {
+		width:		calc(        28px*16.5);	/* 462px */
+		margin-left:	calc((100% - 28px*16.5)/2);
+	}
 }
-article {
-	width:			472px;
-}
-h2:before,
-#com div.caption:before {
-	width:			474px;
-	background-image:	url("art474_top.png");
-}
-article.article div.body:before {
-	background-image:	url("art474_header.png");
-}
-#viewport-setting {
-	min-width:		1px;
-	font-family:		"width=480";
-}
-}
+
 /*--------------------------------------------------------------------
 ■幅の設定（360px）
 --------------------------------------------------------------------*/
-@media screen and (max-width: 478px){
-#adiary-body {
-	width:			360px;
-}
-article {
-	width:			352px;
-}
-h2:before,
-#com div.caption:before {
-	width:			354px;
-	background-image:	url("art354_top.png");
-}
-article.article div.body:before {
-	background-image:	url("art354_header.png");
-}
-#viewport-setting {
-	min-width:		1px;
-	font-family:		"width=360";
-}
+@media screen and (max-width: 399px){
+	#viewport-setting {
+		min-width:	1px;
+		font-family:	"width=360";
+	}
+	#adiary-body {
+		width:		360px;
+	}
+	article {
+		width:		352px;
+	}
+
+	h2:before {
+		width:		calc(        17px*19   );	/* 323px */
+		left:		calc((100% - 17px*19)/2);
+	}
+	article.article div.body:before {
+		width:		calc(        28px*12.5);	/* 348px */
+		margin-left:	calc((100% - 28px*12.5)/2);
+	}
 }
 /*--------------------------------------------------------------------
 ■ヘッダ、フッタ
@@ -189,8 +210,8 @@ article ol ol {
 ○table, blockquote, pre
 --------------------------------------------------------------------*/
 .body table {
-	margin-left:		1em;
-	margin-right:		1em;
+	margin-left:		0;
+	margin-right:		0;
 }
 .body blockquote table,
 .body div.box table {

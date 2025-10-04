@@ -1,9 +1,17 @@
 @charset "UTF-8";
 /*******************************************************************************
   「すもも」テーマ
-					         (C)2015 nabe@abk
+					    (C)2015,2025 nabe@abk
 					Original (C)2007 GLANSHE
 *******************************************************************************/
+:root {
+	--article-font-size:	13px;
+	--article-line-height:	24px;
+	--article-h3-font-size:	20px;
+	--article-h4-font-size:	15px;
+	--article-bg-adjust:	-2px;
+}
+
 /* [TAB=8] */
 /*--------------------------------------------------------------------
 ■全体配置
@@ -22,7 +30,7 @@ body
 	line-height:		130%;
 }
 #adiary-body {
-	width:			804px;
+	width:			1004px;
 	margin:			0 auto;
 	padding:		0;
 }
@@ -44,13 +52,13 @@ body
 /* 記事部 */
 .main {
 	float:			right;
-	width:			620px;
+	width:			780px;
 }
 /* 左側にメニューを配置 */
 #sidebar
 {
 	float:			left;
-	width:			160px;
+	width:			200px;
 	margin:			0 0 0 4px;
 	padding:		0;
 
@@ -60,9 +68,18 @@ body
 /* フッタの配置 */
 #footer
 {
-	background-image:	url("footer.png");
-	background-repeat:	no-repeat;
-	background-position:	left top;
+	background-image:	url("tile.png");
+	clip-path: polygon(0px 200px,
+		  0px  0px,  20px 20px,  40px  0px,  60px 20px,  80px  0px, 100px 20px, 120px  0px, 140px 20px, 160px  0px, 180px 20px,
+		200px  0px, 220px 20px, 240px  0px, 260px 20px, 280px  0px, 300px 20px, 320px  0px, 340px 20px, 360px  0px, 380px 20px,
+		400px  0px, 420px 20px, 440px  0px, 460px 20px, 480px  0px, 500px 20px, 520px  0px, 540px 20px, 560px  0px, 580px 20px,
+		600px  0px, 620px 20px, 640px  0px, 660px 20px, 680px  0px, 700px 20px, 720px  0px, 740px 20px, 760px  0px, 780px 20px,
+		800px  0px, 820px 20px, 840px  0px, 860px 20px, 880px  0px, 900px 20px, 920px  0px, 940px 20px, 960px  0px, 980px 20px,
+		1000px 0px,
+		1010px 0px, 1010px 200px	/* for box-shadow */
+	);
+
+	display:		block;
 	padding:		80px 10px 0.8em 10px;
 
 	border-left:		2px solid #ccc;	/* $c=fixborder */
@@ -155,7 +172,7 @@ button:disabled
 	background-image:	linear-gradient(to bottom, #fff2f0, #ff9480);
 	background-position:	0 20px;
 	position:		relative;
-	width:			800px;
+	width:			1000px;
 
 	border:			solid 2px #ccc;	/* $c=fixborder */
 	border-top:		none;
@@ -186,9 +203,6 @@ a.welcome-name { margin: 0px 4px 0px 4px; }
 /* 見出し */
 h1
 {
-	background-image:	url("header.png");
-	background-repeat:	no-repeat;
-	background-position:	center top;
 	height:			134px;
 	padding:		0;
 	margin:			0;
@@ -199,6 +213,24 @@ h1
 	line-height:		100%;
 	text-align:		center;
 }
+h1:before {
+	content:		"";
+	height:			134px;
+	width:			100%;
+	display:		block;
+	position:		absolute;
+	background-image:	url("tile.png");
+
+	clip-path: polygon(1000px 0px, 0px 0px,
+		  0px 52px,  20px 32px,  40px 52px,  60px 32px,  80px 52px, 100px 32px, 120px 52px, 140px 32px, 160px 52px, 180px 32px,
+		200px 52px, 220px 32px, 240px 52px, 260px 32px, 280px 52px, 300px 32px, 320px 52px, 340px 32px, 360px 52px, 380px 32px,
+		400px 52px, 420px 32px, 440px 52px, 460px 32px, 480px 52px, 500px 32px, 520px 52px, 540px 32px, 560px 52px, 580px 32px,
+		600px 52px, 620px 32px, 640px 52px, 660px 32px, 680px 52px, 700px 32px, 720px 52px, 740px 32px, 760px 52px, 780px 32px,
+		800px 52px, 820px 32px, 840px 52px, 860px 32px, 880px 52px, 900px 32px, 920px 52px, 940px 32px, 960px 52px, 980px 32px,
+		1000px 52px
+	);
+}
+
 /*
 $option2:title=title
 $option2=title-shadow
@@ -211,8 +243,6 @@ h1 {
 		 3px  3px 2px #999;
 }
 -------------------- */
-
-
 
 h1 a:before {
 	content:		"";
@@ -348,14 +378,13 @@ article {
 	clear:			both;
 	position:		relative;
 
-	padding:		0;
+	padding:		14px 0 0 0;
 	margin:			40px 0 1.5em 0;
-	width:			618px;
+	width:			calc(100% - 2px);	/* 778 */
 
 	background-color:	#fff;
 	border:			1px solid #ccc;	/* $c=fixborder */
-	border-top:		none;
-	border-radius:		0 0 6px 6px;
+	border-radius:		6px;
 }
 #articles article + article {
 	margin-top:		60px;
@@ -369,14 +398,13 @@ h2:before {
 	display:		block;
 
 	position:		absolute;
-	left:			-1px;
 	top:			-23px;
 	height:			23px;
-	width:			620px;
+	width:			calc(        17px*44   );
+	left:			calc((100% - 17px*44)/2);
 
 	background-image:	url("art_top.png");
-	background-repeat:	no-repeat;
-	background-color:	#fff;
+	background-repeat:	repeat-x;
 }
 
 /* 記事タイトル */
@@ -410,34 +438,46 @@ article.article div.body:before {
 	height:			10px;
 	margin:			4px 0;
 
+	width:			calc(        28px*27.5);	/* 770px */
+	margin-left:		calc((100% - 28px*27.5)/2);
+
 	background-image:	url("art_header.png");
-	background-repeat:	no-repeat;
-	background-position:	center top;
+	background-repeat:	repeat-x;
 }
 
 /* 記事本文 */
 article div.body {
-	font-size:		90%;
-	line-height:		140%;
+	font-size:		var(--article-font-size);
+	line-height:		var(--article-line-height);
+
 	margin:			0px;
 	padding:		0 0 0.5em 0;
 }
-article.article div.body>div {
+article div.body>div {
 	padding-left:		12px;
 	padding-right:		12px;
 }
 article.article section {
-	font-size:		12px;
-	/* src/entry_lines.png */
-	background-image:	url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAwAQMAAADq/YLCAAAABlBMVEXk5OT///+sRXE5AAAAAnRSTlP/AOW3MEoAAAARSURBVAhbY2hgYiAeAgGJ6gFYOAFZxoAHTQAAAABJRU5ErkJggg==);
 	padding-left:		10px;
-	line-height:		200%;
+	padding-bottom:		1px;	/* margin相殺防止用 */
+
+	/* src/entry_lines.png */
+	background-image:	url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAYAQMAAAABAgWZAAAABlBMVEXk5OQAAACs+1crAAAAAnRSTlP/AOW3MEoAAAAOSURBVAjXY2hgIAUyAAAfvwuBRgBoGQAAAABJRU5ErkJggg==);
+	background-position-y:	var(--article-bg-adjust);
 }
+/*
+$option3:title=罫線
+$option3=none
+article.article section {
+	background-image:	none;
+}
+-------------------- */
+
 
 /* コンテンツ記事 */
 article.wiki,
 article.wiki h2:before {
-	background-color:	#fff9f9;		/* $c=wikibg */
+	background-color:	#ffffff;		/* $c=wikibg */
 }
 
 /* 記事ヘッダ */
@@ -451,21 +491,24 @@ div.art-info {
 
 /* 記事中のセクション */
 article section {
-	margin-top: 		0.5%;
-	margin-bottom:		3%;
+	margin: 		0.5em 0;
 }
 
 /* セクションフッタ */
 section footer {
 	font-size:		90%;
-	margin:			1.5em 1em 0 1em;
+	line-height:		2;
+
+	margin-top:		1.5em;
+	padding:		0.5em;
 	background-color:	#FFEFE5;		/* $c=footnotebg = auto:prebg */
 	border-radius:		6px;
 }
 /* 脚注 */
 section footer p.footnote {
-	margin-top:		0;
-	margin-bottom:		0;
+	margin:			0;
+	padding:		0;
+	text-indent:		0;
 }
 
 /* 記事フッタ */
@@ -500,9 +543,9 @@ span.tag:not(:last-child) {
 --------------------------------------------------------------------*/
 /* 見出し */
 div.body h3 {
-	font-size:		14pt;
+	font-size:		var(--article-h3-font-size);
 	font-weight:		bold;
-	margin:			20px 0 0 -10px;
+	margin:			1em 0 0 -10px;
 }
 div.body h3 a:before,
 div.body h4 a:before {
@@ -510,33 +553,39 @@ div.body h4 a:before {
 	content:		"";
 
 	margin-right:		4px;
-	border:			6px solid #f05;		/* $c=h3 = link */
+	border:			0 solid #f05;		/* $c=h3 = link */
+	border-width:		calc(var(--article-h3-font-size)/2.5);
 }
 div.body h4 a:before {
-	margin-right:		2px;
-	border-width:		4px;
-	border-radius:		4px;
+	border-width:		calc(var(--article-h4-font-size)/2.5);
 }
 
+div.body h4 a:before {
+	margin-right:		2px;
+	border-width:		5px;
+	border-radius:		5px;
+}
 div.body h3 span.timestamp {
-	font-size:		10pt;
+	font-size:		80%;
 	font-weight:		normal;
 }
 /* 小見出し */
 div.body h4,
 div.body h5,
 div.body h6 {
+	padding-top:		1px;
+	line-height:		calc(var(--article-line-height) - 1px);
+	font-size:		inherit;
 	color:			#f05;			/* $c=h3 */
-	font-size:		100%;
-	font-weight:		bold;
 	margin:			0 0 0 -10px;
 }
 div.body h4 {
-	margin-top:		24px;
-	font-size:		14px;
+	padding-top:		var(--article-line-height);	/* マージン相殺防止のため padding で処理 */
+	line-height:		var(--article-line-height);
+	font-size:		var(--article-h4-font-size);
 }
 div.body h3 + h4 {
-	margin-top:		0;
+	padding-top:		0;
 }
 
 
@@ -550,7 +599,6 @@ div.body h3 a:visited {
 	text-decoration:	none;
 }
 div.body h4 a, div.body h5 a {
-	font-size:		inherit;
 	color:			inherit;
 	text-decoration:	inherit;
 }
@@ -559,7 +607,7 @@ div.body h4 a, div.body h5 a {
 ■記事内部
 --------------------------------------------------------------------*/
 div.body p {
-	margin:			0 0.5em 0 0;
+	margin:			0;
 }
 div.body section h3 + p {
 	margin-top:		0;
@@ -568,11 +616,13 @@ div.body p.seemore {
 	margin-top:		2em;
 }
 
-
 div.body ul,
 div.body ol {
 	margin-top:		0;
 	margin-bottom:		0;
+}
+div.body li::marker {
+	line-height:		1;	/* need Firefox */
 }
 div.body ul ul,
 div.body ul ol,
@@ -589,7 +639,7 @@ blockquote, div.box, pre {
 	border-radius:		4px;
 }
 blockquote, div.box, pre:not(.syntax-highlight) {
-	background-color:	#fff2f0;			/* $c=prebg */
+	background-color:	#f6f4ff;			/* $c=prebg */
 }
 div.body blockquote p,
 div.body blockquote ul,
@@ -597,6 +647,17 @@ div.body blockquote ol {
 	margin-top:		0;
 	margin-bottom:		0;
 }
+div.body blockquote cite {
+	display:		block;
+	text-align:		right;
+	font-style:		italic;
+}
+div.body img {
+	box-sizing:		border-box;
+	height:			calc-size(auto, round(up, size, 24px));
+	vertical-align:		middle;
+}
+
 
 /* システムモード用 */
 article.system p,
@@ -659,35 +720,34 @@ dt { font-weight:	bold; }
 	border:			1px solid #aaa;
 }
 
+.body table {
+	margin-top:		11px;
+	margin-bottom:		12px;
+}
+.body table td,
+.body table th {
+	line-height:		21px;
+	font-size:		13px;
+	padding-top:		1px;
+	padding-bottom:		1px;
+}
+
 /*--------------------------------------------------------------------
 ●コメント欄
 --------------------------------------------------------------------*/
 #com {
-	margin-top:		44px;
+	margin-top:		2em;
 	padding:		0.5em 1em 1em 1em;
 	font-size:		10.5pt;
 	line-height:		150%;
 
-	border-radius:		0 0 8px 8px;
+	border-radius:		8px;
 	border:			1px solid #ccc;		/* $c=fixborder */
-	background-color:	#fff9f9;		/* $c=combg = wikibg */
+	background-color:	#fff9f9;		/* $c=combg */
 
 	position:		relative;
 }
-#com div.caption:before {
-	content:		"";
-	display:		block;
 
-	position:		absolute;
-	left:			-1px;
-	top:			-23px;
-	height:			23px;
-	width:			620px;
-
-	background-image:	url("art_top.png");
-	background-repeat:	no-repeat;
-	background-color:	#fff9f9;		/* $c=combg */
-}
 #com div.caption {
 	padding:		0;
 }
@@ -702,6 +762,10 @@ dt { font-weight:	bold; }
 	margin:			0 0 0 2em;
 	padding:		0;
 }
+#com form textarea {
+	width:			98%;
+}
+
 div.comment-one {
 	font-size:		10pt;
 	line-height:		130%;

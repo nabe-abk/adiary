@@ -7,19 +7,10 @@ License: GPL
 Smartphone: yes
 System-mode: yes
 
-・横幅固定の800px。
-・画像使用のため配色変更は一部のみ（微調整のみ）対応。
-
-記事の罫線が不要なときは、以下をユーザーCSSに設定してください。
-----------------------------------------------------------------
-article div.body section {
-	font-size:		inherit;
-	line-height:		inherit;
-	background-image:	none;
-}
-----------------------------------------------------------------
+・横幅固定の1000px。
 
 ChangeLog
 2007/10/27 初版
 2007/11/10 コンテンツバー対応
 2015/07/01 adiary Ver3に移植 (by nabe)
+2025/08/20 横幅1000pxに変更。
