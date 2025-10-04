@@ -7,7 +7,7 @@
 ■標準フォント設定
 --------------------------------------------------------------------*/
 html {
-	font-family:		"メイリオ", sans-serif;
+	font-family:		sans-serif;
 }
 
 /*--------------------------------------------------------------------
@@ -238,7 +238,10 @@ body:not(.amp) .for-amp {
 /* pre */
 pre {
 	font-family:		monospace;
-	overflow:		auto;
+	overflow-x:		auto;
+}
+div.math {
+	overflow-x:		auto;
 }
 
 /* フロートオブジェクト */
