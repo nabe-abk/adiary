@@ -80,7 +80,7 @@ $(function(){
 			if (!$fig.length) return;
 			dom = $fig[0];
 		}
-		console.log('load', dom);
+		// console.log('load', dom);
 		alian_lineheight(dom);
 	});
 });
