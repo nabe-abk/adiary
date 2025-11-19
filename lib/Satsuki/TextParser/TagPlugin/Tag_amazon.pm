@@ -54,7 +54,7 @@ sub amazon_search {
 	my $attr = $pobj->make_attr($ary, $tag);
 	   $name = $pobj->make_name($ary, $name);
 
-	return "<a href=\"https://www.amazon.co.jp/exec/obidos/external-search?mode=blended$asid&encoding-string-jp=$nihongo&keyword=$keyword\"$attr>$name</a>";
+	return "<a href=\"https://www.amazon.co.jp/s?mode=blended$asid&encoding-string-jp=$nihongo&keyword=$keyword\"$attr>$name</a>";
 }
 
 #-------------------------------------------------------------------------------
