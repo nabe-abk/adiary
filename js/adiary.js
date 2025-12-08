@@ -1011,8 +1011,15 @@ $(document).on('click', 'a[data-lightbox]', function(evt){
     	}
 
 	evt.preventDefault();
-	const data = $(this).data('lightbox').replace(/[^\w\-\.]/g, '');
-	$.fancybox.open($('a[data-lightbox="' + data + '"]'));
+	const data   = $(this).data('lightbox').replace(/[^\w\-\.]/g, '');
+	const $files = $('a[data-lightbox="' + data + '"]');
+
+	$.fancybox.open($files);
+	for(const i in $files) {
+		if ($files[i] !== this) continue;
+		$.fancybox.getInstance().jumpTo(i);
+		break;
+	}
 });
 
 $.fancybox.defaults.buttons = [
