@@ -1306,7 +1306,7 @@ function album_delete_files() {
 }
 $(document).on('keydown', function(evt) {
 	if (key_event_stop) return;
-	if ($('#lightbox').is(':visible')) return;
+	if ($('#fancybox-container-1').is(':visible')) return;
 	if ($('div.ui-dialog').is(':visible')) return;
 	if (evt.keyCode != 46) return;
 

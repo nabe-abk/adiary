@@ -63,7 +63,7 @@ MITライセンスやPerlライセンスだと大変助かります。
     * jQuery UI (MIT / GPLv2)
     * dynatree  (MIT)
     * Color Picker (MIT / GPL)
-  * Lightbox2 (MIT)
+  * Fancybox v3.5.7 (GPLv3)
   * highlight.js (BSD)
 
 ## Perl
