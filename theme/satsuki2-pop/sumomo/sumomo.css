@@ -652,7 +652,7 @@ div.body blockquote cite {
 	text-align:		right;
 	font-style:		italic;
 }
-div.body img {
+div.body-main img {
 	box-sizing:		border-box;
 	height:			calc-size(auto, round(up, size, 24px));
 	vertical-align:		middle;
