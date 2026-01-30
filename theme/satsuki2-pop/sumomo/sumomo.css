@@ -658,6 +658,14 @@ div.body-main img {
 	vertical-align:		middle;
 }
 
+div.body-main figcaption {
+	background-color:	#fff;
+	padding-top:		0.5em;
+	padding-bottom:		0.5em;
+}
+div.body-main div.math {
+	background-color:	#fff;
+}
 
 /* システムモード用 */
 article.system p,
