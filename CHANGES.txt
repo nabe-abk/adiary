@@ -3,7 +3,7 @@
 *Ver3.52 : 2025/xx/xx
 
 -MathJaxをv4.0へアップデート。
--ギャラリーソフトを Lightbox2 から Fancybox v3.5.7 に入れ替え。
+-ギャラリーソフトを Lightbox2 から [https://github.com/nabe-abk/fancybox-np:Fancybox-np] に入れ替え。
 -意味がなくなっていたTwitterウィジェットCSS細工ルーチンを削除。
 -math記法ブロックに対し "overflow-x: auto" を定義。
 -【記法】amazonタグのリンクを修正しました（スマホで表示されない）。

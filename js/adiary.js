@@ -1012,7 +1012,7 @@ $(document).on('click', 'a[data-lightbox]', function(evt){
 });
 
 $.fancybox.defaults.buttons = [
-	// "zoom",
+	"zoom",
 	"slideShow",
 	// "download",
 	"thumbs",

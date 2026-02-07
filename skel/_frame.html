@@ -23,7 +23,7 @@
 <@if(v.sphone,		#'<meta name="viewport" id="viewport" content="width=device-width">\n')>
 <@if(299 < v.sphone,	#'<style type="text/css"><!-- body { max-width: <@v.sphone>px; }</style>\n')>
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir>base.css<@if(v.sphone, get_lastmodified("?<@v.theme_dir>base.css"))>">
-<link rel="stylesheet" href="<@Basepath><@v.script_dir>fancybox/jquery.fancybox.min.css">
+<link rel="stylesheet" href="<@Basepath><@v.script_dir>fancybox/fancybox-np.min.css">
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css<@if(v.sphone, get_lastmodified("?<@v.theme_dir><@v.theme>/<@v.theme_name>.css"))>" id="theme-css">
 <@>
 <@ifexec(!v.special_system_mode && s.theme_custom && s.theme eq v.theme, begin)>
@@ -53,7 +53,7 @@
 <$else>
 <script defer src="<@Basepath><@v.script_dir>asys.min.js?<@get_lastmodified(v.script_dir . 'asys.min.js')>"></script>
 <$end>
-<script defer src="<@Basepath><@v.script_dir>fancybox/jquery.fancybox.min.js"></script>
+<script defer src="<@Basepath><@v.script_dir>fancybox/fancybox-np.min.js"></script>
 <script defer src="<@Basepath><@v.script_dir>adiary.js?<@get_lastmodified(v.script_dir . 'adiary.js')>"></script>
 <@forexec(t, v.load_jscss('jslib'), begin)>
 <script defer src="<@t>"></script>
