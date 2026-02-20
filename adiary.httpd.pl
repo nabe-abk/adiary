@@ -5,9 +5,9 @@ our $VERSION  = '1.24';
 our $SPEC_VER = '1.12';	# specification version for compatibility
 ################################################################################
 # Satsuki system - HTTP Server
-#					Copyright (C)2019-2023 nabe@abk
+#					Copyright (C)2019-2026 nabe@abk
 ################################################################################
-# Last Update : 2023/02/02
+# Last Update : 2026/02/20
 #
 BEGIN {
 	my $path = $0;
@@ -49,7 +49,8 @@ my $UNIX_SOCK;
 my $PATH      = '/';
 my $PORT      = $IsWindows ? 80 : 8888;
 my $ITHREADS  = $IsWindows;
-my $TIMEOUT   =  3;
+my $TIMEOUT   =  5;
+my $TIMEOUT_BIN;
 my $DEAMONS   = 10;
 my $KEEPALIVE = 1;
 my $BUFSIZE_u = '1M';	# 1MB
@@ -178,7 +179,7 @@ my %SIZE_UNIT = ('K' => 1024, 'M' => 1024*1024, 'G' => 1024*1024*1024);
 				print STDERR "Invalid argument: -$k option >>$val\n";	# debug-safe
 				exit(-1);
 			}
-			if ($k eq 't') { $TIMEOUT = $val; next; }
+			if ($k eq 't') { $TIMEOUT = $val+0; next; }
 
 			#---------------------------------------------
 			# integer argument
@@ -332,6 +333,16 @@ print(
 	. "\tStart up daemon: $DEAMONS " . ($ITHREADS ? 'threads' : 'process')
 	. ", Max cgi requests: $MAX_CGI_REQUESTS\n"
 );
+
+#-------------------------------------------------------------------------------
+# set TIMEOUT_BIN
+#-------------------------------------------------------------------------------
+if (1) {
+	my $sec  = int($TIMEOUT);
+	my $usec = ($TIMEOUT - $sec) * 1_000_000;
+	$TIMEOUT_BIN = pack('l!l!', $sec, $usec);
+}
+
 #-------------------------------------------------------------------------------
 # load mime types
 #-------------------------------------------------------------------------------
@@ -467,7 +478,7 @@ if ($GENERATE_CONF) {
 	# main thread
 	while(1) {
 		sleep(3);
-		$exit_daemons = $ITHREADS ? ($DEAMONS - $#{[ threads->list() ]} - 1) : $exit_daemons;
+		$exit_daemons = $ITHREADS ? ($DEAMONS - scalar(threads->list())) : $exit_daemons;
 		if (!$exit_daemons) { next; }
 
 		# Restart dead daemons
@@ -545,6 +556,7 @@ sub accept_client {
 	my $addr = shift;
 	my $bak  = shift;
 	binmode($sock);
+	setsockopt($sock, SOL_SOCKET, SO_RCVTIMEO, $TIMEOUT_BIN);	# invalid on windows
 
 	if ($PORT) {
 		my ($port, $ip_bin) = sockaddr_in($addr);
@@ -599,35 +611,30 @@ sub parse_request {
 	#---------------------------------------------------
 	my @header;
 	{
-		my $break;
-		my $bad_req;
-
-		local $SIG{ALRM} = sub { close($sock); $break=1; };
-		&my_alarm( $TIMEOUT, $sock );
+		if ($IsWindows) {
+			my $r = select(my $x = $R_BITS, undef, undef, $TIMEOUT);
+			if (!$r) { return; }
+		}
 
 		my $first=1;
 		while(1) {
 			my $line = <$sock>;
-			if (!defined $line)  {	# disconnect
-				$break=1;
-				last;
-			}
+			if (!defined $line) { return; }	# disconnect
+
 			$line =~ s/[\r\n]//g;
 
 			if ($first) {		# (example) HTTP/1.1 GET /
 				$first = 0;
-				$bad_req = &analyze_request($state, $line);
-				if ($bad_req) { last; }
+				my $bad_req = &analyze_request($state, $line);
+				if ($bad_req) {
+					return $state;
+				}
 				next;
 			}
 
 			if ($line eq '') { last; }
 			push(@header, $line);
 		}
-
-		&my_alarm(0);
-		if ($break)   { return; }
-		if ($bad_req) { return $state; }
 	}
 
 	#---------------------------------------------------
@@ -1037,25 +1044,6 @@ sub generate_random_string {
 		$str .= substr($_SALT, (int(rand(0x1000000) * $usec)>>8) & 0x3f, 1);
 	}
 	return $str;
-}
-
-#-------------------------------------------------------------------------------
-# alarm
-#-------------------------------------------------------------------------------
-sub my_alarm {
-	my $timeout = shift;
-	if (!$IsWindows && !$ITHREADS) {
-		return Time::HiRes::alarm($timeout);
-	}
-	# $IsWindows or $ITHREADS
-	if ($timeout <= 0) { return; }
-
-	my $sock = shift;
-	my $r = select(my $x = $R_BITS, undef, undef, $timeout);
-
-	if (!$r) {	# timeout
-		&{ $SIG{ALRM} }();
-	}
 }
 
 #-------------------------------------------------------------------------------
