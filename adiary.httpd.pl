@@ -82,14 +82,19 @@ my %MIME_TYPE = (
 	htm  => 'text/html',
 	text => 'text/plain',
 	txt  => 'text/plain',
+	md   => 'text/markdown',
 	css  => 'text/css',
 	js   => 'application/javascript',
 	json => 'application/json',
 	xml  => 'application/xml',
+	gif  => 'image/gif',
 	png  => 'image/png',
 	jpg  => 'image/jpeg',
 	jpeg => 'image/jpeg',
-	gif  => 'image/gif',
+	webp => 'image/webp',
+	m4a  => 'audio/mp4',
+	mp4  => 'video/mp4',
+	webm => 'video/webm',
 	ico  => 'image/vnd.microsoft.icon'
 );
 
