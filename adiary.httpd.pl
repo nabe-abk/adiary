@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use 5.14.0;
 use strict;
-our $VERSION  = '1.24';
+our $VERSION  = '1.25';
 our $SPEC_VER = '1.12';	# specification version for compatibility
 ################################################################################
 # Satsuki system - HTTP Server
@@ -48,7 +48,7 @@ my $GENERATE_CONF= 1;
 my $UNIX_SOCK;
 my $PATH      = '/';
 my $PORT      = $IsWindows ? 80 : 8888;
-my $ITHREADS  = $IsWindows;
+my $ITHREADS  =  1;
 my $TIMEOUT   =  5;
 my $TIMEOUT_BIN;
 my $DEAMONS   = 10;
@@ -222,7 +222,7 @@ Usage: $0 [options] [path]
 Available options are:
   path		working web path (default:/)
   -p port	bind port (default:8888, windows:80)
-  -t timeout	connection timeout second (default:3, min:0.001)
+  -t timeout	connection timeout second (default:5, min:0.001)
   -d daemons	start daemons (default:10, min:1)
   -m max_req	maximum cgi requests per daemon (default:10000, min:100)
   -e mime_file	load mime types file name (default: /etc/mime.types)
@@ -483,7 +483,7 @@ if ($GENERATE_CONF) {
 	while(1) {
 		sleep(3);
 		$exit_daemons = $ITHREADS ? ($DEAMONS - scalar(threads->list())) : $exit_daemons;
-		if (!$exit_daemons) { next; }
+		if ($exit_daemons<1) { next; }
 
 		# Restart dead daemons
 		## print STDERR "Restart daemons $exit_daemons\n";
