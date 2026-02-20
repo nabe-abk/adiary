@@ -379,9 +379,8 @@ if ($MIME_FILE && -e $MIME_FILE) {
 #-------------------------------------------------------------------------------
 {
 	my @dirs = &search_dir_file('.htaccess');
-	if (-r '.git') { push(@dirs, '.git'); }
 
-	print "\tDeny dirs: " . join('/, ', @dirs) . "/\n";
+	print "\tDeny dirs: " . join('/, ', @dirs) . "/ and .*/\n";
 	foreach(@dirs) {
 		$DENY_DIRS{$_}=1;
 	}
@@ -764,7 +763,10 @@ sub try_file_read {
 
 	$file =~ s|/+|/|g;
 	$file =~ s|\?.*||;
-	if ($file =~ m|/\.\./|) { return; }
+	if ($file =~ m|/\.\./|)   { return; }	# ignore parent dir
+	if ($file =~ m|^/\..*/|)  { return; }	# ignore .*/ dirs
+	if ($file =~ m|^/[^/]*$|) { return; }	# ignore current dir files
+
 	if ($INDEX && $file ne '/' && substr($file, -1) eq '/') {
 		$file .= $INDEX;
 	}
@@ -781,9 +783,6 @@ sub try_file_read {
 		if ($file ne '/favicon.ico') { return; }
 		$state->{type} = 'file';
 		return &_404_not_found($state);
-	}
-	if ($file =~ m|^/[^/]*$|) {	# ignore current dir files
-		return;
 	}
 
 	#---------------------------------------------------
