@@ -1059,7 +1059,7 @@ sub generate_random_string {
 sub open_browser_on_windows {
 	if ($IsWindows && $OPEN_BROWSER) {
 		my $url = 'http://' . $ENV{SERVER_NAME} . ($PORT==80 ? '' : ":$PORT");
-		system("cmd.exe /c start $url?login_auto");
+		system("cmd.exe /c start $url$PATH?login_auto");
 	}
 }
 
