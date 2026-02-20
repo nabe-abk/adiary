@@ -7,7 +7,7 @@ our $SPEC_VER = '1.12';	# specification version for compatibility
 # Satsuki system - HTTP Server
 #					Copyright (C)2019-2026 nabe@abk
 ################################################################################
-# Last Update : 2026/02/20
+# Last Update : 2026/02/21
 #
 BEGIN {
 	my $path = $0;
@@ -20,7 +20,7 @@ use Fcntl;
 use threads;		# for ithreads
 use POSIX;		# for waitpid(<pid>, WNOHANG);
 use Cwd;		# for $ENV{DOCUMENT_ROOT}
-use Time::HiRes;	# for ualarm() and generate random string
+use Time::HiRes;	# for generate random string
 #-------------------------------------------------------------------------------
 # Crypt patch for Windows
 #-------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ my $GENERATE_CONF= 1;
 my $UNIX_SOCK;
 my $PATH      = '/';
 my $PORT      = $IsWindows ? 80 : 8888;
-my $ITHREADS  =  1;
+my $ITHREADS  = $IsWindows;
 my $TIMEOUT   =  5;
 my $TIMEOUT_BIN;
 my $DEAMONS   = 10;
@@ -223,7 +223,7 @@ Available options are:
   path		working web path (default:/)
   -p port	bind port (default:8888, windows:80)
   -t timeout	connection timeout second (default:5, min:0.001)
-  -d daemons	start daemons (default:10, min:1)
+  -d max_con	maximum connections (default:10, min:1)
   -m max_req	maximum cgi requests per daemon (default:10000, min:100)
   -e mime_file	load mime types file name (default: /etc/mime.types)
   -c  fs_code	set file system's character code (default is auto)
@@ -335,7 +335,7 @@ print(
 		. " Timeout $TIMEOUT sec,"
 		. " Buffer ${BUFSIZE_u}B,"
 		. " Keep-Alive " . ($KEEPALIVE ? 'on' : 'off') . "\n"
-	. "\tStart up daemon: $DEAMONS " . ($ITHREADS ? 'threads' : 'process')
+	. "\tStart up: $DEAMONS " . ($ITHREADS ? 'threads' : 'process')
 	. ", Max cgi requests: $MAX_CGI_REQUESTS\n"
 );
 
@@ -456,6 +456,9 @@ if ($GENERATE_CONF) {
 ################################################################################
 {
 	$SIG{USR1} = sub {};	# wake up for main process
+	$SIG{PIPE} = 'IGNORE';	#
+	$SIG{CHLD} = 'IGNORE';	# thread's SIGNAL call to main thread
+	$SIG{ALRM} = 'IGNORE';	#
 
 	# prefork / create_threads
 	for(my $i=0; $i<$DEAMONS; $i++) {
@@ -1037,7 +1040,7 @@ sub search_dir_file {
 }
 
 #-------------------------------------------------------------------------------
-# deny directories
+# random string
 #-------------------------------------------------------------------------------
 sub generate_random_string {
 	my $_SALT = 'xL6R.JAX38tUanpyFfjZGQ49YceKqs2NOiwB/ubhHEMzo7kSC5VDPWrm1vgT0lId';
