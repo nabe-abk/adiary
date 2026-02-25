@@ -24,7 +24,7 @@
 <@if(299 < v.sphone,	#'<style type="text/css"><!-- body { max-width: <@v.sphone>px; }</style>\n')>
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir>base.css<@if(v.sphone, get_lastmodified("?<@v.theme_dir>base.css"))>">
 <link rel="stylesheet" href="<@Basepath><@v.script_dir>fancybox/fancybox-np.min.css">
-<link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css<@if(v.sphone, get_lastmodified("?<@v.theme_dir><@v.theme>/<@v.theme_name>.css"))>" id="theme-css">
+<link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css?<@get_lastmodified("<@v.theme_dir><@v.theme>/<@v.theme_name>.css")>" id="theme-css">
 <@>
 <@ifexec(!v.special_system_mode && s.theme_custom && s.theme eq v.theme, begin)>
 <link rel="stylesheet" href="<@Basepath><@s.theme_custom>?<@get_lastmodified(s.theme_custom)>" id="theme-custom-css">
@@ -62,7 +62,9 @@
 <script defer src="<@t>"></script>
 <$end>
 <$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">
-<@if(!js_stop && file_size(file), #'<script defer src="<@Basepath><@file>?<@get_lastmodified(file)>" id="theme-js"></script>\n')>
+<@ifexec(!js_stop && file_size(file))>
+<script defer src="<@Basepath><@file>?<@get_lastmodified(file)>" id="theme-js"></script>
+<$end>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
 <@v.extra_header>
 <@if(!v.system_mode, s.html_header_txt)>
