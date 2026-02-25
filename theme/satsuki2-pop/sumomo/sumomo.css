@@ -1,7 +1,7 @@
 @charset "UTF-8";
 /*******************************************************************************
   「すもも」テーマ
-					    (C)2015,2025 nabe@abk
+					    (C)2015-2026 nabe@abk
 					Original (C)2007 GLANSHE
 *******************************************************************************/
 :root {
@@ -9,7 +9,7 @@
 	--article-line-height:	24px;
 	--article-h3-font-size:	20px;
 	--article-h4-font-size:	15px;
-	--article-bg-adjust:	-2px;
+	--article-bg-adjust:	 0px;
 }
 
 /* [TAB=8] */

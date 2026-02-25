@@ -1,6 +1,6 @@
 'use strict';
 $(function(){
-	const TARGET    = '.main div.body-main figure, .main div.body-main table, .main div.body-main pre, .main div.body-main blockquote, .main div.body-main pre, .main div.body-main iframe';
+	const TARGET    = '.main div.body-main figure, .main div.body-main table, .main div.body-main div.math, .main div.body-main blockquote, .main div.body-main pre, .main div.body-main iframe';
 	const baseWidth = $('.main div.body-main').width() * 0.9;
 	const minMargin = 8;
 
