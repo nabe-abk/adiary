@@ -256,7 +256,7 @@ $$.init(function(){
 		});
 
 		$codes.each(function(i, block) {
-			hljs.highlightBlock(block);
+			hljs.highlightElement(block);
 
 			var $obj = $(block);
 			if (! $obj.hasClass('line-number')) return;
