@@ -1,14 +1,14 @@
 use strict;
 #-------------------------------------------------------------------------------
 # Markdown parser
-#                                              (C)2014-2024 nabe / nabe@abk.nu
+#                                              (C)2014-2026 nabe / nabe@abk
 #-------------------------------------------------------------------------------
 # [M]	is compatible to Markdown.pl.
 # [GFM] is compatible to GitHub Flavored Markdown.
 # [S]	is Satsuki syntax extension.
 #
 package Satsuki::TextParser::Markdown;
-our $VERSION = '1.30';
+our $VERSION = '1.31';
 #-------------------------------------------------------------------------------
 ################################################################################
 # Constructor
@@ -247,9 +247,9 @@ sub parse_block {
 				$file = " title=\"$file\"";
 			}
 			my $first = shift(@code);
-			push(@ary, "<div class=\"highlight\"><pre$class$file>$first");
+			push(@ary, "<pre$class$file>$first");
 			push(@ary, @code);
-			push(@ary, "</pre></div>\x02");
+			push(@ary, "</pre>\x02");
 			next;
 		}
 
