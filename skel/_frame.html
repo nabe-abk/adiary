@@ -22,8 +22,8 @@
 <@> テーマとユーザーCSSは最後に読み込む
 <@if(v.sphone,		#'<meta name="viewport" id="viewport" content="width=device-width">\n')>
 <@if(299 < v.sphone,	#'<style type="text/css"><!-- body { max-width: <@v.sphone>px; }</style>\n')>
-<link rel="stylesheet" href="<@Basepath><@v.theme_dir>base.css<@if(v.sphone, get_lastmodified("?<@v.theme_dir>base.css"))>">
 <link rel="stylesheet" href="<@Basepath><@v.script_dir>fancybox/fancybox-np.min.css">
+<link rel="stylesheet" href="<@Basepath><@v.theme_dir>base.css?<@get_lastmodified("<@v.theme_dir>base.css")>">
 <link rel="stylesheet" href="<@Basepath><@v.theme_dir><@v.theme>/<@v.theme_name>.css?<@get_lastmodified("<@v.theme_dir><@v.theme>/<@v.theme_name>.css")>" id="theme-css">
 <@>
 <@ifexec(!v.special_system_mode && s.theme_custom && s.theme eq v.theme, begin)>

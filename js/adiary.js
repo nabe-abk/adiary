@@ -381,6 +381,31 @@ $$.init( function(){
 });
 
 ////////////////////////////////////////////////////////////////////////////////
+//●preの内容コピー
+////////////////////////////////////////////////////////////////////////////////
+$$.init( function(){
+	const self = this;
+	const $copy = $('<button>').addClass('copy');
+	let timer;
+
+	this.$body.on('mouseenter', 'article pre', function(evt) {
+		const $pre = $(this);
+		if ($pre.innerHeight() < 20) return;
+		if (navigator.clipboard) $pre.append($copy);
+	});
+	$copy.on('click', function(evt) {
+		const $pre = $(this).closest('pre');
+		navigator.clipboard.writeText( $pre.text() );
+		$copy.addClass('copied');
+	});
+
+	this.$body.on('mouseleave', 'article pre', function(evt) {
+		$copy.detach();
+		$copy.removeClass('copied');
+	});
+});
+
+////////////////////////////////////////////////////////////////////////////////
 //●textareaでのタブ入力
 ////////////////////////////////////////////////////////////////////////////////
 $$.init( function(){

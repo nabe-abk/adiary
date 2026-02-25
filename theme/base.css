@@ -129,6 +129,9 @@ h5, h6 {
 pre {
 	white-space:	pre-wrap;
 }
+pre.syntax-highlight {
+	position:	relative;
+}
 
 /* nowrap */
 .nowrap {
@@ -501,6 +504,31 @@ textarea[readonly] {
 
 textarea {
 	display:		block;
+}
+
+/*--------------------------------------------------------------------
+●preコピー機能
+--------------------------------------------------------------------*/
+pre.syntax-highlight button.copy {
+	position:	absolute;
+	top:		6px;
+	right:		10px;
+	content:	"";
+	display:	block;
+	width:		24px;
+	height:		24px;
+
+	border:			none;
+	background-color:	transparent;
+	/* copy.png */
+	background-image: 	url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYBAMAAAASWSDLAAAAMFBMVEXLy8uQkJD///+ioqL8/Py2trb39/eampq0tLS7u7sAAAB2dnaKiore3t7FxcWMjIxVEXpkAAAAEHRSTlP//wD/////////////////8qlaxQAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAGxJREFUGNNjUEICDBiczFAQaIBwuIxB4IwTmMOY4gIEjFCOE4TExwEaVd0aGgvhAI0qNDb+6ATmwIyCcKAaiOK8bg0thHNmGRsbKMGVpbg4KSHpUcLLAZoDBIUQznWwNw0gYaACcpqLE0boAACbPjSGXk/MyAAAAABJRU5ErkJggg==);
+}
+pre.syntax-highlight button.copy.copied {
+	/* check.png */
+	background-image: 	url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYBAMAAAASWSDLAAAAMFBMVEX///4CmQP+/doBnEuSqQfh/f7Gviqn9P995PxepRgww9X67poAp4owmgAVtbP83nD02SSUAAAAEHRSTlMA////////////////////wFCLQwAAAFhJREFUGNNjYKAA7JQJgLOZJlogJNgEFyA4e5FVOUogJPgFnyI4KsIFCM5HKRhLFajFHK6kgf/iArgV5mwILYlyO+UQRglORNjCfVHwKMLgRGSHoVhJIgAAcqkQL+kHYWkAAAAASUVORK5CYII=);
+}
+pre.syntax-highlight button.copy:hover {
+	background-color:	rgba(0,0,0,0.05);
 }
 
 /*--------------------------------------------------------------------

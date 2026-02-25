@@ -4,6 +4,7 @@
 
 -MathJaxをv4.0へアップデート。
 -ギャラリーソフトを Lightbox2 から [https://github.com/nabe-abk/fancybox-np:Fancybox-np] に入れ替え。
+-記事中のpre領域にコピー機能を追加（https接続に限る）。
 -意味がなくなっていたTwitterウィジェットCSS細工ルーチンを削除。
 -math記法ブロックに対し "overflow-x: auto" を定義。
 -【記法】amazonタグのリンクを修正しました（スマホで表示されない）。
