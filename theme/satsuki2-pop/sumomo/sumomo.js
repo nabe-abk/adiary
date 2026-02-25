@@ -1,6 +1,6 @@
 'use strict';
 $(function(){
-	const TARGET    = '.main div.body-main figure, .main div.body-main table, .main div.body-main div, .main div.body-main blockquote, .main div.body-main pre, .main div.body-main iframe';
+	const TARGET    = '.main div.body-main figure, .main div.body-main table, .main div.body-main pre, .main div.body-main blockquote, .main div.body-main pre, .main div.body-main iframe';
 	const baseWidth = $('.main div.body-main').width() * 0.9;
 	const minMargin = 8;
 
@@ -31,8 +31,8 @@ $(function(){
 
 		let height = (objs.length-1) * minMargin;
 		for(const $o of objs) {
-			height += $obj.outerHeight();
-			$obj.css({
+			height += $o.outerHeight();
+			$o.css({
 				'margin-top':    minMargin + 'px',
 				'margin-bottom': minMargin + 'px',
 				'vertical-align':'middle'
@@ -46,12 +46,14 @@ $(function(){
 		const m = (diff/2) + 'px';
 		objs[0]            .css('margin-top',    m);
 		objs[objs.length-1].css('margin-bottom', m);
+
+		// console.log(dom, objs.length, height, line_h * mul, diff, m);
 	}
 
 	const observer = new MutationObserver(function(list){
 		const targets = [];
 		for(const x of list) {
-			const tar = $(x.target).closest(TARGET)[0];
+			const tar = $(x.target).parents(TARGET).last()[0] || x.target;
 			if (!tar) continue;
 
 			let f;

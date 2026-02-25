@@ -62,7 +62,7 @@
 <script defer src="<@t>"></script>
 <$end>
 <$file = "<@v.theme_dir><@v.theme>/<@v.theme_name>.js">
-<@if(!js_stop && file_size(file), #'<script defer src="<@Basepath><@file>" id="theme-js"></script>\n')>
+<@if(!js_stop && file_size(file), #'<script defer src="<@Basepath><@file>?<@get_lastmodified(file)>" id="theme-js"></script>\n')>
 	<title><@v.subtitle><@if(v.subtitle ne '',' - ')><@v.title></title>
 <@v.extra_header>
 <@if(!v.system_mode, s.html_header_txt)>
