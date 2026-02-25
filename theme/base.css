@@ -509,6 +509,9 @@ textarea {
 /*--------------------------------------------------------------------
 ●preコピー機能
 --------------------------------------------------------------------*/
+article.article pre {
+	position:	relative;
+}
 article.article pre button.copy {
 	position:	absolute;
 	top:		6px;

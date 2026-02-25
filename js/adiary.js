@@ -388,7 +388,7 @@ $$.init( function(){
 	const $copy = $('<button>').addClass('copy');
 	let timer;
 
-	this.$body.on('mouseenter', 'article pre', function(evt) {
+	this.$body.on('mouseenter', 'article.article pre', function(evt) {
 		const $pre = $(this);
 		if ($pre.innerHeight() < 20) return;
 		if (navigator.clipboard) $pre.append($copy);
@@ -399,7 +399,7 @@ $$.init( function(){
 		$copy.addClass('copied');
 	});
 
-	this.$body.on('mouseleave', 'article pre', function(evt) {
+	this.$body.on('mouseleave', 'article.article pre', function(evt) {
 		$copy.detach();
 		$copy.removeClass('copied');
 	});
