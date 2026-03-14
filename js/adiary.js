@@ -385,7 +385,7 @@ $$.init( function(){
 ////////////////////////////////////////////////////////////////////////////////
 $$.init( function(){
 	const self = this;
-	const $copy = $('<button>').addClass('copy');
+	const $copy = $('<button>').addClass('copy').attr('title', 'Copy');
 	let timer;
 
 	this.$body.on('mouseenter', 'article.article pre', function(evt) {
