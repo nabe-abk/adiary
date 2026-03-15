@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.52 : 2026/xx/xx
+*Ver3.52 : 2026/03/15
 
 -MathJaxをv4.0へアップデート。
 -ギャラリーソフトを Lightbox2 から [https://github.com/nabe-abk/fancybox-np:Fancybox-np] に入れ替え。
