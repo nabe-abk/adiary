@@ -126,19 +126,8 @@ table.plugins button {
 h5, h6 {
 	font-size:	100%;
 }
-pre {
-	white-space:	pre-wrap;
-}
 pre.syntax-highlight {
 	position:	relative;
-}
-
-/* nowrap */
-.nowrap {
-	white-space:	nowrap;
-}
-pre.nowrap {
-	white-space:	pre;
 }
 
 /* アスキーアート記法 */
@@ -238,13 +227,16 @@ body:not(.amp) .for-amp {
 	display:	none;
 }
 
-/* pre */
+/* pre, math, table-container */
 pre {
 	font-family:		monospace;
 	overflow-x:		auto;
 }
 div.math {
 	overflow-x:		auto;
+}
+div.table-container {
+	overflow-x:	scroll;
 }
 
 /* フロートオブジェクト */
