@@ -235,7 +235,7 @@ pre {
 div.math {
 	overflow-x:		auto;
 }
-div.table-container {
+article div.table-container {
 	overflow-x:	scroll;
 }
 
