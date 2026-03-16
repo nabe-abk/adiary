@@ -236,7 +236,7 @@ div.math {
 	overflow-x:		auto;
 }
 article div.table-container {
-	overflow-x:	scroll;
+	overflow-x:		auto;
 }
 
 /* フロートオブジェクト */
