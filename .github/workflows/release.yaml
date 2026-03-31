@@ -42,7 +42,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Create Release
-        run: gh release create "${{github.ref_name}}" -t "Version $VERSION" -n "[Release note](https://adiary.adiary.jp/?&t=adiary::%e3%83%aa%e3%83%aa%e3%83%bc%e3%82%b9&q=$VERSION)." *.tar.bz2 *.zip
+        run: gh release create "${{github.ref_name}}" -t "Version $VERSION" -n "[Release note](https://adiary.adiary.jp/?all=1&t=adiary::%e3%83%aa%e3%83%aa%e3%83%bc%e3%82%b9&q=$VERSION)." *.tar.bz2 *.zip
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
