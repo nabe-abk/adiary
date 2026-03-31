@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver3.52a : 2026/03/15 - 2026/03/17
+*Ver.3.52: 2026/03/15 - 2026/03/17
 
 -MathJaxをv4.0へアップデート。
 -ギャラリーソフトを Lightbox2 から [https://github.com/nabe-abk/fancybox-np:Fancybox-np] に入れ替え。
@@ -11,17 +11,17 @@
 -【テーマ】sumomoテーマを全面修正。
 -【httpd】接続タイムアウト処理の方法を変更（Windows環境を除く）。
 -【Fix】記事中から画像がなくなっても main_image が削除されない。
--【Ver3.52a/Fix】div.table-container が overflow-x: auto ではなく scroll になっていた。
+-【Ver.3.52a/Fix】div.table-container が overflow-x: auto ではなく scroll になっていた。
 -他
 
-*Ver3.51 : 2025/07/22
+*Ver.3.51: 2025/07/22
 
 -highlight.jsを最新版に入れ替えました。[https://github.com/nabe-abk/adiary/blob/master/js/highlight.lang-list.txt:対応言語リスト]。
 -pre記法（ブロック記法）使用時、標準でシンタックスハイライトが効くように変更しました。((古い記事に対して有効にしたい場合は、ブログの再構築をしてください。))
 -【記法】Google Chart APIの廃止に伴い、{{[tex], [qr]}}記法のリンク先を変更しました。
 -【テーマ】シンタックスハイライト記法使用時のpreの表示を調整しました。
 
-*Ver3.50 : 2023/02/02 - 2024/05/27
+*Ver.3.50: 2023/02/02 - 2024/05/27
 
 -[bf:Perl 5.14.0以降]が必要です。((Perl 5.8では動作しなくなりました。古いPerlを使用しているレンタルサーバの場合、レンタルサーバの設定画面からPerlを最新版に切り替えてください。))
 -表示以外でのIE11サポートを止めました。
