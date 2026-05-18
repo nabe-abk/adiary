@@ -508,7 +508,7 @@ article.article pre {
 article.article pre button.copy {
 	position:	absolute;
 	top:		6px;
-	right:		10px;
+/*	right:		10px;	*/	/* defined by adiary.js */
 	content:	"";
 	display:	block;
 	width:		24px;

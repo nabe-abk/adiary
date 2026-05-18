@@ -388,9 +388,15 @@ $$.init( function(){
 	const $copy = $('<button>').addClass('copy').attr('title', 'Copy');
 	let timer;
 
-	this.$body.on('mouseenter', 'article.article pre', function(evt) {
+	this.$body.on('mouseenter click scroll', 'article.article pre', function(evt) {
 		const $pre = $(this);
 		if ($pre.innerHeight() < 20) return;
+
+		const func = function(){
+			$copy.css('right', (10 - $pre[0].scrollLeft) + 'px');
+		};
+		func();
+		timer = setInterval(func, 500);
 		if (navigator.clipboard) $pre.append($copy);
 	});
 	$copy.on('click', function(evt) {
@@ -402,6 +408,7 @@ $$.init( function(){
 	this.$body.on('mouseleave', 'article.article pre', function(evt) {
 		$copy.detach();
 		$copy.removeClass('copied');
+		clearInterval(timer);
 	});
 });
 
