@@ -12,6 +12,7 @@
 -【httpd】接続タイムアウト処理の方法を変更（Windows環境を除く）。
 -【Fix】記事中から画像がなくなっても main_image が削除されない。
 -【Ver.3.52a/Fix】div.table-container が overflow-x: auto ではなく scroll になっていた。
+-【Ver.3.52b/Fix】sumomoテーマ修正。
 -他
 
 *Ver.3.51: 2025/07/22

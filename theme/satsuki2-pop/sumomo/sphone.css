@@ -187,6 +187,12 @@ not(.Fx) #side-search {		/* for Fx bug */
 #adiary-body figure {
 	max-width:		100%;
 	height:			auto;
+}
+#adiary-body .float,
+#adiary-body .float-l,
+#adiary-body .float-r {
+	margin-left:		0px;
+	margin-right:		0px;
 	float:			none;
 }
 #adiary-body textarea,

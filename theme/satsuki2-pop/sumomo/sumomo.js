@@ -1,5 +1,7 @@
 'use strict';
 $(function(){
+	const DEBUG = 0;
+
 	const TARGET    = '.main div.body-main figure, .main div.body-main table, .main div.body-main div.math, .main div.body-main blockquote, .main div.body-main pre, .main div.body-main iframe';
 	const baseWidth = $('.main div.body-main').width() * 0.9;
 	const minMargin = 8;
@@ -33,10 +35,11 @@ $(function(){
 		for(const $o of objs) {
 			height += $o.outerHeight();
 			$o.css({
-				'margin-top':    minMargin + 'px',
+				'margin-top':    '0px',
 				'margin-bottom': minMargin + 'px',
 				'vertical-align':'middle'
 			});
+			// CSSの条件によっては、マージンの相殺が発生しないため、マージンは片側だけ設定する。
 		}
 
 		const mul  = Math.ceil( (height + minMargin*2) /line_h );
@@ -47,7 +50,7 @@ $(function(){
 		objs[0]            .css('margin-top',    m);
 		objs[objs.length-1].css('margin-bottom', m);
 
-		// console.log(dom, objs.length, height, line_h * mul, diff, m);
+		if (DEBUG) console.log(dom, 'len=', objs.length, height, line_h * mul, diff, m);
 	}
 
 	const observer = new MutationObserver(function(list){
@@ -69,12 +72,6 @@ $(function(){
 		}
 	});
 
-	for(const dom of $(TARGET)) {
-		alian_lineheight(dom);
-
-		observer.observe(dom, { childList: true, subtree: true });
-	}
-
 	$('.main div.body-main img, .main div.body-main iframe').on('load', evt => {
 		let dom = evt.target;
 		if (dom.tagName === 'IMG') {
@@ -82,7 +79,14 @@ $(function(){
 			if (!$fig.length) return;
 			dom = $fig[0];
 		}
-		// console.log('load', dom);
+		if (DEBUG) console.log('load', dom);
 		alian_lineheight(dom);
 	});
+
+	for(const dom of $(TARGET)) {
+		alian_lineheight(dom);
+
+		observer.observe(dom, { childList: true, subtree: true });
+	}
+
 });
