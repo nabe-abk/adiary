@@ -2,7 +2,7 @@
 $(function(){
 	const DEBUG = 0;
 
-	const TARGET    = '.main div.body-main figure, .main div.body-main table, .main div.body-main div.math, .main div.body-main blockquote, .main div.body-main pre, .main div.body-main iframe';
+	const TARGET    = '.main article.article figure, .main article.article table, .main article.article div.math, .main article.article blockquote, .main article.article pre, .main article.article iframe';
 	const baseWidth = $('.main div.body-main').width() * 0.9;
 	const minMargin = 8;
 
@@ -13,21 +13,34 @@ $(function(){
 		let line_h = parseInt($obj.css('line-height'));
 		line_h = isNaN(line_h) ? 24 : line_h;		// default 24px;
 
-		const objs = [$obj];
-		if ($obj.outerWidth() > baseWidth) {	// 横に複数並ぶ figure を除外する
-			while(true) {
-				const $y = objs[0].prev(TARGET);
-				if (!$y.length) break;
-				const w  = $y.outerWidth();
-				if (w < baseWidth) break;
-				objs.unshift($y);
+		const _objs = [$obj];
+		const cssfl = $obj.css('float');
+		while(true) {
+			const $y = _objs[0].prev(TARGET);
+			if (!$y.length || $y.css('float') != cssfl) break;
+			_objs.unshift($y);
+		}
+		while(true) {
+			const $y = _objs[_objs.length-1].next(TARGET);
+			if (!$y.length || $y.css('float') != cssfl) break;
+			_objs.push($y);
+		}
+
+		// 横に並ぶ要素を除外する
+		let $c  = _objs.shift();
+		const objs = [$c];
+		for(const $o of _objs) {
+			const top    = $c[0].offsetTop;
+			const bottom = top + $c.outerHeight();
+			if (bottom < $o[0].offsetTop) {
+				// 横に並んでない
+				objs.push($o);
+				continue;
 			}
-			while(true) {
-				const $y = objs[objs.length-1].next(TARGET);
-				if (!$y.length) break;
-				const w  = $y.outerWidth();
-				if (w < baseWidth) break;
-				objs.push($y);
+			// 横に並んでいて、既存のものより縦に長い
+			if (bottom < $o[0].offsetTop + $o.outerHeight()) {
+				objs.pop();
+				objs.push($o);
 			}
 		}
 
@@ -75,7 +88,7 @@ $(function(){
 	$('.main div.body-main img, .main div.body-main iframe').on('load', evt => {
 		let dom = evt.target;
 		if (dom.tagName === 'IMG') {
-			const $fig = $(dom).closest('figure');
+			const $fig = $(dom).parents('figure').last();
 			if (!$fig.length) return;
 			dom = $fig[0];
 		}
