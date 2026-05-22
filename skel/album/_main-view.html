@@ -41,14 +41,16 @@
 
 	<div class="messages" id="upload-messages" style="display: none;"><@join("\n", Message)></div>
 
-	<form action="<@v.myself>?etc/ajax_dummy" method="POST" enctype="multipart/form-data" id="upload-form" target="form_response">
-	<input type="hidden" name="action" value="<@v.skel_dir>upload_form">
-	<input type="hidden" name="folder" value="" id="upload-folder">
 	<div id="dnd-files"></div>
 	<div id="file-btn-div">
 	<button type="button" class="js-file-btn" data-target="#file-btn">ファイルを選択</button>
 	<input type="file" name="_file_btn" multiple id="file-btn" class="display-none">
+	<@> Ajaxで送信する関係上、2重送信になるため、formに含めないこと。
 	</div>
+
+	<form action="<@v.myself>?etc/ajax_dummy" method="POST" enctype="multipart/form-data" id="upload-form" target="form_response">
+	<input type="hidden" name="action" value="<@v.skel_dir>upload_form">
+	<input type="hidden" name="folder" value="" id="upload-folder">
 	サムネイル<select name="size" id="thumbnail-size" class="r js-save js-combo" data-target="#size-other" data-format="%vpx">
 			<option value="120" selected>120px</option>
 			<option value="160">160px</option>
