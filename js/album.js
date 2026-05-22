@@ -1348,24 +1348,48 @@ function album_move_files() {
 dnd_body.on('dragover', function(evt) {
 	return false;
 });
-dnd_body.on("drop", function(evt) {
+dnd_body.on("drop", async function(evt) {
 	if (!evt.originalEvent.dataTransfer) return;
 
 	evt.stopPropagation();
 	evt.preventDefault();
-	var dnd_files = evt.originalEvent.dataTransfer.files;
-	if (!dnd_files) return;
-	if (!FormData)  return;
+	var items = evt.originalEvent.dataTransfer.items;
+	if (!items)    return;
+	if (!FormData) return;
 	if (uploading) return;
 
-	var files = [];
-	for(var i=0; i<dnd_files.length; i++)
-		files.push( dnd_files[i] );
+	const files = await search_items(items);
 
 	// アップロード
 	update_files_view(files)
 	ajax_upload(files);
 });
+
+async function search_items(items) {
+	const files = [];
+	for(const item of items) {
+		const entry = item.webkitGetAsEntry();
+		if (entry.isFile) {
+			files.push( item.getAsFile() );
+			continue;
+		}
+		if (entry.isDirectory) {
+			const dirReader = entry.createReader();
+			const results   = await new Promise(resolve => {
+				dirReader.readEntries(resolve);
+			});
+			for(const x of results) {
+				if (!x.isFile) continue;
+				const file = await new Promise((resolve, reject) => {
+					x.file(resolve, reject)
+				});
+				files.push( file );
+			}
+		}
+	}
+	return files;
+}
+
 
 function update_files_view(files) {
 	var $div = $('#dnd-files');
