@@ -12,8 +12,9 @@
 -【httpd】接続タイムアウト処理の方法を変更（Windows環境を除く）。
 -【Fix】記事中から画像がなくなっても main_image が削除されない。
 -【Ver.3.52a/Fix】div.table-container が overflow-x: auto ではなく scroll になっていた。
--【Ver.3.52b/Fix】
+-【Ver.3.52b】
 --preのコピーボタンの位置をスクロールに追従するように修正。
+--画像が1枚しか無い時、ホイールズームが機能しい問題を修正。
 --sumomoテーマ修正。
 -他
 
