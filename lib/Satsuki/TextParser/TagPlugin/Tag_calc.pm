@@ -197,6 +197,7 @@ $functions{'join'}  = sub {
 	join($x, @_);
 };
 $functions{'crypt'}  = sub { crypt($_[0], $_[1]) };
+$functions{'comma'} = sub { my $n = $_[0]; 1 while $n =~ s/(.*\d)(\d{3})/$1,$2/; $n; };
 
 #--- 配列関数 --------------------------
 $functions{'push'} = sub { my $ary=shift; push(@$ary, @_) };
