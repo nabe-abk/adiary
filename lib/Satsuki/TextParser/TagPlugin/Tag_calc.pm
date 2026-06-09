@@ -197,6 +197,7 @@ $functions{'join'}  = sub {
 	join($x, @_);
 };
 $functions{'crypt'}  = sub { crypt($_[0], $_[1]) };
+$functions{'comma'}  = sub { my $n=shift; while($n =~ s/^([^\.]*\d)(\d{3})/$1,$2/){}; $n; };
 
 #--- 配列関数 --------------------------
 $functions{'push'} = sub { my $ary=shift; push(@$ary, @_) };
@@ -209,9 +210,6 @@ $functions{'reverse'} = sub {[ reverse (ref($_[0]) ? @{ $_[0] } : @_) ]};
 
 #--- 条件分岐 --------------------------
 $functions{'if'} = sub { $_[0] ? $_[1] : $_[2] };
-
-
-
 
 ################################################################################
 # ■解析部
