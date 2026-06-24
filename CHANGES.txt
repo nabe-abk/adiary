@@ -1,6 +1,6 @@
 [UTF-8][Japanese]
 
-*Ver.3.52: 2026/03/15 - 2026/06/09
+*Ver.3.52: 2026/03/15 - 2026/06/24
 
 -MathJaxをv4.0へアップデート。
 -ギャラリーソフトを Lightbox2 から [https://github.com/nabe-abk/fancybox-np:Fancybox-np] に入れ替え。
@@ -20,6 +20,7 @@
 --sumomoテーマ修正。
 -【current】
 --calcタグにcomma関数を追加（[https://github.com/nabe-abk/adiary/pull/13/:Thanks to kjimba]）
+--【Fix】編集画面からファイルアプロード時、タグに正しく拡張子が設定されない（[https://github.com/nabe-abk/adiary/pull/14:Thanks to Lycolia]）
 -他
 
 *Ver.3.51: 2025/07/22
