@@ -507,7 +507,7 @@ function upload_files_insert(data, opt) {
 	let files = [];
 	for(var i=0; i<ary.length; i++) {
 		let file = ary[i];
-		let reg  = name.match(/\.(\w+)$/);
+		let reg  = file.name.match(/\.(\w+)$/);
 		let ext  = reg ? reg[1] : '';
 		files.push({
 			folder: opt.folder,
