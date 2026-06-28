@@ -228,7 +228,7 @@ sub adiary_link_base {
 	my ($pobj, $tag, $url, $name, $ary, $title) = @_;
 
 	# アンカー指定
-	if ($ary->[0] =~ /^\#[\w\.\-]*$/) {
+	if ($ary->[0] =~ /^#/) {
 		$name .= $ary->[0];
 		$url  .= shift(@$ary);
 	}
