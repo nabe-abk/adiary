@@ -21,6 +21,7 @@
 -【current】
 --calcタグにcomma関数を追加（[https://github.com/nabe-abk/adiary/pull/13/:Thanks to kjimba]）
 --【Fix】編集画面からファイルアプロード時、タグに正しく拡張子が設定されない（[https://github.com/nabe-abk/adiary/pull/14:Thanks to Lycolia]）
+--【Fix/記法】{{[key:]}}記法で、リンク先に日本語等のハッシュが指定できない。
 -他
 
 *Ver.3.51: 2025/07/22
