@@ -617,7 +617,8 @@ div.body p.seemore {
 }
 
 div.body ul,
-div.body ol {
+div.body ol,
+div.body dl {
 	margin-top:		0;
 	margin-bottom:		0;
 }
