@@ -371,15 +371,18 @@ sub parse_block {
 			my $blank=0;
 			my $ul_indent = -1;
 			my %p;
+			my %li_indent;
 			while(@list) {
 				$x = shift(@list);
-				if ($x =~ /^( ? ? ?)(?:\*|\+|\-|\d+\.) +(.*)$/
+				if ($x =~ /^( ? ? ?)(\*|\+|\-|\d+\.)( +)(.*)$/
 				 && ($ul_indent == -1 || length($1) == $ul_indent)) {
 					if (@$li) {
 						push(@ul, $li);
 					}
-					$li = [$2];
+					$li = [$4];
 					$ul_indent = length($1);
+					# 項目内容の開始位置（記号の幅 + 空白。空白5つ以上は1つとみなす）
+					$li_indent{$li} = length($2) + (length($3) > 4 ? 1 : length($3));
 					if ($blank) { $p{$li} = 1; }
 					$blank=0;
 					next;
@@ -415,9 +418,11 @@ sub parse_block {
 					push(@ary, $p{$li} ? "<li><p>$li->[0]</p></li>" : "<li>$li->[0]</li>");
 					next;
 				}
-				# [M] リストネスト時は先頭スペースを最大4つ除去する
+				# 項目の内容の開始位置（「- 」は2、「1. 」は3、「10. 」は4）まで先頭スペースを除去する
+				# ※これより多く除去すると、入れ子の内側の段で子の項目が親と同じ段になる
+				my $n = $li_indent{$li} || 2;
 				foreach(@$li) {
-					$_ =~ s/^  ? ? ?//;
+					$_ =~ s/^ {1,$n}//;
 				}
 
 				my $blk = $self->parse_nest_block( $li );
