@@ -78,6 +78,9 @@ sub parse {
 	$self->{sections} = [];
 	$self->{links}    = {};
 	$self->{ids}      = {};
+	$self->{footnotes}     = {};	# 脚注定義 [^id]: content
+	$self->{footnote_order}= [];	# 脚注の出現順序
+	$self->{footnote_refs} = {};	# 脚注ごとの参照の数
 
 	# parse main
 	$lines = $self->parse_block ($lines);
@@ -88,6 +91,9 @@ sub parse {
 	#-----------------------------------------
 	my $all = join("\n", @$lines);
 	$all =~ s|\n+\n</section>\x02|\n</section>\x02\n|g;
+
+	# Markdown脚注の出力
+	$self->output_markdown_footnotes(\$all);
 
 	# [S] <toc>
 	if ($self->{satsuki_tags} && $self->{satsuki_obj}) {
@@ -565,6 +571,37 @@ TEXT
 		}
 
 		#---------------------------------------------------------------
+		# [MD Extra] 脚注定義 [^id]: content
+		#---------------------------------------------------------------
+		if ($x =~ /^\[\^([^\]]+)\]:\s*(.*)$/) {
+			$self->p_block_end(\@ary, \@p_block, $pmode);
+			my $fn_id   = $1;
+			my $content = $2;
+
+			# 複数行の脚注内容を収集（インデントされた行）
+			# [GFM] 空行を挟んでも、次の行がインデントされていれば脚注の続き（次の段落）
+			while(@$lines) {
+				if ($lines->[0] =~ /^(    |\t)(.*)$/) {
+					$content .= "\n" . $2;
+					shift(@$lines);
+					next;
+				}
+				my $i = 0;
+				while($i <= $#$lines && $lines->[$i] =~ /^\s*$/) { $i++; }
+				if (!$i || $i > $#$lines || $lines->[$i] !~ /^(    |\t)/) { last; }
+				$content .= "\n" x $i;
+				splice(@$lines, 0, $i);
+			}
+
+			# 脚注を保存
+			$self->{footnotes}{$fn_id} = $content;
+
+			# 次が空行なら除去する
+			if (@$lines && $lines->[0] eq '') { shift(@$lines); }
+			next;
+		}
+
+		#---------------------------------------------------------------
 		# リンク定義。[M] 参照名が空文字の場合は無効
 		#---------------------------------------------------------------
 		if ($x =~ /^ ? ? ?\[([^\]]+)\]:\s*(.*?)\s*(?:\s*("[^\"]*"|'[^\']*')\s*)?\s*$/) {
@@ -723,6 +760,28 @@ sub parse_inline {
 			}
 		}eg;
 
+		# [MD Extra] 脚注参照 [^id]
+		$_ =~ s{\[\^([^\]]+)\]}{
+			my $fn_id = $1;
+			if (exists $self->{footnotes}{$fn_id}) {
+				# 出現順序を記録
+				if (!grep { $_ eq $fn_id } @{$self->{footnote_order}}) {
+					push(@{$self->{footnote_order}}, $fn_id);
+				}
+				my $num;
+				for my $i (0..$#{$self->{footnote_order}}) {
+					if ($self->{footnote_order}[$i] eq $fn_id) { $num = $i + 1; last; }
+				}
+				my $id = "fn-$fn_id";
+				# [GFM] 2回目以降の参照は fnref-id-2, fnref-id-3 …
+				my $n = ++$self->{footnote_refs}{$fn_id};
+				my $ref_id = "fnref-$fn_id" . ($n > 1 ? "-$n" : '');
+				"<sup id=\"$ref_id\"><a href=\"$self->{thisurl}#$id\">[$num]</a></sup>";
+			} else {
+				"[^$fn_id]";
+			}
+		}eg;
+
 		# [S] さつき記法のタグ処理
 		if ($self->{satsuki_tags}) {
 			$_ = $satsuki->parse_tag( $_, \&escape_special_char );
@@ -740,7 +799,7 @@ sub parse_inline {
 
 		if ($self->{gfm_ext}) {
 			$_ =~ s#(^|\W)_([^_]*)_(\W|$)#$1<em>$2</em>$3#g;		# [GFM]
-		} else {	
+		} else {
 			$_ =~ s|_( [^_]*)_ |<em>$1</em>|xg;				# [M]
 		}
 
@@ -804,6 +863,53 @@ sub tag_escape {
 		$_ =~ s/"/&quot;/g;
 	}
 	return $_[0];
+}
+
+#-------------------------------------------------------------------------------
+# ●Markdown脚注の出力
+#-------------------------------------------------------------------------------
+sub output_markdown_footnotes {
+	my $self = shift;
+	my $text_ref = shift;
+	my $order = $self->{footnote_order};
+	if (!@$order) { return; }
+
+	my $footnotes = $self->{footnotes};
+	my @out;
+	push(@out, '<div class="footnotes">');
+	push(@out, '<hr />');
+	push(@out, '<ol>');
+
+	foreach my $fn_id (@$order) {
+		# [GFM] 参照ごとに戻るリンクを付ける。2つ目からは番号を付ける
+		my $count = $self->{footnote_refs}{$fn_id} || 1;
+		my $backref = join(' ', map {
+			my $ref_id = "fnref-$fn_id" . ($_ > 1 ? "-$_" : '');
+			"<a href=\"$self->{thisurl}#$ref_id\">&#8617;" . ($_ > 1 ? "<sup>$_</sup>" : '') . '</a>';
+		} 1..$count);
+
+		my $content = $footnotes->{$fn_id};
+		my $parsed;
+		if ($content =~ /\n\s*\n/) {
+			# [GFM] 複数の段落は、本文と同じくブロックとして処理し、戻るリンクは最後の段落に入れる
+			my $blk = $self->parse_nest_block([ split(/\n/, $content) ]);
+			$parsed = $self->parse_inline([ grep { $_ ne '' } @$blk ]);
+			if ($parsed->[$#$parsed] !~ s|</p>([\x01\x02]*)$| $backref</p>$1|) {
+				push(@$parsed, $backref);
+			}
+		} else {
+			$parsed = $self->parse_inline([ split(/\n/, $content) ]);
+			$parsed->[$#$parsed] .= " $backref";
+		}
+		$content = join("\n", @$parsed);
+		my $id = "fn-$fn_id";
+		push(@out, "<li id=\"$id\">$content</li>");
+	}
+
+	push(@out, '</ol>');
+	push(@out, '</div>');
+
+	$$text_ref .= "\n" . join("\n", @out);
 }
 
 #-------------------------------------------------------------------------------
