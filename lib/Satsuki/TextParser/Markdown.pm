@@ -751,8 +751,13 @@ sub parse_inline {
 
 		# escape special charactor "<" ">"
 		if ($self->{escape_spchar}) {
+			# 置換の中で別の正規表現を使うと $2 が上書きされるため、先に取り出す
 			$_ =~ s!(.*?)(</[\w\-]+>|<[\w\-]+(?:\s+[\w\-]+(?:\s*=\s*(?:[^\s\"]+|"[^\"]*"))?)*\s*/?>|$)!
-				(($1 =~ s/</&lt;/rg) =~ s/>/&gt;/rg) . $2;
+				my $t   = $1;
+				my $tag = $2;
+				$t =~ s/</&lt;/g;
+				$t =~ s/>/&gt;/g;
+				$t . $tag;
 			!eg;
 		}
 	}
