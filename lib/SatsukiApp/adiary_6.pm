@@ -43,7 +43,8 @@ my @update_versions = (
 	{ ver => 3.32, plugin=>1 },
 	{ ver => 3.34, plugin=>1 },
 	{ ver => 3.40, plugin=>1 },
-	{ ver => 3.50, plugin=>1, func => 'sys_update_350' }
+	{ ver => 3.50, plugin=>1, func => 'sys_update_350' },
+	{ ver => 3.53, plugin=>1 }
 );
 #-------------------------------------------------------------------------------
 # ●システムアップデート

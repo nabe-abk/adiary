@@ -43,7 +43,7 @@
 	<$ifmessage(v.path_blogid && ! Auth.ok, "もしあなたが「ID:<@v.path_blogid>」ならばログインしてください。")>
 <$else>
   <$ifexec(##logs==-1, begin)>
-	<$ifset_status(v.query ne '', 404)>
+	<$ifset_status(v.query ne '' || v.pinfo ne '', 404)>
 	<$message("該当する記事がありません")>
   <$end>
 <$end>
