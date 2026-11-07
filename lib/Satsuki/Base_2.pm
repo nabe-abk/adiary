@@ -1189,9 +1189,9 @@ sub crypt {
 	if (substr($salt, 0, 1) eq '$') { return crypt($x, $salt); }
 
 	if (!defined $CRYPT_mode) {
-		$CRYPT_mode ||= crypt('', '$6$') ne '' ? '$6$' : '';	# SHA512
-		$CRYPT_mode ||= crypt('', '$5$') ne '' ? '$5$' : '';	# SHA256
-		$CRYPT_mode ||= crypt('', '$1$') ne '' ? '$1$' : '';	# MD5
+		$CRYPT_mode ||= 4 < length(crypt('', '$6$')) ne '' ? '$6$' : '';	# SHA512
+		$CRYPT_mode ||= 4 < length(crypt('', '$5$')) ne '' ? '$5$' : '';	# SHA256
+		$CRYPT_mode ||= 4 < length(crypt('', '$1$')) ne '' ? '$1$' : '';	# MD5
 	}
 	return $CRYPT_mode ? crypt($x, "$CRYPT_mode$salt") : crypt($x, $salt);
 }
