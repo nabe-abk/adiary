@@ -3,9 +3,9 @@ use 5.14.0;
 use strict;
 #-------------------------------------------------------------------------------
 # Satsuki system - Startup routine (for FastCGI)
-#					Copyright (C)2005-2023 nabe@abk
+#					Copyright (C)2005-2026 nabe@abk
 #-------------------------------------------------------------------------------
-# Last Update : 2023/02/15
+# Last Update : 2026/11/07
 #
 BEGIN {
 	unshift(@INC, './lib');
