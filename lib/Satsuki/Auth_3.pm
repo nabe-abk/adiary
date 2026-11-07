@@ -115,6 +115,7 @@ sub change_user_info {
 			$update{$_} = $form->{$_};
 		}
 	}
+	$update{id} = $self->{id};
 
 	#
 	# パスワード変更確認

@@ -5,6 +5,7 @@
 -【Fix】adiary.fcgiの、コマンド常駐モード時のスレッドバグを修正（[https://github.com/nabe-abk/adiary/pull/19:Thanks to Lycolia]）
 -【Fix】デザイン編集で、一部モジュールで使用しているヘルプアイコンが表示されない（Thanks to Lycolia）
 -【Fix】デザイン編集で、ヘルプアイコンをクリックした時の表示が崩れる。
+-【Fix】アカウント設定の、アカウント名変更が動作しない（Thanks to Lycolia）
 -【Fix/記法】フィルター記法で、YouTube の vid に"-"が含まれるとうまく動作しない（Thanks to Lycolia）
 
 *Ver.3.52: 2026/03/15
