@@ -319,11 +319,11 @@ function init_module(obj) {
 		info.addClass('ui-icon ui-icon-help ui-button ui-button-icon-only js-info');
 		info.attr({
 			onclick: '',
-			'data-url': obj.data("readme-url")
+			'data-url':   obj.data("readme-url"),
+			'data-title': obj.data('readme-title'),
+			'data-class': 'pre'
 		});
-		info.data('title', obj.data('readme-title'));
-		info.data('class', 'pre');
-			div.append(info);
+		div.append(info);
 	}
 
 	if (obj.data('setting')) {

@@ -1,7 +1,7 @@
 @charset "UTF-8";
 /*******************************************************************************
   adiary base CSS
-							(C)2015-2019 nabe@abk
+							(C)2015-2026 nabe@abk
 *******************************************************************************/
 /*--------------------------------------------------------------------
 ■標準フォント設定
@@ -1010,6 +1010,7 @@ figure.center, figure.c {
 .ui-icon-image	{ background-position: -32px 0px; }
 .ui-icon-close	{ background-position: -48px 0px; }
 .ui-icon-closethick { background-position: -64px 0px; }
+.ui-icon-help   { background-position: -80px 0px; }
 
 /* adiary original */
 .prev-page:before,
