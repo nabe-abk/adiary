@@ -55,9 +55,9 @@ if (!$Socket) {
 	while(1) {
 		sleep(3);
 		my $exit_threads = $Threads - $#{[ threads->list() ]} - 1;
-		if (!$exit_threads) { next; }
+		if ($exit_threads<1) { next; }
 
-		&create_threads( $Threads, $Socket );
+		&create_threads( $exit_threads, $Socket );
 	}
 }
 exit(0);
